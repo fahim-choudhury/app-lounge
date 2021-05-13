@@ -22,17 +22,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import androidx.annotation.RequiresApi
 import foundation.e.apps.BuildConfig
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 
 
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 class InstallSplitApksActivity : BaseActivity() {
     private  var apksBean: ApksBean?=null
 
@@ -40,7 +37,6 @@ class InstallSplitApksActivity : BaseActivity() {
         private const val KEY_PARAM = "params_apks"
         private const val PACKAGE_INSTALLED_ACTION = BuildConfig.APPLICATION_ID + ".SESSION_API_PACKAGE_INSTALLED"
 
-        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         fun newInstanceIntent(mActivity: Context, apksBean: ApksBean): Intent {
             return Intent(mActivity, InstallSplitApksActivity::class.java).apply {
                 this.putExtra(KEY_PARAM, apksBean)
