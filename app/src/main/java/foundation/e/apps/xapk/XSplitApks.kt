@@ -15,14 +15,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.XAPK
+package foundation.e.apps.xapk
 
-data class XApkInfo(var label: String,
-                    var packageName: String,
-                    var versionCode: Int,
-                    var versionName: String,
-                    var appSize: Long,
-                    var lastModified: Long,
-                    var path: String) {
-    constructor() : this(String(), String(), 0, String(), 0, 0, String())
-}
+import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
+
+data class XSplitApks(
+    @Expose
+    @SerializedName("file")
+    var fileName: String,
+    @Expose
+    @SerializedName("id")
+    var _id: String
+)

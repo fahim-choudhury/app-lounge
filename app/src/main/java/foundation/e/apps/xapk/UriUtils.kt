@@ -15,10 +15,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.XAPK
+package foundation.e.apps.xapk
 
-enum class ApkAssetType(val suffix: String) {
-    Apk(".apk"),
-    XAPK(".xapk"),
-    Apks(".apks")
+import android.content.Context
+import android.net.Uri
+import androidx.core.content.FileProvider
+import foundation.e.apps.BuildConfig
+import java.io.File
+
+object UriUtils {
+    private val fileProviderPath by lazy { "${BuildConfig.APPLICATION_ID}.fileprovider" }
+
+    fun fromFileProvider(mContext: Context, file: File): Uri {
+        return FileProvider.getUriForFile(mContext, fileProviderPath, file)
+    }
 }

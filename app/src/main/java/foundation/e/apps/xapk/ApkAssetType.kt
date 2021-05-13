@@ -15,16 +15,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.XAPK
+package foundation.e.apps.xapk
 
-import com.google.gson.annotations.Expose
-import com.google.gson.annotations.SerializedName
-
-data class XSplitApks(
-    @Expose
-    @SerializedName("file")
-    var fileName: String,
-    @Expose
-    @SerializedName("id")
-    var _id: String
-)
+enum class ApkAssetType(val suffix: String) {
+    Apk(".apk"),
+    XAPK(".xapk"),
+    Apks(".apks")
+}

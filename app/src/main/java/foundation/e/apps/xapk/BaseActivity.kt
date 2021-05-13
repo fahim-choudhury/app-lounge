@@ -15,24 +15,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.XAPK
+package foundation.e.apps.xapk
 
-import android.content.Context
-import android.content.Intent
-import java.io.File
+import android.os.Bundle
+import com.trello.rxlifecycle3.components.support.RxAppCompatActivity
 
-object IntentUtils {
-    fun installedApk(mContext: Context, filePath: String) {
-        if (FsUtils.exists(filePath)) {
-            Intent().apply {
-                this.action = Intent.ACTION_VIEW
-                this.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                this.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                this.setDataAndType(UriUtils.fromFileProvider(mContext, File(filePath)), "application/vnd.android.package-archive")
-                mContext.startActivity(this)
-            }
-        }
+abstract class BaseActivity : RxAppCompatActivity() {
+    protected val logTag: String by lazy { javaClass.simpleName }
+    protected val mContext by lazy { this }
+    protected val mActivity: BaseActivity by lazy { this }
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        nextStep()
+        finish()
     }
 
-
+    protected open fun nextStep() {}
 }

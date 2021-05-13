@@ -15,32 +15,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.XAPK
+package foundation.e.apps.xapk
 
-import com.google.gson.GsonBuilder
-import java.io.Reader
+import android.os.LocaleList
+import android.text.TextUtils
+import java.util.*
 
-
-object JsonUtils {
-    val gson by lazy { GsonBuilder().excludeFieldsWithoutExposeAnnotation().create() }
-
+class LocaleUtils {
 
 
-    fun <T> objectFromJson(json: Reader, classOfT: Class<T>): T? {
-        return try {
-            gson.fromJson(json, classOfT)
-        } catch (e: Exception) {
-            null
+    val systemLocal: Locale
+        get() {
+            return LocaleList.getDefault().get(0)
         }
 
+
+
+
+    private fun forLanguageTag(languageTag: String): Locale {
+        return Locale.forLanguageTag(languageTag)
     }
 
-
-
-
-
-
-
-
+    private fun toLanguageTag(locale: Locale): String {
+        val language = locale.language
+        val country = locale.country
+        val variant = locale.variant
+        return when {
+            TextUtils.isEmpty(country) -> language
+            TextUtils.isEmpty(variant) -> "$language-$country"
+            else -> "$language-$country-$variant"
+        }
+    }
 }
-

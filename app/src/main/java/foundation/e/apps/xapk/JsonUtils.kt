@@ -15,18 +15,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.XAPK
+package foundation.e.apps.xapk
 
-import android.content.Context
-import android.net.Uri
-import androidx.core.content.FileProvider
-import foundation.e.apps.BuildConfig
-import java.io.File
+import com.google.gson.GsonBuilder
+import java.io.Reader
 
-object UriUtils {
-    private val fileProviderPath by lazy { "${BuildConfig.APPLICATION_ID}.fileprovider" }
 
-    fun fromFileProvider(mContext: Context, file: File): Uri {
-        return FileProvider.getUriForFile(mContext, fileProviderPath, file)
+object JsonUtils {
+    val gson by lazy { GsonBuilder().excludeFieldsWithoutExposeAnnotation().create() }
+
+
+
+    fun <T> objectFromJson(json: Reader, classOfT: Class<T>): T? {
+        return try {
+            gson.fromJson(json, classOfT)
+        } catch (e: Exception) {
+            null
+        }
+
     }
+
+
+
+
+
+
+
+
 }
+

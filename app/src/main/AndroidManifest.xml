@@ -70,7 +70,7 @@
             android:name=".pwa.PwaInstaller"
             android:theme="@style/FullScreenTheme" />
         <activity
-            android:name=".XAPK.InstallSplitApksActivity"
+            android:name=".xapk.InstallSplitApksActivity"
             android:configChanges="screenSize|orientation|keyboardHidden"
             android:launchMode="singleInstance"
             android:theme="@style/AppTheme1"

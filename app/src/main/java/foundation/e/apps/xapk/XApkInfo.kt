@@ -15,11 +15,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.XAPK
+package foundation.e.apps.xapk
 
-data class ApkAssetBean(
-                        var xApkInfo: XApkInfo?,
-                        var sortPosition: Long,
-                        var apkAssetType: ApkAssetType) {
-    constructor() : this( null,  0L, ApkAssetType.XAPK)
+data class XApkInfo(var label: String,
+                    var packageName: String,
+                    var versionCode: Int,
+                    var versionName: String,
+                    var appSize: Long,
+                    var lastModified: Long,
+                    var path: String) {
+    constructor() : this(String(), String(), 0, String(), 0, 0, String())
 }

@@ -27,7 +27,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import foundation.e.apps.XAPK.FsUtils.deleteFileOrDir
+import foundation.e.apps.xapk.FsUtils.deleteFileOrDir
 import foundation.e.apps.utils.Constants
 import foundation.e.apps.utils.Constants.MICROG_SHARED_PREF
 import foundation.e.apps.utils.PreferenceStorage
