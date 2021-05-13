@@ -18,10 +18,11 @@
 package foundation.e.apps.home
 
 import android.os.Handler
+import android.os.Looper
 import androidx.viewpager.widget.ViewPager
 
 class ImageCarouselSwitcher(private var imagesCount: Int, private val imageCarousel: ViewPager) {
-    private val handler = Handler()
+    private val handler = Handler(Looper.getMainLooper())
     private val switchImageInterval = 2000L
 
     fun start() {

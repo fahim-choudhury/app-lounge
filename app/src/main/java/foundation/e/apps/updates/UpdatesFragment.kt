@@ -22,6 +22,7 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -161,7 +162,7 @@ class UpdatesFragment() : Fragment() {
                     reloadProgressBar.visibility=View.VISIBLE
                     application.checkForStateUpdate(requireContext())
                 }
-                val handler = Handler()
+                val handler = Handler(Looper.getMainLooper())
                 handler.postDelayed({
                     reloadProgressBar.visibility=View.GONE
                 }, 10000)

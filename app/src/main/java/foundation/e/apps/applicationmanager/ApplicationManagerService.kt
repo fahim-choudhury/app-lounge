@@ -19,10 +19,7 @@ package foundation.e.apps.applicationmanager
 
 import android.app.Service
 import android.content.Intent
-import android.os.Handler
-import android.os.IBinder
-import android.os.Message
-import android.os.Messenger
+import android.os.*
 
 class ApplicationManagerService : Service() {
 
@@ -38,7 +35,7 @@ class ApplicationManagerService : Service() {
         return messenger.binder
     }
 
-    private class SimpleHandler(private val applicationManager: ApplicationManager) : Handler() {
+    private class SimpleHandler(private val applicationManager: ApplicationManager) : Handler(Looper.getMainLooper()) {
 
         @Suppress("UNCHECKED_CAST")
         override fun handleMessage(msg: Message) {

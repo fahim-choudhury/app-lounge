@@ -26,6 +26,7 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.annotation.ColorRes
@@ -328,7 +329,7 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         this.doubleBackToExitPressedOnce = true;
         Toast.makeText(this, R.string.exit, Toast.LENGTH_SHORT).show();
 
-        Handler().postDelayed(Runnable() {
+        Handler(Looper.getMainLooper()).postDelayed(Runnable() {
             run {
                 doubleBackToExitPressedOnce = false;
             }
