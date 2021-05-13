@@ -46,5 +46,5 @@ enum class Error(val description: Int) {
         }
     }
 
-    class CustomException(val error: Error) : Exception(error.name.toLowerCase())
+    class CustomException(val error: Error) : Exception(error.name.lowercase())
 }
