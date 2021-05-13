@@ -25,67 +25,60 @@ class PreferenceStorage(val context: Context) {
 
     private val sharedPref: SharedPreferences = context.getSharedPreferences(MainActivity.sharedPrefFile, Context.MODE_PRIVATE)
 
-
+    /**
+     * Saves the given string into Shared Preferences
+     * @param KEY_NAME Name of the key, must be a [String]
+     * @param text, must be a [String]
+     */
     fun save(KEY_NAME: String, text: String) {
-
-        val editor: SharedPreferences.Editor = sharedPref.edit()
-
-        editor.putString(KEY_NAME, text)
-
-        editor.commit()
+        with(sharedPref.edit()) {
+            putString(KEY_NAME, text)
+            apply()
+        }
     }
 
+    /**
+     * Saves the given string into Shared Preferences
+     * @param KEY_NAME Name of the key, must be a [String]
+     * @param value, must be a [Int]
+     */
     fun save(KEY_NAME: String, value: Int) {
-        val editor: SharedPreferences.Editor = sharedPref.edit()
-
-        editor.putInt(KEY_NAME, value)
-
-        editor.commit()
+        with(sharedPref.edit()) {
+            putInt(KEY_NAME, value)
+            apply()
+        }
     }
 
+    /**
+     * Saves the given string into Shared Preferences
+     * @param KEY_NAME Name of the key, must be a [String]
+     * @param status, must be a [Boolean]
+     */
     fun save(KEY_NAME: String, status: Boolean) {
-
-        val editor: SharedPreferences.Editor = sharedPref.edit()
-
-        editor.putBoolean(KEY_NAME, status)
-
-        editor.commit()
+        with(sharedPref.edit()) {
+            putBoolean(KEY_NAME, status)
+            apply()
+        }
     }
 
-    fun getStringValue(KEY_NAME: String): String? {
+    /**
+     * Returns a value for the given key
+     * @param KEY_NAME Name of the key, must be a [String]
+     * @return Stored [String] value, can be null if the key doesn't exists
+     */
+    fun getStringValue(KEY_NAME: String) = sharedPref.getString(KEY_NAME, null)
 
-        return sharedPref.getString(KEY_NAME, null)
+    /**
+     * Returns a value for the given key
+     * @param KEY_NAME Name of the key, must be a [String]
+     * @return Stored [Int] value, can be 0 if the key doesn't exists
+     */
+    fun getInt(KEY_NAME: String) = sharedPref.getInt(KEY_NAME, 0)
 
-
-    }
-
-    fun getInt(KEY_NAME: String): Int {
-
-        return sharedPref.getInt(KEY_NAME, 0)
-    }
-
-    fun getBoolean(KEY_NAME: String, defaultValue: Boolean): Boolean {
-
-        return sharedPref.getBoolean(KEY_NAME, defaultValue)
-
-    }
-
-    fun clearSharedPreference() {
-
-        val editor: SharedPreferences.Editor = sharedPref.edit()
-
-        //sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-
-        editor.clear()
-        editor.commit()
-    }
-
-    fun removeValue(KEY_NAME: String) {
-
-        val editor: SharedPreferences.Editor = sharedPref.edit()
-
-        editor.remove(KEY_NAME)
-        editor.commit()
-    }
-
+    /**
+     * Returns a value for the given key
+     * @param KEY_NAME Name of the key, must be a [String]
+     * @return Stored [Boolean] value, can be [defaultValue] if the key doesn't exists
+     */
+    fun getBoolean(KEY_NAME: String, defaultValue: Boolean) = sharedPref.getBoolean(KEY_NAME, defaultValue)
 }
