@@ -21,9 +21,13 @@ import android.content.Context
 import android.content.SharedPreferences
 import foundation.e.apps.MainActivity
 
+/**
+ * Class containing methods to work with the [SharedPreferences] of the application
+ * @param context [Context]
+ */
 class PreferenceStorage(val context: Context) {
-
-    private val sharedPref: SharedPreferences = context.getSharedPreferences(MainActivity.sharedPrefFile, Context.MODE_PRIVATE)
+    private val sharedPref: SharedPreferences =
+        context.getSharedPreferences(MainActivity.sharedPrefFile, Context.MODE_PRIVATE)
 
     /**
      * Saves the given string into Shared Preferences
@@ -80,5 +84,6 @@ class PreferenceStorage(val context: Context) {
      * @param KEY_NAME Name of the key, must be a [String]
      * @return Stored [Boolean] value, can be [defaultValue] if the key doesn't exists
      */
-    fun getBoolean(KEY_NAME: String, defaultValue: Boolean) = sharedPref.getBoolean(KEY_NAME, defaultValue)
+    fun getBoolean(KEY_NAME: String, defaultValue: Boolean) =
+        sharedPref.getBoolean(KEY_NAME, defaultValue)
 }

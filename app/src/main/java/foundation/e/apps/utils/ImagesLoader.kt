@@ -25,49 +25,20 @@ import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 import javax.net.ssl.HttpsURLConnection
 
+/**
+ * Class containing various methods to work with the Images
+ * @param imagesUri An array of images URI
+ */
 class ImagesLoader(private val imagesUri: Array<String>) {
-
-    fun loadImages(): List<Bitmap> {
-        val queue = LinkedBlockingQueue<Image>()
-        startLoading(queue)
-        val images = waitResults(queue)
-        return sortByKey(images)
-    }
-
-    private fun startLoading(queue: BlockingQueue<Image>) {
-        imagesUri.forEachIndexed { i, uri ->
-            Image(uri, i).executeOnExecutor(Common.EXECUTOR, queue)
-        }
-    }
-
-    private fun waitResults(queue: BlockingQueue<Image>): List<Image> {
-        val result = ArrayList<Image>()
-        imagesUri.forEach {
-            result.add(queue.take())
-        }
-        return result
-    }
-
-    private fun sortByKey(images: List<Image>): List<Bitmap> {
-        val result = kotlin.arrayOfNulls<Bitmap>(images.size)
-        images.forEach {
-            result[it.key] = it.image
-        }
-        return makeNonNull(result)
-    }
-
-    private fun makeNonNull(images: Array<Bitmap?>): List<Bitmap> {
-        val result = ArrayList<Bitmap>()
-        images.forEach {
-            if (it != null) {
-                result.add(it)
-            }
-        }
-        return result
-    }
-
-    private class Image(private val uri: String, val key: Int) : AsyncTask<BlockingQueue<Image>, Any, Any>() {
-
+    /**
+     * Private class to be used by the parent class methods
+     *
+     * Loads the given Image using [AsyncTask] in background
+     * @param uri URI of the image to load
+     * @param key Key for the image to load
+     */
+    private class Image(private val uri: String, val key: Int) :
+        AsyncTask<BlockingQueue<Image>, Any, Any>() {
         var image: Bitmap? = null
 
         override fun doInBackground(vararg params: BlockingQueue<Image>): Any? {
@@ -89,4 +60,64 @@ class ImagesLoader(private val imagesUri: Array<String>) {
         }
     }
 
+    /**
+     * Loads the images in [imagesUri]
+     * @return A list containing [Bitmap]
+     */
+    fun loadImages(): List<Bitmap> {
+        val queue = LinkedBlockingQueue<Image>()
+        startLoading(queue)
+        val images = waitResults(queue)
+        return sortByKey(images)
+    }
+
+    /**
+     * Starts loading the images in [imagesUri]
+     * @param queue A [BlockingQueue] of type [Image]
+     */
+    private fun startLoading(queue: BlockingQueue<Image>) {
+        imagesUri.forEachIndexed { i, uri ->
+            Image(uri, i).executeOnExecutor(Common.EXECUTOR, queue)
+        }
+    }
+
+    /**
+     * Waits for the resultant image to be loaded and returns it
+     * @param queue A [BlockingQueue] of type [Image]
+     * @return A list of [Image]
+     */
+    private fun waitResults(queue: BlockingQueue<Image>): List<Image> {
+        val result = ArrayList<Image>()
+        imagesUri.forEach { _ ->
+            result.add(queue.take())
+        }
+        return result
+    }
+
+    /**
+     * Sorts the given list of [Image] by keys
+     * @return A sorted list of [Bitmap]
+     */
+    private fun sortByKey(images: List<Image>): List<Bitmap> {
+        val result = arrayOfNulls<Bitmap>(images.size)
+        images.forEach {
+            result[it.key] = it.image
+        }
+        return makeNonNull(result)
+    }
+
+    /**
+     * Filters out the null elements from the given array
+     * @param images An array of [Bitmap]
+     * @return A list of [Bitmap] without any null elements
+     */
+    private fun makeNonNull(images: Array<Bitmap?>): List<Bitmap> {
+        val result = ArrayList<Bitmap>()
+        images.forEach {
+            if (it != null) {
+                result.add(it)
+            }
+        }
+        return result
+    }
 }

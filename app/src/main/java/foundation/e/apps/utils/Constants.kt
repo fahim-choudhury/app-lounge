@@ -17,11 +17,12 @@
 
 package foundation.e.apps.utils
 
+/**
+ * Contains various constants to be used by required features in the project
+ */
 object Constants {
-
     // Global
     const val BASE_URL = "https://api.cleanapk.org/v2/"
-    const val SYSTEM_APP_DOWNLOAD_URL = "https://gitlab.e.foundation/api/v4/projects/"
     const val RELEASE_API = "https://gitlab.e.foundation/api/v4/projects/"
     const val RELEASE_ENDPOINT = "/releases"
     const val DOWNLOAD_URL = "https://apk.cleanapk.org/"
@@ -35,12 +36,12 @@ object Constants {
     const val MICROG_PACKAGE = "com.google.android.gms"
     const val MICROG_ID = 149
     const val MICROG = "microG Exposure Notification version"
-    const val MICROG_ICON_URI = "https://gitlab.e.foundation/uploads/-/system/project/avatar/149/ic_core_service_app.png?width=64"
+    const val MICROG_ICON_URI =
+        "https://gitlab.e.foundation/uploads/-/system/project/avatar/149/ic_core_service_app.png?width=64"
     const val MICROG_SHARED_PREF = "pref_microg_installed"
 
-
     // Search
-    const val MIN_SEARCH_TERM_LENGTH = 3;
+    const val MIN_SEARCH_TERM_LENGTH = 3
     const val RESULTS_PER_PAGE = 20
     const val SUGGESTION_KEY = "suggestion"
     const val SUGGESTIONS_RESULTS = 5

@@ -41,35 +41,62 @@ import java.util.concurrent.Executors
 import javax.net.ssl.HttpsURLConnection
 import kotlin.math.roundToInt
 
+/**
+ * Provides various useful methods to be used by every feature in the project
+ */
 object Common {
-
     val EXECUTOR = Executors.newCachedThreadPool()!!
 
-    /*
+    /**
+     * Provides an instance of [KeyDeserializer] class which implements the
+     * required functions to be used internally
+     */
+    private class LocalKeyDeserializer : KeyDeserializer() {
+        @RequiresApi(Build.VERSION_CODES.O)
+        override fun deserializeKey(p0: String?, p1: DeserializationContext?): Any? {
+            return Paths.get(p0)
+        }
+    }
+
+    /**
      * Checks if device has internet connection available or not
-     * @param context current Context
+     * @param context [Context]
      * @return true if internet connection is available, false otherwise
      */
     fun isNetworkAvailable(context: Context): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
 
         if (capabilities != null) {
             if (capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                    && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+                && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+            ) {
                 return true
             }
         }
         return false
     }
 
+    /**
+     * Converts the given [bytes] into mebibyte
+     * @param bytes bytes to convert
+     * @return converted mebibyte
+     */
     fun toMiB(bytes: Int): Double {
         val inMiB = bytes.div(1048576.0)
         return inMiB.times(10.0).roundToInt().div(10.0)
     }
 
+    /**
+     * Creates a secure network connection to the given URL and method
+     * @param url URL
+     * @param requestMethod request method defined in [HttpsURLConnection.setRequestMethod]
+     * @return an [HttpsURLConnection] to the given network
+     */
     fun createConnection(url: String, requestMethod: String): HttpsURLConnection {
-        val preferredLanguage =getAcceptedLanguageHeaderValue()
+        val preferredLanguage = getAcceptedLanguageHeaderValue()
         val connection = URL(url).openConnection() as HttpsURLConnection
         connection.setRequestProperty("Accept-Language", preferredLanguage)
         connection.requestMethod = requestMethod
@@ -78,9 +105,9 @@ object Common {
         return connection
     }
 
-    /*
+    /**
      * Checks if the given [packageName] is a system app or not
-     * @param packageManager current PackageManager
+     * @param packageManager [PackageManager]
      * @param packageName package to verify
      * @return true if the app is system app. false otherwise
      */
@@ -96,32 +123,47 @@ object Common {
         return false
     }
 
+    /**
+     * Checks if the given package has a launch activity or not
+     * @param context [Context]
+     * @param packageName package to verify
+     * @return [Boolean] indicating whether the package has a launch activity or not
+     */
     fun appHasLaunchActivity(context: Context, packageName: String?): Boolean {
         return (packageName?.let { context.packageManager.getLaunchIntentForPackage(it) } != null)
     }
 
+    /**
+     * Provides an [ObjectMapper] instance to work with Jackson library
+     */
     fun getObjectMapper(): ObjectMapper {
         val objectMapper = ObjectMapper()
-        var simpleModule =  SimpleModule()
-        simpleModule.addKeyDeserializer(Category::class.java,keyDeserializer())
-        objectMapper.registerModule(simpleModule);
+        val simpleModule = SimpleModule()
+        simpleModule.addKeyDeserializer(Category::class.java, LocalKeyDeserializer())
+        objectMapper.registerModule(simpleModule)
         objectMapper.registerKotlinModule()
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         objectMapper.registerKotlinModule()
         return objectMapper
     }
 
-    fun getAcceptedLanguageHeaderValue(): String {
+    /**
+     * Provides the accepted language header value
+     */
+    private fun getAcceptedLanguageHeaderValue(): String {
         var weight = 1.0F
         return getPreferredLocaleList()
-                .map { it.toLanguageTag() }
-                .reduce { accumulator, languageTag ->
-                    weight -= 0.1F
-                    "$accumulator,$languageTag;q=$weight"
-                }
+            .map { it.toLanguageTag() }
+            .reduce { accumulator, languageTag ->
+                weight -= 0.1F
+                "$accumulator,$languageTag;q=$weight"
+            }
     }
 
-    fun getPreferredLocaleList(): List<Locale> {
+    /**
+     * Provides a list containing preferred [Locale]
+     */
+    private fun getPreferredLocaleList(): List<Locale> {
         val adjustedLocaleListCompat = LocaleListCompat.getAdjustedDefault()
         val preferredLocaleList = mutableListOf<Locale>()
         for (index in 0 until adjustedLocaleListCompat.size()) {
@@ -130,9 +172,9 @@ object Common {
         return preferredLocaleList
     }
 
-    /*
+    /**
      * Updates shared preferences related to microG EN
-     * @param context Context
+     * @param context [Context]
      */
     fun updateMicroGStatus(context: Context) {
         val packageInfo = context.packageManager.getPackageInfo(MICROG_PACKAGE, 0)
@@ -146,17 +188,10 @@ object Common {
 
     /**
      * Returns system default accent color
+     * @param context [Context]
+     * @return default accent color for the system
      */
     fun getAccentColor(context: Context): Int {
         return context.getColor(foundation.e.apps.R.color.colorAccent)
     }
-}
-
-class keyDeserializer : KeyDeserializer() {
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun deserializeKey(p0: String?, p1: DeserializationContext?): Any? {
-        return Paths.get(p0)
-    }
-
-
 }

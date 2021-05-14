@@ -19,17 +19,32 @@ package foundation.e.apps.utils
 
 import android.os.AsyncTask
 
-class Execute(private val background: () -> Unit, private val after: () -> Unit) : AsyncTask<Any, Any, Any>() {
+/**
+ * Executes the given tasks given in constructors using [AsyncTask]
+ * @param background Task to run in background
+ * @param after Task to run after [background] task has been finished
+ */
+class Execute(private val background: () -> Unit, private val after: () -> Unit) :
+    AsyncTask<Any, Any, Any>() {
 
     init {
         executeOnExecutor(Common.EXECUTOR)
     }
 
+    /**
+     * Runs the given task in background
+     * @param params [Any]
+     * @return [Any]
+     */
     override fun doInBackground(vararg params: Any?): Any? {
         background.invoke()
         return null
     }
 
+    /**
+     * Runs the given task once the background task has finished
+     * @param result [Any]
+     */
     override fun onPostExecute(result: Any?) {
         after.invoke()
     }

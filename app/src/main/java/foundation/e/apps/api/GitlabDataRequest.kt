@@ -41,7 +41,7 @@ class GitlabDataRequest {
                 Array<ReleaseData>::class.java).toList()
         urlConnection.disconnect()
 
-        val osReleaseType = OsInfo().getOSReleaseType()
+        val osReleaseType = OsInfo.getOSReleaseType()
         var releaseUrl = ""
 
         releaseList[0].assets.links.forEach {

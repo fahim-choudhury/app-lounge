@@ -20,8 +20,14 @@ package foundation.e.apps.utils
 import android.os.Build
 import android.util.Log
 
-class OsInfo() {
-
+/**
+ * Contains methods related to OS
+ */
+object OsInfo {
+    /**
+     * Provides the release type of the OS on which the app is running
+     * @return [String] containing OS release type
+     */
     fun getOSReleaseType(): String {
         val buildTags = Build.TAGS.split(",").toTypedArray()
         var osReleaseType = ""
@@ -30,9 +36,7 @@ class OsInfo() {
                 osReleaseType = it.substringBefore("-release")
             }
         }
-
         Log.i("foundation.e.apps", "Release Type: $osReleaseType")
-
         return osReleaseType
     }
 

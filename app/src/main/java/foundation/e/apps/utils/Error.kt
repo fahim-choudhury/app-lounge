@@ -21,6 +21,10 @@ import foundation.e.apps.R
 import java.io.IOException
 import java.net.SocketTimeoutException
 
+/**
+ * Class containing various errors that can occur in the project
+ * @param description Type of error from this class
+ */
 enum class Error(val description: Int) {
     NO_RESULTS(R.string.error_no_results),
     NO_INTERNET(R.string.error_no_internet),
@@ -28,14 +32,19 @@ enum class Error(val description: Int) {
     REQUEST_TIMEOUT(R.string.error_request_timeout),
     UNKNOWN(R.string.error_unknown),
     APK_UNAVAILABLE(R.string.error_apk_unavailable),
-    APK_CORRUPT(R.string.error_apk_corrupt),
-    INSTALL_FAILED(R.string.error_install_failed),
     INVALID_PACKAGE_NAME(R.string.error_invalid_package_name),
     PACKAGE_ALREADY_EXISTS(R.string.error_package_already_exists),
     NO_ERROR(R.string.error_no_error),
     APK_INCOMPATIBLE(R.string.error_apk_incompatible);
 
+    private class CustomException(val error: Error) : Exception(error.name.lowercase())
+
     companion object {
+        /**
+         * Finds the type of error which occurred using the given exception
+         * @param e [Exception]
+         * @return The type of the [Error]
+         */
         fun findError(e: Exception): Error {
             return when (e::class) {
                 CustomException::class -> (e as CustomException).error
@@ -45,6 +54,4 @@ enum class Error(val description: Int) {
             }
         }
     }
-
-    class CustomException(val error: Error) : Exception(error.name.lowercase())
 }
