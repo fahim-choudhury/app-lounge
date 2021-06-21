@@ -48,24 +48,47 @@ class IntegrityVerificationTask(
     private var verificationSuccessful: Boolean = false
 
     override fun doInBackground(vararg context: Context): Context {
-        if (fullData.packageName == Constants.MICROG_PACKAGE) {
-            verificationSuccessful = true
-        } else {
-            verificationSuccessful = if (!fullData.getLastVersion()!!.apkSHA.isNullOrEmpty()) {
-                getApkFileSha1(applicationInfo.getApkOrXapkFile(context[0], fullData, fullData.basicData)) ==
-                        fullData.getLastVersion()!!.apkSHA
-            } else {
-                Security.addProvider(BouncyCastleProvider())
-                verifyAPKSignature(
-                        context[0],
-                        BufferedInputStream(FileInputStream(
-                                applicationInfo.getApkFile(context[0],
-                                        fullData.basicData).absolutePath)),
-                        fullData.getLastVersion()!!.signature.byteInputStream(Charsets.UTF_8),
-                        context[0].assets.open("f-droid.org-signing-key.gpg"))
-            }
+
+        if(isSystemApplication(fullData.packageName, context[0])){
+            verificationSignature(context[0]);
+        }
+        else if (isfDroidApplication(fullData.packageName)) {
+            verificationSignature(context[0]);
+        }
+        else{
+            verificationSignature(context[0]);
         }
         return context[0]
+    }
+
+    private fun isfDroidApplication(packageName: String): Boolean {
+        //implement in  vulner_3329 branch
+        //https://gitlab.e.foundation/e/backlog/-/issues/3329
+
+
+        return false;
+    }
+
+    private fun verificationSignature(context: Context) {
+        verificationSuccessful = if (!fullData.getLastVersion()!!.apkSHA.isNullOrEmpty()) {
+            getApkFileSha1(applicationInfo.getApkOrXapkFile(context, fullData, fullData.basicData)) ==
+                    fullData.getLastVersion()!!.apkSHA
+        } else {
+            Security.addProvider(BouncyCastleProvider())
+            verifyAPKSignature(
+                    context,
+                    BufferedInputStream(FileInputStream(
+                            applicationInfo.getApkFile(context,
+                                    fullData.basicData).absolutePath)),
+                    fullData.getLastVersion()!!.signature.byteInputStream(Charsets.UTF_8),
+                    context.assets.open("f-droid.org-signing-key.gpg"))
+        }
+    }
+
+    private fun isSystemApplication(packageName: String, context: Context): Boolean {
+        //implement in  vulner_3328 branch
+        // https://gitlab.e.foundation/e/backlog/-/issues/3328
+        return false;
     }
 
     override fun onPostExecute(context: Context) {
