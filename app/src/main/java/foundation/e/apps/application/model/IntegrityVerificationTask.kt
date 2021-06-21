@@ -23,6 +23,7 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import foundation.e.apps.R
+import foundation.e.apps.api.FDroidAppExistsRequest
 import foundation.e.apps.application.model.data.FullData
 import foundation.e.apps.utils.Constants
 import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -64,9 +65,21 @@ class IntegrityVerificationTask(
     private fun isfDroidApplication(packageName: String): Boolean {
         //implement in  vulner_3329 branch
         //https://gitlab.e.foundation/e/backlog/-/issues/3329
-
-
-        return false;
+        var fDroidAppExistsResponse: Int = 0
+        FDroidAppExistsRequest(fullData.packageName)
+                .request { applicationError, searchResult ->
+                    when (applicationError) {
+                        null -> {
+                            if (searchResult != null && searchResult.size > 0) {
+                                fDroidAppExistsResponse = searchResult[0]!!
+                            }
+                        }
+                        else -> {
+                            // Log.e("TAG", "error....."+applicationError)
+                        }
+                    }
+                }
+        return fDroidAppExistsResponse==200;
     }
 
     private fun verificationSignature(context: Context) {

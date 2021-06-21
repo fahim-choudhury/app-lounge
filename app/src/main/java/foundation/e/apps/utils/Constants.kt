@@ -68,4 +68,7 @@ object Constants {
     const val UPDATES_NOTIFICATION_CHANNEL_TITLE = "App updates"
     const val UPDATES_NOTIFICATION_CLICK_EXTRA = "updates_notification_click_extra"
 
+
+    //f-droid package url name
+    const val F_DROID_PACKAGES_URL = "https://f-droid.org/en/packages/"
 }
