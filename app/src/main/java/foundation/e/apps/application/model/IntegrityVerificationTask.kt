@@ -21,6 +21,7 @@ import android.content.Context
 import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.widget.Toast
 import foundation.e.apps.R
 import foundation.e.apps.api.FDroidAppExistsRequest
@@ -34,6 +35,7 @@ import org.bouncycastle.openpgp.PGPUtil
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider
 import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator
+import org.json.JSONArray
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
@@ -101,7 +103,28 @@ class IntegrityVerificationTask(
     private fun isSystemApplication(packageName: String, context: Context): Boolean {
         //implement in  vulner_3328 branch
         // https://gitlab.e.foundation/e/backlog/-/issues/3328
+        var obj = JSONArray(readJSONFromAsset(context));
+
+        //Log.e("TAG", "response package name...."+obj.getJSONObject(0).get("package_name"));
+
+        if(obj.getJSONObject(0).get("package_name")==packageName){
+            return true
+        }
+
         return false;
+    }
+
+    private fun readJSONFromAsset(context: Context): Any? {
+        var json: String? = null
+        try {
+            val  inputStream:InputStream = context.assets.open("systemApp.json")
+            json = inputStream.bufferedReader().use{it.readText()}
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            //return null
+        }
+
+        return json
     }
 
     override fun onPostExecute(context: Context) {
