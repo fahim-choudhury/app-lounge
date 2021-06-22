@@ -36,6 +36,7 @@ import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider
 import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator
 import org.json.JSONArray
+import org.json.JSONObject
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
@@ -53,12 +54,15 @@ class IntegrityVerificationTask(
     override fun doInBackground(vararg context: Context): Context {
 
         if(isSystemApplication(fullData.packageName, context[0])){
+            Log.e("TAG", "isSystemApplication");
             verificationSignature(context[0]);
         }
         else if (isfDroidApplication(fullData.packageName)) {
+            Log.e("TAG", "isfDroidApplication");
             verificationSignature(context[0]);
         }
         else{
+            Log.e("TAG", "else part .. not an isSystemApplication, not an isfDroidApplication");
             verificationSignature(context[0]);
         }
         return context[0]
@@ -103,12 +107,14 @@ class IntegrityVerificationTask(
     private fun isSystemApplication(packageName: String, context: Context): Boolean {
         //implement in  vulner_3328 branch
         // https://gitlab.e.foundation/e/backlog/-/issues/3328
-        var obj = JSONArray(readJSONFromAsset(context));
+        try {
+            var obj = JSONArray(readJSONFromAsset(context).toString());
 
-        //Log.e("TAG", "response package name...."+obj.getJSONObject(0).get("package_name"));
-
-        if(obj.getJSONObject(0).get("package_name")==packageName){
-            return true
+            if(obj.getJSONObject(0).get("package_name")==packageName){
+                return true
+            }
+        }catch (e : Exception){
+            e.printStackTrace();
         }
 
         return false;
@@ -119,10 +125,15 @@ class IntegrityVerificationTask(
         try {
             val  inputStream:InputStream = context.assets.open("systemApp.json")
             json = inputStream.bufferedReader().use{it.readText()}
+
+
+
         } catch (ex: Exception) {
             ex.printStackTrace()
-            //return null
+            return null
         }
+
+
 
         return json
     }
