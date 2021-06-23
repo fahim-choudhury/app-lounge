@@ -108,9 +108,9 @@ class IntegrityVerificationTask(
         //implement in  vulner_3328 branch
         // https://gitlab.e.foundation/e/backlog/-/issues/3328
         try {
-            var obj = JSONArray(readJSONFromAsset(context).toString());
-
-            if(obj.getJSONObject(0).get("package_name")==packageName){
+           var obj= JSONObject(readJSONFromAsset(context).toString())
+            if(null!=obj.get(packageName)){
+                ///Log.e("TAG","josn object ::: "+obj.get(packageName).toString());
                 return true
             }
         }catch (e : Exception){
