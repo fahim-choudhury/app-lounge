@@ -26,11 +26,13 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.net.Uri
-import android.nfc.Tag
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.util.Log
 import android.view.MenuItem
+import android.webkit.MimeTypeMap
+import android.webkit.URLUtil
 import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
@@ -52,12 +54,13 @@ import foundation.e.apps.home.HomeFragment
 import foundation.e.apps.search.SearchFragment
 import foundation.e.apps.settings.SettingsFragment
 import foundation.e.apps.updates.UpdatesFragment
-import foundation.e.apps.updates.UpdatesManager
 import foundation.e.apps.utils.Common
 import foundation.e.apps.utils.Constants
 import foundation.e.apps.utils.Constants.CURRENTLY_SELECTED_FRAGMENT_KEY
-
+import java.io.BufferedReader
+import java.io.File
 import kotlin.properties.Delegates
+
 
 class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemSelectedListener,
         ApplicationManagerServiceConnectionCallback {
@@ -109,7 +112,7 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 
 
         binding.bottomNavigationView.setOnNavigationItemSelectedListener{
-            if (selectFragment(it.itemId,it)) {
+            if (selectFragment(it.itemId, it)) {
                 disableCategoryIfOpenSource()
                 currentFragmentId = it.itemId
                 return@setOnNavigationItemSelectedListener true
@@ -141,12 +144,36 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
     }
 
     private fun systemAppJsonDown() {
-        var request= DownloadManager.Request(
-                Uri.parse(Constants.SYSTEM_PACKAGES_JSON_FILE_URL))
-                .setTitle("SystemJson")
-                //.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
-        var dm: DownloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        var myDownloadId = dm.enqueue(request)
+
+        val dmr = DownloadManager.Request(Uri.parse(Constants.SYSTEM_PACKAGES_JSON_FILE_URL))
+
+// If you know file name
+
+// If you know file name
+        //val fileName = "filename.xyz"
+
+//Alternative if you don't know filename
+
+//Alternative if you don't know filename
+        val fileName: String = URLUtil.guessFileName(Constants.SYSTEM_PACKAGES_JSON_FILE_URL, null, MimeTypeMap.getFileExtensionFromUrl(Constants.SYSTEM_PACKAGES_JSON_FILE_URL))
+
+        dmr.setTitle(fileName)
+        dmr.setDescription("Some descrition about file") //optional
+
+        dmr.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+        //dmr.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+       // dmr.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+       // applicationContext.getSystemService(DOWNLOAD_SERVICE).enqueue(dmr)
+        var dmNew: DownloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        var myDownloadId = dmNew.enqueue(dmr)
+
+        ///==========================================================
+//        var request= DownloadManager.Request(
+//                Uri.parse(Constants.SYSTEM_PACKAGES_JSON_FILE_URL))
+//                .setTitle("SystemJson.json")
+//                //.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
+//        var dm: DownloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+//        var myDownloadId = dm.enqueue(request)
 
 
         var br=object:BroadcastReceiver(){
@@ -154,7 +181,24 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
                 var id: Long? =p1?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
                 if (id==myDownloadId){
                    // Toast.makeText(applicationContext, "Download Completed", Toast.LENGTH_LONG).show()
-                    Log.i("MainActivity", "system package json download complete")
+                    Log.e("MainActivity", "system package json download complete")
+
+                   // val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath, "SystemJson.json") // Set Your File Name
+                    val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName)
+
+                    if (file.exists()) {
+                        Log.e("MainActivity", "......file existed..."+file.absolutePath)
+
+                        val bufferedReader: BufferedReader =File(file.absolutePath).bufferedReader();
+
+                        val inputString=bufferedReader.use{
+                            it.readText()
+                        }
+                        Log.e("MainActivity", ":::::"+inputString);
+
+                    }
+
+
                 }
             }
         }
@@ -163,16 +207,20 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 
     }
 
+
+
+
+
     override fun onResume() {
         super.onResume()
         Common.updateMicroGStatus(this)
     }
 
     private fun openSearchFragment() {
-        if (intent.getBooleanExtra(Constants.OPEN_SEARCH,false)) {
+        if (intent.getBooleanExtra(Constants.OPEN_SEARCH, false)) {
             currentFragmentId = R.id.menu_search
             val bundle = Bundle()
-            bundle.putString(Constants.MICROG_QUERY,"microg")
+            bundle.putString(Constants.MICROG_QUERY, "microg")
             searchFragment.arguments= bundle
         }
     }
@@ -184,7 +232,7 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
                         intArrayOf(android.R.attr.state_checked)), intArrayOf(
                         Color.parseColor("#C4CFD9"),
                         accentColorOS
-        ))
+                ))
 
         val textColorStates = ColorStateList(arrayOf(intArrayOf(-android.R.attr.state_checked), intArrayOf(android.R.attr.state_checked)), intArrayOf(
                 Color.parseColor("#C4CFD9"),
@@ -209,7 +257,7 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        if (selectFragment(item.itemId,item)) {
+        if (selectFragment(item.itemId, item)) {
             currentFragmentId = item.itemId
             return true
         }
