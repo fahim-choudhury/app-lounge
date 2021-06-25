@@ -25,6 +25,7 @@ import android.util.Log
 import android.widget.Toast
 import foundation.e.apps.R
 import foundation.e.apps.api.FDroidAppExistsRequest
+import foundation.e.apps.api.SystemAppExistsRequest
 import foundation.e.apps.application.model.data.FullData
 import foundation.e.apps.utils.Constants
 import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -53,15 +54,13 @@ class IntegrityVerificationTask(
 
     override fun doInBackground(vararg context: Context): Context {
 
-        if(isSystemApplication(fullData.packageName, context[0])){
+        if (isSystemApplication(fullData.packageName, context[0])) {
             Log.e("TAG", "isSystemApplication");
             verificationSignature(context[0]);
-        }
-        else if (isfDroidApplication(fullData.packageName)) {
+        } else if (isfDroidApplication(fullData.packageName)) {
             Log.e("TAG", "isfDroidApplication");
             verificationSignature(context[0]);
-        }
-        else{
+        } else {
             Log.e("TAG", "else part .. not an isSystemApplication, not an isfDroidApplication");
             verificationSignature(context[0]);
         }
@@ -85,7 +84,7 @@ class IntegrityVerificationTask(
                         }
                     }
                 }
-        return fDroidAppExistsResponse==200;
+        return fDroidAppExistsResponse == 200;
     }
 
     private fun verificationSignature(context: Context) {
@@ -107,25 +106,37 @@ class IntegrityVerificationTask(
     private fun isSystemApplication(packageName: String, context: Context): Boolean {
         //implement in  vulner_3328 branch
         // https://gitlab.e.foundation/e/backlog/-/issues/3328
+        var JsonResponse: String = ""
+        SystemAppExistsRequest(fullData.packageName)
+                .request { applicationError, searchResult ->
+                    when (applicationError) {
+                        null -> {
+                            if (searchResult != null && searchResult.size > 0) {
+                                JsonResponse = searchResult[0].toString()
+                            }
+                        }
+                        else -> {
+                            // Log.e("TAG", "error....."+applicationError)
+                        }
+                    }
+                }
         try {
-           var obj= JSONObject(readJSONFromAsset(context).toString())
-            if(null!=obj.get(packageName)){
-                ///Log.e("TAG","josn object ::: "+obj.get(packageName).toString());
+            if (null != JSONObject(JsonResponse).get(packageName)) {
+               // Log.e("TAG", "if package true " + JSONObject(JsonResponse).get(packageName).toString());
                 return true
             }
-        }catch (e : Exception){
-            e.printStackTrace();
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
 
-        return false;
+        return false
     }
 
     private fun readJSONFromAsset(context: Context): Any? {
         var json: String? = null
         try {
-            val  inputStream:InputStream = context.assets.open("systemApp.json")
-            json = inputStream.bufferedReader().use{it.readText()}
-
+            val inputStream: InputStream = context.assets.open("systemApp.json")
+            json = inputStream.bufferedReader().use { it.readText() }
 
 
         } catch (ex: Exception) {
@@ -206,7 +217,7 @@ class IntegrityVerificationTask(
             e.printStackTrace()
 
             Handler(Looper.getMainLooper()).post {
-                val toast = Toast.makeText(context, context.resources.getString(R.string.Signature_verification_failed),  Toast.LENGTH_LONG)
+                val toast = Toast.makeText(context, context.resources.getString(R.string.Signature_verification_failed), Toast.LENGTH_LONG)
                 toast.show()
             }
 

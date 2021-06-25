@@ -140,76 +140,8 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         bottom_navigation_view_color()
         openSearchFragment()
 
-        systemAppJsonDown()
-    }
-
-    private fun systemAppJsonDown() {
-
-        val dmr = DownloadManager.Request(Uri.parse(Constants.SYSTEM_PACKAGES_JSON_FILE_URL))
-
-// If you know file name
-
-// If you know file name
-        //val fileName = "filename.xyz"
-
-//Alternative if you don't know filename
-
-//Alternative if you don't know filename
-        val fileName: String = URLUtil.guessFileName(Constants.SYSTEM_PACKAGES_JSON_FILE_URL, null, MimeTypeMap.getFileExtensionFromUrl(Constants.SYSTEM_PACKAGES_JSON_FILE_URL))
-
-        dmr.setTitle(fileName)
-        dmr.setDescription("Some descrition about file") //optional
-
-        dmr.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
-        //dmr.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-       // dmr.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-       // applicationContext.getSystemService(DOWNLOAD_SERVICE).enqueue(dmr)
-        var dmNew: DownloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        var myDownloadId = dmNew.enqueue(dmr)
-
-        ///==========================================================
-//        var request= DownloadManager.Request(
-//                Uri.parse(Constants.SYSTEM_PACKAGES_JSON_FILE_URL))
-//                .setTitle("SystemJson.json")
-//                //.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
-//        var dm: DownloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-//        var myDownloadId = dm.enqueue(request)
-
-
-        var br=object:BroadcastReceiver(){
-            override fun onReceive(p0: Context?, p1: Intent?) {
-                var id: Long? =p1?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-                if (id==myDownloadId){
-                   // Toast.makeText(applicationContext, "Download Completed", Toast.LENGTH_LONG).show()
-                    Log.e("MainActivity", "system package json download complete")
-
-                   // val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath, "SystemJson.json") // Set Your File Name
-                    val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName)
-
-                    if (file.exists()) {
-                        Log.e("MainActivity", "......file existed..."+file.absolutePath)
-
-                        val bufferedReader: BufferedReader =File(file.absolutePath).bufferedReader();
-
-                        val inputString=bufferedReader.use{
-                            it.readText()
-                        }
-                        Log.e("MainActivity", ":::::"+inputString);
-
-                    }
-
-
-                }
-            }
-        }
-
-        registerReceiver(br, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
 
     }
-
-
-
-
 
     override fun onResume() {
         super.onResume()
