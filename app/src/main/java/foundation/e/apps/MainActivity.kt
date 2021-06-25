@@ -20,12 +20,16 @@ package foundation.e.apps
 
 
 import android.annotation.SuppressLint
+import android.app.DownloadManager
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.net.Uri
+import android.nfc.Tag
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.annotation.ColorRes
@@ -52,6 +56,7 @@ import foundation.e.apps.updates.UpdatesManager
 import foundation.e.apps.utils.Common
 import foundation.e.apps.utils.Constants
 import foundation.e.apps.utils.Constants.CURRENTLY_SELECTED_FRAGMENT_KEY
+
 import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemSelectedListener,
@@ -131,6 +136,31 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 
         bottom_navigation_view_color()
         openSearchFragment()
+
+        systemAppJsonDown()
+    }
+
+    private fun systemAppJsonDown() {
+        var request= DownloadManager.Request(
+                Uri.parse(Constants.SYSTEM_PACKAGES_JSON_FILE_URL))
+                .setTitle("SystemJson")
+                //.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
+        var dm: DownloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        var myDownloadId = dm.enqueue(request)
+
+
+        var br=object:BroadcastReceiver(){
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                var id: Long? =p1?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+                if (id==myDownloadId){
+                   // Toast.makeText(applicationContext, "Download Completed", Toast.LENGTH_LONG).show()
+                    Log.i("MainActivity", "system package json download complete")
+                }
+            }
+        }
+
+        registerReceiver(br, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+
     }
 
     override fun onResume() {

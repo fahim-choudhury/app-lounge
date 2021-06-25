@@ -71,4 +71,6 @@ object Constants {
 
     //f-droid package url name
     const val F_DROID_PACKAGES_URL = "https://f-droid.org/en/packages/"
+    const val SYSTEM_PACKAGES_JSON_FILE_URL = "https://gitlab.e.foundation/e/apps/apps/-/blob/vulner_3328/app/src/main/assets/systemApp.json"
+
 }
