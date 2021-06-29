@@ -21,9 +21,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <PreferenceCategory android:title="@string/preference_updates_title">
-
-        <Preference android:layout="@layout/preference_space" />
-
         <ListPreference
             android:defaultValue="@string/preference_update_interval_default"
             android:dialogTitle="@string/preference_update_interval_title"
@@ -33,53 +30,27 @@
             android:key="@string/pref_update_interval_key"
             android:summary="%s"
             android:title="@string/preference_update_interval_title" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/pref_update_notify_key"
+            android:summary="@string/preference_update_notify_available_description"
+            android:title="@string/preference_update_notify_available_title" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/pref_update_install_automatically_key"
+            android:summary="@string/preference_update_install_automatically_description"
+            android:title="@string/preference_update_install_automatically_title" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/pref_update_wifi_only_key"
+            android:summary="@string/preference_update_wifi_only_description"
+            android:title="@string/preference_update_wifi_only_title" />
     </PreferenceCategory>
 
-    <Preference
-        android:layout="@layout/preference_divider"
-        android:selectable="false" />
-
-
-    <CheckBoxPreference
-        android:defaultValue="true"
-        android:key="@string/pref_update_notify_key"
-        android:summary="@string/preference_update_notify_available_description"
-        android:title="@string/preference_update_notify_available_title" />
-
-    <Preference
-        android:layout="@layout/preference_divider"
-        android:selectable="false" />
-
-    <CheckBoxPreference
-        android:defaultValue="true"
-        android:key="@string/pref_update_install_automatically_key"
-        android:summary="@string/preference_update_install_automatically_description"
-        android:title="@string/preference_update_install_automatically_title" />
-
-    <Preference
-        android:layout="@layout/preference_divider"
-        android:selectable="false" />
-
-
-    <CheckBoxPreference
-        android:defaultValue="true"
-        android:key="@string/pref_update_wifi_only_key"
-        android:summary="@string/preference_update_wifi_only_description"
-        android:title="@string/preference_update_wifi_only_title" />
-
-    <Preference
-        android:layout="@layout/preference_divider"
-        android:selectable="false" />
-
-    <Preference
-        android:key="@string/pref_apps_request_app_key"
-        android:summary="@string/preference_apps_request_app_summary"
-        android:title="@string/preference_apps_request_app_title" />
-
     <PreferenceCategory android:title="@string/Show_applications">
-        <Preference
-            android:layout="@layout/preference_space"
-            android:selectable="false" />
         <foundation.e.apps.settings.RadioButtonPreference
             android:defaultValue="true"
             android:key="@string/Show_all_apps"
@@ -88,9 +59,17 @@
         <foundation.e.apps.settings.RadioButtonPreference
             android:key="@string/show_only_open_source_apps_key"
             android:title="@string/show_only_open_source_apps" />
+
         <foundation.e.apps.settings.RadioButtonPreference
             android:key="@string/show_only_pwa_apps_key"
             android:title="@string/show_only_pwa_apps" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/misc">
+        <Preference
+            android:key="@string/pref_apps_request_app_key"
+            android:summary="@string/preference_apps_request_app_summary"
+            android:title="@string/preference_apps_request_app_title" />
     </PreferenceCategory>
 
 </PreferenceScreen>

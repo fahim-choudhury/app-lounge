@@ -163,5 +163,7 @@
     <string name="divider">Divider</string>
     <string name="not_able_install">Not able to install this application! verification failed </string>
 
+    <!-- Miscellaneous -->
+    <string name="misc">Miscellaneous</string>
 
 </resources>
