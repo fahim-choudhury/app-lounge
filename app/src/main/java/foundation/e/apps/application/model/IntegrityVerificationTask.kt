@@ -64,12 +64,10 @@ class IntegrityVerificationTask(
         var verificationSignature: Boolean = false
 
         if (isSystemApplication(fullData.packageName, context[0])) {
-            Log.e("TAG", "isSystemApplication");
-            //verificationSignature(context[0]);
+            Log.i("TAG", "isSystemApplication");
             verificationSignature=verifySystemSignature(context[0])
         } else if (isfDroidApplication(fullData.packageName)) {
-            Log.e("TAG", "isfDroidApplication");
-            //verificationSignature(context[0]);
+            Log.i("TAG", "isfDroidApplication");
             verificationSignature=verifyFdroidSignature(context[0])
         }
 
