@@ -18,16 +18,21 @@
 package foundation.e.apps.application.model
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
+import android.util.Base64
 import android.util.Log
 import android.widget.Toast
+
 import foundation.e.apps.R
 import foundation.e.apps.api.FDroidAppExistsRequest
 import foundation.e.apps.api.SystemAppExistsRequest
 import foundation.e.apps.application.model.data.FullData
-import foundation.e.apps.utils.Constants
+import foundation.e.apps.utils.Common
+import org.bouncycastle.bcpg.PacketTags.SIGNATURE
+
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.openpgp.PGPCompressedData
 import org.bouncycastle.openpgp.PGPPublicKeyRingCollection
@@ -36,7 +41,6 @@ import org.bouncycastle.openpgp.PGPUtil
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider
 import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator
-import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedInputStream
 import java.io.File
@@ -45,6 +49,7 @@ import java.io.InputStream
 import java.security.MessageDigest
 import java.security.Security
 
+
 class IntegrityVerificationTask(
         private val applicationInfo: ApplicationInfo,
         private val fullData: FullData,
@@ -52,20 +57,55 @@ class IntegrityVerificationTask(
         AsyncTask<Context, Void, Context>() {
     private var verificationSuccessful: Boolean = false
 
+
     override fun doInBackground(vararg context: Context): Context {
+        //for all applications, check sha256sum
+        var isSHAverify = verifyShaSum(context[0])
+        var verificationSignature: Boolean = false
 
         if (isSystemApplication(fullData.packageName, context[0])) {
             Log.e("TAG", "isSystemApplication");
-            verificationSignature(context[0]);
+            //verificationSignature(context[0]);
+            verificationSignature=verifySystemSignature(context[0])
         } else if (isfDroidApplication(fullData.packageName)) {
             Log.e("TAG", "isfDroidApplication");
-            verificationSignature(context[0]);
-        } else {
-            Log.e("TAG", "else part .. not an isSystemApplication, not an isfDroidApplication");
-            verificationSignature(context[0]);
+            //verificationSignature(context[0]);
+            verificationSignature=verifyFdroidSignature(context[0])
         }
+
+        if(isSHAverify && verificationSignature){
+            verificationSuccessful =true;
+        }
+
         return context[0]
     }
+
+    private fun verifyShaSum(context: Context) :Boolean {
+        if (!fullData.getLastVersion()!!.apkSHA.isNullOrEmpty()) {
+            return getApkFileSha1(applicationInfo.getApkOrXapkFile(context, fullData, fullData.basicData)) ==
+                    fullData.getLastVersion()!!.apkSHA
+        }
+        return false;
+    }
+
+    private fun verifySystemSignature(context: Context): Boolean {
+        //Common.isSystemApp(context.packageManager, packageName)
+        return false
+
+    }
+
+    private fun verifyFdroidSignature(context: Context) : Boolean {
+
+        Security.addProvider(BouncyCastleProvider())
+        return verifyAPKSignature(
+                context,
+                BufferedInputStream(FileInputStream(
+                        applicationInfo.getApkFile(context,
+                                fullData.basicData).absolutePath)),
+                fullData.getLastVersion()!!.signature.byteInputStream(Charsets.UTF_8),
+                context.assets.open("f-droid.org-signing-key.gpg"))
+    }
+
 
     private fun isfDroidApplication(packageName: String): Boolean {
         //implement in  vulner_3329 branch
@@ -122,7 +162,7 @@ class IntegrityVerificationTask(
                 }
         try {
             if (null != JSONObject(JsonResponse).get(packageName)) {
-               // Log.e("TAG", "if package true " + JSONObject(JsonResponse).get(packageName).toString());
+                // Log.e("TAG", "if package true " + JSONObject(JsonResponse).get(packageName).toString());
                 return true
             }
         } catch (e: Exception) {
@@ -154,7 +194,7 @@ class IntegrityVerificationTask(
     }
 
     private fun getApkFileSha1(file: File): String? {
-        val messageDigest = MessageDigest.getInstance("SHA-1")
+        val messageDigest = MessageDigest.getInstance("SHA-256")
         val fileInputStream = FileInputStream(file)
         var length = 0
         val buffer = ByteArray(8192)
