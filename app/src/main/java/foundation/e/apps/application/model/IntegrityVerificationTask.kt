@@ -91,10 +91,12 @@ class IntegrityVerificationTask(
 
     private fun verifySystemSignature(context: Context): Boolean {
 
-        Log.e("TAG", "....data Signature......" + fullData.getLastVersion()!!.signature)
-        Log.e("TAG", "....get Signature......" + getSystemSignature(context.packageManager, context)?.toCharsString())
-
-
+        if (!fullData.getLastVersion()!!.signature.isNullOrEmpty()) {
+            Log.i("TAG", "....verifySystemSignature......true")
+            return fullData.getLastVersion()!!.signature ==
+                    getSystemSignature(context.packageManager, context)?.toCharsString()
+        }
+        Log.i("TAG", "....verifySystemSignature......false")
         return false
     }
 
