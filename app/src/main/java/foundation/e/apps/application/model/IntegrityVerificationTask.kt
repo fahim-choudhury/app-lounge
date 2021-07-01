@@ -18,21 +18,20 @@
 package foundation.e.apps.application.model
 
 import android.content.Context
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.content.pm.Signature
 import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
-import android.util.Base64
+import android.os.Trace
 import android.util.Log
+import android.util.Log.i
 import android.widget.Toast
-
 import foundation.e.apps.R
 import foundation.e.apps.api.FDroidAppExistsRequest
 import foundation.e.apps.api.SystemAppExistsRequest
 import foundation.e.apps.application.model.data.FullData
-import foundation.e.apps.utils.Common
-import org.bouncycastle.bcpg.PacketTags.SIGNATURE
-
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.openpgp.PGPCompressedData
 import org.bouncycastle.openpgp.PGPPublicKeyRingCollection
@@ -59,22 +58,26 @@ class IntegrityVerificationTask(
 
 
     override fun doInBackground(vararg context: Context): Context {
-        //for all applications, check sha256sum
-        var isSHAverify = verifyShaSum(context[0])
-        var verificationSignature: Boolean = false
+       try {
+           //for all applications, check sha256sum
+           var isSHAverify = verifyShaSum(context[0])
+           var verificationSignature: Boolean = false
 
-        if (isSystemApplication(fullData.packageName, context[0])) {
-            Log.i("TAG", "isSystemApplication");
-            verificationSignature=verifySystemSignature(context[0])
-        } else if (isfDroidApplication(fullData.packageName)) {
-            Log.i("TAG", "isfDroidApplication");
-            verificationSignature=verifyFdroidSignature(context[0])
-        }
+           if (isSystemApplication(fullData.packageName, context[0])) {
+               Log.i("TAG", "isSystemApplication");
+               verificationSignature=verifySystemSignature(context[0])
+           } else if (isfDroidApplication(fullData.packageName)) {
+               Log.i("TAG", "isfDroidApplication");
+               verificationSignature=verifyFdroidSignature(context[0])
+           }
 
-        if(isSHAverify && verificationSignature){
-            verificationSuccessful =true;
-        }
+           if(isSHAverify && verificationSignature){
+               verificationSuccessful =true;
+           }
 
+       }catch (e: Exception){
+           e.printStackTrace()
+       }
         return context[0]
     }
 
@@ -87,10 +90,32 @@ class IntegrityVerificationTask(
     }
 
     private fun verifySystemSignature(context: Context): Boolean {
-        //Common.isSystemApp(context.packageManager, packageName)
-        return false
 
+        Log.e("TAG", "....data Signature......" + fullData.getLastVersion()!!.signature)
+        Log.e("TAG", "....get Signature......" + getSystemSignature(context.packageManager, context)?.toCharsString())
+
+
+        return false
     }
+
+
+
+    private fun getFirstSignature(pkg: PackageInfo?): Signature? {
+        return if (pkg != null && pkg.signatures != null && pkg.signatures.size > 0) {
+            pkg.signatures[0]
+        } else null
+    }
+
+    private fun getSystemSignature(pm: PackageManager, context: Context): Signature? {
+        try {
+
+            val sys = pm.getPackageInfo("android", PackageManager.GET_SIGNATURES)
+            return getFirstSignature(sys)
+        } catch (e: PackageManager.NameNotFoundException) {
+        }
+        return null
+    }
+
 
     private fun verifyFdroidSignature(context: Context) : Boolean {
 
