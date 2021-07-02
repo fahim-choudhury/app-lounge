@@ -61,6 +61,7 @@ class IntegrityVerificationTask(
        try {
            //for all applications, check sha256sum
            var isSHAverify = verifyShaSum(context[0])
+           Log.e("TAG", "isSHAverify.."+isSHAverify);
            var verificationSignature: Boolean = false
 
            if (isSystemApplication(fullData.packageName, context[0])) {
@@ -78,9 +79,6 @@ class IntegrityVerificationTask(
 
            if(isSHAverify && verificationSignature){
                verificationSuccessful =true;
-           }else{
-               //message for the user because app is not install and update at this moment
-                Toast.makeText(context[0], R.string.not_able_install, Toast.LENGTH_LONG).show();
            }
 
        }catch (e: Exception){
@@ -224,6 +222,10 @@ class IntegrityVerificationTask(
 
     override fun onPostExecute(context: Context) {
         integrityVerificationCallback.onIntegrityVerified(context, verificationSuccessful)
+        if (verificationSuccessful==false){
+            //message for the user because app is not install and update at this moment
+             Toast.makeText(context, R.string.not_able_install, Toast.LENGTH_LONG).show();
+        }
     }
 
     private fun getApkFileSha1(file: File): String? {
