@@ -80,6 +80,7 @@ class IntegrityVerificationTask(
                verificationSuccessful =true;
            }else{
                //message for the user because app is not install and update at this moment
+                Toast.makeText(context[0], R.string.not_able_install, Toast.LENGTH_LONG).show();
            }
 
        }catch (e: Exception){
