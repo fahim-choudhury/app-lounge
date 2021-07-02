@@ -70,9 +70,16 @@ class IntegrityVerificationTask(
                Log.i("TAG", "isfDroidApplication");
                verificationSignature=verifyFdroidSignature(context[0])
            }
+           else {
+               //for other side then system or Fdroid
+               Log.i("TAG", "other site ");
+               verificationSignature=true;
+           }
 
            if(isSHAverify && verificationSignature){
                verificationSuccessful =true;
+           }else{
+               //message for the user because app is not install and update at this moment
            }
 
        }catch (e: Exception){
