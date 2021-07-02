@@ -61,7 +61,7 @@ class IntegrityVerificationTask(
        try {
            //for all applications, check sha256sum
            var isSHAverify = verifyShaSum(context[0])
-           Log.e("TAG", "isSHAverify.."+isSHAverify);
+          // Log.e("TAG", "isSHAverify.."+isSHAverify);
            var verificationSignature: Boolean = false
 
            if (isSystemApplication(fullData.packageName, context[0])) {
@@ -70,11 +70,6 @@ class IntegrityVerificationTask(
            } else if (isfDroidApplication(fullData.packageName)) {
                Log.i("TAG", "isfDroidApplication");
                verificationSignature=verifyFdroidSignature(context[0])
-           }
-           else {
-               //for other side then system or Fdroid
-               Log.i("TAG", "other site ");
-               verificationSignature=true;
            }
 
            if(isSHAverify && verificationSignature){
