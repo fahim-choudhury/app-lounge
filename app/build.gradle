@@ -30,14 +30,11 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix ".debug"
+            signingConfig signingConfigs.config
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-        platform {
-            signingConfig signingConfigs.config
         }
     }
     buildFeatures {
