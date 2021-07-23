@@ -283,7 +283,12 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 
         for (i in 0 until menuView.childCount) {
             val itemView = menuView.getChildAt(i) as BottomNavigationItemView
-            itemView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);            itemView.setChecked(itemView.itemData.isChecked)
+            itemView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
+            itemView.itemData?.isChecked?.let {
+                itemView.setChecked(
+                    it
+                )
+            }
         }
     }
 
