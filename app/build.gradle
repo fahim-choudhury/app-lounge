@@ -45,8 +45,6 @@ android {
     }
     lintOptions {
         lintConfig file("lint.xml")
-        disable 'MissingTranslation'
-        disable 'NullSafeMutableLiveData'
     }
     aaptOptions {
         additionalParameters '-I', 'app/e-ui-sdk.jar'
