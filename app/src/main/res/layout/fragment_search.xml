@@ -37,7 +37,7 @@
             android:id="@+id/search_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:searchIcon="@lineageos.platform:drawable/ic_search"
+            app:searchIcon="@drawable/ic_search"
             app:iconifiedByDefault="false" />
 
     </androidx.appcompat.widget.Toolbar>

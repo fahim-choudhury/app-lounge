@@ -18,24 +18,23 @@
   -->
 
 <resources>
-    <color name="colorPrimary">@lineageos.platform:color/color_default_primary</color>
-    <color name="colorPrimaryDark">@lineageos.platform:color/color_default_primary_dark</color>
-    <color name="colorAccent">@lineageos.platform:color/color_default_accent</color>
+    <color name="colorPrimary">#FFFFFF</color>
+    <color name="colorPrimaryDark">#FFFFFF</color>
+    <color name="colorAccent">#007FFF</color>
 
-    <color name="colorDivider">@lineageos.platform:color/color_default_divider</color>
+    <color name="colorDivider">#CFD8DC</color>
     <color name="colorInstall">@color/colorAccent</color>
-    <color name="colorDarkGray">@lineageos.platform:color/color_default_gray1</color>
-    <color name="colorDarkGray2">@lineageos.platform:color/color_default_gray2</color>
+    <color name="colorDarkGray">#C8CED0</color>
+    <color name="colorDarkGray2">#848484</color>
 
-
-
+    <!-- App Rating -->
     <color name="colorRatingGood">#4CAF50</color>
     <color name="colorRatingNeutral">#FFEB3B</color>
     <color name="colorRatingBad">#F44336</color>
 
     <color name="colorNavigationBarBackground">@color/colorPrimaryDark</color>
-    <color name="colorForeground">@lineageos.platform:color/color_default_foreground</color>
-    <color name="colorBackground">@lineageos.platform:color/color_default_background</color>
-    <color name="colorTextPrimary">@lineageos.platform:color/color_default_primary_text</color>
-    <color name="colorTextSecondary">@lineageos.platform:color/color_default_secondary_text</color>
+    <color name="colorForeground">#FFFFFF</color>
+    <color name="colorBackground">#FAFAFA</color>
+    <color name="colorTextPrimary">#CC000000</color>
+    <color name="colorTextSecondary">#8C000000</color>
 </resources>

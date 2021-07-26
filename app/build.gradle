@@ -43,9 +43,6 @@ android {
     lintOptions {
         lintConfig file("lint.xml")
     }
-    aaptOptions {
-        additionalParameters '-I', 'app/e-ui-sdk.jar'
-    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -66,9 +63,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-
-    // eOS
-    compileOnly files("e-ui-sdk.jar")
 
     // Preference
     implementation "androidx.preference:preference-ktx:1.1.1"
