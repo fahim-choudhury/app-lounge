@@ -1,17 +1,48 @@
 image: "registry.gitlab.e.foundation:5000/e/apps/docker-android-apps-cicd:latest"
 
 stages:
-- build
+- debug
+- release
 
 before_script:
 - export GRADLE_USER_HOME=$(pwd)/.gradle
 - chmod +x ./gradlew
 
-build:
-  stage: build
+# Debug build related jobs
+buildDebug:
+  stage: debug
   script:
-  - ./gradlew build
+  - ./gradlew assembleDebug
   artifacts:
     paths:
     - app/build/outputs/apk/
-    - app/build/reports/
+
+lintDebug:
+  stage: debug
+  when: manual
+  script:
+    - ./gradlew lintDebug
+  artifacts:
+    paths:
+      - app/build/reports/
+
+# Release build related jobs
+buildRelease:
+  stage: release
+  when: manual
+  allow_failure: false
+  script:
+    - ./gradlew assembleRelease
+  artifacts:
+    paths:
+      - app/build/outputs/apk/
+
+lintRelease:
+  stage: release
+  when: manual
+  allow_failure: false
+  script:
+    - ./gradlew lintRelease
+  artifacts:
+    paths:
+      - app/build/reports/
