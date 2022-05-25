@@ -49,6 +49,7 @@ import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.applicationlist.model.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentSearchBinding
+import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
@@ -151,26 +152,6 @@ class SearchFragment :
             layoutManager = LinearLayoutManager(view.context)
         }
 
-        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
-            val adapter = recyclerView?.adapter as ApplicationListRVAdapter
-            lifecycleScope.launch {
-                adapter.currentList.forEach { fusedApp ->
-                    if (fusedApp.status == Status.DOWNLOADING) {
-                        val progress = appProgressViewModel.calculateProgress(fusedApp, it)
-                        val downloadProgress =
-                            ((progress.second / progress.first.toDouble()) * 100).toInt()
-                        val viewHolder = recyclerView?.findViewHolderForAdapterPosition(
-                            adapter.currentList.indexOf(fusedApp)
-                        )
-                        viewHolder?.let {
-                            (viewHolder as ApplicationListRVAdapter.ViewHolder).binding.installButton.text =
-                                "$downloadProgress%"
-                        }
-                    }
-                }
-            }
-        }
-
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
 
             val searchList = searchViewModel.searchResult.value?.toMutableList()
@@ -199,9 +180,33 @@ class SearchFragment :
         }
     }
 
+    private fun updateProgressOfInstallingApps(downloadProgress: DownloadProgress) {
+        val adapter = recyclerView?.adapter as ApplicationListRVAdapter
+        lifecycleScope.launch {
+            adapter.currentList.forEach { fusedApp ->
+                if (fusedApp.status == Status.DOWNLOADING) {
+                    val progress =
+                        appProgressViewModel.calculateProgress(fusedApp, downloadProgress)
+                    val downloadProgress =
+                        ((progress.second / progress.first.toDouble()) * 100).toInt()
+                    val viewHolder = recyclerView?.findViewHolderForAdapterPosition(
+                        adapter.currentList.indexOf(fusedApp)
+                    )
+                    viewHolder?.let {
+                        (viewHolder as ApplicationListRVAdapter.ViewHolder).binding.installButton.text =
+                            "$downloadProgress%"
+                    }
+                }
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         binding.shimmerLayout.startShimmer()
+        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
+            updateProgressOfInstallingApps(it)
+        }
     }
 
     override fun onPause() {

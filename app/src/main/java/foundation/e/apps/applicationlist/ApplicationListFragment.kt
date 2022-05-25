@@ -143,10 +143,6 @@ class ApplicationListFragment : Fragment(R.layout.fragment_application_list), Fu
             layoutManager = LinearLayoutManager(view?.context)
         }
 
-        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
-            updateProgressOfDownloadingItems(recyclerView, it)
-        }
-
         viewModel.appListLiveData.observe(viewLifecycleOwner) {
             listAdapter?.setData(it)
             if (!isDownloadObserverAdded) {
@@ -183,6 +179,10 @@ class ApplicationListFragment : Fragment(R.layout.fragment_application_list), Fu
                     }
                 }
             }
+        }
+
+        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
+            updateProgressOfDownloadingItems(recyclerView, it)
         }
     }
 

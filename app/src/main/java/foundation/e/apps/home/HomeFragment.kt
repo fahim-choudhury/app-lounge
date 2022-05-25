@@ -51,6 +51,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home), FusedAPIInterface {
 
+    private lateinit var homeParentRVAdapter: HomeParentRVAdapter
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
@@ -83,7 +84,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), FusedAPIInterface {
             }
         }
 
-        val homeParentRVAdapter = HomeParentRVAdapter(
+        homeParentRVAdapter = HomeParentRVAdapter(
             this,
             pkgManagerModule,
             pwaManagerModule,
@@ -122,10 +123,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), FusedAPIInterface {
                     openSettings()
                 }, it.second)
             }
-        }
-
-        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
-            updateProgressOfDownloadingAppItemViews(homeParentRVAdapter, it)
         }
     }
 
@@ -190,6 +187,9 @@ class HomeFragment : Fragment(R.layout.fragment_home), FusedAPIInterface {
     override fun onResume() {
         super.onResume()
         binding.shimmerLayout.startShimmer()
+        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
+            updateProgressOfDownloadingAppItemViews(homeParentRVAdapter, it)
+        }
     }
 
     override fun onPause() {

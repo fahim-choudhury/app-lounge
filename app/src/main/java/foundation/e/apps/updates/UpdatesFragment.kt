@@ -121,10 +121,6 @@ class UpdatesFragment : Fragment(R.layout.fragment_updates), FusedAPIInterface {
             layoutManager = LinearLayoutManager(view.context)
         }
 
-        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
-            updateProgressOfDownloadingItems(recyclerView, it)
-        }
-
         updatesViewModel.updatesList.observe(viewLifecycleOwner) {
             listAdapter?.setData(it)
             if (!isDownloadObserverAdded) {
@@ -143,6 +139,12 @@ class UpdatesFragment : Fragment(R.layout.fragment_updates), FusedAPIInterface {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
+            updateProgressOfDownloadingItems(binding.recyclerView, it)
+        }
+    }
     private fun observeDownloadList() {
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
             val appList = updatesViewModel.updatesList.value?.toMutableList()
