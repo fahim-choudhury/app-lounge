@@ -233,7 +233,7 @@ class InstallAppWorker @AssistedInject constructor(
             val mChannel = NotificationChannel(
                 "applounge_notification",
                 title,
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_LOW
             )
             notificationManager.createNotificationChannel(mChannel)
         }
