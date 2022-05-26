@@ -117,13 +117,8 @@ class UpdatesWorker @AssistedInject constructor(
         authData: AuthData
     ) {
         appsNeededToUpdate.forEach { fusedApp ->
-            if (!fusedApp.isFree) {
-                val purchaseHelper = PurchaseHelper(authData)
-                purchaseHelper.purchase(
-                    fusedApp.package_name,
-                    fusedApp.latest_version_code,
-                    fusedApp.offer_type
-                )
+            if (!fusedApp.isFree && authData.isAnonymous) {
+                return@forEach
             }
             val iconBase64 = getIconImageToBase64(fusedApp)
 
@@ -144,7 +139,12 @@ class UpdatesWorker @AssistedInject constructor(
                 fusedApp.originalSize
             )
 
-            updateFusedDownloadWithAppDownloadLink(fusedApp, authData, fusedDownload)
+            try {
+                updateFusedDownloadWithAppDownloadLink(fusedApp, authData, fusedDownload)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return@forEach
+            }
 
             fusedManagerRepository.addDownload(fusedDownload)
             fusedManagerRepository.updateAwaiting(fusedDownload)
