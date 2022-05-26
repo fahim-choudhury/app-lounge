@@ -18,6 +18,7 @@
 
 package foundation.e.apps.api.gplay
 
+import androidx.lifecycle.LiveData
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
@@ -46,7 +47,7 @@ class GPlayAPIRepository @Inject constructor(
         return gPlayAPIImpl.getSearchSuggestions(query, authData)
     }
 
-    suspend fun getSearchResults(query: String, authData: AuthData): List<App> {
+    fun getSearchResults(query: String, authData: AuthData): LiveData<List<App>> {
         return gPlayAPIImpl.getSearchResults(query, authData)
     }
 
