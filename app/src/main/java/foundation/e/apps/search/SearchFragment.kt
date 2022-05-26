@@ -79,6 +79,7 @@ class SearchFragment :
     private val appProgressViewModel: AppProgressViewModel by viewModels()
 
     private val SUGGESTION_KEY = "suggestion"
+    private var lastSearch = ""
 
     private var searchView: SearchView? = null
     private var shimmerLayout: ShimmerFrameLayout? = null
@@ -193,7 +194,19 @@ class SearchFragment :
             }
             listAdapter?.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
                 override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                    recyclerView!!.scrollToPosition(0)
+                    searchView?.run {
+                        /*
+                         * Only scroll back to 0 position for a new search.
+                         *
+                         * If we are getting new results from livedata for the old search query,
+                         * do not scroll to top as the user may be scrolling to see already
+                         * populated results.
+                         */
+                        if (lastSearch != query?.toString()) {
+                            recyclerView?.scrollToPosition(0)
+                            lastSearch = query.toString()
+                        }
+                    }
                 }
             })
         }
@@ -218,7 +231,7 @@ class SearchFragment :
             shimmerLayout?.visibility = View.VISIBLE
             recyclerView?.visibility = View.GONE
             noAppsFoundLayout?.visibility = View.GONE
-            mainActivityViewModel.authData.value?.let { searchViewModel.getSearchResults(text, it) }
+            mainActivityViewModel.authData.value?.let { searchViewModel.getSearchResults(text, it, this) }
         }
         return false
     }

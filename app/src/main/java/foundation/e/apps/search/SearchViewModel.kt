@@ -18,6 +18,7 @@
 
 package foundation.e.apps.search
 
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -44,9 +45,17 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun getSearchResults(query: String, authData: AuthData) {
-        viewModelScope.launch(Dispatchers.IO) {
-            searchResult.postValue(fusedAPIRepository.getSearchResults(query, authData))
+    /*
+     * Observe data from Fused API and publish the result in searchResult.
+     * This allows us to show apps as they are being fetched from the network,
+     * without having to wait for all of the apps.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
+     */
+    fun getSearchResults(query: String, authData: AuthData, lifecycleOwner: LifecycleOwner) {
+        viewModelScope.launch(Dispatchers.Main) {
+            fusedAPIRepository.getSearchResults(query, authData).observe(lifecycleOwner) {
+                searchResult.postValue(it)
+            }
         }
     }
 }
