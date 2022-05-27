@@ -34,6 +34,7 @@ data class FusedApp(
     val last_modified: String = String(),
     val latest_version_code: Int = -1,
     val latest_version_number: String = String(),
+    val latest_downloaded_version: String = String(),
     val licence: String = String(),
     val name: String = String(),
     val other_images_path: List<String> = emptyList(),
@@ -64,4 +65,5 @@ data class FusedApp(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5136
      */
     var permsFromExodus: List<String> = LIST_OF_NULL,
+    var updatedOn: String = String()
 )
