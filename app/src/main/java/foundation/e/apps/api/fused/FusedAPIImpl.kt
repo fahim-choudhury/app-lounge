@@ -215,7 +215,6 @@ class FusedAPIImpl @Inject constructor(
                 }
             }
         }
-
     }
 
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {

@@ -14,7 +14,6 @@ import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.google.gson.Gson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
