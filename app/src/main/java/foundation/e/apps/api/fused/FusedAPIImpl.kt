@@ -21,9 +21,6 @@ package foundation.e.apps.api.fused
 import android.content.Context
 import android.text.format.Formatter
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.liveData
-import androidx.lifecycle.map
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
@@ -179,42 +176,30 @@ class FusedAPIImpl @Inject constructor(
      * Fetches search results from cleanAPK and GPlay servers and returns them
      * @param query Query
      * @param authData [AuthData]
-     * @return A livedata list of non-nullable [FusedApp].
-     * Observe this livedata to display new apps as they are fetched from the network.
+     * @return A list of nullable [FusedApp]
      */
-    fun getSearchResults(query: String, authData: AuthData): LiveData<List<FusedApp>> {
-        /*
-         * Returning livedata to improve performance, so that we do not have to wait forever
-         * for all results to be fetched from network before showing them.
-         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
-         */
-        return liveData {
-            when (preferenceManagerModule.preferredApplicationType()) {
-                APP_TYPE_ANY -> {
-                    val cleanApkResults = getCleanAPKSearchResults(query)
-                    if (cleanApkResults.isNotEmpty()) {
-                        /*
-                         * If cleanapk results are empty, dont emit emit data as it may
-                         * briefly show "No apps found..."
-                         */
-                        emit(cleanApkResults)
-                    }
-                    emitSource(getGplayAndCleanapkCombinedResults(query, authData, cleanApkResults))
-                }
-                APP_TYPE_OPEN -> {
-                    emit(getCleanAPKSearchResults(query))
-                }
-                APP_TYPE_PWA -> {
-                    emit(
-                        getCleanAPKSearchResults(
-                            query,
-                            CleanAPKInterface.APP_SOURCE_ANY,
-                            CleanAPKInterface.APP_TYPE_PWA
-                        )
+    suspend fun getSearchResults(query: String, authData: AuthData): List<FusedApp> {
+        val fusedResponse = mutableListOf<FusedApp>()
+
+        when (preferenceManagerModule.preferredApplicationType()) {
+            APP_TYPE_ANY -> {
+                fusedResponse.addAll(getCleanAPKSearchResults(query))
+                fusedResponse.addAll(getGplaySearchResults(query, authData))
+            }
+            APP_TYPE_OPEN -> {
+                fusedResponse.addAll(getCleanAPKSearchResults(query))
+            }
+            APP_TYPE_PWA -> {
+                fusedResponse.addAll(
+                    getCleanAPKSearchResults(
+                        query,
+                        CleanAPKInterface.APP_SOURCE_ANY,
+                        CleanAPKInterface.APP_TYPE_PWA
                     )
-                }
+                )
             }
         }
+        return fusedResponse.distinctBy { it.package_name }
     }
 
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {
@@ -604,27 +589,10 @@ class FusedAPIImpl @Inject constructor(
         return list
     }
 
-    /*
-     * Function to return a livedata with value from cleanapk and Google Play store combined.
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
-     */
-    private fun getGplayAndCleanapkCombinedResults(
-        query: String,
-        authData: AuthData,
-        cleanApkResults: List<FusedApp>
-    ): LiveData<List<FusedApp>> {
-        val localList = ArrayList<FusedApp>(cleanApkResults)
-        return getGplaySearchResults(query, authData).map { list ->
-            localList.apply {
-                addAll(list)
-            }.distinctBy { it.package_name }
-        }
-    }
-
-    private fun getGplaySearchResults(query: String, authData: AuthData): LiveData<List<FusedApp>> {
+    private suspend fun getGplaySearchResults(query: String, authData: AuthData): List<FusedApp> {
         val searchResults = gPlayAPIRepository.getSearchResults(query, authData)
-        return searchResults.map {
-            it.map { app -> app.transformToFusedApp() }
+        return searchResults.map { app ->
+            app.transformToFusedApp()
         }
     }
 
