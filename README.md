@@ -9,19 +9,61 @@ App Lounge use the _Packaging by Features_ approach for packaging the code. A re
 ```
 .
 ├── api
-│   ├── cleanapk
-│   ├── fused
-│   └── gplay
+│   ├── cleanapk
+│   │   ├── blockedApps
+│   │   └── data
+│   │       ├── app
+│   │       ├── categories
+│   │       ├── download
+│   │       ├── home
+│   │       └── search
+│   ├── database
+│   ├── ecloud
+│   │   └── modules
+│   ├── exodus
+│   │   ├── models
+│   │   └── repositories
+│   ├── fdroid
+│   │   └── models
+│   ├── fused
+│   │   ├── data
+│   │   └── utils
+│   └── gplay
+│       ├── token
+│       └── utils
 ├── application
+│   ├── model
+│   └── subFrags
 ├── applicationlist
+│   └── model
 ├── categories
+│   └── model
+├── di
 ├── home
+│   └── model
 ├── manager
+│   ├── database
+│   │   └── fusedDownload
+│   ├── download
+│   │   └── data
+│   ├── fused
+│   ├── notification
+│   ├── pkg
+│   └── workmanager
+├── purchase
+├── receiver
 ├── search
 ├── settings
 ├── setup
+│   ├── signin
+│   │   └── google
+│   └── tos
 ├── updates
+│   └── manager
 └── utils
+    ├── enums
+    └── modules
+
 ```
 
 ## API
@@ -30,6 +72,7 @@ App Lounge use the following APIs to offer applications:
 
 - [GPlayApi](https://gitlab.com/AuroraOSS/gplayapi) from Aurora OSS
 - [CleanAPK API](https://info.cleanapk.org/) from CleanAPK
+- [Exodus API](https://github.com/Exodus-Privacy/exodus/blob/v1/doc/api.md) from Exodus-Privacy
 
 ## Development
 
