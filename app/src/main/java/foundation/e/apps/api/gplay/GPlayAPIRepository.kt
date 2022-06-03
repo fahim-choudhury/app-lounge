@@ -30,7 +30,7 @@ class GPlayAPIRepository @Inject constructor(
     private val gPlayAPIImpl: GPlayAPIImpl
 ) {
 
-    suspend fun fetchAuthData(): Unit? {
+    suspend fun fetchAuthData(): Boolean {
         return gPlayAPIImpl.fetchAuthData()
     }
 

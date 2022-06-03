@@ -47,6 +47,7 @@ import foundation.e.apps.utils.enums.AppTag
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
+import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.modules.CommonUtilsModule.timeoutDurationInMillis
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
@@ -83,20 +84,16 @@ class FusedAPIImpl @Inject constructor(
     private var TAG = FusedAPIImpl::class.java.simpleName
 
     /**
-     * Pass application source type along with list of apps.
-     * Application source type may change in case of timeout of GPlay/cleanapk api.
+     * Pass list of FusedHome and status.
+     * Second argument can be of [ResultStatus.TIMEOUT] to indicate timeout.
      *
-     * The second item of the Pair can be one of [APP_TYPE_ANY], [APP_TYPE_OPEN], [APP_TYPE_PWA].
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
+     * Issue:
+     * https://gitlab.e.foundation/e/backlog/-/issues/5404
+     * https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
-    suspend fun getHomeScreenData(authData: AuthData): Pair<List<FusedHome>, String> {
+    suspend fun getHomeScreenData(authData: AuthData): Pair<List<FusedHome>, ResultStatus> {
         val preferredApplicationType = preferenceManagerModule.preferredApplicationType()
-        val initialData = getHomeScreenDataBasedOnApplicationType(authData, preferredApplicationType)
-        if (isFusedHomesEmpty(initialData.first)) {
-            Log.d(TAG, "Received empty home data.")
-        }
-        return initialData
+        return getHomeScreenDataBasedOnApplicationType(authData, preferredApplicationType)
     }
 
     /**
@@ -111,6 +108,10 @@ class FusedAPIImpl @Inject constructor(
         return true
     }
 
+    fun getApplicationCategoryPreference(): String {
+        return preferenceManagerModule.preferredApplicationType()
+    }
+
     /*
      * Offload fetching application to a different method to dynamically fallback to a different
      * app source if the user selected app source times out.
@@ -120,8 +121,9 @@ class FusedAPIImpl @Inject constructor(
     private suspend fun getHomeScreenDataBasedOnApplicationType(
         authData: AuthData,
         applicationType: String
-    ): Pair<List<FusedHome>, String> {
+    ): Pair<List<FusedHome>, ResultStatus> {
         val list = mutableListOf<FusedHome>()
+        var apiStatus = ResultStatus.OK
         try {
             /*
              * Each category of home apps (example "Top Free Apps") will have its own timeout.
@@ -152,24 +154,48 @@ class FusedAPIImpl @Inject constructor(
             }
         } catch (e: TimeoutCancellationException) {
             e.printStackTrace()
+            apiStatus = ResultStatus.TIMEOUT
             Log.d(TAG, "Timed out fetching home data for type: $applicationType")
         } catch (e: Exception) {
+            apiStatus = ResultStatus.UNKNOWN
             e.printStackTrace()
         }
-        return Pair(list, applicationType)
+        return Pair(list, apiStatus)
     }
 
-    suspend fun getCategoriesList(type: Category.Type, authData: AuthData): List<FusedCategory> {
+    /*
+     * Return three elements from the function.
+     * - List<FusedCategory> : List of categories.
+     * - String : String of application type - By default it is the value in preferences.
+     * In case there is any failure, for a specific type in handleAllSourcesCategories(),
+     * the string value is of that type.
+     * - ResultStatus : ResultStatus - by default is ResultStatus.OK. But in case there is a failure in
+     * any application category type, then it takes value of that failure.
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
+     */
+    suspend fun getCategoriesList(type: Category.Type, authData: AuthData): Triple<List<FusedCategory>, String, ResultStatus> {
         val categoriesList = mutableListOf<FusedCategory>()
         val preferredApplicationType = preferenceManagerModule.preferredApplicationType()
+        var apiStatus: ResultStatus = ResultStatus.OK
+        var applicationCategoryType = preferredApplicationType
 
         if (preferredApplicationType != APP_TYPE_ANY) {
-            handleCleanApkCategories(preferredApplicationType, categoriesList, type)
+            handleCleanApkCategories(preferredApplicationType, categoriesList, type).run {
+                if (this != ResultStatus.OK) {
+                    apiStatus = this
+                }
+            }
         } else {
-            handleAllSourcesCategories(categoriesList, type, authData)
+            handleAllSourcesCategories(categoriesList, type, authData).run {
+                if (first != ResultStatus.OK) {
+                    apiStatus = first
+                    applicationCategoryType = second
+                }
+            }
         }
         categoriesList.sortBy { item -> item.title.lowercase() }
-        return categoriesList
+        return Triple(categoriesList, applicationCategoryType, apiStatus)
     }
 
     /**
@@ -178,35 +204,37 @@ class FusedAPIImpl @Inject constructor(
      * @param authData [AuthData]
      * @return A list of nullable [FusedApp]
      */
-    suspend fun getSearchResults(query: String, authData: AuthData): List<FusedApp> {
+    suspend fun getSearchResults(query: String, authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
         val fusedResponse = mutableListOf<FusedApp>()
 
-        when (preferenceManagerModule.preferredApplicationType()) {
-            APP_TYPE_ANY -> {
-                fusedResponse.addAll(getCleanAPKSearchResults(query))
-                fusedResponse.addAll(getGplaySearchResults(query, authData))
-            }
-            APP_TYPE_OPEN -> {
-                fusedResponse.addAll(getCleanAPKSearchResults(query))
-            }
-            APP_TYPE_PWA -> {
-                fusedResponse.addAll(
-                    getCleanAPKSearchResults(
-                        query,
-                        CleanAPKInterface.APP_SOURCE_ANY,
-                        CleanAPKInterface.APP_TYPE_PWA
+        val status = runCodeBlockWithTimeout({
+            when (preferenceManagerModule.preferredApplicationType()) {
+                APP_TYPE_ANY -> {
+                    fusedResponse.addAll(getCleanAPKSearchResults(query))
+                    fusedResponse.addAll(getGplaySearchResults(query, authData))
+                }
+                APP_TYPE_OPEN -> {
+                    fusedResponse.addAll(getCleanAPKSearchResults(query))
+                }
+                APP_TYPE_PWA -> {
+                    fusedResponse.addAll(
+                        getCleanAPKSearchResults(
+                            query,
+                            CleanAPKInterface.APP_SOURCE_ANY,
+                            CleanAPKInterface.APP_TYPE_PWA
+                        )
                     )
-                )
+                }
             }
-        }
-        return fusedResponse.distinctBy { it.package_name }
+        })
+        return Pair(fusedResponse.distinctBy { it.package_name }, status)
     }
 
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {
         return gPlayAPIRepository.getSearchSuggestions(query, authData)
     }
 
-    suspend fun fetchAuthData(): Unit? {
+    suspend fun fetchAuthData(): Boolean {
         return gPlayAPIRepository.fetchAuthData()
     }
 
@@ -267,28 +295,40 @@ class FusedAPIImpl @Inject constructor(
         }
     }
 
-    suspend fun getPWAApps(category: String): List<FusedApp>? {
-        val response = getPWAAppsResponse(category)
-        response?.apps?.forEach {
-            it.updateStatus()
-            it.updateType()
-        }
-        return response?.apps
+    suspend fun getPWAApps(category: String): Pair<List<FusedApp>, ResultStatus> {
+        var list = mutableListOf<FusedApp>()
+        val status = runCodeBlockWithTimeout({
+            val response = getPWAAppsResponse(category)
+            response?.apps?.forEach {
+                it.updateStatus()
+                it.updateType()
+                list.add(it)
+            }
+        })
+        return Pair(list, status)
     }
 
-    suspend fun getOpenSourceApps(category: String): List<FusedApp>? {
-        val response = getOpenSourceAppsResponse(category)
-        response?.apps?.forEach {
-            it.updateStatus()
-            it.updateType()
-        }
-        return response?.apps
+    suspend fun getOpenSourceApps(category: String): Pair<List<FusedApp>, ResultStatus> {
+        val list = mutableListOf<FusedApp>()
+        val status = runCodeBlockWithTimeout({
+            val response = getOpenSourceAppsResponse(category)
+            response?.apps?.forEach {
+                it.updateStatus()
+                it.updateType()
+                list.add(it)
+            }
+        })
+        return Pair(list, status)
     }
 
-    suspend fun getPlayStoreApps(browseUrl: String, authData: AuthData): List<FusedApp> {
-        return gPlayAPIRepository.listApps(browseUrl, authData).map { app ->
-            app.transformToFusedApp()
-        }
+    suspend fun getPlayStoreApps(browseUrl: String, authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
+        var list = mutableListOf<FusedApp>()
+        val status = runCodeBlockWithTimeout({
+            list.addAll(gPlayAPIRepository.listApps(browseUrl, authData).map { app ->
+                app.transformToFusedApp()
+            })
+        })
+        return Pair(list, status)
     }
 
     suspend fun getPlayStoreAppCategoryUrls(browseUrl: String, authData: AuthData): List<String> {
@@ -298,32 +338,96 @@ class FusedAPIImpl @Inject constructor(
     suspend fun getAppsAndNextClusterUrl(
         browseUrl: String,
         authData: AuthData
-    ): Pair<List<FusedApp>, String> {
-        return gPlayAPIRepository.getAppsAndNextClusterUrl(browseUrl, authData).let {
-            Pair(it.first.map { app -> app.transformToFusedApp() }, it.second)
-        }
+    ): Triple<List<FusedApp>, String, ResultStatus> {
+        val appsList = mutableListOf<FusedApp>()
+        var nextUrl = ""
+        val status = runCodeBlockWithTimeout({
+            val gPlayResult = gPlayAPIRepository.getAppsAndNextClusterUrl(browseUrl, authData)
+            appsList.addAll(gPlayResult.first.map { app -> app.transformToFusedApp() })
+            nextUrl = gPlayResult.second
+        })
+
+        return Triple(appsList, nextUrl, status)
     }
 
     suspend fun getApplicationDetails(
         packageNameList: List<String>,
         authData: AuthData,
         origin: Origin
-    ): List<FusedApp> {
+    ): Pair<List<FusedApp>, ResultStatus> {
         val list = mutableListOf<FusedApp>()
-        val response = if (origin == Origin.CLEANAPK) {
-            val pkgList = mutableListOf<FusedApp>()
-            packageNameList.forEach {
-                val result = cleanAPKRepository.searchApps(
-                    keyword = it,
-                    by = "package_name"
-                ).body()
-                if (result?.apps?.isNotEmpty() == true && result.numberOfResults == 1) {
-                    pkgList.add(result.apps[0])
-                }
+
+        val response: Pair<List<FusedApp>, ResultStatus> =
+            if (origin == Origin.CLEANAPK) {
+                getAppDetailsListFromCleanapk(packageNameList)
+            } else {
+                getAppDetailsListFromGPlay(packageNameList, authData)
             }
-            pkgList
-        } else {
-            gPlayAPIRepository.getAppDetails(packageNameList, authData).map { app ->
+
+        response.first.forEach {
+            if (it.package_name.isNotBlank()) {
+                it.updateStatus()
+                it.updateType()
+                list.add(it)
+            }
+        }
+
+        return Pair(list, response.second)
+    }
+
+    /*
+     * Get app details of a list of apps from cleanapk.
+     * Returns list of FusedApp and ResultStatus - which will reflect timeout if even one app fails.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
+     */
+    private suspend fun getAppDetailsListFromCleanapk(
+        packageNameList: List<String>,
+    ): Pair<List<FusedApp>, ResultStatus> {
+        var status = ResultStatus.OK
+        val fusedAppList = mutableListOf<FusedApp>()
+
+        /*
+         * Fetch result of each cleanapk search with separate timeout,
+         * i.e. check timeout for individual package query.
+         */
+        for (packageName in packageNameList) {
+            status = runCodeBlockWithTimeout({
+                cleanAPKRepository.searchApps(
+                    keyword = packageName,
+                    by = "package_name"
+                ).body()?.run {
+                    if (apps.isNotEmpty() && numberOfResults == 1) {
+                        fusedAppList.add(apps[0])
+                    }
+                }
+            })
+
+            /*
+             * If status is not ok, immediately return.
+             */
+            if (status != ResultStatus.OK) {
+                return Pair(fusedAppList, status)
+            }
+        }
+
+        return Pair(fusedAppList, status)
+    }
+
+    /*
+     * Get app details of a list of apps from Google Play store.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
+     */
+    private suspend fun getAppDetailsListFromGPlay(
+        packageNameList: List<String>,
+        authData: AuthData,
+    ): Pair<List<FusedApp>, ResultStatus> {
+        var fusedAppList = listOf<FusedApp>()
+
+        /*
+         * Old code moved from getApplicationDetails()
+         */
+        val status = runCodeBlockWithTimeout({
+            fusedAppList = gPlayAPIRepository.getAppDetails(packageNameList, authData).map { app ->
                 /*
                  * Some apps are restricted to locations. Example "com.skype.m2".
                  * For restricted apps, check if it is possible to get their specific app info.
@@ -341,15 +445,9 @@ class FusedAPIImpl @Inject constructor(
                     app.transformToFusedApp()
                 }
             }
-        }
-        response.forEach {
-            if (it.package_name.isNotBlank()) {
-                it.updateStatus()
-                it.updateType()
-                list.add(it)
-            }
-        }
-        return list
+        })
+
+        return Pair(fusedAppList, status)
     }
 
     suspend fun getApplicationDetails(
@@ -357,18 +455,24 @@ class FusedAPIImpl @Inject constructor(
         packageName: String,
         authData: AuthData,
         origin: Origin
-    ): FusedApp {
-        val response = if (origin == Origin.CLEANAPK) {
-            cleanAPKRepository.getAppOrPWADetailsByID(id).body()?.app
-        } else {
-            val app = gPlayAPIRepository.getAppDetails(packageName, authData)
-            app?.transformToFusedApp()
-        }
-        response?.let {
-            it.updateStatus()
-            it.updateType()
-        }
-        return response ?: FusedApp()
+    ): Pair<FusedApp, ResultStatus> {
+
+        var response : FusedApp? = null
+
+        val status = runCodeBlockWithTimeout({
+            response = if (origin == Origin.CLEANAPK) {
+                cleanAPKRepository.getAppOrPWADetailsByID(id).body()?.app
+            } else {
+                val app = gPlayAPIRepository.getAppDetails(packageName, authData)
+                app?.transformToFusedApp()
+            }
+            response?.let {
+                it.updateStatus()
+                it.updateType()
+            }
+        })
+
+        return Pair(response ?: FusedApp(), status)
     }
 
     /*
@@ -379,18 +483,19 @@ class FusedAPIImpl @Inject constructor(
         preferredApplicationType: String,
         categoriesList: MutableList<FusedCategory>,
         type: Category.Type
-    ) {
-        val data = getCleanApkCategories(preferredApplicationType)
-
-        data?.let { category ->
-            categoriesList.addAll(
-                getFusedCategoryBasedOnCategoryType(
-                    category,
-                    type,
-                    getCategoryTag(preferredApplicationType)
+    ): ResultStatus {
+        return runCodeBlockWithTimeout({
+            val data = getCleanApkCategories(preferredApplicationType)
+            data?.let { category ->
+                categoriesList.addAll(
+                    getFusedCategoryBasedOnCategoryType(
+                        category,
+                        type,
+                        getCategoryTag(preferredApplicationType)
+                    )
                 )
-            )
-        }
+            }
+        })
     }
 
     private fun getCategoryTag(preferredApplicationType: String): AppTag {
@@ -409,35 +514,116 @@ class FusedAPIImpl @Inject constructor(
         }
     }
 
+    /*
+     * Function to populate a given category list, from all GPlay categories, open source categories,
+     * and PWAs.
+     *
+     * Returns: Pair of:
+     * - ResultStatus - by default ResultStatus.OK, but can be different in case of an error in any category.
+     * - String - Application category type having error. If no error, then blank string.
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
+     */
     private suspend fun handleAllSourcesCategories(
         categoriesList: MutableList<FusedCategory>,
         type: Category.Type,
         authData: AuthData
-    ) {
-        var data = getOpenSourceCategories()
-        data?.let {
-            categoriesList.addAll(
-                getFusedCategoryBasedOnCategoryType(
-                    it,
-                    type,
-                    AppTag.OpenSource(context.getString(R.string.open_source))
+    ): Pair<ResultStatus, String> {
+        var data: Categories? = null
+        var apiStatus = ResultStatus.OK
+        var errorApplicationCategory = ""
+
+        /*
+         * Try within timeout limit for open source native apps categories.
+         */
+        runCodeBlockWithTimeout({
+            data = getOpenSourceCategories()
+            data?.let {
+                categoriesList.addAll(
+                    getFusedCategoryBasedOnCategoryType(
+                        it,
+                        type,
+                        AppTag.OpenSource(context.getString(R.string.open_source))
+                    )
                 )
-            )
-        }
-        data = getPWAsCategories()
-        data?.let {
-            categoriesList.addAll(
-                getFusedCategoryBasedOnCategoryType(
-                    it, type, AppTag.PWA(context.getString(R.string.pwa))
+            }
+        }, {
+            errorApplicationCategory = APP_TYPE_OPEN
+            apiStatus = ResultStatus.TIMEOUT
+        }, {
+            errorApplicationCategory = APP_TYPE_OPEN
+            apiStatus = ResultStatus.UNKNOWN
+        })
+
+
+        /*
+         * Try within timeout limit to get PWA categories
+         */
+        runCodeBlockWithTimeout({
+            data = getPWAsCategories()
+            data?.let {
+                categoriesList.addAll(
+                    getFusedCategoryBasedOnCategoryType(
+                        it, type, AppTag.PWA(context.getString(R.string.pwa))
+                    )
                 )
-            )
+            }
+        }, {
+            errorApplicationCategory = APP_TYPE_PWA
+            apiStatus = ResultStatus.TIMEOUT
+        }, {
+            errorApplicationCategory = APP_TYPE_PWA
+            apiStatus = ResultStatus.UNKNOWN
+        })
+
+        /*
+         * Try within timeout limit to get native app categories from Play Store
+         */
+        runCodeBlockWithTimeout({
+            val playResponse = gPlayAPIRepository.getCategoriesList(type, authData).map { app ->
+                val category = app.transformToFusedCategory()
+                updateCategoryDrawable(category, app)
+                category
+            }
+            categoriesList.addAll(playResponse)
+        }, {
+            errorApplicationCategory = APP_TYPE_ANY
+            apiStatus = ResultStatus.TIMEOUT
+        }, {
+            errorApplicationCategory = APP_TYPE_ANY
+            apiStatus = ResultStatus.UNKNOWN
+        })
+
+        return Pair(apiStatus, errorApplicationCategory)
+    }
+
+    /**
+     * Run a block of code with timeout. Returns status.
+     *
+     * @param block Main block to execute within [timeoutDurationInMillis] limit.
+     * @param timeoutBlock Optional code to execute in case of timeout.
+     * @param exceptionBlock Optional code to execute in case of an exception other than timeout.
+     *
+     * @return Instance of [ResultStatus] based on whether [block] was executed within timeout limit.
+     */
+    private suspend fun runCodeBlockWithTimeout(
+        block: suspend () -> Unit,
+        timeoutBlock: (() -> Unit)? = null,
+        exceptionBlock: (() -> Unit)? = null,
+    ): ResultStatus {
+        return try {
+            withTimeout(timeoutDurationInMillis) {
+                block()
+            }
+            ResultStatus.OK
+        } catch (e: TimeoutCancellationException) {
+            timeoutBlock?.invoke()
+            ResultStatus.TIMEOUT
+        } catch (e: Exception) {
+            e.printStackTrace()
+            exceptionBlock?.invoke()
+            ResultStatus.UNKNOWN
         }
-        val playResponse = gPlayAPIRepository.getCategoriesList(type, authData).map { app ->
-            val category = app.transformToFusedCategory()
-            updateCategoryDrawable(category, app)
-            category
-        }
-        categoriesList.addAll(playResponse)
     }
 
     private fun updateCategoryDrawable(

@@ -21,7 +21,6 @@ package foundation.e.apps.applicationlist
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -30,6 +29,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.AppInfoFetchViewModel
 import foundation.e.apps.AppProgressViewModel
@@ -43,14 +43,16 @@ import foundation.e.apps.applicationlist.model.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentApplicationListBinding
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
+import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
+import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import foundation.e.apps.utils.modules.PWAManagerModule
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ApplicationListFragment : Fragment(R.layout.fragment_application_list), FusedAPIInterface {
+class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_list), FusedAPIInterface {
 
     private val args: ApplicationListFragmentArgs by navArgs()
 
@@ -88,11 +90,16 @@ class ApplicationListFragment : Fragment(R.layout.fragment_application_list), Fu
 
     private fun observeDownloadList() {
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
-            val appList = viewModel.appListLiveData.value?.toMutableList()
-            appList?.let {
+            val appList = viewModel.appListLiveData.value?.first?.toMutableList() ?: emptyList()
+            appList.let {
                 mainActivityViewModel.updateStatusOfFusedApps(it, list)
             }
-            viewModel.appListLiveData.value = appList
+
+            /*
+             * Done in one line, so that on Ctrl+click on appListLiveData,
+             * we can see that it is being updated here.
+             */
+            viewModel.appListLiveData.apply { value = Pair(appList, value?.second) }
         }
     }
 
@@ -148,42 +155,89 @@ class ApplicationListFragment : Fragment(R.layout.fragment_application_list), Fu
         }
 
         viewModel.appListLiveData.observe(viewLifecycleOwner) {
-            listAdapter?.setData(it)
+            listAdapter?.setData(it.first)
             if (!isDownloadObserverAdded) {
                 observeDownloadList()
                 isDownloadObserverAdded = true
             }
-            binding.shimmerLayout.visibility = View.GONE
-            recyclerView.visibility = View.VISIBLE
-        }
-
-        mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) { isInternetConnection ->
-            mainActivityViewModel.authData.value?.let { authData ->
-                if (isInternetConnection) {
-                    viewModel.getList(
-                        args.category,
-                        args.browseUrl,
-                        authData,
-                        args.source
-                    )
-
-                    if (args.source != "Open Source" && args.source != "PWA") {
-                        /*
-                         * For Play store apps we try to load more apps on reaching end of list.
-                         * Source: https://stackoverflow.com/a/46342525
-                         */
-                        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                                super.onScrollStateChanged(recyclerView, newState)
-                                if (!recyclerView.canScrollVertically(1)) {
-                                    viewModel.getPlayStoreAppsOnScroll(args.browseUrl, authData)
-                                }
-                            }
-                        })
-                    }
-                }
+            stopLoadingUI()
+            if (it.second != ResultStatus.OK) {
+                onTimeout()
             }
         }
+
+        /*
+         * Explanation of double observers in HomeFragment.kt
+         */
+
+        mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) {
+            refreshDataOrRefreshToken(mainActivityViewModel)
+        }
+        mainActivityViewModel.authData.observe(viewLifecycleOwner) {
+            refreshDataOrRefreshToken(mainActivityViewModel)
+        }
+    }
+
+    override fun onTimeout() {
+        if (!isTimeoutDialogDisplayed()) {
+            stopLoadingUI()
+            displayTimeoutAlertDialog(
+                timeoutFragment = this,
+                activity = requireActivity(),
+                message = getString(R.string.timeout_desc_cleanapk),
+                positiveButtonText = getString(R.string.retry),
+                positiveButtonBlock = {
+                    showLoadingUI()
+                    resetTimeoutDialogLock()
+                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
+                },
+                negativeButtonText = getString(android.R.string.ok),
+                negativeButtonBlock = {},
+                allowCancel = true,
+            )
+        }
+    }
+
+    override fun refreshData(authData: AuthData) {
+        showLoadingUI()
+
+        /*
+         * Code moved from onResume()
+         */
+
+        viewModel.getList(
+            args.category,
+            args.browseUrl,
+            authData,
+            args.source
+        )
+
+        if (args.source != "Open Source" && args.source != "PWA") {
+            /*
+             * For Play store apps we try to load more apps on reaching end of list.
+             * Source: https://stackoverflow.com/a/46342525
+             */
+            binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                    if (!recyclerView.canScrollVertically(1)) {
+                        viewModel.getPlayStoreAppsOnScroll(args.browseUrl, authData)
+                    }
+                }
+            })
+        }
+    }
+
+    private fun showLoadingUI() {
+        binding.shimmerLayout.startShimmer()
+        binding.shimmerLayout.visibility = View.VISIBLE
+        binding.recyclerView.visibility = View.GONE
+    }
+
+    private fun stopLoadingUI() {
+        binding.shimmerLayout.stopShimmer()
+        binding.shimmerLayout.visibility = View.GONE
+        binding.recyclerView.visibility = View.VISIBLE
     }
 
     private fun updateProgressOfDownloadingItems(

@@ -21,19 +21,21 @@ package foundation.e.apps.updates
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.AppInfoFetchViewModel
 import foundation.e.apps.AppProgressViewModel
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.PrivacyInfoViewModel
 import foundation.e.apps.R
+import foundation.e.apps.api.fused.FusedAPIImpl
 import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
@@ -42,14 +44,17 @@ import foundation.e.apps.databinding.FragmentUpdatesBinding
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.updates.manager.UpdatesWorkManager
+import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
+import foundation.e.apps.utils.parentFragment.TimeoutFragment
+import foundation.e.apps.utils.modules.CommonUtilsModule.safeNavigate
 import foundation.e.apps.utils.modules.PWAManagerModule
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class UpdatesFragment : Fragment(R.layout.fragment_updates), FusedAPIInterface {
+class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInterface {
 
     private var _binding: FragmentUpdatesBinding? = null
     private val binding get() = _binding!!
@@ -74,15 +79,15 @@ class UpdatesFragment : Fragment(R.layout.fragment_updates), FusedAPIInterface {
 
         binding.button.isEnabled = false
 
-        mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) { hasInternet ->
-            mainActivityViewModel.authData.observe(viewLifecycleOwner) { data ->
-                if (hasInternet) {
-                    updatesViewModel.getUpdates(data)
-                    binding.button.setOnClickListener {
-                        UpdatesWorkManager.startUpdateAllWork(requireContext().applicationContext)
-                    }
-                }
-            }
+        /*
+         * Explanation of double observers in HomeFragment.kt
+         */
+
+        mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) {
+            refreshDataOrRefreshToken(mainActivityViewModel)
+        }
+        mainActivityViewModel.authData.observe(viewLifecycleOwner) {
+            refreshDataOrRefreshToken(mainActivityViewModel)
         }
 
         val recyclerView = binding.recyclerView
@@ -126,30 +131,82 @@ class UpdatesFragment : Fragment(R.layout.fragment_updates), FusedAPIInterface {
         }
 
         updatesViewModel.updatesList.observe(viewLifecycleOwner) {
-            listAdapter?.setData(it)
+            listAdapter?.setData(it.first)
             if (!isDownloadObserverAdded) {
                 observeDownloadList()
                 isDownloadObserverAdded = true
             }
-            binding.progressBar.visibility = View.GONE
-            recyclerView.visibility = View.VISIBLE
-            if (!it.isNullOrEmpty()) {
+            stopLoadingUI()
+            if (!it.first.isNullOrEmpty()) {
                 binding.button.isEnabled = true
                 binding.noUpdates.visibility = View.GONE
             } else {
                 binding.noUpdates.visibility = View.VISIBLE
                 binding.button.isEnabled = false
             }
+            if (it.second != ResultStatus.OK) {
+                onTimeout()
+            }
         }
+    }
+
+    override fun onTimeout() {
+        if (!isTimeoutDialogDisplayed()) {
+            stopLoadingUI()
+            displayTimeoutAlertDialog(
+                timeoutFragment = this,
+                activity = requireActivity(),
+                message =
+                if (updatesViewModel.getApplicationCategoryPreference() == FusedAPIImpl.APP_TYPE_ANY) {
+                    getString(R.string.timeout_desc_gplay)
+                } else {
+                    getString(R.string.timeout_desc_cleanapk)
+                },
+                positiveButtonText = getString(R.string.retry),
+                positiveButtonBlock = {
+                    showLoadingUI()
+                    resetTimeoutDialogLock()
+                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
+                },
+                negativeButtonText =
+                if (updatesViewModel.getApplicationCategoryPreference() == FusedAPIImpl.APP_TYPE_ANY) {
+                    getString(R.string.open_settings)
+                } else null,
+                negativeButtonBlock = {
+                    openSettings()
+                },
+                allowCancel = true,
+            )
+        }
+    }
+
+    override fun refreshData(authData: AuthData) {
+        showLoadingUI()
+        updatesViewModel.getUpdates(authData)
+        binding.button.setOnClickListener {
+            UpdatesWorkManager.startUpdateAllWork(requireContext().applicationContext)
+        }
+    }
+
+    private fun showLoadingUI() {
+        binding.button.isEnabled = false
+        binding.noUpdates.visibility = View.GONE
+        binding.progressBar.visibility = View.VISIBLE
+        binding.recyclerView.visibility = View.INVISIBLE
+    }
+
+    private fun stopLoadingUI() {
+        binding.progressBar.visibility = View.GONE
+        binding.recyclerView.visibility = View.VISIBLE
     }
 
     private fun observeDownloadList() {
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
-            val appList = updatesViewModel.updatesList.value?.toMutableList()
-            appList?.let {
+            val appList = updatesViewModel.updatesList.value?.first?.toMutableList() ?: emptyList()
+            appList.let {
                 mainActivityViewModel.updateStatusOfFusedApps(appList, list)
             }
-            updatesViewModel.updatesList.value = appList
+            updatesViewModel.updatesList.apply { value = Pair(appList, value?.second) }
         }
     }
 
@@ -188,5 +245,15 @@ class UpdatesFragment : Fragment(R.layout.fragment_updates), FusedAPIInterface {
 
     override fun cancelDownload(app: FusedApp) {
         mainActivityViewModel.cancelDownload(app)
+    }
+
+    private fun openSettings() {
+        view?.findNavController()
+            ?.safeNavigate(R.id.updatesFragment, R.id.action_updatesFragment_to_SettingsFragment)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        resetTimeoutDialogLock()
     }
 }
