@@ -80,6 +80,7 @@ class InstallerService : Service() {
         GlobalScope.launch {
             val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)
             fusedManagerRepository.installationIssue(fusedDownload)
+            Log.d("InstallService", ">>> install failed ")
         }
     }
 }

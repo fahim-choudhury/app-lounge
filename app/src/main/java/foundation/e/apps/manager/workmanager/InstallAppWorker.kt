@@ -46,6 +46,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.sync.Mutex
+import java.lang.RuntimeException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -84,7 +85,7 @@ class InstallAppWorker @AssistedInject constructor(
         var fusedDownload: FusedDownload? = null
         try {
             val fusedDownloadString = params.inputData.getString(INPUT_DATA_FUSED_DOWNLOAD) ?: ""
-            Log.d(TAG, "Fused download name $fusedDownloadString")
+            Log.d(TAG, ">>> Fused download name $fusedDownloadString")
             fusedDownload = databaseRepository.getDownloadById(fusedDownloadString)
             fusedDownload?.let {
                 if (fusedDownload.status != Status.AWAITING) {
@@ -96,15 +97,17 @@ class InstallAppWorker @AssistedInject constructor(
                     )
                 )
                 startAppInstallationProcess(it)
+                Log.d(TAG, ">>> doWork: Locking mutex")
                 mutex.lock()
+                Log.d(TAG, ">>> doWork: released mutex")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "doWork: Failed: ${e.stackTraceToString()}")
+            Log.e(TAG, ">>> doWork: Failed: ${e.stackTraceToString()}")
             fusedDownload?.let {
                 fusedManagerRepository.installationIssue(it)
             }
         } finally {
-            Log.d(TAG, "doWork: RESULT SUCCESS: ${fusedDownload?.name}")
+            Log.d(TAG, ">>> doWork: RESULT SUCCESS: ${fusedDownload?.name}")
             return Result.success()
         }
     }
@@ -113,7 +116,6 @@ class InstallAppWorker @AssistedInject constructor(
         fusedDownload: FusedDownload
     ) {
         fusedManagerRepository.downloadApp(fusedDownload)
-        Log.d(TAG, "===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}")
         if (fusedDownload.type == Type.NATIVE) {
             isDownloading = true
             tickerFlow(1.seconds)
@@ -122,6 +124,7 @@ class InstallAppWorker @AssistedInject constructor(
                 }.launchIn(CoroutineScope(Dispatchers.IO))
             observeDownload(fusedDownload)
         }
+        Log.d(TAG, ">>> ===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}")
     }
 
     private fun tickerFlow(period: Duration, initialDelay: Duration = Duration.ZERO) = flow {
@@ -173,7 +176,7 @@ class InstallAppWorker @AssistedInject constructor(
                 try {
                     handleFusedDownloadStatus(fusedDownload)
                 } catch (e: Exception) {
-                    Log.e(TAG, "observeDownload: ", e)
+                    Log.e(TAG, " >>> observeDownload: ", e)
                     isDownloading = false
                     unlockMutex()
                 }
@@ -195,18 +198,22 @@ class InstallAppWorker @AssistedInject constructor(
             }
             Status.INSTALLED, Status.INSTALLATION_ISSUE -> {
                 isDownloading = false
-                unlockMutex()
                 Log.d(
                     TAG,
-                    "===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}"
+                    ">>> ===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}"
                 )
+                if(fusedDownload.status == Status.INSTALLATION_ISSUE) {
+                    throw RuntimeException("App Installation issue!")
+                } else {
+                    unlockMutex()
+                }
             }
             else -> {
                 isDownloading = false
                 unlockMutex()
                 Log.wtf(
                     TAG,
-                    "===> ${fusedDownload.name} is in wrong state ${fusedDownload.status}"
+                    ">>> ===> ${fusedDownload.name} is in wrong state ${fusedDownload.status}"
                 )
             }
         }
@@ -215,6 +222,7 @@ class InstallAppWorker @AssistedInject constructor(
     private fun unlockMutex() {
         if (mutex.isLocked) {
             mutex.unlock()
+            Log.d(TAG, ">>> unlockMutex:")
         }
     }
 

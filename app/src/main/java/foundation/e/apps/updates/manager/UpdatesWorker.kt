@@ -153,6 +153,7 @@ class UpdatesWorker @AssistedInject constructor(
                 "startUpdateProcess: Enqueued for update: ${fusedDownload.name} ${fusedDownload.id} ${fusedDownload.status}"
             )
             InstallWorkManager.enqueueWork(fusedDownload)
+            Log.d(TAG, ">>> startUpdateProcess: ${fusedDownload.name}")
         }
     }
 
