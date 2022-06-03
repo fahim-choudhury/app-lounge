@@ -25,6 +25,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.updates.manager.UpdatesManagerRepository
+import foundation.e.apps.utils.enums.ResultStatus
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -33,14 +34,21 @@ class UpdatesViewModel @Inject constructor(
     private val updatesManagerRepository: UpdatesManagerRepository
 ) : ViewModel() {
 
-    val updatesList: MutableLiveData<List<FusedApp>> = MutableLiveData()
+    val updatesList: MutableLiveData<Pair<List<FusedApp>, ResultStatus?>> = MutableLiveData()
 
     fun getUpdates(authData: AuthData) {
         viewModelScope.launch {
+            val updatesResult = updatesManagerRepository.getUpdates(authData)
             updatesList.postValue(
-                updatesManagerRepository.getUpdates(authData)
-                    .filter { !(!it.isFree && authData.isAnonymous) }
+                Pair(
+                    updatesResult.first.filter { !(!it.isFree && authData.isAnonymous) },
+                    updatesResult.second
+                )
             )
         }
+    }
+
+    fun getApplicationCategoryPreference(): String {
+        return updatesManagerRepository.getApplicationCategoryPreference()
     }
 }

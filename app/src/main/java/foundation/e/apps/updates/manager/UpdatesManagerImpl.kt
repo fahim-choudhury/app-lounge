@@ -23,6 +23,7 @@ import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Origin
+import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import javax.inject.Inject
 
@@ -33,35 +34,50 @@ class UpdatesManagerImpl @Inject constructor(
     private val TAG = UpdatesManagerImpl::class.java.simpleName
 
     // TODO: MAKE THIS LOGIC MORE SANE
-    suspend fun getUpdates(authData: AuthData): List<FusedApp> {
+    suspend fun getUpdates(authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
         val pkgList = mutableListOf<String>()
         val updateList = mutableListOf<FusedApp>()
+        var status = ResultStatus.OK
 
         val userApplications = pkgManagerModule.getAllUserApps()
         userApplications.forEach { pkgList.add(it.packageName) }
 
         if (pkgList.isNotEmpty()) {
             // Get updates from CleanAPK
-            val cleanAPKList = fusedAPIRepository.getApplicationDetails(
+            val cleanAPKResult = fusedAPIRepository.getApplicationDetails(
                 pkgList,
                 authData,
                 Origin.CLEANAPK
             )
-            cleanAPKList.forEach {
+            cleanAPKResult.first.forEach {
                 if (it.package_name in pkgList) pkgList.remove(it.package_name)
                 if (it.status == Status.UPDATABLE) updateList.add(it)
             }
+            cleanAPKResult.second.let {
+                if (it != ResultStatus.OK) {
+                    status = it
+                }
+            }
 
             // Check for remaining apps from GPlay
-            val gPlayList = fusedAPIRepository.getApplicationDetails(
+            val gPlayResult = fusedAPIRepository.getApplicationDetails(
                 pkgList,
                 authData,
                 Origin.GPLAY
             )
-            gPlayList.forEach {
+            gPlayResult.first.forEach {
                 if (it.status == Status.UPDATABLE) updateList.add(it)
             }
+            gPlayResult.second.let {
+                if (it != ResultStatus.OK) {
+                    status = it
+                }
+            }
         }
-        return updateList
+        return Pair(updateList, status)
+    }
+
+    fun getApplicationCategoryPreference(): String {
+        return fusedAPIRepository.getApplicationCategoryPreference()
     }
 }

@@ -29,7 +29,6 @@ import android.widget.LinearLayout
 import androidx.appcompat.widget.SearchView
 import androidx.cursoradapter.widget.CursorAdapter
 import androidx.cursoradapter.widget.SimpleCursorAdapter
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -37,6 +36,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aurora.gplayapi.SearchSuggestEntry
+import com.aurora.gplayapi.data.models.AuthData
 import com.facebook.shimmer.ShimmerFrameLayout
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.AppInfoFetchViewModel
@@ -50,15 +50,17 @@ import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.applicationlist.model.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentSearchBinding
 import foundation.e.apps.manager.pkg.PkgManagerModule
+import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
+import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import foundation.e.apps.utils.modules.PWAManagerModule
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class SearchFragment :
-    Fragment(R.layout.fragment_search),
+    TimeoutFragment(R.layout.fragment_search),
     SearchView.OnQueryTextListener,
     SearchView.OnSuggestionListener,
     FusedAPIInterface {
@@ -85,6 +87,12 @@ class SearchFragment :
     private var recyclerView: RecyclerView? = null
     private var searchHintLayout: LinearLayout? = null
     private var noAppsFoundLayout: LinearLayout? = null
+
+    /*
+     * Store the string from onQueryTextSubmit() and access it from refreshData()
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
+     */
+    private var searchText = ""
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -172,23 +180,41 @@ class SearchFragment :
         }
 
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
-
-            val searchList = searchViewModel.searchResult.value?.toMutableList()
-            searchList?.let {
+            val searchList = searchViewModel.searchResult.value?.first?.toMutableList() ?: emptyList()
+            searchList.let {
                 mainActivityViewModel.updateStatusOfFusedApps(searchList, list)
             }
-            searchViewModel.searchResult.value = searchList
+
+            /*
+             * Done in one line, so that on Ctrl+click on searchResult,
+             * we can see that it is being updated here.
+             */
+            searchViewModel.searchResult.apply { value = Pair(searchList, value?.second) }
+        }
+
+
+        /*
+         * Explanation of double observers in HomeFragment.kt
+         * Modified to check and search only if searchText in not blank, to prevent blank search.
+         */
+
+        mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) {
+            if (searchText.isNotBlank()) {
+                refreshDataOrRefreshToken(mainActivityViewModel)
+            }
+        }
+        mainActivityViewModel.authData.observe(viewLifecycleOwner) {
+            if (searchText.isNotBlank()) {
+                refreshDataOrRefreshToken(mainActivityViewModel)
+            }
         }
 
         searchViewModel.searchResult.observe(viewLifecycleOwner) {
-
-            if (it.isNullOrEmpty()) {
+            if (it.first.isNullOrEmpty()) {
                 noAppsFoundLayout?.visibility = View.VISIBLE
             } else {
-
-                listAdapter?.setData(it)
-                shimmerLayout?.visibility = View.GONE
-                recyclerView?.visibility = View.VISIBLE
+                listAdapter?.setData(it.first)
+                stopLoadingUI()
                 noAppsFoundLayout?.visibility = View.GONE
             }
             listAdapter?.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
@@ -196,11 +222,56 @@ class SearchFragment :
                     recyclerView!!.scrollToPosition(0)
                 }
             })
+            if (searchText.isNotBlank() && it.second != ResultStatus.OK) {
+                /*
+                 * If blank check is not performed then timeout dialog keeps
+                 * popping up whenever search tab is opened.
+                 */
+                onTimeout()
+            }
         }
+    }
+
+    override fun onTimeout() {
+        if (!isTimeoutDialogDisplayed()) {
+            stopLoadingUI()
+            displayTimeoutAlertDialog(
+                timeoutFragment = this,
+                activity = requireActivity(),
+                message = getString(R.string.timeout_desc_cleanapk),
+                positiveButtonText = getString(R.string.retry),
+                positiveButtonBlock = {
+                    showLoadingUI()
+                    resetTimeoutDialogLock()
+                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
+                },
+                negativeButtonText = getString(android.R.string.ok),
+                negativeButtonBlock = {},
+                allowCancel = true,
+            )
+        }
+    }
+
+    override fun refreshData(authData: AuthData) {
+        showLoadingUI()
+        searchViewModel.getSearchResults(searchText, authData)
+    }
+
+    private fun showLoadingUI() {
+        binding.shimmerLayout.startShimmer()
+        binding.shimmerLayout.visibility = View.VISIBLE
+        binding.recyclerView.visibility = View.GONE
+    }
+
+    private fun stopLoadingUI() {
+        binding.shimmerLayout.stopShimmer()
+        binding.shimmerLayout.visibility = View.GONE
+        binding.recyclerView.visibility = View.VISIBLE
     }
 
     override fun onResume() {
         super.onResume()
+        resetTimeoutDialogLock()
         binding.shimmerLayout.startShimmer()
     }
 
@@ -210,7 +281,6 @@ class SearchFragment :
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
-
         query?.let { text ->
             hideKeyboard(activity as Activity)
             view?.requestFocus()
@@ -218,7 +288,11 @@ class SearchFragment :
             shimmerLayout?.visibility = View.VISIBLE
             recyclerView?.visibility = View.GONE
             noAppsFoundLayout?.visibility = View.GONE
-            mainActivityViewModel.authData.value?.let { searchViewModel.getSearchResults(text, it) }
+            /*
+             * Set the search text and call for network result.
+             */
+            searchText = text
+            refreshDataOrRefreshToken(mainActivityViewModel)
         }
         return false
     }
@@ -237,9 +311,7 @@ class SearchFragment :
     }
 
     override fun onSuggestionClick(position: Int): Boolean {
-
         searchViewModel.searchSuggest.value?.let {
-
             searchView?.setQuery(it[position].suggestedQuery, true)
         }
         return true

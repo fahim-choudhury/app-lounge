@@ -26,6 +26,7 @@ import com.aurora.gplayapi.data.models.Category
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedCategory
+import foundation.e.apps.utils.enums.ResultStatus
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,11 +35,16 @@ class CategoriesViewModel @Inject constructor(
     private val fusedAPIRepository: FusedAPIRepository
 ) : ViewModel() {
 
-    val categoriesList: MutableLiveData<List<FusedCategory>> = MutableLiveData()
+    val categoriesList: MutableLiveData<Triple<List<FusedCategory>, String, ResultStatus>> =
+        MutableLiveData()
 
     fun getCategoriesList(type: Category.Type, authData: AuthData) {
         viewModelScope.launch {
             categoriesList.postValue(fusedAPIRepository.getCategoriesList(type, authData))
         }
+    }
+
+    fun isCategoriesEmpty(): Boolean {
+        return categoriesList.value?.first?.isEmpty() ?: true
     }
 }
