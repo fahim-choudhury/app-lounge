@@ -19,7 +19,7 @@ object InstallWorkManager {
                 Data.Builder()
                     .putString(InstallAppWorker.INPUT_DATA_FUSED_DOWNLOAD, fusedDownload.id)
                     .build()
-            ).addTag(fusedDownload.name)
+            ).addTag(fusedDownload.id)
                 .build()
         )
     }
