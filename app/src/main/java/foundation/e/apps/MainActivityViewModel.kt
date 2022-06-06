@@ -49,7 +49,6 @@ import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.manager.pkg.PkgManagerModule
-import foundation.e.apps.manager.workmanager.InstallWorkManager
 import foundation.e.apps.settings.SettingsFragment
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
@@ -474,7 +473,7 @@ class MainActivityViewModel @Inject constructor(
             val fusedDownload =
                 fusedManagerRepository.getFusedDownload(packageName = app.package_name)
             fusedManagerRepository.cancelDownload(fusedDownload)
-            InstallWorkManager.cancelWork(app.name)
+//            InstallWorkManager.cancelWork(app._id)
         }
     }
 
