@@ -55,6 +55,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface {
 
+    private lateinit var homeParentRVAdapter: HomeParentRVAdapter
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
@@ -126,7 +127,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
             refreshDataOrRefreshToken(mainActivityViewModel)
         }
 
-        val homeParentRVAdapter = HomeParentRVAdapter(
+        homeParentRVAdapter = HomeParentRVAdapter(
             this,
             pkgManagerModule,
             pwaManagerModule,
@@ -159,10 +160,6 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
             } else {
                 onTimeout()
             }
-        }
-
-        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
-            updateProgressOfDownloadingAppItemViews(homeParentRVAdapter, it)
         }
     }
 
@@ -259,6 +256,9 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         super.onResume()
         resetTimeoutDialogLock()
         binding.shimmerLayout.startShimmer()
+        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
+            updateProgressOfDownloadingAppItemViews(homeParentRVAdapter, it)
+        }
     }
 
     override fun onPause() {

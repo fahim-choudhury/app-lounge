@@ -31,12 +31,11 @@ class DownloadProgressLD @Inject constructor(
     override fun observe(owner: LifecycleOwner, observer: Observer<in DownloadProgress>) {
         job = Job()
         super.observe(owner, observer)
-    }
 
-    override fun onActive() {
-        super.onActive()
+        val hasActiveObservers = hasActiveObservers()
+
         launch {
-            while (isActive) {
+            while (hasActiveObservers) {
                 val downloads = fusedManagerRepository.getDownloadList()
                 val downloadingList =
                     downloads.map { it.downloadIdMap }.filter { it.values.contains(false) }
@@ -80,7 +79,6 @@ class DownloadProgressLD @Inject constructor(
                                 }
 
                                 if (downloadingIds.isEmpty()) {
-                                    clearDownload()
                                     cancel()
                                 }
                                 cursor.moveToNext()

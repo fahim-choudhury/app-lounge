@@ -277,8 +277,6 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             if (appInfoFetchViewModel.isAppInBlockedList(it)) {
                 binding.snackbarLayout.visibility = View.VISIBLE
             }
-
-            observeDownloadStatus(view)
             fetchAppTracker(it)
         }
 
@@ -371,6 +369,11 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        observeDownloadStatus(binding.root)
     }
 
     private fun handleInstallingIssue(

@@ -150,10 +150,6 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
             layoutManager = LinearLayoutManager(view?.context)
         }
 
-        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
-            updateProgressOfDownloadingItems(recyclerView, it)
-        }
-
         viewModel.appListLiveData.observe(viewLifecycleOwner) {
             listAdapter?.setData(it.first)
             if (!isDownloadObserverAdded) {
@@ -225,6 +221,10 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
                     }
                 }
             })
+        }
+
+        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
+            updateProgressOfDownloadingItems(binding.recyclerView, it)
         }
     }
 

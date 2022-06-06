@@ -126,10 +126,6 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
             layoutManager = LinearLayoutManager(view.context)
         }
 
-        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
-            updateProgressOfDownloadingItems(recyclerView, it)
-        }
-
         updatesViewModel.updatesList.observe(viewLifecycleOwner) {
             listAdapter?.setData(it.first)
             if (!isDownloadObserverAdded) {
@@ -200,6 +196,14 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         binding.recyclerView.visibility = View.VISIBLE
     }
 
+    override fun onResume() {
+        super.onResume()
+        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
+            updateProgressOfDownloadingItems(binding.recyclerView, it)
+        }
+        resetTimeoutDialogLock()
+    }
+
     private fun observeDownloadList() {
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
             val appList = updatesViewModel.updatesList.value?.first?.toMutableList() ?: emptyList()
@@ -250,10 +254,5 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
     private fun openSettings() {
         view?.findNavController()
             ?.safeNavigate(R.id.updatesFragment, R.id.action_updatesFragment_to_SettingsFragment)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        resetTimeoutDialogLock()
     }
 }
