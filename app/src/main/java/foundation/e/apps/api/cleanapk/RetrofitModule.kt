@@ -22,12 +22,15 @@ import android.os.Build
 import android.util.Log
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import foundation.e.apps.api.cleanapk.data.app.Application
 import foundation.e.apps.api.ecloud.EcloudApiInterface
 import foundation.e.apps.api.exodus.ExodusTrackerApi
 import foundation.e.apps.api.fdroid.FdroidApiInterface
@@ -39,6 +42,7 @@ import okhttp3.Protocol
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.jackson.JacksonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.net.ConnectException
@@ -63,6 +67,24 @@ object RetrofitModule {
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
             .create(CleanAPKInterface::class.java)
+    }
+
+    /**
+     * Provides an instance of Retrofit to work with CleanAPK API
+     * @return instance of [CleanApkAppDetailApi]
+     */
+    @Singleton
+    @Provides
+    fun provideCleanAPKDetailApi(
+        okHttpClient: OkHttpClient,
+        @Named("gsonCustomAdapter") gson: Gson
+    ): CleanApkAppDetailApi {
+        return Retrofit.Builder()
+            .baseUrl(CleanAPKInterface.BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+            .create(CleanApkAppDetailApi::class.java)
     }
 
     @Singleton
@@ -112,6 +134,16 @@ object RetrofitModule {
         return Moshi.Builder()
             .add(KotlinJsonAdapterFactory())
             .build()
+    }
+
+    @Singleton
+    @Provides
+    @Named("gsonCustomAdapter")
+    fun getGson(): Gson {
+        return GsonBuilder()
+            .registerTypeAdapter(Application::class.java, ApplicationDeserializer())
+            .enableComplexMapKeySerialization()
+            .create()
     }
 
     /**

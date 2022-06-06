@@ -227,7 +227,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             binding.infoInclude.apply {
                 appUpdatedOn.text = getString(
                     R.string.updated_on,
-                    if (args.origin == Origin.CLEANAPK) getString(R.string.not_available) else it.last_modified
+                    if (args.origin == Origin.CLEANAPK) it.updatedOn else it.last_modified
                 )
                 appRequires.text = getString(R.string.min_android_version, notAvailable)
                 appVersion.text = getString(
