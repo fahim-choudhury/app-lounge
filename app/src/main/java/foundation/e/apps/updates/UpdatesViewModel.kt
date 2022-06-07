@@ -18,19 +18,24 @@
 
 package foundation.e.apps.updates
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkInfo
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.updates.manager.UpdatesManagerRepository
+import foundation.e.apps.utils.enums.Status
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class UpdatesViewModel @Inject constructor(
-    private val updatesManagerRepository: UpdatesManagerRepository
+    private val updatesManagerRepository: UpdatesManagerRepository,
+    private val fusedAPIRepository: FusedAPIRepository
 ) : ViewModel() {
 
     val updatesList: MutableLiveData<List<FusedApp>> = MutableLiveData()
@@ -42,5 +47,30 @@ class UpdatesViewModel @Inject constructor(
                     .filter { !(!it.isFree && authData.isAnonymous) }
             )
         }
+    }
+
+    suspend fun checkWorkInfoListHasAnyUpdatableWork(workInfoList: List<WorkInfo>): Boolean {
+        workInfoList.forEach { workInfo ->
+            if (listOf(
+                    WorkInfo.State.ENQUEUED,
+                    WorkInfo.State.RUNNING
+                ).contains(workInfo.state) && checkWorkIsForUpdateByTag(workInfo.tags.toList())
+            ) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun checkWorkIsForUpdateByTag(tags: List<String>): Boolean {
+        updatesList.value?.let {
+            it.find { fusedApp -> tags.contains(fusedApp._id) }?.let { foundApp ->
+                return listOf(
+                    Status.INSTALLED,
+                    Status.UPDATABLE
+                ).contains(fusedAPIRepository.getFusedAppInstallationStatus(foundApp))
+            }
+        }
+        return false
     }
 }
