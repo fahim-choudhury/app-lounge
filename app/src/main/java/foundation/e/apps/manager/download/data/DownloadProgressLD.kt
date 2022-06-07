@@ -59,6 +59,8 @@ class DownloadProgressLD @Inject constructor(
                                 val bytesDownloadedSoFar =
                                     cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
 
+                                downloadProgress.downloadId = id
+
                                 if (!downloadProgress.totalSizeBytes.containsKey(id) ||
                                     downloadProgress.totalSizeBytes[id] != totalSizeBytes
                                 ) {

@@ -224,14 +224,15 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                 if (fusedApp.status == Status.DOWNLOADING) {
                     val progress =
                         appProgressViewModel.calculateProgress(fusedApp, downloadProgress)
-                    val downloadProgress =
-                        ((progress.second / progress.first.toDouble()) * 100).toInt()
+                    if (progress == -1) {
+                        return@forEach
+                    }
                     val viewHolder = recyclerView.findViewHolderForAdapterPosition(
                         adapter.currentList.indexOf(fusedApp)
                     )
                     viewHolder?.let {
                         (viewHolder as ApplicationListRVAdapter.ViewHolder).binding.installButton.text =
-                            "$downloadProgress%"
+                            "$progress%"
                     }
                 }
             }
