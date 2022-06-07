@@ -19,6 +19,7 @@
 package foundation.e.apps.updates
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
@@ -28,6 +29,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.AppInfoFetchViewModel
 import foundation.e.apps.AppProgressViewModel
@@ -41,6 +43,7 @@ import foundation.e.apps.applicationlist.model.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentUpdatesBinding
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
+import foundation.e.apps.manager.workmanager.InstallWorkManager.INSTALL_WORK_NAME
 import foundation.e.apps.updates.manager.UpdatesWorkManager
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
@@ -80,6 +83,7 @@ class UpdatesFragment : Fragment(R.layout.fragment_updates), FusedAPIInterface {
                     updatesViewModel.getUpdates(data)
                     binding.button.setOnClickListener {
                         UpdatesWorkManager.startUpdateAllWork(requireContext().applicationContext)
+                        binding.button.isEnabled = false
                     }
                 }
             }
@@ -140,7 +144,17 @@ class UpdatesFragment : Fragment(R.layout.fragment_updates), FusedAPIInterface {
                 binding.noUpdates.visibility = View.VISIBLE
                 binding.button.isEnabled = false
             }
+
+            WorkManager.getInstance(requireContext())
+                .getWorkInfosForUniqueWorkLiveData(INSTALL_WORK_NAME).observe(viewLifecycleOwner) {
+                    lifecycleScope.launchWhenResumed {
+                        binding.button.isEnabled =
+                            !updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(it)
+                    }
+                }
         }
+
+
     }
 
     private fun observeDownloadList() {
