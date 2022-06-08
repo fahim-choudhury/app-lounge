@@ -46,6 +46,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.sync.Mutex
+import timber.log.Timber
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -84,7 +85,7 @@ class InstallAppWorker @AssistedInject constructor(
         var fusedDownload: FusedDownload? = null
         try {
             val fusedDownloadString = params.inputData.getString(INPUT_DATA_FUSED_DOWNLOAD) ?: ""
-            Log.d(TAG, "Fused download name $fusedDownloadString")
+            Timber.d( "Fused download name $fusedDownloadString")
             fusedDownload = databaseRepository.getDownloadById(fusedDownloadString)
             fusedDownload?.let {
                 if (fusedDownload.status != Status.AWAITING) {
@@ -104,7 +105,7 @@ class InstallAppWorker @AssistedInject constructor(
                 fusedManagerRepository.installationIssue(it)
             }
         } finally {
-            Log.d(TAG, "doWork: RESULT SUCCESS: ${fusedDownload?.name}")
+            Timber.d( "doWork: RESULT SUCCESS: ${fusedDownload?.name}")
             return Result.success()
         }
     }
@@ -113,7 +114,7 @@ class InstallAppWorker @AssistedInject constructor(
         fusedDownload: FusedDownload
     ) {
         fusedManagerRepository.downloadApp(fusedDownload)
-        Log.d(TAG, "===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}")
+        Timber.d( "===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}")
         if (fusedDownload.type == Type.NATIVE) {
             isDownloading = true
             tickerFlow(1.seconds)

@@ -29,6 +29,7 @@ import foundation.e.apps.utils.enums.Status
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -55,7 +56,7 @@ open class PkgManagerBR : BroadcastReceiver() {
             val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -69)
             val packageName = intent.getStringExtra(PackageInstaller.EXTRA_PACKAGE_NAME)
 
-            Log.d(TAG, "onReceive: $packageName $action $extra $status")
+            Timber.d( "onReceive: $packageName $action $extra $status")
             packages?.let { pkgList ->
                 pkgList.forEach { pkgName ->
                     when (action) {

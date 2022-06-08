@@ -30,8 +30,11 @@ import foundation.e.apps.utils.modules.DataStoreModule
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import timber.log.Timber.Forest.plant
 import java.util.concurrent.Executors
 import javax.inject.Inject
+
 
 @HiltAndroidApp
 @DelicateCoroutinesApi
@@ -59,6 +62,9 @@ class AppLoungeApplication : Application(), Configuration.Provider {
             MainScope().launch {
                 dataStoreModule.saveTOCStatus(false, "")
             }
+        }
+        if (BuildConfig.DEBUG) {
+            plant(Timber.DebugTree())
         }
     }
 

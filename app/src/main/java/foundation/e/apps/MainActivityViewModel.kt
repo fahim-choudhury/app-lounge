@@ -57,6 +57,7 @@ import foundation.e.apps.utils.modules.DataStoreModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.beryukhov.reactivenetwork.ReactiveNetwork
+import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
@@ -185,10 +186,10 @@ class MainActivityViewModel @Inject constructor(
             if (regenerateFunction != null) {
                 dataStoreModule.userType.collect { user ->
                     if (!user.isBlank() && User.valueOf(user) == User.ANONYMOUS) {
-                        Log.d(TAG, "Regenerating auth data for Anonymous user")
+                        Timber.d( "Regenerating auth data for Anonymous user")
                         regenerateFunction(user)
                     } else {
-                        Log.d(TAG, "Ask Google user to log in again")
+                        Timber.d( "Ask Google user to log in again")
                         dataStoreModule.clearUserType()
                     }
                 }

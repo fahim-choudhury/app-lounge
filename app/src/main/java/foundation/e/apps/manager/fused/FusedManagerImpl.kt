@@ -41,6 +41,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Named
@@ -98,7 +99,7 @@ class FusedManagerImpl @Inject constructor(
             flushOldDownload(fusedDownload.packageName)
             databaseRepository.deleteDownload(fusedDownload)
         } else if (status == Status.INSTALLING) {
-            Log.d(TAG, "updateDownloadStatus: Downloaded ===> ${fusedDownload.name} INSTALLING")
+            Timber.d( "updateDownloadStatus: Downloaded ===> ${fusedDownload.name} INSTALLING")
             fusedDownload.downloadIdMap.all { true }
             fusedDownload.status = status
             databaseRepository.updateDownload(fusedDownload)
@@ -128,9 +129,9 @@ class FusedManagerImpl @Inject constructor(
                 list.sort()
                 if (list.size != 0) {
                     try {
-                        Log.d(TAG, "installApp: STARTED ${fusedDownload.name} ${list.size}")
+                        Timber.d( "installApp: STARTED ${fusedDownload.name} ${list.size}")
                         pkgManagerModule.installApplication(list, fusedDownload.packageName)
-                        Log.d(TAG, "installApp: ENDED ${fusedDownload.name} ${list.size}")
+                        Timber.d( "installApp: ENDED ${fusedDownload.name} ${list.size}")
                     } catch (e: Exception) {
                         installationIssue(fusedDownload)
                         throw e
@@ -138,7 +139,7 @@ class FusedManagerImpl @Inject constructor(
                 }
             }
             else -> {
-                Log.d(TAG, "Unsupported application type!")
+                Timber.d( "Unsupported application type!")
                 fusedDownload.status = Status.INSTALLATION_ISSUE
                 databaseRepository.updateDownload(fusedDownload)
                 delay(100)
@@ -162,7 +163,7 @@ class FusedManagerImpl @Inject constructor(
             databaseRepository.deleteDownload(fusedDownload)
             flushOldDownload(fusedDownload.packageName)
         } else {
-            Log.d(TAG, "Unable to cancel download!")
+            Timber.d( "Unable to cancel download!")
         }
     }
 
@@ -180,7 +181,7 @@ class FusedManagerImpl @Inject constructor(
                 }
             }
         }
-        Log.d(TAG, "getFusedDownload: $fusedDownload")
+        Timber.d( "getFusedDownload: $fusedDownload")
         return fusedDownload
     }
 
@@ -201,7 +202,7 @@ class FusedManagerImpl @Inject constructor(
         databaseRepository.updateDownload(fusedDownload)
         DownloadProgressLD.setDownloadId(-1)
         delay(100)
-        Log.d(TAG, "downloadNativeApp: ${fusedDownload.name} ${fusedDownload.downloadURLList.size}")
+        Timber.d( "downloadNativeApp: ${fusedDownload.name} ${fusedDownload.downloadURLList.size}")
         fusedDownload.downloadURLList.forEach {
             count += 1
             val packagePath: File = if (fusedDownload.files.isNotEmpty()) {
@@ -209,7 +210,7 @@ class FusedManagerImpl @Inject constructor(
             } else {
                 File(parentPath, "${fusedDownload.packageName}_$count.apk")
             }
-            Log.d(TAG, "downloadNativeApp: destination path: $packagePath")
+            Timber.d( "downloadNativeApp: destination path: $packagePath")
             val request = DownloadManager.Request(Uri.parse(it))
                 .setTitle(if (count == 1) fusedDownload.name else "Additional file for ${fusedDownload.name}")
                 .setDestinationUri(Uri.fromFile(packagePath))
@@ -249,12 +250,12 @@ class FusedManagerImpl @Inject constructor(
         fusedDownload.files.forEach {
             val parentPath =
                 context.getExternalFilesDir(null)?.absolutePath + "/Android/obb/" + fusedDownload.packageName
-            Log.d(TAG, "updateDownloadStatus: source path: $parentPath filename: ${it.name}")
+            Timber.d( "updateDownloadStatus: source path: $parentPath filename: ${it.name}")
             val file = File(parentPath, it.name)
             if (file.exists()) {
                 val destinationDirectory = Environment.getExternalStorageDirectory()
                     .toString() + "/Android/obb/" + fusedDownload.packageName
-                Log.d(TAG, "updateDownloadStatus: destination path: $destinationDirectory")
+                Timber.d( "updateDownloadStatus: destination path: $destinationDirectory")
                 File(destinationDirectory).mkdirs()
                 FileManager.moveFile("$parentPath/", it.name, "$destinationDirectory/")
             }

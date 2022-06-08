@@ -28,6 +28,7 @@ import foundation.e.apps.R
 import foundation.e.apps.categories.model.CategoriesVPAdapter
 import foundation.e.apps.databinding.FragmentCategoriesBinding
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
+import timber.log.Timber
 
 @AndroidEntryPoint
 class CategoriesFragment : TimeoutFragment(R.layout.fragment_categories) {
@@ -69,7 +70,7 @@ class CategoriesFragment : TimeoutFragment(R.layout.fragment_categories) {
 
         fragment?.let {
             if (it is TimeoutFragment) {
-                Log.d(TAG, "Showing timeout on Categories fragment: " + it::class.java.name)
+                Timber.d( "Showing timeout on Categories fragment: " + it::class.java.name)
                 it.onTimeout()
             }
         }

@@ -48,6 +48,7 @@ import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import foundation.e.apps.utils.modules.CommonUtilsModule
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.File
 import java.util.UUID
 
@@ -90,7 +91,7 @@ class MainActivity : AppCompatActivity() {
                 when (User.valueOf(user)) {
                     User.ANONYMOUS -> {
                         if (viewModel.authDataJson.value.isNullOrEmpty() && !viewModel.authRequestRunning) {
-                            Log.d(TAG, "Fetching new authentication data")
+                            Timber.d( "Fetching new authentication data")
                             viewModel.setFirstTokenFetchTime()
                             viewModel.getAuthData()
                         }
@@ -100,7 +101,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     User.GOOGLE -> {
                         if (viewModel.authData.value == null && !viewModel.authRequestRunning) {
-                            Log.d(TAG, "Fetching new authentication data")
+                            Timber.d( "Fetching new authentication data")
                             viewModel.setFirstTokenFetchTime()
                             signInViewModel.fetchAuthData()
                         }
@@ -127,7 +128,7 @@ class MainActivity : AppCompatActivity() {
                 viewModel.authDataJson.observe(this) {
                     if (!it.isNullOrEmpty()) {
                         viewModel.generateAuthData()
-                        Log.d(TAG, "Authentication data is available!")
+                        Timber.d( "Authentication data is available!")
                     }
                 }
             }
@@ -135,22 +136,22 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.authValidity.observe(this) {
             if (it != true) {
-                Log.d(TAG, "Authentication data validation failed!")
+                Timber.d( "Authentication data validation failed!")
                 viewModel.destroyCredentials { user ->
                     if (viewModel.isTimeEligibleForTokenRefresh()) {
                         generateAuthDataBasedOnUserType(user)
                     } else {
-                        Log.d(TAG, "Timeout validating auth data!")
+                        Timber.d( "Timeout validating auth data!")
                         val lastFragment = navHostFragment.childFragmentManager.fragments[0]
                         if (lastFragment is TimeoutFragment) {
-                            Log.d(TAG, "Displaying timeout from MainActivity on fragment: "
+                            Timber.d( "Displaying timeout from MainActivity on fragment: "
                                     + lastFragment::class.java.name)
                             lastFragment.onTimeout()
                         }
                     }
                 }
             } else {
-                Log.d(TAG, "Authentication data is valid!")
+                Timber.d( "Authentication data is valid!")
             }
         }
 
@@ -250,7 +251,7 @@ class MainActivity : AppCompatActivity() {
             }
             viewModel.updateAwaiting(it)
             InstallWorkManager.enqueueWork(it)
-            Log.d(TAG, "===> onCreate: AWAITING ${it.name}")
+            Timber.d( "===> onCreate: AWAITING ${it.name}")
         }
     }
 

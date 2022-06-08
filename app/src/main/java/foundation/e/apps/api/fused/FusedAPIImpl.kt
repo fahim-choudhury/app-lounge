@@ -53,6 +53,7 @@ import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -155,7 +156,7 @@ class FusedAPIImpl @Inject constructor(
         } catch (e: TimeoutCancellationException) {
             e.printStackTrace()
             apiStatus = ResultStatus.TIMEOUT
-            Log.d(TAG, "Timed out fetching home data for type: $applicationType")
+            Timber.d( "Timed out fetching home data for type: $applicationType")
         } catch (e: Exception) {
             apiStatus = ResultStatus.UNKNOWN
             e.printStackTrace()
