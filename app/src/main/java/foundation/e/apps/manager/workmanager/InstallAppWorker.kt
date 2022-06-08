@@ -145,7 +145,7 @@ class InstallAppWorker @AssistedInject constructor(
         try {
             handleFusedDownloadStatus(download)
         } catch (e: Exception) {
-            Log.e(TAG, " >>> observeDownload: ", e)
+            Log.e(TAG, "observeDownload: ", e)
             isDownloading = false
             unlockMutex()
         }
@@ -203,7 +203,7 @@ class InstallAppWorker @AssistedInject constructor(
                 isDownloading = false
                 Log.d(
                     TAG,
-                    ">>> ===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}"
+                    "===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}"
                 )
                 unlockMutex()
             }
@@ -212,7 +212,7 @@ class InstallAppWorker @AssistedInject constructor(
                 unlockMutex()
                 Log.wtf(
                     TAG,
-                    ">>> ===> ${fusedDownload.name} is in wrong state ${fusedDownload.status}"
+                    "===> ${fusedDownload.name} is in wrong state ${fusedDownload.status}"
                 )
             }
         }

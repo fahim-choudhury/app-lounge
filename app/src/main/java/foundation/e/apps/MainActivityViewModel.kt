@@ -382,7 +382,6 @@ class MainActivityViewModel @Inject constructor(
             val fusedDownload =
                 fusedManagerRepository.getFusedDownload(packageName = app.package_name)
             fusedManagerRepository.cancelDownload(fusedDownload)
-//            InstallWorkManager.cancelWork(app._id)
         }
     }
 
