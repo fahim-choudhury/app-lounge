@@ -14,7 +14,6 @@ import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.google.gson.Gson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -60,7 +59,7 @@ class UpdatesWorker @AssistedInject constructor(
         loadSettings()
         val authData = getAuthData()
         val appsNeededToUpdate = updatesManagerRepository.getUpdates(authData)
-            .filter { !(!it.isFree && authData.isAnonymous) }
+            .first.filter { !(!it.isFree && authData.isAnonymous) }
         val isConnectedToUnmeteredNetwork = isConnectedToUnmeteredNetwork(applicationContext)
         /*
          * Show notification only if enabled.
@@ -117,13 +116,8 @@ class UpdatesWorker @AssistedInject constructor(
         authData: AuthData
     ) {
         appsNeededToUpdate.forEach { fusedApp ->
-            if (!fusedApp.isFree) {
-                val purchaseHelper = PurchaseHelper(authData)
-                purchaseHelper.purchase(
-                    fusedApp.package_name,
-                    fusedApp.latest_version_code,
-                    fusedApp.offer_type
-                )
+            if (!fusedApp.isFree && authData.isAnonymous) {
+                return@forEach
             }
             val iconBase64 = getIconImageToBase64(fusedApp)
 
@@ -144,7 +138,12 @@ class UpdatesWorker @AssistedInject constructor(
                 fusedApp.originalSize
             )
 
-            updateFusedDownloadWithAppDownloadLink(fusedApp, authData, fusedDownload)
+            try {
+                updateFusedDownloadWithAppDownloadLink(fusedApp, authData, fusedDownload)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return@forEach
+            }
 
             fusedManagerRepository.addDownload(fusedDownload)
             fusedManagerRepository.updateAwaiting(fusedDownload)

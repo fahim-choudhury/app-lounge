@@ -33,6 +33,7 @@ import foundation.e.apps.manager.download.data.DownloadProgressLD
 import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Origin
+import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,7 +47,7 @@ class ApplicationViewModel @Inject constructor(
     private val pkgManagerModule: PkgManagerModule
 ) : ViewModel() {
 
-    val fusedApp: MutableLiveData<FusedApp> = MutableLiveData()
+    val fusedApp: MutableLiveData<Pair<FusedApp, ResultStatus>> = MutableLiveData()
     val appStatus: MutableLiveData<Status?> = MutableLiveData()
     val downloadProgress = downloadProgressLD
     private val _errorMessageLiveData: MutableLiveData<Int> = MutableLiveData()
@@ -73,7 +74,7 @@ class ApplicationViewModel @Inject constructor(
 
     fun transformPermsToString(): String {
         var permissionString = ""
-        fusedApp.value?.let {
+        fusedApp.value?.first?.let {
             // Filter list to only keep platform permissions
             val filteredList = it.perms.filter {
                 it.startsWith("android.permission.")
@@ -97,7 +98,7 @@ class ApplicationViewModel @Inject constructor(
     }
 
     suspend fun calculateProgress(progress: DownloadProgress): Pair<Long, Long> {
-        fusedApp.value?.let { app ->
+        fusedApp.value?.first?.let { app ->
             val appDownload = fusedManagerRepository.getDownloadList()
                 .singleOrNull { it.id.contentEquals(app._id) }
             val downloadingMap = progress.totalSizeBytes.filter { item ->
@@ -114,7 +115,7 @@ class ApplicationViewModel @Inject constructor(
     }
 
     fun updateApplicationStatus(downloadList: List<FusedDownload>) {
-        fusedApp.value?.let { app ->
+        fusedApp.value?.first?.let { app ->
             val downloadingItem =
                 downloadList.find { it.origin == app.origin && (it.packageName == app.package_name || it.id == app.package_name) }
             appStatus.value =

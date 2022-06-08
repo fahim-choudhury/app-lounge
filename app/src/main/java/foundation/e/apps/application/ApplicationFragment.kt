@@ -31,7 +31,6 @@ import android.widget.RelativeLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -40,6 +39,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
+import com.aurora.gplayapi.data.models.AuthData
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textview.MaterialTextView
@@ -57,8 +57,10 @@ import foundation.e.apps.databinding.FragmentApplicationBinding
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Origin
+import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
+import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.utils.modules.PWAManagerModule
 import kotlinx.coroutines.Dispatchers
@@ -66,7 +68,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ApplicationFragment : Fragment(R.layout.fragment_application) {
+class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private val args: ApplicationFragmentArgs by navArgs()
     private val TAG = ApplicationFragment::class.java.simpleName
@@ -98,17 +100,15 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentApplicationBinding.bind(view)
 
-        mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) { hasInternet ->
-            mainActivityViewModel.authData.observe(viewLifecycleOwner) { authData ->
-                if (hasInternet) {
-                    applicationViewModel.getApplicationDetails(
-                        args.id,
-                        args.packageName,
-                        authData,
-                        args.origin
-                    )
-                }
-            }
+        /*
+         * Explanation of double observers in HomeFragment.kt
+         */
+
+        mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) {
+            refreshDataOrRefreshToken(mainActivityViewModel)
+        }
+        mainActivityViewModel.authData.observe(viewLifecycleOwner) {
+            refreshDataOrRefreshToken(mainActivityViewModel)
         }
 
         val startDestination = findNavController().graph.startDestination
@@ -137,7 +137,25 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
             applicationViewModel.updateApplicationStatus(list)
         }
 
-        applicationViewModel.fusedApp.observe(viewLifecycleOwner) {
+        applicationViewModel.fusedApp.observe(viewLifecycleOwner) { resultPair ->
+            if (resultPair.second != ResultStatus.OK) {
+                onTimeout()
+                return@observe
+            }
+
+            /*
+             * Previously fusedApp only had instance of FusedApp.
+             * As such previously all reference was simply using "it", the default variable in
+             * the scope. But now "it" is Pair(FusedApp, ResultStatus), not an instance of FusedApp.
+             *
+             * Avoid Git diffs by using a variable named "it".
+             *
+             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
+             */
+            val it = resultPair.first
+
+            dismissTimeoutDialog()
+
             if (applicationViewModel.appStatus.value == null) {
                 applicationViewModel.appStatus.value = it.status
             }
@@ -209,7 +227,7 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
             binding.infoInclude.apply {
                 appUpdatedOn.text = getString(
                     R.string.updated_on,
-                    if (args.origin == Origin.CLEANAPK) getString(R.string.not_available) else it.last_modified
+                    if (args.origin == Origin.CLEANAPK) it.updatedOn else it.last_modified
                 )
                 appRequires.text = getString(R.string.min_android_version, notAvailable)
                 appVersion.text = getString(
@@ -233,7 +251,7 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
                     ).show(childFragmentManager, TAG)
                 }
                 appTrackers.setOnClickListener {
-                    val fusedApp = applicationViewModel.fusedApp.value
+                    val fusedApp = applicationViewModel.fusedApp.value?.first
                     var trackers =
                         privacyInfoViewModel.getTrackerListText(fusedApp)
 
@@ -259,8 +277,6 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
             if (appInfoFetchViewModel.isAppInBlockedList(it)) {
                 binding.snackbarLayout.visibility = View.VISIBLE
             }
-
-            observeDownloadStatus(view)
             fetchAppTracker(it)
         }
 
@@ -269,12 +285,44 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
         }
     }
 
+    override fun onTimeout() {
+        if (!isTimeoutDialogDisplayed()) {
+            stopLoadingUI()
+            displayTimeoutAlertDialog(
+                timeoutFragment = this,
+                activity = requireActivity(),
+                message = getString(R.string.timeout_desc_cleanapk),
+                positiveButtonText = getString(R.string.retry),
+                positiveButtonBlock = {
+                    showLoadingUI()
+                    resetTimeoutDialogLock()
+                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
+                },
+                negativeButtonText = getString(android.R.string.ok),
+                negativeButtonBlock = {
+                    requireActivity().onBackPressed()
+                },
+                allowCancel = false,
+            )
+        }
+    }
+
+    override fun refreshData(authData: AuthData) {
+        showLoadingUI()
+        applicationViewModel.getApplicationDetails(
+            args.id,
+            args.packageName,
+            authData,
+            args.origin
+        )
+    }
+
     private fun observeDownloadStatus(view: View) {
         applicationViewModel.appStatus.observe(viewLifecycleOwner) { status ->
             val installButton = binding.downloadInclude.installButton
             val downloadPB = binding.downloadInclude.progressLayout
             val appSize = binding.downloadInclude.appSize
-            val fusedApp = applicationViewModel.fusedApp.value ?: FusedApp()
+            val fusedApp = applicationViewModel.fusedApp.value?.first ?: FusedApp()
 
             when (status) {
                 Status.INSTALLED -> handleInstalled(
@@ -321,6 +369,11 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        observeDownloadStatus(binding.root)
     }
 
     private fun handleInstallingIssue(
@@ -558,13 +611,22 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
     private fun fetchAppTracker(fusedApp: FusedApp) {
         privacyInfoViewModel.getAppPrivacyInfoLiveData(fusedApp).observe(viewLifecycleOwner) {
             updatePrivacyScore()
-            binding.applicationLayout.visibility = View.VISIBLE
-            binding.progressBar.visibility = View.GONE
+            stopLoadingUI()
         }
     }
 
+    private fun showLoadingUI() {
+        binding.applicationLayout.visibility = View.GONE
+        binding.progressBar.visibility = View.VISIBLE
+    }
+
+    private fun stopLoadingUI() {
+        binding.applicationLayout.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.GONE
+    }
+
     private fun updatePrivacyScore() {
-        val privacyScore = privacyInfoViewModel.getPrivacyScore(applicationViewModel.fusedApp.value)
+        val privacyScore = privacyInfoViewModel.getPrivacyScore(applicationViewModel.fusedApp.value?.first)
         if (privacyScore != -1) {
             val appPrivacyScore = binding.ratingsInclude.appPrivacyScore
             appPrivacyScore.text = getString(

@@ -51,12 +51,23 @@ class GPlayAPIImpl @Inject constructor(
     private val gPlayHttpClient: GPlayHttpClient
 ) {
 
+    /**
+     * Save auth data to preferences.
+     * Updated for network failures.
+     * Issue:
+     * https://gitlab.e.foundation/e/backlog/-/issues/5413
+     * https://gitlab.e.foundation/e/backlog/-/issues/5404
+     *
+     * @return true or false based on if the request was successful.
+     */
     // TODO: DON'T HARDCODE DISPATCHERS IN ANY METHODS
-    suspend fun fetchAuthData() = withContext(Dispatchers.IO) {
+    suspend fun fetchAuthData(): Boolean = withContext(Dispatchers.IO) {
         val data = async { tokenRepository.getAuthData() }
-        data.await()?.let {
+        data.await().let {
+            if (it == null) return@withContext false
             it.locale = context.resources.configuration.locales[0] // update locale with the default locale from settings
             dataStoreModule.saveCredentials(it)
+            return@withContext true
         }
     }
 

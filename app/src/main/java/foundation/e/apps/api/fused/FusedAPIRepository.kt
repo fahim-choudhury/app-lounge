@@ -25,6 +25,7 @@ import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedCategory
 import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
+import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import javax.inject.Inject
@@ -34,12 +35,16 @@ import javax.inject.Singleton
 class FusedAPIRepository @Inject constructor(
     private val fusedAPIImpl: FusedAPIImpl
 ) {
-    suspend fun getHomeScreenData(authData: AuthData): Pair<List<FusedHome>, String> {
+    suspend fun getHomeScreenData(authData: AuthData): Pair<List<FusedHome>, ResultStatus> {
         return fusedAPIImpl.getHomeScreenData(authData)
     }
 
     fun isFusedHomesEmpty(fusedHomes: List<FusedHome>): Boolean {
         return fusedAPIImpl.isFusedHomesEmpty(fusedHomes)
+    }
+
+    fun getApplicationCategoryPreference(): String {
+        return fusedAPIImpl.getApplicationCategoryPreference()
     }
 
     suspend fun validateAuthData(authData: AuthData): Boolean {
@@ -50,7 +55,7 @@ class FusedAPIRepository @Inject constructor(
         packageNameList: List<String>,
         authData: AuthData,
         origin: Origin
-    ): List<FusedApp> {
+    ): Pair<List<FusedApp>, ResultStatus> {
         return fusedAPIImpl.getApplicationDetails(packageNameList, authData, origin)
     }
 
@@ -59,7 +64,7 @@ class FusedAPIRepository @Inject constructor(
         packageName: String,
         authData: AuthData,
         origin: Origin
-    ): FusedApp {
+    ): Pair<FusedApp, ResultStatus> {
         return fusedAPIImpl.getApplicationDetails(id, packageName, authData, origin)
     }
 
@@ -75,7 +80,7 @@ class FusedAPIRepository @Inject constructor(
         )
     }
 
-    suspend fun getCategoriesList(type: Category.Type, authData: AuthData): List<FusedCategory> {
+    suspend fun getCategoriesList(type: Category.Type, authData: AuthData): Triple<List<FusedCategory>, String, ResultStatus> {
         return fusedAPIImpl.getCategoriesList(type, authData)
     }
 
@@ -83,7 +88,7 @@ class FusedAPIRepository @Inject constructor(
         return fusedAPIImpl.getSearchSuggestions(query, authData)
     }
 
-    suspend fun fetchAuthData(): Unit? {
+    suspend fun fetchAuthData(): Boolean {
         return fusedAPIImpl.fetchAuthData()
     }
 
@@ -91,7 +96,7 @@ class FusedAPIRepository @Inject constructor(
         return fusedAPIImpl.fetchAuthData(email, aasToken)
     }
 
-    suspend fun getSearchResults(query: String, authData: AuthData): List<FusedApp> {
+    suspend fun getSearchResults(query: String, authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
         return fusedAPIImpl.getSearchResults(query, authData)
     }
 
@@ -103,7 +108,7 @@ class FusedAPIRepository @Inject constructor(
         return fusedAPIImpl.getPlayStoreAppCategoryUrls(browseUrl, authData)
     }
 
-    suspend fun getAppsAndNextClusterUrl(browseUrl: String, authData: AuthData): Pair<List<FusedApp>, String> {
+    suspend fun getAppsAndNextClusterUrl(browseUrl: String, authData: AuthData): Triple<List<FusedApp>, String, ResultStatus> {
         return fusedAPIImpl.getAppsAndNextClusterUrl(browseUrl, authData)
     }
 
@@ -112,10 +117,10 @@ class FusedAPIRepository @Inject constructor(
         browseUrl: String,
         authData: AuthData,
         source: String
-    ): List<FusedApp> {
+    ): Pair<List<FusedApp>, ResultStatus> {
         return when (source) {
-            "Open Source" -> fusedAPIImpl.getOpenSourceApps(category) ?: listOf()
-            "PWA" -> fusedAPIImpl.getPWAApps(category) ?: listOf()
+            "Open Source" -> fusedAPIImpl.getOpenSourceApps(category)
+            "PWA" -> fusedAPIImpl.getPWAApps(category)
             else -> fusedAPIImpl.getPlayStoreApps(browseUrl, authData)
         }
     }

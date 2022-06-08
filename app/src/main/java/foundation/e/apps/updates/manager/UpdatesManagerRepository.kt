@@ -20,13 +20,18 @@ package foundation.e.apps.updates.manager
 
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.api.fused.data.FusedApp
+import foundation.e.apps.utils.enums.ResultStatus
 import javax.inject.Inject
 
 class UpdatesManagerRepository @Inject constructor(
     private val updatesManagerImpl: UpdatesManagerImpl
 ) {
 
-    suspend fun getUpdates(authData: AuthData): List<FusedApp> {
+    suspend fun getUpdates(authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
         return updatesManagerImpl.getUpdates(authData)
+    }
+
+    fun getApplicationCategoryPreference(): String {
+        return updatesManagerImpl.getApplicationCategoryPreference()
     }
 }

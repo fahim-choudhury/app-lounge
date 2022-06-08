@@ -26,6 +26,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.utils.enums.Origin
+import foundation.e.apps.utils.enums.ResultStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,7 +36,7 @@ class ApplicationListViewModel @Inject constructor(
     private val fusedAPIRepository: FusedAPIRepository
 ) : ViewModel() {
 
-    val appListLiveData: MutableLiveData<List<FusedApp>> = MutableLiveData()
+    val appListLiveData: MutableLiveData<Pair<List<FusedApp>, ResultStatus?>> = MutableLiveData()
 
     private var lastBrowseUrl = String()
 
@@ -66,7 +67,7 @@ class ApplicationListViewModel @Inject constructor(
              * Add existing apps now and add additional apps later.
              */
             val newList = mutableListOf<FusedApp>().apply {
-                appListLiveData.value?.let { addAll(it) }
+                appListLiveData.value?.first?.let { addAll(it) }
             }
 
             /**
@@ -124,7 +125,7 @@ class ApplicationListViewModel @Inject constructor(
                 fusedAPIRepository.getAppsAndNextClusterUrl(nextClusterUrl, authData).run {
                     val existingPackageNames = newList.map { it.package_name }
                     newList.addAll(first.filter { it.package_name !in existingPackageNames })
-                    appListLiveData.postValue(newList)
+                    appListLiveData.postValue(Pair(newList, third))
                     nextClusterUrl = second // set the next "clusterNextPageUrl"
                 }
             }
@@ -132,27 +133,40 @@ class ApplicationListViewModel @Inject constructor(
     }
 
     fun getList(category: String, browseUrl: String, authData: AuthData, source: String) {
-        if (appListLiveData.value?.isNotEmpty() == true) {
+        if (appListLiveData.value?.first?.isNotEmpty() == true) {
             return
         }
         viewModelScope.launch(Dispatchers.IO) {
-            val packageNames = fusedAPIRepository.getAppsListBasedOnCategory(
+            val appsListData = fusedAPIRepository.getAppsListBasedOnCategory(
                 category,
                 browseUrl,
                 authData,
                 source
-            ).map { it.package_name }
+            )
 
-            val applicationDetails = if (!source.contentEquals("PWA")) {
+            if (appsListData.second != ResultStatus.OK) {
+                appListLiveData.postValue(Pair(listOf(), appsListData.second))
+                return@launch
+            }
+
+            val applicationDetailsWithStatus = if (!source.contentEquals("PWA")) {
+                /*
+                 * Optimization: packageNames were not used anywhere else,
+                 * hence moved here.
+                 */
+                val packageNames = appsListData.first.map { it.package_name }
                 fusedAPIRepository.getApplicationDetails(
                     packageNames, authData,
                     getOrigin(source)
                 )
             } else {
-                fusedAPIRepository.getAppsListBasedOnCategory(category, browseUrl, authData, source)
+                /*
+                 * Optimization: Old code was same as the one called above.
+                 */
+                appsListData
             }
 
-            appListLiveData.postValue(applicationDetails)
+            appListLiveData.postValue(applicationDetailsWithStatus)
         }
     }
 

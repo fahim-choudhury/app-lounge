@@ -18,15 +18,12 @@
 
 package foundation.e.apps
 
-import android.app.Activity
 import android.content.Context
-import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.SystemClock
 import android.util.Base64
 import android.util.Log
-import android.view.KeyEvent
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
@@ -49,7 +46,6 @@ import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.manager.pkg.PkgManagerModule
-import foundation.e.apps.settings.SettingsFragment
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
@@ -94,108 +90,6 @@ class MainActivityViewModel @Inject constructor(
      */
     var firstAuthDataFetchTime = 0L
 
-    /*
-     * Alert dialog to show to user if App Lounge times out.
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
-     */
-    private lateinit var timeoutAlertDialog: AlertDialog
-
-    /**
-     * Display timeout alert dialog.
-     *
-     * @param activity Activity class. Basically the MainActivity.
-     * @param positiveButtonBlock Code block when "Retry" is pressed.
-     * @param openSettings Code block when "Open Settings" button is pressed.
-     * This should open the [SettingsFragment] fragment.
-     * @param applicationTypeFromPreferences Application type string, can be one of
-     * [FusedAPIImpl.APP_TYPE_ANY], [FusedAPIImpl.APP_TYPE_OPEN], [FusedAPIImpl.APP_TYPE_PWA]
-     */
-    fun displayTimeoutAlertDialog(
-        activity: Activity,
-        positiveButtonBlock: () -> Unit,
-        openSettings: () -> Unit,
-        applicationTypeFromPreferences: String,
-    ) {
-        if (!this::timeoutAlertDialog.isInitialized) {
-            timeoutAlertDialog = AlertDialog.Builder(activity).apply {
-                setTitle(R.string.timeout_title)
-                /*
-                 * Prevent dismissing the dialog from pressing outside as it will only
-                 * show a blank screen below the dialog.
-                 */
-                setCancelable(false)
-                /*
-                 * If user presses back button to close the dialog without selecting anything,
-                 * close App Lounge.
-                 */
-                setOnKeyListener { dialog, keyCode, _ ->
-                    if (keyCode == KeyEvent.KEYCODE_BACK) {
-                        dialog.dismiss()
-                        activity.finish()
-                    }
-                    true
-                }
-            }.create()
-        }
-
-        timeoutAlertDialog.apply {
-            /*
-             * Set retry button.
-             */
-            setButton(DialogInterface.BUTTON_POSITIVE, activity.getString(R.string.retry)) { _, _ ->
-                positiveButtonBlock()
-            }
-            /*
-             * Set message based on apps from GPlay of cleanapk.
-             */
-            setMessage(
-                activity.getString(
-                    when (applicationTypeFromPreferences) {
-                        FusedAPIImpl.APP_TYPE_ANY -> R.string.timeout_desc_gplay
-                        else -> R.string.timeout_desc_cleanapk
-                    }
-                )
-            )
-            /*
-             * Show "Open Setting" only for GPlay apps.
-             */
-            if (applicationTypeFromPreferences == FusedAPIImpl.APP_TYPE_ANY) {
-                setButton(
-                    DialogInterface.BUTTON_NEUTRAL,
-                    activity.getString(R.string.open_settings)
-                ) { _, _ ->
-                    openSettings()
-                }
-            }
-        }
-
-        timeoutAlertDialog.show()
-    }
-
-    /**
-     * Returns true if [timeoutAlertDialog] is displaying.
-     * Returs false if it is not initialised.
-     */
-    fun isTimeoutDialogDisplayed(): Boolean {
-        return if (this::timeoutAlertDialog.isInitialized) {
-            timeoutAlertDialog.isShowing
-        } else false
-    }
-
-    /**
-     * Dismisses the [timeoutAlertDialog] if it is being displayed.
-     * Does nothing if it is not being displayed.
-     * Caller need not check if the dialog is being displayed.
-     */
-    fun dismissTimeoutDialog() {
-        if (isTimeoutDialogDisplayed()) {
-            try {
-                timeoutAlertDialog.dismiss()
-            } catch (_: Exception) {}
-        }
-    }
-
     // Downloads
     val downloadList = fusedManagerRepository.getDownloadLiveList()
     var installInProgress = false
@@ -213,7 +107,9 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun setFirstTokenFetchTime() {
-        firstAuthDataFetchTime = SystemClock.uptimeMillis()
+        if (firstAuthDataFetchTime == 0L) {
+            firstAuthDataFetchTime = SystemClock.uptimeMillis()
+        }
     }
 
     fun isTimeEligibleForTokenRefresh(): Boolean {
@@ -228,6 +124,7 @@ class MainActivityViewModel @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
      */
     fun retryFetchingTokenAfterTimeout() {
+        firstAuthDataFetchTime = 0
         setFirstTokenFetchTime()
         authValidity.postValue(false)
     }
@@ -248,7 +145,19 @@ class MainActivityViewModel @Inject constructor(
         if (!authRequestRunning) {
             authRequestRunning = true
             viewModelScope.launch {
-                fusedAPIRepository.fetchAuthData()
+                /*
+                 * If getting auth data failed, try getting again.
+                 * Sending false in authValidity, triggers observer in MainActivity,
+                 * causing it to destroy credentials and try to regenerate auth data.
+                 *
+                 * Issue:
+                 * https://gitlab.e.foundation/e/backlog/-/issues/5413
+                 * https://gitlab.e.foundation/e/backlog/-/issues/5404
+                 */
+                if (!fusedAPIRepository.fetchAuthData()) {
+                    authRequestRunning = false
+                    authValidity.postValue(false)
+                }
             }
         }
     }

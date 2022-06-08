@@ -27,7 +27,8 @@ import retrofit2.Response
 import javax.inject.Inject
 
 class CleanAPKRepository @Inject constructor(
-    private val cleanAPKInterface: CleanAPKInterface
+    private val cleanAPKInterface: CleanAPKInterface,
+    private val cleanApkAppDetailApi: CleanApkAppDetailApi
 ) {
 
     suspend fun getHomeScreenData(
@@ -42,7 +43,7 @@ class CleanAPKRepository @Inject constructor(
         architectures: List<String>? = null,
         type: String? = null
     ): Response<Application> {
-        return cleanAPKInterface.getAppOrPWADetailsByID(id, architectures, type)
+        return cleanApkAppDetailApi.getAppOrPWADetailsByID(id, architectures, type)
     }
 
     suspend fun searchApps(

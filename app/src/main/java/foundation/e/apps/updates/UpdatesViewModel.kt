@@ -29,6 +29,7 @@ import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.updates.manager.UpdatesManagerRepository
 import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.utils.enums.ResultStatus
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -38,13 +39,16 @@ class UpdatesViewModel @Inject constructor(
     private val fusedAPIRepository: FusedAPIRepository
 ) : ViewModel() {
 
-    val updatesList: MutableLiveData<List<FusedApp>> = MutableLiveData()
+    val updatesList: MutableLiveData<Pair<List<FusedApp>, ResultStatus?>> = MutableLiveData()
 
     fun getUpdates(authData: AuthData) {
         viewModelScope.launch {
+            val updatesResult = updatesManagerRepository.getUpdates(authData)
             updatesList.postValue(
-                updatesManagerRepository.getUpdates(authData)
-                    .filter { !(!it.isFree && authData.isAnonymous) }
+                Pair(
+                    updatesResult.first.filter { !(!it.isFree && authData.isAnonymous) },
+                    updatesResult.second
+                )
             )
         }
     }
@@ -64,7 +68,7 @@ class UpdatesViewModel @Inject constructor(
 
     private fun checkWorkIsForUpdateByTag(tags: List<String>): Boolean {
         updatesList.value?.let {
-            it.find { fusedApp -> tags.contains(fusedApp._id) }?.let { foundApp ->
+            it.first.find { fusedApp -> tags.contains(fusedApp._id) }?.let { foundApp ->
                 return listOf(
                     Status.INSTALLED,
                     Status.UPDATABLE
@@ -72,5 +76,9 @@ class UpdatesViewModel @Inject constructor(
             }
         }
         return false
+    }
+
+    fun getApplicationCategoryPreference(): String {
+        return updatesManagerRepository.getApplicationCategoryPreference()
     }
 }
