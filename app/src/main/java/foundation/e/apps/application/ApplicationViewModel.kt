@@ -72,6 +72,26 @@ class ApplicationViewModel @Inject constructor(
         }
     }
 
+    /*
+     * Dedicated method to get app details from cleanapk using package name.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5509
+     */
+    fun getCleanapkAppDetails(packageName: String) {
+        viewModelScope.launch {
+            try {
+                fusedAPIRepository.getCleanapkAppDetails(packageName).run {
+                    if (this.first.package_name.isBlank()) {
+                        _errorMessageLiveData.postValue(R.string.app_not_found)
+                    } else {
+                        fusedApp.postValue(this)
+                    }
+                }
+            } catch (e: Exception) {
+                _errorMessageLiveData.postValue(R.string.unknown_error)
+            }
+        }
+    }
+
     fun transformPermsToString(): String {
         var permissionString = ""
         fusedApp.value?.first?.let {

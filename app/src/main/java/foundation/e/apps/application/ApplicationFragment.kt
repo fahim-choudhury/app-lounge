@@ -76,6 +76,33 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     private var _binding: FragmentApplicationBinding? = null
     private val binding get() = _binding!!
 
+    /*
+     * We have no way to pass an argument for a specific deeplink to signify it is an f-droid link.
+     * Hence we check the intent from the activity.
+     * This boolean is later used to lock the origin to Origin.CLEANAPK,
+     * and call a different method to fetch from cleanapk.
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5509
+     */
+    private val isFdroidDeepLink: Boolean by lazy {
+        activity?.intent?.data?.host?.equals("f-droid.org") ?: false
+    }
+
+    /*
+     * We will use this variable in all cases instead of directly calling args.origin.
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5509
+     */
+    private val origin by lazy {
+        if (isFdroidDeepLink) {
+            Origin.CLEANAPK
+        } else {
+            args.origin
+        }
+    }
+
+    private var isDetailsLoaded = false
+
     @Inject
     lateinit var pkgManagerModule: PkgManagerModule
 
@@ -125,7 +152,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
         val notAvailable = getString(R.string.not_available)
 
-        val screenshotsRVAdapter = ApplicationScreenshotsRVAdapter(args.origin)
+        val screenshotsRVAdapter = ApplicationScreenshotsRVAdapter(origin)
         binding.recyclerView.apply {
             adapter = screenshotsRVAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
@@ -156,6 +183,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
             dismissTimeoutDialog()
 
+            isDetailsLoaded = true
             if (applicationViewModel.appStatus.value == null) {
                 applicationViewModel.appStatus.value = it.status
             }
@@ -168,7 +196,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 appAuthor.text = it.author
                 appInfoFetchViewModel.setAuthorNameIfNeeded(appAuthor, it)
                 categoryTitle.text = it.category
-                if (args.origin == Origin.CLEANAPK) {
+                if (origin == Origin.CLEANAPK) {
                     appIcon.load(CleanAPKInterface.ASSET_URL + it.icon_image_path)
                 } else {
                     appIcon.load(it.icon_image_path)
@@ -227,7 +255,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             binding.infoInclude.apply {
                 appUpdatedOn.text = getString(
                     R.string.updated_on,
-                    if (args.origin == Origin.CLEANAPK) it.updatedOn else it.last_modified
+                    if (origin == Origin.CLEANAPK) it.updatedOn else it.last_modified
                 )
                 appRequires.text = getString(R.string.min_android_version, notAvailable)
                 appVersion.text = getString(
@@ -308,13 +336,20 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     override fun refreshData(authData: AuthData) {
+        /* Show the loading bar. */
         showLoadingUI()
-        applicationViewModel.getApplicationDetails(
-            args.id,
-            args.packageName,
-            authData,
-            args.origin
-        )
+        /* Remove trailing slash (if present) that can become part of the packageName */
+        val packageName = args.packageName.run { if (endsWith('/')) dropLast(1) else this }
+        if (isFdroidDeepLink) {
+            applicationViewModel.getCleanapkAppDetails(packageName)
+        } else {
+            applicationViewModel.getApplicationDetails(
+                args.id,
+                packageName,
+                authData,
+                origin
+            )
+        }
     }
 
     private fun observeDownloadStatus(view: View) {
