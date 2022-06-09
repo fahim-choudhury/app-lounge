@@ -238,14 +238,15 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
                 if (fusedApp.status == Status.DOWNLOADING) {
                     val progress =
                         appProgressViewModel.calculateProgress(fusedApp, downloadProgress)
-                    val downloadProgress =
-                        ((progress.second / progress.first.toDouble()) * 100).toInt()
+                    if (progress == -1) {
+                        return@forEach
+                    }
                     val childViewHolder = childRV.findViewHolderForAdapterPosition(
                         adapter.currentList.indexOf(fusedApp)
                     )
                     childViewHolder?.let {
                         (childViewHolder as HomeChildRVAdapter.ViewHolder).binding.installButton.text =
-                            "$downloadProgress%"
+                            "$progress%"
                     }
                 }
             }

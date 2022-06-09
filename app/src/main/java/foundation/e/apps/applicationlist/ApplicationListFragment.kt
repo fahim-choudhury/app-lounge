@@ -242,21 +242,22 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
 
     private fun updateProgressOfDownloadingItems(
         recyclerView: RecyclerView,
-        it: DownloadProgress
+        downloadProgress: DownloadProgress
     ) {
         val adapter = recyclerView.adapter as ApplicationListRVAdapter
         lifecycleScope.launch {
             adapter.currentList.forEach { fusedApp ->
                 if (fusedApp.status == Status.DOWNLOADING) {
-                    val progress = appProgressViewModel.calculateProgress(fusedApp, it)
-                    val downloadProgress =
-                        ((progress.second / progress.first.toDouble()) * 100).toInt()
+                    val progress = appProgressViewModel.calculateProgress(fusedApp, downloadProgress)
+                    if (progress == -1) {
+                        return@forEach
+                    }
                     val viewHolder = recyclerView.findViewHolderForAdapterPosition(
                         adapter.currentList.indexOf(fusedApp)
                     )
                     viewHolder?.let {
                         (viewHolder as ApplicationListRVAdapter.ViewHolder).binding.installButton.text =
-                            "$downloadProgress%"
+                            "$progress%"
                     }
                 }
             }
