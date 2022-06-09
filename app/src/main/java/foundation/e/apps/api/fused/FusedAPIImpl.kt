@@ -350,6 +350,28 @@ class FusedAPIImpl @Inject constructor(
         return Triple(appsList, nextUrl, status)
     }
 
+    /*
+     * Function to search cleanapk using package name.
+     * Will be used to handle f-droid deeplink.
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5509
+     */
+    suspend fun getCleanapkAppDetails(packageName: String): Pair<FusedApp, ResultStatus> {
+        var fusedApp = FusedApp()
+        val status = runCodeBlockWithTimeout({
+            val result = cleanAPKRepository.searchApps(
+                keyword = packageName,
+                by = "package_name"
+            ).body()
+            if (result?.apps?.isNotEmpty() == true && result.numberOfResults == 1) {
+                fusedApp =
+                    cleanAPKRepository.getAppOrPWADetailsByID(result.apps[0]._id).body()?.app
+                        ?: FusedApp()
+            }
+        })
+        return Pair(fusedApp, status)
+    }
+
     suspend fun getApplicationDetails(
         packageNameList: List<String>,
         authData: AuthData,

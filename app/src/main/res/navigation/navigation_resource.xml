@@ -109,6 +109,13 @@
         <deepLink
             app:action="android.intent.action.VIEW"
             app:uri="play.google.com/store/apps/details?id={packageName}" />
+        <!--
+        Add support for f-droid packages
+        Issue: https://gitlab.e.foundation/e/backlog/-/issues/5509
+        -->
+        <deepLink
+            app:action="android.intent.action.VIEW"
+            app:uri="f-droid.org/packages/{packageName}" />
         <deepLink
             app:action="android.intent.action.VIEW"
             app:uri="play.app.goo.gl/?link={playStore_url}?id={packageName}&amp;ddl={pc1}&amp;pcampaignid={pc2}" />
