@@ -29,6 +29,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -58,10 +59,7 @@ class DownloadManagerUtils @Inject constructor(
                     fusedDownload.downloadIdMap[downloadId] = true
                     fusedManagerRepository.updateFusedDownload(fusedDownload)
                     val downloaded = fusedDownload.downloadIdMap.values.filter { it }.size
-                    Log.d(
-                        TAG,
-                        "===> updateDownloadStatus: ${fusedDownload.name}: $downloadId: $downloaded/${fusedDownload.downloadIdMap.size} "
-                    )
+                    Timber.d("===> updateDownloadStatus: ${fusedDownload.name}: $downloadId: $downloaded/${fusedDownload.downloadIdMap.size}")
                     if (downloaded == fusedDownload.downloadIdMap.size) {
                         fusedManagerRepository.moveOBBFileToOBBDirectory(fusedDownload)
                         fusedDownload.status = Status.DOWNLOADED

@@ -67,7 +67,7 @@ open class PkgManagerBR : BroadcastReceiver() {
                             if (!isUpdating) deleteDownload(pkgName)
                         }
                         PkgManagerModule.ERROR_PACKAGE_INSTALL -> {
-                            Log.e(TAG, "Installation failed due to error: $extra")
+                            Timber.e( "Installation failed due to error: $extra")
                             updateInstallationIssue(pkgName)
                         }
                     }
@@ -86,7 +86,7 @@ open class PkgManagerBR : BroadcastReceiver() {
     // TODO: FIND A BETTER WAY TO DO THIS
     private fun updateDownloadStatus(pkgName: String) {
         if (pkgName.isEmpty()) {
-            Log.d("PkgManagerBR", "updateDownloadStatus: package name should not be empty!")
+            Timber.d("updateDownloadStatus: package name should not be empty!")
         }
         GlobalScope.launch {
             val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)

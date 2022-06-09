@@ -13,6 +13,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -85,7 +86,7 @@ class DownloadProgressLD @Inject constructor(
                             }
                         }
                 } catch (e: Exception) {
-                    Log.e(TAG, "downloading Ids: $downloadingIds ${e.localizedMessage}")
+                    Timber.e( "downloading Ids: $downloadingIds ${e.localizedMessage}")
                 }
                 delay(20)
             }

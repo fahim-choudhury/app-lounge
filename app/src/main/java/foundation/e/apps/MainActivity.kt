@@ -306,7 +306,7 @@ class MainActivity : AppCompatActivity() {
                     statsManager.getFreeBytes(StorageManager.UUID_DEFAULT)
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "calculateAvailableDiskSpace: ${e.stackTraceToString()}")
+                Timber.e( "calculateAvailableDiskSpace: ${e.stackTraceToString()}")
                 getAvailableInternalMemorySize()
             }
         } else {

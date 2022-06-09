@@ -100,7 +100,7 @@ class InstallAppWorker @AssistedInject constructor(
                 mutex.lock()
             }
         } catch (e: Exception) {
-            Log.e(TAG, "doWork: Failed: ${e.stackTraceToString()}")
+            Timber.e( "doWork: Failed: ${e.stackTraceToString()}")
             fusedDownload?.let {
                 fusedManagerRepository.installationIssue(it)
             }
@@ -138,18 +138,9 @@ class InstallAppWorker @AssistedInject constructor(
         downloadManager.query(downloadManagerQuery.setFilterById(*fusedDownload.downloadIdMap.keys.toLongArray()))
             .use { cursor ->
                 if (cursor.moveToFirst()) {
-                    val id =
-                        cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_ID))
                     val status =
                         cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
-                    val totalSizeBytes =
-                        cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-                    val bytesDownloadedSoFar =
-                        cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
-                    Log.d(
-                        TAG,
-                        "checkDownloadProcess: ${fusedDownload.name} $bytesDownloadedSoFar/$totalSizeBytes $status"
-                    )
+
                     if (status == DownloadManager.STATUS_FAILED) {
                         fusedManagerRepository.installationIssue(fusedDownload)
                     }
@@ -167,14 +158,11 @@ class InstallAppWorker @AssistedInject constructor(
                     unlockMutex()
                     return@collect
                 }
-                Log.d(
-                    TAG,
-                    "doWork: flow collect ===> ${fusedDownload.name} ${fusedDownload.status}"
-                )
+                Timber.d("doWork: flow collect ===> ${fusedDownload.name} ${fusedDownload.status}")
                 try {
                     handleFusedDownloadStatus(fusedDownload)
                 } catch (e: Exception) {
-                    Log.e(TAG, "observeDownload: ", e)
+                    Timber.e( "observeDownload: ", e)
                     isDownloading = false
                     unlockMutex()
                 }
@@ -189,18 +177,12 @@ class InstallAppWorker @AssistedInject constructor(
                 fusedManagerRepository.updateDownloadStatus(fusedDownload, Status.INSTALLING)
             }
             Status.INSTALLING -> {
-                Log.d(
-                    TAG,
-                    "===> doWork: Installing ${fusedDownload.name} ${fusedDownload.status}"
-                )
+                Timber.d("===> doWork: Installing ${fusedDownload.name} ${fusedDownload.status}")
             }
             Status.INSTALLED, Status.INSTALLATION_ISSUE -> {
                 isDownloading = false
                 unlockMutex()
-                Log.d(
-                    TAG,
-                    "===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}"
-                )
+                Timber.d("===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}")
             }
             else -> {
                 isDownloading = false

@@ -169,7 +169,7 @@ class PkgManagerModule @Inject constructor(
             )
             session.commit(servicePendingIntent.intentSender)
         } catch (e: Exception) {
-            Log.e(TAG, "$packageName: \n${e.stackTraceToString()}")
+            Timber.e( "$packageName: \n${e.stackTraceToString()}")
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 sessionId,

@@ -30,6 +30,7 @@ import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.utils.enums.Status
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -52,7 +53,7 @@ class InstallerService : Service() {
     }
 
     private fun postStatus(status: Int, packageName: String?, extra: String?) {
-        Log.d("InstallerService", "postStatus: $status $packageName $extra")
+        Timber.d("postStatus: $status $packageName $extra")
         if (status != PackageInstaller.STATUS_SUCCESS) {
             updateInstallationIssue(packageName ?: "")
         }
@@ -64,7 +65,7 @@ class InstallerService : Service() {
 
     private fun updateDownloadStatus(pkgName: String) {
         if (pkgName.isEmpty()) {
-            Log.d("PkgManagerBR", "updateDownloadStatus: package name should not be empty!")
+            Timber.d("updateDownloadStatus: package name should not be empty!")
         }
         GlobalScope.launch {
             val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)
@@ -75,7 +76,7 @@ class InstallerService : Service() {
 
     private fun updateInstallationIssue(pkgName: String) {
         if (pkgName.isEmpty()) {
-            Log.d("PkgManagerBR", "updateDownloadStatus: package name should not be empty!")
+            Timber.d("updateDownloadStatus: package name should not be empty!")
         }
         GlobalScope.launch {
             val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)

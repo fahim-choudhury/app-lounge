@@ -29,6 +29,7 @@ import foundation.e.apps.utils.enums.Status
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -49,7 +50,7 @@ class PackageInstallerService : Service() {
             if (status == PackageInstaller.STATUS_SUCCESS) {
                 updateDownloadStatus(packageName)
             } else {
-                Log.e(TAG, "Installation failed due to error: $extra")
+                Timber.e( "Installation failed due to error: $extra")
                 updateInstallationIssue(packageName)
             }
         }

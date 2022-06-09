@@ -62,7 +62,6 @@ class AppPurchaseFragment : Fragment() {
 
         binding.playStoreWebView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView, url: String) {
-                Timber.d( "onPageFinished: $url")
                 if (url.contains("https://play.google.com/store/apps/details") && url.contains("raii") &&
                     url.contains("raboi") && url.contains("rasi") && url.contains("rapt")
                 ) {
