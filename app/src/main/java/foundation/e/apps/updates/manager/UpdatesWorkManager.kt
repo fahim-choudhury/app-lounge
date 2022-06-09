@@ -35,7 +35,7 @@ object UpdatesWorkManager {
     fun startUpdateAllWork(context: Context) {
         WorkManager.getInstance(context).enqueueUniqueWork(
             UPDATES_WORK_NAME,
-            ExistingWorkPolicy.KEEP,
+            ExistingWorkPolicy.REPLACE,
             buildOneTimeWorkRequest()
         )
     }

@@ -132,6 +132,7 @@ class FusedManagerImpl @Inject constructor(
                         pkgManagerModule.installApplication(list, fusedDownload.packageName)
                         Log.d(TAG, "installApp: ENDED ${fusedDownload.name} ${list.size}")
                     } catch (e: Exception) {
+                        Log.d(TAG, ">>> installApp app failed ")
                         installationIssue(fusedDownload)
                         throw e
                     }

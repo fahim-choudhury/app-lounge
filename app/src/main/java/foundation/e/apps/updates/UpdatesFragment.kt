@@ -28,6 +28,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.WorkManager
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.AppInfoFetchViewModel
@@ -43,6 +44,7 @@ import foundation.e.apps.applicationlist.model.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentUpdatesBinding
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
+import foundation.e.apps.manager.workmanager.InstallWorkManager.INSTALL_WORK_NAME
 import foundation.e.apps.updates.manager.UpdatesWorkManager
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
@@ -140,6 +142,15 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                 binding.noUpdates.visibility = View.VISIBLE
                 binding.button.isEnabled = false
             }
+
+            WorkManager.getInstance(requireContext())
+                .getWorkInfosForUniqueWorkLiveData(INSTALL_WORK_NAME).observe(viewLifecycleOwner) {
+                    lifecycleScope.launchWhenResumed {
+                        binding.button.isEnabled =
+                            !updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(it)
+                    }
+                }
+
             if (it.second != ResultStatus.OK) {
                 onTimeout()
             }
@@ -181,6 +192,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         updatesViewModel.getUpdates(authData)
         binding.button.setOnClickListener {
             UpdatesWorkManager.startUpdateAllWork(requireContext().applicationContext)
+            binding.button.isEnabled = false
         }
     }
 

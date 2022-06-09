@@ -41,6 +41,10 @@ class InstallerService : Service() {
     @Inject
     lateinit var pkgManagerModule: PkgManagerModule
 
+    companion object {
+        const val TAG = "InstallerService"
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -69)
@@ -52,7 +56,7 @@ class InstallerService : Service() {
     }
 
     private fun postStatus(status: Int, packageName: String?, extra: String?) {
-        Log.d("InstallerService", "postStatus: $status $packageName $extra")
+        Log.d(TAG, "postStatus: $status $packageName $extra")
         if (status != PackageInstaller.STATUS_SUCCESS) {
             updateInstallationIssue(packageName ?: "")
         }
@@ -62,20 +66,9 @@ class InstallerService : Service() {
         return null
     }
 
-    private fun updateDownloadStatus(pkgName: String) {
-        if (pkgName.isEmpty()) {
-            Log.d("PkgManagerBR", "updateDownloadStatus: package name should not be empty!")
-        }
-        GlobalScope.launch {
-            val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)
-            pkgManagerModule.setFakeStoreAsInstallerIfNeeded(fusedDownload)
-            fusedManagerRepository.updateDownloadStatus(fusedDownload, Status.INSTALLED)
-        }
-    }
-
     private fun updateInstallationIssue(pkgName: String) {
         if (pkgName.isEmpty()) {
-            Log.d("PkgManagerBR", "updateDownloadStatus: package name should not be empty!")
+            Log.d(TAG, "updateDownloadStatus: package name should not be empty!")
         }
         GlobalScope.launch {
             val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)
