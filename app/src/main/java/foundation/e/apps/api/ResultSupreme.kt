@@ -40,7 +40,7 @@ sealed class ResultSupreme<T> {
      *
      * @param data End result of processing.
      */
-    class Success<T>(data: T): ResultSupreme<T>() {
+    class Success<T>(data: T) : ResultSupreme<T>() {
         init { setData(data) }
     }
 
@@ -89,7 +89,7 @@ sealed class ResultSupreme<T> {
      * Data from processing. May be null.
      */
     var data: T? = null
-    private set
+        private set
 
     /**
      * A custom string message for logging or displaying to the user.
@@ -124,8 +124,8 @@ sealed class ResultSupreme<T> {
             exception: Exception = Exception(),
         ): ResultSupreme<T> {
             val resultObject = when {
-                status == ResultStatus.OK && data!= null -> Success<T>(data)
-                status == ResultStatus.TIMEOUT && data!= null -> Timeout<T>(data)
+                status == ResultStatus.OK && data != null -> Success<T>(data)
+                status == ResultStatus.TIMEOUT && data != null -> Timeout<T>(data)
                 else -> Error(message, exception)
             }
             resultObject.apply {
@@ -161,8 +161,10 @@ sealed class ResultSupreme<T> {
                 is Timeout -> ResultStatus.TIMEOUT
                 is Error -> ResultStatus.UNKNOWN
             }
-            return create(status, newData, message ?: result.message,
-                exception ?: result.exception)
+            return create(
+                status, newData, message ?: result.message,
+                exception ?: result.exception
+            )
         }
     }
 }
