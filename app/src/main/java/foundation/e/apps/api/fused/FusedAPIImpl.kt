@@ -208,9 +208,36 @@ class FusedAPIImpl @Inject constructor(
      * @return A list of nullable [FusedApp]
      */
     suspend fun getSearchResults(query: String, authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
-        val fusedResponse = mutableListOf<FusedApp>()
+        val fusedResponse = ArrayList<FusedApp>()
+        val packageSpecificResults = ArrayList<FusedApp>()
 
         val status = runCodeBlockWithTimeout({
+
+            try {
+                if (preferenceManagerModule.preferredApplicationType() == APP_TYPE_ANY) {
+                    try {
+                        /*
+                         * Surrounding with try-catch because if query is not a package name,
+                         * then GPlay throws an error.
+                         */
+                        getApplicationDetails(query, query, authData, Origin.GPLAY).let {
+                            if (it.second == ResultStatus.OK) {
+                                packageSpecificResults.add(it.first)
+                            }
+                        }
+                    } catch (_: Exception) {}
+                }
+                getCleanapkSearchResult(query).let {
+                    /* Cleanapk always returns something, it is never null.
+                     * If nothing is found, it returns a blank FusedApp() object.
+                     * Blank result to be filtered out.
+                     */
+                    if (it.isSuccess() && it.data!!.package_name.isNotBlank()) {
+                        packageSpecificResults.add(it.data!!)
+                    }
+                }
+            } catch (_: Exception) {}
+
             when (preferenceManagerModule.preferredApplicationType()) {
                 APP_TYPE_ANY -> {
                     fusedResponse.addAll(getCleanAPKSearchResults(query))
@@ -230,7 +257,41 @@ class FusedAPIImpl @Inject constructor(
                 }
             }
         })
-        return Pair(fusedResponse.distinctBy { it.package_name }, status)
+
+        /*
+         * The list packageSpecificResults may contain apps with duplicate package names.
+         * Example, "org.telegram.messenger" will result in "Telegram" app from Play Store
+         * and "Telegram FOSS" from F-droid. We show both of them at the top.
+         *
+         * But for the other keyword related search results, we do not allow duplicate package names.
+         * We also filter out apps which are already present in packageSpecificResults list.
+         */
+        val filteredResults = fusedResponse.distinctBy { it.package_name }
+            .filter { packageSpecificResults.isEmpty() || it.package_name != query }
+
+        return Pair(packageSpecificResults + filteredResults, status)
+    }
+
+    /*
+     * Method to search cleanapk based on package name.
+     * This is to be only used for showing an entry in search results list.
+     * DO NOT use this to show info on ApplicationFragment as it will not have all the required
+     * information to show for an app.
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/2629
+     */
+    private suspend fun getCleanapkSearchResult(packageName: String): ResultSupreme<FusedApp> {
+        var fusedApp = FusedApp()
+        val status = runCodeBlockWithTimeout({
+            val result = cleanAPKRepository.searchApps(
+                keyword = packageName,
+                by = "package_name"
+            ).body()
+            if (result?.apps?.isNotEmpty() == true && result.numberOfResults == 1) {
+                fusedApp = result.apps[0]
+            }
+        })
+        return ResultSupreme.create(status, fusedApp)
     }
 
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {
