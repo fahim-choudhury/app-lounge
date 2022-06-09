@@ -31,7 +31,7 @@ import foundation.e.apps.R
  * for network calls exceeding timeout limit.
  * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
  */
-abstract class TimeoutFragment(@LayoutRes layoutId: Int): Fragment(layoutId) {
+abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
 
     /*
      * Alert dialog to show to user if App Lounge times out.
@@ -159,17 +159,17 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int): Fragment(layoutId) {
              * Set buttons.
              */
             positiveButtonText?.let {
-                setPositiveButton(it) {_, _ ->
+                setPositiveButton(it) { _, _ ->
                     positiveButtonBlock?.invoke()
                 }
             }
             negativeButtonText?.let {
-                setNegativeButton(it) {_, _ ->
+                setNegativeButton(it) { _, _ ->
                     negativeButtonBlock?.invoke()
                 }
             }
             neutralButtonText?.let {
-                setNeutralButton(it) {_, _ ->
+                setNeutralButton(it) { _, _ ->
                     neutralButtonBlock?.invoke()
                 }
             }

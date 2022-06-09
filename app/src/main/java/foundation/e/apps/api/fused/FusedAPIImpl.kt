@@ -27,9 +27,12 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Artwork
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
+import com.aurora.gplayapi.data.models.StreamBundle
+import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
+import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.cleanapk.CleanAPKInterface
 import foundation.e.apps.api.cleanapk.CleanAPKRepository
 import foundation.e.apps.api.cleanapk.data.categories.Categories
@@ -45,9 +48,9 @@ import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.AppTag
 import foundation.e.apps.utils.enums.Origin
+import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
-import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.modules.CommonUtilsModule.timeoutDurationInMillis
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
@@ -273,30 +276,8 @@ class FusedAPIImpl @Inject constructor(
         fusedDownload.downloadURLList = list
     }
 
-    suspend fun listApps(category: String, browseUrl: String, authData: AuthData): List<FusedApp>? {
-        val preferredApplicationType = preferenceManagerModule.preferredApplicationType()
-
-        if (preferredApplicationType != "any") {
-            val response = if (preferredApplicationType == "open") {
-                getOpenSourceAppsResponse(category)
-            } else {
-                getPWAAppsResponse(category)
-            }
-            response?.apps?.forEach {
-                it.updateStatus()
-                it.updateType()
-            }
-            return response?.apps
-        } else {
-            val listApps = gPlayAPIRepository.listApps(browseUrl, authData)
-            return listApps.map { app ->
-                app.transformToFusedApp()
-            }
-        }
-    }
-
-    suspend fun getPWAApps(category: String): Pair<List<FusedApp>, ResultStatus> {
-        var list = mutableListOf<FusedApp>()
+    suspend fun getPWAApps(category: String): ResultSupreme<List<FusedApp>> {
+        val list = mutableListOf<FusedApp>()
         val status = runCodeBlockWithTimeout({
             val response = getPWAAppsResponse(category)
             response?.apps?.forEach {
@@ -305,10 +286,10 @@ class FusedAPIImpl @Inject constructor(
                 list.add(it)
             }
         })
-        return Pair(list, status)
+        return ResultSupreme.create(status, list)
     }
 
-    suspend fun getOpenSourceApps(category: String): Pair<List<FusedApp>, ResultStatus> {
+    suspend fun getOpenSourceApps(category: String): ResultSupreme<List<FusedApp>> {
         val list = mutableListOf<FusedApp>()
         val status = runCodeBlockWithTimeout({
             val response = getOpenSourceAppsResponse(category)
@@ -318,36 +299,54 @@ class FusedAPIImpl @Inject constructor(
                 list.add(it)
             }
         })
-        return Pair(list, status)
+        return ResultSupreme.create(status, list)
     }
 
-    suspend fun getPlayStoreApps(browseUrl: String, authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
-        var list = mutableListOf<FusedApp>()
+    suspend fun getNextStreamBundle(
+        authData: AuthData,
+        homeUrl: String,
+        currentStreamBundle: StreamBundle,
+    ): ResultSupreme<StreamBundle> {
+        var streamBundle = StreamBundle()
         val status = runCodeBlockWithTimeout({
-            list.addAll(gPlayAPIRepository.listApps(browseUrl, authData).map { app ->
-                app.transformToFusedApp()
-            })
+            streamBundle = gPlayAPIRepository.getNextStreamBundle(authData, homeUrl, currentStreamBundle)
         })
-        return Pair(list, status)
+        return ResultSupreme.create(status, streamBundle)
     }
 
-    suspend fun getPlayStoreAppCategoryUrls(browseUrl: String, authData: AuthData): List<String> {
-        return gPlayAPIRepository.listAppCategoryUrls(browseUrl, authData)
-    }
-
-    suspend fun getAppsAndNextClusterUrl(
-        browseUrl: String,
-        authData: AuthData
-    ): Triple<List<FusedApp>, String, ResultStatus> {
-        val appsList = mutableListOf<FusedApp>()
-        var nextUrl = ""
+    suspend fun getAdjustedFirstCluster(
+        authData: AuthData,
+        streamBundle: StreamBundle,
+        pointer: Int = 0,
+    ): ResultSupreme<StreamCluster> {
+        var streamCluster = StreamCluster()
         val status = runCodeBlockWithTimeout({
-            val gPlayResult = gPlayAPIRepository.getAppsAndNextClusterUrl(browseUrl, authData)
-            appsList.addAll(gPlayResult.first.map { app -> app.transformToFusedApp() })
-            nextUrl = gPlayResult.second
+            streamCluster = gPlayAPIRepository.getAdjustedFirstCluster(authData, streamBundle, pointer)
         })
+        return ResultSupreme.create(status, streamCluster)
+    }
 
-        return Triple(appsList, nextUrl, status)
+    suspend fun getNextStreamCluster(
+        authData: AuthData,
+        currentStreamCluster: StreamCluster,
+    ): ResultSupreme<StreamCluster> {
+        var streamCluster = StreamCluster()
+        val status = runCodeBlockWithTimeout({
+            streamCluster = gPlayAPIRepository.getNextStreamCluster(authData, currentStreamCluster)
+        })
+        return ResultSupreme.create(status, streamCluster)
+    }
+
+    suspend fun getPlayStoreApps(browseUrl: String, authData: AuthData): ResultSupreme<List<FusedApp>> {
+        val list = mutableListOf<FusedApp>()
+        val status = runCodeBlockWithTimeout({
+            list.addAll(
+                gPlayAPIRepository.listApps(browseUrl, authData).map { app ->
+                    app.transformToFusedApp()
+                }
+            )
+        })
+        return ResultSupreme.create(status, list)
     }
 
     suspend fun getApplicationDetails(
@@ -450,6 +449,39 @@ class FusedAPIImpl @Inject constructor(
         return Pair(fusedAppList, status)
     }
 
+    /**
+     * Filter out apps which are restricted, whose details cannot be fetched.
+     * If an app is restricted, we do try to fetch the app details inside a
+     * try-catch block. If that fails, we remove the app, else we keep it even
+     * if it is restricted.
+     *
+     * Popular example: "com.skype.m2"
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5174
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
+     */
+    suspend fun filterRestrictedGPlayApps(
+        authData: AuthData,
+        appList: List<App>,
+    ): ResultSupreme<List<FusedApp>> {
+        val filteredFusedApps = mutableListOf<FusedApp>()
+        val status = runCodeBlockWithTimeout({
+            appList.forEach {
+                if (it.restriction != Constants.Restriction.NOT_RESTRICTED) {
+                    try {
+                        gPlayAPIRepository.getAppDetails(it.packageName, authData)?.let { app ->
+                            filteredFusedApps.add(app.transformToFusedApp())
+                        }
+                    } catch (e: Exception) {}
+                } else {
+                    filteredFusedApps.add(it.transformToFusedApp())
+                }
+            }
+        })
+
+        return ResultSupreme.create(status, filteredFusedApps)
+    }
+
     suspend fun getApplicationDetails(
         id: String,
         packageName: String,
@@ -457,7 +489,7 @@ class FusedAPIImpl @Inject constructor(
         origin: Origin
     ): Pair<FusedApp, ResultStatus> {
 
-        var response : FusedApp? = null
+        var response: FusedApp? = null
 
         val status = runCodeBlockWithTimeout({
             response = if (origin == Origin.CLEANAPK) {
@@ -554,7 +586,6 @@ class FusedAPIImpl @Inject constructor(
             errorApplicationCategory = APP_TYPE_OPEN
             apiStatus = ResultStatus.UNKNOWN
         })
-
 
         /*
          * Try within timeout limit to get PWA categories
@@ -922,7 +953,8 @@ class FusedAPIImpl @Inject constructor(
             originalSize = this.size,
             appSize = Formatter.formatFileSize(context, this.size),
             isFree = this.isFree,
-            price = this.price
+            price = this.price,
+            restriction = this.restriction,
         )
         app.updateStatus()
         return app

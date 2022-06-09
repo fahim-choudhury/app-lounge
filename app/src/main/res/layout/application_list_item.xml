@@ -29,6 +29,17 @@
     android:clickable="true"
     android:focusable="true">
 
+    <ProgressBar
+        android:id="@+id/placeholder_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"
+        />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/app_icon_card"
         android:layout_width="75dp"

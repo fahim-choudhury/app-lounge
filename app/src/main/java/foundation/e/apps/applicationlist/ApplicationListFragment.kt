@@ -43,11 +43,10 @@ import foundation.e.apps.applicationlist.model.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentApplicationListBinding
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
-import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import foundation.e.apps.utils.modules.PWAManagerModule
+import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -90,7 +89,7 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
 
     private fun observeDownloadList() {
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
-            val appList = viewModel.appListLiveData.value?.first?.toMutableList() ?: emptyList()
+            val appList = viewModel.appListLiveData.value?.data?.toMutableList() ?: emptyList()
             appList.let {
                 mainActivityViewModel.updateStatusOfFusedApps(it, list)
             }
@@ -99,7 +98,7 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
              * Done in one line, so that on Ctrl+click on appListLiveData,
              * we can see that it is being updated here.
              */
-            viewModel.appListLiveData.apply { value = Pair(appList, value?.second) }
+            viewModel.appListLiveData.apply { value?.setData(appList) }
         }
     }
 
@@ -151,15 +150,16 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
         }
 
         viewModel.appListLiveData.observe(viewLifecycleOwner) {
-            listAdapter?.setData(it.first)
-            if (!isDownloadObserverAdded) {
-                observeDownloadList()
-                isDownloadObserverAdded = true
+            if (!it.isSuccess()) {
+                onTimeout()
+            } else {
+                listAdapter?.setData(it.data!!)
+                if (!isDownloadObserverAdded) {
+                    observeDownloadList()
+                    isDownloadObserverAdded = true
+                }
             }
             stopLoadingUI()
-            if (it.second != ResultStatus.OK) {
-                onTimeout()
-            }
         }
 
         /*
@@ -217,10 +217,24 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                     super.onScrollStateChanged(recyclerView, newState)
                     if (!recyclerView.canScrollVertically(1)) {
-                        viewModel.getPlayStoreAppsOnScroll(args.browseUrl, authData)
+                        viewModel.loadMore(authData, args.browseUrl)
                     }
                 }
             })
+            /*
+             * This listener comes handy in the case where only 2-3 apps are loaded
+             * in the first cluster.
+             * In that case, unless the user scrolls, the above listener will not be
+             * triggered. Setting this onPlaceHolderShow() callback loads new data
+             * automatically if the initial data is less.
+             */
+            binding.recyclerView.adapter.apply {
+                if (this is ApplicationListRVAdapter) {
+                    onPlaceHolderShow = {
+                        viewModel.loadMore(authData, args.browseUrl)
+                    }
+                }
+            }
         }
 
         appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
