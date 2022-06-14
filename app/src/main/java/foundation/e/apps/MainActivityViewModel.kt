@@ -54,6 +54,7 @@ import foundation.e.apps.utils.modules.DataStoreModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.beryukhov.reactivenetwork.ReactiveNetwork
+import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
@@ -123,8 +124,12 @@ class MainActivityViewModel @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
      */
     fun retryFetchingTokenAfterTimeout() {
+        if(userType.value?.contentEquals(User.UNAVAILABLE.name) == true) {
+            return
+        }
         firstAuthDataFetchTime = 0
         setFirstTokenFetchTime()
+        Timber.d(">>> authvalidity postvalue > retryfetching")
         authValidity.postValue(false)
     }
 
@@ -155,6 +160,7 @@ class MainActivityViewModel @Inject constructor(
                  */
                 if (!fusedAPIRepository.fetchAuthData()) {
                     authRequestRunning = false
+                    Timber.d(">>> authvalidity postvalue > getAuthData")
                     authValidity.postValue(false)
                 }
             }
@@ -186,6 +192,7 @@ class MainActivityViewModel @Inject constructor(
                         regenerateFunction(user)
                     } else {
                         Log.d(TAG, "Ask Google user to log in again")
+                        Timber.d(">>> cleared user type")
                         dataStoreModule.clearUserType()
                     }
                 }
@@ -196,9 +203,15 @@ class MainActivityViewModel @Inject constructor(
     fun generateAuthData() {
         val data = gson.fromJson(authDataJson.value, AuthData::class.java)
         _authData.value = data
-        viewModelScope.launch {
-            authValidity.postValue(isAuthValid(data))
-            authRequestRunning = false
+    }
+
+    fun validateAuthData() {
+        _authData.value?.let {
+            viewModelScope.launch {
+                Timber.d(">>> authvalidity postvalue > validateAuthData")
+                authValidity.postValue(isAuthValid(it))
+                authRequestRunning = false
+            }
         }
     }
 

@@ -48,6 +48,7 @@ import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.modules.CommonUtilsModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.File
 import java.util.UUID
 
@@ -96,6 +97,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     User.UNAVAILABLE -> {
+                        Timber.d(">>> UNAVAILABLE > destorycredentials")
                         viewModel.destroyCredentials(null)
                     }
                     User.GOOGLE -> {
@@ -116,6 +118,7 @@ class MainActivity : AppCompatActivity() {
                 binding.fragment.visibility = View.VISIBLE
 
                 viewModel.userType.observe(this) { user ->
+                    Timber.d(">>> auth: usertype")
                     generateAuthDataBasedOnUserType(user)
                 }
 
@@ -125,8 +128,10 @@ class MainActivity : AppCompatActivity() {
 
                 // Watch and refresh authentication data
                 viewModel.authDataJson.observe(this) {
+                    Timber.d(">>> auth: authDataJson: ")
                     if (!it.isNullOrEmpty()) {
                         viewModel.generateAuthData()
+                        viewModel.validateAuthData()
                         Log.d(TAG, "Authentication data is available!")
                     }
                 }
@@ -134,6 +139,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.authValidity.observe(this) {
+            Timber.d(">>> auth: authvalidity: $it")
             if (it != true) {
                 Log.d(TAG, "Authentication data validation failed!")
                 viewModel.destroyCredentials { user ->

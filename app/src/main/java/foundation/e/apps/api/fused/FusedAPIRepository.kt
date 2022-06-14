@@ -52,7 +52,9 @@ class FusedAPIRepository @Inject constructor(
     }
 
     suspend fun validateAuthData(authData: AuthData): Boolean {
-        return fusedAPIImpl.validateAuthData(authData)
+        return authData.authToken.isEmpty() || authData.deviceInfoProvider == null || fusedAPIImpl.validateAuthData(
+            authData
+        )
     }
 
     suspend fun getApplicationDetails(
@@ -91,7 +93,10 @@ class FusedAPIRepository @Inject constructor(
         )
     }
 
-    suspend fun getCategoriesList(type: Category.Type, authData: AuthData): Triple<List<FusedCategory>, String, ResultStatus> {
+    suspend fun getCategoriesList(
+        type: Category.Type,
+        authData: AuthData
+    ): Triple<List<FusedCategory>, String, ResultStatus> {
         return fusedAPIImpl.getCategoriesList(type, authData)
     }
 
@@ -107,7 +112,10 @@ class FusedAPIRepository @Inject constructor(
         return fusedAPIImpl.fetchAuthData(email, aasToken)
     }
 
-    suspend fun getSearchResults(query: String, authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
+    suspend fun getSearchResults(
+        query: String,
+        authData: AuthData
+    ): Pair<List<FusedApp>, ResultStatus> {
         return fusedAPIImpl.getSearchResults(query, authData)
     }
 
