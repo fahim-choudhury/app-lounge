@@ -71,6 +71,12 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
     private val binding get() = _binding!!
     private var isDownloadObserverAdded = false
 
+    /*
+     * Prevent reloading apps.
+     * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/478
+     */
+    private var isDetailsLoaded = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -153,6 +159,7 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
             if (!it.isSuccess()) {
                 onTimeout()
             } else {
+                isDetailsLoaded = true
                 listAdapter?.setData(it.data!!)
                 if (!isDownloadObserverAdded) {
                     observeDownloadList()
@@ -195,18 +202,30 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
     }
 
     override fun refreshData(authData: AuthData) {
-        showLoadingUI()
 
         /*
          * Code moved from onResume()
          */
 
-        viewModel.getList(
-            args.category,
-            args.browseUrl,
-            authData,
-            args.source
-        )
+        /*
+         * If details are once loaded, do not load details again,
+         * Only set the scroll listeners.
+         *
+         * Here "details" word means:
+         * For GPlay apps - first set of data
+         * For cleanapk apps - all apps.
+         *
+         * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/478
+         */
+        if (!isDetailsLoaded) {
+            showLoadingUI()
+            viewModel.getList(
+                args.category,
+                args.browseUrl,
+                authData,
+                args.source
+            )
+        }
 
         if (args.source != "Open Source" && args.source != "PWA") {
             /*
