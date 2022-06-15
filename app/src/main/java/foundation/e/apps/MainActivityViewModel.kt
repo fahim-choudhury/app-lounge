@@ -124,9 +124,14 @@ class MainActivityViewModel @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
      */
     fun retryFetchingTokenAfterTimeout() {
-        if(userType.value?.contentEquals(User.UNAVAILABLE.name) == true) {
-            return
-        }
+        Timber.d(
+            ">>> userType: ${userType.value} authDataJson: ${
+                authDataJson.value?.length
+            } authData: ${authData.value?.authToken}"
+        )
+//        if(authDataJson.value.isNullOrEmpty() && authData.value == null) {
+//            return
+//        }
         firstAuthDataFetchTime = 0
         setFirstTokenFetchTime()
         Timber.d(">>> authvalidity postvalue > retryfetching")
@@ -202,6 +207,7 @@ class MainActivityViewModel @Inject constructor(
 
     fun generateAuthData() {
         val data = gson.fromJson(authDataJson.value, AuthData::class.java)
+        Timber.d(">>> generated authdata: ${data.authToken}")
         _authData.value = data
     }
 

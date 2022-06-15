@@ -118,7 +118,7 @@ class MainActivity : AppCompatActivity() {
                 binding.fragment.visibility = View.VISIBLE
 
                 viewModel.userType.observe(this) { user ->
-                    Timber.d(">>> auth: usertype")
+                    Timber.d(">>> auth: usertype: $user")
                     generateAuthDataBasedOnUserType(user)
                 }
 
@@ -128,8 +128,8 @@ class MainActivity : AppCompatActivity() {
 
                 // Watch and refresh authentication data
                 viewModel.authDataJson.observe(this) {
-                    Timber.d(">>> auth: authDataJson: ")
-                    if (!it.isNullOrEmpty()) {
+                    Timber.d(">>> auth: authDataJson: ${it.length}")
+                    if (!it.isNullOrEmpty() && !viewModel.userType.value.isNullOrEmpty() && !viewModel.userType.value.contentEquals(User.UNAVAILABLE.name)) {
                         viewModel.generateAuthData()
                         viewModel.validateAuthData()
                         Log.d(TAG, "Authentication data is available!")
@@ -140,6 +140,9 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.authValidity.observe(this) {
             Timber.d(">>> auth: authvalidity: $it")
+            if(SignInViewModel.isGoogleLoginRunning) {
+                return@observe
+            }
             if (it != true) {
                 Log.d(TAG, "Authentication data validation failed!")
                 viewModel.destroyCredentials { user ->
@@ -152,7 +155,7 @@ class MainActivity : AppCompatActivity() {
                             Log.d(
                                 TAG,
                                 "Displaying timeout from MainActivity on fragment: " +
-                                    lastFragment::class.java.name
+                                        lastFragment::class.java.name
                             )
                             lastFragment.onTimeout()
                         }

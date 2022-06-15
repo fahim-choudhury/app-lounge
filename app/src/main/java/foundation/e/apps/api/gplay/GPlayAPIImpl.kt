@@ -73,8 +73,10 @@ class GPlayAPIImpl @Inject constructor(
         }
     }
 
-    fun fetchAuthData(email: String, aasToken: String): AuthData {
-        return tokenRepository.getAuthData(email, aasToken)
+    suspend fun fetchAuthData(email: String, aasToken: String): AuthData {
+        val authData = tokenRepository.getAuthData(email, aasToken)
+        dataStoreModule.saveCredentials(authData)
+        return authData
     }
 
     suspend fun validateAuthData(authData: AuthData): Boolean {

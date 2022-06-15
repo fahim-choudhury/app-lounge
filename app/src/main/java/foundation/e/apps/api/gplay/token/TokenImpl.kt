@@ -22,6 +22,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.helpers.AuthHelper
 import com.google.gson.Gson
 import foundation.e.apps.api.gplay.utils.GPlayHttpClient
+import timber.log.Timber
 import java.util.Properties
 import javax.inject.Inject
 
@@ -38,7 +39,12 @@ class TokenImpl @Inject constructor(
     fun getAuthData(): AuthData? {
         val playResponse =
             gPlayHttpClient.postAuth(BASE_URL, gson.toJson(nativeDeviceProperty).toByteArray())
-        return gson.fromJson(String(playResponse.responseBytes), AuthData::class.java)
+        return if(playResponse.isSuccessful) {
+            gson.fromJson(String(playResponse.responseBytes), AuthData::class.java)
+        } else {
+            Timber.d(">>> getAuthData: UNSUCCESSFUL > ${playResponse.errorString}")
+            null
+        }
     }
 
     fun getAuthData(email: String, aasToken: String): AuthData {

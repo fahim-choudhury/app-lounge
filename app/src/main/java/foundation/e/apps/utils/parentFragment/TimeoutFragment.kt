@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.R
+import foundation.e.apps.setup.signin.SignInViewModel
 
 /*
  * Parent class (extending fragment) for fragments which can display a timeout dialog
@@ -82,7 +83,9 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
                 dismissTimeoutDialog()
                 refreshData(authData)
             } ?: run {
-                mainActivityViewModel.retryFetchingTokenAfterTimeout()
+                if (!SignInViewModel.isGoogleLoginRunning) {
+                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
+                }
             }
         }
     }

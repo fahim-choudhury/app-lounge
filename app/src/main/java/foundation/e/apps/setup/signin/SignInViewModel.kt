@@ -52,13 +52,19 @@ class SignInViewModel @Inject constructor(
         }
     }
 
+    companion object {
+        var isGoogleLoginRunning = false
+    }
+
     fun fetchAuthData() {
         viewModelScope.launch {
+            isGoogleLoginRunning = true
             val email = dataStoreModule.getEmail()
             val oauthToken = dataStoreModule.getAASToken()
             if (email.isNotEmpty() && oauthToken.isNotEmpty()) {
                 fetchAuthData(email, oauthToken)
             }
+            isGoogleLoginRunning = false
         }
     }
 }
