@@ -118,6 +118,9 @@
             app:uri="f-droid.org/packages/{packageName}" />
         <deepLink
             app:action="android.intent.action.VIEW"
+            app:uri="f-droid.org/{locale}/packages/{packageName}" />
+        <deepLink
+            app:action="android.intent.action.VIEW"
             app:uri="play.app.goo.gl/?link={playStore_url}?id={packageName}&amp;ddl={pc1}&amp;pcampaignid={pc2}" />
         <action
             android:id="@+id/action_applicationFragment_to_screenshotFragment"
