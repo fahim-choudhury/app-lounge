@@ -336,6 +336,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     override fun refreshData(authData: AuthData) {
+        if (isDetailsLoaded) return
         /* Show the loading bar. */
         showLoadingUI()
         /* Remove trailing slash (if present) that can become part of the packageName */
