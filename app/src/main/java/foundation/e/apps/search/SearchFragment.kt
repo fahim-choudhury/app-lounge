@@ -27,6 +27,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.cursoradapter.widget.CursorAdapter
 import androidx.cursoradapter.widget.SimpleCursorAdapter
 import androidx.fragment.app.activityViewModels
@@ -82,6 +83,7 @@ class SearchFragment :
     private val appProgressViewModel: AppProgressViewModel by viewModels()
 
     private val SUGGESTION_KEY = "suggestion"
+    private var lastSearch = ""
 
     private var searchView: SearchView? = null
     private var shimmerLayout: ShimmerFrameLayout? = null
@@ -162,7 +164,7 @@ class SearchFragment :
 
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
             val searchList =
-                searchViewModel.searchResult.value?.first?.toMutableList() ?: emptyList()
+                searchViewModel.searchResult.value?.data?.first?.toMutableList() ?: emptyList()
             searchList.let {
                 mainActivityViewModel.updateStatusOfFusedApps(searchList, list)
             }
@@ -171,7 +173,7 @@ class SearchFragment :
              * Done in one line, so that on Ctrl+click on searchResult,
              * we can see that it is being updated here.
              */
-            searchViewModel.searchResult.apply { value = Pair(searchList, value?.second) }
+            searchViewModel.searchResult.apply { value?.setData(Pair(searchList, value?.data?.second ?: false)) }
         }
 
         /*
@@ -191,19 +193,32 @@ class SearchFragment :
         }
 
         searchViewModel.searchResult.observe(viewLifecycleOwner) {
-            if (it.first.isNullOrEmpty()) {
+            if (it.data?.first.isNullOrEmpty()) {
                 noAppsFoundLayout?.visibility = View.VISIBLE
             } else {
-                listAdapter?.setData(it.first)
+                listAdapter?.setData(it.data!!.first)
+                binding.loadingProgressBar.isVisible = it.data!!.second
                 stopLoadingUI()
                 noAppsFoundLayout?.visibility = View.GONE
             }
             listAdapter?.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
                 override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                    recyclerView!!.scrollToPosition(0)
+                    searchView?.run {
+                        /*
+                         * Only scroll back to 0 position for a new search.
+                         *
+                         * If we are getting new results from livedata for the old search query,
+                         * do not scroll to top as the user may be scrolling to see already
+                         * populated results.
+                         */
+                        if (lastSearch != query?.toString()) {
+                            recyclerView?.scrollToPosition(0)
+                            lastSearch = query.toString()
+                        }
+                    }
                 }
             })
-            if (searchText.isNotBlank() && it.second != ResultStatus.OK) {
+            if (searchText.isNotBlank() && !it.isSuccess()) {
                 /*
                  * If blank check is not performed then timeout dialog keeps
                  * popping up whenever search tab is opened.
@@ -215,6 +230,7 @@ class SearchFragment :
 
     override fun onTimeout() {
         if (!isTimeoutDialogDisplayed()) {
+            binding.loadingProgressBar.isVisible = false
             stopLoadingUI()
             displayTimeoutAlertDialog(
                 timeoutFragment = this,
@@ -235,7 +251,7 @@ class SearchFragment :
 
     override fun refreshData(authData: AuthData) {
         showLoadingUI()
-        searchViewModel.getSearchResults(searchText, authData)
+        searchViewModel.getSearchResults(searchText, authData, this)
     }
 
     private fun showLoadingUI() {
