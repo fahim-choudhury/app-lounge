@@ -18,6 +18,7 @@
 
 package foundation.e.apps.api.fused
 
+import androidx.lifecycle.LiveData
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
@@ -111,7 +112,7 @@ class FusedAPIRepository @Inject constructor(
         return fusedAPIImpl.fetchAuthData(email, aasToken)
     }
 
-    suspend fun getSearchResults(query: String, authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
+    fun getSearchResults(query: String, authData: AuthData): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> {
         return fusedAPIImpl.getSearchResults(query, authData)
     }
 

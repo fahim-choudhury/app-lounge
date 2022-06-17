@@ -19,6 +19,8 @@
 package foundation.e.apps.api.gplay
 
 import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
@@ -98,29 +100,41 @@ class GPlayAPIImpl @Inject constructor(
         return searchData.filter { it.suggestedQuery.isNotBlank() }
     }
 
-    suspend fun getSearchResults(query: String, authData: AuthData): List<App> {
-        val searchData = mutableListOf<App>()
-        withContext(Dispatchers.IO) {
-            val searchHelper = SearchHelper(authData).using(gPlayHttpClient)
-            val searchResult = searchHelper.searchResults(query)
-            searchData.addAll(searchResult.appList)
+    /**
+     * Sends livedata of list of apps being loaded from search and a boolean
+     * signifying if more data is to be loaded.
+     */
+    fun getSearchResults(query: String, authData: AuthData): LiveData<Pair<List<App>, Boolean>> {
+        /*
+         * Send livedata to improve UI performance, so we don't have to wait for loading all results.
+         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
+         */
+        return liveData {
+            withContext(Dispatchers.IO) {
+                /*
+                 * Variable names and logic made same as that of Aurora store.
+                 * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
+                 */
+                val searchHelper = SearchHelper(authData).using(gPlayHttpClient)
+                val searchBundle = searchHelper.searchResults(query)
 
-            // Fetch more results in case the given result is a promoted app
-            if (searchData.size == 1) {
-                val bundleSet: MutableSet<SearchBundle.SubBundle> = searchResult.subBundles
+                emit(Pair(searchBundle.appList, true))
+
+                var nextSubBundleSet: MutableSet<SearchBundle.SubBundle>
                 do {
-                    val searchBundle = searchHelper.next(bundleSet)
-                    if (searchBundle.appList.isNotEmpty()) {
-                        searchData.addAll(searchBundle.appList)
+                    nextSubBundleSet = searchBundle.subBundles
+                    val newSearchBundle = searchHelper.next(nextSubBundleSet)
+                    if (newSearchBundle.appList.isNotEmpty()) {
+                        searchBundle.apply {
+                            subBundles.clear()
+                            subBundles.addAll(newSearchBundle.subBundles)
+                            appList.addAll(newSearchBundle.appList)
+                            emit(Pair(searchBundle.appList, nextSubBundleSet.isNotEmpty()))
+                        }
                     }
-                    bundleSet.apply {
-                        clear()
-                        addAll(searchBundle.subBundles)
-                    }
-                } while (bundleSet.isNotEmpty())
+                } while (nextSubBundleSet.isNotEmpty())
             }
         }
-        return searchData
     }
 
     suspend fun getDownloadInfo(
