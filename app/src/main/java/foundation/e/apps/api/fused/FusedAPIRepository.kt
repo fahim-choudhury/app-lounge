@@ -52,7 +52,7 @@ class FusedAPIRepository @Inject constructor(
     }
 
     suspend fun validateAuthData(authData: AuthData): Boolean {
-        return authData.authToken.isEmpty() || authData.deviceInfoProvider == null || fusedAPIImpl.validateAuthData(
+        return authData.authToken.isNotEmpty() && authData.deviceInfoProvider != null && fusedAPIImpl.validateAuthData(
             authData
         )
     }
@@ -108,7 +108,7 @@ class FusedAPIRepository @Inject constructor(
         return fusedAPIImpl.fetchAuthData()
     }
 
-    suspend fun fetchAuthData(email: String, aasToken: String): AuthData {
+    suspend fun fetchAuthData(email: String, aasToken: String): AuthData? {
         return fusedAPIImpl.fetchAuthData(email, aasToken)
     }
 

@@ -30,7 +30,6 @@ import foundation.e.apps.utils.enums.User
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -63,9 +62,7 @@ class DataStoreModule @Inject constructor(
      */
     suspend fun saveCredentials(authData: AuthData) {
         context.dataStore.edit {
-            val authDataJson = gson.toJson(authData)
-            Timber.d(">>> saving authdata: ${authData.email}")
-            it[AUTHDATA] = authDataJson
+            it[AUTHDATA] = gson.toJson(authData)
         }
     }
 

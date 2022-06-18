@@ -27,7 +27,6 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.manager.fused.FusedManagerRepository
-import foundation.e.apps.utils.enums.Status
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject

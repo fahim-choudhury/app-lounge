@@ -42,7 +42,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 
 class GPlayAPIImpl @Inject constructor(
@@ -66,17 +65,19 @@ class GPlayAPIImpl @Inject constructor(
         val data = async { tokenRepository.getAuthData() }
         data.await().let {
             if (it == null) return@withContext false
-            Timber.d(">>> auth: gplayapi: fetchAuthData: $it")
             it.locale = context.resources.configuration.locales[0] // update locale with the default locale from settings
             dataStoreModule.saveCredentials(it)
             return@withContext true
         }
     }
 
-    suspend fun fetchAuthData(email: String, aasToken: String): AuthData {
+    suspend fun fetchAuthData(email: String, aasToken: String): AuthData? {
         val authData = tokenRepository.getAuthData(email, aasToken)
-        dataStoreModule.saveCredentials(authData)
-        return authData
+        if (authData.authToken.isNotEmpty() && authData.deviceInfoProvider != null) {
+            dataStoreModule.saveCredentials(authData)
+            return authData
+        }
+        return null
     }
 
     suspend fun validateAuthData(authData: AuthData): Boolean {

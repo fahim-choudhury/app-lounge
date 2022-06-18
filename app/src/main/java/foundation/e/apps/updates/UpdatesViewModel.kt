@@ -18,7 +18,6 @@
 
 package foundation.e.apps.updates
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,8 +27,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.updates.manager.UpdatesManagerRepository
-import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.ResultStatus
+import foundation.e.apps.utils.enums.Status
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

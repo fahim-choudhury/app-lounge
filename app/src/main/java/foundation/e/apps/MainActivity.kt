@@ -44,16 +44,15 @@ import foundation.e.apps.purchase.AppPurchaseFragmentDirections
 import foundation.e.apps.setup.signin.SignInViewModel
 import foundation.e.apps.updates.UpdatesNotifier
 import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.modules.CommonUtilsModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.io.File
 import java.util.UUID
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+    private lateinit var signInViewModel: SignInViewModel
     private lateinit var binding: ActivityMainBinding
     private val TAG = MainActivity::class.java.simpleName
     private lateinit var viewModel: MainActivityViewModel
@@ -72,7 +71,7 @@ class MainActivity : AppCompatActivity() {
         var hasInternet = true
 
         viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
-        val signInViewModel = ViewModelProvider(this)[SignInViewModel::class.java]
+        signInViewModel = ViewModelProvider(this)[SignInViewModel::class.java]
 
         // navOptions and activityNavController for TOS and SignIn Fragments
         val navOptions = NavOptions.Builder()
@@ -86,31 +85,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        fun generateAuthDataBasedOnUserType(user: String) {
-            if (user.isNotBlank() && viewModel.tocStatus.value == true) {
-                when (User.valueOf(user)) {
-                    User.ANONYMOUS -> {
-                        if (viewModel.authDataJson.value.isNullOrEmpty() && !viewModel.authRequestRunning) {
-                            Log.d(TAG, "Fetching new authentication data")
-                            viewModel.setFirstTokenFetchTime()
-                            viewModel.getAuthData()
-                        }
-                    }
-                    User.UNAVAILABLE -> {
-                        Timber.d(">>> UNAVAILABLE > destorycredentials")
-                        viewModel.destroyCredentials(null)
-                    }
-                    User.GOOGLE -> {
-                        if (viewModel.authData.value == null && !viewModel.authRequestRunning) {
-                            Log.d(TAG, "Fetching new authentication data")
-                            viewModel.setFirstTokenFetchTime()
-                            signInViewModel.fetchAuthData()
-                        }
-                    }
-                }
-            }
-        }
-
         viewModel.internetConnection.observe(this) { isInternetAvailable ->
             hasInternet = isInternetAvailable
             if (isInternetAvailable) {
@@ -118,8 +92,7 @@ class MainActivity : AppCompatActivity() {
                 binding.fragment.visibility = View.VISIBLE
 
                 viewModel.userType.observe(this) { user ->
-                    Timber.d(">>> auth: usertype: $user")
-                    generateAuthDataBasedOnUserType(user)
+                    viewModel.handleAuthDataJson()
                 }
 
                 signInViewModel.authLiveData.observe(this) {
@@ -128,41 +101,24 @@ class MainActivity : AppCompatActivity() {
 
                 // Watch and refresh authentication data
                 viewModel.authDataJson.observe(this) {
-                    Timber.d(">>> auth: authDataJson: ${it.length}")
-                    if (!it.isNullOrEmpty() && !viewModel.userType.value.isNullOrEmpty() && !viewModel.userType.value.contentEquals(User.UNAVAILABLE.name)) {
-                        viewModel.generateAuthData()
-                        viewModel.validateAuthData()
-                        Log.d(TAG, "Authentication data is available!")
-                    }
+                    viewModel.handleAuthDataJson()
                 }
             }
         }
 
         viewModel.authValidity.observe(this) {
-            Timber.d(">>> auth: authvalidity: $it")
-            if(SignInViewModel.isGoogleLoginRunning) {
-                return@observe
-            }
-            if (it != true) {
-                Log.d(TAG, "Authentication data validation failed!")
-                viewModel.destroyCredentials { user ->
-                    if (viewModel.isTimeEligibleForTokenRefresh()) {
-                        generateAuthDataBasedOnUserType(user)
-                    } else {
-                        Log.d(TAG, "Timeout validating auth data!")
-                        val lastFragment = navHostFragment.childFragmentManager.fragments[0]
-                        if (lastFragment is TimeoutFragment) {
-                            Log.d(
-                                TAG,
-                                "Displaying timeout from MainActivity on fragment: " +
-                                        lastFragment::class.java.name
-                            )
-                            lastFragment.onTimeout()
-                        }
-                    }
+
+            viewModel.handleAuthValidity(it) {
+                Log.d(TAG, "Timeout validating auth data!")
+                val lastFragment = navHostFragment.childFragmentManager.fragments[0]
+                if (lastFragment is TimeoutFragment) {
+                    Log.d(
+                        TAG,
+                        "Displaying timeout from MainActivity on fragment: " +
+                            lastFragment::class.java.name
+                    )
+                    lastFragment.onTimeout()
                 }
-            } else {
-                Log.d(TAG, "Authentication data is valid!")
             }
         }
 

@@ -230,12 +230,4 @@
         android:id="@+id/action_global_appPurchaseFragment"
         app:destination="@id/appPurchaseFragment" />
 
-    <action
-        android:id="@+id/action_root"
-        app:destination="@+id/homeFragment"
-        app:launchSingleTop="true"
-        app:popUpTo="@+id/navigation_resource"
-        app:popUpToInclusive="true"/>
-
-
 </navigation>

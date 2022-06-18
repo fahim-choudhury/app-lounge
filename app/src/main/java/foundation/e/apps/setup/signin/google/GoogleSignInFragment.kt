@@ -35,7 +35,6 @@ import foundation.e.apps.api.gplay.utils.AC2DMUtil
 import foundation.e.apps.databinding.FragmentGoogleSigninBinding
 import foundation.e.apps.setup.signin.SignInViewModel
 import foundation.e.apps.utils.enums.User
-import timber.log.Timber
 
 @AndroidEntryPoint
 class GoogleSignInFragment : Fragment(R.layout.fragment_google_signin) {
@@ -89,7 +88,6 @@ class GoogleSignInFragment : Fragment(R.layout.fragment_google_signin) {
                         val email = it.replace("\"".toRegex(), "")
                         viewModel.saveEmailToken(email, oauthToken)
                         viewModel.saveUserType(User.GOOGLE)
-                        Timber.d(">>> saved uer type after google login")
                     }
                 }
             }

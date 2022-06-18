@@ -24,6 +24,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -132,6 +133,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         binding.logout.setOnClickListener {
             viewModel.saveUserType(User.UNAVAILABLE)
+            Toast.makeText(requireContext(), "Signin out...", Toast.LENGTH_LONG).show()
             Handler(Looper.getMainLooper()).postDelayed({
                 backToMainActivity()
             }, 1500)

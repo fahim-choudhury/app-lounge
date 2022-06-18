@@ -42,6 +42,7 @@ import foundation.e.apps.api.cleanapk.blockedApps.BlockedAppRepository
 import foundation.e.apps.api.ecloud.EcloudRepository
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
+import foundation.e.apps.api.gplay.utils.AC2DMTask
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.manager.pkg.PkgManagerModule
@@ -53,8 +54,8 @@ import foundation.e.apps.utils.modules.CommonUtilsModule.timeoutDurationInMillis
 import foundation.e.apps.utils.modules.DataStoreModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.beryukhov.reactivenetwork.ReactiveNetwork
-import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
@@ -67,6 +68,7 @@ class MainActivityViewModel @Inject constructor(
     private val pkgManagerModule: PkgManagerModule,
     private val ecloudRepository: EcloudRepository,
     private val blockedAppRepository: BlockedAppRepository,
+    private val aC2DMTask: AC2DMTask,
 ) : ViewModel() {
 
     val authDataJson: LiveData<String> = dataStoreModule.authData.asLiveData()
@@ -90,6 +92,8 @@ class MainActivityViewModel @Inject constructor(
      */
     var firstAuthDataFetchTime = 0L
 
+    var isTokenValidationCompletedOnce = false
+
     // Downloads
     val downloadList = fusedManagerRepository.getDownloadLiveList()
     var installInProgress = false
@@ -104,15 +108,16 @@ class MainActivityViewModel @Inject constructor(
 
     companion object {
         private const val TAG = "MainActivityViewModel"
+        private var isGoogleLoginRunning = false
     }
 
-    fun setFirstTokenFetchTime() {
+    private fun setFirstTokenFetchTime() {
         if (firstAuthDataFetchTime == 0L) {
             firstAuthDataFetchTime = SystemClock.uptimeMillis()
         }
     }
 
-    fun isTimeEligibleForTokenRefresh(): Boolean {
+    private fun isTimeEligibleForTokenRefresh(): Boolean {
         return (SystemClock.uptimeMillis() - firstAuthDataFetchTime) <= timeoutDurationInMillis
     }
 
@@ -124,17 +129,8 @@ class MainActivityViewModel @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
      */
     fun retryFetchingTokenAfterTimeout() {
-        Timber.d(
-            ">>> userType: ${userType.value} authDataJson: ${
-                authDataJson.value?.length
-            } authData: ${authData.value?.authToken}"
-        )
-//        if(authDataJson.value.isNullOrEmpty() && authData.value == null) {
-//            return
-//        }
         firstAuthDataFetchTime = 0
         setFirstTokenFetchTime()
-        Timber.d(">>> authvalidity postvalue > retryfetching")
         authValidity.postValue(false)
     }
 
@@ -165,7 +161,6 @@ class MainActivityViewModel @Inject constructor(
                  */
                 if (!fusedAPIRepository.fetchAuthData()) {
                     authRequestRunning = false
-                    Timber.d(">>> authvalidity postvalue > getAuthData")
                     authValidity.postValue(false)
                 }
             }
@@ -197,7 +192,6 @@ class MainActivityViewModel @Inject constructor(
                         regenerateFunction(user)
                     } else {
                         Log.d(TAG, "Ask Google user to log in again")
-                        Timber.d(">>> cleared user type")
                         dataStoreModule.clearUserType()
                     }
                 }
@@ -206,18 +200,113 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun generateAuthData() {
-        val data = gson.fromJson(authDataJson.value, AuthData::class.java)
-        Timber.d(">>> generated authdata: ${data.authToken}")
+        val data = jsonToAuthData()
         _authData.value = data
     }
 
+    private fun jsonToAuthData() = gson.fromJson(authDataJson.value, AuthData::class.java)
+
     fun validateAuthData() {
-        _authData.value?.let {
-            viewModelScope.launch {
-                Timber.d(">>> authvalidity postvalue > validateAuthData")
-                authValidity.postValue(isAuthValid(it))
+        viewModelScope.launch {
+            jsonToAuthData()?.let {
+                val isAuthValid = isAuthValid(it)
+                authValidity.postValue(isAuthValid)
                 authRequestRunning = false
             }
+        }
+    }
+
+    fun handleAuthDataJson() {
+        val user = userType.value
+        val json = authDataJson.value
+
+        if (user == null || json == null) {
+            return
+        }
+
+        if (isUserNOTLoggedIn(user, json)) {
+            generateAuthDataBasedOnUserType(user)
+        } else if (isEligibleToValidateJson(json)) {
+            validateAuthData()
+            Log.d(TAG, ">>> Authentication data is available!")
+        }
+    }
+
+    private fun isUserNOTLoggedIn(user: String, json: String) =
+        !user.isNullOrEmpty() && !user.contentEquals(User.UNAVAILABLE.name) && json.isEmpty()
+
+    private fun isEligibleToValidateJson(authDataJson: String?) =
+        !authDataJson.isNullOrEmpty() && !userType.value.isNullOrEmpty() && !userType.value.contentEquals(
+            User.UNAVAILABLE.name
+        )
+
+    fun handleAuthValidity(isValid: Boolean, handleTimeoOut: () -> Unit) {
+        if (isGoogleLoginRunning) {
+            return
+        }
+        isTokenValidationCompletedOnce = true
+        if (!isValid) {
+            Log.d(TAG, ">>> Authentication data validation failed!")
+            destroyCredentials { user ->
+                if (isTimeEligibleForTokenRefresh()) {
+                    generateAuthDataBasedOnUserType(user)
+                } else {
+                    handleTimeoOut()
+                }
+            }
+        } else {
+            Log.d(TAG, "Authentication data is valid!")
+            generateAuthData()
+        }
+    }
+
+    private fun generateAuthDataBasedOnUserType(user: String) {
+        if (user.isNotBlank() && tocStatus.value == true && !isGoogleLoginRunning) {
+            when (User.valueOf(user)) {
+                User.ANONYMOUS -> {
+                    if (authDataJson.value.isNullOrEmpty() && !authRequestRunning) {
+                        Log.d(TAG, ">>> Fetching new authentication data")
+                        setFirstTokenFetchTime()
+                        getAuthData()
+                    }
+                }
+                User.UNAVAILABLE -> {
+                    destroyCredentials(null)
+                }
+                User.GOOGLE -> {
+                    if (authData.value == null && !authRequestRunning) {
+                        Log.d(TAG, ">>> Fetching new authentication data")
+                        setFirstTokenFetchTime()
+                        fetchAuthData()
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun fetchAuthData(email: String, oauthToken: String) {
+        var responseMap: Map<String, String>
+        withContext(Dispatchers.IO) {
+            val response = aC2DMTask.getAC2DMResponse(email, oauthToken)
+            responseMap = response
+            responseMap["Token"]?.let {
+                if (fusedAPIRepository.fetchAuthData(email, it) == null) {
+                    dataStoreModule.clearUserType()
+                    _errorMessageStringResource.value = R.string.unknown_error
+                }
+            }
+        }
+    }
+
+    private fun fetchAuthData() {
+        viewModelScope.launch {
+            isGoogleLoginRunning = true
+            val email = dataStoreModule.getEmail()
+            val oauthToken = dataStoreModule.getAASToken()
+            if (email.isNotEmpty() && oauthToken.isNotEmpty()) {
+                fetchAuthData(email, oauthToken)
+            }
+            isGoogleLoginRunning = false
         }
     }
 
