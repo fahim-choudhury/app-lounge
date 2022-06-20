@@ -35,6 +35,7 @@ import com.aurora.gplayapi.helpers.CategoryHelper
 import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.aurora.gplayapi.helpers.SearchHelper
 import com.aurora.gplayapi.helpers.StreamHelper
+import com.aurora.gplayapi.helpers.ExpandedBrowseHelper
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.api.gplay.token.TokenRepository
@@ -221,11 +222,55 @@ class GPlayAPIImpl @Inject constructor(
         }
     }
 
+    private fun getStreamCluster(
+        url: String,
+        authData: AuthData,
+        checkStartUrl: Boolean = false
+    ): StreamCluster {
+        StreamHelper(authData).using(gPlayHttpClient).run {
+
+            if (!checkStartUrl) {
+                return getNextStreamCluster(url)
+            }
+
+            val browseResponse = getBrowseStreamResponse(url)
+
+            if (browseResponse.contentsUrl.isNotEmpty()) {
+                return getNextStreamCluster(browseResponse.contentsUrl)
+            }
+
+            if (browseResponse.hasBrowseTab()) {
+                return getNextStreamCluster(browseResponse.browseTab.listUrl)
+            }
+        }
+        return StreamCluster()
+    }
+
+    private fun getExpandedStreamCluster(
+        url: String,
+        authData: AuthData,
+        checkStartUrl: Boolean = false
+    ): StreamCluster {
+        ExpandedBrowseHelper(authData).using(gPlayHttpClient).run {
+
+            if (!checkStartUrl) {
+                return getExpandedBrowseClusters(url)
+            }
+
+            val browseResponse = getBrowseStreamResponse(url)
+
+            if (browseResponse.hasBrowseTab()) {
+                return getExpandedBrowseClusters(browseResponse.browseTab.listUrl)
+            }
+        }
+        return StreamCluster()
+    }
+
     /**
-     * Get first StreamCluster of a StreamBundle.
+     * Get first adjusted StreamCluster of a StreamBundle.
      *
-     * Ideally it would just be streamBundle.streamClusters[[pointer]], but in case the StreamCluster
-     * does not have a next url, we need to get a StreamCluster which has a clusterNextPageUrl.
+     * Takes the clusterBrowseUrl of streamBundle.streamClusters[[pointer]],
+     * Populates the cluster and returns it.
      *
      * This does not always operate on zeroth StreamCluster of [streamBundle].
      * A StreamBundle can have many StreamClusters, each of the individual StreamCluster can point
@@ -249,24 +294,23 @@ class GPlayAPIImpl @Inject constructor(
         return withContext(Dispatchers.IO) {
             val clusterSize = streamBundle.streamClusters.size
             if (clusterSize != 0 && pointer < clusterSize && pointer >= 0) {
-                streamBundle.streamClusters.values.toList()[pointer].run {
-                    if (hasNext()) {
-                        /*
-                         * If zeroth StreamCluster's next url is not blank, return it.
-                         */
-                        return@withContext this
-                    } else {
-                        /*
-                         * Try fetching a StreamCluster whose next url is not blank.
-                         * Logic taken from Aurora Store code.
-                         */
-                        val streamHelper = StreamHelper(authData).using(gPlayHttpClient)
-                        val browseResponse = streamHelper.getBrowseStreamResponse(this.clusterBrowseUrl)
-                        if (browseResponse.contentsUrl.isNotEmpty()) {
-                            return@withContext streamHelper.getNextStreamCluster(browseResponse.contentsUrl)
-                        } else if (browseResponse.hasBrowseTab()) {
-                            return@withContext streamHelper.getNextStreamCluster(browseResponse.browseTab.listUrl)
-                        }
+                val firstCluster = streamBundle.streamClusters.values.toList()[pointer]
+
+                val clusterBrowseUrl = firstCluster.clusterBrowseUrl
+
+                /*
+                 * Logic found in Aurora store code.
+                 */
+                val adjustedCluster = if (firstCluster.clusterBrowseUrl.contains("expanded")) {
+                    getExpandedStreamCluster(clusterBrowseUrl, authData, true)
+                } else {
+                    getStreamCluster(clusterBrowseUrl, authData, true)
+                }
+
+                return@withContext adjustedCluster.apply {
+                    clusterAppList.addAll(firstCluster.clusterAppList)
+                    if (!hasNext()) {
+                        clusterNextPageUrl = firstCluster.clusterNextPageUrl
                     }
                 }
             }
@@ -289,11 +333,20 @@ class GPlayAPIImpl @Inject constructor(
         currentStreamCluster: StreamCluster,
     ): StreamCluster {
         return withContext(Dispatchers.IO) {
-            if (currentStreamCluster.hasNext()) {
-                val streamHelper = StreamHelper(authData).using(gPlayHttpClient)
-                streamHelper.getNextStreamCluster(currentStreamCluster.clusterNextPageUrl)
+            if (!currentStreamCluster.hasNext()) {
+                return@withContext StreamCluster()
+            }
+
+            /*
+             * Logic found in Aurora store code.
+             */
+            return@withContext if (currentStreamCluster.clusterNextPageUrl.contains("expanded")) {
+                getExpandedStreamCluster(
+                    currentStreamCluster.clusterNextPageUrl,
+                    authData
+                )
             } else {
-                StreamCluster()
+                getStreamCluster(currentStreamCluster.clusterNextPageUrl, authData)
             }
         }
     }
