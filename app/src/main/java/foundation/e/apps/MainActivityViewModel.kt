@@ -224,7 +224,7 @@ class MainActivityViewModel @Inject constructor(
             return
         }
 
-        if (isUserNOTLoggedIn(user, json)) {
+        if (!isUserLoggedIn(user, json)) {
             generateAuthDataBasedOnUserType(user)
         } else if (isEligibleToValidateJson(json)) {
             validateAuthData()
@@ -232,8 +232,8 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    private fun isUserNOTLoggedIn(user: String, json: String) =
-        !user.isNullOrEmpty() && !user.contentEquals(User.UNAVAILABLE.name) && json.isEmpty()
+    private fun isUserLoggedIn(user: String, json: String) =
+        user.isNotEmpty() && !user.contentEquals(User.UNAVAILABLE.name) && json.isNotEmpty()
 
     private fun isEligibleToValidateJson(authDataJson: String?) =
         !authDataJson.isNullOrEmpty() && !userType.value.isNullOrEmpty() && !userType.value.contentEquals(
@@ -245,46 +245,47 @@ class MainActivityViewModel @Inject constructor(
             return
         }
         isTokenValidationCompletedOnce = true
-        if (!isValid) {
-            Log.d(TAG, ">>> Authentication data validation failed!")
-            destroyCredentials { user ->
-                if (isTimeEligibleForTokenRefresh()) {
-                    generateAuthDataBasedOnUserType(user)
-                } else {
-                    handleTimeoOut()
-                }
-            }
-        } else {
+        if (isValid) {
             Log.d(TAG, "Authentication data is valid!")
             generateAuthData()
+            return
+        }
+        Log.d(TAG, ">>> Authentication data validation failed!")
+        destroyCredentials { user ->
+            if (isTimeEligibleForTokenRefresh()) {
+                generateAuthDataBasedOnUserType(user)
+            } else {
+                handleTimeoOut()
+            }
         }
     }
 
     private fun generateAuthDataBasedOnUserType(user: String) {
-        if (user.isNotBlank() && tocStatus.value == true && !isGoogleLoginRunning) {
-            when (User.valueOf(user)) {
-                User.ANONYMOUS -> {
-                    if (authDataJson.value.isNullOrEmpty() && !authRequestRunning) {
-                        Log.d(TAG, ">>> Fetching new authentication data")
-                        setFirstTokenFetchTime()
-                        getAuthData()
-                    }
+        if (user.isEmpty() || tocStatus.value == false || isGoogleLoginRunning) {
+            return
+        }
+        when (User.valueOf(user)) {
+            User.ANONYMOUS -> {
+                if (authDataJson.value.isNullOrEmpty() && !authRequestRunning) {
+                    Log.d(TAG, ">>> Fetching new authentication data")
+                    setFirstTokenFetchTime()
+                    getAuthData()
                 }
-                User.UNAVAILABLE -> {
-                    destroyCredentials(null)
-                }
-                User.GOOGLE -> {
-                    if (authData.value == null && !authRequestRunning) {
-                        Log.d(TAG, ">>> Fetching new authentication data")
-                        setFirstTokenFetchTime()
-                        fetchAuthData()
-                    }
+            }
+            User.UNAVAILABLE -> {
+                destroyCredentials(null)
+            }
+            User.GOOGLE -> {
+                if (authData.value == null && !authRequestRunning) {
+                    Log.d(TAG, ">>> Fetching new authentication data")
+                    setFirstTokenFetchTime()
+                    doFetchAuthData()
                 }
             }
         }
     }
 
-    private suspend fun fetchAuthData(email: String, oauthToken: String) {
+    private suspend fun doFetchAuthData(email: String, oauthToken: String) {
         var responseMap: Map<String, String>
         withContext(Dispatchers.IO) {
             val response = aC2DMTask.getAC2DMResponse(email, oauthToken)
@@ -298,13 +299,13 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    private fun fetchAuthData() {
+    private fun doFetchAuthData() {
         viewModelScope.launch {
             isGoogleLoginRunning = true
             val email = dataStoreModule.getEmail()
             val oauthToken = dataStoreModule.getAASToken()
             if (email.isNotEmpty() && oauthToken.isNotEmpty()) {
-                fetchAuthData(email, oauthToken)
+                doFetchAuthData(email, oauthToken)
             }
             isGoogleLoginRunning = false
         }

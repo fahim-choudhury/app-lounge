@@ -133,7 +133,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         binding.logout.setOnClickListener {
             viewModel.saveUserType(User.UNAVAILABLE)
-            Toast.makeText(requireContext(), "Signin out...", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "Signing out...", Toast.LENGTH_LONG).show()
             Handler(Looper.getMainLooper()).postDelayed({
                 backToMainActivity()
             }, 1500)

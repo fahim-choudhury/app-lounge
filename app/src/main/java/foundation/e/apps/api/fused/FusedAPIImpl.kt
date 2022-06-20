@@ -983,7 +983,6 @@ class FusedAPIImpl @Inject constructor(
                 it.first.map { app -> app.transformToFusedApp() },
                 it.second
             )
-
         }
     }
 
