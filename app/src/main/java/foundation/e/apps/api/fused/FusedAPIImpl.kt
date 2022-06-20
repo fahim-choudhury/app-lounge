@@ -21,6 +21,9 @@ package foundation.e.apps.api.fused
 import android.content.Context
 import android.text.format.Formatter
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
+import androidx.lifecycle.map
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
@@ -205,32 +208,156 @@ class FusedAPIImpl @Inject constructor(
      * Fetches search results from cleanAPK and GPlay servers and returns them
      * @param query Query
      * @param authData [AuthData]
-     * @return A list of nullable [FusedApp]
+     * @return A livedata Pair of list of non-nullable [FusedApp] and
+     * a Boolean signifying if more search results are being loaded.
+     * Observe this livedata to display new apps as they are fetched from the network.
      */
-    suspend fun getSearchResults(query: String, authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
-        val fusedResponse = mutableListOf<FusedApp>()
+    fun getSearchResults(
+        query: String,
+        authData: AuthData
+    ): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> {
+        /*
+         * Returning livedata to improve performance, so that we do not have to wait forever
+         * for all results to be fetched from network before showing them.
+         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
+         */
+        return liveData {
+            val packageSpecificResults = ArrayList<FusedApp>()
 
-        val status = runCodeBlockWithTimeout({
+            val status = runCodeBlockWithTimeout({
+                if (preferenceManagerModule.preferredApplicationType() == APP_TYPE_ANY) {
+                    try {
+                        /*
+                         * Surrounding with try-catch because if query is not a package name,
+                         * then GPlay throws an error.
+                         */
+                        getApplicationDetails(query, query, authData, Origin.GPLAY).let {
+                            if (it.second == ResultStatus.OK) {
+                                packageSpecificResults.add(it.first)
+                            }
+                        }
+                    } catch (_: Exception) {}
+                }
+                getCleanapkSearchResult(query).let {
+                    /* Cleanapk always returns something, it is never null.
+                     * If nothing is found, it returns a blank FusedApp() object.
+                     * Blank result to be filtered out.
+                     */
+                    if (it.isSuccess() && it.data!!.package_name.isNotBlank()) {
+                        packageSpecificResults.add(it.data!!)
+                    }
+                }
+            })
+
+            /*
+             * If there was a timeout, return it and don't try to fetch anything else.
+             * Also send true in the pair to signal more results being loaded.
+             */
+            if (status != ResultStatus.OK) {
+                emit(ResultSupreme.create(status, Pair(packageSpecificResults, true)))
+                return@liveData
+            }
+
+            /*
+             * The list packageSpecificResults may contain apps with duplicate package names.
+             * Example, "org.telegram.messenger" will result in "Telegram" app from Play Store
+             * and "Telegram FOSS" from F-droid. We show both of them at the top.
+             *
+             * But for the other keyword related search results, we do not allow duplicate package names.
+             * We also filter out apps which are already present in packageSpecificResults list.
+             */
+            fun filterWithKeywordSearch(list: List<FusedApp>): List<FusedApp> {
+                val filteredResults = list.distinctBy { it.package_name }
+                    .filter { packageSpecificResults.isEmpty() || it.package_name != query }
+                return packageSpecificResults + filteredResults
+            }
+
+            val cleanApkResults = mutableListOf<FusedApp>()
             when (preferenceManagerModule.preferredApplicationType()) {
                 APP_TYPE_ANY -> {
-                    fusedResponse.addAll(getCleanAPKSearchResults(query))
-                    fusedResponse.addAll(getGplaySearchResults(query, authData))
+                    val status = runCodeBlockWithTimeout({
+                        cleanApkResults.addAll(getCleanAPKSearchResults(query))
+                    })
+                    if (cleanApkResults.isNotEmpty() || status != ResultStatus.OK) {
+                        /*
+                         * If cleanapk results are empty, dont emit emit data as it may
+                         * briefly show "No apps found..."
+                         * If status is timeout, then do emit the value.
+                         * Send true in the pair to signal more results (i.e from GPlay) being loaded.
+                         */
+                        emit(
+                            ResultSupreme.create(
+                                status,
+                                Pair(filterWithKeywordSearch(cleanApkResults), true)
+                            )
+                        )
+                    }
+                    emitSource(
+                        getGplayAndCleanapkCombinedResults(query, authData, cleanApkResults).map {
+                            /*
+                             * We are assuming that there will be no timeout here.
+                             * If there had to be any timeout, it would already have happened
+                             * while fetching package specific results.
+                             */
+                            ResultSupreme.Success(Pair(filterWithKeywordSearch(it.first), it.second))
+                        }
+                    )
                 }
                 APP_TYPE_OPEN -> {
-                    fusedResponse.addAll(getCleanAPKSearchResults(query))
-                }
-                APP_TYPE_PWA -> {
-                    fusedResponse.addAll(
-                        getCleanAPKSearchResults(
-                            query,
-                            CleanAPKInterface.APP_SOURCE_ANY,
-                            CleanAPKInterface.APP_TYPE_PWA
+                    val status = runCodeBlockWithTimeout({
+                        cleanApkResults.addAll(getCleanAPKSearchResults(query))
+                    })
+                    /*
+                     * Send false in pair to signal no more results to load, as only cleanapk
+                     * results are fetched, we don't have to wait for GPlay results.
+                     */
+                    emit(
+                        ResultSupreme.create(
+                            status,
+                            Pair(filterWithKeywordSearch(cleanApkResults), false)
                         )
                     )
                 }
+                APP_TYPE_PWA -> {
+                    val status = runCodeBlockWithTimeout({
+                        cleanApkResults.addAll(
+                            getCleanAPKSearchResults(
+                                query,
+                                CleanAPKInterface.APP_SOURCE_ANY,
+                                CleanAPKInterface.APP_TYPE_PWA
+                            )
+                        )
+                    })
+                    /*
+                     * Send false in pair to signal no more results to load, as only cleanapk
+                     * results are fetched for PWAs.
+                     */
+                    emit(ResultSupreme.create(status, Pair(cleanApkResults, false)))
+                }
+            }
+        }
+    }
+
+    /*
+     * Method to search cleanapk based on package name.
+     * This is to be only used for showing an entry in search results list.
+     * DO NOT use this to show info on ApplicationFragment as it will not have all the required
+     * information to show for an app.
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/2629
+     */
+    private suspend fun getCleanapkSearchResult(packageName: String): ResultSupreme<FusedApp> {
+        var fusedApp = FusedApp()
+        val status = runCodeBlockWithTimeout({
+            val result = cleanAPKRepository.searchApps(
+                keyword = packageName,
+                by = "package_name"
+            ).body()
+            if (result?.apps?.isNotEmpty() == true && result.numberOfResults == 1) {
+                fusedApp = result.apps[0]
             }
         })
-        return Pair(fusedResponse.distinctBy { it.package_name }, status)
+        return ResultSupreme.create(status, fusedApp)
     }
 
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {
@@ -347,6 +474,28 @@ class FusedAPIImpl @Inject constructor(
             )
         })
         return ResultSupreme.create(status, list)
+    }
+
+    /*
+     * Function to search cleanapk using package name.
+     * Will be used to handle f-droid deeplink.
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5509
+     */
+    suspend fun getCleanapkAppDetails(packageName: String): Pair<FusedApp, ResultStatus> {
+        var fusedApp = FusedApp()
+        val status = runCodeBlockWithTimeout({
+            val result = cleanAPKRepository.searchApps(
+                keyword = packageName,
+                by = "package_name"
+            ).body()
+            if (result?.apps?.isNotEmpty() == true && result.numberOfResults == 1) {
+                fusedApp =
+                    cleanAPKRepository.getAppOrPWADetailsByID(result.apps[0]._id).body()?.app
+                        ?: FusedApp()
+            }
+        })
+        return Pair(fusedApp, status)
     }
 
     suspend fun getApplicationDetails(
@@ -806,10 +955,35 @@ class FusedAPIImpl @Inject constructor(
         return list
     }
 
-    private suspend fun getGplaySearchResults(query: String, authData: AuthData): List<FusedApp> {
+    /*
+     * Function to return a livedata with value from cleanapk and Google Play store combined.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
+     */
+    private fun getGplayAndCleanapkCombinedResults(
+        query: String,
+        authData: AuthData,
+        cleanApkResults: List<FusedApp>
+    ): LiveData<Pair<List<FusedApp>, Boolean>> {
+        val localList = ArrayList<FusedApp>(cleanApkResults)
+        return getGplaySearchResults(query, authData).map { pair ->
+            Pair(
+                localList.apply { addAll(pair.first) }.distinctBy { it.package_name },
+                pair.second
+            )
+        }
+    }
+
+    private fun getGplaySearchResults(
+        query: String,
+        authData: AuthData
+    ): LiveData<Pair<List<FusedApp>, Boolean>> {
         val searchResults = gPlayAPIRepository.getSearchResults(query, authData)
-        return searchResults.map { app ->
-            app.transformToFusedApp()
+        return searchResults.map {
+            Pair(
+                it.first.map { app -> app.transformToFusedApp() },
+                it.second
+            )
+
         }
     }
 
