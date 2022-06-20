@@ -48,14 +48,14 @@ import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.modules.PWAManagerModule
 
 class HomeChildRVAdapter(
-    private val fusedAPIInterface: FusedAPIInterface,
+    private var fusedAPIInterface: FusedAPIInterface?,
     private val pkgManagerModule: PkgManagerModule,
     private val pwaManagerModule: PWAManagerModule,
     private val appInfoFetchViewModel: AppInfoFetchViewModel,
     private val mainActivityViewModel: MainActivityViewModel,
     private val user: User,
-    private val lifecycleOwner: LifecycleOwner,
-    private val paidAppHandler: ((FusedApp) -> Unit)? = null
+    private var lifecycleOwner: LifecycleOwner?,
+    private var paidAppHandler: ((FusedApp) -> Unit)? = null
 ) : ListAdapter<FusedApp, HomeChildRVAdapter.ViewHolder>(HomeChildFusedAppDiffUtil()) {
 
     private val shimmer = Shimmer.ColorHighlightBuilder()
@@ -293,11 +293,13 @@ class HomeChildRVAdapter(
                 materialButton.isEnabled = false
                 materialButton.text = ""
                 homeChildListItemBinding.progressBarInstall.visibility = View.VISIBLE
-                appInfoFetchViewModel.isAppPurchased(homeApp).observe(lifecycleOwner) {
-                    materialButton.isEnabled = true
-                    homeChildListItemBinding.progressBarInstall.visibility = View.GONE
-                    materialButton.text =
-                        if (it) materialButton.context.getString(R.string.install) else homeApp.price
+                lifecycleOwner?.let {
+                    appInfoFetchViewModel.isAppPurchased(homeApp).observe(it) {
+                        materialButton.isEnabled = true
+                        homeChildListItemBinding.progressBarInstall.visibility = View.GONE
+                        materialButton.text =
+                            if (it) materialButton.context.getString(R.string.install) else homeApp.price
+                    }
                 }
             }
         }
@@ -308,10 +310,17 @@ class HomeChildRVAdapter(
     }
 
     private fun installApplication(homeApp: FusedApp, appIcon: ImageView) {
-        fusedAPIInterface.getApplication(homeApp, appIcon)
+        fusedAPIInterface?.getApplication(homeApp, appIcon)
     }
 
     private fun cancelDownload(homeApp: FusedApp) {
-        fusedAPIInterface.cancelDownload(homeApp)
+        fusedAPIInterface?.cancelDownload(homeApp)
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        lifecycleOwner = null
+        paidAppHandler = null
+        fusedAPIInterface = null
     }
 }

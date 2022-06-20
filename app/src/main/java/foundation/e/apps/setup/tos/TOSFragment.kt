@@ -3,6 +3,7 @@ package foundation.e.apps.setup.tos
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
+import android.webkit.WebView
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -18,11 +19,18 @@ class TOSFragment : Fragment(R.layout.fragment_tos) {
     private var _binding: FragmentTosBinding? = null
     private val binding get() = _binding!!
 
+    /*
+     * Fix memory leaks related to WebView.
+     * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/485
+     */
+    private var webView: WebView? = null
+
     private val viewModel: TOSViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentTosBinding.bind(view)
+        webView = binding.tosWebView
         var canNavigate = false
 
         viewModel.tocStatus.observe(viewLifecycleOwner) {
@@ -30,7 +38,7 @@ class TOSFragment : Fragment(R.layout.fragment_tos) {
                 view.findNavController().navigate(R.id.action_TOSFragment_to_signInFragment)
             }
 
-            if (it == true) {
+            if (it == true && webView != null) {
                 binding.TOSWarning.visibility = View.GONE
                 binding.TOSButtons.visibility = View.GONE
                 binding.toolbar.visibility = View.VISIBLE
@@ -38,7 +46,7 @@ class TOSFragment : Fragment(R.layout.fragment_tos) {
                 val constraintSet = ConstraintSet()
                 constraintSet.clone(binding.root)
                 constraintSet.connect(
-                    binding.tosWebView.id,
+                    webView!!.id,
                     ConstraintSet.TOP,
                     binding.acceptDateTV.id,
                     ConstraintSet.BOTTOM,
@@ -66,6 +74,16 @@ class TOSFragment : Fragment(R.layout.fragment_tos) {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        /*
+         * Fix WebView memory leaks. https://stackoverflow.com/a/19391512
+         * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/485
+         */
+        webView?.run {
+            setOnScrollChangeListener(null)
+            removeAllViews()
+            destroy()
+        }
+        webView = null
         _binding = null
     }
 
@@ -92,12 +110,12 @@ class TOSFragment : Fragment(R.layout.fragment_tos) {
             )
             .append(body.toString())
             .append("</HTML>")
-        binding.tosWebView.loadDataWithBaseURL(
+        webView?.loadDataWithBaseURL(
             "file:///android_asset/", sb.toString(),
             "text/html", "utf-8", null
         )
 
-        binding.tosWebView.setOnScrollChangeListener { _, scrollX, scrollY, _, _ ->
+        webView?.setOnScrollChangeListener { _, scrollX, scrollY, _, _ ->
             if (scrollX == 0 && scrollY == 0 && viewModel.tocStatus.value == true) {
                 binding.acceptDateTV.visibility = View.VISIBLE
             } else {

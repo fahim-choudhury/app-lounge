@@ -41,12 +41,12 @@ class HomeParentRVAdapter(
     private val user: User,
     private val mainActivityViewModel: MainActivityViewModel,
     private val appInfoFetchViewModel: AppInfoFetchViewModel,
-    private val lifecycleOwner: LifecycleOwner,
+    private var lifecycleOwner: LifecycleOwner?,
     private val paidAppHandler: ((FusedApp) -> Unit)? = null
 ) : ListAdapter<FusedHome, HomeParentRVAdapter.ViewHolder>(FusedHomeDiffUtil()) {
 
     private val viewPool = RecyclerView.RecycledViewPool()
-    private var isDownloadObserverAdded = false
+    private var isDetachedFromRecyclerView = false
 
     inner class ViewHolder(val binding: HomeParentListItemBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -91,13 +91,28 @@ class HomeParentRVAdapter(
         fusedHome: FusedHome,
         homeChildRVAdapter: RecyclerView.Adapter<*>?
     ) {
-        mainActivityViewModel.downloadList.observe(lifecycleOwner) {
-            mainActivityViewModel.updateStatusOfFusedApps(fusedHome.list, it)
-            (homeChildRVAdapter as HomeChildRVAdapter).setData(fusedHome.list)
+        lifecycleOwner?.let {
+            mainActivityViewModel.downloadList.observe(it) {
+                mainActivityViewModel.updateStatusOfFusedApps(fusedHome.list, it)
+                (homeChildRVAdapter as HomeChildRVAdapter).setData(fusedHome.list)
+            }
         }
     }
 
     fun setData(newList: List<FusedHome>) {
         submitList(newList.map { it.copy() })
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        isDetachedFromRecyclerView = true
+        lifecycleOwner = null
+    }
+
+    override fun onViewDetachedFromWindow(holder: ViewHolder) {
+        super.onViewDetachedFromWindow(holder)
+        if(isDetachedFromRecyclerView) {
+            holder.binding.childRV.adapter = null
+        }
     }
 }

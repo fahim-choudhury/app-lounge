@@ -54,7 +54,11 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface {
 
-    private lateinit var homeParentRVAdapter: HomeParentRVAdapter
+    /*
+     * Make adapter nullable to avoid memory leaks.
+     * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/485
+     */
+    private var homeParentRVAdapter: HomeParentRVAdapter? = null
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
@@ -155,7 +159,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
             stopLoadingUI()
             if (it.second == ResultStatus.OK) {
                 dismissTimeoutDialog()
-                homeParentRVAdapter.setData(it.first)
+                homeParentRVAdapter?.setData(it.first)
             } else {
                 onTimeout()
             }
@@ -211,10 +215,10 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
     }
 
     private fun updateProgressOfDownloadingAppItemViews(
-        homeParentRVAdapter: HomeParentRVAdapter,
+        homeParentRVAdapter: HomeParentRVAdapter?,
         downloadProgress: DownloadProgress
     ) {
-        homeParentRVAdapter.currentList.forEach { fusedHome ->
+        homeParentRVAdapter?.currentList?.forEach { fusedHome ->
             val viewHolder = binding.parentRV.findViewHolderForAdapterPosition(
                 homeParentRVAdapter.currentList.indexOf(fusedHome)
             )
@@ -269,6 +273,11 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        /*
+         * Nullify adapter to avoid leaks.
+         * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/485
+         */
+        homeParentRVAdapter = null
     }
 
     override fun getApplication(app: FusedApp, appIcon: ImageView?) {
