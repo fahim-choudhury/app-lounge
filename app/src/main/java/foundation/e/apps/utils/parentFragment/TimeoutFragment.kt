@@ -71,10 +71,25 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
     abstract fun refreshData(authData: AuthData)
 
     /*
+     * Optional function to execute if above refreshData could not be executed because
+     * authData could not be obtained from network
+     * i.e mainActivityViewModel.authData.value is null.
+     *
+     * Uses: Used to show cleanapk data if GPlay is unavailable.
+     *
+     * If returns true, then we do not attempt to refresh the token.
+     * If returns false, then after running the function, we attempt to refresh GPlay token.
+     */
+    open val noAuthRefresh: (() -> Boolean)? = null
+
+    /*
      * Checks if network connectivity is present.
      * -- If yes, then checks if valid authData is present.
      * ---- If yes, then dismiss timeout dialog (if showing) and call refreshData()
-     * ---- If no, then request new token data.
+     * ---- If no:
+     * ------ Run optional noAuthRefresh() function if not null.
+     * ------ If it returns false or is null, then refresh GPlay token.
+     * ------ Don't do anything if noRefreshAuth() returns true.
      */
     fun refreshDataOrRefreshToken(mainActivityViewModel: MainActivityViewModel) {
         if (mainActivityViewModel.internetConnection.value == true) {
@@ -82,7 +97,11 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
                 dismissTimeoutDialog()
                 refreshData(authData)
             } ?: run {
-                if (mainActivityViewModel.authValidity.value != null) { // checking at least authvalidity is checked for once
+                if (
+                    noAuthRefresh?.invoke() != true &&
+                    mainActivityViewModel.authValidity.value != null
+                    // checking at least authValidity is checked for once
+                ) {
                     mainActivityViewModel.retryFetchingTokenAfterTimeout()
                 }
             }
