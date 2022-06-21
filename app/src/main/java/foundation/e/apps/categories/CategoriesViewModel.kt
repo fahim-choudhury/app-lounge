@@ -44,6 +44,12 @@ class CategoriesViewModel @Inject constructor(
         }
     }
 
+    fun getCategoriesListOSS(type: Category.Type) {
+        viewModelScope.launch {
+            categoriesList.postValue(fusedAPIRepository.getCategoriesListOSS(type))
+        }
+    }
+
     fun isCategoriesEmpty(): Boolean {
         return categoriesList.value?.first?.isEmpty() ?: true
     }
