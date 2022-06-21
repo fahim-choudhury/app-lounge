@@ -205,6 +205,19 @@ class FusedAPIImpl @Inject constructor(
     }
 
     /**
+     * Fetch categories only from cleanapk.
+     * Useful when GPlay times out and we only need to load info from cleanapk.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413 [2]
+     */
+    suspend fun getCategoriesListOSS(type: Category.Type): Triple<List<FusedCategory>, String, ResultStatus> {
+        val categoriesList = mutableListOf<FusedCategory>()
+        val preferredApplicationType = preferenceManagerModule.preferredApplicationType()
+        return handleCleanApkCategories(preferredApplicationType, categoriesList, type).run {
+            Triple(categoriesList, "open", this)
+        }
+    }
+
+    /**
      * Fetches search results from cleanAPK and GPlay servers and returns them
      * @param query Query
      * @param authData [AuthData]

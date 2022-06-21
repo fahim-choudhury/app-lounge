@@ -105,6 +105,10 @@ class FusedAPIRepository @Inject constructor(
         return fusedAPIImpl.getCategoriesList(type, authData)
     }
 
+    suspend fun getCategoriesListOSS(type: Category.Type): Triple<List<FusedCategory>, String, ResultStatus> {
+        return fusedAPIImpl.getCategoriesListOSS(type)
+    }
+
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {
         return fusedAPIImpl.getSearchSuggestions(query, authData)
     }
