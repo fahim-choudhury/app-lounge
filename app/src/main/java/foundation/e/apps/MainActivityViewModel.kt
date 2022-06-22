@@ -226,7 +226,7 @@ class MainActivityViewModel @Inject constructor(
 
         if (!isUserLoggedIn(user, json)) {
             generateAuthDataBasedOnUserType(user)
-        } else if (isEligibleToValidateJson(json)) {
+        } else if (isEligibleToValidateJson(json) && internetConnection.value == true) {
             validateAuthData()
             Log.d(TAG, ">>> Authentication data is available!")
         }
