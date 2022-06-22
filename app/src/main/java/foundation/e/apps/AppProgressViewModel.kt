@@ -19,14 +19,18 @@ class AppProgressViewModel @Inject constructor(
     suspend fun calculateProgress(
         fusedApp: FusedApp?,
         progress: DownloadProgress
-    ): Pair<Long, Long> {
+    ): Int {
         fusedApp?.let { app ->
             val appDownload = fusedManagerRepository.getDownloadList()
                 .singleOrNull { it.id.contentEquals(app._id) && it.packageName.contentEquals(app.package_name) }
-                ?: return Pair(1, 0)
+                ?: return 0
 
             if (!appDownload.id.contentEquals(app._id) || !appDownload.packageName.contentEquals(app.package_name)) {
                 return@let
+            }
+
+            if (!isProgressValidForApp(fusedApp, progress)) {
+                return -1
             }
             val downloadingMap = progress.totalSizeBytes.filter { item ->
                 appDownload.downloadIdMap.keys.contains(item.key)
@@ -36,8 +40,16 @@ class AppProgressViewModel @Inject constructor(
                 appDownload.downloadIdMap.keys.contains(item.key)
             }.values.sum()
 
-            return Pair(totalSizeBytes, downloadedSoFar)
+            return ((downloadedSoFar / totalSizeBytes.toDouble()) * 100).toInt()
         }
-        return Pair(1, 0)
+        return 0
+    }
+
+    private suspend fun isProgressValidForApp(
+        fusedApp: FusedApp,
+        downloadProgress: DownloadProgress
+    ): Boolean {
+        val download = fusedManagerRepository.getFusedDownload(downloadProgress.downloadId)
+        return download.id == fusedApp._id
     }
 }

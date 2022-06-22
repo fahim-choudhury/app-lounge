@@ -44,7 +44,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.sync.Mutex
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicInteger
@@ -86,10 +85,15 @@ class InstallAppWorker @AssistedInject constructor(
         try {
             val fusedDownloadString = params.inputData.getString(INPUT_DATA_FUSED_DOWNLOAD) ?: ""
             Timber.d( "Fused download name $fusedDownloadString")
+
             fusedDownload = databaseRepository.getDownloadById(fusedDownloadString)
+            Log.d(
+                TAG,
+                ">>> dowork started for Fused download name ${fusedDownload?.name} $fusedDownloadString"
+            )
             fusedDownload?.let {
                 if (fusedDownload.status != Status.AWAITING) {
-                    return@let
+                    return Result.success()
                 }
                 setForeground(
                     createForegroundInfo(
@@ -115,13 +119,39 @@ class InstallAppWorker @AssistedInject constructor(
     ) {
         fusedManagerRepository.downloadApp(fusedDownload)
         Timber.d( "===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}")
-        if (fusedDownload.type == Type.NATIVE) {
-            isDownloading = true
-            tickerFlow(1.seconds)
-                .onEach {
-                    checkDownloadProcess(fusedDownload)
-                }.launchIn(CoroutineScope(Dispatchers.IO))
-            observeDownload(fusedDownload)
+        isDownloading = true
+        tickerFlow(3.seconds)
+            .onEach {
+                val download = databaseRepository.getDownloadById(fusedDownload.id)
+                if (download == null) {
+                    isDownloading = false
+                    unlockMutex()
+                } else {
+                    handleFusedDownloadStatusCheckingException(download)
+                    if (isAppDownloading(download)) {
+                        checkDownloadProcess(download)
+                    }
+                }
+            }.launchIn(CoroutineScope(Dispatchers.IO))
+        Log.d(
+            TAG,
+            ">>> ===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}"
+        )
+    }
+
+    private fun isAppDownloading(download: FusedDownload): Boolean {
+        return download.type == Type.NATIVE && download.status != Status.INSTALLED && download.status != Status.INSTALLATION_ISSUE
+    }
+
+    private suspend fun handleFusedDownloadStatusCheckingException(
+        download: FusedDownload
+    ) {
+        try {
+            handleFusedDownloadStatus(download)
+        } catch (e: Exception) {
+            Log.e(TAG, "observeDownload: ", e)
+            isDownloading = false
+            unlockMutex()
         }
     }
 
@@ -134,7 +164,6 @@ class InstallAppWorker @AssistedInject constructor(
     }
 
     private suspend fun checkDownloadProcess(fusedDownload: FusedDownload) {
-
         downloadManager.query(downloadManagerQuery.setFilterById(*fusedDownload.downloadIdMap.keys.toLongArray()))
             .use { cursor ->
                 if (cursor.moveToFirst()) {
@@ -144,27 +173,6 @@ class InstallAppWorker @AssistedInject constructor(
                     if (status == DownloadManager.STATUS_FAILED) {
                         fusedManagerRepository.installationIssue(fusedDownload)
                     }
-                }
-            }
-    }
-
-    private suspend fun observeDownload(
-        it: FusedDownload,
-    ) {
-        databaseRepository.getDownloadFlowById(it.id).takeWhile { isDownloading }
-            .collect { fusedDownload ->
-                if (fusedDownload == null) {
-                    isDownloading = false
-                    unlockMutex()
-                    return@collect
-                }
-                Timber.d("doWork: flow collect ===> ${fusedDownload.name} ${fusedDownload.status}")
-                try {
-                    handleFusedDownloadStatus(fusedDownload)
-                } catch (e: Exception) {
-                    Timber.e( "observeDownload: ", e)
-                    isDownloading = false
-                    unlockMutex()
                 }
             }
     }

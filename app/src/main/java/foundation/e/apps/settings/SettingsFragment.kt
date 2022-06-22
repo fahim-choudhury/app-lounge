@@ -20,10 +20,14 @@ package foundation.e.apps.settings
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -68,7 +72,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
             preferenceManager.findPreference<Preference>(getString(R.string.update_check_intervals))
         updateCheckInterval?.setOnPreferenceChangeListener { _, newValue ->
             Timber.d( "onCreatePreferences: updated Value: $newValue")
-            context?.let { UpdatesWorkManager.enqueueWork(it, newValue.toString().toLong(), ExistingPeriodicWorkPolicy.REPLACE) }
+            context?.let {
+                UpdatesWorkManager.enqueueWork(
+                    it,
+                    newValue.toString().toLong(),
+                    ExistingPeriodicWorkPolicy.REPLACE
+                )
+            }
             true
         }
 
@@ -124,7 +134,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         binding.logout.setOnClickListener {
             viewModel.saveUserType(User.UNAVAILABLE)
-            backToMainActivity()
+            Toast.makeText(requireContext(), "Signing out...", Toast.LENGTH_LONG).show()
+            Handler(Looper.getMainLooper()).postDelayed({
+                backToMainActivity()
+            }, 1500)
         }
     }
 

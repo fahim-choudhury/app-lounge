@@ -18,15 +18,20 @@
 
 package foundation.e.apps.api.fused
 
+import androidx.lifecycle.LiveData
 import com.aurora.gplayapi.SearchSuggestEntry
+import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
+import com.aurora.gplayapi.data.models.StreamBundle
+import com.aurora.gplayapi.data.models.StreamCluster
+import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedCategory
 import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
-import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Origin
+import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -48,7 +53,9 @@ class FusedAPIRepository @Inject constructor(
     }
 
     suspend fun validateAuthData(authData: AuthData): Boolean {
-        return fusedAPIImpl.validateAuthData(authData)
+        return authData.authToken.isNotEmpty() && authData.deviceInfoProvider != null && fusedAPIImpl.validateAuthData(
+            authData
+        )
     }
 
     suspend fun getApplicationDetails(
@@ -59,6 +66,13 @@ class FusedAPIRepository @Inject constructor(
         return fusedAPIImpl.getApplicationDetails(packageNameList, authData, origin)
     }
 
+    suspend fun filterRestrictedGPlayApps(
+        authData: AuthData,
+        appList: List<App>,
+    ): ResultSupreme<List<FusedApp>> {
+        return fusedAPIImpl.filterRestrictedGPlayApps(authData, appList)
+    }
+
     suspend fun getApplicationDetails(
         id: String,
         packageName: String,
@@ -66,6 +80,10 @@ class FusedAPIRepository @Inject constructor(
         origin: Origin
     ): Pair<FusedApp, ResultStatus> {
         return fusedAPIImpl.getApplicationDetails(id, packageName, authData, origin)
+    }
+
+    suspend fun getCleanapkAppDetails(packageName: String): Pair<FusedApp, ResultStatus> {
+        return fusedAPIImpl.getCleanapkAppDetails(packageName)
     }
 
     suspend fun updateFusedDownloadWithDownloadingInfo(
@@ -80,7 +98,10 @@ class FusedAPIRepository @Inject constructor(
         )
     }
 
-    suspend fun getCategoriesList(type: Category.Type, authData: AuthData): Triple<List<FusedCategory>, String, ResultStatus> {
+    suspend fun getCategoriesList(
+        type: Category.Type,
+        authData: AuthData
+    ): Triple<List<FusedCategory>, String, ResultStatus> {
         return fusedAPIImpl.getCategoriesList(type, authData)
     }
 
@@ -92,24 +113,35 @@ class FusedAPIRepository @Inject constructor(
         return fusedAPIImpl.fetchAuthData()
     }
 
-    suspend fun fetchAuthData(email: String, aasToken: String): AuthData {
+    suspend fun fetchAuthData(email: String, aasToken: String): AuthData? {
         return fusedAPIImpl.fetchAuthData(email, aasToken)
     }
 
-    suspend fun getSearchResults(query: String, authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
+    fun getSearchResults(query: String, authData: AuthData): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> {
         return fusedAPIImpl.getSearchResults(query, authData)
     }
 
-    suspend fun listApps(category: String, browseUrl: String, authData: AuthData): List<FusedApp>? {
-        return fusedAPIImpl.listApps(category, browseUrl, authData)
+    suspend fun getNextStreamBundle(
+        authData: AuthData,
+        homeUrl: String,
+        currentStreamBundle: StreamBundle,
+    ): ResultSupreme<StreamBundle> {
+        return fusedAPIImpl.getNextStreamBundle(authData, homeUrl, currentStreamBundle)
     }
 
-    suspend fun getPlayStoreAppCategoryUrls(browseUrl: String, authData: AuthData): List<String> {
-        return fusedAPIImpl.getPlayStoreAppCategoryUrls(browseUrl, authData)
+    suspend fun getAdjustedFirstCluster(
+        authData: AuthData,
+        streamBundle: StreamBundle,
+        pointer: Int = 0,
+    ): ResultSupreme<StreamCluster> {
+        return fusedAPIImpl.getAdjustedFirstCluster(authData, streamBundle, pointer)
     }
 
-    suspend fun getAppsAndNextClusterUrl(browseUrl: String, authData: AuthData): Triple<List<FusedApp>, String, ResultStatus> {
-        return fusedAPIImpl.getAppsAndNextClusterUrl(browseUrl, authData)
+    suspend fun getNextStreamCluster(
+        authData: AuthData,
+        currentStreamCluster: StreamCluster,
+    ): ResultSupreme<StreamCluster> {
+        return fusedAPIImpl.getNextStreamCluster(authData, currentStreamCluster)
     }
 
     suspend fun getAppsListBasedOnCategory(
@@ -117,7 +149,7 @@ class FusedAPIRepository @Inject constructor(
         browseUrl: String,
         authData: AuthData,
         source: String
-    ): Pair<List<FusedApp>, ResultStatus> {
+    ): ResultSupreme<List<FusedApp>> {
         return when (source) {
             "Open Source" -> fusedAPIImpl.getOpenSourceApps(category)
             "PWA" -> fusedAPIImpl.getPWAApps(category)

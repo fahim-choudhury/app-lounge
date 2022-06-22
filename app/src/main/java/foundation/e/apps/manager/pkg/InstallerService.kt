@@ -23,7 +23,6 @@ import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.annotation.RequiresApi
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.manager.fused.FusedManagerRepository
@@ -41,6 +40,10 @@ class InstallerService : Service() {
 
     @Inject
     lateinit var pkgManagerModule: PkgManagerModule
+
+    companion object {
+        const val TAG = "InstallerService"
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {

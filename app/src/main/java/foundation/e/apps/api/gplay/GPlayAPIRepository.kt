@@ -18,11 +18,14 @@
 
 package foundation.e.apps.api.gplay
 
+import androidx.lifecycle.LiveData
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.File
+import com.aurora.gplayapi.data.models.StreamBundle
+import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import javax.inject.Inject
 
@@ -34,7 +37,7 @@ class GPlayAPIRepository @Inject constructor(
         return gPlayAPIImpl.fetchAuthData()
     }
 
-    suspend fun fetchAuthData(email: String, aasToken: String): AuthData {
+    suspend fun fetchAuthData(email: String, aasToken: String): AuthData? {
         return gPlayAPIImpl.fetchAuthData(email, aasToken)
     }
 
@@ -46,7 +49,7 @@ class GPlayAPIRepository @Inject constructor(
         return gPlayAPIImpl.getSearchSuggestions(query, authData)
     }
 
-    suspend fun getSearchResults(query: String, authData: AuthData): List<App> {
+    fun getSearchResults(query: String, authData: AuthData): LiveData<Pair<List<App>, Boolean>> {
         return gPlayAPIImpl.getSearchResults(query, authData)
     }
 
@@ -79,15 +82,30 @@ class GPlayAPIRepository @Inject constructor(
         return gPlayAPIImpl.getCategoriesList(type, authData)
     }
 
+    suspend fun getNextStreamBundle(
+        authData: AuthData,
+        homeUrl: String,
+        currentStreamBundle: StreamBundle,
+    ): StreamBundle {
+        return gPlayAPIImpl.getNextStreamBundle(authData, homeUrl, currentStreamBundle)
+    }
+
+    suspend fun getAdjustedFirstCluster(
+        authData: AuthData,
+        streamBundle: StreamBundle,
+        pointer: Int = 0,
+    ): StreamCluster {
+        return gPlayAPIImpl.getAdjustedFirstCluster(authData, streamBundle, pointer)
+    }
+
+    suspend fun getNextStreamCluster(
+        authData: AuthData,
+        currentStreamCluster: StreamCluster,
+    ): StreamCluster {
+        return gPlayAPIImpl.getNextStreamCluster(authData, currentStreamCluster)
+    }
+
     suspend fun listApps(browseUrl: String, authData: AuthData): List<App> {
         return gPlayAPIImpl.listApps(browseUrl, authData)
-    }
-
-    suspend fun listAppCategoryUrls(browseUrl: String, authData: AuthData): List<String> {
-        return gPlayAPIImpl.listAppCategoryUrls(browseUrl, authData)
-    }
-
-    suspend fun getAppsAndNextClusterUrl(browseUrl: String, authData: AuthData): Pair<List<App>, String> {
-        return gPlayAPIImpl.getAppsAndNextClusterUrl(browseUrl, authData)
     }
 }

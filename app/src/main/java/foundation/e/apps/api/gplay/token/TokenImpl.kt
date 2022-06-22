@@ -38,7 +38,11 @@ class TokenImpl @Inject constructor(
     fun getAuthData(): AuthData? {
         val playResponse =
             gPlayHttpClient.postAuth(BASE_URL, gson.toJson(nativeDeviceProperty).toByteArray())
-        return gson.fromJson(String(playResponse.responseBytes), AuthData::class.java)
+        return if (playResponse.isSuccessful) {
+            gson.fromJson(String(playResponse.responseBytes), AuthData::class.java)
+        } else {
+            null
+        }
     }
 
     fun getAuthData(email: String, aasToken: String): AuthData {

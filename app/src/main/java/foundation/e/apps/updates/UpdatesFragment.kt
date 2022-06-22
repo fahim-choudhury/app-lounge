@@ -28,6 +28,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.WorkManager
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.AppInfoFetchViewModel
@@ -43,13 +44,14 @@ import foundation.e.apps.applicationlist.model.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentUpdatesBinding
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
+import foundation.e.apps.manager.workmanager.InstallWorkManager.INSTALL_WORK_NAME
 import foundation.e.apps.updates.manager.UpdatesWorkManager
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import foundation.e.apps.utils.modules.CommonUtilsModule.safeNavigate
 import foundation.e.apps.utils.modules.PWAManagerModule
+import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -140,6 +142,15 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                 binding.noUpdates.visibility = View.VISIBLE
                 binding.button.isEnabled = false
             }
+
+            WorkManager.getInstance(requireContext())
+                .getWorkInfosForUniqueWorkLiveData(INSTALL_WORK_NAME).observe(viewLifecycleOwner) {
+                    lifecycleScope.launchWhenResumed {
+                        binding.button.isEnabled =
+                            !updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(it)
+                    }
+                }
+
             if (it.second != ResultStatus.OK) {
                 onTimeout()
             }
@@ -181,6 +192,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         updatesViewModel.getUpdates(authData)
         binding.button.setOnClickListener {
             UpdatesWorkManager.startUpdateAllWork(requireContext().applicationContext)
+            binding.button.isEnabled = false
         }
     }
 
@@ -224,14 +236,15 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                 if (fusedApp.status == Status.DOWNLOADING) {
                     val progress =
                         appProgressViewModel.calculateProgress(fusedApp, downloadProgress)
-                    val downloadProgress =
-                        ((progress.second / progress.first.toDouble()) * 100).toInt()
+                    if (progress == -1) {
+                        return@forEach
+                    }
                     val viewHolder = recyclerView.findViewHolderForAdapterPosition(
                         adapter.currentList.indexOf(fusedApp)
                     )
                     viewHolder?.let {
                         (viewHolder as ApplicationListRVAdapter.ViewHolder).binding.installButton.text =
-                            "$downloadProgress%"
+                            "$progress%"
                     }
                 }
             }

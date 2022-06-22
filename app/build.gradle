@@ -8,7 +8,7 @@ plugins {
 }
 
 def versionMajor = 2
-def versionMinor = 2
+def versionMinor = 3
 def versionPatch = 0
 
 android {
@@ -65,6 +65,12 @@ android {
             minifyEnabled false
             signingConfig signingConfigs.releaseStableConfig
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        applicationVariants.all { variant ->
+            variant.outputs.all { output ->
+                outputFileName = "AppLounge-${variant.versionName}-${variant.buildType.name}.apk"
+            }
         }
     }
     buildFeatures {

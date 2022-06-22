@@ -43,12 +43,14 @@ ktlintDebug:
 # Release build related jobs
 
 # Default configuration for release builds
-# Only on "master" and "merge_request_event"
+# Only on "master", "merge_request_event" and protected branches
 buildRelease:
   stage: release
   allow_failure: false
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
       when: always
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: always
@@ -68,6 +70,8 @@ buildRelease:
     - echo "${KEYSTORE}" | base64 -d > keystore/proprietary.keystore
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
       when: always
 
 buildReleaseDev:

@@ -19,6 +19,8 @@
 package foundation.e.apps.api.gplay
 
 import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
@@ -33,6 +35,7 @@ import com.aurora.gplayapi.helpers.CategoryHelper
 import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.aurora.gplayapi.helpers.SearchHelper
 import com.aurora.gplayapi.helpers.StreamHelper
+import com.aurora.gplayapi.helpers.ExpandedBrowseHelper
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.api.gplay.token.TokenRepository
@@ -71,15 +74,26 @@ class GPlayAPIImpl @Inject constructor(
         }
     }
 
-    fun fetchAuthData(email: String, aasToken: String): AuthData {
-        return tokenRepository.getAuthData(email, aasToken)
+    suspend fun fetchAuthData(email: String, aasToken: String): AuthData? {
+        val authData = tokenRepository.getAuthData(email, aasToken)
+        if (authData.authToken.isNotEmpty() && authData.deviceInfoProvider != null) {
+            dataStoreModule.saveCredentials(authData)
+            return authData
+        }
+        return null
     }
 
     suspend fun validateAuthData(authData: AuthData): Boolean {
         var validity: Boolean
         withContext(Dispatchers.IO) {
-            val authValidator = AuthValidator(authData).using(gPlayHttpClient)
-            validity = authValidator.isValid()
+            validity = try {
+                val authValidator = AuthValidator(authData).using(gPlayHttpClient)
+                authValidator.isValid()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                throw e
+                false
+            }
         }
         return validity
     }
@@ -93,29 +107,41 @@ class GPlayAPIImpl @Inject constructor(
         return searchData.filter { it.suggestedQuery.isNotBlank() }
     }
 
-    suspend fun getSearchResults(query: String, authData: AuthData): List<App> {
-        val searchData = mutableListOf<App>()
-        withContext(Dispatchers.IO) {
-            val searchHelper = SearchHelper(authData).using(gPlayHttpClient)
-            val searchResult = searchHelper.searchResults(query)
-            searchData.addAll(searchResult.appList)
+    /**
+     * Sends livedata of list of apps being loaded from search and a boolean
+     * signifying if more data is to be loaded.
+     */
+    fun getSearchResults(query: String, authData: AuthData): LiveData<Pair<List<App>, Boolean>> {
+        /*
+         * Send livedata to improve UI performance, so we don't have to wait for loading all results.
+         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
+         */
+        return liveData {
+            withContext(Dispatchers.IO) {
+                /*
+                 * Variable names and logic made same as that of Aurora store.
+                 * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
+                 */
+                val searchHelper = SearchHelper(authData).using(gPlayHttpClient)
+                val searchBundle = searchHelper.searchResults(query)
 
-            // Fetch more results in case the given result is a promoted app
-            if (searchData.size == 1) {
-                val bundleSet: MutableSet<SearchBundle.SubBundle> = searchResult.subBundles
+                emit(Pair(searchBundle.appList, true))
+
+                var nextSubBundleSet: MutableSet<SearchBundle.SubBundle>
                 do {
-                    val searchBundle = searchHelper.next(bundleSet)
-                    if (searchBundle.appList.isNotEmpty()) {
-                        searchData.addAll(searchBundle.appList)
+                    nextSubBundleSet = searchBundle.subBundles
+                    val newSearchBundle = searchHelper.next(nextSubBundleSet)
+                    if (newSearchBundle.appList.isNotEmpty()) {
+                        searchBundle.apply {
+                            subBundles.clear()
+                            subBundles.addAll(newSearchBundle.subBundles)
+                            appList.addAll(newSearchBundle.appList)
+                            emit(Pair(searchBundle.appList, nextSubBundleSet.isNotEmpty()))
+                        }
                     }
-                    bundleSet.apply {
-                        clear()
-                        addAll(searchBundle.subBundles)
-                    }
-                } while (bundleSet.isNotEmpty())
+                } while (nextSubBundleSet.isNotEmpty())
             }
         }
-        return searchData
     }
 
     suspend fun getDownloadInfo(
@@ -172,69 +198,157 @@ class GPlayAPIImpl @Inject constructor(
         return categoryList
     }
 
-    /**
-     * Get list of "clusterBrowseUrl" which can be used to get [StreamCluster] objects which
-     * have "clusterNextPageUrl" to get subsequent [StreamCluster] objects.
+    /*
+     * Get StreamBundle, either from the homeUrl of a category,
+     * or from the current StreamBundle's next url.
      *
-     * * -- browseUrl
-     *    |
-     *    StreamBundle 1 (streamNextPageUrl points to StreamBundle 2)
-     *        clusterBrowseUrl 1 -> clusterNextPageUrl 1.1 -> clusterNextPageUrl -> 1.2 ....
-     *        clusterBrowseUrl 2 -> clusterNextPageUrl 2.1 -> clusterNextPageUrl -> 2.2 ....
-     *        clusterBrowseUrl 3 -> clusterNextPageUrl 3.1 -> clusterNextPageUrl -> 3.2 ....
-     *    StreamBundle 2
-     *        clusterBroseUrl 4 -> ...
-     *        clusterBroseUrl 5 -> ...
+     * This function will also be used to fetch the next StreamBundle after
+     * all StreamCluster's in the current StreamBundle is iterated over.
      *
-     * This function returns the clusterBrowseUrls 1,2,3,4,5...
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
      */
-    suspend fun listAppCategoryUrls(browseUrl: String, authData: AuthData): List<String> {
-        val urlList = mutableListOf<String>()
-
-        withContext(Dispatchers.IO) {
-            supervisorScope {
-
-                val categoryHelper = CategoryHelper(authData).using(gPlayHttpClient)
-
-                var streamBundle: StreamBundle
-                var nextStreamBundleUrl = browseUrl
-
-                do {
-                    streamBundle = categoryHelper.getSubCategoryBundle(nextStreamBundleUrl)
-                    val streamClusters = streamBundle.streamClusters.values
-
-                    urlList.addAll(streamClusters.map { it.clusterBrowseUrl })
-                    nextStreamBundleUrl = streamBundle.streamNextPageUrl
-                } while (nextStreamBundleUrl.isNotBlank())
+    suspend fun getNextStreamBundle(
+        authData: AuthData,
+        homeUrl: String,
+        currentStreamBundle: StreamBundle,
+    ): StreamBundle {
+        return withContext(Dispatchers.IO) {
+            val categoryHelper = CategoryHelper(authData).using(gPlayHttpClient)
+            if (currentStreamBundle.streamClusters.isEmpty()) {
+                categoryHelper.getSubCategoryBundle(homeUrl)
+            } else {
+                categoryHelper.getSubCategoryBundle(currentStreamBundle.streamNextPageUrl)
             }
         }
+    }
 
-        return urlList.distinct().filter { it.isNotBlank() }
+    private fun getStreamCluster(
+        url: String,
+        authData: AuthData,
+        checkStartUrl: Boolean = false
+    ): StreamCluster {
+        StreamHelper(authData).using(gPlayHttpClient).run {
+
+            if (!checkStartUrl) {
+                return getNextStreamCluster(url)
+            }
+
+            val browseResponse = getBrowseStreamResponse(url)
+
+            if (browseResponse.contentsUrl.isNotEmpty()) {
+                return getNextStreamCluster(browseResponse.contentsUrl)
+            }
+
+            if (browseResponse.hasBrowseTab()) {
+                return getNextStreamCluster(browseResponse.browseTab.listUrl)
+            }
+        }
+        return StreamCluster()
+    }
+
+    private fun getExpandedStreamCluster(
+        url: String,
+        authData: AuthData,
+        checkStartUrl: Boolean = false
+    ): StreamCluster {
+        ExpandedBrowseHelper(authData).using(gPlayHttpClient).run {
+
+            if (!checkStartUrl) {
+                return getExpandedBrowseClusters(url)
+            }
+
+            val browseResponse = getBrowseStreamResponse(url)
+
+            if (browseResponse.hasBrowseTab()) {
+                return getExpandedBrowseClusters(browseResponse.browseTab.listUrl)
+            }
+        }
+        return StreamCluster()
     }
 
     /**
-     * Accept a [browseUrl] of type "clusterBrowseUrl" or "clusterNextPageUrl".
-     * Fetch a StreamCluster from the [browseUrl] and return pair of:
-     * - List od apps to display.
-     * - String url "clusterNextPageUrl" pointing to next StreamCluster. This can be blank (not null).
+     * Get first adjusted StreamCluster of a StreamBundle.
+     *
+     * Takes the clusterBrowseUrl of streamBundle.streamClusters[[pointer]],
+     * Populates the cluster and returns it.
+     *
+     * This does not always operate on zeroth StreamCluster of [streamBundle].
+     * A StreamBundle can have many StreamClusters, each of the individual StreamCluster can point
+     * to completely different StreamClusters.
+     *
+     * StreamBundle 1 (streamNextPageUrl points to StreamBundle 2)
+     *    StreamCluster 1 -> StreamCluster 1.1 -> StreamCluster 1.2 ....
+     *    StreamCluster 2 -> StreamCluster 2.1 -> StreamCluster 2.2 ....
+     *    StreamCluster 3 -> StreamCluster 3.1 -> StreamCluster 3.2 ....
+     *
+     * Here [pointer] refers to the position of StreamCluster 1, 2, 3.... but not 1.1, 2.1 ....
+     * The subsequent clusters (1.1, 1.2, .. 2.1 ..) are accessed by [getNextStreamCluster].
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
      */
-    suspend fun getAppsAndNextClusterUrl(browseUrl: String, authData: AuthData): Pair<List<App>, String> {
-        val streamCluster: StreamCluster
-        withContext(Dispatchers.IO) {
-            supervisorScope {
-                val streamHelper = StreamHelper(authData).using(gPlayHttpClient)
-                val browseResponse = streamHelper.getBrowseStreamResponse(browseUrl)
+    suspend fun getAdjustedFirstCluster(
+        authData: AuthData,
+        streamBundle: StreamBundle,
+        pointer: Int = 0,
+    ): StreamCluster {
+        return withContext(Dispatchers.IO) {
+            val clusterSize = streamBundle.streamClusters.size
+            if (clusterSize != 0 && pointer < clusterSize && pointer >= 0) {
+                val firstCluster = streamBundle.streamClusters.values.toList()[pointer]
 
-                streamCluster = if (browseResponse.contentsUrl.isNotEmpty()) {
-                    streamHelper.getNextStreamCluster(browseResponse.contentsUrl)
-                } else if (browseResponse.hasBrowseTab()) {
-                    streamHelper.getNextStreamCluster(browseResponse.browseTab.listUrl)
+                val clusterBrowseUrl = firstCluster.clusterBrowseUrl
+
+                /*
+                 * Logic found in Aurora store code.
+                 */
+                val adjustedCluster = if (firstCluster.clusterBrowseUrl.contains("expanded")) {
+                    getExpandedStreamCluster(clusterBrowseUrl, authData, true)
                 } else {
-                    StreamCluster()
+                    getStreamCluster(clusterBrowseUrl, authData, true)
+                }
+
+                return@withContext adjustedCluster.apply {
+                    clusterAppList.addAll(firstCluster.clusterAppList)
+                    if (!hasNext()) {
+                        clusterNextPageUrl = firstCluster.clusterNextPageUrl
+                    }
                 }
             }
+
+            /*
+             * If nothing works return blank StreamCluster.
+             */
+            StreamCluster()
         }
-        return Pair(streamCluster.clusterAppList, streamCluster.clusterNextPageUrl)
+    }
+
+    /*
+     * Get next StreamCluster from currentNextPageUrl.
+     * This method is to be called when the scrollview reaches the bottom.
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
+     */
+    suspend fun getNextStreamCluster(
+        authData: AuthData,
+        currentStreamCluster: StreamCluster,
+    ): StreamCluster {
+        return withContext(Dispatchers.IO) {
+            if (!currentStreamCluster.hasNext()) {
+                return@withContext StreamCluster()
+            }
+
+            /*
+             * Logic found in Aurora store code.
+             */
+            return@withContext if (currentStreamCluster.clusterNextPageUrl.contains("expanded")) {
+                getExpandedStreamCluster(
+                    currentStreamCluster.clusterNextPageUrl,
+                    authData
+                )
+            } else {
+                getStreamCluster(currentStreamCluster.clusterNextPageUrl, authData)
+            }
+        }
     }
 
     suspend fun listApps(browseUrl: String, authData: AuthData): List<App> {

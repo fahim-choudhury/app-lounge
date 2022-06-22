@@ -21,7 +21,6 @@ package foundation.e.apps.home
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -46,16 +45,20 @@ import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import foundation.e.apps.utils.modules.CommonUtilsModule.safeNavigate
 import foundation.e.apps.utils.modules.PWAManagerModule
+import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface {
 
-    private lateinit var homeParentRVAdapter: HomeParentRVAdapter
+    /*
+     * Make adapter nullable to avoid memory leaks.
+     * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/485
+     */
+    private var homeParentRVAdapter: HomeParentRVAdapter? = null
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
@@ -156,7 +159,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
             stopLoadingUI()
             if (it.second == ResultStatus.OK) {
                 dismissTimeoutDialog()
-                homeParentRVAdapter.setData(it.first)
+                homeParentRVAdapter?.setData(it.first)
             } else {
                 onTimeout()
             }
@@ -212,10 +215,10 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
     }
 
     private fun updateProgressOfDownloadingAppItemViews(
-        homeParentRVAdapter: HomeParentRVAdapter,
+        homeParentRVAdapter: HomeParentRVAdapter?,
         downloadProgress: DownloadProgress
     ) {
-        homeParentRVAdapter.currentList.forEach { fusedHome ->
+        homeParentRVAdapter?.currentList?.forEach { fusedHome ->
             val viewHolder = binding.parentRV.findViewHolderForAdapterPosition(
                 homeParentRVAdapter.currentList.indexOf(fusedHome)
             )
@@ -238,14 +241,15 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
                 if (fusedApp.status == Status.DOWNLOADING) {
                     val progress =
                         appProgressViewModel.calculateProgress(fusedApp, downloadProgress)
-                    val downloadProgress =
-                        ((progress.second / progress.first.toDouble()) * 100).toInt()
+                    if (progress == -1) {
+                        return@forEach
+                    }
                     val childViewHolder = childRV.findViewHolderForAdapterPosition(
                         adapter.currentList.indexOf(fusedApp)
                     )
                     childViewHolder?.let {
                         (childViewHolder as HomeChildRVAdapter.ViewHolder).binding.installButton.text =
-                            "$downloadProgress%"
+                            "$progress%"
                     }
                 }
             }
@@ -269,6 +273,11 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        /*
+         * Nullify adapter to avoid leaks.
+         * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/485
+         */
+        homeParentRVAdapter = null
     }
 
     override fun getApplication(app: FusedApp, appIcon: ImageView?) {

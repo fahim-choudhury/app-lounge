@@ -112,6 +112,12 @@ class DataStoreModule @Inject constructor(
         }
     }
 
+    suspend fun saveUserTypeSync(user: User) {
+        context.dataStore.edit {
+            it[USERTYPE] = user.name
+        }
+    }
+
     fun getAuthDataSync(): String {
         return runBlocking {
             authData.first()

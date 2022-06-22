@@ -25,6 +25,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -79,6 +80,8 @@ class ApplicationListRVAdapter(
         .setAutoStart(true)
         .build()
 
+    var onPlaceHolderShow: (() -> Unit)? = null
+
     inner class ViewHolder(val binding: ApplicationListItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
         var isPurchasedLiveData: LiveData<Boolean> = MutableLiveData()
@@ -98,6 +101,26 @@ class ApplicationListRVAdapter(
         val view = holder.itemView
         val searchApp = getItem(position)
         val shimmerDrawable = ShimmerDrawable().apply { setShimmer(shimmer) }
+
+        /*
+         * A placeholder entry is one where we only show a loading progress bar,
+         * instead of an app entry.
+         * It is usually done to signify more apps are being loaded at the end of the list.
+         *
+         * We hide all view elements other than the circular progress bar.
+         *
+         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
+         */
+        if (searchApp.isPlaceHolder) {
+            val progressBar = holder.binding.placeholderProgressBar
+            holder.binding.root.children.forEach {
+                it.visibility = if (it != progressBar) View.INVISIBLE
+                else View.VISIBLE
+            }
+            onPlaceHolderShow?.invoke()
+            // Do not process anything else for this entry
+            return
+        }
 
         holder.binding.apply {
             if (searchApp.privacyScore == -1) {

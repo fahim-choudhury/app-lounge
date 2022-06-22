@@ -43,11 +43,10 @@ import foundation.e.apps.applicationlist.model.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentApplicationListBinding
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
-import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import foundation.e.apps.utils.modules.PWAManagerModule
+import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -72,6 +71,12 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
     private val binding get() = _binding!!
     private var isDownloadObserverAdded = false
 
+    /*
+     * Prevent reloading apps.
+     * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/478
+     */
+    private var isDetailsLoaded = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -90,7 +95,7 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
 
     private fun observeDownloadList() {
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
-            val appList = viewModel.appListLiveData.value?.first?.toMutableList() ?: emptyList()
+            val appList = viewModel.appListLiveData.value?.data?.toMutableList() ?: emptyList()
             appList.let {
                 mainActivityViewModel.updateStatusOfFusedApps(it, list)
             }
@@ -99,7 +104,7 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
              * Done in one line, so that on Ctrl+click on appListLiveData,
              * we can see that it is being updated here.
              */
-            viewModel.appListLiveData.apply { value = Pair(appList, value?.second) }
+            viewModel.appListLiveData.apply { value?.setData(appList) }
         }
     }
 
@@ -151,15 +156,17 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
         }
 
         viewModel.appListLiveData.observe(viewLifecycleOwner) {
-            listAdapter?.setData(it.first)
-            if (!isDownloadObserverAdded) {
-                observeDownloadList()
-                isDownloadObserverAdded = true
+            if (!it.isSuccess()) {
+                onTimeout()
+            } else {
+                isDetailsLoaded = true
+                listAdapter?.setData(it.data!!)
+                if (!isDownloadObserverAdded) {
+                    observeDownloadList()
+                    isDownloadObserverAdded = true
+                }
             }
             stopLoadingUI()
-            if (it.second != ResultStatus.OK) {
-                onTimeout()
-            }
         }
 
         /*
@@ -195,18 +202,30 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
     }
 
     override fun refreshData(authData: AuthData) {
-        showLoadingUI()
 
         /*
          * Code moved from onResume()
          */
 
-        viewModel.getList(
-            args.category,
-            args.browseUrl,
-            authData,
-            args.source
-        )
+        /*
+         * If details are once loaded, do not load details again,
+         * Only set the scroll listeners.
+         *
+         * Here "details" word means:
+         * For GPlay apps - first set of data
+         * For cleanapk apps - all apps.
+         *
+         * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/478
+         */
+        if (!isDetailsLoaded) {
+            showLoadingUI()
+            viewModel.getList(
+                args.category,
+                args.browseUrl,
+                authData,
+                args.source
+            )
+        }
 
         if (args.source != "Open Source" && args.source != "PWA") {
             /*
@@ -217,10 +236,24 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                     super.onScrollStateChanged(recyclerView, newState)
                     if (!recyclerView.canScrollVertically(1)) {
-                        viewModel.getPlayStoreAppsOnScroll(args.browseUrl, authData)
+                        viewModel.loadMore(authData, args.browseUrl)
                     }
                 }
             })
+            /*
+             * This listener comes handy in the case where only 2-3 apps are loaded
+             * in the first cluster.
+             * In that case, unless the user scrolls, the above listener will not be
+             * triggered. Setting this onPlaceHolderShow() callback loads new data
+             * automatically if the initial data is less.
+             */
+            binding.recyclerView.adapter.apply {
+                if (this is ApplicationListRVAdapter) {
+                    onPlaceHolderShow = {
+                        viewModel.loadMore(authData, args.browseUrl)
+                    }
+                }
+            }
         }
 
         appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
@@ -242,21 +275,22 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
 
     private fun updateProgressOfDownloadingItems(
         recyclerView: RecyclerView,
-        it: DownloadProgress
+        downloadProgress: DownloadProgress
     ) {
         val adapter = recyclerView.adapter as ApplicationListRVAdapter
         lifecycleScope.launch {
             adapter.currentList.forEach { fusedApp ->
                 if (fusedApp.status == Status.DOWNLOADING) {
-                    val progress = appProgressViewModel.calculateProgress(fusedApp, it)
-                    val downloadProgress =
-                        ((progress.second / progress.first.toDouble()) * 100).toInt()
+                    val progress = appProgressViewModel.calculateProgress(fusedApp, downloadProgress)
+                    if (progress == -1) {
+                        return@forEach
+                    }
                     val viewHolder = recyclerView.findViewHolderForAdapterPosition(
                         adapter.currentList.indexOf(fusedApp)
                     )
                     viewHolder?.let {
                         (viewHolder as ApplicationListRVAdapter.ViewHolder).binding.installButton.text =
-                            "$downloadProgress%"
+                            "$progress%"
                     }
                 }
             }

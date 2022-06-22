@@ -18,6 +18,7 @@
 
 package foundation.e.apps.api.fused.data
 
+import com.aurora.gplayapi.Constants.Restriction
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
@@ -65,5 +66,18 @@ data class FusedApp(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5136
      */
     var permsFromExodus: List<String> = LIST_OF_NULL,
-    var updatedOn: String = String()
+    var updatedOn: String = String(),
+
+    /*
+     * Store restriction from App.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
+     */
+    var restriction: Restriction = Restriction.NOT_RESTRICTED,
+
+    /*
+     * Show a blank app at the end during loading.
+     * Used when loading apps of a category.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
+     */
+    var isPlaceHolder: Boolean = false,
 )

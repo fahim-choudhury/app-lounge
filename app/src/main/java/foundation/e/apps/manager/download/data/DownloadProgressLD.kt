@@ -11,7 +11,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -59,6 +58,8 @@ class DownloadProgressLD @Inject constructor(
                                     cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
                                 val bytesDownloadedSoFar =
                                     cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
+
+                                downloadProgress.downloadId = id
 
                                 if (!downloadProgress.totalSizeBytes.containsKey(id) ||
                                     downloadProgress.totalSizeBytes[id] != totalSizeBytes
