@@ -253,6 +253,12 @@ class SearchFragment :
         searchViewModel.getSearchResults(searchText, authData, viewLifecycleOwner)
     }
 
+    override fun noAuthRefresh(): Boolean {
+        showLoadingUI()
+        searchViewModel.getSearchResultsOSS(searchText, viewLifecycleOwner)
+        return false    // return false to allow retrying to fetch auth data, else show timeout.
+    }
+
     private fun showLoadingUI() {
         binding.shimmerLayout.startShimmer()
         binding.shimmerLayout.visibility = View.VISIBLE
