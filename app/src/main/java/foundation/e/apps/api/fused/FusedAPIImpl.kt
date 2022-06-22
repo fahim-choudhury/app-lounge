@@ -211,10 +211,23 @@ class FusedAPIImpl @Inject constructor(
      */
     suspend fun getCategoriesListOSS(type: Category.Type): Triple<List<FusedCategory>, String, ResultStatus> {
         val categoriesList = mutableListOf<FusedCategory>()
-        val preferredApplicationType = preferenceManagerModule.preferredApplicationType()
-        return handleCleanApkCategories(preferredApplicationType, categoriesList, type).run {
-            Triple(categoriesList, "open", this)
-        }
+        val status = runCodeBlockWithTimeout({
+            getOpenSourceCategories()?.run {
+                categoriesList.addAll(
+                    getFusedCategoryBasedOnCategoryType(
+                        this, type, AppTag.OpenSource(context.getString(R.string.open_source))
+                    )
+                )
+            }
+            getPWAsCategories()?.run {
+                categoriesList.addAll(
+                    getFusedCategoryBasedOnCategoryType(
+                        this, type, AppTag.PWA(context.getString(R.string.pwa))
+                    )
+                )
+            }
+        })
+        return Triple(categoriesList, "open", status)
     }
 
     /**
