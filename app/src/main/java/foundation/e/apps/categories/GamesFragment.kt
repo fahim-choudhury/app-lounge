@@ -102,6 +102,12 @@ class GamesFragment : TimeoutFragment(R.layout.fragment_games) {
         )
     }
 
+    override fun noAuthRefresh(): Boolean {
+        showLoadingUI()
+        categoriesViewModel.getCategoriesListOSS(Category.Type.GAME)
+        return false   // returning false so as to try to get GPlay auth data or show timeout dialog
+    }
+
     private fun showLoadingUI() {
         binding.shimmerLayout.startShimmer()
         binding.shimmerLayout.visibility = View.VISIBLE
