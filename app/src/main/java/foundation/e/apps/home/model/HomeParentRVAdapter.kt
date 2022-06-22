@@ -18,6 +18,7 @@
 
 package foundation.e.apps.home.model
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
@@ -93,6 +94,7 @@ class HomeParentRVAdapter(
     ) {
         lifecycleOwner?.let {
             mainActivityViewModel.downloadList.observe(it) {
+                Log.d("TAG", ">>> ParentRVAdapter updated downloadlist: ")
                 mainActivityViewModel.updateStatusOfFusedApps(fusedHome.list, it)
                 (homeChildRVAdapter as HomeChildRVAdapter).setData(fusedHome.list)
             }

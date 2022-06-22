@@ -91,20 +91,20 @@ class MainActivity : AppCompatActivity() {
             if (isInternetAvailable) {
                 binding.noInternet.visibility = View.GONE
                 binding.fragment.visibility = View.VISIBLE
-
-                viewModel.userType.observe(this) { user ->
-                    viewModel.handleAuthDataJson()
-                }
-
-                signInViewModel.authLiveData.observe(this) {
-                    viewModel.updateAuthData(it)
-                }
-
-                // Watch and refresh authentication data
-                viewModel.authDataJson.observe(this) {
-                    viewModel.handleAuthDataJson()
-                }
             }
+        }
+
+        viewModel.userType.observe(this) { user ->
+            viewModel.handleAuthDataJson()
+        }
+
+        signInViewModel.authLiveData.observe(this) {
+            viewModel.updateAuthData(it)
+        }
+
+        // Watch and refresh authentication data
+        viewModel.authDataJson.observe(this) {
+            viewModel.handleAuthDataJson()
         }
 
         viewModel.authValidity.observe(this) {
