@@ -125,6 +125,10 @@ class FusedAPIRepository @Inject constructor(
         return fusedAPIImpl.getSearchResults(query, authData)
     }
 
+    fun getSearchResultsOSS(query: String): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> {
+        return fusedAPIImpl.getSearchResultsOSS(query)
+    }
+
     suspend fun getNextStreamBundle(
         authData: AuthData,
         homeUrl: String,

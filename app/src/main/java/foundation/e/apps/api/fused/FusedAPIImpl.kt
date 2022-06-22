@@ -368,6 +368,94 @@ class FusedAPIImpl @Inject constructor(
         }
     }
 
+    /**
+     * Similar to [getSearchResults] but this only gets search results from cleanapk and not GPlay.
+     * @param query Search query.
+     * @return A livedata Pair of list of non-nullable [FusedApp] and
+     * a Boolean signifying if more search results are being loaded.
+     * Observe this livedata to display new apps as they are fetched from the network.
+     */
+    fun getSearchResultsOSS(
+        query: String
+    ): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> {
+        return liveData {
+            /*
+             * Get package name search.
+             */
+            var packageSpecificResult = FusedApp()
+            val status = runCodeBlockWithTimeout({
+                getCleanapkSearchResult(query).let {
+                    /* Cleanapk always returns something, it is never null.
+                     * If nothing is found, it returns a blank FusedApp() object.
+                     * Blank result to be filtered out.
+                     */
+                    if (it.isSuccess() && it.data!!.package_name.isNotBlank()) {
+                        packageSpecificResult = it.data!!
+                    }
+                }
+            })
+
+
+            /*
+             * If there was a timeout, return it and don't try to fetch anything else.
+             * Also send false in the pair to signal no more results are being loaded.
+             * If not timeout then send true in the pair, to signal more results are being loaded.
+             */
+            if (status != ResultStatus.OK) {
+                emit(ResultSupreme.create(status, Pair(listOf(), false)))
+                return@liveData
+            } else if (packageSpecificResult.package_name.isNotBlank()) {
+                emit(ResultSupreme.create(status, Pair(listOf(packageSpecificResult), true)))
+            }
+
+            /*
+             * Load keyword related searches from cleanapk.
+             */
+            val cleanApkResults = mutableListOf<FusedApp>()
+            when (preferenceManagerModule.preferredApplicationType()) {
+                APP_TYPE_OPEN -> {
+                    val status = runCodeBlockWithTimeout({
+                        cleanApkResults.addAll(getCleanAPKSearchResults(query))
+                    })
+                    /*
+                     * Send false in pair to signal no more results to load, as only cleanapk
+                     * results are fetched, we don't have to wait for GPlay results.
+                     *
+                     * Also filter out apps with same package name as that of packageSpecificResult,
+                     * to avoid duplicates.
+                     */
+                    emit(
+                        ResultSupreme.create(
+                            status,
+                            Pair(
+                                cleanApkResults.filter {
+                                    it.package_name != packageSpecificResult.package_name
+                                },
+                                false
+                            )
+                        )
+                    )
+                }
+                APP_TYPE_PWA -> {
+                    val status = runCodeBlockWithTimeout({
+                        cleanApkResults.addAll(
+                            getCleanAPKSearchResults(
+                                query,
+                                CleanAPKInterface.APP_SOURCE_ANY,
+                                CleanAPKInterface.APP_TYPE_PWA
+                            )
+                        )
+                    })
+                    /*
+                     * Send false in pair to signal no more results to load, as only cleanapk
+                     * results are fetched for PWAs.
+                     */
+                    emit(ResultSupreme.create(status, Pair(cleanApkResults, false)))
+                }
+            }
+        }
+    }
+
     /*
      * Method to search cleanapk based on package name.
      * This is to be only used for showing an entry in search results list.
