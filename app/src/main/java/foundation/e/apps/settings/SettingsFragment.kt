@@ -42,6 +42,7 @@ import foundation.e.apps.databinding.CustomPreferenceBinding
 import foundation.e.apps.setup.signin.SignInViewModel
 import foundation.e.apps.updates.manager.UpdatesWorkManager
 import foundation.e.apps.utils.enums.User
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -70,7 +71,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val updateCheckInterval =
             preferenceManager.findPreference<Preference>(getString(R.string.update_check_intervals))
         updateCheckInterval?.setOnPreferenceChangeListener { _, newValue ->
-            Log.d(TAG, "onCreatePreferences: updated Value: $newValue")
+            Timber.d( "onCreatePreferences: updated Value: $newValue")
             context?.let {
                 UpdatesWorkManager.enqueueWork(
                     it,

@@ -10,6 +10,7 @@ import foundation.e.apps.api.exodus.models.AppPrivacyInfo
 import foundation.e.apps.api.exodus.repositories.IAppPrivacyInfoRepository
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.ceil
 import kotlin.math.round
@@ -87,10 +88,6 @@ class PrivacyInfoViewModel @Inject constructor(
         val calculateTrackersScore = calculateTrackersScore(fusedApp.trackers.size)
         val calculatePermissionsScore = calculatePermissionsScore(
             countAndroidPermissions(fusedApp)
-        )
-        Log.d(
-            "PrivacyInfoViewModel",
-            "calculatePrivacyScore: ${fusedApp.name}: privacyScore: $calculateTrackersScore permissionScore: $calculatePermissionsScore noOfPermission: ${fusedApp.perms.size}"
         )
         return calculateTrackersScore + calculatePermissionsScore
     }

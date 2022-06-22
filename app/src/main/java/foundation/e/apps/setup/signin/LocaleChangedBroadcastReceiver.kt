@@ -32,6 +32,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.Cache
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -58,7 +59,7 @@ class LocaleChangedBroadcastReceiver : BroadcastReceiver() {
                     cache.evictAll()
                 }
             } catch (ex: Exception) {
-                Log.e(TAG, ex.message.toString())
+                Timber.e( ex.message.toString())
             }
         }
     }

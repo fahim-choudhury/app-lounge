@@ -28,6 +28,7 @@ import foundation.e.apps.updates.UpdatesNotifier
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.modules.DataStoreModule
+import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.net.URL
 
@@ -147,10 +148,7 @@ class UpdatesWorker @AssistedInject constructor(
 
             fusedManagerRepository.addDownload(fusedDownload)
             fusedManagerRepository.updateAwaiting(fusedDownload)
-            Log.d(
-                TAG,
-                "startUpdateProcess: Enqueued for update: ${fusedDownload.name} ${fusedDownload.id} ${fusedDownload.status}"
-            )
+            Timber.d("startUpdateProcess: Enqueued for update: ${fusedDownload.name} ${fusedDownload.id} ${fusedDownload.status}")
             InstallWorkManager.enqueueWork(fusedDownload)
             Log.d(TAG, ">>> startUpdateProcess: ${fusedDownload.name}")
         }

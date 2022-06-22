@@ -47,6 +47,7 @@ import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.modules.CommonUtilsModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.File
 import java.util.UUID
 
@@ -107,7 +108,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.authValidity.observe(this) {
-
             viewModel.handleAuthValidity(it) {
                 Log.d(TAG, "Timeout validating auth data!")
                 val lastFragment = navHostFragment.childFragmentManager.fragments[0]
@@ -218,7 +218,7 @@ class MainActivity : AppCompatActivity() {
             }
             viewModel.updateAwaiting(it)
             InstallWorkManager.enqueueWork(it)
-            Log.d(TAG, "===> onCreate: AWAITING ${it.name}")
+            Timber.d( "===> onCreate: AWAITING ${it.name}")
         }
     }
 
@@ -273,7 +273,7 @@ class MainActivity : AppCompatActivity() {
                     statsManager.getFreeBytes(StorageManager.UUID_DEFAULT)
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "calculateAvailableDiskSpace: ${e.stackTraceToString()}")
+                Timber.e( "calculateAvailableDiskSpace: ${e.stackTraceToString()}")
                 getAvailableInternalMemorySize()
             }
         } else {

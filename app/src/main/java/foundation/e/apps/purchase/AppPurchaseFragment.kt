@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.databinding.FragmentAppPurchaseBinding
+import timber.log.Timber
 
 /**
  * A simple [Fragment] subclass.
@@ -61,7 +62,6 @@ class AppPurchaseFragment : Fragment() {
 
         binding.playStoreWebView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView, url: String) {
-                Log.d(TAG, "onPageFinished: $url")
                 if (url.contains("https://play.google.com/store/apps/details") && url.contains("raii") &&
                     url.contains("raboi") && url.contains("rasi") && url.contains("rapt")
                 ) {

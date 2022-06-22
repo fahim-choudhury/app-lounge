@@ -29,6 +29,7 @@ import foundation.e.apps.utils.enums.Status
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -55,7 +56,7 @@ open class PkgManagerBR : BroadcastReceiver() {
             val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -69)
             val packageName = intent.getStringExtra(PackageInstaller.EXTRA_PACKAGE_NAME)
 
-            Log.d(TAG, "onReceive: $packageName $action $extra $status")
+            Timber.d( "onReceive: $packageName $action $extra $status")
             packages?.let { pkgList ->
                 pkgList.forEach { pkgName ->
                     when (action) {
@@ -66,7 +67,7 @@ open class PkgManagerBR : BroadcastReceiver() {
                             if (!isUpdating) deleteDownload(pkgName)
                         }
                         PkgManagerModule.ERROR_PACKAGE_INSTALL -> {
-                            Log.e(TAG, "Installation failed due to error: $extra")
+                            Timber.e( "Installation failed due to error: $extra")
                             updateInstallationIssue(pkgName)
                         }
                     }
@@ -85,7 +86,7 @@ open class PkgManagerBR : BroadcastReceiver() {
     // TODO: FIND A BETTER WAY TO DO THIS
     private fun updateDownloadStatus(pkgName: String) {
         if (pkgName.isEmpty()) {
-            Log.d("PkgManagerBR", "updateDownloadStatus: package name should not be empty!")
+            Timber.d("updateDownloadStatus: package name should not be empty!")
         }
         GlobalScope.launch {
             val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)

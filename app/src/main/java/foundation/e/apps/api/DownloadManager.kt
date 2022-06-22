@@ -26,6 +26,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Named
@@ -79,22 +80,12 @@ class DownloadManager @Inject constructor(
                         cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
                     val bytesDownloadedSoFar =
                         cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
-                    Log.d(
-                        "DownloadManager",
-                        "checkDownloadProcess: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status"
-                    )
                     if (status == DownloadManager.STATUS_FAILED) {
-                        Log.d(
-                            "DownloadManager",
-                            "Download Failed: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status"
-                        )
+                        Timber.d("Download Failed: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status")
                         isDownloading = false
                         downloadCompleted?.invoke(false, filePath)
                     } else if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                        Log.d(
-                            "DownloadManager",
-                            "Download Successful: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status"
-                        )
+                        Timber.d("Download Successful: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status")
                         isDownloading = false
                         downloadCompleted?.invoke(true, filePath)
                     }

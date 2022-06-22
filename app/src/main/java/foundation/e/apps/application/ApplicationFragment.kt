@@ -65,6 +65,7 @@ import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -401,7 +402,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                     appSize
                 )
                 else -> {
-                    Log.d(TAG, "Unknown status: $status")
+                    Timber.d( "Unknown status: $status")
                 }
             }
         }
