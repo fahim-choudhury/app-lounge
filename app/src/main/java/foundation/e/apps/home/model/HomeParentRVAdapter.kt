@@ -94,7 +94,6 @@ class HomeParentRVAdapter(
     ) {
         lifecycleOwner?.let {
             mainActivityViewModel.downloadList.observe(it) {
-                Log.d("TAG", ">>> ParentRVAdapter updated downloadlist: ")
                 mainActivityViewModel.updateStatusOfFusedApps(fusedHome.list, it)
                 (homeChildRVAdapter as HomeChildRVAdapter).setData(fusedHome.list)
             }

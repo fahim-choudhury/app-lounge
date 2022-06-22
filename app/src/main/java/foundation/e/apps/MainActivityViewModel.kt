@@ -224,12 +224,12 @@ class MainActivityViewModel @Inject constructor(
         if (user == null || json == null) {
             return
         }
-
+        Timber.d(">>> handleAuthDataJson: internet: ${internetConnection.value}")
         if (!isUserLoggedIn(user, json)) {
             generateAuthDataBasedOnUserType(user)
         } else if (isEligibleToValidateJson(json) && internetConnection.value == true) {
             validateAuthData()
-            Log.d(TAG, ">>> Authentication data is available!")
+            Timber.d(">>> Authentication data is available!")
         }
     }
 
@@ -239,7 +239,7 @@ class MainActivityViewModel @Inject constructor(
     private fun isEligibleToValidateJson(authDataJson: String?) =
         !authDataJson.isNullOrEmpty() && !userType.value.isNullOrEmpty() && !userType.value.contentEquals(
             User.UNAVAILABLE.name
-        )
+        ) && authValidity.value != true
 
     fun handleAuthValidity(isValid: Boolean, handleTimeoOut: () -> Unit) {
         if (isGoogleLoginRunning) {
@@ -247,11 +247,11 @@ class MainActivityViewModel @Inject constructor(
         }
         isTokenValidationCompletedOnce = true
         if (isValid) {
-            Log.d(TAG, "Authentication data is valid!")
+            Timber.d("Authentication data is valid!")
             generateAuthData()
             return
         }
-        Log.d(TAG, ">>> Authentication data validation failed!")
+        Timber.d(">>> Authentication data validation failed!")
         destroyCredentials { user ->
             if (isTimeEligibleForTokenRefresh()) {
                 generateAuthDataBasedOnUserType(user)
@@ -268,7 +268,7 @@ class MainActivityViewModel @Inject constructor(
         when (User.valueOf(user)) {
             User.ANONYMOUS -> {
                 if (authDataJson.value.isNullOrEmpty() && !authRequestRunning) {
-                    Log.d(TAG, ">>> Fetching new authentication data")
+                    Timber.d(">>> Fetching new authentication data")
                     setFirstTokenFetchTime()
                     getAuthData()
                 }
@@ -278,7 +278,7 @@ class MainActivityViewModel @Inject constructor(
             }
             User.GOOGLE -> {
                 if (authData.value == null && !authRequestRunning) {
-                    Log.d(TAG, ">>> Fetching new authentication data")
+                    Timber.d(">>> Fetching new authentication data")
                     setFirstTokenFetchTime()
                     doFetchAuthData()
                 }
@@ -539,5 +539,10 @@ class MainActivityViewModel @Inject constructor(
 
     fun updateAppWarningList() {
         blockedAppRepository.fetchUpdateOfAppWarningList()
+    }
+
+    override fun onCleared() {
+        Timber.d(">>> onCleared")
+        super.onCleared()
     }
 }

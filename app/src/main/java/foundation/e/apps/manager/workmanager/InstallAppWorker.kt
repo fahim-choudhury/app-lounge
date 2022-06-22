@@ -84,13 +84,10 @@ class InstallAppWorker @AssistedInject constructor(
         var fusedDownload: FusedDownload? = null
         try {
             val fusedDownloadString = params.inputData.getString(INPUT_DATA_FUSED_DOWNLOAD) ?: ""
-            Timber.d( "Fused download name $fusedDownloadString")
+            Timber.d("Fused download name $fusedDownloadString")
 
             fusedDownload = databaseRepository.getDownloadById(fusedDownloadString)
-            Log.d(
-                TAG,
-                ">>> dowork started for Fused download name ${fusedDownload?.name} $fusedDownloadString"
-            )
+            Timber.d(">>> dowork started for Fused download name " + fusedDownload?.name + " " + fusedDownloadString)
             fusedDownload?.let {
                 if (fusedDownload.status != Status.AWAITING) {
                     return Result.success()
@@ -118,7 +115,7 @@ class InstallAppWorker @AssistedInject constructor(
         fusedDownload: FusedDownload
     ) {
         fusedManagerRepository.downloadApp(fusedDownload)
-        Timber.d( "===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}")
+        Timber.d("===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}")
         isDownloading = true
         tickerFlow(3.seconds)
             .onEach {
@@ -133,10 +130,7 @@ class InstallAppWorker @AssistedInject constructor(
                     }
                 }
             }.launchIn(CoroutineScope(Dispatchers.IO))
-        Log.d(
-            TAG,
-            ">>> ===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}"
-        )
+        Timber.d(">>> ===> doWork: Download started " + fusedDownload.name + " " + fusedDownload.status)
     }
 
     private fun isAppDownloading(download: FusedDownload): Boolean {
