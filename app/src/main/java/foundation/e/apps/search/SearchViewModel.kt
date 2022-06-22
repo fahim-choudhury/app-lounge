@@ -59,4 +59,16 @@ class SearchViewModel @Inject constructor(
             }
         }
     }
+
+    /*
+     * Get cleanapk search results only.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413 [2]
+     */
+    fun getSearchResultsOSS(query: String, lifecycleOwner: LifecycleOwner) {
+        viewModelScope.launch(Dispatchers.Main) {
+            fusedAPIRepository.getSearchResultsOSS(query).observe(lifecycleOwner) {
+                searchResult.postValue(it)
+            }
+        }
+    }
 }
