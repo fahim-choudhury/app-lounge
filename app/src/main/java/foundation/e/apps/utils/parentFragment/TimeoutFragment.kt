@@ -77,10 +77,12 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      *
      * Uses: Used to show cleanapk data if GPlay is unavailable.
      *
-     * If returns true, then we do not attempt to refresh the token.
+     * If returns true, it means that a fallback logic has been completely implemented,
+     * then we do not attempt to refresh the token.
      * If returns false, then after running the function, we attempt to refresh GPlay token.
      */
-    open val noAuthRefresh: (() -> Boolean)? = null
+    open fun noAuthRefresh(): Boolean = false
+    private var isNoAuthRefreshExecuted = false
 
     /*
      * Checks if network connectivity is present.
@@ -97,8 +99,18 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
                 dismissTimeoutDialog()
                 refreshData(authData)
             } ?: run {
-                if (
-                    noAuthRefresh?.invoke() != true &&
+                /*
+                 * Run noAuthRefresh() only once.
+                 * Once it has been run, set isNoAuthRefreshExecuted to true.
+                 */
+                val noAuthRefreshResult = if (isNoAuthRefreshExecuted) {
+                    false
+                } else {
+                    isNoAuthRefreshExecuted = true
+                    noAuthRefresh()
+                }
+
+                if (!noAuthRefreshResult &&
                     mainActivityViewModel.authValidity.value != null
                     // checking at least authValidity is checked for once
                 ) {
