@@ -237,6 +237,7 @@ class FusedAPIImpl @Inject constructor(
      * @return A livedata Pair of list of non-nullable [FusedApp] and
      * a Boolean signifying if more search results are being loaded.
      * Observe this livedata to display new apps as they are fetched from the network.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413 [2]
      */
     fun getSearchResults(
         query: String,
@@ -277,11 +278,14 @@ class FusedAPIImpl @Inject constructor(
 
             /*
              * If there was a timeout, return it and don't try to fetch anything else.
-             * Also send true in the pair to signal more results being loaded.
+             * Also send false in the pair to signal no more results are being loaded.
+             * If not timeout then send true in the pair, to signal more results are being loaded.
              */
             if (status != ResultStatus.OK) {
-                emit(ResultSupreme.create(status, Pair(packageSpecificResults, true)))
+                emit(ResultSupreme.create(status, Pair(packageSpecificResults, false)))
                 return@liveData
+            } else if (packageSpecificResults.isNotEmpty()) {
+                emit(ResultSupreme.create(status, Pair(packageSpecificResults, true)))
             }
 
             /*
