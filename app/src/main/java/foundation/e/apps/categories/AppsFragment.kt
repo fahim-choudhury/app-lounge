@@ -92,7 +92,7 @@ class AppsFragment : TimeoutFragment(R.layout.fragment_apps) {
                 negativeButtonBlock = {
                     showLoadingUI()
                     resetTimeoutDialogLock()
-                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
+                    mainActivityViewModel.checkTokenOnTimeout()
                 },
                 allowCancel = true,
             )

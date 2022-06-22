@@ -121,17 +121,30 @@ class MainActivityViewModel @Inject constructor(
         return (SystemClock.uptimeMillis() - firstAuthDataFetchTime) <= timeoutDurationInMillis
     }
 
-    /*
+    /**
      * This method resets the last recorded token fetch time.
-     * Then it posts authValidity as false. This causes the observer in MainActivity to destroyCredentials
-     * and fetch new token.
+     *
+     * Then if [authData] is not null, it checks the validity of it,
+     * which automatically updates [authValidity].
+     * If [authValidity] is true, the observer in MainActivity calls [generateAuthData],
+     * which passes the same [authData] to the current displaying fragment once more,
+     * to trigger data refresh.
+     *
+     * If [authData] is null, it posts false in [authValidity], which
+     * causes the observer in MainActivity to destroyCredentials and fetch new token.
+     * This again causes the current displaying fragment to re-trigger data refresh.
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413 [2]
      */
-    fun retryFetchingTokenAfterTimeout() {
+    fun checkTokenOnTimeout() {
         firstAuthDataFetchTime = 0
         setFirstTokenFetchTime()
-        authValidity.postValue(false)
+        if (authData.value != null) {
+            validateAuthData()
+        } else {
+            authValidity.postValue(false)
+        }
     }
 
     fun uploadFaultyTokenToEcloud(description: String) {

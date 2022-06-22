@@ -183,7 +183,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
                 positiveButtonBlock = {
                     showLoadingUI()
                     resetTimeoutDialogLock()
-                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
+                    mainActivityViewModel.checkTokenOnTimeout()
                 },
                 negativeButtonText =
                 if (homeViewModel.getApplicationCategoryPreference() == FusedAPIImpl.APP_TYPE_ANY) {

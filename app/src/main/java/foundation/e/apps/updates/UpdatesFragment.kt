@@ -173,7 +173,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                 positiveButtonBlock = {
                     showLoadingUI()
                     resetTimeoutDialogLock()
-                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
+                    mainActivityViewModel.checkTokenOnTimeout()
                 },
                 negativeButtonText =
                 if (updatesViewModel.getApplicationCategoryPreference() == FusedAPIImpl.APP_TYPE_ANY) {

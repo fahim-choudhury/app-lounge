@@ -114,7 +114,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
                     mainActivityViewModel.authValidity.value != null
                     // checking at least authValidity is checked for once
                 ) {
-                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
+                    mainActivityViewModel.checkTokenOnTimeout()
                 }
             }
         }

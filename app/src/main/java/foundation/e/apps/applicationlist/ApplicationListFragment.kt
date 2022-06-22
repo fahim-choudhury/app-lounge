@@ -192,7 +192,7 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
                 positiveButtonBlock = {
                     showLoadingUI()
                     resetTimeoutDialogLock()
-                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
+                    mainActivityViewModel.checkTokenOnTimeout()
                 },
                 negativeButtonText = getString(android.R.string.ok),
                 negativeButtonBlock = {},
