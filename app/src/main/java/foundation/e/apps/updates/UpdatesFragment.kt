@@ -147,9 +147,9 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                 .getWorkInfosForUniqueWorkLiveData(INSTALL_WORK_NAME).observe(viewLifecycleOwner) { workInfoList ->
                     lifecycleScope.launchWhenResumed {
                         binding.button.isEnabled = !(
-                                it.first.isNullOrEmpty() ||
-                                        updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(workInfoList)
-                                )
+                            it.first.isNullOrEmpty() ||
+                                updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(workInfoList)
+                            )
                     }
                 }
 
