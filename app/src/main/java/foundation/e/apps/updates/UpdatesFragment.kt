@@ -144,10 +144,12 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
             }
 
             WorkManager.getInstance(requireContext())
-                .getWorkInfosForUniqueWorkLiveData(INSTALL_WORK_NAME).observe(viewLifecycleOwner) {
+                .getWorkInfosForUniqueWorkLiveData(INSTALL_WORK_NAME).observe(viewLifecycleOwner) { workInfoList ->
                     lifecycleScope.launchWhenResumed {
-                        binding.button.isEnabled =
-                            !updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(it)
+                        binding.button.isEnabled = !(
+                            it.first.isNullOrEmpty() ||
+                                updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(workInfoList)
+                            )
                     }
                 }
 
