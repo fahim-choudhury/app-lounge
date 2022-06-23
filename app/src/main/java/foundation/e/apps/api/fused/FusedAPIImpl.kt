@@ -616,6 +616,28 @@ class FusedAPIImpl @Inject constructor(
         return Pair(fusedApp, status)
     }
 
+    /*
+     * Get updates only from cleanapk.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413 [2]
+     */
+    suspend fun getApplicationDetailsOSS(
+        packageNameList: List<String>,
+    ): Pair<List<FusedApp>, ResultStatus> {
+        val list = mutableListOf<FusedApp>()
+
+        val response: Pair<List<FusedApp>, ResultStatus> =
+            getAppDetailsListFromCleanapk(packageNameList)
+        response.first.forEach {
+            if (it.package_name.isNotBlank()) {
+                it.updateStatus()
+                it.updateType()
+                list.add(it)
+            }
+        }
+
+        return Pair(list, response.second)
+    }
+
     suspend fun getApplicationDetails(
         packageNameList: List<String>,
         authData: AuthData,

@@ -66,6 +66,12 @@ class FusedAPIRepository @Inject constructor(
         return fusedAPIImpl.getApplicationDetails(packageNameList, authData, origin)
     }
 
+    suspend fun getApplicationDetailsOSS(
+        packageNameList: List<String>,
+    ): Pair<List<FusedApp>, ResultStatus> {
+        return fusedAPIImpl.getApplicationDetailsOSS(packageNameList)
+    }
+
     suspend fun filterRestrictedGPlayApps(
         authData: AuthData,
         appList: List<App>,
