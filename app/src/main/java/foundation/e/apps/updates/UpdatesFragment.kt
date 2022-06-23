@@ -196,6 +196,16 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         }
     }
 
+    override fun noAuthRefresh(): Boolean {
+        showLoadingUI()
+        updatesViewModel.getUpdatesOSS()
+        binding.button.setOnClickListener {
+            UpdatesWorkManager.startUpdateAllWork(requireContext().applicationContext)
+            binding.button.isEnabled = false
+        }
+        return false
+    }
+
     private fun showLoadingUI() {
         binding.button.isEnabled = false
         binding.noUpdates.visibility = View.GONE
