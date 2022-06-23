@@ -77,6 +77,26 @@ class UpdatesManagerImpl @Inject constructor(
         return Pair(updateList, status)
     }
 
+    /*
+     * Get updates only from cleanapk.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413 [2]
+     */
+    suspend fun getUpdatesOSS(): Pair<List<FusedApp>, ResultStatus> {
+        val updateList = mutableListOf<FusedApp>()
+        val pkgList = pkgManagerModule.getAllUserApps().map { it.packageName }
+
+        return if (pkgList.isNotEmpty()) {
+            fusedAPIRepository.getApplicationDetailsOSS(pkgList).run {
+                this.first.forEach {
+                    if (it.status == Status.UPDATABLE) updateList.add(it)
+                }
+                Pair(updateList, this.second)
+            }
+        } else {
+            Pair(listOf(), ResultStatus.OK)
+        }
+    }
+
     fun getApplicationCategoryPreference(): String {
         return fusedAPIRepository.getApplicationCategoryPreference()
     }
