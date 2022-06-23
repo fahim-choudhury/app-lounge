@@ -1,6 +1,5 @@
 package foundation.e.apps.manager.fused
 
-import android.util.Log
 import timber.log.Timber
 import java.io.File
 import java.io.FileInputStream
@@ -34,9 +33,9 @@ object FileManager {
             // delete the original file
             File(inputPath + inputFile).delete()
         } catch (e: FileNotFoundException) {
-            Timber.e( e.stackTraceToString())
+            Timber.e(e.stackTraceToString())
         } catch (e: Exception) {
-            Timber.e( e.stackTraceToString())
+            Timber.e(e.stackTraceToString())
         } finally {
             inputStream?.close()
             inputStream = null

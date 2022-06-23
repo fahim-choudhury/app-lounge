@@ -25,7 +25,6 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -128,9 +127,9 @@ class FusedManagerImpl @Inject constructor(
                 list.sort()
                 if (list.size != 0) {
                     try {
-                        Timber.d( "installApp: STARTED ${fusedDownload.name} ${list.size}")
+                        Timber.d("installApp: STARTED ${fusedDownload.name} ${list.size}")
                         pkgManagerModule.installApplication(list, fusedDownload.packageName)
-                        Timber.d( "installApp: ENDED ${fusedDownload.name} ${list.size}")
+                        Timber.d("installApp: ENDED ${fusedDownload.name} ${list.size}")
                     } catch (e: Exception) {
                         Timber.d(">>> installApp app failed ")
                         installationIssue(fusedDownload)
@@ -139,7 +138,7 @@ class FusedManagerImpl @Inject constructor(
                 }
             }
             else -> {
-                Timber.d( "Unsupported application type!")
+                Timber.d("Unsupported application type!")
                 fusedDownload.status = Status.INSTALLATION_ISSUE
                 databaseRepository.updateDownload(fusedDownload)
                 delay(100)
@@ -163,7 +162,7 @@ class FusedManagerImpl @Inject constructor(
             databaseRepository.deleteDownload(fusedDownload)
             flushOldDownload(fusedDownload.packageName)
         } else {
-            Timber.d( "Unable to cancel download!")
+            Timber.d("Unable to cancel download!")
         }
     }
 

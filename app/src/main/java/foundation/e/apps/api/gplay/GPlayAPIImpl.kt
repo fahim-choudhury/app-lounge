@@ -32,10 +32,10 @@ import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.AppDetailsHelper
 import com.aurora.gplayapi.helpers.AuthValidator
 import com.aurora.gplayapi.helpers.CategoryHelper
+import com.aurora.gplayapi.helpers.ExpandedBrowseHelper
 import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.aurora.gplayapi.helpers.SearchHelper
 import com.aurora.gplayapi.helpers.StreamHelper
-import com.aurora.gplayapi.helpers.ExpandedBrowseHelper
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.api.gplay.token.TokenRepository

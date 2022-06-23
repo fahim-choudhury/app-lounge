@@ -19,7 +19,6 @@
 package foundation.e.apps.home
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import androidx.fragment.app.activityViewModels
@@ -159,7 +158,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         homeViewModel.homeScreenData.observe(viewLifecycleOwner) {
             stopLoadingUI()
             if (it.second == ResultStatus.OK) {
-                if(homeParentRVAdapter?.itemCount ?: 0 > 0) {
+                if (!homeParentRVAdapter?.currentList.isNullOrEmpty()) {
                     return@observe
                 }
                 dismissTimeoutDialog()

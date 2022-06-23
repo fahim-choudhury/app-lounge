@@ -1,6 +1,5 @@
 package foundation.e.apps
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
@@ -10,7 +9,6 @@ import foundation.e.apps.api.exodus.models.AppPrivacyInfo
 import foundation.e.apps.api.exodus.repositories.IAppPrivacyInfoRepository
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
-import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.ceil
 import kotlin.math.round

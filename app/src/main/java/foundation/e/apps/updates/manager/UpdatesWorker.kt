@@ -8,7 +8,6 @@ import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Base64
-import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker

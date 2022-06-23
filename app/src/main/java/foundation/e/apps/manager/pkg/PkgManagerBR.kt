@@ -22,7 +22,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
-import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.utils.enums.Status
@@ -56,7 +55,7 @@ open class PkgManagerBR : BroadcastReceiver() {
             val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -69)
             val packageName = intent.getStringExtra(PackageInstaller.EXTRA_PACKAGE_NAME)
 
-            Timber.d( "onReceive: $packageName $action $extra $status")
+            Timber.d("onReceive: $packageName $action $extra $status")
             packages?.let { pkgList ->
                 pkgList.forEach { pkgName ->
                     when (action) {
@@ -67,7 +66,7 @@ open class PkgManagerBR : BroadcastReceiver() {
                             if (!isUpdating) deleteDownload(pkgName)
                         }
                         PkgManagerModule.ERROR_PACKAGE_INSTALL -> {
-                            Timber.e( "Installation failed due to error: $extra")
+                            Timber.e("Installation failed due to error: $extra")
                             updateInstallationIssue(pkgName)
                         }
                     }

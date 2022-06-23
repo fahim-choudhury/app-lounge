@@ -24,7 +24,6 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.Html
 import android.text.format.Formatter
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -402,7 +401,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                     appSize
                 )
                 else -> {
-                    Timber.d( "Unknown status: $status")
+                    Timber.d("Unknown status: $status")
                 }
             }
         }

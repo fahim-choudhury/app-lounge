@@ -21,7 +21,6 @@ package foundation.e.apps.setup.signin
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
@@ -59,7 +58,7 @@ class LocaleChangedBroadcastReceiver : BroadcastReceiver() {
                     cache.evictAll()
                 }
             } catch (ex: Exception) {
-                Timber.e( ex.message.toString())
+                Timber.e(ex.message.toString())
             }
         }
     }

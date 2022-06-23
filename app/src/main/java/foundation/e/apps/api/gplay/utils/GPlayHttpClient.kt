@@ -19,7 +19,6 @@
 
 package foundation.e.apps.api.gplay.utils
 
-import android.util.Log
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.network.IHttpClient
 import foundation.e.apps.BuildConfig
@@ -170,7 +169,7 @@ class GPlayHttpClient @Inject constructor(
     }
 
     private fun handleExceptionOnGooglePlayRequest(e: Exception): PlayResponse {
-        Timber.e( "processRequest: ${e.localizedMessage}")
+        Timber.e("processRequest: ${e.localizedMessage}")
         return PlayResponse()
     }
 

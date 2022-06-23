@@ -18,7 +18,6 @@
 
 package foundation.e.apps.home.model
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
@@ -112,7 +111,7 @@ class HomeParentRVAdapter(
 
     override fun onViewDetachedFromWindow(holder: ViewHolder) {
         super.onViewDetachedFromWindow(holder)
-        if(isDetachedFromRecyclerView) {
+        if (isDetachedFromRecyclerView) {
             holder.binding.childRV.adapter = null
         }
     }
