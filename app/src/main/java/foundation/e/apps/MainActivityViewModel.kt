@@ -23,7 +23,6 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.SystemClock
 import android.util.Base64
-import android.util.Log
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
@@ -189,10 +188,10 @@ class MainActivityViewModel @Inject constructor(
             if (regenerateFunction != null) {
                 dataStoreModule.userType.collect { user ->
                     if (!user.isBlank() && User.valueOf(user) == User.ANONYMOUS) {
-                        Timber.d( "Regenerating auth data for Anonymous user")
+                        Timber.d("Regenerating auth data for Anonymous user")
                         regenerateFunction(user)
                     } else {
-                        Timber.d( "Ask Google user to log in again")
+                        Timber.d("Ask Google user to log in again")
                         dataStoreModule.clearUserType()
                     }
                 }
@@ -539,10 +538,5 @@ class MainActivityViewModel @Inject constructor(
 
     fun updateAppWarningList() {
         blockedAppRepository.fetchUpdateOfAppWarningList()
-    }
-
-    override fun onCleared() {
-        Timber.d(">>> onCleared")
-        super.onCleared()
     }
 }

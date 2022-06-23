@@ -19,7 +19,6 @@
 package foundation.e.apps.manager.download
 
 import android.content.Context
-import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.utils.enums.Status

@@ -24,10 +24,8 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.StatFs
 import android.os.storage.StorageManager
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
@@ -95,22 +93,19 @@ class MainActivity : AppCompatActivity() {
                 binding.fragment.visibility = View.VISIBLE
 
                 // Watch and refresh authentication data
-                if(viewModel.authDataJson.value == null) {
+                if (viewModel.authDataJson.value == null) {
                     viewModel.authDataJson.observe(this) {
                         viewModel.handleAuthDataJson()
                     }
                 }
-
             }
         }
 
-        Timber.d(">>> userTypeLiveData: ${viewModel.userType.value}")
-        Timber.d(">>> authDataJsonLiveData: ${viewModel.authDataJson.value}")
         viewModel.userType.observe(this) { user ->
             viewModel.handleAuthDataJson()
         }
 
-        if(signInViewModel.authLiveData.value == null) {
+        if (signInViewModel.authLiveData.value == null) {
             signInViewModel.authLiveData.observe(this) {
                 viewModel.updateAuthData(it)
             }
@@ -121,7 +116,7 @@ class MainActivity : AppCompatActivity() {
                 Timber.d("Timeout validating auth data!")
                 val lastFragment = navHostFragment.childFragmentManager.fragments[0]
                 if (lastFragment is TimeoutFragment) {
-                    Timber.d("Displaying timeout from MainActivity on fragment: " + Fragment.java.name)
+                    Timber.d("Displaying timeout from MainActivity on fragment: " + lastFragment.javaClass.name)
                     lastFragment.onTimeout()
                 }
             }
@@ -223,7 +218,7 @@ class MainActivity : AppCompatActivity() {
             }
             viewModel.updateAwaiting(it)
             InstallWorkManager.enqueueWork(it)
-            Timber.d( "===> onCreate: AWAITING ${it.name}")
+            Timber.d("===> onCreate: AWAITING ${it.name}")
         }
     }
 
@@ -278,7 +273,7 @@ class MainActivity : AppCompatActivity() {
                     statsManager.getFreeBytes(StorageManager.UUID_DEFAULT)
                 }
             } catch (e: Exception) {
-                Timber.e( "calculateAvailableDiskSpace: ${e.stackTraceToString()}")
+                Timber.e("calculateAvailableDiskSpace: ${e.stackTraceToString()}")
                 getAvailableInternalMemorySize()
             }
         } else {
@@ -292,15 +287,5 @@ class MainActivity : AppCompatActivity() {
         val blockSize = stat.blockSizeLong
         val availableBlocks = stat.availableBlocksLong
         return availableBlocks * blockSize
-    }
-
-    override fun onResume() {
-        Timber.d(">>> onResume")
-        super.onResume()
-    }
-
-    override fun onDestroy() {
-        Timber.d(">>> onDestroy")
-        super.onDestroy()
     }
 }

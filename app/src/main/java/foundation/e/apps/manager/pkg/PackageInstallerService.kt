@@ -22,7 +22,6 @@ import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.os.IBinder
-import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.utils.enums.Status
@@ -50,7 +49,7 @@ class PackageInstallerService : Service() {
             if (status == PackageInstaller.STATUS_SUCCESS) {
                 updateDownloadStatus(packageName)
             } else {
-                Timber.e( "Installation failed due to error: $extra")
+                Timber.e("Installation failed due to error: $extra")
                 updateInstallationIssue(packageName)
             }
         }

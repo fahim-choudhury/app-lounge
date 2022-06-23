@@ -22,7 +22,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.viewModels
@@ -71,7 +70,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val updateCheckInterval =
             preferenceManager.findPreference<Preference>(getString(R.string.update_check_intervals))
         updateCheckInterval?.setOnPreferenceChangeListener { _, newValue ->
-            Timber.d( "onCreatePreferences: updated Value: $newValue")
+            Timber.d("onCreatePreferences: updated Value: $newValue")
             context?.let {
                 UpdatesWorkManager.enqueueWork(
                     it,

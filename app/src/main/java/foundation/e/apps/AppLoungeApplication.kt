@@ -35,7 +35,6 @@ import timber.log.Timber.Forest.plant
 import java.util.concurrent.Executors
 import javax.inject.Inject
 
-
 @HiltAndroidApp
 @DelicateCoroutinesApi
 class AppLoungeApplication : Application(), Configuration.Provider {

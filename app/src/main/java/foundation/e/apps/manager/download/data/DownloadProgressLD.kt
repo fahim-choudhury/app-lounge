@@ -1,7 +1,6 @@
 package foundation.e.apps.manager.download.data
 
 import android.app.DownloadManager
-import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -87,7 +86,7 @@ class DownloadProgressLD @Inject constructor(
                             }
                         }
                 } catch (e: Exception) {
-                    Timber.e( "downloading Ids: $downloadingIds ${e.localizedMessage}")
+                    Timber.e("downloading Ids: $downloadingIds ${e.localizedMessage}")
                 }
                 delay(20)
             }

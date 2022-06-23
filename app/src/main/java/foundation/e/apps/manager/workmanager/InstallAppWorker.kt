@@ -101,12 +101,12 @@ class InstallAppWorker @AssistedInject constructor(
                 mutex.lock()
             }
         } catch (e: Exception) {
-            Timber.e( "doWork: Failed: ${e.stackTraceToString()}")
+            Timber.e("doWork: Failed: ${e.stackTraceToString()}")
             fusedDownload?.let {
                 fusedManagerRepository.installationIssue(it)
             }
         } finally {
-            Timber.d( "doWork: RESULT SUCCESS: ${fusedDownload?.name}")
+            Timber.d("doWork: RESULT SUCCESS: ${fusedDownload?.name}")
             return Result.success()
         }
     }
