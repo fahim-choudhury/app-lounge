@@ -52,6 +52,16 @@ class UpdatesViewModel @Inject constructor(
         }
     }
 
+    /*
+     * Get updates only from cleanapk
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413 [2]
+     */
+    fun getUpdatesOSS() {
+        viewModelScope.launch {
+            updatesList.postValue(updatesManagerRepository.getUpdatesOSS())
+        }
+    }
+
     suspend fun checkWorkInfoListHasAnyUpdatableWork(workInfoList: List<WorkInfo>): Boolean {
         workInfoList.forEach { workInfo ->
             if (listOf(
