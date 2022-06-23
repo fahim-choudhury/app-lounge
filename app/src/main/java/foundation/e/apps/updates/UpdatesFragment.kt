@@ -129,31 +129,32 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         }
 
         updatesViewModel.updatesList.observe(viewLifecycleOwner) {
-            listAdapter?.setData(it.first)
-            if (!isDownloadObserverAdded) {
-                observeDownloadList()
-                isDownloadObserverAdded = true
-            }
-            stopLoadingUI()
-            if (!it.first.isNullOrEmpty()) {
-                binding.button.isEnabled = true
-                binding.noUpdates.visibility = View.GONE
-            } else {
-                binding.noUpdates.visibility = View.VISIBLE
-                binding.button.isEnabled = false
-            }
-
-            WorkManager.getInstance(requireContext())
-                .getWorkInfosForUniqueWorkLiveData(INSTALL_WORK_NAME).observe(viewLifecycleOwner) {
-                    lifecycleScope.launchWhenResumed {
-                        binding.button.isEnabled =
-                            !updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(it)
-                    }
-                }
-
             if (it.second != ResultStatus.OK) {
                 onTimeout()
+                return@observe
+            } else {
+                listAdapter?.setData(it.first)
+                if (!isDownloadObserverAdded) {
+                    observeDownloadList()
+                    isDownloadObserverAdded = true
+                }
+                if (it.first.isNotEmpty()) {
+                    binding.button.isEnabled = true
+                    binding.noUpdates.visibility = View.GONE
+                } else {
+                    binding.noUpdates.visibility = View.VISIBLE
+                    binding.button.isEnabled = false
+                }
+
+                WorkManager.getInstance(requireContext())
+                    .getWorkInfosForUniqueWorkLiveData(INSTALL_WORK_NAME).observe(viewLifecycleOwner) {
+                        lifecycleScope.launchWhenResumed {
+                            binding.button.isEnabled =
+                                !updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(it)
+                        }
+                    }
             }
+            stopLoadingUI()
         }
     }
 
