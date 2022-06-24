@@ -97,6 +97,21 @@ class ApplicationListViewModel @Inject constructor(
         }
     }
 
+    /*
+     * Get apps list from cleanapk only.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413 [2]
+     */
+    fun getListOSS(category: String, source: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            appListLiveData.postValue(
+                fusedAPIRepository.getAppsListOSS(
+                    category,
+                    source,
+                )
+            )
+        }
+    }
+
     /**
      * Add a placeholder app at the end if more data can be loaded.
      * "Placeholder" app shows a simple progress bar in the RecyclerView, indicating that
