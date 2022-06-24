@@ -1,6 +1,5 @@
 package foundation.e.apps
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
@@ -87,10 +86,6 @@ class PrivacyInfoViewModel @Inject constructor(
         val calculateTrackersScore = calculateTrackersScore(fusedApp.trackers.size)
         val calculatePermissionsScore = calculatePermissionsScore(
             countAndroidPermissions(fusedApp)
-        )
-        Log.d(
-            "PrivacyInfoViewModel",
-            "calculatePrivacyScore: ${fusedApp.name}: privacyScore: $calculateTrackersScore permissionScore: $calculatePermissionsScore noOfPermission: ${fusedApp.perms.size}"
         )
         return calculateTrackersScore + calculatePermissionsScore
     }

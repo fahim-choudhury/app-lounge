@@ -21,7 +21,6 @@ package foundation.e.apps.setup.signin
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,6 +31,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.Cache
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -58,7 +58,7 @@ class LocaleChangedBroadcastReceiver : BroadcastReceiver() {
                     cache.evictAll()
                 }
             } catch (ex: Exception) {
-                Log.e(TAG, ex.message.toString())
+                Timber.e(ex.message.toString())
             }
         }
     }

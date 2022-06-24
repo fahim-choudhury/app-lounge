@@ -111,7 +111,7 @@ class HomeParentRVAdapter(
 
     override fun onViewDetachedFromWindow(holder: ViewHolder) {
         super.onViewDetachedFromWindow(holder)
-        if(isDetachedFromRecyclerView) {
+        if (isDetachedFromRecyclerView) {
             holder.binding.childRV.adapter = null
         }
     }

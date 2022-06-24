@@ -19,7 +19,6 @@
 
 package foundation.e.apps.api.gplay.utils
 
-import android.util.Log
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.network.IHttpClient
 import foundation.e.apps.BuildConfig
@@ -34,6 +33,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
+import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -137,7 +137,7 @@ class GPlayHttpClient @Inject constructor(
             )
             .method(GET, null)
             .build()
-        Log.d("get auth request", request.toString())
+        Timber.d("get auth request", request.toString())
         return processRequest(request)
     }
 
@@ -169,7 +169,7 @@ class GPlayHttpClient @Inject constructor(
     }
 
     private fun handleExceptionOnGooglePlayRequest(e: Exception): PlayResponse {
-        Log.e(TAG, "processRequest: ${e.localizedMessage}")
+        Timber.e("processRequest: ${e.localizedMessage}")
         return PlayResponse()
     }
 

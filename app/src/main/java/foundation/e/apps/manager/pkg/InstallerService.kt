@@ -23,12 +23,13 @@ import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.annotation.RequiresApi
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.manager.fused.FusedManagerRepository
+import foundation.e.apps.utils.enums.Status
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -55,7 +56,7 @@ class InstallerService : Service() {
     }
 
     private fun postStatus(status: Int, packageName: String?, extra: String?) {
-        Log.d(TAG, "postStatus: $status $packageName $extra")
+        Timber.d("postStatus: $status $packageName $extra")
         if (status != PackageInstaller.STATUS_SUCCESS) {
             updateInstallationIssue(packageName ?: "")
         }
@@ -65,9 +66,20 @@ class InstallerService : Service() {
         return null
     }
 
+    private fun updateDownloadStatus(pkgName: String) {
+        if (pkgName.isEmpty()) {
+            Timber.d("updateDownloadStatus: package name should not be empty!")
+        }
+        GlobalScope.launch {
+            val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)
+            pkgManagerModule.setFakeStoreAsInstallerIfNeeded(fusedDownload)
+            fusedManagerRepository.updateDownloadStatus(fusedDownload, Status.INSTALLED)
+        }
+    }
+
     private fun updateInstallationIssue(pkgName: String) {
         if (pkgName.isEmpty()) {
-            Log.d(TAG, "updateDownloadStatus: package name should not be empty!")
+            Timber.d("updateDownloadStatus: package name should not be empty!")
         }
         GlobalScope.launch {
             val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)

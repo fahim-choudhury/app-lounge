@@ -24,7 +24,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.StatFs
 import android.os.storage.StorageManager
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -47,6 +46,7 @@ import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.modules.CommonUtilsModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.File
 import java.util.UUID
 
@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Timber.d(">>> onCreate")
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -91,32 +92,31 @@ class MainActivity : AppCompatActivity() {
                 binding.noInternet.visibility = View.GONE
                 binding.fragment.visibility = View.VISIBLE
 
-                viewModel.userType.observe(this) { user ->
-                    viewModel.handleAuthDataJson()
-                }
-
-                signInViewModel.authLiveData.observe(this) {
-                    viewModel.updateAuthData(it)
-                }
-
                 // Watch and refresh authentication data
-                viewModel.authDataJson.observe(this) {
-                    viewModel.handleAuthDataJson()
+                if (viewModel.authDataJson.value == null) {
+                    viewModel.authDataJson.observe(this) {
+                        viewModel.handleAuthDataJson()
+                    }
                 }
             }
         }
 
-        viewModel.authValidity.observe(this) {
+        viewModel.userType.observe(this) { user ->
+            viewModel.handleAuthDataJson()
+        }
 
+        if (signInViewModel.authLiveData.value == null) {
+            signInViewModel.authLiveData.observe(this) {
+                viewModel.updateAuthData(it)
+            }
+        }
+
+        viewModel.authValidity.observe(this) {
             viewModel.handleAuthValidity(it) {
-                Log.d(TAG, "Timeout validating auth data!")
+                Timber.d("Timeout validating auth data!")
                 val lastFragment = navHostFragment.childFragmentManager.fragments[0]
                 if (lastFragment is TimeoutFragment) {
-                    Log.d(
-                        TAG,
-                        "Displaying timeout from MainActivity on fragment: " +
-                            lastFragment::class.java.name
-                    )
+                    Timber.d("Displaying timeout from MainActivity on fragment: " + lastFragment.javaClass.name)
                     lastFragment.onTimeout()
                 }
             }
@@ -218,7 +218,7 @@ class MainActivity : AppCompatActivity() {
             }
             viewModel.updateAwaiting(it)
             InstallWorkManager.enqueueWork(it)
-            Log.d(TAG, "===> onCreate: AWAITING ${it.name}")
+            Timber.d("===> onCreate: AWAITING ${it.name}")
         }
     }
 
@@ -273,7 +273,7 @@ class MainActivity : AppCompatActivity() {
                     statsManager.getFreeBytes(StorageManager.UUID_DEFAULT)
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "calculateAvailableDiskSpace: ${e.stackTraceToString()}")
+                Timber.e("calculateAvailableDiskSpace: ${e.stackTraceToString()}")
                 getAvailableInternalMemorySize()
             }
         } else {

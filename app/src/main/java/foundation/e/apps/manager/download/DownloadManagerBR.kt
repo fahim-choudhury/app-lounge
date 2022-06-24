@@ -22,9 +22,9 @@ import android.app.DownloadManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -43,7 +43,7 @@ class DownloadManagerBR : BroadcastReceiver() {
         val action = intent?.action
         if (context != null && action != null) {
             val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0)
-            Log.d(TAG, "onReceive: DownloadBR $action $id")
+            Timber.d("onReceive: DownloadBR $action $id")
             when (action) {
                 DownloadManager.ACTION_DOWNLOAD_COMPLETE -> {
                     downloadedList.add(id)

@@ -2,7 +2,6 @@ package foundation.e.apps.purchase
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -61,7 +60,6 @@ class AppPurchaseFragment : Fragment() {
 
         binding.playStoreWebView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView, url: String) {
-                Log.d(TAG, "onPageFinished: $url")
                 if (url.contains("https://play.google.com/store/apps/details") && url.contains("raii") &&
                     url.contains("raboi") && url.contains("rasi") && url.contains("rapt")
                 ) {

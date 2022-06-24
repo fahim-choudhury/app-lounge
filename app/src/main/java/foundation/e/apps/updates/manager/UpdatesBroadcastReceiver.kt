@@ -20,10 +20,10 @@ package foundation.e.apps.updates.manager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.preference.PreferenceManager
 import androidx.work.ExistingPeriodicWorkPolicy
 import foundation.e.apps.R
+import timber.log.Timber
 
 class UpdatesBroadcastReceiver : BroadcastReceiver() {
     companion object {
@@ -31,7 +31,7 @@ class UpdatesBroadcastReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        Log.d(TAG, "onReceive: ${intent.action}")
+        Timber.d("onReceive: ${intent.action}")
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val interval =

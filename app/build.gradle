@@ -8,7 +8,7 @@ plugins {
 }
 
 def versionMajor = 2
-def versionMinor = 2
+def versionMinor = 3
 def versionPatch = 0
 
 android {
@@ -66,6 +66,12 @@ android {
             signingConfig signingConfigs.releaseStableConfig
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+
+        applicationVariants.all { variant ->
+            variant.outputs.all { output ->
+                outputFileName = "AppLounge-${variant.versionName}-${variant.buildType.name}.apk"
+            }
+        }
     }
     buildFeatures {
         viewBinding true
@@ -115,6 +121,9 @@ dependencies {
     // ViewPager2 and RecyclerView
     implementation "androidx.viewpager2:viewpager2:1.0.0"
     implementation "androidx.recyclerview:recyclerview:1.2.1"
+
+    //logger
+    implementation 'com.jakewharton.timber:timber:5.0.1'
 
     // Retrofit
     def retrofit_version = "2.9.0"

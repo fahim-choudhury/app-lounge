@@ -45,6 +45,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.sync.Mutex
+import timber.log.Timber
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -83,11 +84,10 @@ class InstallAppWorker @AssistedInject constructor(
         var fusedDownload: FusedDownload? = null
         try {
             val fusedDownloadString = params.inputData.getString(INPUT_DATA_FUSED_DOWNLOAD) ?: ""
+            Timber.d("Fused download name $fusedDownloadString")
+
             fusedDownload = databaseRepository.getDownloadById(fusedDownloadString)
-            Log.d(
-                TAG,
-                ">>> dowork started for Fused download name ${fusedDownload?.name} $fusedDownloadString"
-            )
+            Timber.d(">>> dowork started for Fused download name " + fusedDownload?.name + " " + fusedDownloadString)
             fusedDownload?.let {
                 if (fusedDownload.status != Status.AWAITING) {
                     return Result.success()
@@ -101,12 +101,12 @@ class InstallAppWorker @AssistedInject constructor(
                 mutex.lock()
             }
         } catch (e: Exception) {
-            Log.e(TAG, ">>> doWork: Failed: ${e.stackTraceToString()}")
+            Timber.e("doWork: Failed: ${e.stackTraceToString()}")
             fusedDownload?.let {
                 fusedManagerRepository.installationIssue(it)
             }
         } finally {
-            Log.d(TAG, ">>> doWork: RESULT SUCCESS: ${fusedDownload?.name}")
+            Timber.d("doWork: RESULT SUCCESS: ${fusedDownload?.name}")
             return Result.success()
         }
     }
@@ -115,6 +115,7 @@ class InstallAppWorker @AssistedInject constructor(
         fusedDownload: FusedDownload
     ) {
         fusedManagerRepository.downloadApp(fusedDownload)
+        Timber.d("===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}")
         isDownloading = true
         tickerFlow(3.seconds)
             .onEach {
@@ -129,10 +130,7 @@ class InstallAppWorker @AssistedInject constructor(
                     }
                 }
             }.launchIn(CoroutineScope(Dispatchers.IO))
-        Log.d(
-            TAG,
-            ">>> ===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}"
-        )
+        Timber.d(">>> ===> doWork: Download started " + fusedDownload.name + " " + fusedDownload.status)
     }
 
     private fun isAppDownloading(download: FusedDownload): Boolean {
@@ -160,30 +158,17 @@ class InstallAppWorker @AssistedInject constructor(
     }
 
     private suspend fun checkDownloadProcess(fusedDownload: FusedDownload) {
-        try {
-            downloadManager.query(downloadManagerQuery.setFilterById(*fusedDownload.downloadIdMap.keys.toLongArray()))
-                .use { cursor ->
-                    if (cursor.moveToFirst()) {
-                        val id =
-                            cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_ID))
-                        val status =
-                            cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
-                        val totalSizeBytes =
-                            cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-                        val bytesDownloadedSoFar =
-                            cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
-                        Log.d(
-                            TAG,
-                            "checkDownloadProcess: ${fusedDownload.name} $bytesDownloadedSoFar/$totalSizeBytes $status"
-                        )
-                        if (status == DownloadManager.STATUS_FAILED) {
-                            fusedManagerRepository.installationIssue(fusedDownload)
-                        }
+        downloadManager.query(downloadManagerQuery.setFilterById(*fusedDownload.downloadIdMap.keys.toLongArray()))
+            .use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val status =
+                        cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+
+                    if (status == DownloadManager.STATUS_FAILED) {
+                        fusedManagerRepository.installationIssue(fusedDownload)
                     }
                 }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+            }
     }
 
     private suspend fun handleFusedDownloadStatus(fusedDownload: FusedDownload) {
@@ -194,18 +179,12 @@ class InstallAppWorker @AssistedInject constructor(
                 fusedManagerRepository.updateDownloadStatus(fusedDownload, Status.INSTALLING)
             }
             Status.INSTALLING -> {
-                Log.d(
-                    TAG,
-                    "===> doWork: Installing ${fusedDownload.name} ${fusedDownload.status}"
-                )
+                Timber.d("===> doWork: Installing ${fusedDownload.name} ${fusedDownload.status}")
             }
             Status.INSTALLED, Status.INSTALLATION_ISSUE -> {
                 isDownloading = false
-                Log.d(
-                    TAG,
-                    "===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}"
-                )
                 unlockMutex()
+                Timber.d("===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}")
             }
             else -> {
                 isDownloading = false

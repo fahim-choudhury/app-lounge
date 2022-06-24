@@ -8,7 +8,6 @@ import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Base64
-import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
@@ -28,6 +27,7 @@ import foundation.e.apps.updates.UpdatesNotifier
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.modules.DataStoreModule
+import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.net.URL
 
@@ -147,12 +147,9 @@ class UpdatesWorker @AssistedInject constructor(
 
             fusedManagerRepository.addDownload(fusedDownload)
             fusedManagerRepository.updateAwaiting(fusedDownload)
-            Log.d(
-                TAG,
-                "startUpdateProcess: Enqueued for update: ${fusedDownload.name} ${fusedDownload.id} ${fusedDownload.status}"
-            )
+            Timber.d("startUpdateProcess: Enqueued for update: ${fusedDownload.name} ${fusedDownload.id} ${fusedDownload.status}")
             InstallWorkManager.enqueueWork(fusedDownload)
-            Log.d(TAG, ">>> startUpdateProcess: ${fusedDownload.name}")
+            Timber.d(">>> startUpdateProcess: " + fusedDownload.name)
         }
     }
 

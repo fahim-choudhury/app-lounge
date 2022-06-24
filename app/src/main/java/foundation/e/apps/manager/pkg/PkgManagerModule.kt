@@ -27,7 +27,6 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.core.content.pm.PackageInfoCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.api.fused.FusedAPIImpl
@@ -36,6 +35,7 @@ import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
 import kotlinx.coroutines.DelicateCoroutinesApi
+import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -116,7 +116,7 @@ class PkgManagerModule @Inject constructor(
                 val targetPackage = fusedDownload.packageName
                 try {
                     packageManager.setInstallerPackageName(targetPackage, fakeStorePackageName)
-                    Log.d(TAG, "Changed installer to $fakeStorePackageName for $targetPackage")
+                    Timber.d("Changed installer to $fakeStorePackageName for $targetPackage")
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -168,7 +168,7 @@ class PkgManagerModule @Inject constructor(
             )
             session.commit(servicePendingIntent.intentSender)
         } catch (e: Exception) {
-            Log.e(TAG, "$packageName: \n${e.stackTraceToString()}")
+            Timber.e("$packageName: \n${e.stackTraceToString()}")
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 sessionId,

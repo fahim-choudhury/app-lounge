@@ -158,6 +158,9 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         homeViewModel.homeScreenData.observe(viewLifecycleOwner) {
             stopLoadingUI()
             if (it.second == ResultStatus.OK) {
+                if (!homeParentRVAdapter?.currentList.isNullOrEmpty()) {
+                    return@observe
+                }
                 dismissTimeoutDialog()
                 homeParentRVAdapter?.setData(it.first)
             } else {
