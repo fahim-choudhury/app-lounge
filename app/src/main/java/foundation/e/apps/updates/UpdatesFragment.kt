@@ -53,6 +53,7 @@ import foundation.e.apps.utils.modules.CommonUtilsModule.safeNavigate
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -86,9 +87,14 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
          */
 
         mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) {
+            Timber.d("<<< refreshing data: internet connection: $it")
+            if(!updatesViewModel.updatesList.value?.first.isNullOrEmpty()) {
+                return@observe
+            }
             refreshDataOrRefreshToken(mainActivityViewModel)
         }
         mainActivityViewModel.authData.observe(viewLifecycleOwner) {
+            Timber.d("<<< refreshing data: authData")
             refreshDataOrRefreshToken(mainActivityViewModel)
         }
 
@@ -129,6 +135,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         }
 
         updatesViewModel.updatesList.observe(viewLifecycleOwner) {
+            Timber.d("<<< Update list observer: ${it.first.size}")
             listAdapter?.setData(it.first)
             if (!isDownloadObserverAdded) {
                 observeDownloadList()
@@ -190,6 +197,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
     }
 
     override fun refreshData(authData: AuthData) {
+        Timber.d("<<< refresh data")
         showLoadingUI()
         updatesViewModel.getUpdates(authData)
         binding.button.setOnClickListener {
@@ -220,6 +228,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
 
     private fun observeDownloadList() {
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
+            Timber.d("<<< download list callback")
             val appList = updatesViewModel.updatesList.value?.first?.toMutableList() ?: emptyList()
             appList.let {
                 mainActivityViewModel.updateStatusOfFusedApps(appList, list)
