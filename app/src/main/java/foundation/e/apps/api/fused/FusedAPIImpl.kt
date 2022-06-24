@@ -413,7 +413,7 @@ class FusedAPIImpl @Inject constructor(
              */
             val cleanApkResults = mutableListOf<FusedApp>()
             when (preferenceManagerModule.preferredApplicationType()) {
-                APP_TYPE_OPEN -> {
+                APP_TYPE_OPEN, APP_TYPE_ANY -> {
                     val status = runCodeBlockWithTimeout({
                         cleanApkResults.addAll(getCleanAPKSearchResults(query))
                     })
