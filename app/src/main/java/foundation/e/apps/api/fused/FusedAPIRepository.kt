@@ -171,6 +171,21 @@ class FusedAPIRepository @Inject constructor(
         }
     }
 
+    /*
+     * Get only category apps from cleanapk.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413 [2]
+     */
+    suspend fun getAppsListOSS(
+        category: String,
+        source: String,
+    ): ResultSupreme<List<FusedApp>> {
+        return when (source) {
+            "Open Source" -> fusedAPIImpl.getOpenSourceApps(category)
+            "PWA" -> fusedAPIImpl.getPWAApps(category)
+            else -> ResultSupreme.Error()
+        }
+    }
+
     fun getFusedAppInstallationStatus(fusedApp: FusedApp): Status {
         return fusedAPIImpl.getFusedAppInstallationStatus(fusedApp)
     }
