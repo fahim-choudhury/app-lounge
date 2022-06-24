@@ -217,18 +217,18 @@ class SearchFragment :
                     }
                 }
             })
-            if (searchText.isNotBlank() && !it.isSuccess()) {
-                /*
-                 * If blank check is not performed then timeout dialog keeps
-                 * popping up whenever search tab is opened.
-                 */
+            if (!it.isSuccess()) {
                 onTimeout()
             }
         }
     }
 
     override fun onTimeout() {
-        if (!isTimeoutDialogDisplayed()) {
+        if (searchText.isNotBlank() && !isTimeoutDialogDisplayed()) {
+            /*
+             * If blank check is not performed then timeout dialog keeps
+             * popping up whenever search tab is opened.
+             */
             binding.loadingProgressBar.isVisible = false
             stopLoadingUI()
             displayTimeoutAlertDialog(
