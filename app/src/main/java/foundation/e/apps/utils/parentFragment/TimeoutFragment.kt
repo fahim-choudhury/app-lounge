@@ -82,7 +82,6 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      * If returns false, then after running the function, we attempt to refresh GPlay token.
      */
     open fun noAuthRefresh(): Boolean = false
-    private var isNoAuthRefreshExecuted = false
 
     /*
      * Checks if network connectivity is present.
@@ -100,16 +99,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
                 dismissTimeoutDialog()
                 refreshData(authData)
             } else {
-                /*
-                 * Run noAuthRefresh() only once.
-                 * Once it has been run, set isNoAuthRefreshExecuted to true.
-                 */
-                val noAuthRefreshResult = if (isNoAuthRefreshExecuted) {
-                    false
-                } else {
-                    isNoAuthRefreshExecuted = true
-                    noAuthRefresh()
-                }
+                val noAuthRefreshResult = noAuthRefresh()
 
                 if (!noAuthRefreshResult &&
                     mainActivityViewModel.authValidity.value != null
