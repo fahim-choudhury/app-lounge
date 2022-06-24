@@ -95,10 +95,11 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      */
     fun refreshDataOrRefreshToken(mainActivityViewModel: MainActivityViewModel) {
         if (mainActivityViewModel.internetConnection.value == true) {
-            mainActivityViewModel.authData.value?.let { authData ->
+            val authData: AuthData? = mainActivityViewModel.authData.value
+            if (authData != null && mainActivityViewModel.authValidity.value == true) {
                 dismissTimeoutDialog()
                 refreshData(authData)
-            } ?: run {
+            } else {
                 /*
                  * Run noAuthRefresh() only once.
                  * Once it has been run, set isNoAuthRefreshExecuted to true.
