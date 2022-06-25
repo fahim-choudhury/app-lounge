@@ -72,6 +72,20 @@ class ApplicationViewModel @Inject constructor(
         }
     }
 
+    fun getApplicationDetailsOSS(id: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                fusedApp.postValue(
+                    fusedAPIRepository.getApplicationDetailsOSS(id)
+                )
+            } catch (e: ApiException.AppNotFound) {
+                _errorMessageLiveData.postValue(R.string.app_not_found)
+            } catch (e: Exception) {
+                _errorMessageLiveData.postValue(R.string.unknown_error)
+            }
+        }
+    }
+
     /*
      * Dedicated method to get app details from cleanapk using package name.
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5509
