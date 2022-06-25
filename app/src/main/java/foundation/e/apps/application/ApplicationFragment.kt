@@ -353,6 +353,26 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
     }
 
+    override fun noAuthRefresh(): Boolean {
+        if (!isDetailsLoaded) {
+            /* Show the loading bar. */
+            showLoadingUI()
+            /* Remove trailing slash (if present) that can become part of the packageName */
+            val packageName = args.packageName.run { if (endsWith('/')) dropLast(1) else this }
+            if (isFdroidDeepLink) {
+                applicationViewModel.getCleanapkAppDetails(packageName)
+            } else if (args.origin == Origin.CLEANAPK) {
+                applicationViewModel.getApplicationDetailsOSS(
+                    args.id,
+                )
+                return true
+            } else {
+                return false
+            }
+        }
+        return true
+    }
+
     private fun observeDownloadStatus(view: View) {
         applicationViewModel.appStatus.observe(viewLifecycleOwner) { status ->
             val installButton = binding.downloadInclude.installButton
