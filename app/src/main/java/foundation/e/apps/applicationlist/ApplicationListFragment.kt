@@ -295,7 +295,13 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
             updateProgressOfDownloadingItems(binding.recyclerView, it)
         }
 
-        return false
+        /*
+         * This method is guaranteed to run only for open source apps. If there is timeout
+         * from cleanapk, it will be handled by this fragment itself in onTimeout().
+         * In normal case, we can assume that the apps details will be fetched from cleanapk,
+         * hence we don't need to try fetching from GPlay (it is open source category any way.)
+         */
+        return true
     }
 
     private fun showLoadingUI() {
