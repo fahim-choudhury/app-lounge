@@ -88,6 +88,12 @@ class FusedAPIRepository @Inject constructor(
         return fusedAPIImpl.getApplicationDetails(id, packageName, authData, origin)
     }
 
+    suspend fun getApplicationDetailsOSS(
+        id: String,
+    ): Pair<FusedApp, ResultStatus> {
+        return fusedAPIImpl.getApplicationDetailsOSS(id)
+    }
+
     suspend fun getCleanapkAppDetails(packageName: String): Pair<FusedApp, ResultStatus> {
         return fusedAPIImpl.getCleanapkAppDetails(packageName)
     }

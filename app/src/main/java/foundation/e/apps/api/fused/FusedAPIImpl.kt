@@ -796,6 +796,23 @@ class FusedAPIImpl @Inject constructor(
         return Pair(response ?: FusedApp(), status)
     }
 
+    suspend fun getApplicationDetailsOSS(
+        id: String,
+    ): Pair<FusedApp, ResultStatus> {
+
+        var response: FusedApp? = null
+
+        val status = runCodeBlockWithTimeout({
+            response = cleanAPKRepository.getAppOrPWADetailsByID(id).body()?.app
+            response?.let {
+                it.updateStatus()
+                it.updateType()
+            }
+        })
+
+        return Pair(response ?: FusedApp(), status)
+    }
+
     /*
      * Categories-related internal functions
      */
