@@ -261,6 +261,43 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
         }
     }
 
+    /*
+     * Load open source apps in case authentication fails.
+     * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/5413 [2]
+     */
+    override fun noAuthRefresh(): Boolean {
+
+        if (args.source != "Open Source" && args.source != "PWA") {
+            /*
+             * Prevent running this method for GPlay categories.
+             * For first time run of App Lounge, authData and authValidity will be both null,
+             * so this method will be executed.
+             * If the body of the method is allowed to run for GPlay categories,
+             * 1. we will fetch cleanapk data,
+             * 2. that data will be shown and isDetailsLoaded will be set to true,
+             * 3. Then when refreshData() will be called it will not run as isDetailsLoaded is true.
+             *
+             * On the other hand, if GPlay really cannot be reached, then categorie list
+             * will only show open source or PWAs categories. Then this method body can run fine.
+             */
+            return false
+        }
+
+        if (!isDetailsLoaded) {
+            showLoadingUI()
+            viewModel.getListOSS(
+                args.category,
+                args.source
+            )
+        }
+
+        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
+            updateProgressOfDownloadingItems(binding.recyclerView, it)
+        }
+
+        return false
+    }
+
     private fun showLoadingUI() {
         binding.shimmerLayout.startShimmer()
         binding.shimmerLayout.visibility = View.VISIBLE
