@@ -160,10 +160,6 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
         binding.applicationLayout.visibility = View.INVISIBLE
 
-        mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
-            applicationViewModel.updateApplicationStatus(list)
-        }
-
         applicationViewModel.fusedApp.observe(viewLifecycleOwner) { resultPair ->
             if (resultPair.second != ResultStatus.OK) {
                 onTimeout()
@@ -306,6 +302,10 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 binding.snackbarLayout.visibility = View.VISIBLE
             }
             fetchAppTracker(it)
+
+            mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
+                applicationViewModel.updateApplicationStatus(list)
+            }
         }
 
         applicationViewModel.errorMessageLiveData.observe(viewLifecycleOwner) {

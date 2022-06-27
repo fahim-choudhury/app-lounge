@@ -69,7 +69,6 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
 
     private var _binding: FragmentApplicationListBinding? = null
     private val binding get() = _binding!!
-    private var isDownloadObserverAdded = false
 
     /*
      * Prevent reloading apps.
@@ -93,18 +92,18 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
         }
     }
 
-    private fun observeDownloadList() {
+    private fun observeDownloadList(adapter: ApplicationListRVAdapter) {
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
             val appList = viewModel.appListLiveData.value?.data?.toMutableList() ?: emptyList()
             appList.let {
                 mainActivityViewModel.updateStatusOfFusedApps(it, list)
+                adapter.setData(it)
             }
 
             /*
              * Done in one line, so that on Ctrl+click on appListLiveData,
              * we can see that it is being updated here.
              */
-            viewModel.appListLiveData.apply { value?.setData(appList) }
         }
     }
 
@@ -161,9 +160,12 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
             } else {
                 isDetailsLoaded = true
                 listAdapter?.setData(it.data!!)
-                if (!isDownloadObserverAdded) {
-                    observeDownloadList()
-                    isDownloadObserverAdded = true
+                listAdapter?.let { adapter ->
+                    observeDownloadList(adapter)
+                }
+
+                appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
+                    updateProgressOfDownloadingItems(binding.recyclerView, it)
                 }
             }
             stopLoadingUI()
@@ -255,10 +257,6 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
                 }
             }
         }
-
-        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
-            updateProgressOfDownloadingItems(binding.recyclerView, it)
-        }
     }
 
     private fun showLoadingUI() {
@@ -298,7 +296,6 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
     }
 
     override fun onPause() {
-        isDownloadObserverAdded = false
         binding.shimmerLayout.stopShimmer()
         super.onPause()
     }

@@ -161,36 +161,6 @@ class SearchFragment :
             layoutManager = LinearLayoutManager(view.context)
         }
 
-        mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
-            val searchList =
-                searchViewModel.searchResult.value?.data?.first?.toMutableList() ?: emptyList()
-            searchList.let {
-                mainActivityViewModel.updateStatusOfFusedApps(searchList, list)
-            }
-
-            /*
-             * Done in one line, so that on Ctrl+click on searchResult,
-             * we can see that it is being updated here.
-             */
-            searchViewModel.searchResult.apply { value?.setData(Pair(searchList, value?.data?.second ?: false)) }
-        }
-
-        /*
-         * Explanation of double observers in HomeFragment.kt
-         * Modified to check and search only if searchText in not blank, to prevent blank search.
-         */
-
-        mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) {
-            if (searchText.isNotBlank()) {
-                refreshDataOrRefreshToken(mainActivityViewModel)
-            }
-        }
-        mainActivityViewModel.authData.observe(viewLifecycleOwner) {
-            if (searchText.isNotBlank()) {
-                refreshDataOrRefreshToken(mainActivityViewModel)
-            }
-        }
-
         searchViewModel.searchResult.observe(viewLifecycleOwner) {
             if (it.data?.first.isNullOrEmpty()) {
                 noAppsFoundLayout?.visibility = View.VISIBLE
@@ -199,7 +169,13 @@ class SearchFragment :
                 binding.loadingProgressBar.isVisible = it.data!!.second
                 stopLoadingUI()
                 noAppsFoundLayout?.visibility = View.GONE
+                searchHintLayout?.visibility = View.GONE
             }
+
+            listAdapter?.let { adapter ->
+                observeDownloadList(adapter)
+            }
+
             listAdapter?.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
                 override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                     searchView?.run {
@@ -223,6 +199,17 @@ class SearchFragment :
                  * popping up whenever search tab is opened.
                  */
                 onTimeout()
+            }
+        }
+    }
+
+    private fun observeDownloadList(applicationListRVAdapter: ApplicationListRVAdapter) {
+        mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
+            val searchList =
+                searchViewModel.searchResult.value?.data?.first?.toMutableList() ?: emptyList()
+            searchList.let {
+                mainActivityViewModel.updateStatusOfFusedApps(searchList, list)
+                applicationListRVAdapter.setData(it)
             }
         }
     }

@@ -68,28 +68,32 @@ class DownloadManager @Inject constructor(
         filePath: String = "",
         downloadCompleted: ((Boolean, String) -> Unit)?
     ) {
-        downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
-            .use { cursor ->
-                if (cursor.moveToFirst()) {
-                    val id =
-                        cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_ID))
-                    val status =
-                        cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
-                    val totalSizeBytes =
-                        cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-                    val bytesDownloadedSoFar =
-                        cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
-                    if (status == DownloadManager.STATUS_FAILED) {
-                        Timber.d("Download Failed: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status")
-                        isDownloading = false
-                        downloadCompleted?.invoke(false, filePath)
-                    } else if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                        Timber.d("Download Successful: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status")
-                        isDownloading = false
-                        downloadCompleted?.invoke(true, filePath)
+        try {
+            downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
+                .use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val id =
+                            cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_ID))
+                        val status =
+                            cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+                        val totalSizeBytes =
+                            cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
+                        val bytesDownloadedSoFar =
+                            cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
+                        if (status == DownloadManager.STATUS_FAILED) {
+                            Timber.d("Download Failed: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status")
+                            isDownloading = false
+                            downloadCompleted?.invoke(false, filePath)
+                        } else if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                            Timber.d("Download Successful: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status")
+                            isDownloading = false
+                            downloadCompleted?.invoke(true, filePath)
+                        }
                     }
                 }
-            }
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
     }
 
     private fun tickerFlow(period: Duration, initialDelay: Duration = Duration.ZERO) = flow {
