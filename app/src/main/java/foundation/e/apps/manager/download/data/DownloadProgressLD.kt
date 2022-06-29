@@ -1,6 +1,7 @@
 package foundation.e.apps.manager.download.data
 
 import android.app.DownloadManager
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -30,11 +31,8 @@ class DownloadProgressLD @Inject constructor(
     override fun observe(owner: LifecycleOwner, observer: Observer<in DownloadProgress>) {
         job = Job()
         super.observe(owner, observer)
-
-        val hasActiveObservers = hasActiveObservers()
-
         launch {
-            while (hasActiveObservers) {
+            while (hasActiveObservers() || owner.lifecycle.currentState == Lifecycle.State.RESUMED) {
                 val downloads = fusedManagerRepository.getDownloadList()
                 val downloadingList =
                     downloads.map { it.downloadIdMap }.filter { it.values.contains(false) }

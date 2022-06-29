@@ -66,8 +66,8 @@ class ApplicationListRVAdapter(
     private val pkgManagerModule: PkgManagerModule,
     private val pwaManagerModule: PWAManagerModule,
     private val user: User,
-    private val lifecycleOwner: LifecycleOwner,
-    private val paidAppHandler: ((FusedApp) -> Unit)? = null
+    private var lifecycleOwner: LifecycleOwner?,
+    private var paidAppHandler: ((FusedApp) -> Unit)? = null
 ) : ListAdapter<FusedApp, ApplicationListRVAdapter.ViewHolder>(ApplicationDiffUtil()) {
 
     private val TAG = ApplicationListRVAdapter::class.java.simpleName
@@ -200,7 +200,9 @@ class ApplicationListRVAdapter(
     }
 
     private fun removeIsPurchasedObserver(holder: ViewHolder) {
-        holder.isPurchasedLiveData.removeObservers(lifecycleOwner)
+        lifecycleOwner?.let {
+            holder.isPurchasedLiveData.removeObservers(it)
+        }
     }
 
     private fun ApplicationListItemBinding.setupInstallButton(
@@ -301,7 +303,10 @@ class ApplicationListRVAdapter(
         searchApp: FusedApp,
         view: View
     ) {
-        privacyInfoViewModel.getAppPrivacyInfoLiveData(searchApp).observe(lifecycleOwner) {
+        if (lifecycleOwner == null) {
+            return
+        }
+        privacyInfoViewModel.getAppPrivacyInfoLiveData(searchApp).observe(lifecycleOwner!!) {
             showPrivacyScore()
             val calculatedScore = privacyInfoViewModel.calculatePrivacyScore(searchApp)
             if (it.isSuccess() && calculatedScore != -1) {
@@ -402,7 +407,10 @@ class ApplicationListRVAdapter(
                 materialButton.text = ""
                 applicationListItemBinding.progressBarInstall.visibility = View.VISIBLE
                 holder.isPurchasedLiveData = appInfoFetchViewModel.isAppPurchased(searchApp)
-                holder.isPurchasedLiveData.observe(lifecycleOwner) {
+                if (lifecycleOwner == null) {
+                    return
+                }
+                holder.isPurchasedLiveData.observe(lifecycleOwner!!) {
                     materialButton.isEnabled = true
                     applicationListItemBinding.progressBarInstall.visibility = View.GONE
                     materialButton.text =
@@ -470,5 +478,11 @@ class ApplicationListRVAdapter(
 
     private fun cancelDownload(searchApp: FusedApp) {
         fusedAPIInterface.cancelDownload(searchApp)
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        lifecycleOwner = null
+        paidAppHandler = null
     }
 }

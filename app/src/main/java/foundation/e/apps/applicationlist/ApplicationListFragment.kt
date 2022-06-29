@@ -109,6 +109,7 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
 
     override fun onDestroyView() {
         super.onDestroyView()
+        _binding?.recyclerView?.adapter = null
         _binding = null
     }
 
@@ -297,6 +298,7 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
 
     override fun onPause() {
         binding.shimmerLayout.stopShimmer()
+        mainActivityViewModel.downloadList.removeObservers(viewLifecycleOwner)
         super.onPause()
     }
 

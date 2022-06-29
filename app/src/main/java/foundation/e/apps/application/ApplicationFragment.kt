@@ -679,8 +679,14 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        _binding?.recyclerView?.adapter = null
         _binding = null
         applicationIcon = null
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mainActivityViewModel.downloadList.removeObservers(viewLifecycleOwner)
     }
 
     private fun shareApp(name: String, shareUrl: String): Intent {
