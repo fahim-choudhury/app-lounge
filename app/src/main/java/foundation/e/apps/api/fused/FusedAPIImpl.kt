@@ -951,9 +951,10 @@ class FusedAPIImpl @Inject constructor(
         block: suspend () -> Unit,
         timeoutBlock: (() -> Unit)? = null,
         exceptionBlock: (() -> Unit)? = null,
+        timeoutLimit: Long = timeoutDurationInMillis,
     ): ResultStatus {
         return try {
-            withTimeout(timeoutDurationInMillis) {
+            withTimeout(timeoutLimit) {
                 block()
             }
             ResultStatus.OK
