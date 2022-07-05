@@ -24,6 +24,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.updates.manager.UpdatesManagerRepository
@@ -38,7 +39,7 @@ class UpdatesViewModel @Inject constructor(
     private val fusedAPIRepository: FusedAPIRepository
 ) : ViewModel() {
 
-    val updatesList: MutableLiveData<Pair<List<FusedApp>, ResultStatus?>> = MutableLiveData()
+    val updatesList: MutableLiveData<ResultSupreme<List<FusedApp>>> = MutableLiveData()
 
     fun getUpdates(authData: AuthData) {
         viewModelScope.launch {
