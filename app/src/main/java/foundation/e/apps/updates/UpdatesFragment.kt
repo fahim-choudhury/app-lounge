@@ -74,6 +74,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
     private val appProgressViewModel: AppProgressViewModel by viewModels()
 
     private var isDownloadObserverAdded = false
+    private var cleanapkFailed = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -129,16 +130,17 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         }
 
         updatesViewModel.updatesList.observe(viewLifecycleOwner) {
-            if (it.second != ResultStatus.OK) {
+            if (!it.isSuccess()) {
+                cleanapkFailed = it.message.toBoolean()
                 onTimeout()
                 return@observe
             } else {
-                listAdapter?.setData(it.first)
+                listAdapter?.setData(it.data!!)
                 if (!isDownloadObserverAdded) {
                     observeDownloadList()
                     isDownloadObserverAdded = true
                 }
-                if (it.first.isNotEmpty()) {
+                if (it.data!!.isNotEmpty()) {
                     binding.button.isEnabled = true
                     binding.noUpdates.visibility = View.GONE
                 } else {
@@ -165,10 +167,10 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                 timeoutFragment = this,
                 activity = requireActivity(),
                 message =
-                if (updatesViewModel.getApplicationCategoryPreference() == FusedAPIImpl.APP_TYPE_ANY) {
-                    getString(R.string.timeout_desc_gplay)
-                } else {
+                if (cleanapkFailed) {
                     getString(R.string.timeout_desc_cleanapk)
+                } else {
+                    getString(R.string.timeout_desc_gplay)
                 },
                 positiveButtonText = getString(R.string.retry),
                 positiveButtonBlock = {
@@ -177,9 +179,9 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                     mainActivityViewModel.checkTokenOnTimeout()
                 },
                 negativeButtonText =
-                if (updatesViewModel.getApplicationCategoryPreference() == FusedAPIImpl.APP_TYPE_ANY) {
-                    getString(R.string.open_settings)
-                } else null,
+                if (cleanapkFailed) null
+                else getString(R.string.open_settings)
+                ,
                 negativeButtonBlock = {
                     openSettings()
                 },
@@ -229,11 +231,11 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
 
     private fun observeDownloadList() {
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
-            val appList = updatesViewModel.updatesList.value?.first?.toMutableList() ?: emptyList()
+            val appList = updatesViewModel.updatesList.value?.data?.toMutableList() ?: emptyList()
             appList.let {
                 mainActivityViewModel.updateStatusOfFusedApps(appList, list)
             }
-            updatesViewModel.updatesList.apply { value = Pair(appList, value?.second) }
+            updatesViewModel.updatesList.apply { value?.setData(appList) }
         }
     }
 
