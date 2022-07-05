@@ -59,7 +59,7 @@ class UpdatesWorker @AssistedInject constructor(
         loadSettings()
         val authData = getAuthData()
         val appsNeededToUpdate = updatesManagerRepository.getUpdates(authData)
-            .first.filter { !(!it.isFree && authData.isAnonymous) }
+            .data?.filter { !(!it.isFree && authData.isAnonymous) } ?: listOf()
         val isConnectedToUnmeteredNetwork = isConnectedToUnmeteredNetwork(applicationContext)
         /*
          * Show notification only if enabled.
