@@ -133,8 +133,8 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
             if (!it.isSuccess()) {
                 cleanapkFailed = it.message.toBoolean()
                 onTimeout()
-                return@observe
-            } else {
+            }
+            if (it.isValidData()) {
                 listAdapter?.setData(it.data!!)
                 if (!isDownloadObserverAdded) {
                     observeDownloadList()
