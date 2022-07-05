@@ -192,7 +192,9 @@ class ApplicationListRVAdapter(
             if (appInfoFetchViewModel.isAppInBlockedList(searchApp)) {
                 setupShowMoreButton()
             } else {
-                setupInstallButton(searchApp, view, holder)
+                mainActivityViewModel.verifyUiFilter(searchApp) {
+                    setupInstallButton(searchApp, view, holder)
+                }
             }
 
             showCalculatedPrivacyScoreData(searchApp, view)
@@ -240,6 +242,7 @@ class ApplicationListRVAdapter(
     private fun ApplicationListItemBinding.setupShowMoreButton() {
         installButton.visibility = View.INVISIBLE
         showMore.visibility = View.VISIBLE
+        progressBarInstall.visibility = View.GONE
     }
 
     private fun ApplicationListItemBinding.handleInstallationIssue(
@@ -396,6 +399,7 @@ class ApplicationListRVAdapter(
             mainActivityViewModel.checkUnsupportedApplication(searchApp) -> {
                 materialButton.isEnabled = true
                 materialButton.text = materialButton.context.getString(R.string.not_available)
+                applicationListItemBinding.progressBarInstall.visibility = View.GONE
             }
             searchApp.isFree -> {
                 materialButton.isEnabled = true

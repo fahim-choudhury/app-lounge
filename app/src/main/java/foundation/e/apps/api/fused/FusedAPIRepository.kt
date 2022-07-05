@@ -30,6 +30,7 @@ import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedCategory
 import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
+import foundation.e.apps.utils.enums.FilterLevel
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
@@ -71,6 +72,10 @@ class FusedAPIRepository @Inject constructor(
         appList: List<App>,
     ): ResultSupreme<List<FusedApp>> {
         return fusedAPIImpl.filterRestrictedGPlayApps(authData, appList)
+    }
+
+    suspend fun getAppFilterLevel(fusedApp: FusedApp, authData: AuthData?): FilterLevel {
+        return fusedAPIImpl.getAppFilterLevel(fusedApp, authData)
     }
 
     suspend fun getApplicationDetails(
