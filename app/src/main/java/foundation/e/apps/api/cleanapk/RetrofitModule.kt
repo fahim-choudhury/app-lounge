@@ -34,6 +34,7 @@ import foundation.e.apps.api.cleanapk.data.app.Application
 import foundation.e.apps.api.ecloud.EcloudApiInterface
 import foundation.e.apps.api.exodus.ExodusTrackerApi
 import foundation.e.apps.api.fdroid.FdroidApiInterface
+import foundation.e.apps.utils.modules.CommonUtilsModule.timeoutDurationInMillis
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -47,6 +48,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.net.ConnectException
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -194,6 +196,10 @@ object RetrofitModule {
     @Provides
     fun provideOkHttpClient(cache: Cache, interceptor: Interceptor): OkHttpClient {
         return OkHttpClient.Builder()
+            .connectTimeout(timeoutDurationInMillis, TimeUnit.MILLISECONDS)
+            .readTimeout(timeoutDurationInMillis, TimeUnit.MILLISECONDS)
+            .writeTimeout(timeoutDurationInMillis, TimeUnit.MILLISECONDS)
+            .callTimeout(timeoutDurationInMillis, TimeUnit.MILLISECONDS)
             .addInterceptor(interceptor)
             .cache(cache)
             .build()
