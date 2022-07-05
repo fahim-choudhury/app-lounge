@@ -49,6 +49,8 @@ import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.enums.User
+import foundation.e.apps.utils.enums.isInitialized
+import foundation.e.apps.utils.enums.isUnFiltered
 import foundation.e.apps.utils.modules.CommonUtilsModule.timeoutDurationInMillis
 import foundation.e.apps.utils.modules.DataStoreModule
 import kotlinx.coroutines.Dispatchers
@@ -361,7 +363,7 @@ class MainActivityViewModel @Inject constructor(
         fusedApp: FusedApp,
         alertDialogContext: Context? = null
     ): Boolean {
-        if (!fusedApp.isFree && fusedApp.price.isBlank()) {
+        if (!fusedApp.filterLevel.isUnFiltered()) {
             alertDialogContext?.let { context ->
                 AlertDialog.Builder(context).apply {
                     setTitle(R.string.unsupported_app_title)
@@ -377,6 +379,26 @@ class MainActivityViewModel @Inject constructor(
             return true
         }
         return false
+    }
+
+    /**
+     * Fetch the filter level of an app and perform some action.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5720
+     */
+    fun verifyUiFilter(fusedApp: FusedApp, method: () -> Unit) {
+        viewModelScope.launch {
+            val authData = authData.value
+            if (fusedApp.filterLevel.isInitialized()) {
+                method()
+            } else {
+                fusedAPIRepository.getAppFilterLevel(fusedApp, authData).run {
+                    if (isInitialized()) {
+                        fusedApp.filterLevel = this
+                        method()
+                    }
+                }
+            }
+        }
     }
 
     fun getApplication(app: FusedApp, imageView: ImageView?) {

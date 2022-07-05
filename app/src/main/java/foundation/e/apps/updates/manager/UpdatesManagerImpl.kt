@@ -25,6 +25,7 @@ import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.utils.enums.isUnFiltered
 import javax.inject.Inject
 
 class UpdatesManagerImpl @Inject constructor(
@@ -51,7 +52,7 @@ class UpdatesManagerImpl @Inject constructor(
             )
             cleanAPKResult.first.forEach {
                 if (it.package_name in pkgList) pkgList.remove(it.package_name)
-                if (it.status == Status.UPDATABLE) updateList.add(it)
+                if (it.status == Status.UPDATABLE && it.filterLevel.isUnFiltered()) updateList.add(it)
             }
             cleanAPKResult.second.let {
                 if (it != ResultStatus.OK) {
@@ -66,7 +67,7 @@ class UpdatesManagerImpl @Inject constructor(
                 Origin.GPLAY
             )
             gPlayResult.first.forEach {
-                if (it.status == Status.UPDATABLE) updateList.add(it)
+                if (it.status == Status.UPDATABLE && it.filterLevel.isUnFiltered()) updateList.add(it)
             }
             gPlayResult.second.let {
                 if (it != ResultStatus.OK) {

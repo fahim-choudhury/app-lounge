@@ -53,6 +53,8 @@ import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
+import foundation.e.apps.utils.enums.FilterLevel
+import foundation.e.apps.utils.enums.isUnFiltered
 import foundation.e.apps.utils.modules.CommonUtilsModule.timeoutDurationInMillis
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
@@ -410,6 +412,7 @@ class FusedAPIImpl @Inject constructor(
             response?.apps?.forEach {
                 it.updateStatus()
                 it.updateType()
+                it.updateFilterLevel(null)
                 list.add(it)
             }
         })
@@ -423,6 +426,7 @@ class FusedAPIImpl @Inject constructor(
             response?.apps?.forEach {
                 it.updateStatus()
                 it.updateType()
+                it.updateFilterLevel(null)
                 list.add(it)
             }
         })
@@ -494,6 +498,7 @@ class FusedAPIImpl @Inject constructor(
                     cleanAPKRepository.getAppOrPWADetailsByID(result.apps[0]._id).body()?.app
                         ?: FusedApp()
             }
+            fusedApp.updateFilterLevel(null)
         })
         return Pair(fusedApp, status)
     }
@@ -545,7 +550,9 @@ class FusedAPIImpl @Inject constructor(
                     by = "package_name"
                 ).body()?.run {
                     if (apps.isNotEmpty() && numberOfResults == 1) {
-                        fusedAppList.add(apps[0])
+                        fusedAppList.add(apps[0].apply {
+                            updateFilterLevel(null)
+                        })
                     }
                 }
             })
@@ -569,28 +576,24 @@ class FusedAPIImpl @Inject constructor(
         packageNameList: List<String>,
         authData: AuthData,
     ): Pair<List<FusedApp>, ResultStatus> {
-        var fusedAppList = listOf<FusedApp>()
+        val fusedAppList = mutableListOf<FusedApp>()
 
         /*
          * Old code moved from getApplicationDetails()
          */
         val status = runCodeBlockWithTimeout({
-            fusedAppList = gPlayAPIRepository.getAppDetails(packageNameList, authData).map { app ->
+            gPlayAPIRepository.getAppDetails(packageNameList, authData).forEach { app ->
                 /*
                  * Some apps are restricted to locations. Example "com.skype.m2".
                  * For restricted apps, check if it is possible to get their specific app info.
                  *
                  * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5174
                  */
-                if (app.restriction != Constants.Restriction.NOT_RESTRICTED) {
-                    try {
-                        gPlayAPIRepository.getAppDetails(app.packageName, authData)
-                            ?.transformToFusedApp() ?: FusedApp()
-                    } catch (e: Exception) {
-                        FusedApp()
-                    }
-                } else {
-                    app.transformToFusedApp()
+                val filter = getAppFilterLevel(app, authData)
+                if (filter.isUnFiltered()) {
+                    fusedAppList.add(app.transformToFusedApp().apply {
+                        filterLevel = filter
+                    })
                 }
             }
         })
@@ -616,19 +619,77 @@ class FusedAPIImpl @Inject constructor(
         val filteredFusedApps = mutableListOf<FusedApp>()
         val status = runCodeBlockWithTimeout({
             appList.forEach {
-                if (it.restriction != Constants.Restriction.NOT_RESTRICTED) {
-                    try {
-                        gPlayAPIRepository.getAppDetails(it.packageName, authData)?.let { app ->
-                            filteredFusedApps.add(app.transformToFusedApp())
-                        }
-                    } catch (e: Exception) {}
-                } else {
-                    filteredFusedApps.add(it.transformToFusedApp())
+                val filter = getAppFilterLevel(it, authData)
+                if (filter.isUnFiltered()) {
+                    filteredFusedApps.add(it.transformToFusedApp().apply {
+                        this.filterLevel = filter
+                    })
                 }
             }
         })
 
         return ResultSupreme.create(status, filteredFusedApps)
+    }
+
+    /**
+     * Get different filter levels.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5720
+     */
+    suspend fun getAppFilterLevel(fusedApp: FusedApp, authData: AuthData?): FilterLevel {
+        if (fusedApp.package_name.isBlank()) {
+            return FilterLevel.UNKNOWN
+        }
+        if (authData == null) {
+            return if (fusedApp.origin == Origin.GPLAY) FilterLevel.UNKNOWN
+            else FilterLevel.NONE
+        }
+        if (fusedApp.restriction != Constants.Restriction.NOT_RESTRICTED) {
+            /*
+             * Check if app details can be shown. If not then remove the app from lists.
+             */
+            try {
+                gPlayAPIRepository.getAppDetails(fusedApp.package_name, authData)
+            } catch (e: Exception) {
+                return FilterLevel.DATA
+            }
+
+            /*
+             * If the app can be shown, check if the app is downloadable.
+             * If not then change "Install" button to "N/A"
+             */
+            try {
+                gPlayAPIRepository.getDownloadInfo(
+                    fusedApp.package_name,
+                    fusedApp.latest_version_code,
+                    fusedApp.offer_type,
+                    authData
+                )
+            } catch (e: Exception) {
+                return FilterLevel.UI
+            }
+        } else {
+            if (!fusedApp.isFree && fusedApp.price.isBlank()) {
+                return FilterLevel.UI
+            }
+            if (fusedApp.originalSize == 0L) {
+                return FilterLevel.UI
+            }
+        }
+        return FilterLevel.NONE
+    }
+
+    /*
+     * Similar to above method but uses Aurora OSS data class "App".
+     */
+    suspend fun getAppFilterLevel(app: App, authData: AuthData): FilterLevel {
+        return getAppFilterLevel(app.transformToFusedApp(), authData)
+    }
+
+    /*
+     * Handy method to run on an instance of FusedApp to update its filter level.
+     */
+    private suspend fun FusedApp.updateFilterLevel(authData: AuthData?) {
+        this.filterLevel = getAppFilterLevel(this, authData)
     }
 
     suspend fun getApplicationDetails(
@@ -650,6 +711,7 @@ class FusedAPIImpl @Inject constructor(
             response?.let {
                 it.updateStatus()
                 it.updateType()
+                it.updateFilterLevel(authData)
             }
         })
 
@@ -990,7 +1052,7 @@ class FusedAPIImpl @Inject constructor(
      * Home screen-related internal functions
      */
 
-    private fun generateCleanAPKHome(home: Home, prefType: String): List<FusedHome> {
+    private suspend fun generateCleanAPKHome(home: Home, prefType: String): List<FusedHome> {
         val list = mutableListOf<FusedHome>()
         val headings = if (prefType == APP_TYPE_OPEN) {
             mapOf(
@@ -1014,6 +1076,7 @@ class FusedAPIImpl @Inject constructor(
                         home.top_updated_apps.forEach {
                             it.updateStatus()
                             it.updateType()
+                            it.updateFilterLevel(null)
                         }
                         list.add(FusedHome(value, home.top_updated_apps))
                     }
@@ -1023,6 +1086,7 @@ class FusedAPIImpl @Inject constructor(
                         home.top_updated_games.forEach {
                             it.updateStatus()
                             it.updateType()
+                            it.updateFilterLevel(null)
                         }
                         list.add(FusedHome(value, home.top_updated_games))
                     }
@@ -1032,6 +1096,7 @@ class FusedAPIImpl @Inject constructor(
                         home.popular_apps.forEach {
                             it.updateStatus()
                             it.updateType()
+                            it.updateFilterLevel(null)
                         }
                         list.add(FusedHome(value, home.popular_apps))
                     }
@@ -1041,6 +1106,7 @@ class FusedAPIImpl @Inject constructor(
                         home.popular_games.forEach {
                             it.updateStatus()
                             it.updateType()
+                            it.updateFilterLevel(null)
                         }
                         list.add(FusedHome(value, home.popular_games))
                     }
@@ -1050,6 +1116,7 @@ class FusedAPIImpl @Inject constructor(
                         home.popular_apps_in_last_24_hours.forEach {
                             it.updateStatus()
                             it.updateType()
+                            it.updateFilterLevel(null)
                         }
                         list.add(FusedHome(value, home.popular_apps_in_last_24_hours))
                     }
@@ -1059,6 +1126,7 @@ class FusedAPIImpl @Inject constructor(
                         home.popular_games_in_last_24_hours.forEach {
                             it.updateStatus()
                             it.updateType()
+                            it.updateFilterLevel(null)
                         }
                         list.add(FusedHome(value, home.popular_games_in_last_24_hours))
                     }
@@ -1068,6 +1136,7 @@ class FusedAPIImpl @Inject constructor(
                         home.discover.forEach {
                             it.updateStatus()
                             it.updateType()
+                            it.updateFilterLevel(null)
                         }
                         list.add(FusedHome(value, home.discover))
                     }
@@ -1091,7 +1160,9 @@ class FusedAPIImpl @Inject constructor(
             val chart = it.value.keys.iterator().next()
             val type = it.value.values.iterator().next()
             val result = gPlayAPIRepository.getTopApps(type, chart, authData).map { app ->
-                app.transformToFusedApp()
+                app.transformToFusedApp().apply {
+                    updateFilterLevel(authData)
+                }
             }
             list.add(FusedHome(it.key, result))
         }
