@@ -44,11 +44,9 @@ class UpdatesViewModel @Inject constructor(
     fun getUpdates(authData: AuthData) {
         viewModelScope.launch {
             val updatesResult = updatesManagerRepository.getUpdates(authData)
+            val filteredList = updatesResult.data?.filter { !(!it.isFree && authData.isAnonymous) } ?: listOf()
             updatesList.postValue(
-                Pair(
-                    updatesResult.first.filter { !(!it.isFree && authData.isAnonymous) },
-                    updatesResult.second
-                )
+                ResultSupreme.replicate(updatesResult, filteredList)
             )
         }
     }
@@ -78,7 +76,7 @@ class UpdatesViewModel @Inject constructor(
 
     private fun checkWorkIsForUpdateByTag(tags: List<String>): Boolean {
         updatesList.value?.let {
-            it.first.find { fusedApp -> tags.contains(fusedApp._id) }?.let { foundApp ->
+            it.data?.find { fusedApp -> tags.contains(fusedApp._id) }?.let { foundApp ->
                 return listOf(
                     Status.INSTALLED,
                     Status.UPDATABLE
