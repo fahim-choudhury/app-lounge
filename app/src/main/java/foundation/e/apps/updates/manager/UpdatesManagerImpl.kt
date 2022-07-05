@@ -19,6 +19,7 @@
 package foundation.e.apps.updates.manager
 
 import com.aurora.gplayapi.data.models.AuthData
+import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.manager.pkg.PkgManagerModule
@@ -34,10 +35,11 @@ class UpdatesManagerImpl @Inject constructor(
     private val TAG = UpdatesManagerImpl::class.java.simpleName
 
     // TODO: MAKE THIS LOGIC MORE SANE
-    suspend fun getUpdates(authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
+    suspend fun getUpdates(authData: AuthData): ResultSupreme<List<FusedApp>> {
         val pkgList = mutableListOf<String>()
         val updateList = mutableListOf<FusedApp>()
         var status = ResultStatus.OK
+        var cleanapkFailed = false
 
         val userApplications = pkgManagerModule.getAllUserApps()
         userApplications.forEach { pkgList.add(it.packageName) }
@@ -56,6 +58,7 @@ class UpdatesManagerImpl @Inject constructor(
             cleanAPKResult.second.let {
                 if (it != ResultStatus.OK) {
                     status = it
+                    cleanapkFailed = true
                 }
             }
 
@@ -74,26 +77,26 @@ class UpdatesManagerImpl @Inject constructor(
                 }
             }
         }
-        return Pair(updateList, status)
+        return ResultSupreme.create(status, updateList, cleanapkFailed.toString())
     }
 
     /*
      * Get updates only from cleanapk.
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413 [2]
      */
-    suspend fun getUpdatesOSS(): Pair<List<FusedApp>, ResultStatus> {
+    suspend fun getUpdatesOSS(): ResultSupreme<List<FusedApp>> {
         val updateList = mutableListOf<FusedApp>()
         val pkgList = pkgManagerModule.getAllUserApps().map { it.packageName }
 
         return if (pkgList.isNotEmpty()) {
             fusedAPIRepository.getApplicationDetailsOSS(pkgList).run {
-                this.first.forEach {
+                this.data?.forEach {
                     if (it.status == Status.UPDATABLE) updateList.add(it)
                 }
-                Pair(updateList, this.second)
+                ResultSupreme.replicate(this, updateList)
             }
         } else {
-            Pair(listOf(), ResultStatus.OK)
+            ResultSupreme.Success(listOf())
         }
     }
 
