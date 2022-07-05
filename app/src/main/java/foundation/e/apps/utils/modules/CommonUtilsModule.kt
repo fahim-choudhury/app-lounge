@@ -47,7 +47,7 @@ import javax.inject.Singleton
 object CommonUtilsModule {
 
     val LIST_OF_NULL = listOf("null")
-    const val timeoutDurationInMillis: Long = 25000
+    const val timeoutDurationInMillis: Long = 10000
 
     /**
      * Check supported ABIs by device
