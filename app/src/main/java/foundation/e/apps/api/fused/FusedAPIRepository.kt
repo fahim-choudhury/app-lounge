@@ -68,7 +68,7 @@ class FusedAPIRepository @Inject constructor(
 
     suspend fun getApplicationDetailsOSS(
         packageNameList: List<String>,
-    ): Pair<List<FusedApp>, ResultStatus> {
+    ): ResultSupreme<List<FusedApp>> {
         return fusedAPIImpl.getApplicationDetailsOSS(packageNameList)
     }
 

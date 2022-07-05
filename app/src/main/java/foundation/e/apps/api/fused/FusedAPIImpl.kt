@@ -622,7 +622,7 @@ class FusedAPIImpl @Inject constructor(
      */
     suspend fun getApplicationDetailsOSS(
         packageNameList: List<String>,
-    ): Pair<List<FusedApp>, ResultStatus> {
+    ): ResultSupreme<List<FusedApp>> {
         val list = mutableListOf<FusedApp>()
 
         val response: Pair<List<FusedApp>, ResultStatus> =
@@ -635,7 +635,11 @@ class FusedAPIImpl @Inject constructor(
             }
         }
 
-        return Pair(list, response.second)
+        return ResultSupreme.create(response.second, list.toList()).apply {
+            if (!isSuccess()) {
+                message = true.toString()
+            }
+        }
     }
 
     suspend fun getApplicationDetails(
