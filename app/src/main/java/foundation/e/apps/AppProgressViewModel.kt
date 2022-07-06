@@ -1,3 +1,21 @@
+/*
+ * Copyright ECORP SAS 2022
+ * Apps  Quickly and easily install Android apps onto your device!
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package foundation.e.apps
 
 import androidx.lifecycle.ViewModel
@@ -32,14 +50,19 @@ class AppProgressViewModel @Inject constructor(
             if (!isProgressValidForApp(fusedApp, progress)) {
                 return -1
             }
+
             val downloadingMap = progress.totalSizeBytes.filter { item ->
-                appDownload.downloadIdMap.keys.contains(item.key)
+                appDownload.downloadIdMap.keys.contains(item.key) && item.value > 0
             }
+
+            if (appDownload.downloadIdMap.size > downloadingMap.size) { // All files for download are not ready yet
+                return 0
+            }
+
             val totalSizeBytes = downloadingMap.values.sum()
             val downloadedSoFar = progress.bytesDownloadedSoFar.filter { item ->
                 appDownload.downloadIdMap.keys.contains(item.key)
             }.values.sum()
-
             return ((downloadedSoFar / totalSizeBytes.toDouble()) * 100).toInt()
         }
         return 0
