@@ -50,6 +50,7 @@ class InstallerService : Service() {
 
     companion object {
         const val TAG = "InstallerService"
+        private const val INSTALL_FAILED_UPDATE_INCOMPATIBLE = "INSTALL_FAILED_UPDATE_INCOMPATIBLE"
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -63,20 +64,29 @@ class InstallerService : Service() {
     }
 
     private fun postStatus(status: Int, packageName: String?, extra: String?) {
-        Timber.d("### postStatus: $status $packageName $extra")
-        if (status != PackageInstaller.STATUS_SUCCESS) {
-            updateInstallationIssue(packageName ?: "")
-            if (status == 5 && extra?.contains("INSTALL_FAILED_UPDATE_INCOMPATIBLE") == true) {
-                MainScope().launch {
-                    if (packageName.isNullOrEmpty()) {
-                        Timber.wtf("Installation failure for an app without packagename!")
-                        return@launch
-                    }
-                    EventBus.invokeEvent(AppEvent.INSTALL_FAILED_UPDATE_INCOMPATIBLE)
-                    faultyAppRepository.addFaultyApp(packageName, "INSTALL_FAILED_UPDATE_INCOMPATIBLE")
-                    Timber.d("### INSTALL_FAILED_UPDATE_INCOMPATIBLE for $packageName")
-                }
+        Timber.d("postStatus: $status $packageName $extra")
+        if (status == PackageInstaller.STATUS_SUCCESS) {
+            return
+        }
+
+        updateInstallationIssue(packageName ?: "")
+        if (status == PackageInstaller.STATUS_FAILURE_CONFLICT && extra?.contains(
+                INSTALL_FAILED_UPDATE_INCOMPATIBLE
+            ) == true
+        ) {
+            handleInstallFailureDueToSignatureMismatch(packageName)
+        }
+    }
+
+    private fun handleInstallFailureDueToSignatureMismatch(packageName: String?) {
+        MainScope().launch {
+            if (packageName.isNullOrEmpty()) {
+                Timber.wtf("Installation failure for an app without packagename!")
+                return@launch
             }
+            EventBus.invokeEvent(AppEvent.SignatureMissMatchError(packageName))
+            faultyAppRepository.addFaultyApp(packageName, INSTALL_FAILED_UPDATE_INCOMPATIBLE)
+            Timber.e("INSTALL_FAILED_UPDATE_INCOMPATIBLE for $packageName")
         }
     }
 

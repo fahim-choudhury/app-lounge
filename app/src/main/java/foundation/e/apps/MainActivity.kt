@@ -206,9 +206,14 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launchWhenResumed {
             EventBus.events.filter { appEvent ->
-                appEvent == AppEvent.INSTALL_FAILED_UPDATE_INCOMPATIBLE
+                appEvent is AppEvent.SignatureMissMatchError
             }.collectLatest {
-                // TODO show message to Users
+                val appName = viewModel.getAppNameByPackageName(it.data.toString())
+                ApplicationDialogFragment(
+                    title = getString(R.string.update_error),
+                    message = getString(R.string.error_signature_mismatch, appName),
+                    positiveButtonText = getString(R.string.ok)
+                ).show(supportFragmentManager, TAG)
             }
         }
     }
@@ -258,7 +263,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showSnackbarMessage(message: String) {
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
     private fun showNoInternet() {

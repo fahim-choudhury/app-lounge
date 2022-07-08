@@ -20,6 +20,6 @@
 
 package foundation.e.apps.utils.eventBus
 
-enum class AppEvent {
-    INSTALL_FAILED_UPDATE_INCOMPATIBLE
+sealed class AppEvent(val data: Any) {
+    class SignatureMissMatchError(packageName: String) : AppEvent(packageName)
 }

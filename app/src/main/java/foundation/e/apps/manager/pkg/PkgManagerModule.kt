@@ -229,4 +229,11 @@ class PkgManagerModule @Inject constructor(
     fun getAllSystemApps(): List<ApplicationInfo> {
         return packageManager.getInstalledApplications(PackageManager.MATCH_SYSTEM_ONLY)
     }
+
+    fun getAppNameFromPackageName(packageName: String): String {
+        val packageManager = context.packageManager
+        return packageManager.getApplicationLabel(
+            packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+        ).toString()
+    }
 }
