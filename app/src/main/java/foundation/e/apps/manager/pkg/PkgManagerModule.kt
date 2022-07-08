@@ -24,7 +24,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
-import android.content.pm.PackageInstaller
+import android.content.pm.PackageInstaller.Session
+import android.content.pm.PackageInstaller.SessionParams
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.pm.PackageInfoCompat
@@ -32,6 +33,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.OpenForTesting
 import foundation.e.apps.api.fused.FusedAPIImpl
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
+import foundation.e.apps.splitinstall.SplitInstallBroadcastReceiver
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
@@ -134,29 +136,13 @@ class PkgManagerModule @Inject constructor(
     @OptIn(DelicateCoroutinesApi::class)
     fun installApplication(list: List<File>, packageName: String) {
 
-        val packageInstaller = packageManager.packageInstaller
-        val params = PackageInstaller
-            .SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
-            .apply {
-                setAppPackageName(packageName)
-                setOriginatingUid(android.os.Process.myUid())
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
-                }
-            }
+        val sessionId = createInstallSession(packageName, SessionParams.MODE_FULL_INSTALL)
+        val session = packageManager.packageInstaller.openSession(sessionId)
 
-        // Open a new specific session
-        val sessionId = packageInstaller.createSession(params)
-        val session = packageInstaller.openSession(sessionId)
         try {
             // Install the package using the provided stream
             list.forEach {
-                val inputStream = it.inputStream()
-                val outputStream = session.openWrite(it.nameWithoutExtension, 0, -1)
-                inputStream.copyTo(outputStream)
-                session.fsync(outputStream)
-                inputStream.close()
-                outputStream.close()
+                syncFile(session, it)
             }
 
             val callBackIntent = Intent(context, InstallerService::class.java)
@@ -188,14 +174,73 @@ class PkgManagerModule @Inject constructor(
         }
     }
 
+    fun installSplitModule(moduleFile: File, packageName: String) {
+
+        val sessionId = createInstallSession(packageName, SessionParams.MODE_INHERIT_EXISTING)
+        val session = packageManager.packageInstaller.openSession(sessionId)
+
+        try {
+            syncFile(session, moduleFile)
+
+            val callBackIntent = Intent(context, SplitInstallBroadcastReceiver::class.java)
+            callBackIntent.action = SplitInstallBroadcastReceiver.ACTION_MODULE_INSTALLED
+
+            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE else
+                PendingIntent.FLAG_UPDATE_CURRENT
+            val servicePendingIntent = PendingIntent.getBroadcast(
+                context,
+                sessionId,
+                callBackIntent,
+                flags
+            )
+            session.commit(servicePendingIntent.intentSender)
+        } catch (e: Exception) {
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                sessionId,
+                Intent(ERROR_PACKAGE_INSTALL),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+            session.commit(pendingIntent.intentSender)
+            session.abandon()
+            throw e
+        } finally {
+            session.close()
+        }
+    }
+
+    private fun createInstallSession(packageName: String, mode: Int): Int {
+
+        val packageInstaller = packageManager.packageInstaller
+        val params = SessionParams(mode).apply {
+            setAppPackageName(packageName)
+            setOriginatingUid(android.os.Process.myUid())
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                setRequireUserAction(SessionParams.USER_ACTION_NOT_REQUIRED)
+            }
+        }
+
+        return packageInstaller.createSession(params)
+    }
+
+    private fun syncFile(session: Session, file: File) {
+
+        val inputStream = file.inputStream()
+        val outputStream = session.openWrite(file.nameWithoutExtension, 0, -1)
+        inputStream.copyTo(outputStream)
+        session.fsync(outputStream)
+        inputStream.close()
+        outputStream.close()
+    }
+
     /**
      * Un-install the given package
      * @param packageName Name of the package
      */
     fun uninstallApplication(packageName: String) {
         val packageInstaller = packageManager.packageInstaller
-        val params =
-            PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+        val params = SessionParams(SessionParams.MODE_FULL_INSTALL)
 
         val sessionId = packageInstaller.createSession(params)
         val pendingIntent = PendingIntent.getBroadcast(

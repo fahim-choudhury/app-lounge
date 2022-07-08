@@ -391,6 +391,23 @@ class FusedAPIImpl @Inject constructor(
         return gPlayAPIRepository.validateAuthData(authData)
     }
 
+    suspend fun getOnDemandModule(
+        authData: AuthData,
+        packageName: String,
+        moduleName: String,
+        versionCode: Int,
+        offerType: Int
+    ) : String? {
+        val list = gPlayAPIRepository.getOnDemandModule(packageName, moduleName, versionCode, offerType, authData)
+        for (element in list) {
+            if (element.name == "$moduleName.apk") {
+                return element.url
+            }
+        }
+        return null
+    }
+
+
     suspend fun updateFusedDownloadWithDownloadingInfo(
         authData: AuthData,
         origin: Origin,

@@ -110,7 +110,8 @@ allOpen {
 
 dependencies {
 
-    api "com.gitlab.AuroraOSS:gplayapi:0e224071f3"
+    // prebuilt from https://gitlab.e.foundation/e/os/gplayapi/
+    api files('libs/gplayapi-3.0.1.jar')
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.5.0'
@@ -181,6 +182,7 @@ dependencies {
     def lifecycle_version = "2.4.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+    implementation "android.arch.lifecycle:extensions:1.1.1"
 
     // Coroutines
     def coroutines_version = "1.6.0"

@@ -47,7 +47,7 @@ class DownloadManager @Inject constructor(
         fileName: String,
         downloadCompleted: ((Boolean, String) -> Unit)?
     ): Long {
-        val directoryFile = File(cacheDir + subDirectoryPath)
+        val directoryFile = File("$cacheDir/$subDirectoryPath")
         val downloadFile = File("$cacheDir/$fileName")
         if (!directoryFile.exists()) {
             directoryFile.mkdirs()
