@@ -19,6 +19,7 @@
 package foundation.e.apps.updates.manager
 
 import com.aurora.gplayapi.data.models.AuthData
+import foundation.e.apps.api.faultyApps.FaultyAppRepository
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.manager.pkg.PkgManagerModule
@@ -30,7 +31,8 @@ import javax.inject.Inject
 
 class UpdatesManagerImpl @Inject constructor(
     private val pkgManagerModule: PkgManagerModule,
-    private val fusedAPIRepository: FusedAPIRepository
+    private val fusedAPIRepository: FusedAPIRepository,
+    private val faultyAppRepository: FaultyAppRepository
 ) {
     private val TAG = UpdatesManagerImpl::class.java.simpleName
 
@@ -75,7 +77,9 @@ class UpdatesManagerImpl @Inject constructor(
                 }
             }
         }
-        return Pair(updateList, status)
+        val faultyAppsPackageNames = faultyAppRepository.getAllFaultyApps().map { it.packageName }
+        val nonFaultyUpdateList = updateList.filter { !faultyAppsPackageNames.contains(it.package_name) }
+        return Pair(nonFaultyUpdateList, status)
     }
 
     fun getApplicationCategoryPreference(): String {

@@ -43,8 +43,12 @@ import foundation.e.apps.purchase.AppPurchaseFragmentDirections
 import foundation.e.apps.setup.signin.SignInViewModel
 import foundation.e.apps.updates.UpdatesNotifier
 import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.modules.CommonUtilsModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
@@ -199,6 +203,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.updateAppWarningList()
+
+        lifecycleScope.launchWhenResumed {
+            EventBus.events.filter { appEvent ->
+                appEvent == AppEvent.INSTALL_FAILED_UPDATE_INCOMPATIBLE
+            }.collectLatest {
+                // TODO show message to Users
+            }
+        }
     }
 
     private fun handleFusedDownloadQueued(

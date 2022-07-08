@@ -49,11 +49,11 @@ import foundation.e.apps.api.gplay.GPlayAPIRepository
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.AppTag
+import foundation.e.apps.utils.enums.FilterLevel
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
-import foundation.e.apps.utils.enums.FilterLevel
 import foundation.e.apps.utils.enums.isUnFiltered
 import foundation.e.apps.utils.modules.CommonUtilsModule.timeoutDurationInMillis
 import foundation.e.apps.utils.modules.PWAManagerModule
@@ -550,9 +550,11 @@ class FusedAPIImpl @Inject constructor(
                     by = "package_name"
                 ).body()?.run {
                     if (apps.isNotEmpty() && numberOfResults == 1) {
-                        fusedAppList.add(apps[0].apply {
-                            updateFilterLevel(null)
-                        })
+                        fusedAppList.add(
+                            apps[0].apply {
+                                updateFilterLevel(null)
+                            }
+                        )
                     }
                 }
             })
@@ -591,9 +593,11 @@ class FusedAPIImpl @Inject constructor(
                  */
                 val filter = getAppFilterLevel(app, authData)
                 if (filter.isUnFiltered()) {
-                    fusedAppList.add(app.transformToFusedApp().apply {
-                        filterLevel = filter
-                    })
+                    fusedAppList.add(
+                        app.transformToFusedApp().apply {
+                            filterLevel = filter
+                        }
+                    )
                 }
             }
         })
@@ -621,9 +625,11 @@ class FusedAPIImpl @Inject constructor(
             appList.forEach {
                 val filter = getAppFilterLevel(it, authData)
                 if (filter.isUnFiltered()) {
-                    filteredFusedApps.add(it.transformToFusedApp().apply {
-                        this.filterLevel = filter
-                    })
+                    filteredFusedApps.add(
+                        it.transformToFusedApp().apply {
+                            this.filterLevel = filter
+                        }
+                    )
                 }
             }
         })

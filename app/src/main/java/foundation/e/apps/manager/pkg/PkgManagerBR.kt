@@ -23,27 +23,33 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
 import dagger.hilt.android.AndroidEntryPoint
+import foundation.e.apps.api.faultyApps.FaultyAppRepository
 import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.utils.enums.Status
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Named
 
 @AndroidEntryPoint
 @DelicateCoroutinesApi
 open class PkgManagerBR : BroadcastReceiver() {
-
-    companion object {
-        private const val TAG = "PkgManagerBR"
-    }
 
     @Inject
     lateinit var fusedManagerRepository: FusedManagerRepository
 
     @Inject
     lateinit var pkgManagerModule: PkgManagerModule
+
+    @Inject
+    lateinit var faultyAppRepository: FaultyAppRepository
+
+    @Inject
+    @Named("ioCoroutineScope")
+    lateinit var coroutineScope: CoroutineScope
 
     override fun onReceive(context: Context?, intent: Intent?) {
         val action = intent?.action
@@ -61,9 +67,11 @@ open class PkgManagerBR : BroadcastReceiver() {
                     when (action) {
                         Intent.ACTION_PACKAGE_ADDED -> {
                             updateDownloadStatus(pkgName)
+                            removeFaultyAppByPackageName(pkgName)
                         }
                         Intent.ACTION_PACKAGE_REMOVED -> {
                             if (!isUpdating) deleteDownload(pkgName)
+                            removeFaultyAppByPackageName(pkgName)
                         }
                         PkgManagerModule.ERROR_PACKAGE_INSTALL -> {
                             Timber.e("Installation failed due to error: $extra")
@@ -72,6 +80,12 @@ open class PkgManagerBR : BroadcastReceiver() {
                     }
                 }
             }
+        }
+    }
+
+    private fun removeFaultyAppByPackageName(pkgName: String) {
+        coroutineScope.launch {
+            faultyAppRepository.deleteFaultyAppByPackageName(pkgName)
         }
     }
 
