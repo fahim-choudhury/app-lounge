@@ -225,6 +225,8 @@ class FusedAPIImpl @Inject constructor(
          */
         return liveData {
             val packageSpecificResults = ArrayList<FusedApp>()
+            var gplayPackageResult: FusedApp? = null
+            var cleanapkPackageResult: FusedApp? = null
 
             val status = runCodeBlockWithTimeout({
                 if (preferenceManagerModule.preferredApplicationType() == APP_TYPE_ANY) {
@@ -235,7 +237,7 @@ class FusedAPIImpl @Inject constructor(
                          */
                         getApplicationDetails(query, query, authData, Origin.GPLAY).let {
                             if (it.second == ResultStatus.OK) {
-                                packageSpecificResults.add(it.first)
+                                gplayPackageResult = it.first
                             }
                         }
                     } catch (_: Exception) {}
@@ -246,10 +248,19 @@ class FusedAPIImpl @Inject constructor(
                      * Blank result to be filtered out.
                      */
                     if (it.isSuccess() && it.data!!.package_name.isNotBlank()) {
-                        packageSpecificResults.add(it.data!!)
+                        cleanapkPackageResult = it.data!!
                     }
                 }
             })
+
+            /*
+             * Currently only show open source package result if exists in both fdroid and gplay.
+             * This is temporary.
+             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5783
+             */
+            cleanapkPackageResult?.let { packageSpecificResults.add(it) } ?: run {
+                gplayPackageResult?.let { packageSpecificResults.add(it) }
+            }
 
             /*
              * If there was a timeout, return it and don't try to fetch anything else.
