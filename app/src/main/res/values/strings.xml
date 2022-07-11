@@ -164,6 +164,10 @@
     </string>
     <string name="timeout_desc_cleanapk">Some network issue is preventing fetching all applications.</string>
     <string name="open_settings">Open Settings</string>
+    
+    <!--Sign in failure-->
+    <string name="sign_in_failed_title">Google sign in failed!</string>
+    <string name="sign_in_failed_desc">Due to a network error, App Lounge was not able to get Google sign-in data.</string>
 
     <!--    paid app message-->
     <string name="dialog_title_paid_app"><![CDATA[Purchase <b>%1$s</b>]]></string>
