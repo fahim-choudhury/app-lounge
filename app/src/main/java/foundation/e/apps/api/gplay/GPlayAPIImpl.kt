@@ -26,11 +26,11 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.File
+import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.data.models.SearchBundle
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.AppDetailsHelper
-import com.aurora.gplayapi.helpers.AuthValidator
 import com.aurora.gplayapi.helpers.CategoryHelper
 import com.aurora.gplayapi.helpers.ExpandedBrowseHelper
 import com.aurora.gplayapi.helpers.PurchaseHelper
@@ -39,6 +39,7 @@ import com.aurora.gplayapi.helpers.StreamHelper
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.api.gplay.token.TokenRepository
+import foundation.e.apps.api.gplay.utils.CustomAuthValidator
 import foundation.e.apps.api.gplay.utils.GPlayHttpClient
 import foundation.e.apps.utils.modules.DataStoreModule
 import kotlinx.coroutines.Dispatchers
@@ -83,19 +84,18 @@ class GPlayAPIImpl @Inject constructor(
         return null
     }
 
-    suspend fun validateAuthData(authData: AuthData): Boolean {
-        var validity: Boolean
+    suspend fun validateAuthData(authData: AuthData): PlayResponse {
+        var result = PlayResponse()
         withContext(Dispatchers.IO) {
-            validity = try {
-                val authValidator = AuthValidator(authData).using(gPlayHttpClient)
-                authValidator.isValid()
+            try {
+                val authValidator = CustomAuthValidator(authData).using(gPlayHttpClient)
+                result = authValidator.getValidityResponse()
             } catch (e: Exception) {
                 e.printStackTrace()
                 throw e
-                false
             }
         }
-        return validity
+        return result
     }
 
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {

@@ -158,17 +158,21 @@ class InstallAppWorker @AssistedInject constructor(
     }
 
     private suspend fun checkDownloadProcess(fusedDownload: FusedDownload) {
-        downloadManager.query(downloadManagerQuery.setFilterById(*fusedDownload.downloadIdMap.keys.toLongArray()))
-            .use { cursor ->
-                if (cursor.moveToFirst()) {
-                    val status =
-                        cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+        try {
+            downloadManager.query(downloadManagerQuery.setFilterById(*fusedDownload.downloadIdMap.keys.toLongArray()))
+                .use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val status =
+                            cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
 
-                    if (status == DownloadManager.STATUS_FAILED) {
-                        fusedManagerRepository.installationIssue(fusedDownload)
+                        if (status == DownloadManager.STATUS_FAILED) {
+                            fusedManagerRepository.installationIssue(fusedDownload)
+                        }
                     }
                 }
-            }
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
     }
 
     private suspend fun handleFusedDownloadStatus(fusedDownload: FusedDownload) {

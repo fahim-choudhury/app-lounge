@@ -118,6 +118,8 @@
     <string name="auto_updates_notification">App updates will be installed automatically</string>
     <string name="manual_updates_notification">App updates will not be installed automatically</string>
     <string name="all_apps_updated">All apps are up-to-date</string>
+    <string name="error_signature_mismatch">The update cannot be applied because there is a signature mismatch between the update of %1$s and the version you\'ve installed on your phone. To remedy this you can uninstall %1$s and then install it again from App Lounge. &lt;br /&gt;&lt;br /&gt; Note: This message won\'t appear again.</string>
+    <string name="update_error">Update Error!</string>
 
     <!-- Home Fragment -->
     <string name="discover">Discover</string>
@@ -164,6 +166,10 @@
     </string>
     <string name="timeout_desc_cleanapk">Some network issue is preventing fetching all applications.</string>
     <string name="open_settings">Open Settings</string>
+    
+    <!--Sign in failure-->
+    <string name="sign_in_failed_title">Google sign in failed!</string>
+    <string name="sign_in_failed_desc">Due to a network error, App Lounge was not able to get Google sign-in data.</string>
 
     <!--    paid app message-->
     <string name="dialog_title_paid_app"><![CDATA[Purchase <b>%1$s</b>]]></string>

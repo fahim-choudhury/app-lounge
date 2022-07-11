@@ -19,6 +19,7 @@
 package foundation.e.apps.api.fused.data
 
 import com.aurora.gplayapi.Constants.Restriction
+import foundation.e.apps.utils.enums.FilterLevel
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
@@ -80,4 +81,14 @@ data class FusedApp(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
      */
     var isPlaceHolder: Boolean = false,
+
+    /*
+     * Store the filter/restriction level.
+     * If it is not NONE, then the app cannot be downloaded.
+     * If it is FilterLevel.UI, then we should show "N/A" on install button.
+     * If it is FilterLevel.DATA, then this app should not be displayed.
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5720
+     */
+    var filterLevel: FilterLevel = FilterLevel.UNKNOWN
 )

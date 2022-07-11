@@ -19,6 +19,7 @@
 package foundation.e.apps.updates.manager
 
 import com.aurora.gplayapi.data.models.AuthData
+import foundation.e.apps.api.faultyApps.FaultyAppRepository
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
@@ -26,11 +27,13 @@ import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.utils.enums.isUnFiltered
 import javax.inject.Inject
 
 class UpdatesManagerImpl @Inject constructor(
     private val pkgManagerModule: PkgManagerModule,
-    private val fusedAPIRepository: FusedAPIRepository
+    private val fusedAPIRepository: FusedAPIRepository,
+    private val faultyAppRepository: FaultyAppRepository
 ) {
     private val TAG = UpdatesManagerImpl::class.java.simpleName
 
@@ -53,7 +56,7 @@ class UpdatesManagerImpl @Inject constructor(
             )
             cleanAPKResult.first.forEach {
                 if (it.package_name in pkgList) pkgList.remove(it.package_name)
-                if (it.status == Status.UPDATABLE) updateList.add(it)
+                if (it.status == Status.UPDATABLE && it.filterLevel.isUnFiltered()) updateList.add(it)
             }
             cleanAPKResult.second.let {
                 if (it != ResultStatus.OK) {
@@ -69,7 +72,7 @@ class UpdatesManagerImpl @Inject constructor(
                 Origin.GPLAY
             )
             gPlayResult.first.forEach {
-                if (it.status == Status.UPDATABLE) updateList.add(it)
+                if (it.status == Status.UPDATABLE && it.filterLevel.isUnFiltered()) updateList.add(it)
             }
             gPlayResult.second.let {
                 if (it != ResultStatus.OK) {
@@ -77,7 +80,8 @@ class UpdatesManagerImpl @Inject constructor(
                 }
             }
         }
-        return ResultSupreme.create(status, updateList, cleanapkFailed.toString())
+
+        return ResultSupreme.create(status, getNonFaultyApps(updateList), cleanapkFailed.toString())
     }
 
     /*
@@ -93,11 +97,16 @@ class UpdatesManagerImpl @Inject constructor(
                 this.data?.forEach {
                     if (it.status == Status.UPDATABLE) updateList.add(it)
                 }
-                ResultSupreme.replicate(this, updateList)
+                ResultSupreme.replicate(this, getNonFaultyApps(updateList))
             }
         } else {
             ResultSupreme.Success(listOf())
         }
+    }
+
+    private fun getNonFaultyApps(list: List<FusedApp>): List<FusedApp> {
+        val faultyAppsPackageNames = faultyAppRepository.getAllFaultyApps().map { it.packageName }
+        return list.filter { !faultyAppsPackageNames.contains(it.package_name) }
     }
 
     fun getApplicationCategoryPreference(): String {

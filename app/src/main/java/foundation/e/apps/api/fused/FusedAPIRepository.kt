@@ -23,6 +23,7 @@ import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
+import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import foundation.e.apps.api.ResultSupreme
@@ -30,6 +31,7 @@ import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedCategory
 import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
+import foundation.e.apps.utils.enums.FilterLevel
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
@@ -52,10 +54,11 @@ class FusedAPIRepository @Inject constructor(
         return fusedAPIImpl.getApplicationCategoryPreference()
     }
 
-    suspend fun validateAuthData(authData: AuthData): Boolean {
-        return authData.authToken.isNotEmpty() && authData.deviceInfoProvider != null && fusedAPIImpl.validateAuthData(
-            authData
-        )
+    suspend fun validateAuthData(authData: AuthData): PlayResponse {
+        if (authData.authToken.isNotEmpty() && authData.deviceInfoProvider != null) {
+            return fusedAPIImpl.validateAuthData(authData)
+        }
+        return PlayResponse()
     }
 
     suspend fun getApplicationDetails(
@@ -77,6 +80,10 @@ class FusedAPIRepository @Inject constructor(
         appList: List<App>,
     ): ResultSupreme<List<FusedApp>> {
         return fusedAPIImpl.filterRestrictedGPlayApps(authData, appList)
+    }
+
+    suspend fun getAppFilterLevel(fusedApp: FusedApp, authData: AuthData?): FilterLevel {
+        return fusedAPIImpl.getAppFilterLevel(fusedApp, authData)
     }
 
     suspend fun getApplicationDetails(

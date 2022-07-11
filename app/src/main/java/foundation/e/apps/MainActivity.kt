@@ -25,6 +25,7 @@ import android.os.Environment
 import android.os.StatFs
 import android.os.storage.StorageManager
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -43,8 +44,12 @@ import foundation.e.apps.purchase.AppPurchaseFragmentDirections
 import foundation.e.apps.setup.signin.SignInViewModel
 import foundation.e.apps.updates.UpdatesNotifier
 import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.modules.CommonUtilsModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
@@ -109,6 +114,10 @@ class MainActivity : AppCompatActivity() {
             signInViewModel.authLiveData.observe(this) {
                 viewModel.updateAuthData(it)
             }
+        }
+
+        viewModel.errorAuthResponse.observe(this) {
+            onSignInError()
         }
 
         viewModel.authValidity.observe(this) {
@@ -199,6 +208,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.updateAppWarningList()
+
+        lifecycleScope.launchWhenResumed {
+            EventBus.events.filter { appEvent ->
+                appEvent is AppEvent.SignatureMissMatchError
+            }.collectLatest {
+                val appName = viewModel.getAppNameByPackageName(it.data.toString())
+                ApplicationDialogFragment(
+                    title = getString(R.string.update_error),
+                    message = getString(R.string.error_signature_mismatch, appName),
+                    positiveButtonText = getString(R.string.ok)
+                ).show(supportFragmentManager, TAG)
+            }
+        }
     }
 
     private fun handleFusedDownloadQueued(
@@ -246,7 +268,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showSnackbarMessage(message: String) {
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
     private fun showNoInternet() {
@@ -279,6 +301,19 @@ class MainActivity : AppCompatActivity() {
         } else {
             getAvailableInternalMemorySize()
         }
+    }
+
+    private fun onSignInError() {
+        AlertDialog.Builder(this).apply {
+            setTitle(R.string.sign_in_failed_title)
+            setMessage(R.string.sign_in_failed_desc)
+            setPositiveButton(R.string.retry) { _, _ ->
+                viewModel.retryFetchingTokenAfterTimeout()
+            }
+            setNegativeButton(R.string.logout) { _, _ ->
+                viewModel.postFalseAuthValidity()
+            }
+        }.show()
     }
 
     private fun getAvailableInternalMemorySize(): Long {

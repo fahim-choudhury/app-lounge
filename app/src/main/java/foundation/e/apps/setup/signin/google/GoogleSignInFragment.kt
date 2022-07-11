@@ -80,7 +80,7 @@ class GoogleSignInFragment : Fragment(R.layout.fragment_google_signin) {
 
         binding.webview.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView, url: String) {
-                val cookies = CookieManager.getInstance().getCookie(url)
+                val cookies = CookieManager.getInstance().getCookie(url) ?: return
                 val cookieMap = AC2DMUtil.parseCookieString(cookies)
                 if (cookieMap.isNotEmpty() && cookieMap[AUTH_TOKEN] != null) {
                     val oauthToken = cookieMap[AUTH_TOKEN] ?: ""

@@ -66,8 +66,8 @@ class ApplicationListRVAdapter(
     private val pkgManagerModule: PkgManagerModule,
     private val pwaManagerModule: PWAManagerModule,
     private val user: User,
-    private val lifecycleOwner: LifecycleOwner,
-    private val paidAppHandler: ((FusedApp) -> Unit)? = null
+    private var lifecycleOwner: LifecycleOwner?,
+    private var paidAppHandler: ((FusedApp) -> Unit)? = null
 ) : ListAdapter<FusedApp, ApplicationListRVAdapter.ViewHolder>(ApplicationDiffUtil()) {
 
     private val TAG = ApplicationListRVAdapter::class.java.simpleName
@@ -192,7 +192,9 @@ class ApplicationListRVAdapter(
             if (appInfoFetchViewModel.isAppInBlockedList(searchApp)) {
                 setupShowMoreButton()
             } else {
-                setupInstallButton(searchApp, view, holder)
+                mainActivityViewModel.verifyUiFilter(searchApp) {
+                    setupInstallButton(searchApp, view, holder)
+                }
             }
 
             showCalculatedPrivacyScoreData(searchApp, view)
@@ -200,7 +202,9 @@ class ApplicationListRVAdapter(
     }
 
     private fun removeIsPurchasedObserver(holder: ViewHolder) {
-        holder.isPurchasedLiveData.removeObservers(lifecycleOwner)
+        lifecycleOwner?.let {
+            holder.isPurchasedLiveData.removeObservers(it)
+        }
     }
 
     private fun ApplicationListItemBinding.setupInstallButton(
@@ -238,6 +242,7 @@ class ApplicationListRVAdapter(
     private fun ApplicationListItemBinding.setupShowMoreButton() {
         installButton.visibility = View.INVISIBLE
         showMore.visibility = View.VISIBLE
+        progressBarInstall.visibility = View.GONE
     }
 
     private fun ApplicationListItemBinding.handleInstallationIssue(
@@ -301,7 +306,10 @@ class ApplicationListRVAdapter(
         searchApp: FusedApp,
         view: View
     ) {
-        privacyInfoViewModel.getAppPrivacyInfoLiveData(searchApp).observe(lifecycleOwner) {
+        if (lifecycleOwner == null) {
+            return
+        }
+        privacyInfoViewModel.getAppPrivacyInfoLiveData(searchApp).observe(lifecycleOwner!!) {
             showPrivacyScore()
             val calculatedScore = privacyInfoViewModel.calculatePrivacyScore(searchApp)
             if (it.isSuccess() && calculatedScore != -1) {
@@ -391,6 +399,7 @@ class ApplicationListRVAdapter(
             mainActivityViewModel.checkUnsupportedApplication(searchApp) -> {
                 materialButton.isEnabled = true
                 materialButton.text = materialButton.context.getString(R.string.not_available)
+                applicationListItemBinding.progressBarInstall.visibility = View.GONE
             }
             searchApp.isFree -> {
                 materialButton.isEnabled = true
@@ -402,7 +411,10 @@ class ApplicationListRVAdapter(
                 materialButton.text = ""
                 applicationListItemBinding.progressBarInstall.visibility = View.VISIBLE
                 holder.isPurchasedLiveData = appInfoFetchViewModel.isAppPurchased(searchApp)
-                holder.isPurchasedLiveData.observe(lifecycleOwner) {
+                if (lifecycleOwner == null) {
+                    return
+                }
+                holder.isPurchasedLiveData.observe(lifecycleOwner!!) {
                     materialButton.isEnabled = true
                     applicationListItemBinding.progressBarInstall.visibility = View.GONE
                     materialButton.text =
@@ -470,5 +482,11 @@ class ApplicationListRVAdapter(
 
     private fun cancelDownload(searchApp: FusedApp) {
         fusedAPIInterface.cancelDownload(searchApp)
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        lifecycleOwner = null
+        paidAppHandler = null
     }
 }

@@ -59,6 +59,7 @@ import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
+import foundation.e.apps.utils.enums.isInitialized
 import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
@@ -159,10 +160,6 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
 
         binding.applicationLayout.visibility = View.INVISIBLE
-
-        mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
-            applicationViewModel.updateApplicationStatus(list)
-        }
 
         applicationViewModel.fusedApp.observe(viewLifecycleOwner) { resultPair ->
             if (resultPair.second != ResultStatus.OK) {
@@ -306,6 +303,10 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 binding.snackbarLayout.visibility = View.VISIBLE
             }
             fetchAppTracker(it)
+
+            mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
+                applicationViewModel.updateApplicationStatus(list)
+            }
         }
 
         applicationViewModel.errorMessageLiveData.observe(viewLifecycleOwner) {
@@ -380,48 +381,53 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             val appSize = binding.downloadInclude.appSize
             val fusedApp = applicationViewModel.fusedApp.value?.first ?: FusedApp()
 
-            when (status) {
-                Status.INSTALLED -> handleInstalled(
-                    installButton,
-                    view,
-                    fusedApp,
-                    downloadPB,
-                    appSize
-                )
-                Status.UPDATABLE -> handleUpdatable(
-                    installButton,
-                    view,
-                    fusedApp,
-                    downloadPB,
-                    appSize
-                )
-                Status.UNAVAILABLE -> handleUnavaiable(installButton, fusedApp, downloadPB, appSize)
-                Status.QUEUED, Status.AWAITING -> handleQueued(
-                    installButton,
-                    fusedApp,
-                    downloadPB,
-                    appSize
-                )
-                Status.DOWNLOADING -> handleDownloading(
-                    installButton,
-                    fusedApp,
-                    downloadPB,
-                    appSize
-                )
-                Status.INSTALLING, Status.UNINSTALLING -> handleInstallingUninstalling(
-                    installButton,
-                    downloadPB,
-                    appSize
-                )
-                Status.BLOCKED -> handleBlocked(installButton, view)
-                Status.INSTALLATION_ISSUE -> handleInstallingIssue(
-                    installButton,
-                    fusedApp,
-                    downloadPB,
-                    appSize
-                )
-                else -> {
-                    Timber.d("Unknown status: $status")
+            mainActivityViewModel.verifyUiFilter(fusedApp) {
+                if (!fusedApp.filterLevel.isInitialized()) {
+                    return@verifyUiFilter
+                }
+                when (status) {
+                    Status.INSTALLED -> handleInstalled(
+                        installButton,
+                        view,
+                        fusedApp,
+                        downloadPB,
+                        appSize
+                    )
+                    Status.UPDATABLE -> handleUpdatable(
+                        installButton,
+                        view,
+                        fusedApp,
+                        downloadPB,
+                        appSize
+                    )
+                    Status.UNAVAILABLE -> handleUnavaiable(installButton, fusedApp, downloadPB, appSize)
+                    Status.QUEUED, Status.AWAITING -> handleQueued(
+                        installButton,
+                        fusedApp,
+                        downloadPB,
+                        appSize
+                    )
+                    Status.DOWNLOADING -> handleDownloading(
+                        installButton,
+                        fusedApp,
+                        downloadPB,
+                        appSize
+                    )
+                    Status.INSTALLING, Status.UNINSTALLING -> handleInstallingUninstalling(
+                        installButton,
+                        downloadPB,
+                        appSize
+                    )
+                    Status.BLOCKED -> handleBlocked(installButton, view)
+                    Status.INSTALLATION_ISSUE -> handleInstallingIssue(
+                        installButton,
+                        fusedApp,
+                        downloadPB,
+                        appSize
+                    )
+                    else -> {
+                        Timber.d("Unknown status: $status")
+                    }
                 }
             }
         }
@@ -699,8 +705,14 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        _binding?.recyclerView?.adapter = null
         _binding = null
         applicationIcon = null
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mainActivityViewModel.downloadList.removeObservers(viewLifecycleOwner)
     }
 
     private fun shareApp(name: String, shareUrl: String): Intent {
