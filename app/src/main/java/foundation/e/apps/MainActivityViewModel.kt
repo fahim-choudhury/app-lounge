@@ -561,4 +561,8 @@ class MainActivityViewModel @Inject constructor(
     fun updateAppWarningList() {
         blockedAppRepository.fetchUpdateOfAppWarningList()
     }
+
+    fun getAppNameByPackageName(packageName: String): String {
+        return pkgManagerModule.getAppNameFromPackageName(packageName)
+    }
 }
