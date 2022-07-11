@@ -25,6 +25,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
+import com.aurora.gplayapi.data.models.PlayResponse
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedCategory
@@ -53,10 +54,11 @@ class FusedAPIRepository @Inject constructor(
         return fusedAPIImpl.getApplicationCategoryPreference()
     }
 
-    suspend fun validateAuthData(authData: AuthData): Boolean {
-        return authData.authToken.isNotEmpty() && authData.deviceInfoProvider != null && fusedAPIImpl.validateAuthData(
-            authData
-        )
+    suspend fun validateAuthData(authData: AuthData): PlayResponse {
+        if (authData.authToken.isNotEmpty() && authData.deviceInfoProvider != null) {
+            return fusedAPIImpl.validateAuthData(authData)
+        }
+        return PlayResponse()
     }
 
     suspend fun getApplicationDetails(

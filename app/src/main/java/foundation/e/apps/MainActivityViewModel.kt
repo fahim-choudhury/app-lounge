@@ -34,6 +34,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.exceptions.ApiException
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,6 +43,7 @@ import foundation.e.apps.api.ecloud.EcloudRepository
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.gplay.utils.AC2DMTask
+import foundation.e.apps.api.gplay.utils.AC2DMUtil
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.manager.pkg.PkgManagerModule
@@ -51,6 +53,7 @@ import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.enums.isInitialized
 import foundation.e.apps.utils.enums.isUnFiltered
+import foundation.e.apps.utils.modules.CommonUtilsModule.NETWORK_CODE_SUCCESS
 import foundation.e.apps.utils.modules.CommonUtilsModule.timeoutDurationInMillis
 import foundation.e.apps.utils.modules.DataStoreModule
 import kotlinx.coroutines.Dispatchers
@@ -85,6 +88,12 @@ class MainActivityViewModel @Inject constructor(
     val isAppPurchased: MutableLiveData<String> = MutableLiveData()
     val purchaseDeclined: MutableLiveData<String> = MutableLiveData()
     var authRequestRunning = false
+
+    /*
+     * If this live data is populated, it means Google sign in failed.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5709
+     */
+    val errorAuthResponse = MutableLiveData<PlayResponse>()
 
     /*
      * Store the time when auth data is fetched for the first time.
@@ -133,7 +142,19 @@ class MainActivityViewModel @Inject constructor(
     fun retryFetchingTokenAfterTimeout() {
         firstAuthDataFetchTime = 0
         setFirstTokenFetchTime()
-        authValidity.postValue(false)
+        if (isUserTypeGoogle()) {
+            /*
+             * Change done to show sign in error dialog for Google login.
+             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5709
+             */
+            if (authDataJson.value.isNullOrEmpty()) {
+                generateAuthDataBasedOnUserType(User.GOOGLE.name)
+            } else {
+                validateAuthData()
+            }
+        } else {
+            postFalseAuthValidity()
+        }
     }
 
     fun uploadFaultyTokenToEcloud(description: String) {
@@ -163,7 +184,7 @@ class MainActivityViewModel @Inject constructor(
                  */
                 if (!fusedAPIRepository.fetchAuthData()) {
                     authRequestRunning = false
-                    authValidity.postValue(false)
+                    postFalseAuthValidity()
                 }
             }
         }
@@ -211,11 +232,31 @@ class MainActivityViewModel @Inject constructor(
     fun validateAuthData() {
         viewModelScope.launch {
             jsonToAuthData()?.let {
-                val isAuthValid = isAuthValid(it)
-                authValidity.postValue(isAuthValid)
+                val validityResponse = getAuthValidityResponse(it)
+                if (isUserTypeGoogle() && validityResponse.code != NETWORK_CODE_SUCCESS) {
+                    /*
+                     * Change done to show sign in error dialog for Google login.
+                     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5709
+                     */
+                    errorAuthResponse.postValue(validityResponse)
+                } else {
+                    authValidity.postValue(validityResponse.isSuccessful)
+                }
                 authRequestRunning = false
             }
         }
+    }
+
+    // Issue: https://gitlab.e.foundation/e/backlog/-/issues/5709
+    fun isUserTypeGoogle(): Boolean {
+        return userType.value == User.GOOGLE.name
+    }
+
+    /**
+     * Useful to destroy credentials.
+     */
+    fun postFalseAuthValidity() {
+        authValidity.postValue(false)
     }
 
     fun handleAuthDataJson() {
@@ -291,7 +332,32 @@ class MainActivityViewModel @Inject constructor(
         var responseMap: Map<String, String>
         withContext(Dispatchers.IO) {
             val response = aC2DMTask.getAC2DMResponse(email, oauthToken)
-            responseMap = response
+            responseMap = if (response.isSuccessful) {
+                AC2DMUtil.parseResponse(String(response.responseBytes))
+            } else {
+                mapOf()
+            }
+            if (isUserTypeGoogle() && response.code != NETWORK_CODE_SUCCESS) {
+                /*
+                 * For google login, the email and aasToken gets stored when
+                 * we login through the webview, but that does not mean we have a valid authData.
+                 *
+                 * For first login, control flow is as below:
+                 * In MainActivity, from userType observer -> handleAuthDataJson
+                 * -> generateAuthDataBasedOnUserType -> doFetchAuthData -> this function
+                 *
+                 * If for first google login, google sign in portal was available
+                 * but android.clients.google.com is unreachable, then responseMap is blank.
+                 *
+                 * We see validateAuthData is never called (which had a check for incorrect response)
+                 * Hence we have to check the response code is NETWORK_CODE_SUCCESS (200) or not
+                 * and show the Google sign in failed dialog.
+                 *
+                 * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5709
+                 */
+                errorAuthResponse.postValue(response)
+                return@withContext
+            }
             responseMap["Token"]?.let {
                 if (fusedAPIRepository.fetchAuthData(email, it) == null) {
                     dataStoreModule.clearUserType()
@@ -313,7 +379,7 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    private suspend fun isAuthValid(authData: AuthData): Boolean {
+    private suspend fun getAuthValidityResponse(authData: AuthData): PlayResponse {
         return fusedAPIRepository.validateAuthData(authData)
     }
 

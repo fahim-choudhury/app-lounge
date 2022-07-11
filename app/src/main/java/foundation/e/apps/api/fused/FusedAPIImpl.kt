@@ -31,6 +31,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
+import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
@@ -374,7 +375,7 @@ class FusedAPIImpl @Inject constructor(
         return gPlayAPIRepository.fetchAuthData(email, aasToken)
     }
 
-    suspend fun validateAuthData(authData: AuthData): Boolean {
+    suspend fun validateAuthData(authData: AuthData): PlayResponse {
         return gPlayAPIRepository.validateAuthData(authData)
     }
 

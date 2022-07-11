@@ -19,6 +19,7 @@
 
 package foundation.e.apps.api.gplay.utils
 
+import com.aurora.gplayapi.data.models.PlayResponse
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.Locale
 import javax.inject.Inject
@@ -32,9 +33,9 @@ class AC2DMTask @Inject constructor(
         private const val PLAY_SERVICES_VERSION_CODE = 19629032
     }
 
-    fun getAC2DMResponse(email: String?, oAuthToken: String?): Map<String, String> {
+    fun getAC2DMResponse(email: String?, oAuthToken: String?): PlayResponse {
         if (email == null || oAuthToken == null)
-            return mapOf()
+            return PlayResponse()
 
         val params: MutableMap<String, Any> = hashMapOf()
         params["lang"] = Locale.getDefault().toString().replace("_", "-")
@@ -57,12 +58,10 @@ class AC2DMTask @Inject constructor(
             "Content-Type" to "application/x-www-form-urlencoded"
         )
 
-        val response = gPlayHttpClient.post(TOKEN_AUTH_URL, header, body.toRequestBody())
-
-        return if (response.isSuccessful) {
-            AC2DMUtil.parseResponse(String(response.responseBytes))
-        } else {
-            mapOf()
-        }
+        /*
+         * Returning PlayResponse instead of map so that we can get the network response code.
+         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5709
+         */
+        return gPlayHttpClient.post(TOKEN_AUTH_URL, header, body.toRequestBody())
     }
 }
