@@ -645,6 +645,13 @@ class FusedAPIImpl @Inject constructor(
         if (fusedApp.package_name.isBlank()) {
             return FilterLevel.UNKNOWN
         }
+        if (fusedApp.origin == Origin.CLEANAPK) {
+            /*
+             * Whitelist all open source apps.
+             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5785
+             */
+            return FilterLevel.NONE
+        }
         if (authData == null) {
             return if (fusedApp.origin == Origin.GPLAY) FilterLevel.UNKNOWN
             else FilterLevel.NONE
