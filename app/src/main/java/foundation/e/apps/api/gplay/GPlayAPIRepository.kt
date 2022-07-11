@@ -24,9 +24,9 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.File
+import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
-import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import javax.inject.Inject
 

@@ -307,7 +307,7 @@ class MainActivity : AppCompatActivity() {
         AlertDialog.Builder(this).apply {
             setTitle(R.string.sign_in_failed_title)
             setMessage(R.string.sign_in_failed_desc)
-            setPositiveButton(R.string.retry) {_ ,_ ->
+            setPositiveButton(R.string.retry) { _, _ ->
                 viewModel.retryFetchingTokenAfterTimeout()
             }
             setNegativeButton(R.string.logout) { _, _ ->

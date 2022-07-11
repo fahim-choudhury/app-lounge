@@ -23,9 +23,9 @@ import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
+import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
-import com.aurora.gplayapi.data.models.PlayResponse
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedCategory

@@ -26,12 +26,11 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.File
+import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.data.models.SearchBundle
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
-import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.helpers.AppDetailsHelper
-import com.aurora.gplayapi.helpers.AuthValidator
 import com.aurora.gplayapi.helpers.CategoryHelper
 import com.aurora.gplayapi.helpers.ExpandedBrowseHelper
 import com.aurora.gplayapi.helpers.PurchaseHelper

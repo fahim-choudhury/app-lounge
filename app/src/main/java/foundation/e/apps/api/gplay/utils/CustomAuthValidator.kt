@@ -33,7 +33,7 @@ import com.aurora.gplayapi.network.IHttpClient
  *
  * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5709
  */
-class CustomAuthValidator(authData: AuthData): BaseHelper(authData) {
+class CustomAuthValidator(authData: AuthData) : BaseHelper(authData) {
 
     override fun using(httpClient: IHttpClient) = apply {
         this.httpClient = httpClient
