@@ -87,7 +87,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
          */
 
         mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) {
-            if (!updatesViewModel.updatesList.value?.first.isNullOrEmpty()) {
+            if (!updatesViewModel.updatesList.value?.data.isNullOrEmpty()) {
                 return@observe
             }
             refreshDataOrRefreshToken(mainActivityViewModel)

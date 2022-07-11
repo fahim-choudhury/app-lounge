@@ -308,7 +308,7 @@ class MainActivity : AppCompatActivity() {
             setTitle(R.string.sign_in_failed_title)
             setMessage(R.string.sign_in_failed_desc)
             setPositiveButton(R.string.retry) { _, _ ->
-                viewModel.retryFetchingTokenAfterTimeout()
+                viewModel.checkTokenOnTimeout()
             }
             setNegativeButton(R.string.logout) { _, _ ->
                 viewModel.postFalseAuthValidity()

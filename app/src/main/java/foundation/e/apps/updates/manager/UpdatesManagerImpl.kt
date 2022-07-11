@@ -104,7 +104,7 @@ class UpdatesManagerImpl @Inject constructor(
         }
     }
 
-    private fun getNonFaultyApps(list: List<FusedApp>): List<FusedApp> {
+    private suspend fun getNonFaultyApps(list: List<FusedApp>): List<FusedApp> {
         val faultyAppsPackageNames = faultyAppRepository.getAllFaultyApps().map { it.packageName }
         return list.filter { !faultyAppsPackageNames.contains(it.package_name) }
     }

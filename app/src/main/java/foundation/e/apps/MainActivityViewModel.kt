@@ -154,13 +154,20 @@ class MainActivityViewModel @Inject constructor(
         firstAuthDataFetchTime = 0
         setFirstTokenFetchTime()
         /*
-         * Change done to show sign in error dialog for Google login.
+         * Explanation:
+         * 1. User type value must be present for all normal functioning.
+         *    If not, post false to log out.
+         * 2. If authDataJson is empty, we have not yet obtained authData even once.
+         *    Hence generate authData.
+         * 3. Else condition is where authDataJson is present in shared preferences, meaning
+         *    we had logged in successfully at least once. Thus validate that data.
+         *
          * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5709
          */
-        if (authDataJson.value.isNullOrEmpty()) {
-            generateAuthDataBasedOnUserType(User.GOOGLE.name)
-        } else {
-            validateAuthData()
+        when {
+            userType.value == null -> postFalseAuthValidity()
+            authDataJson.value.isNullOrEmpty() -> generateAuthDataBasedOnUserType(userType.value!!)
+            else -> validateAuthData()
         }
 
         /*
