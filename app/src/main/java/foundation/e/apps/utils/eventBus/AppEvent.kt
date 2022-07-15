@@ -22,4 +22,5 @@ package foundation.e.apps.utils.eventBus
 
 sealed class AppEvent(val data: Any) {
     class SignatureMissMatchError(packageName: String) : AppEvent(packageName)
+    class AppStatusUpdated: AppEvent("")
 }
