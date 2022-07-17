@@ -50,6 +50,7 @@ import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.applicationlist.model.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentSearchBinding
+import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Status
@@ -165,6 +166,14 @@ class SearchFragment :
             if (it.data?.first.isNullOrEmpty()) {
                 noAppsFoundLayout?.visibility = View.VISIBLE
             } else {
+                val currentList = listAdapter?.currentList
+                if (it.data?.first != null && !currentList.isNullOrEmpty() && !compareOldFusedAppsListWithNewFusedAppsList(
+                        it.data?.first!!,
+                        currentList
+                    )
+                ) {
+                    return@observe
+                }
                 listAdapter?.setData(it.data!!.first)
                 binding.loadingProgressBar.isVisible = it.data!!.second
                 stopLoadingUI()
@@ -201,6 +210,27 @@ class SearchFragment :
                 onTimeout()
             }
         }
+    }
+
+    /**
+     * @return returns true if there is changes in data, otherwise false
+     */
+    fun compareOldFusedAppsListWithNewFusedAppsList(
+        newFusedApps: List<FusedApp>,
+        oldFusedApps: List<FusedApp>
+    ): Boolean {
+        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
+        if (newFusedApps.size != oldFusedApps.size) {
+            return true
+        }
+        
+        newFusedApps.forEach {
+            val indexOfNewFusedApp = newFusedApps.indexOf(it)
+            if (!fusedAppDiffUtil.areContentsTheSame(it, oldFusedApps[indexOfNewFusedApp])) {
+                return true
+            }
+        }
+        return false
     }
 
     private fun observeDownloadList(applicationListRVAdapter: ApplicationListRVAdapter) {
@@ -280,6 +310,12 @@ class SearchFragment :
         binding.shimmerLayout.startShimmer()
         appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
             updateProgressOfInstallingApps(it)
+        }
+
+        if(searchText.isNotEmpty()) {
+            mainActivityViewModel.authData.value?.let {
+                refreshData(it)
+            }
         }
     }
 

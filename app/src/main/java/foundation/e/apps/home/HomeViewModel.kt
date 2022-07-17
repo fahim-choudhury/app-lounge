@@ -25,6 +25,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedHome
+import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.utils.enums.ResultStatus
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -44,7 +45,8 @@ class HomeViewModel @Inject constructor(
 
     fun getHomeScreenData(authData: AuthData) {
         viewModelScope.launch {
-            homeScreenData.postValue(fusedAPIRepository.getHomeScreenData(authData))
+            val screenData = fusedAPIRepository.getHomeScreenData(authData)
+            homeScreenData.postValue(screenData)
         }
     }
 
@@ -56,5 +58,34 @@ class HomeViewModel @Inject constructor(
         return homeScreenData.value?.first?.let {
             fusedAPIRepository.isFusedHomesEmpty(it)
         } ?: true
+    }
+
+    fun compareNewHomeDataWithOldHomeData(
+        newHomeData: List<FusedHome>,
+        oldHomeData: List<FusedHome>
+    ): Boolean {
+        oldHomeData.forEach {
+            val fusedHome = newHomeData[oldHomeData.indexOf(it)]
+            if (!it.title.contentEquals(fusedHome.title) || !areOldAndNewFusedAppListSame(it, fusedHome)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun areOldAndNewFusedAppListSame(
+        it: FusedHome,
+        fusedHome: FusedHome,
+    ): Boolean {
+        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
+
+        it.list.forEach { oldFusedApp ->
+            val indexOfOldFusedApp = it.list.indexOf(oldFusedApp)
+            val fusedApp = fusedHome.list[indexOfOldFusedApp]
+            if (!fusedAppDiffUtil.areContentsTheSame(oldFusedApp, fusedApp)) {
+                return false
+            }
+        }
+        return true
     }
 }

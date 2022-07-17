@@ -26,9 +26,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.api.faultyApps.FaultyAppRepository
 import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.eventBus.AppEvent
-import foundation.e.apps.utils.eventBus.EventBus
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
@@ -67,16 +68,10 @@ open class PkgManagerBR : BroadcastReceiver() {
                         Intent.ACTION_PACKAGE_ADDED -> {
                             updateDownloadStatus(pkgName)
                             removeFaultyAppByPackageName(pkgName)
-                            MainScope().launch {
-                                EventBus.invokeEvent(AppEvent.AppStatusUpdated())
-                            }
                         }
                         Intent.ACTION_PACKAGE_REMOVED -> {
                             if (!isUpdating) deleteDownload(pkgName)
                             removeFaultyAppByPackageName(pkgName)
-                            MainScope().launch {
-                                EventBus.invokeEvent(AppEvent.AppStatusUpdated())
-                            }
                         }
                         PkgManagerModule.ERROR_PACKAGE_INSTALL -> {
                             Timber.e("Installation failed due to error: $extra")

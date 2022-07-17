@@ -41,6 +41,7 @@ import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.applicationlist.model.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentApplicationListBinding
+import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Status
@@ -51,7 +52,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_list), FusedAPIInterface {
+class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_list),
+    FusedAPIInterface {
 
     private val args: ApplicationListFragmentArgs by navArgs()
 
@@ -115,7 +117,6 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
 
     override fun onResume() {
         super.onResume()
-        binding.shimmerLayout.startShimmer()
 
         val recyclerView = binding.recyclerView
         recyclerView.recycledViewPool.setMaxRecycledViews(0, 0)
@@ -156,10 +157,18 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
         }
 
         viewModel.appListLiveData.observe(viewLifecycleOwner) {
+            stopLoadingUI()
             if (!it.isSuccess()) {
                 onTimeout()
             } else {
-                isDetailsLoaded = true
+                val currentList = listAdapter?.currentList
+                if (it.data != null && !currentList.isNullOrEmpty() && !compareOldFusedAppsListWithNewFusedAppsList(
+                        it.data!!,
+                        currentList
+                    )
+                ) {
+                    return@observe
+                }
                 listAdapter?.setData(it.data!!)
                 listAdapter?.let { adapter ->
                     observeDownloadList(adapter)
@@ -169,7 +178,6 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
                     updateProgressOfDownloadingItems(binding.recyclerView, it)
                 }
             }
-            stopLoadingUI()
         }
 
         /*
@@ -220,15 +228,13 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
          *
          * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/478
          */
-        if (!isDetailsLoaded) {
-            showLoadingUI()
-            viewModel.getList(
-                args.category,
-                args.browseUrl,
-                authData,
-                args.source
-            )
-        }
+        showLoadingUI()
+        viewModel.getList(
+            args.category,
+            args.browseUrl,
+            authData,
+            args.source
+        )
 
         if (args.source != "Open Source" && args.source != "PWA") {
             /*
@@ -260,6 +266,23 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
         }
     }
 
+    /**
+     * @return returns true if there is changes in data, otherwise false
+     */
+    fun compareOldFusedAppsListWithNewFusedAppsList(
+        newFusedApps: List<FusedApp>,
+        oldFusedApps: List<FusedApp>
+    ): Boolean {
+        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
+        newFusedApps.forEach {
+            val indexOfNewFusedApp = newFusedApps.indexOf(it)
+            if (!fusedAppDiffUtil.areContentsTheSame(it, oldFusedApps[indexOfNewFusedApp])) {
+                return true
+            }
+        }
+        return false
+    }
+
     private fun showLoadingUI() {
         binding.shimmerLayout.startShimmer()
         binding.shimmerLayout.visibility = View.VISIBLE
@@ -280,7 +303,8 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
         lifecycleScope.launch {
             adapter.currentList.forEach { fusedApp ->
                 if (fusedApp.status == Status.DOWNLOADING) {
-                    val progress = appProgressViewModel.calculateProgress(fusedApp, downloadProgress)
+                    val progress =
+                        appProgressViewModel.calculateProgress(fusedApp, downloadProgress)
                     if (progress == -1) {
                         return@forEach
                     }

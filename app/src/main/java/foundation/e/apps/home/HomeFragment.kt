@@ -36,8 +36,10 @@ import foundation.e.apps.R
 import foundation.e.apps.api.fused.FusedAPIImpl
 import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
+import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.databinding.FragmentHomeBinding
+import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.home.model.HomeChildRVAdapter
 import foundation.e.apps.home.model.HomeParentRVAdapter
 import foundation.e.apps.manager.download.data.DownloadProgress
@@ -49,6 +51,7 @@ import foundation.e.apps.utils.modules.CommonUtilsModule.safeNavigate
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -140,7 +143,11 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
             if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(fusedApp)) {
                 ApplicationDialogFragment(
                     title = getString(R.string.dialog_title_paid_app, fusedApp.name),
-                    message = getString(R.string.dialog_paidapp_message, fusedApp.name, fusedApp.price),
+                    message = getString(
+                        R.string.dialog_paidapp_message,
+                        fusedApp.name,
+                        fusedApp.price
+                    ),
                     positiveButtonText = getString(R.string.dialog_confirm),
                     positiveButtonAction = {
                         getApplication(fusedApp)
@@ -158,7 +165,11 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         homeViewModel.homeScreenData.observe(viewLifecycleOwner) {
             stopLoadingUI()
             if (it.second == ResultStatus.OK) {
-                if (!homeParentRVAdapter?.currentList.isNullOrEmpty()) {
+                if (homeParentRVAdapter?.currentList?.isNotEmpty() == true && !homeViewModel.compareNewHomeDataWithOldHomeData(
+                        it.first,
+                        homeParentRVAdapter?.currentList as List<FusedHome>
+                    )
+                ) {
                     return@observe
                 }
                 dismissTimeoutDialog()
@@ -265,6 +276,9 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         binding.shimmerLayout.startShimmer()
         appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
             updateProgressOfDownloadingAppItemViews(homeParentRVAdapter, it)
+        }
+        mainActivityViewModel.authData.value?.let {
+            refreshData(it)
         }
     }
 

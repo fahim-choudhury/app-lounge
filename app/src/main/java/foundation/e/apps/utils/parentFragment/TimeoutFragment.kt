@@ -18,21 +18,13 @@
 package foundation.e.apps.utils.parentFragment
 
 import android.app.Activity
-import android.os.Bundle
 import android.view.KeyEvent
-import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.R
-import foundation.e.apps.utils.eventBus.AppEvent
-import foundation.e.apps.utils.eventBus.EventBus
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
-import timber.log.Timber
 
 /*
  * Parent class (extending fragment) for fragments which can display a timeout dialog
@@ -47,16 +39,6 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
      */
     private var timeoutAlertDialog: AlertDialog? = null
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        lifecycleScope.launchWhenResumed {
-            EventBus.events.filter { appEvent -> appEvent is AppEvent.AppStatusUpdated }
-                .collectLatest {
-                    Timber.d("@@@ app status updated")
-                }
-        }
-    }
 
     abstract fun onTimeout()
 
