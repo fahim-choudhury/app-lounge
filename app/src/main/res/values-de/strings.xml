@@ -124,4 +124,6 @@
     <string name="purchase_complete">Kauf abgeschlossen!</string>
     <string name="show_more">Mehr anzeigen</string>
     <string name="something_went_wrong">Etwas ist schiefgegangen!</string>
+    <string name="sign_in_failed_title">Google Anmeldung fehlgeschlagen!</string>
+    <string name="update_error">Aktualisierungsfehler!</string>
 </resources>
