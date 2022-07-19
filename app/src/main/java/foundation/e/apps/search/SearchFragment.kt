@@ -50,7 +50,6 @@ import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.applicationlist.model.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentSearchBinding
-import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Status
@@ -167,7 +166,7 @@ class SearchFragment :
                 noAppsFoundLayout?.visibility = View.VISIBLE
             } else {
                 val currentList = listAdapter?.currentList
-                if (it.data?.first != null && !currentList.isNullOrEmpty() && !compareOldFusedAppsListWithNewFusedAppsList(
+                if (it.data?.first != null && !currentList.isNullOrEmpty() && !searchViewModel.hasAnyChangeBetweenOldFusedAppsListAndNewFusedAppsList(
                         it.data?.first!!,
                         currentList
                     )
@@ -212,27 +211,6 @@ class SearchFragment :
         }
     }
 
-    /**
-     * @return returns true if there is changes in data, otherwise false
-     */
-    fun compareOldFusedAppsListWithNewFusedAppsList(
-        newFusedApps: List<FusedApp>,
-        oldFusedApps: List<FusedApp>
-    ): Boolean {
-        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
-        if (newFusedApps.size != oldFusedApps.size) {
-            return true
-        }
-        
-        newFusedApps.forEach {
-            val indexOfNewFusedApp = newFusedApps.indexOf(it)
-            if (!fusedAppDiffUtil.areContentsTheSame(it, oldFusedApps[indexOfNewFusedApp])) {
-                return true
-            }
-        }
-        return false
-    }
-
     private fun observeDownloadList(applicationListRVAdapter: ApplicationListRVAdapter) {
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
             val searchList =
@@ -267,7 +245,7 @@ class SearchFragment :
 
     override fun refreshData(authData: AuthData) {
         showLoadingUI()
-        searchViewModel.getSearchResults(searchText, authData, this)
+        searchViewModel.getSearchResults(searchText, authData, viewLifecycleOwner)
     }
 
     private fun showLoadingUI() {
@@ -312,7 +290,7 @@ class SearchFragment :
             updateProgressOfInstallingApps(it)
         }
 
-        if(searchText.isNotEmpty()) {
+        if (searchText.isNotEmpty()) {
             mainActivityViewModel.authData.value?.let {
                 refreshData(it)
             }
@@ -366,6 +344,7 @@ class SearchFragment :
         _binding = null
         searchView = null
         shimmerLayout = null
+        recyclerView?.adapter = null
         recyclerView = null
         searchHintLayout = null
         noAppsFoundLayout = null

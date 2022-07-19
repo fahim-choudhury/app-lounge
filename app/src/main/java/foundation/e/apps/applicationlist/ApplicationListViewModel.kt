@@ -28,6 +28,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
+import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.utils.enums.Origin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -76,7 +77,7 @@ class ApplicationListViewModel @Inject constructor(
     private var hasNextStreamCluster = false
 
     fun getList(category: String, browseUrl: String, authData: AuthData, source: String) {
-        if (appListLiveData.value?.data?.isNotEmpty() == true || isLoading) {
+        if (isLoading) {
             return
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -95,6 +96,27 @@ class ApplicationListViewModel @Inject constructor(
 
             appListLiveData.postValue(appsListData)
         }
+    }
+
+    /**
+     * @return returns true if there is changes in data, otherwise false
+     */
+    fun hasAnyChangeBetweenOldFusedAppsListAndNewFusedAppsList(
+        newFusedApps: List<FusedApp>,
+        oldFusedApps: List<FusedApp>
+    ): Boolean {
+        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
+        if (newFusedApps.size != oldFusedApps.size) {
+            return true
+        }
+
+        newFusedApps.forEach {
+            val indexOfNewFusedApp = newFusedApps.indexOf(it)
+            if (!fusedAppDiffUtil.areContentsTheSame(it, oldFusedApps[indexOfNewFusedApp])) {
+                return true
+            }
+        }
+        return false
     }
 
     /**

@@ -28,6 +28,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
+import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -58,5 +59,26 @@ class SearchViewModel @Inject constructor(
                 searchResult.postValue(it)
             }
         }
+    }
+
+    /**
+     * @return returns true if there is changes in data, otherwise false
+     */
+    fun hasAnyChangeBetweenOldFusedAppsListAndNewFusedAppsList(
+        newFusedApps: List<FusedApp>,
+        oldFusedApps: List<FusedApp>
+    ): Boolean {
+        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
+        if (newFusedApps.size != oldFusedApps.size) {
+            return true
+        }
+
+        newFusedApps.forEach {
+            val indexOfNewFusedApp = newFusedApps.indexOf(it)
+            if (!fusedAppDiffUtil.areContentsTheSame(it, oldFusedApps[indexOfNewFusedApp])) {
+                return true
+            }
+        }
+        return false
     }
 }

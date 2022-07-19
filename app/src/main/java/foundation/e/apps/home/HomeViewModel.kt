@@ -60,10 +60,17 @@ class HomeViewModel @Inject constructor(
         } ?: true
     }
 
-    fun compareNewHomeDataWithOldHomeData(
+    /**
+     * @return true, if any change is found, otherwise false
+     */
+    fun hasAnyChangeBetweenNewHomeDataAndOldHomeData(
         newHomeData: List<FusedHome>,
         oldHomeData: List<FusedHome>
     ): Boolean {
+        if (newHomeData.size != oldHomeData.size) {
+            return true
+        }
+
         oldHomeData.forEach {
             val fusedHome = newHomeData[oldHomeData.indexOf(it)]
             if (!it.title.contentEquals(fusedHome.title) || !areOldAndNewFusedAppListSame(it, fusedHome)) {

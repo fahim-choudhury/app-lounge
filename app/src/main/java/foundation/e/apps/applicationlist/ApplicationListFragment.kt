@@ -41,7 +41,6 @@ import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.applicationlist.model.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentApplicationListBinding
-import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Status
@@ -52,7 +51,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_list),
+class ApplicationListFragment :
+    TimeoutFragment(R.layout.fragment_application_list),
     FusedAPIInterface {
 
     private val args: ApplicationListFragmentArgs by navArgs()
@@ -162,7 +162,7 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
                 onTimeout()
             } else {
                 val currentList = listAdapter?.currentList
-                if (it.data != null && !currentList.isNullOrEmpty() && !compareOldFusedAppsListWithNewFusedAppsList(
+                if (it.data != null && !currentList.isNullOrEmpty() && !viewModel.hasAnyChangeBetweenOldFusedAppsListAndNewFusedAppsList(
                         it.data!!,
                         currentList
                     )
@@ -264,23 +264,6 @@ class ApplicationListFragment : TimeoutFragment(R.layout.fragment_application_li
                 }
             }
         }
-    }
-
-    /**
-     * @return returns true if there is changes in data, otherwise false
-     */
-    fun compareOldFusedAppsListWithNewFusedAppsList(
-        newFusedApps: List<FusedApp>,
-        oldFusedApps: List<FusedApp>
-    ): Boolean {
-        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
-        newFusedApps.forEach {
-            val indexOfNewFusedApp = newFusedApps.indexOf(it)
-            if (!fusedAppDiffUtil.areContentsTheSame(it, oldFusedApps[indexOfNewFusedApp])) {
-                return true
-            }
-        }
-        return false
     }
 
     private fun showLoadingUI() {
