@@ -290,12 +290,17 @@ class SearchFragment :
             updateProgressOfInstallingApps(it)
         }
 
-        if (searchText.isNotEmpty()) {
+        if (shouldRefreshData()) {
             mainActivityViewModel.authData.value?.let {
                 refreshData(it)
             }
         }
     }
+
+    private fun shouldRefreshData() =
+        searchText.isNotEmpty() && recyclerView?.adapter != null && searchViewModel.hasAnyAppInstallStatusChanged(
+            (recyclerView?.adapter as ApplicationListRVAdapter).currentList
+        )
 
     override fun onPause() {
         binding.shimmerLayout.stopShimmer()
