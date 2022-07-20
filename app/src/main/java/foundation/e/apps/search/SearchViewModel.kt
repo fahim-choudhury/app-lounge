@@ -28,9 +28,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
-import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
-import foundation.e.apps.manager.pkg.PkgManagerModule
-import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.manager.fused.FusedManagerRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -38,11 +36,12 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val fusedAPIRepository: FusedAPIRepository,
-    private val pkgManagerModule: PkgManagerModule
+    private val fusedManagerRepository: FusedManagerRepository
 ) : ViewModel() {
 
     val searchSuggest: MutableLiveData<List<SearchSuggestEntry>?> = MutableLiveData()
-    val searchResult: MutableLiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> = MutableLiveData()
+    val searchResult: MutableLiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
+        MutableLiveData()
 
     fun getSearchSuggestions(query: String, authData: AuthData) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -67,34 +66,11 @@ class SearchViewModel @Inject constructor(
     /**
      * @return returns true if there is changes in data, otherwise false
      */
-    fun hasAnyChangeBetweenOldFusedAppsListAndNewFusedAppsList(
+    fun isAnyAppUpdated(
         newFusedApps: List<FusedApp>,
         oldFusedApps: List<FusedApp>
-    ): Boolean {
-        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
-        if (newFusedApps.size != oldFusedApps.size) {
-            return true
-        }
+    ) = fusedAPIRepository.isAnyFusedAppUpdated(newFusedApps, oldFusedApps)
 
-        newFusedApps.forEach {
-            val indexOfNewFusedApp = newFusedApps.indexOf(it)
-            if (!fusedAppDiffUtil.areContentsTheSame(it, oldFusedApps[indexOfNewFusedApp])) {
-                return true
-            }
-        }
-        return false
-    }
-
-    fun hasAnyAppInstallStatusChanged(currentList: List<FusedApp>): Boolean {
-        currentList.forEach {
-            if (it.status == Status.INSTALLATION_ISSUE) {
-                return@forEach
-            }
-            val currentAppStatus = pkgManagerModule.getPackageStatus(it.package_name, it.latest_version_code)
-            if (it.status != currentAppStatus) {
-                return true
-            }
-        }
-        return false
-    }
+    fun hasAnyAppInstallStatusChanged(currentList: List<FusedApp>) =
+        fusedAPIRepository.isAnyAppInstallStatusChanged(currentList)
 }

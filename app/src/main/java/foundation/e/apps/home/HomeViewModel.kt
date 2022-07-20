@@ -24,15 +24,15 @@ import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.fused.FusedAPIRepository
+import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedHome
-import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.utils.enums.ResultStatus
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val fusedAPIRepository: FusedAPIRepository
+    private val fusedAPIRepository: FusedAPIRepository,
 ) : ViewModel() {
 
     /*
@@ -60,39 +60,18 @@ class HomeViewModel @Inject constructor(
         } ?: true
     }
 
-    /**
-     * @return true, if any change is found, otherwise false
-     */
-    fun hasAnyChangeBetweenNewHomeDataAndOldHomeData(
+    fun isHomeDataUpdated(
         newHomeData: List<FusedHome>,
         oldHomeData: List<FusedHome>
-    ): Boolean {
-        if (newHomeData.size != oldHomeData.size) {
-            return true
+    ) = fusedAPIRepository.isHomeDataUpdated(newHomeData, oldHomeData)
+
+    fun isAnyAppInstallStatusChanged(currentList: List<FusedHome>?): Boolean {
+        if (currentList == null) {
+            return false
         }
 
-        oldHomeData.forEach {
-            val fusedHome = newHomeData[oldHomeData.indexOf(it)]
-            if (!it.title.contentEquals(fusedHome.title) || !areOldAndNewFusedAppListSame(it, fusedHome)) {
-                return true
-            }
-        }
-        return false
-    }
-
-    private fun areOldAndNewFusedAppListSame(
-        it: FusedHome,
-        fusedHome: FusedHome,
-    ): Boolean {
-        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
-
-        it.list.forEach { oldFusedApp ->
-            val indexOfOldFusedApp = it.list.indexOf(oldFusedApp)
-            val fusedApp = fusedHome.list[indexOfOldFusedApp]
-            if (!fusedAppDiffUtil.areContentsTheSame(oldFusedApp, fusedApp)) {
-                return false
-            }
-        }
-        return true
+        val appList = mutableListOf<FusedApp>()
+        currentList.forEach { appList.addAll(it.list) }
+        return fusedAPIRepository.isAnyAppInstallStatusChanged(appList)
     }
 }

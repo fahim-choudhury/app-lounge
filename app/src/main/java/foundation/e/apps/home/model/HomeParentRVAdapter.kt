@@ -62,11 +62,8 @@ class HomeParentRVAdapter(
         val homeChildRVAdapter =
             HomeChildRVAdapter(
                 fusedAPIInterface,
-                pkgManagerModule,
-                pwaManagerModule,
                 appInfoFetchViewModel,
                 mainActivityViewModel,
-                user,
                 lifecycleOwner,
                 paidAppHandler
             )

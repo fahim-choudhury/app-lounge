@@ -29,6 +29,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.pm.PackageInfoCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.OpenForTesting
 import foundation.e.apps.api.fused.FusedAPIImpl
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.utils.enums.Origin
@@ -41,6 +42,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@OpenForTesting
 class PkgManagerModule @Inject constructor(
     @ApplicationContext private val context: Context
 ) {

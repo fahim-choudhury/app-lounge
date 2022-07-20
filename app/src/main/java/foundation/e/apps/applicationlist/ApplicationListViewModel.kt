@@ -28,7 +28,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
-import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.utils.enums.Origin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -101,22 +100,11 @@ class ApplicationListViewModel @Inject constructor(
     /**
      * @return returns true if there is changes in data, otherwise false
      */
-    fun hasAnyChangeBetweenOldFusedAppsListAndNewFusedAppsList(
+    fun isFusedAppUpdated(
         newFusedApps: List<FusedApp>,
         oldFusedApps: List<FusedApp>
     ): Boolean {
-        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
-        if (newFusedApps.size != oldFusedApps.size) {
-            return true
-        }
-
-        newFusedApps.forEach {
-            val indexOfNewFusedApp = newFusedApps.indexOf(it)
-            if (!fusedAppDiffUtil.areContentsTheSame(it, oldFusedApps[indexOfNewFusedApp])) {
-                return true
-            }
-        }
-        return false
+        return fusedAPIRepository.isAnyFusedAppUpdated(newFusedApps, oldFusedApps)
     }
 
     /**
@@ -209,9 +197,10 @@ class ApplicationListViewModel @Inject constructor(
     private suspend fun getAdjustedFirstCluster(
         authData: AuthData,
     ): ResultSupreme<StreamCluster> {
-        return fusedAPIRepository.getAdjustedFirstCluster(authData, streamBundle, clusterPointer).apply {
-            if (isValidData()) addNewClusterData(this.data!!)
-        }
+        return fusedAPIRepository.getAdjustedFirstCluster(authData, streamBundle, clusterPointer)
+            .apply {
+                if (isValidData()) addNewClusterData(this.data!!)
+            }
     }
 
     /**
@@ -374,4 +363,15 @@ class ApplicationListViewModel @Inject constructor(
 
     private fun getOrigin(source: String) =
         if (source.contentEquals("Open Source")) Origin.CLEANAPK else Origin.GPLAY
+
+    /**
+     * @return returns true if there is changes in data, otherwise false
+     */
+    fun isAnyAppUpdated(
+        newFusedApps: List<FusedApp>,
+        oldFusedApps: List<FusedApp>
+    ) = fusedAPIRepository.isAnyFusedAppUpdated(newFusedApps, oldFusedApps)
+
+    fun hasAnyAppInstallStatusChanged(currentList: List<FusedApp>) =
+        fusedAPIRepository.isAnyAppInstallStatusChanged(currentList)
 }

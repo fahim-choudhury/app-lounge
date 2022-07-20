@@ -18,6 +18,7 @@
 
 package foundation.e.apps.api.cleanapk
 
+import foundation.e.apps.OpenForTesting
 import foundation.e.apps.api.cleanapk.data.app.Application
 import foundation.e.apps.api.cleanapk.data.categories.Categories
 import foundation.e.apps.api.cleanapk.data.download.Download
@@ -26,6 +27,7 @@ import foundation.e.apps.api.cleanapk.data.search.Search
 import retrofit2.Response
 import javax.inject.Inject
 
+@OpenForTesting
 class CleanAPKRepository @Inject constructor(
     private val cleanAPKInterface: CleanAPKInterface,
     private val cleanApkAppDetailApi: CleanApkAppDetailApi

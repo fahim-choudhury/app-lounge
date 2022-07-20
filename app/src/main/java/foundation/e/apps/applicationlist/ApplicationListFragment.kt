@@ -36,6 +36,7 @@ import foundation.e.apps.AppProgressViewModel
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.PrivacyInfoViewModel
 import foundation.e.apps.R
+import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
@@ -44,7 +45,6 @@ import foundation.e.apps.databinding.FragmentApplicationListBinding
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
@@ -72,15 +72,7 @@ class ApplicationListFragment :
     private var _binding: FragmentApplicationListBinding? = null
     private val binding get() = _binding!!
 
-    /*
-     * Prevent reloading apps.
-     * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/478
-     */
-    private var isDetailsLoaded = false
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    private lateinit var listAdapter: ApplicationListRVAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -91,6 +83,32 @@ class ApplicationListFragment :
             setNavigationOnClickListener {
                 view.findNavController().navigate(R.id.categoriesFragment)
             }
+        }
+
+        setupRecyclerView(view)
+        observeAppListLiveData()
+
+        /*
+         * Explanation of double observers in HomeFragment.kt
+         */
+
+        mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) {
+            refreshDataOrRefreshToken(mainActivityViewModel)
+        }
+        mainActivityViewModel.authData.observe(viewLifecycleOwner) {
+            refreshDataOrRefreshToken(mainActivityViewModel)
+        }
+    }
+
+    private fun setupRecyclerView(view: View) {
+        val recyclerView = initRecyclerView()
+        findNavController().currentDestination?.id?.let {
+            listAdapter = initAppListAdapter(it)
+        }
+
+        recyclerView.apply {
+            adapter = listAdapter
+            layoutManager = LinearLayoutManager(view?.context)
         }
     }
 
@@ -118,79 +136,97 @@ class ApplicationListFragment :
     override fun onResume() {
         super.onResume()
 
-        val recyclerView = binding.recyclerView
-        recyclerView.recycledViewPool.setMaxRecycledViews(0, 0)
-        val listAdapter =
-            findNavController().currentDestination?.id?.let {
-                ApplicationListRVAdapter(
-                    this,
-                    privacyInfoViewModel,
-                    appInfoFetchViewModel,
-                    mainActivityViewModel,
-                    it,
-                    pkgManagerModule,
-                    pwaManagerModule,
-                    User.valueOf(mainActivityViewModel.userType.value ?: User.UNAVAILABLE.name),
-                    viewLifecycleOwner
-                ) { fusedApp ->
-                    if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(fusedApp)) {
-                        ApplicationDialogFragment(
-                            title = getString(R.string.dialog_title_paid_app, fusedApp.name),
-                            message = getString(
-                                R.string.dialog_paidapp_message,
-                                fusedApp.name,
-                                fusedApp.price
-                            ),
-                            positiveButtonText = getString(R.string.dialog_confirm),
-                            positiveButtonAction = {
-                                getApplication(fusedApp)
-                            },
-                            cancelButtonText = getString(R.string.dialog_cancel),
-                        ).show(childFragmentManager, "HomeFragment")
-                    }
-                }
+        if (listAdapter.currentList.isNotEmpty() && viewModel.hasAnyAppInstallStatusChanged(listAdapter.currentList)) {
+            mainActivityViewModel.authData.value?.let {
+                refreshData(it)
             }
-
-        recyclerView.apply {
-            adapter = listAdapter
-            layoutManager = LinearLayoutManager(view?.context)
         }
+    }
 
+    private fun observeAppListLiveData() {
         viewModel.appListLiveData.observe(viewLifecycleOwner) {
             stopLoadingUI()
             if (!it.isSuccess()) {
                 onTimeout()
             } else {
-                val currentList = listAdapter?.currentList
-                if (it.data != null && !currentList.isNullOrEmpty() && !viewModel.hasAnyChangeBetweenOldFusedAppsListAndNewFusedAppsList(
-                        it.data!!,
-                        currentList
-                    )
-                ) {
+                if (!isFusedAppsUpdated(it)) {
                     return@observe
                 }
-                listAdapter?.setData(it.data!!)
-                listAdapter?.let { adapter ->
-                    observeDownloadList(adapter)
-                }
-
+                updateAppListRecyclerView(listAdapter, it)
                 appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
                     updateProgressOfDownloadingItems(binding.recyclerView, it)
                 }
             }
         }
+    }
 
-        /*
-         * Explanation of double observers in HomeFragment.kt
-         */
+    private fun isFusedAppsUpdated(it: ResultSupreme<List<FusedApp>>) =
+        listAdapter.currentList.isEmpty() || it.data != null && viewModel.isAnyAppUpdated(
+            it.data!!,
+            listAdapter.currentList
+        )
 
-        mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) {
-            refreshDataOrRefreshToken(mainActivityViewModel)
-        }
-        mainActivityViewModel.authData.observe(viewLifecycleOwner) {
-            refreshDataOrRefreshToken(mainActivityViewModel)
+    private fun initAppListAdapter(
+        currentDestinationId: Int
+    ): ApplicationListRVAdapter {
+        return ApplicationListRVAdapter(
+            this,
+            privacyInfoViewModel,
+            appInfoFetchViewModel,
+            mainActivityViewModel,
+            currentDestinationId,
+            viewLifecycleOwner
+        ) { fusedApp ->
+            if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(fusedApp)) {
+                showPaidAppMessage(fusedApp)
+            }
         }
     }
+
+    private fun showPaidAppMessage(fusedApp: FusedApp) {
+        ApplicationDialogFragment(
+            title = getString(R.string.dialog_title_paid_app, fusedApp.name),
+            message = getString(
+                R.string.dialog_paidapp_message,
+                fusedApp.name,
+                fusedApp.price
+            ),
+            positiveButtonText = getString(R.string.dialog_confirm),
+            positiveButtonAction = {
+                getApplication(fusedApp)
+            },
+            cancelButtonText = getString(R.string.dialog_cancel),
+        ).show(childFragmentManager, "HomeFragment")
+    }
+
+    private fun initRecyclerView(): RecyclerView {
+        val recyclerView = binding.recyclerView
+        recyclerView.recycledViewPool.setMaxRecycledViews(0, 0)
+        return recyclerView
+    }
+
+    private fun updateAppListRecyclerView(
+        listAdapter: ApplicationListRVAdapter?,
+        fusedAppResult: ResultSupreme<List<FusedApp>>
+    ) {
+        val currentList = listAdapter?.currentList
+        if (!isFusedAppsUpdated(fusedAppResult, currentList)
+        ) {
+            return
+        }
+        listAdapter?.setData(fusedAppResult.data!!)
+        listAdapter?.let { adapter ->
+            observeDownloadList(adapter)
+        }
+    }
+
+    private fun isFusedAppsUpdated(
+        fusedAppResult: ResultSupreme<List<FusedApp>>,
+        currentList: MutableList<FusedApp>?
+    ) = currentList.isNullOrEmpty() || fusedAppResult.data != null && viewModel.isFusedAppUpdated(
+        fusedAppResult.data!!,
+        currentList
+    )
 
     override fun onTimeout() {
         if (!isTimeoutDialogDisplayed()) {
