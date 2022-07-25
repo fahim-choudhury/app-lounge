@@ -126,6 +126,6 @@
     <string name="something_went_wrong">Etwas ist schiefgegangen!</string>
     <string name="sign_in_failed_title">Google Anmeldung fehlgeschlagen!</string>
     <string name="update_error">Aktualisierungsfehler!</string>
-    <string name="error_signature_mismatch">Die Aktualisierung kann nicht installiert werden, da die Signatur der Aktualisierung von %1$s nicht mit der Signatur der auf Ihrem Telefon installierten Version übereinstimmt. Um das Problem zu beheben, können Sie %1$s deinstallieren und es danach von der App Lounge neuinstallieren.</string>
+    <string name="error_signature_mismatch">Die Aktualisierung kann nicht installiert werden, da die Signatur der Aktualisierung von %1$s nicht mit der Signatur der auf Ihrem Telefon installierten Version übereinstimmt. Um das Problem zu beheben, können Sie %1$s deinstallieren und es danach von der App Lounge erneut installieren. <br/><br/> Bemerkung: Diese Nachricht wird nicht wieder erscheinen.</string>
     <string name="sign_in_failed_desc">Aufgrund eines Netzwerkfehlers konnte App Lounge die Google Anmelde-Daten nicht erhalten.</string>
 </resources>
