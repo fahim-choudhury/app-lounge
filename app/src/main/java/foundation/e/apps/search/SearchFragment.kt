@@ -53,7 +53,6 @@ import foundation.e.apps.databinding.FragmentSearchBinding
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
@@ -133,25 +132,10 @@ class SearchFragment :
                 appInfoFetchViewModel,
                 mainActivityViewModel,
                 it,
-                pkgManagerModule,
-                pwaManagerModule,
-                User.valueOf(mainActivityViewModel.userType.value ?: User.UNAVAILABLE.name),
                 viewLifecycleOwner
             ) { fusedApp ->
                 if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(fusedApp)) {
-                    ApplicationDialogFragment(
-                        title = getString(R.string.dialog_title_paid_app, fusedApp.name),
-                        message = getString(
-                            R.string.dialog_paidapp_message,
-                            fusedApp.name,
-                            fusedApp.price
-                        ),
-                        positiveButtonText = getString(R.string.dialog_confirm),
-                        positiveButtonAction = {
-                            getApplication(fusedApp)
-                        },
-                        cancelButtonText = getString(R.string.dialog_cancel),
-                    ).show(childFragmentManager, "SearchFragment")
+                    showPaidAppMessage(fusedApp)
                 }
             }
         }
@@ -165,6 +149,14 @@ class SearchFragment :
             if (it.data?.first.isNullOrEmpty()) {
                 noAppsFoundLayout?.visibility = View.VISIBLE
             } else {
+                val currentList = listAdapter?.currentList
+                if (it.data?.first != null && !currentList.isNullOrEmpty() && !searchViewModel.isAnyAppUpdated(
+                        it.data?.first!!,
+                        currentList
+                    )
+                ) {
+                    return@observe
+                }
                 listAdapter?.setData(it.data!!.first)
                 binding.loadingProgressBar.isVisible = it.data!!.second
                 stopLoadingUI()
@@ -203,6 +195,22 @@ class SearchFragment :
         }
     }
 
+    private fun showPaidAppMessage(fusedApp: FusedApp) {
+        ApplicationDialogFragment(
+            title = getString(R.string.dialog_title_paid_app, fusedApp.name),
+            message = getString(
+                R.string.dialog_paidapp_message,
+                fusedApp.name,
+                fusedApp.price
+            ),
+            positiveButtonText = getString(R.string.dialog_confirm),
+            positiveButtonAction = {
+                getApplication(fusedApp)
+            },
+            cancelButtonText = getString(R.string.dialog_cancel),
+        ).show(childFragmentManager, "SearchFragment")
+    }
+
     private fun observeDownloadList(applicationListRVAdapter: ApplicationListRVAdapter) {
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
             val searchList =
@@ -237,7 +245,7 @@ class SearchFragment :
 
     override fun refreshData(authData: AuthData) {
         showLoadingUI()
-        searchViewModel.getSearchResults(searchText, authData, this)
+        searchViewModel.getSearchResults(searchText, authData, viewLifecycleOwner)
     }
 
     private fun showLoadingUI() {
@@ -281,7 +289,18 @@ class SearchFragment :
         appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
             updateProgressOfInstallingApps(it)
         }
+
+        if (shouldRefreshData()) {
+            mainActivityViewModel.authData.value?.let {
+                refreshData(it)
+            }
+        }
     }
+
+    private fun shouldRefreshData() =
+        searchText.isNotEmpty() && recyclerView?.adapter != null && searchViewModel.hasAnyAppInstallStatusChanged(
+            (recyclerView?.adapter as ApplicationListRVAdapter).currentList
+        )
 
     override fun onPause() {
         binding.shimmerLayout.stopShimmer()
@@ -330,6 +349,7 @@ class SearchFragment :
         _binding = null
         searchView = null
         shimmerLayout = null
+        recyclerView?.adapter = null
         recyclerView = null
         searchHintLayout = null
         noAppsFoundLayout = null

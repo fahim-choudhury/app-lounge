@@ -2,6 +2,7 @@ package foundation.e.apps.manager.database
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asFlow
+import foundation.e.apps.OpenForTesting
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.database.fusedDownload.FusedDownloadDAO
 import kotlinx.coroutines.flow.Flow
@@ -9,6 +10,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@OpenForTesting
 class DatabaseRepository @Inject constructor(
     private val fusedDownloadDAO: FusedDownloadDAO
 ) {

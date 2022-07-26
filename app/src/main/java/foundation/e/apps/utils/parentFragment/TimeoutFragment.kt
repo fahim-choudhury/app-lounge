@@ -182,7 +182,8 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
          */
         try {
             timeoutAlertDialog?.dismiss()
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+        }
 
         timeoutAlertDialog = timeoutAlertDialogBuilder.create()
         timeoutAlertDialog?.show()
@@ -210,7 +211,8 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
         if (isTimeoutDialogDisplayed()) {
             try {
                 timeoutAlertDialog?.dismiss()
-            } catch (_: Exception) {}
+            } catch (_: Exception) {
+            }
         }
     }
 }

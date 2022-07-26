@@ -41,19 +41,14 @@ import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.databinding.HomeChildListItemBinding
 import foundation.e.apps.home.HomeFragmentDirections
-import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.modules.PWAManagerModule
 
 class HomeChildRVAdapter(
     private var fusedAPIInterface: FusedAPIInterface?,
-    private val pkgManagerModule: PkgManagerModule,
-    private val pwaManagerModule: PWAManagerModule,
     private val appInfoFetchViewModel: AppInfoFetchViewModel,
     private val mainActivityViewModel: MainActivityViewModel,
-    private val user: User,
     private var lifecycleOwner: LifecycleOwner?,
     private var paidAppHandler: ((FusedApp) -> Unit)? = null
 ) : ListAdapter<FusedApp, HomeChildRVAdapter.ViewHolder>(HomeChildFusedAppDiffUtil()) {
@@ -153,7 +148,7 @@ class HomeChildRVAdapter(
 
     private fun HomeChildListItemBinding.handleBlocked(view: View) {
         installButton.setOnClickListener {
-            val errorMsg = when (user) {
+            val errorMsg = when (mainActivityViewModel.getUser()) {
                 User.ANONYMOUS,
                 User.UNAVAILABLE -> view.context.getString(R.string.install_blocked_anonymous)
                 User.GOOGLE -> view.context.getString(R.string.install_blocked_google)
@@ -265,9 +260,9 @@ class HomeChildRVAdapter(
                 ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
                 if (homeApp.is_pwa) {
-                    pwaManagerModule.launchPwa(homeApp)
+                    mainActivityViewModel.launchPwa(homeApp)
                 } else {
-                    context.startActivity(pkgManagerModule.getLaunchIntent(homeApp.package_name))
+                    context.startActivity(mainActivityViewModel.getLaunchIntentForPackageName(homeApp.package_name))
                 }
             }
         }

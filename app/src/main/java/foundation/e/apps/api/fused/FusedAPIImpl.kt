@@ -47,6 +47,7 @@ import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.api.fused.data.Ratings
 import foundation.e.apps.api.fused.utils.CategoryUtils
 import foundation.e.apps.api.gplay.GPlayAPIRepository
+import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.AppTag
@@ -1259,5 +1260,75 @@ class FusedAPIImpl @Inject constructor(
             list.add(it.url)
         }
         return list
+    }
+
+    /**
+     * @return true, if any change is found, otherwise false
+     */
+    fun isHomeDataUpdated(
+        newHomeData: List<FusedHome>,
+        oldHomeData: List<FusedHome>
+    ): Boolean {
+        if (newHomeData.size != oldHomeData.size) {
+            return true
+        }
+
+        oldHomeData.forEach {
+            val fusedHome = newHomeData[oldHomeData.indexOf(it)]
+            if (!it.title.contentEquals(fusedHome.title) || !areFusedAppsUpdated(it, fusedHome)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun areFusedAppsUpdated(
+        oldFusedHome: FusedHome,
+        newFusedHome: FusedHome,
+    ): Boolean {
+        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
+
+        oldFusedHome.list.forEach { oldFusedApp ->
+            val indexOfOldFusedApp = oldFusedHome.list.indexOf(oldFusedApp)
+            val fusedApp = newFusedHome.list[indexOfOldFusedApp]
+            if (!fusedAppDiffUtil.areContentsTheSame(oldFusedApp, fusedApp)) {
+                return false
+            }
+        }
+        return true
+    }
+
+    /**
+     * @return returns true if there is changes in data, otherwise false
+     */
+    fun isAnyFusedAppUpdated(
+        newFusedApps: List<FusedApp>,
+        oldFusedApps: List<FusedApp>
+    ): Boolean {
+        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
+        if (newFusedApps.size != oldFusedApps.size) {
+            return true
+        }
+
+        newFusedApps.forEach {
+            val indexOfNewFusedApp = newFusedApps.indexOf(it)
+            if (!fusedAppDiffUtil.areContentsTheSame(it, oldFusedApps[indexOfNewFusedApp])) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun isAnyAppInstallStatusChanged(currentList: List<FusedApp>): Boolean {
+        currentList.forEach {
+            if (it.status == Status.INSTALLATION_ISSUE) {
+                return@forEach
+            }
+            val currentAppStatus = pkgManagerModule.getPackageStatus(it.package_name, it.latest_version_code)
+            if (it.status != currentAppStatus) {
+                return true
+            }
+        }
+        return false
     }
 }

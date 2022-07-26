@@ -19,6 +19,7 @@
 package foundation.e.apps
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.SystemClock
@@ -56,6 +57,7 @@ import foundation.e.apps.utils.enums.isUnFiltered
 import foundation.e.apps.utils.modules.CommonUtilsModule.NETWORK_CODE_SUCCESS
 import foundation.e.apps.utils.modules.CommonUtilsModule.timeoutDurationInMillis
 import foundation.e.apps.utils.modules.DataStoreModule
+import foundation.e.apps.utils.modules.PWAManagerModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -71,6 +73,7 @@ class MainActivityViewModel @Inject constructor(
     private val fusedAPIRepository: FusedAPIRepository,
     private val fusedManagerRepository: FusedManagerRepository,
     private val pkgManagerModule: PkgManagerModule,
+    private val pwaManagerModule: PWAManagerModule,
     private val ecloudRepository: EcloudRepository,
     private val blockedAppRepository: BlockedAppRepository,
     private val aC2DMTask: AC2DMTask,
@@ -120,6 +123,10 @@ class MainActivityViewModel @Inject constructor(
     companion object {
         private const val TAG = "MainActivityViewModel"
         private var isGoogleLoginRunning = false
+    }
+
+    fun getUser(): User {
+        return User.valueOf(userType.value ?: User.UNAVAILABLE.name)
     }
 
     private fun setFirstTokenFetchTime() {
@@ -630,5 +637,13 @@ class MainActivityViewModel @Inject constructor(
 
     fun getAppNameByPackageName(packageName: String): String {
         return pkgManagerModule.getAppNameFromPackageName(packageName)
+    }
+
+    fun getLaunchIntentForPackageName(packageName: String): Intent? {
+        return pkgManagerModule.getLaunchIntent(packageName)
+    }
+
+    fun launchPwa(fusedApp: FusedApp) {
+        pwaManagerModule.launchPwa(fusedApp)
     }
 }

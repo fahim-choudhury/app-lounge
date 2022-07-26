@@ -124,7 +124,10 @@ class FusedAPIRepository @Inject constructor(
         return fusedAPIImpl.fetchAuthData(email, aasToken)
     }
 
-    fun getSearchResults(query: String, authData: AuthData): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> {
+    fun getSearchResults(
+        query: String,
+        authData: AuthData
+    ): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> {
         return fusedAPIImpl.getSearchResults(query, authData)
     }
 
@@ -167,4 +170,17 @@ class FusedAPIRepository @Inject constructor(
     fun getFusedAppInstallationStatus(fusedApp: FusedApp): Status {
         return fusedAPIImpl.getFusedAppInstallationStatus(fusedApp)
     }
+
+    fun isHomeDataUpdated(
+        newHomeData: List<FusedHome>,
+        oldHomeData: List<FusedHome>
+    ) = fusedAPIImpl.isHomeDataUpdated(newHomeData, oldHomeData)
+
+    fun isAnyFusedAppUpdated(
+        newFusedApps: List<FusedApp>,
+        oldFusedApps: List<FusedApp>
+    ) = fusedAPIImpl.isAnyFusedAppUpdated(newFusedApps, oldFusedApps)
+
+    fun isAnyAppInstallStatusChanged(currentList: List<FusedApp>) =
+        fusedAPIImpl.isAnyAppInstallStatusChanged(currentList)
 }

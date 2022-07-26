@@ -47,13 +47,11 @@ import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.applicationlist.ApplicationListFragmentDirections
 import foundation.e.apps.databinding.ApplicationListItemBinding
-import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.search.SearchFragmentDirections
 import foundation.e.apps.updates.UpdatesFragmentDirections
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.modules.PWAManagerModule
 import javax.inject.Singleton
 
 @Singleton
@@ -63,9 +61,6 @@ class ApplicationListRVAdapter(
     private val appInfoFetchViewModel: AppInfoFetchViewModel,
     private val mainActivityViewModel: MainActivityViewModel,
     private val currentDestinationId: Int,
-    private val pkgManagerModule: PkgManagerModule,
-    private val pwaManagerModule: PWAManagerModule,
-    private val user: User,
     private var lifecycleOwner: LifecycleOwner?,
     private var paidAppHandler: ((FusedApp) -> Unit)? = null
 ) : ListAdapter<FusedApp, ApplicationListRVAdapter.ViewHolder>(ApplicationDiffUtil()) {
@@ -267,7 +262,7 @@ class ApplicationListRVAdapter(
         installButton.apply {
             isEnabled = true
             setOnClickListener {
-                val errorMsg = when (user) {
+                val errorMsg = when (mainActivityViewModel.getUser()) {
                     User.ANONYMOUS,
                     User.UNAVAILABLE -> view.context.getString(R.string.install_blocked_anonymous)
                     User.GOOGLE -> view.context.getString(R.string.install_blocked_google)
@@ -458,9 +453,9 @@ class ApplicationListRVAdapter(
             strokeColor = ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
                 if (searchApp.is_pwa) {
-                    pwaManagerModule.launchPwa(searchApp)
+                    mainActivityViewModel.launchPwa(searchApp)
                 } else {
-                    context.startActivity(pkgManagerModule.getLaunchIntent(searchApp.package_name))
+                    context.startActivity(mainActivityViewModel.getLaunchIntentForPackageName(searchApp.package_name))
                 }
             }
         }

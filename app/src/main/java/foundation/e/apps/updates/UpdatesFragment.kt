@@ -48,7 +48,6 @@ import foundation.e.apps.manager.workmanager.InstallWorkManager.INSTALL_WORK_NAM
 import foundation.e.apps.updates.manager.UpdatesWorkManager
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.modules.CommonUtilsModule.safeNavigate
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
@@ -103,25 +102,10 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                 appInfoFetchViewModel,
                 mainActivityViewModel,
                 it,
-                pkgManagerModule,
-                pwaManagerModule,
-                User.valueOf(mainActivityViewModel.userType.value ?: User.UNAVAILABLE.name),
                 viewLifecycleOwner,
             ) { fusedApp ->
                 if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(fusedApp)) {
-                    ApplicationDialogFragment(
-                        title = getString(R.string.dialog_title_paid_app, fusedApp.name),
-                        message = getString(
-                            R.string.dialog_paidapp_message,
-                            fusedApp.name,
-                            fusedApp.price
-                        ),
-                        positiveButtonText = getString(R.string.dialog_confirm),
-                        positiveButtonAction = {
-                            getApplication(fusedApp)
-                        },
-                        cancelButtonText = getString(R.string.dialog_cancel),
-                    ).show(childFragmentManager, "UpdatesFragment")
+                    showPurchasedAppMessage(fusedApp)
                 }
             }
         }
@@ -160,6 +144,22 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                 onTimeout()
             }
         }
+    }
+
+    private fun showPurchasedAppMessage(fusedApp: FusedApp) {
+        ApplicationDialogFragment(
+            title = getString(R.string.dialog_title_paid_app, fusedApp.name),
+            message = getString(
+                R.string.dialog_paidapp_message,
+                fusedApp.name,
+                fusedApp.price
+            ),
+            positiveButtonText = getString(R.string.dialog_confirm),
+            positiveButtonAction = {
+                getApplication(fusedApp)
+            },
+            cancelButtonText = getString(R.string.dialog_cancel),
+        ).show(childFragmentManager, "UpdatesFragment")
     }
 
     override fun onTimeout() {

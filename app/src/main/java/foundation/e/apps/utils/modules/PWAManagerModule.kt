@@ -12,6 +12,7 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.OpenForTesting
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.manager.database.DatabaseRepository
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
@@ -21,6 +22,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@OpenForTesting
 class PWAManagerModule @Inject constructor(
     @ApplicationContext private val context: Context,
     private val databaseRepository: DatabaseRepository

@@ -36,6 +36,7 @@ import foundation.e.apps.R
 import foundation.e.apps.api.fused.FusedAPIImpl
 import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
+import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.databinding.FragmentHomeBinding
 import foundation.e.apps.home.model.HomeChildRVAdapter
@@ -85,6 +86,48 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
             }
         }
 
+        loadHomePageData()
+
+        homeParentRVAdapter = initHomeParentRVAdapter()
+
+        binding.parentRV.apply {
+            adapter = homeParentRVAdapter
+            layoutManager = LinearLayoutManager(view.context)
+        }
+
+        observeHomeScreenData()
+    }
+
+    private fun observeHomeScreenData() {
+        homeViewModel.homeScreenData.observe(viewLifecycleOwner) {
+            stopLoadingUI()
+            if (it.second != ResultStatus.OK) {
+                onTimeout()
+                return@observe
+            }
+
+            if (!isHomeDataUpdated(it)) {
+                return@observe
+            }
+
+            dismissTimeoutDialog()
+            homeParentRVAdapter?.setData(it.first)
+        }
+    }
+
+    private fun initHomeParentRVAdapter() = HomeParentRVAdapter(
+        this,
+        pkgManagerModule,
+        pwaManagerModule,
+        User.valueOf(mainActivityViewModel.userType.value ?: User.UNAVAILABLE.name),
+        mainActivityViewModel, appInfoFetchViewModel, viewLifecycleOwner
+    ) { fusedApp ->
+        if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(fusedApp)) {
+            showPaidAppMessage(fusedApp)
+        }
+    }
+
+    private fun loadHomePageData() {
         /*
          * Previous code:
          * internetConnection.observe {
@@ -129,45 +172,29 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         mainActivityViewModel.authData.observe(viewLifecycleOwner) {
             refreshDataOrRefreshToken(mainActivityViewModel)
         }
-
-        homeParentRVAdapter = HomeParentRVAdapter(
-            this,
-            pkgManagerModule,
-            pwaManagerModule,
-            User.valueOf(mainActivityViewModel.userType.value ?: User.UNAVAILABLE.name),
-            mainActivityViewModel, appInfoFetchViewModel, viewLifecycleOwner
-        ) { fusedApp ->
-            if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(fusedApp)) {
-                ApplicationDialogFragment(
-                    title = getString(R.string.dialog_title_paid_app, fusedApp.name),
-                    message = getString(R.string.dialog_paidapp_message, fusedApp.name, fusedApp.price),
-                    positiveButtonText = getString(R.string.dialog_confirm),
-                    positiveButtonAction = {
-                        getApplication(fusedApp)
-                    },
-                    cancelButtonText = getString(R.string.dialog_cancel),
-                ).show(childFragmentManager, "HomeFragment")
-            }
-        }
-
-        binding.parentRV.apply {
-            adapter = homeParentRVAdapter
-            layoutManager = LinearLayoutManager(view.context)
-        }
-
-        homeViewModel.homeScreenData.observe(viewLifecycleOwner) {
-            stopLoadingUI()
-            if (it.second == ResultStatus.OK) {
-                if (!homeParentRVAdapter?.currentList.isNullOrEmpty()) {
-                    return@observe
-                }
-                dismissTimeoutDialog()
-                homeParentRVAdapter?.setData(it.first)
-            } else {
-                onTimeout()
-            }
-        }
     }
+
+    private fun showPaidAppMessage(fusedApp: FusedApp) {
+        ApplicationDialogFragment(
+            title = getString(R.string.dialog_title_paid_app, fusedApp.name),
+            message = getString(
+                R.string.dialog_paidapp_message,
+                fusedApp.name,
+                fusedApp.price
+            ),
+            positiveButtonText = getString(R.string.dialog_confirm),
+            positiveButtonAction = {
+                getApplication(fusedApp)
+            },
+            cancelButtonText = getString(R.string.dialog_cancel),
+        ).show(childFragmentManager, "HomeFragment")
+    }
+
+    private fun isHomeDataUpdated(homeScreenResult: Pair<List<FusedHome>, ResultStatus>) =
+        homeParentRVAdapter?.currentList?.isEmpty() == true || homeViewModel.isHomeDataUpdated(
+            homeScreenResult.first,
+            homeParentRVAdapter?.currentList as List<FusedHome>
+        )
 
     override fun onTimeout() {
         if (homeViewModel.isFusedHomesEmpty() && !isTimeoutDialogDisplayed()) {
@@ -240,21 +267,30 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         childRV: RecyclerView
     ) {
         lifecycleScope.launch {
-            adapter.currentList.forEach { fusedApp ->
-                if (fusedApp.status == Status.DOWNLOADING) {
-                    val progress =
-                        appProgressViewModel.calculateProgress(fusedApp, downloadProgress)
-                    if (progress == -1) {
-                        return@forEach
-                    }
-                    val childViewHolder = childRV.findViewHolderForAdapterPosition(
-                        adapter.currentList.indexOf(fusedApp)
-                    )
-                    childViewHolder?.let {
-                        (childViewHolder as HomeChildRVAdapter.ViewHolder).binding.installButton.text =
-                            "$progress%"
-                    }
-                }
+            updateDownloadProgressOfAppList(adapter, downloadProgress, childRV)
+        }
+    }
+
+    private suspend fun updateDownloadProgressOfAppList(
+        adapter: HomeChildRVAdapter,
+        downloadProgress: DownloadProgress,
+        childRV: RecyclerView
+    ) {
+        adapter.currentList.forEach { fusedApp ->
+            if (fusedApp.status != Status.DOWNLOADING) {
+                return@forEach
+            }
+            val progress =
+                appProgressViewModel.calculateProgress(fusedApp, downloadProgress)
+            if (progress == -1) {
+                return@forEach
+            }
+            val childViewHolder = childRV.findViewHolderForAdapterPosition(
+                adapter.currentList.indexOf(fusedApp)
+            )
+            childViewHolder?.let {
+                (childViewHolder as HomeChildRVAdapter.ViewHolder).binding.installButton.text =
+                    "$progress%"
             }
         }
     }
@@ -265,6 +301,12 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         binding.shimmerLayout.startShimmer()
         appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
             updateProgressOfDownloadingAppItemViews(homeParentRVAdapter, it)
+        }
+
+        if (homeViewModel.isAnyAppInstallStatusChanged(homeParentRVAdapter?.currentList)) {
+            mainActivityViewModel.authData.value?.let {
+                refreshData(it)
+            }
         }
     }
 

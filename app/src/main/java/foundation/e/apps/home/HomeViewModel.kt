@@ -24,6 +24,7 @@ import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.fused.FusedAPIRepository
+import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.utils.enums.ResultStatus
 import kotlinx.coroutines.launch
@@ -31,7 +32,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val fusedAPIRepository: FusedAPIRepository
+    private val fusedAPIRepository: FusedAPIRepository,
 ) : ViewModel() {
 
     /*
@@ -44,7 +45,8 @@ class HomeViewModel @Inject constructor(
 
     fun getHomeScreenData(authData: AuthData) {
         viewModelScope.launch {
-            homeScreenData.postValue(fusedAPIRepository.getHomeScreenData(authData))
+            val screenData = fusedAPIRepository.getHomeScreenData(authData)
+            homeScreenData.postValue(screenData)
         }
     }
 
@@ -56,5 +58,20 @@ class HomeViewModel @Inject constructor(
         return homeScreenData.value?.first?.let {
             fusedAPIRepository.isFusedHomesEmpty(it)
         } ?: true
+    }
+
+    fun isHomeDataUpdated(
+        newHomeData: List<FusedHome>,
+        oldHomeData: List<FusedHome>
+    ) = fusedAPIRepository.isHomeDataUpdated(newHomeData, oldHomeData)
+
+    fun isAnyAppInstallStatusChanged(currentList: List<FusedHome>?): Boolean {
+        if (currentList == null) {
+            return false
+        }
+
+        val appList = mutableListOf<FusedApp>()
+        currentList.forEach { appList.addAll(it.list) }
+        return fusedAPIRepository.isAnyAppInstallStatusChanged(appList)
     }
 }
