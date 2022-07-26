@@ -44,6 +44,7 @@ import foundation.e.apps.home.HomeFragmentDirections
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
+import timber.log.Timber
 
 class HomeChildRVAdapter(
     private var fusedAPIInterface: FusedAPIInterface?,
@@ -110,7 +111,7 @@ class HomeChildRVAdapter(
                 Status.UNAVAILABLE -> {
                     handleUnavailable(homeApp, holder, view)
                 }
-                Status.QUEUED, Status.AWAITING, Status.DOWNLOADING -> {
+                Status.QUEUED, Status.AWAITING, Status.DOWNLOADING, Status.DOWNLOADED -> {
                     handleQueued(view, homeApp)
                 }
                 Status.INSTALLING, Status.UNINSTALLING -> {
