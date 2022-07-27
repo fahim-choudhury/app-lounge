@@ -4,6 +4,52 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
+
+        // Gitlab repository configuration for gplayapi dependency
+        def ciJobToken = System.getenv("CI_JOB_TOKEN")
+        def ciApiV4Url = System.getenv("CI_API_V4_URL")
+
+        if (ciJobToken != null) {
+            // Build on CI
+            maven {
+                url "https://gitlab.e.foundation/api/v4/projects/1269/packages/maven"
+                name "GitLab"
+                credentials(HttpHeaderCredentials) {
+                    name = 'Job-Token'
+                    value = ciJobToken
+                }
+                authentication {
+                    header(HttpHeaderAuthentication)
+                }
+            }
+        } else {
+            // Build locally
+            // To build locally, you should set the gitLabPrivateToken variable with
+            // your Gitlab Private Token in your ./local.properties file:
+            //
+            // gitLabPrivateToken=YOUR_TOKEN
+            //
+            // To create a Private Token, go to:
+            // https://gitlab.e.foundation/e/os/gplayapi/-/settings/access_tokens
+            // and tick "api" as scope.
+
+            def localProperties = new Properties()
+            localProperties.load(new FileInputStream(rootProject.projectDir.path + "/local.properties"))
+
+            maven {
+                url "https://gitlab.e.foundation/api/v4/projects/1269/packages/maven"
+                name "GitLab"
+
+                credentials(HttpHeaderCredentials) {
+                    name = 'Private-Token'
+                    value = localProperties['gitLabPrivateToken']
+                }
+                authentication {
+                    header(HttpHeaderAuthentication)
+                }
+            }
+        }
+
     }
 }
 rootProject.name = "App Lounge"
