@@ -48,6 +48,7 @@ class PkgManagerModule @Inject constructor(
 ) {
     companion object {
         const val ERROR_PACKAGE_INSTALL = "ERROR_PACKAGE_INSTALL"
+        const val PACKAGE_NAME = "packageName"
         private const val TAG = "PkgManagerModule"
     }
     private val packageManager = context.packageManager
@@ -159,6 +160,8 @@ class PkgManagerModule @Inject constructor(
             }
 
             val callBackIntent = Intent(context, InstallerService::class.java)
+            callBackIntent.putExtra(PACKAGE_NAME, packageName)
+
             val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE else
                 PendingIntent.FLAG_UPDATE_CURRENT

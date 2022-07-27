@@ -37,7 +37,6 @@ import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.modules.PWAManagerModule
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
@@ -92,7 +91,6 @@ class FusedManagerImpl @Inject constructor(
     suspend fun updateDownloadStatus(fusedDownload: FusedDownload, status: Status) {
         if (status == Status.INSTALLED) {
             fusedDownload.status = status
-//            databaseRepository.updateDownload(fusedDownload)
             DownloadManagerBR.downloadedList.clear()
             flushOldDownload(fusedDownload.packageName)
             databaseRepository.deleteDownload(fusedDownload)
