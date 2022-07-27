@@ -162,10 +162,7 @@ object RetrofitModule {
     fun provideInterceptor(): Interceptor {
         return Interceptor { chain ->
             val builder = chain.request().newBuilder()
-            builder.header(
-                "User-Agent",
-                "Dalvik/2.1.0 (Linux; U; Android ${Build.VERSION.RELEASE}; ${Build.FINGERPRINT})"
-            ).header("Accept-Language", Locale.getDefault().language)
+            builder.header("Accept-Language", Locale.getDefault().language)
             try {
                 return@Interceptor chain.proceed(builder.build())
             } catch (e: ConnectException) {
