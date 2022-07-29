@@ -83,4 +83,7 @@ class FusedManagerRepository @Inject constructor(
     suspend fun updateFusedDownload(fusedDownload: FusedDownload) {
         fusedManagerImpl.updateFusedDownload(fusedDownload)
     }
+
+    fun validateFusedDownload(fusedDownload: FusedDownload) =
+        fusedDownload.packageName.isNotEmpty() && fusedDownload.downloadURLList.isNotEmpty()
 }

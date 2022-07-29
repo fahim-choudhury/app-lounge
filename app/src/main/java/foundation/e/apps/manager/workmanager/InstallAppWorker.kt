@@ -97,6 +97,12 @@ class InstallAppWorker @AssistedInject constructor(
                         "Installing ${it.name}"
                     )
                 )
+
+                if (!fusedManagerRepository.validateFusedDownload(fusedDownload)) {
+                    fusedManagerRepository.installationIssue(it)
+                    return@let
+                }
+
                 startAppInstallationProcess(it)
                 mutex.lock()
             }
