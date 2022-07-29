@@ -110,7 +110,7 @@ class HomeChildRVAdapter(
                 Status.UNAVAILABLE -> {
                     handleUnavailable(homeApp, holder, view)
                 }
-                Status.QUEUED, Status.AWAITING, Status.DOWNLOADING -> {
+                Status.QUEUED, Status.AWAITING, Status.DOWNLOADING, Status.DOWNLOADED -> {
                     handleQueued(view, homeApp)
                 }
                 Status.INSTALLING, Status.UNINSTALLING -> {

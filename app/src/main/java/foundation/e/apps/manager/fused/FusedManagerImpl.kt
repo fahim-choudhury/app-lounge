@@ -37,7 +37,6 @@ import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.modules.PWAManagerModule
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
@@ -92,18 +91,14 @@ class FusedManagerImpl @Inject constructor(
     suspend fun updateDownloadStatus(fusedDownload: FusedDownload, status: Status) {
         if (status == Status.INSTALLED) {
             fusedDownload.status = status
-            databaseRepository.updateDownload(fusedDownload)
             DownloadManagerBR.downloadedList.clear()
-            delay(100)
             flushOldDownload(fusedDownload.packageName)
             databaseRepository.deleteDownload(fusedDownload)
         } else if (status == Status.INSTALLING) {
             fusedDownload.downloadIdMap.all { true }
             fusedDownload.status = status
             databaseRepository.updateDownload(fusedDownload)
-            delay(100)
             installApp(fusedDownload)
-            delay(100)
         }
     }
 
@@ -141,7 +136,6 @@ class FusedManagerImpl @Inject constructor(
                 Timber.d("Unsupported application type!")
                 fusedDownload.status = Status.INSTALLATION_ISSUE
                 databaseRepository.updateDownload(fusedDownload)
-                delay(100)
             }
         }
     }
@@ -157,7 +151,6 @@ class FusedManagerImpl @Inject constructor(
 
             // Reset the status before deleting download
             updateDownloadStatus(fusedDownload, fusedDownload.orgStatus)
-            delay(100)
 
             databaseRepository.deleteDownload(fusedDownload)
             flushOldDownload(fusedDownload.packageName)
@@ -199,7 +192,6 @@ class FusedManagerImpl @Inject constructor(
         fusedDownload.status = Status.DOWNLOADING
         databaseRepository.updateDownload(fusedDownload)
         DownloadProgressLD.setDownloadId(-1)
-        delay(100)
         fusedDownload.downloadURLList.forEach {
             count += 1
             val packagePath: File = if (fusedDownload.files.isNotEmpty()) {

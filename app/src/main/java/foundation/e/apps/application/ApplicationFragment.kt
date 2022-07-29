@@ -381,7 +381,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                         appSize
                     )
                     Status.UNAVAILABLE -> handleUnavaiable(installButton, fusedApp, downloadPB, appSize)
-                    Status.QUEUED, Status.AWAITING -> handleQueued(
+                    Status.QUEUED, Status.AWAITING, Status.DOWNLOADED -> handleQueued(
                         installButton,
                         fusedApp,
                         downloadPB,

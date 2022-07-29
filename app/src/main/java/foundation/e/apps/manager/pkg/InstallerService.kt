@@ -56,8 +56,17 @@ class InstallerService : Service() {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -69)
-        val packageName = intent.getStringExtra(PackageInstaller.EXTRA_PACKAGE_NAME)
+        var packageName = intent.getStringExtra(PackageInstaller.EXTRA_PACKAGE_NAME)
         val extra = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
+
+        /**
+         There is some error case where package name from PackageInstaller remains
+         empty (example: INSTALL_PARSE_FAILED_NOT_APK).
+         the packageName from PkgManagerModule will be used in this error case.
+         */
+        val packageNamePackageManagerModule = intent.getStringExtra(PkgManagerModule.PACKAGE_NAME)
+
+        packageName = packageName ?: packageNamePackageManagerModule
         postStatus(status, packageName, extra)
         stopSelf()
         return START_NOT_STICKY

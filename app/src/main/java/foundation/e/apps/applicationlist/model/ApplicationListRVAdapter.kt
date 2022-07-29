@@ -219,7 +219,7 @@ class ApplicationListRVAdapter(
             Status.UNAVAILABLE -> {
                 handleUnavailable(view, searchApp, holder)
             }
-            Status.QUEUED, Status.AWAITING, Status.DOWNLOADING -> {
+            Status.QUEUED, Status.AWAITING, Status.DOWNLOADING, Status.DOWNLOADED -> {
                 handleDownloading(view, searchApp)
             }
             Status.INSTALLING, Status.UNINSTALLING -> {
