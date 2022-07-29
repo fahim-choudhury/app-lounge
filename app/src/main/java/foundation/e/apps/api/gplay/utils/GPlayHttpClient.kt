@@ -21,7 +21,6 @@ package foundation.e.apps.api.gplay.utils
 
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.network.IHttpClient
-import foundation.e.apps.BuildConfig
 import foundation.e.apps.utils.modules.CommonUtilsModule.timeoutDurationInMillis
 import okhttp3.Cache
 import okhttp3.Headers.Companion.toHeaders
@@ -90,10 +89,6 @@ class GPlayHttpClient @Inject constructor(
         val requestBody = body.toRequestBody("application/json".toMediaType(), 0, body.size)
         val request = Request.Builder()
             .url(url)
-            .header(
-                "User-Agent",
-                "${BuildConfig.APPLICATION_ID}-${BuildConfig.VERSION_NAME}-${BuildConfig.VERSION_CODE}"
-            )
             .method(POST, requestBody)
             .build()
         return processRequest(request)
@@ -131,10 +126,6 @@ class GPlayHttpClient @Inject constructor(
     override fun getAuth(url: String): PlayResponse {
         val request = Request.Builder()
             .url(url)
-            .header(
-                "User-Agent",
-                "${BuildConfig.APPLICATION_ID}-${BuildConfig.VERSION_NAME}-${BuildConfig.VERSION_CODE}"
-            )
             .method(GET, null)
             .build()
         Timber.d("get auth request", request.toString())
