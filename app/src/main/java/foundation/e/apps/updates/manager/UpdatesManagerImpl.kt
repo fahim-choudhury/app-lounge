@@ -77,8 +77,7 @@ class UpdatesManagerImpl @Inject constructor(
                 }
             }
         }
-        val faultyAppsPackageNames = faultyAppRepository.getAllFaultyApps().map { it.packageName }
-        val nonFaultyUpdateList = updateList.filter { !faultyAppsPackageNames.contains(it.package_name) }
+        val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
         return Pair(nonFaultyUpdateList, status)
     }
 

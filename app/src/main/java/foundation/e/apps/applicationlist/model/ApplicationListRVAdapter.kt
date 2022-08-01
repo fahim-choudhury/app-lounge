@@ -47,6 +47,7 @@ import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.applicationlist.ApplicationListFragmentDirections
 import foundation.e.apps.databinding.ApplicationListItemBinding
+import foundation.e.apps.manager.pkg.InstallerService
 import foundation.e.apps.search.SearchFragmentDirections
 import foundation.e.apps.updates.UpdatesFragmentDirections
 import foundation.e.apps.utils.enums.Origin
@@ -244,19 +245,58 @@ class ApplicationListRVAdapter(
         view: View,
         searchApp: FusedApp,
     ) {
+        progressBarInstall.visibility = View.GONE
+        if (lifecycleOwner == null) {
+            return
+        }
+
+        appInfoFetchViewModel.isAppFaulty(searchApp).observe(lifecycleOwner!!) {
+            updateInstallButton(it, view, searchApp)
+        }
+    }
+
+    private fun ApplicationListItemBinding.updateInstallButton(
+        faultyAppResult: Pair<Boolean, String>,
+        view: View,
+        searchApp: FusedApp
+    ) {
         installButton.apply {
-            isEnabled = true
-            text = view.context.getString(R.string.retry)
-            setTextColor(context.getColor(R.color.colorAccent))
+            isEnabled = !faultyAppResult.first
+            text = getInstallationIssueText(faultyAppResult, view)
+            strokeColor = getStrokeColor(isEnabled, view)
+            setButtonTextColor(isEnabled)
             backgroundTintList =
                 ContextCompat.getColorStateList(view.context, android.R.color.transparent)
-            strokeColor = ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
                 installApplication(searchApp, appIcon)
             }
         }
-        progressBarInstall.visibility = View.GONE
     }
+
+    private fun MaterialButton.getInstallationIssueText(
+        faultyAppResult: Pair<Boolean, String>,
+        view: View
+    ) =
+        if (faultyAppResult.second.contentEquals(InstallerService.INSTALL_FAILED_UPDATE_INCOMPATIBLE))
+            view.context.getText(R.string.update)
+        else
+            view.context.getString(R.string.retry)
+
+    private fun MaterialButton.getStrokeColor(
+        isEnabled: Boolean,
+        view: View
+    ) = if (isEnabled) {
+        ContextCompat.getColorStateList(view.context, R.color.colorAccent)
+    } else {
+        ContextCompat.getColorStateList(view.context, R.color.light_grey)
+    }
+
+    private fun MaterialButton.setButtonTextColor(isEnabled: Boolean) =
+        if (isEnabled) {
+            setTextColor(context.getColor(R.color.colorAccent))
+        } else {
+            setTextColor(context.getColor(R.color.light_grey))
+        }
 
     private fun ApplicationListItemBinding.handleBlocked(view: View) {
         installButton.apply {
@@ -455,7 +495,11 @@ class ApplicationListRVAdapter(
                 if (searchApp.is_pwa) {
                     mainActivityViewModel.launchPwa(searchApp)
                 } else {
-                    context.startActivity(mainActivityViewModel.getLaunchIntentForPackageName(searchApp.package_name))
+                    context.startActivity(
+                        mainActivityViewModel.getLaunchIntentForPackageName(
+                            searchApp.package_name
+                        )
+                    )
                 }
             }
         }

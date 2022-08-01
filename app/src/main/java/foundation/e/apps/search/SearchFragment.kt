@@ -19,6 +19,7 @@
 package foundation.e.apps.search
 
 import android.app.Activity
+import android.content.Context
 import android.database.MatrixCursor
 import android.os.Bundle
 import android.provider.BaseColumns
@@ -295,6 +296,11 @@ class SearchFragment :
                 refreshData(it)
             }
         }
+
+        if (searchText.isEmpty() && (recyclerView?.adapter as ApplicationListRVAdapter).currentList.isEmpty()) {
+            searchView?.requestFocus()
+            showKeyboard()
+        }
     }
 
     private fun shouldRefreshData() =
@@ -304,12 +310,15 @@ class SearchFragment :
 
     override fun onPause() {
         binding.shimmerLayout.stopShimmer()
+        hideKeyboard(requireActivity())
         super.onPause()
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
         query?.let { text ->
-            hideKeyboard(activity as Activity)
+            if (text.isNotEmpty()) {
+                hideKeyboard(activity as Activity)
+            }
             view?.requestFocus()
             searchHintLayout?.visibility = View.GONE
             shimmerLayout?.visibility = View.VISIBLE
@@ -367,6 +376,12 @@ class SearchFragment :
             activity.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         val view = activity.currentFocus
         inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
+    }
+
+    private fun showKeyboard() {
+        val imm =
+            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY)
     }
 
     private fun populateSuggestionsAdapter(suggestions: List<SearchSuggestEntry>?) {
