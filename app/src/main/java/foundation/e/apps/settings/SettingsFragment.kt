@@ -18,6 +18,7 @@
 
 package foundation.e.apps.settings
 
+import android.content.ClipboardManager
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -34,9 +35,11 @@ import coil.load
 import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
+import foundation.e.apps.BuildConfig
 import foundation.e.apps.MainActivity
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.R
+import foundation.e.apps.utils.modules.CommonUtilsFunctions
 import foundation.e.apps.databinding.CustomPreferenceBinding
 import foundation.e.apps.setup.signin.SignInViewModel
 import foundation.e.apps.updates.manager.UpdatesWorkManager
@@ -54,6 +57,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     @Inject
     lateinit var gson: Gson
+
+    @Inject
+    lateinit var clipboardManager: ClipboardManager
 
     companion object {
         private const val TAG = "SettingsFragment"
@@ -100,6 +106,29 @@ class SettingsFragment : PreferenceFragmentCompat() {
             showAllApplications?.isChecked = false
             backToMainActivity()
             true
+        }
+
+        val versionInfo = findPreference<LongPressPreference>("versionInfo")
+        versionInfo?.apply {
+            summary = BuildConfig.VERSION_NAME
+            setOnLongClickListener {
+
+                val osVersion = CommonUtilsFunctions.getSystemProperty("ro.lineage.version")
+                val appVersionLabel = getString(R.string.app_version_label)
+                var contents = "$appVersionLabel: $summary"
+                if (!osVersion.isNullOrBlank()) {
+                    contents += "\n${context.getString(R.string.os_version)}: $osVersion"
+                }
+
+                CommonUtilsFunctions.copyTextToClipboard(
+                    clipboardManager,
+                    appVersionLabel,
+                    contents
+                )
+                Toast.makeText(context, R.string.copied, Toast.LENGTH_SHORT).show()
+
+                true
+            }
         }
     }
 
