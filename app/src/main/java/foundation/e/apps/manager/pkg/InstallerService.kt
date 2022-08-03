@@ -50,7 +50,7 @@ class InstallerService : Service() {
 
     companion object {
         const val TAG = "InstallerService"
-        private const val INSTALL_FAILED_UPDATE_INCOMPATIBLE = "INSTALL_FAILED_UPDATE_INCOMPATIBLE"
+        const val INSTALL_FAILED_UPDATE_INCOMPATIBLE = "INSTALL_FAILED_UPDATE_INCOMPATIBLE"
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)

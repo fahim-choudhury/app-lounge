@@ -9,6 +9,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.cleanapk.blockedApps.BlockedAppRepository
+import foundation.e.apps.api.faultyApps.FaultyAppRepository
 import foundation.e.apps.api.fdroid.FdroidRepository
 import foundation.e.apps.api.fdroid.models.FdroidEntity
 import foundation.e.apps.api.fused.data.FusedApp
@@ -27,6 +28,7 @@ import javax.inject.Inject
 class AppInfoFetchViewModel @Inject constructor(
     private val fdroidRepository: FdroidRepository,
     private val gPlayAPIRepository: GPlayAPIRepository,
+    private val faultyAppRepository: FaultyAppRepository,
     private val dataStoreModule: DataStoreModule,
     private val blockedAppRepository: BlockedAppRepository,
     private val gson: Gson
@@ -88,5 +90,12 @@ class AppInfoFetchViewModel @Inject constructor(
 
     fun isAppInBlockedList(fusedApp: FusedApp): Boolean {
         return blockedAppRepository.getBlockedAppPackages().contains(fusedApp.package_name)
+    }
+
+    fun isAppFaulty(fusedApp: FusedApp) = liveData<Pair<Boolean, String>> {
+        val faultyApp = faultyAppRepository.getAllFaultyApps()
+            .find { faultyApp -> faultyApp.packageName.contentEquals(fusedApp.package_name) }
+        val faultyAppResult = Pair(faultyApp != null, faultyApp?.error ?: "")
+        emit(faultyAppResult)
     }
 }
