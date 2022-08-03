@@ -39,11 +39,11 @@ import foundation.e.apps.BuildConfig
 import foundation.e.apps.MainActivity
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.R
-import foundation.e.apps.utils.modules.CommonUtilsFunctions
 import foundation.e.apps.databinding.CustomPreferenceBinding
 import foundation.e.apps.setup.signin.SignInViewModel
 import foundation.e.apps.updates.manager.UpdatesWorkManager
 import foundation.e.apps.utils.enums.User
+import foundation.e.apps.utils.modules.CommonUtilsFunctions
 import timber.log.Timber
 import javax.inject.Inject
 
