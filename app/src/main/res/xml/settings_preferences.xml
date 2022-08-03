@@ -16,7 +16,9 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <PreferenceCategory
@@ -63,6 +65,17 @@
         <foundation.e.apps.settings.RadioButtonPreference
             android:key="showPWAApplications"
             android:title="@string/show_only_pwa_apps" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/about">
+
+        <foundation.e.apps.settings.LongPressPreference
+            android:key="versionInfo"
+            android:title="@string/app_version_label"
+            tools:summary="2.2.1"
+            />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

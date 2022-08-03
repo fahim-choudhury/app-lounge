@@ -64,6 +64,10 @@
     <string name="Show_all_apps">Show all apps</string>
     <string name="show_only_open_source_apps">Show only open-source apps</string>
     <string name="show_only_pwa_apps">Show only PWAs</string>
+    <string name="about">About</string>
+    <string name="app_version_label">App Lounge version</string>
+    <string name="os_version">/e/ OS version</string>
+    <string name="copied">Copied</string>
     <string name="account">Account</string>
     <string name="terms_services">Terms of Services</string>
     <string name="user_anonymous">Anonymous</string>
