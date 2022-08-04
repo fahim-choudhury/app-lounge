@@ -47,6 +47,15 @@ android {
         }
     }
 
+    sourceSets {
+        releaseDev {
+            java.srcDirs = ['src/release/java']
+        }
+        releaseStable {
+            java.srcDirs = ['src/release/java']
+        }
+    }
+
     buildTypes {
         debug {
             versionNameSuffix ".debug"
@@ -60,6 +69,7 @@ android {
         releaseDev {
             minifyEnabled false
             signingConfig signingConfigs.releaseDevConfig
+            sourceSets
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         releaseStable {
