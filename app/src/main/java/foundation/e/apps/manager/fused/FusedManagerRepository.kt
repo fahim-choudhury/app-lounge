@@ -1,9 +1,11 @@
 package foundation.e.apps.manager.fused
 
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asFlow
+import foundation.e.apps.api.fdroid.FdroidRepository
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.utils.enums.Status
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +14,8 @@ import javax.inject.Singleton
 
 @Singleton
 class FusedManagerRepository @Inject constructor(
-    private val fusedManagerImpl: FusedManagerImpl
+    private val fusedManagerImpl: FusedManagerImpl,
+    private val fdroidRepository: FdroidRepository
 ) {
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -86,4 +89,9 @@ class FusedManagerRepository @Inject constructor(
 
     fun validateFusedDownload(fusedDownload: FusedDownload) =
         fusedDownload.packageName.isNotEmpty() && fusedDownload.downloadURLList.isNotEmpty()
+
+    suspend fun isFdroidApplicationSigned(context: Context, fusedDownload: FusedDownload): Boolean {
+        val apkFilePath = fusedManagerImpl.getBaseApkPath(fusedDownload)
+        return fdroidRepository.isFdroidApplicationSigned(context, fusedDownload.packageName, apkFilePath, fusedDownload.signature)
+    }
 }

@@ -18,6 +18,7 @@
 
 package foundation.e.apps.api.cleanapk
 
+import android.os.Build
 import android.util.Log
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
@@ -161,7 +162,10 @@ object RetrofitModule {
     fun provideInterceptor(): Interceptor {
         return Interceptor { chain ->
             val builder = chain.request().newBuilder()
-            builder.header("Accept-Language", Locale.getDefault().language)
+            builder.header(
+                "User-Agent",
+                "Dalvik/2.1.0 (Linux; U; Android ${Build.VERSION.RELEASE};)"
+            ).header("Accept-Language", Locale.getDefault().language)
             try {
                 return@Interceptor chain.proceed(builder.build())
             } catch (e: ConnectException) {

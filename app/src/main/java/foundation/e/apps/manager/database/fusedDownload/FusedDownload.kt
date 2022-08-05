@@ -23,5 +23,6 @@ data class FusedDownload(
     val offerType: Int = -1,
     val isFree: Boolean = true,
     val appSize: Long = 0,
-    var files: List<File> = mutableListOf()
+    var files: List<File> = mutableListOf(),
+    var signature: String = String()
 )

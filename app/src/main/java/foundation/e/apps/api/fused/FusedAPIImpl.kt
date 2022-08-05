@@ -401,6 +401,7 @@ class FusedAPIImpl @Inject constructor(
             Origin.CLEANAPK -> {
                 val downloadInfo = cleanAPKRepository.getDownloadInfo(fusedDownload.id).body()
                 downloadInfo?.download_data?.download_link?.let { list.add(it) }
+                fusedDownload.signature = downloadInfo?.download_data?.signature ?: ""
             }
             Origin.GPLAY -> {
                 val downloadList = gPlayAPIRepository.getDownloadInfo(

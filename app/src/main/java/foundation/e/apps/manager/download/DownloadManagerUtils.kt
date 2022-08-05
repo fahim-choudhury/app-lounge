@@ -20,7 +20,9 @@ package foundation.e.apps.manager.download
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.fused.FusedManagerRepository
+import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -59,7 +61,7 @@ class DownloadManagerUtils @Inject constructor(
                     fusedManagerRepository.updateFusedDownload(fusedDownload)
                     val downloaded = fusedDownload.downloadIdMap.values.filter { it }.size
                     Timber.d("===> updateDownloadStatus: ${fusedDownload.name}: $downloadId: $downloaded/${fusedDownload.downloadIdMap.size}")
-                    if (downloaded == fusedDownload.downloadIdMap.size) {
+                    if (downloaded == fusedDownload.downloadIdMap.size && checkCleanApkSignatureOK(fusedDownload)) {
                         fusedManagerRepository.moveOBBFileToOBBDirectory(fusedDownload)
                         fusedDownload.status = Status.DOWNLOADED
                         fusedManagerRepository.updateFusedDownload(fusedDownload)
@@ -67,5 +69,20 @@ class DownloadManagerUtils @Inject constructor(
                 }
             }
         }
+    }
+
+    private suspend fun checkCleanApkSignatureOK(fusedDownload: FusedDownload): Boolean {
+        if (fusedDownload.origin != Origin.CLEANAPK || fusedManagerRepository.isFdroidApplicationSigned(
+                context,
+                fusedDownload
+            )
+        ) {
+            Timber.d("Apk signature is OK")
+            return true
+        }
+        fusedDownload.status = Status.INSTALLATION_ISSUE
+        fusedManagerRepository.updateFusedDownload(fusedDownload)
+        Timber.d("CleanApk signature is Wrong!")
+        return false
     }
 }

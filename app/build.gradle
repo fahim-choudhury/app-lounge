@@ -150,6 +150,9 @@ dependencies {
     //logger
     implementation 'com.jakewharton.timber:timber:5.0.1'
 
+    // Bouncy Castle
+    implementation 'org.bouncycastle:bcpg-jdk15on:1.60'
+
     // Retrofit
     def retrofit_version = "2.9.0"
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
