@@ -53,6 +53,8 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object RetrofitModule {
 
+    const val FAKE_ANDROID_VERSION = 7
+
     /**
      * Provides an instance of Retrofit to work with CleanAPK API
      * @return instance of [CleanAPKInterface]
@@ -161,7 +163,10 @@ object RetrofitModule {
     fun provideInterceptor(): Interceptor {
         return Interceptor { chain ->
             val builder = chain.request().newBuilder()
-            builder.header("Accept-Language", Locale.getDefault().language)
+            builder.header(
+                "User-Agent",
+                "Dalvik/2.1.0 (Linux; U; Android $FAKE_ANDROID_VERSION;)"
+            ).header("Accept-Language", Locale.getDefault().language)
             try {
                 return@Interceptor chain.proceed(builder.build())
             } catch (e: ConnectException) {
