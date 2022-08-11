@@ -27,14 +27,14 @@ class FdroidRepository @Inject constructor(
             }
     }
 
-    suspend fun isFdroidApplication(packageName: String): Boolean {
-        return fdroidApi.getFdroidInfoForPackage(packageName).isSuccessful
-    }
-
     suspend fun isFdroidApplicationSigned(context: Context, packageName: String, apkFilePath: String, signature: String): Boolean {
         if (isFdroidApplication(packageName)) {
             return ApkSignatureManager.verifyFdroidSignature(context, apkFilePath, signature)
         }
         return false
+    }
+
+    private suspend fun isFdroidApplication(packageName: String): Boolean {
+        return fdroidApi.getFdroidInfoForPackage(packageName).isSuccessful
     }
 }
