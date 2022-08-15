@@ -88,7 +88,7 @@ class ApplicationListViewModel @Inject constructor(
                     source
                 )
             } else {
-                getNextDataSet(authData, browseUrl).apply {
+                fusedAPIRepository.getNextDataSet(authData, browseUrl).apply {
                     addPlaceHolderAppIfNeeded(this)
                 }
             }
@@ -138,7 +138,7 @@ class ApplicationListViewModel @Inject constructor(
         viewModelScope.launch {
             if (!isLoading) {
                 val lastCount: Int = streamCluster.clusterAppList.size
-                val result = getNextDataSet(authData, browseUrl)
+                val result = fusedAPIRepository.getNextDataSet(authData, browseUrl)
                 val newCount = streamCluster.clusterAppList.size
                 appListLiveData.postValue(result)
                 /*
