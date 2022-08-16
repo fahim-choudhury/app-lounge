@@ -39,7 +39,7 @@ class DownloadManager @Inject constructor(
     @Named("cacheDir") private val cacheDir: String,
     private val downloadManagerQuery: DownloadManager.Query,
 ) {
-    private var isDownloading = false
+    private val downloadsMaps = HashMap<Long, Boolean>()
 
     fun downloadFileInCache(
         url: String,
@@ -56,8 +56,8 @@ class DownloadManager @Inject constructor(
             .setTitle("Downloading...")
             .setDestinationUri(Uri.fromFile(downloadFile))
         val downloadId = downloadManager.enqueue(request)
-        isDownloading = true
-        tickerFlow(.5.seconds).onEach {
+        downloadsMaps[downloadId] = true
+        tickerFlow(downloadId, .5.seconds).onEach {
             checkDownloadProgress(downloadId, downloadFile.absolutePath, downloadCompleted)
         }.launchIn(CoroutineScope(Dispatchers.IO))
         return downloadId
@@ -82,11 +82,11 @@ class DownloadManager @Inject constructor(
                             cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
                         if (status == DownloadManager.STATUS_FAILED) {
                             Timber.d("Download Failed: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status")
-                            isDownloading = false
+                            downloadsMaps[downloadId] = false
                             downloadCompleted?.invoke(false, filePath)
                         } else if (status == DownloadManager.STATUS_SUCCESSFUL) {
                             Timber.d("Download Successful: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status")
-                            isDownloading = false
+                            downloadsMaps[downloadId] = false
                             downloadCompleted?.invoke(true, filePath)
                         }
                     }
@@ -96,9 +96,9 @@ class DownloadManager @Inject constructor(
         }
     }
 
-    private fun tickerFlow(period: Duration, initialDelay: Duration = Duration.ZERO) = flow {
+    private fun tickerFlow(downloadId: Long, period: Duration, initialDelay: Duration = Duration.ZERO) = flow {
         delay(initialDelay)
-        while (isDownloading) {
+        while (downloadsMaps[downloadId]!!) {
             emit(Unit)
             delay(period)
         }
