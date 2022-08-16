@@ -35,6 +35,7 @@ import foundation.e.apps.utils.enums.FilterLevel
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -42,6 +43,45 @@ import javax.inject.Singleton
 class FusedAPIRepository @Inject constructor(
     private val fusedAPIImpl: FusedAPIImpl
 ) {
+
+    var streamBundle = StreamBundle()
+        private set
+    var streamCluster = StreamCluster()
+        private set
+
+    var clusterPointer = 0
+        private set
+
+    /**
+     * Variable denoting if we can call [getNextStreamCluster] to get a new StreamBundle.
+     *
+     * Initially set to true, so that we can get the first StreamBundle.
+     * Once the first StreamBundle is fetched, this variable value is same
+     * as [streamBundle].hasNext().
+     *
+     * For more explanation on how [streamBundle] and [streamCluster] work, look at the
+     * documentation in [getNextDataSet].
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
+     */
+    var hasNextStreamBundle = true
+        private set
+
+    /**
+     * Variable denoting if we can call [getNextStreamCluster] to get a new StreamCluster.
+     *
+     * Initially set to false so that we get a StreamBundle first, because initially
+     * [streamCluster] is empty. Once [streamBundle] is fetched and [getAdjustedFirstCluster]
+     * is called, this variable value is same as [streamCluster].hasNext().
+     *
+     * For more explanation on how [streamBundle] and [streamCluster] work, look at the
+     * documentation in [getNextDataSet].
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
+     */
+    var hasNextStreamCluster = false
+        private set
+
     suspend fun getHomeScreenData(authData: AuthData): Pair<List<FusedHome>, ResultStatus> {
         return fusedAPIImpl.getHomeScreenData(authData)
     }
@@ -188,6 +228,38 @@ class FusedAPIRepository @Inject constructor(
     fun isAnyAppInstallStatusChanged(currentList: List<FusedApp>) =
         fusedAPIImpl.isAnyAppInstallStatusChanged(currentList)
 
+    suspend fun getAppList(
+        category: String,
+        browseUrl: String,
+        authData: AuthData,
+        source: String
+    ): ResultSupreme<List<FusedApp>> {
+        return if (source == "Open Source" || source == "PWA") {
+            getAppsListBasedOnCategory(
+                category,
+                browseUrl,
+                authData,
+                source
+            )
+        } else {
+            getNextDataSet(authData, browseUrl).apply {
+                addPlaceHolderAppIfNeeded(this)
+            }
+        }
+    }
+
+    /**
+     * @return a Pair,
+     * 1. first item is the data
+     * 1. second item is item count is changed or not
+     */
+    suspend fun loadMore(authData: AuthData, browseUrl: String): Pair<ResultSupreme<List<FusedApp>>, Boolean> {
+        val lastCount: Int = streamCluster.clusterAppList.size
+        val result = getNextDataSet(authData, browseUrl)
+        val newCount = streamCluster.clusterAppList.size
+        return Pair(result, lastCount != newCount)
+    }
+
     /**
      * This is how the logic works:
      *
@@ -267,44 +339,11 @@ class FusedAPIRepository @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
      */
 
-    private var streamBundle = StreamBundle()
-    private var streamCluster = StreamCluster()
-
-    private var clusterPointer = 0
-
-    /**
-     * Variable denoting if we can call [getNextStreamCluster] to get a new StreamBundle.
-     *
-     * Initially set to true, so that we can get the first StreamBundle.
-     * Once the first StreamBundle is fetched, this variable value is same
-     * as [streamBundle].hasNext().
-     *
-     * For more explanation on how [streamBundle] and [streamCluster] work, look at the
-     * documentation in [getNextDataSet].
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
-     */
-    private var hasNextStreamBundle = true
-
-    /**
-     * Variable denoting if we can call [getNextStreamCluster] to get a new StreamCluster.
-     *
-     * Initially set to false so that we get a StreamBundle first, because initially
-     * [streamCluster] is empty. Once [streamBundle] is fetched and [getAdjustedFirstCluster]
-     * is called, this variable value is same as [streamCluster].hasNext().
-     *
-     * For more explanation on how [streamBundle] and [streamCluster] work, look at the
-     * documentation in [getNextDataSet].
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
-     */
-    private var hasNextStreamCluster = false
-
-
-    suspend fun getNextDataSet(
+    private suspend fun getNextDataSet(
         authData: AuthData,
         browseUrl: String,
     ): ResultSupreme<List<FusedApp>> {
+        Timber.d("hasNextStreamCluster: $hasNextStreamCluster hasNextStreamBundle: $hasNextStreamBundle clusterPointer: $clusterPointer: streambundleSize: ${streamBundle.streamClusters.size} streamClusterSize: ${streamCluster.clusterAppList.size}")
         if (hasNextStreamCluster) {
             getNextStreamCluster(authData).run {
                 if (!isSuccess()) {
@@ -330,9 +369,8 @@ class FusedAPIRepository @Inject constructor(
                 }
             }
         }
-        return filterRestrictedGPlayApps(authData, streamCluster.clusterAppList).apply {
-            addPlaceHolderAppIfNeeded(this)
-        }
+        Timber.d("===> calling last segment")
+        return filterRestrictedGPlayApps(authData, streamCluster.clusterAppList)
     }
 
     /**
@@ -349,7 +387,7 @@ class FusedAPIRepository @Inject constructor(
      *
      * @return true if a placeholder app was added, false otherwise.
      */
-    private fun addPlaceHolderAppIfNeeded(result: ResultSupreme<List<FusedApp>>): Boolean {
+     fun addPlaceHolderAppIfNeeded(result: ResultSupreme<List<FusedApp>>): Boolean {
         result.apply {
             if (isSuccess() && canLoadMore()) {
                 // Add an empty app at the end if more data can be loaded on scroll
@@ -441,4 +479,12 @@ class FusedAPIRepository @Inject constructor(
      */
     fun canLoadMore(): Boolean =
         hasNextStreamCluster || clusterPointer < streamBundle.streamClusters.size || hasNextStreamBundle
+
+    fun clearData() {
+        streamCluster = StreamCluster()
+        streamBundle = StreamBundle()
+        hasNextStreamBundle = true
+        hasNextStreamCluster = false
+        clusterPointer = 0
+    }
 }
