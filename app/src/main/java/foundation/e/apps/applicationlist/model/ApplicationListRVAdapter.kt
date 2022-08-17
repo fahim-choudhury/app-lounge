@@ -346,7 +346,7 @@ class ApplicationListRVAdapter(
         }
         privacyInfoViewModel.getAppPrivacyInfoLiveData(searchApp).observe(lifecycleOwner!!) {
             showPrivacyScore()
-            val calculatedScore = privacyInfoViewModel.calculatePrivacyScore(searchApp)
+            val calculatedScore = privacyInfoViewModel.getPrivacyScore(searchApp)
             if (it.isSuccess() && calculatedScore != -1) {
                 searchApp.privacyScore = calculatedScore
                 appPrivacyScore.text = view.context.getString(

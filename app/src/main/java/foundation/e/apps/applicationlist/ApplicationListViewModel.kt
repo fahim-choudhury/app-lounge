@@ -22,16 +22,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.StreamBundle
-import com.aurora.gplayapi.data.models.StreamCluster
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
-import foundation.e.apps.utils.enums.Origin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -44,7 +40,6 @@ class ApplicationListViewModel @Inject constructor(
     var isLoading = false
 
     fun getList(category: String, browseUrl: String, authData: AuthData, source: String) {
-        Timber.d("===> getlist: $isLoading")
         if (isLoading) {
             return
         }
@@ -53,7 +48,6 @@ class ApplicationListViewModel @Inject constructor(
             fusedAPIRepository.getAppList(category, browseUrl, authData, source).apply {
                 isLoading = false
                 appListLiveData.postValue(this)
-                Timber.d("final result: ${this.data?.size}")
             }
         }
     }
@@ -66,33 +60,6 @@ class ApplicationListViewModel @Inject constructor(
         oldFusedApps: List<FusedApp>
     ): Boolean {
         return fusedAPIRepository.isAnyFusedAppUpdated(newFusedApps, oldFusedApps)
-    }
-
-    /**
-     * Add a placeholder app at the end if more data can be loaded.
-     * "Placeholder" app shows a simple progress bar in the RecyclerView, indicating that
-     * more apps are being loaded.
-     *
-     * Note that it mutates the [ResultSupreme] object passed to it.
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
-     *
-     * @param result object from [getNextDataSet]. Data of this object will be updated
-     * if [canLoadMore] is true.
-     *
-     * @return true if a placeholder app was added, false otherwise.
-     */
-    private fun addPlaceHolderAppIfNeeded(result: ResultSupreme<List<FusedApp>>): Boolean {
-        result.apply {
-            if (isSuccess() && fusedAPIRepository.canLoadMore()) {
-                // Add an empty app at the end if more data can be loaded on scroll
-                val newData = data!!.toMutableList()
-                newData.add(FusedApp(isPlaceHolder = true))
-                setData(newData)
-                return true
-            }
-        }
-        return false
     }
 
     fun loadMore(authData: AuthData, browseUrl: String) {

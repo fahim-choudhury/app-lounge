@@ -35,7 +35,6 @@ import foundation.e.apps.utils.enums.FilterLevel
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -343,7 +342,6 @@ class FusedAPIRepository @Inject constructor(
         authData: AuthData,
         browseUrl: String,
     ): ResultSupreme<List<FusedApp>> {
-        Timber.d("hasNextStreamCluster: $hasNextStreamCluster hasNextStreamBundle: $hasNextStreamBundle clusterPointer: $clusterPointer: streambundleSize: ${streamBundle.streamClusters.size} streamClusterSize: ${streamCluster.clusterAppList.size}")
         if (hasNextStreamCluster) {
             getNextStreamCluster(authData).run {
                 if (!isSuccess()) {
@@ -369,7 +367,6 @@ class FusedAPIRepository @Inject constructor(
                 }
             }
         }
-        Timber.d("===> calling last segment")
         return filterRestrictedGPlayApps(authData, streamCluster.clusterAppList)
     }
 
@@ -387,7 +384,7 @@ class FusedAPIRepository @Inject constructor(
      *
      * @return true if a placeholder app was added, false otherwise.
      */
-     fun addPlaceHolderAppIfNeeded(result: ResultSupreme<List<FusedApp>>): Boolean {
+    fun addPlaceHolderAppIfNeeded(result: ResultSupreme<List<FusedApp>>): Boolean {
         result.apply {
             if (isSuccess() && canLoadMore()) {
                 // Add an empty app at the end if more data can be loaded on scroll
