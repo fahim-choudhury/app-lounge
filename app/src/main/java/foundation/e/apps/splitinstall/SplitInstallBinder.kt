@@ -19,7 +19,6 @@
 package foundation.e.apps.splitinstall
 
 import android.content.Context
-import android.util.Log
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.ISplitInstallService
 import foundation.e.apps.api.DownloadManager
@@ -28,14 +27,18 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 class SplitInstallBinder(
     val context: Context,
     private val coroutineScope: CoroutineScope,
     val fusedAPIRepository: FusedAPIRepository,
     val downloadManager: DownloadManager,
-    val authData: AuthData?
+    val authData: AuthData?,
+    private var splitInstallSystemService: foundation.e.splitinstall.ISplitInstallService?
 ) : ISplitInstallService.Stub() {
+
+    private val modulesToInstall = HashMap<String, String>()
 
     companion object {
         const val TAG = "SplitInstallerBinder"
@@ -43,13 +46,18 @@ class SplitInstallBinder(
 
     override fun installSplitModule(packageName: String, moduleName: String) {
         if (authData == null) {
-            Log.i(TAG, "No authentication data. Could not install on demand module")
+            Timber.i("No authentication data. Could not install on demand module")
             return
         }
 
         coroutineScope.launch {
             downloadModule(packageName, moduleName)
         }
+    }
+
+    fun setService(service: foundation.e.splitinstall.ISplitInstallService) {
+        splitInstallSystemService = service
+        installPendingModules()
     }
 
     private suspend fun downloadModule(packageName: String, moduleName: String) {
@@ -61,11 +69,15 @@ class SplitInstallBinder(
             ) ?: return@withContext
 
             downloadManager.downloadFileInCache(
-                url, packageName, "${packageName}.split.${moduleName}.apk"
+                url, packageName, "$packageName.split.$moduleName.apk"
             ) { success, path ->
                 if (success) {
-                    Log.i(TAG, "Split module has been downloaded: $path")
-                    SplitInstallNotification.showInstallModule(context, packageName, path)
+                    Timber.i("Split module has been downloaded: $path")
+                    if (splitInstallSystemService == null) {
+                        Timber.i("Not connected to system service now. Adding $path to the list.")
+                        modulesToInstall[path] = packageName
+                    }
+                    splitInstallSystemService?.installSplitModule(packageName, path)
                 }
             }
         }
@@ -74,5 +86,12 @@ class SplitInstallBinder(
     private fun getPackageVersionCode(packageName: String): Int {
         val applicationInfo = context.packageManager.getPackageInfo(packageName, 0)
         return applicationInfo.versionCode
+    }
+
+    private fun installPendingModules() {
+        for (module in modulesToInstall.keys) {
+            val packageName = modulesToInstall[module]
+            splitInstallSystemService?.installSplitModule(packageName, module)
+        }
     }
 }

@@ -33,7 +33,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.OpenForTesting
 import foundation.e.apps.api.fused.FusedAPIImpl
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
-import foundation.e.apps.splitinstall.SplitInstallBroadcastReceiver
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
@@ -160,42 +159,6 @@ class PkgManagerModule @Inject constructor(
             session.commit(servicePendingIntent.intentSender)
         } catch (e: Exception) {
             Timber.e("$packageName: \n${e.stackTraceToString()}")
-            val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                sessionId,
-                Intent(ERROR_PACKAGE_INSTALL),
-                PendingIntent.FLAG_IMMUTABLE
-            )
-            session.commit(pendingIntent.intentSender)
-            session.abandon()
-            throw e
-        } finally {
-            session.close()
-        }
-    }
-
-    fun installSplitModule(moduleFile: File, packageName: String) {
-
-        val sessionId = createInstallSession(packageName, SessionParams.MODE_INHERIT_EXISTING)
-        val session = packageManager.packageInstaller.openSession(sessionId)
-
-        try {
-            syncFile(session, moduleFile)
-
-            val callBackIntent = Intent(context, SplitInstallBroadcastReceiver::class.java)
-            callBackIntent.action = SplitInstallBroadcastReceiver.ACTION_MODULE_INSTALLED
-
-            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE else
-                PendingIntent.FLAG_UPDATE_CURRENT
-            val servicePendingIntent = PendingIntent.getBroadcast(
-                context,
-                sessionId,
-                callBackIntent,
-                flags
-            )
-            session.commit(servicePendingIntent.intentSender)
-        } catch (e: Exception) {
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 sessionId,

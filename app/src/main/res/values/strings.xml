@@ -192,16 +192,4 @@
     <string name="this_app_may_not_work_properly">This app may not work properly!</string>
     <string name="may_not_work_warning_message">Forcing installation will allow you to download and install it, but it won\'t guarantee that it will work.&lt;br /&gt;&lt;br /&gt;Attempting to install unsupported apps may cause crashes or slow down the system.&lt;br /&gt;&lt;br /&gt;We\'re working on improving compatiblity with this application in a near future.</string>
 
-    <!-- SplitInstall -->
-    <string name="split_install_notification_title">App Lounge</string>
-    <string name="split_install_notification_text">%1$s dynamic feature</string>
-    <string name="split_install_notification_big_text">%1$s wants to install a feature (%2$s). Installing it will close the app for a moment.</string>
-    <string name="split_install_action_button">Install</string>
-    <string name="split_install_pending_install_text">%1$s is updating</string>
-    <string name="split_install_success_text">Success</string>
-    <string name="split_install_success_big_text">Success. %1$s has been updated properly. You can relaunch %2$s.</string>
-    <string name="split_install_failure_text">Failure</string>
-    <string name="split_install_failure_big_text">Failure. %1$s has not been updated properly.</string>
-
-
 </resources>

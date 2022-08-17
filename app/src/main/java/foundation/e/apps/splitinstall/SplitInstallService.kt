@@ -18,7 +18,9 @@
 
 package foundation.e.apps.splitinstall
 
+import android.content.ComponentName
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
@@ -28,6 +30,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.api.DownloadManager
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.utils.modules.DataStoreModule
+import foundation.e.splitinstall.ISplitInstallService
+import foundation.e.splitinstall.SplitInstall
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,24 +40,45 @@ class SplitInstallService : LifecycleService() {
 
     companion object {
         const val TAG = "SplitInstallService"
-        const val NOTIFICATION_CHANNEL_ID = "SplitInstallNotificationChannel"
-        const val NOTIFICATION_CHANNEL_NAME = "SplitInstaller"
     }
 
     @Inject lateinit var dataStoreModule: DataStoreModule
     @Inject lateinit var fusedAPIRepository: FusedAPIRepository
     @Inject lateinit var downloadManager: DownloadManager
     @Inject lateinit var gson: Gson
+    private lateinit var binder: SplitInstallBinder
     private var authData: AuthData? = null
+    private var splitInstallSystemService: ISplitInstallService? = null
+
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            splitInstallSystemService = ISplitInstallService.Stub.asInterface(service)
+            binder.setService(splitInstallSystemService!!)
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            splitInstallSystemService = null
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
 
-        SplitInstallNotification.createNotificationChannel(applicationContext)
+        val intent = Intent().apply {
+            component = SplitInstall.SPLIT_INSTALL_SYSTEM_SERVICE
+        }
+        bindService(intent, serviceConnection, BIND_AUTO_CREATE)
 
         lifecycleScope.launch {
             fetchAuthData()
         }
+    }
+
+    override fun onDestroy() {
+        splitInstallSystemService?.let {
+            unbindService(serviceConnection)
+        }
+        super.onDestroy()
     }
 
     private suspend fun fetchAuthData() {
@@ -63,12 +88,14 @@ class SplitInstallService : LifecycleService() {
     }
 
     override fun onBind(intent: Intent): IBinder {
-        return SplitInstallBinder(
+        binder = SplitInstallBinder(
             applicationContext,
             lifecycleScope,
             fusedAPIRepository,
             downloadManager,
-            authData
+            authData,
+            splitInstallSystemService
         )
+        return binder
     }
 }

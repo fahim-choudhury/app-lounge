@@ -88,12 +88,6 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".splitinstall.SplitInstallBroadcastReceiver">
-            <intent-filter>
-                <action android:name="foundation.e.apps.ondemand.INSTALL_MODULE"/>
-            </intent-filter>
-        </receiver>
-
         <!-- If you want to disable android.startup completely. -->
         <provider
             android:name="androidx.startup.InitializationProvider"
@@ -101,6 +95,7 @@
             tools:node="remove" />
 
         <service android:name=".manager.pkg.PackageInstallerService" />
+
         <service
             android:name=".splitinstall.SplitInstallService"
             android:exported="true" />

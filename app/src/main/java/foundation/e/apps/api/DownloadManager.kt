@@ -94,6 +94,7 @@ class DownloadManager @Inject constructor(
         } catch (e: Exception) {
             Timber.e(e)
         }
+
     }
 
     private fun tickerFlow(downloadId: Long, period: Duration, initialDelay: Duration = Duration.ZERO) = flow {
