@@ -41,6 +41,10 @@ class DownloadManager @Inject constructor(
 ) {
     private val downloadsMaps = HashMap<Long, Boolean>()
 
+    companion object {
+        const val EXTERNAL_STORAGE_TEMP_CACHE_DIR = "/sdcard/Download/AppLounge/SplitInstallApks"
+    }
+
     fun downloadFileInCache(
         url: String,
         subDirectoryPath: String = "",
@@ -48,10 +52,37 @@ class DownloadManager @Inject constructor(
         downloadCompleted: ((Boolean, String) -> Unit)?
     ): Long {
         val directoryFile = File("$cacheDir/$subDirectoryPath")
-        val downloadFile = File("$cacheDir/$fileName")
         if (!directoryFile.exists()) {
             directoryFile.mkdirs()
         }
+
+        val downloadFile = File("$cacheDir/$fileName")
+
+        return downloadFile(url, downloadFile, downloadCompleted)
+    }
+
+    fun downloadFileInExternalStorage(
+        url: String,
+        subDirectoryPath: String,
+        fileName: String,
+        downloadCompleted: ((Boolean, String) -> Unit)?
+    ): Long {
+
+        val directoryFile = File("$EXTERNAL_STORAGE_TEMP_CACHE_DIR/$subDirectoryPath")
+        if (!directoryFile.exists()) {
+            directoryFile.mkdirs()
+        }
+
+        val downloadFile = File("$directoryFile/$fileName")
+
+        return downloadFile(url, downloadFile, downloadCompleted)
+    }
+
+    private fun downloadFile(
+        url: String,
+        downloadFile: File,
+        downloadCompleted: ((Boolean, String) -> Unit)?
+    ): Long {
         val request = DownloadManager.Request(Uri.parse(url))
             .setTitle("Downloading...")
             .setDestinationUri(Uri.fromFile(downloadFile))

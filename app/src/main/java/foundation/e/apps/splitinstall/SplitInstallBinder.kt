@@ -68,7 +68,7 @@ class SplitInstallBinder(
                 versionCode, 1
             ) ?: return@withContext
 
-            downloadManager.downloadFileInCache(
+            downloadManager.downloadFileInExternalStorage(
                 url, packageName, "$packageName.split.$moduleName.apk"
             ) { success, path ->
                 if (success) {
