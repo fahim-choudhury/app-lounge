@@ -120,6 +120,7 @@ class FusedManagerImpl @Inject constructor(
                 val parentPathFile = File("$cacheDir/${fusedDownload.packageName}")
                 parentPathFile.listFiles()?.let { list.addAll(it) }
                 list.sort()
+
                 if (list.size != 0) {
                     try {
                         Timber.d("installApp: STARTED ${fusedDownload.name} ${list.size}")

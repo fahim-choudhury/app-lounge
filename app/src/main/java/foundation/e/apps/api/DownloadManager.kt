@@ -39,7 +39,11 @@ class DownloadManager @Inject constructor(
     @Named("cacheDir") private val cacheDir: String,
     private val downloadManagerQuery: DownloadManager.Query,
 ) {
-    private var isDownloading = false
+    private val downloadsMaps = HashMap<Long, Boolean>()
+
+    companion object {
+        const val EXTERNAL_STORAGE_TEMP_CACHE_DIR = "/sdcard/Download/AppLounge/SplitInstallApks"
+    }
 
     fun downloadFileInCache(
         url: String,
@@ -47,17 +51,44 @@ class DownloadManager @Inject constructor(
         fileName: String,
         downloadCompleted: ((Boolean, String) -> Unit)?
     ): Long {
-        val directoryFile = File(cacheDir + subDirectoryPath)
-        val downloadFile = File("$cacheDir/$fileName")
+        val directoryFile = File("$cacheDir/$subDirectoryPath")
         if (!directoryFile.exists()) {
             directoryFile.mkdirs()
         }
+
+        val downloadFile = File("$cacheDir/$fileName")
+
+        return downloadFile(url, downloadFile, downloadCompleted)
+    }
+
+    fun downloadFileInExternalStorage(
+        url: String,
+        subDirectoryPath: String,
+        fileName: String,
+        downloadCompleted: ((Boolean, String) -> Unit)?
+    ): Long {
+
+        val directoryFile = File("$EXTERNAL_STORAGE_TEMP_CACHE_DIR/$subDirectoryPath")
+        if (!directoryFile.exists()) {
+            directoryFile.mkdirs()
+        }
+
+        val downloadFile = File("$directoryFile/$fileName")
+
+        return downloadFile(url, downloadFile, downloadCompleted)
+    }
+
+    private fun downloadFile(
+        url: String,
+        downloadFile: File,
+        downloadCompleted: ((Boolean, String) -> Unit)?
+    ): Long {
         val request = DownloadManager.Request(Uri.parse(url))
             .setTitle("Downloading...")
             .setDestinationUri(Uri.fromFile(downloadFile))
         val downloadId = downloadManager.enqueue(request)
-        isDownloading = true
-        tickerFlow(.5.seconds).onEach {
+        downloadsMaps[downloadId] = true
+        tickerFlow(downloadId, .5.seconds).onEach {
             checkDownloadProgress(downloadId, downloadFile.absolutePath, downloadCompleted)
         }.launchIn(CoroutineScope(Dispatchers.IO))
         return downloadId
@@ -82,11 +113,11 @@ class DownloadManager @Inject constructor(
                             cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
                         if (status == DownloadManager.STATUS_FAILED) {
                             Timber.d("Download Failed: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status")
-                            isDownloading = false
+                            downloadsMaps[downloadId] = false
                             downloadCompleted?.invoke(false, filePath)
                         } else if (status == DownloadManager.STATUS_SUCCESSFUL) {
                             Timber.d("Download Successful: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status")
-                            isDownloading = false
+                            downloadsMaps[downloadId] = false
                             downloadCompleted?.invoke(true, filePath)
                         }
                     }
@@ -94,11 +125,12 @@ class DownloadManager @Inject constructor(
         } catch (e: Exception) {
             Timber.e(e)
         }
+
     }
 
-    private fun tickerFlow(period: Duration, initialDelay: Duration = Duration.ZERO) = flow {
+    private fun tickerFlow(downloadId: Long, period: Duration, initialDelay: Duration = Duration.ZERO) = flow {
         delay(initialDelay)
-        while (isDownloading) {
+        while (downloadsMaps[downloadId]!!) {
             emit(Unit)
             delay(period)
         }
