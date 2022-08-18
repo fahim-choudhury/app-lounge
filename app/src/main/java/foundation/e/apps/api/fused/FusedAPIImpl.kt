@@ -246,7 +246,8 @@ class FusedAPIImpl @Inject constructor(
                                 gplayPackageResult = it.first
                             }
                         }
-                    } catch (_: Exception) {
+                    } catch (e: Exception) {
+                        Timber.e(e)
                     }
                 }
                 getCleanapkSearchResult(query).let {

@@ -102,7 +102,7 @@
     <string name="dialog_paidapp_message">Wenn du auf die Bestätigung tippst, wirst du zur Google Play Seite weitergeleitet, um den Bezahlvorgang für die App im Browser abzuschließen. Tippe zur Bestätigung des Kaufes von %1$s für %2$s.</string>
     <string name="dialog_confirm">BESTÄTIGUNG</string>
     <string name="dialog_cancel">ABBRECHEN</string>
-    <string name="privacy_description">Die Datenschutz-Bewertung wird automatisch berechnet aus den Berechtigungen und den Trackern, die in den Anwendungen aufgespürt werden. Es gibt einen Überblick darüber, wie sehr die App Benutzer ausspioniert. &lt;br /&gt;&lt;br /&gt;Die Quelle für den Berechnungsalgorithmus kann &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;hier gefunden werden&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Die Tracker-Aufspürung wird durchgeführt mit &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Privacy Werkzeuge&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Bewertung von 1-10.&lt;br /&gt;&lt;br /&gt;Wenn du mehr erfahren willst, wie die Datenschutzbewertung berechnet wird, und wie du dich vor dem Ausspionieren schützen kannst, \u0020&lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;besuche dieses Seite&lt;/a&gt;.</string>
+    <string name="privacy_description">Die Datenschutz-Bewertung wird automatisch berechnet aus den Berechtigungen und den Trackern, die in den Anwendungen aufgespürt werden. Es gibt einen Überblick darüber, wie sehr die App Benutzer ausspioniert. &lt;br /&gt;&lt;br /&gt;Die Quelle für den Berechnungsalgorithmus kann &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;hier gefunden werden&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Die Tracker-Aufspürung wird durchgeführt mit &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Privacy Werkzeuge&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Bewertung von 1-10.&lt;br /&gt;&lt;br /&gt;Wenn du mehr erfahren willst, wie die Datenschutzbewertung berechnet wird, und wie du dich vor dem Ausspionieren schützen kannst, &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;besuche dieses Seite&lt;/a&gt;.</string>
     <string name="not_enough_storage">Es ist nicht genügend Speicher vorhanden, um diese App herunterzuladen!</string>
     <string name="paid_app_anonymous_message">Bezahl-Apps können nicht im anonymen Modus installiert werden. Bitte melde dich mit deinem Google-Konto an.</string>
     <string name="tracker_information_not_found">Es ist keine Tracker-Information für diese App verfügbar.</string>
@@ -128,4 +128,8 @@
     <string name="update_error">Aktualisierungsfehler!</string>
     <string name="error_signature_mismatch">Die Aktualisierung kann nicht installiert werden, da die Signatur der Aktualisierung von %1$s nicht mit der Signatur der auf Ihrem Telefon installierten Version übereinstimmt. Um das Problem zu beheben, können Sie %1$s deinstallieren und es danach von der App Lounge erneut installieren. <br/><br/> Bemerkung: Diese Nachricht wird nicht wieder erscheinen.</string>
     <string name="sign_in_failed_desc">Aufgrund eines Netzwerkfehlers konnte App Lounge die Google Anmeldedaten nicht erhalten.</string>
+    <string name="copied">Kopiert</string>
+    <string name="os_version">/e/ OS-Version</string>
+    <string name="app_version_label">App Lounge-Version</string>
+    <string name="about">Über</string>
 </resources>
