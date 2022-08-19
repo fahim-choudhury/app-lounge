@@ -190,8 +190,9 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             binding.titleInclude.apply {
                 applicationIcon = appIcon
                 appName.text = it.name
-                appAuthor.text = it.author
-                appInfoFetchViewModel.setAuthorNameIfNeeded(appAuthor, it)
+                appInfoFetchViewModel.getAuthorName(it).observe(viewLifecycleOwner) {
+                    appAuthor.text = it
+                }
                 categoryTitle.text = it.category
                 if (origin == Origin.CLEANAPK) {
                     appIcon.load(CleanAPKInterface.ASSET_URL + it.icon_image_path)

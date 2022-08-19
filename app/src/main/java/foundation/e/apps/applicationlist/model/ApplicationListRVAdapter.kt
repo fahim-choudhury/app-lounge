@@ -150,8 +150,9 @@ class ApplicationListRVAdapter(
                 action?.let { direction -> view.findNavController().navigate(direction) }
             }
             appTitle.text = searchApp.name
-            appAuthor.text = searchApp.author
-            appInfoFetchViewModel.setAuthorNameIfNeeded(appAuthor, searchApp)
+            appInfoFetchViewModel.getAuthorName(searchApp).observe(lifecycleOwner!!) {
+                appAuthor.text = it
+            }
             if (searchApp.ratings.usageQualityScore != -1.0) {
                 appRating.text = searchApp.ratings.usageQualityScore.toString()
                 appRatingBar.rating = searchApp.ratings.usageQualityScore.toFloat()
