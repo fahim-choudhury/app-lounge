@@ -43,12 +43,7 @@ class UpdatesViewModel @Inject constructor(
     fun getUpdates(authData: AuthData) {
         viewModelScope.launch {
             val updatesResult = updatesManagerRepository.getUpdates(authData)
-            updatesList.postValue(
-                Pair(
-                    updatesResult.first.filter { !(!it.isFree && authData.isAnonymous) },
-                    updatesResult.second
-                )
-            )
+            updatesList.postValue(updatesResult)
         }
     }
 

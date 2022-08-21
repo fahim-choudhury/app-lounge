@@ -28,7 +28,10 @@ class UpdatesManagerRepository @Inject constructor(
 ) {
 
     suspend fun getUpdates(authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
-        return updatesManagerImpl.getUpdates(authData)
+        return updatesManagerImpl.getUpdates(authData).run {
+            val filteredApps = first.filter { !(!it.isFree && authData.isAnonymous) }
+            Pair(filteredApps, this.second)
+        }
     }
 
     fun getApplicationCategoryPreference(): String {
