@@ -78,6 +78,7 @@ class FusedAPIImpl @Inject constructor(
 
     companion object {
         private const val CATEGORY_TITLE_REPLACEABLE_CONJUNCTION = "&"
+
         /*
          * Removing "private" access specifier to allow access in
          * MainActivityViewModel.timeoutAlertDialog
@@ -184,7 +185,10 @@ class FusedAPIImpl @Inject constructor(
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
-    suspend fun getCategoriesList(type: Category.Type, authData: AuthData): Triple<List<FusedCategory>, String, ResultStatus> {
+    suspend fun getCategoriesList(
+        type: Category.Type,
+        authData: AuthData
+    ): Triple<List<FusedCategory>, String, ResultStatus> {
         val categoriesList = mutableListOf<FusedCategory>()
         val preferredApplicationType = preferenceManagerModule.preferredApplicationType()
         var apiStatus: ResultStatus = ResultStatus.OK
@@ -242,7 +246,9 @@ class FusedAPIImpl @Inject constructor(
                                 gplayPackageResult = it.first
                             }
                         }
-                    } catch (_: Exception) {}
+                    } catch (e: Exception) {
+                        Timber.e(e)
+                    }
                 }
                 getCleanapkSearchResult(query).let {
                     /* Cleanapk always returns something, it is never null.
@@ -314,7 +320,12 @@ class FusedAPIImpl @Inject constructor(
                              * If there had to be any timeout, it would already have happened
                              * while fetching package specific results.
                              */
-                            ResultSupreme.Success(Pair(filterWithKeywordSearch(it.first), it.second))
+                            ResultSupreme.Success(
+                                Pair(
+                                    filterWithKeywordSearch(it.first),
+                                    it.second
+                                )
+                            )
                         }
                     )
                 }
@@ -418,6 +429,7 @@ class FusedAPIImpl @Inject constructor(
             Origin.CLEANAPK -> {
                 val downloadInfo = cleanAPKRepository.getDownloadInfo(fusedDownload.id).body()
                 downloadInfo?.download_data?.download_link?.let { list.add(it) }
+                fusedDownload.signature = downloadInfo?.download_data?.signature ?: ""
             }
             Origin.GPLAY -> {
                 val downloadList = gPlayAPIRepository.getDownloadInfo(
@@ -470,7 +482,8 @@ class FusedAPIImpl @Inject constructor(
     ): ResultSupreme<StreamBundle> {
         var streamBundle = StreamBundle()
         val status = runCodeBlockWithTimeout({
-            streamBundle = gPlayAPIRepository.getNextStreamBundle(authData, homeUrl, currentStreamBundle)
+            streamBundle =
+                gPlayAPIRepository.getNextStreamBundle(authData, homeUrl, currentStreamBundle)
         })
         return ResultSupreme.create(status, streamBundle)
     }
@@ -482,7 +495,8 @@ class FusedAPIImpl @Inject constructor(
     ): ResultSupreme<StreamCluster> {
         var streamCluster = StreamCluster()
         val status = runCodeBlockWithTimeout({
-            streamCluster = gPlayAPIRepository.getAdjustedFirstCluster(authData, streamBundle, pointer)
+            streamCluster =
+                gPlayAPIRepository.getAdjustedFirstCluster(authData, streamBundle, pointer)
         })
         return ResultSupreme.create(status, streamCluster)
     }
@@ -498,7 +512,10 @@ class FusedAPIImpl @Inject constructor(
         return ResultSupreme.create(status, streamCluster)
     }
 
-    suspend fun getPlayStoreApps(browseUrl: String, authData: AuthData): ResultSupreme<List<FusedApp>> {
+    suspend fun getPlayStoreApps(
+        browseUrl: String,
+        authData: AuthData
+    ): ResultSupreme<List<FusedApp>> {
         val list = mutableListOf<FusedApp>()
         val status = runCodeBlockWithTimeout({
             list.addAll(
@@ -686,6 +703,11 @@ class FusedAPIImpl @Inject constructor(
             return if (fusedApp.origin == Origin.GPLAY) FilterLevel.UNKNOWN
             else FilterLevel.NONE
         }
+
+        if (!fusedApp.isFree && fusedApp.price.isBlank()) {
+            return FilterLevel.UI
+        }
+
         if (fusedApp.restriction != Constants.Restriction.NOT_RESTRICTED) {
             /*
              * Check if app details can be shown. If not then remove the app from lists.
@@ -710,13 +732,8 @@ class FusedAPIImpl @Inject constructor(
             } catch (e: Exception) {
                 return FilterLevel.UI
             }
-        } else {
-            if (!fusedApp.isFree && fusedApp.price.isBlank()) {
-                return FilterLevel.UI
-            }
-            if (fusedApp.originalSize == 0L) {
-                return FilterLevel.UI
-            }
+        } else if (fusedApp.originalSize == 0L) {
+            return FilterLevel.UI
         }
         return FilterLevel.NONE
     }
@@ -1292,7 +1309,7 @@ class FusedAPIImpl @Inject constructor(
 
         oldHomeData.forEach {
             val fusedHome = newHomeData[oldHomeData.indexOf(it)]
-            if (!it.title.contentEquals(fusedHome.title) || !areFusedAppsUpdated(it, fusedHome)) {
+            if (!it.title.contentEquals(fusedHome.title) || areFusedAppsUpdated(it, fusedHome)) {
                 return true
             }
         }
@@ -1304,15 +1321,18 @@ class FusedAPIImpl @Inject constructor(
         newFusedHome: FusedHome,
     ): Boolean {
         val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
+        if (oldFusedHome.list.size != newFusedHome.list.size) {
+            return true
+        }
 
         oldFusedHome.list.forEach { oldFusedApp ->
             val indexOfOldFusedApp = oldFusedHome.list.indexOf(oldFusedApp)
             val fusedApp = newFusedHome.list[indexOfOldFusedApp]
             if (!fusedAppDiffUtil.areContentsTheSame(oldFusedApp, fusedApp)) {
-                return false
+                return true
             }
         }
-        return true
+        return false
     }
 
     /**
@@ -1341,7 +1361,8 @@ class FusedAPIImpl @Inject constructor(
             if (it.status == Status.INSTALLATION_ISSUE) {
                 return@forEach
             }
-            val currentAppStatus = pkgManagerModule.getPackageStatus(it.package_name, it.latest_version_code)
+            val currentAppStatus =
+                pkgManagerModule.getPackageStatus(it.package_name, it.latest_version_code)
             if (it.status != currentAppStatus) {
                 return true
             }

@@ -249,6 +249,9 @@ class FusedManagerImpl @Inject constructor(
         }
     }
 
+    fun getBaseApkPath(fusedDownload: FusedDownload) =
+        "$cacheDir/${fusedDownload.packageName}/${fusedDownload.packageName}_1.apk"
+
     suspend fun installationIssue(fusedDownload: FusedDownload) {
         flushOldDownload(fusedDownload.packageName)
         fusedDownload.status = Status.INSTALLATION_ISSUE
