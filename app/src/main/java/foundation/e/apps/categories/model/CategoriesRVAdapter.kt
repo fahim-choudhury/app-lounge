@@ -59,20 +59,28 @@ class CategoriesRVAdapter :
                     )
                 holder.itemView.findNavController().navigate(direction)
             }
-            if (oldList[position].drawable != -1) {
-                categoryIcon.load(oldList[position].drawable)
-            } else {
-                categoryIcon.load(oldList[position].imageUrl)
-            }
+            loadCategoryIcon(position)
             categoryTitle.text = oldList[position].title
-            val tag = oldList[position].tag
-            if (tag.displayTag.isNotBlank()) {
-                categoryTag.visibility = View.VISIBLE
-                categoryTag.text = tag.displayTag
-            } else {
-                categoryTag.visibility = View.INVISIBLE
-                categoryTag.text = ""
-            }
+            updateTag(position)
+        }
+    }
+
+    private fun CategoriesListItemBinding.loadCategoryIcon(position: Int) {
+        if (oldList[position].drawable != -1) {
+            categoryIcon.load(oldList[position].drawable)
+        } else {
+            categoryIcon.load(oldList[position].imageUrl)
+        }
+    }
+
+    private fun CategoriesListItemBinding.updateTag(position: Int) {
+        val tag = oldList[position].tag
+        if (tag.displayTag.isNotBlank()) {
+            categoryTag.visibility = View.VISIBLE
+            categoryTag.text = tag.displayTag
+        } else {
+            categoryTag.visibility = View.INVISIBLE
+            categoryTag.text = ""
         }
     }
 

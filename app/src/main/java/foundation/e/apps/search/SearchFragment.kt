@@ -46,6 +46,7 @@ import foundation.e.apps.AppProgressViewModel
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.PrivacyInfoViewModel
 import foundation.e.apps.R
+import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
@@ -106,26 +107,82 @@ class SearchFragment :
         searchHintLayout = binding.searchHintLayout.root
         noAppsFoundLayout = binding.noAppsFoundLayout.root
 
-        // Setup SearchView
-        setHasOptionsMenu(true)
-        searchView?.setOnSuggestionListener(this)
-        searchView?.setOnQueryTextListener(this)
-        searchView?.let { configureCloseButton(it) }
-
-        // Setup SearchView Suggestions
-        val from = arrayOf(SUGGESTION_KEY)
-        val to = intArrayOf(android.R.id.text1)
-        searchView?.suggestionsAdapter = SimpleCursorAdapter(
-            context,
-            R.layout.custom_simple_list_item, null, from, to,
-            CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
-        )
-
-        searchViewModel.searchSuggest.observe(viewLifecycleOwner) {
-            it?.let { populateSuggestionsAdapter(it) }
-        }
+        setupSearchView()
+        setupSearchViewSuggestions()
 
         // Setup Search Results
+        val listAdapter = setupSearchResult(view)
+
+        observeSearchResult(listAdapter)
+    }
+
+    private fun observeSearchResult(listAdapter: ApplicationListRVAdapter?) {
+        searchViewModel.searchResult.observe(viewLifecycleOwner) {
+            if (it.data?.first.isNullOrEmpty()) {
+                noAppsFoundLayout?.visibility = View.VISIBLE
+            } else {
+                if (!updateSearchResult(listAdapter, it)) return@observe
+            }
+
+            listAdapter?.let { adapter ->
+                observeDownloadList(adapter)
+            }
+
+            observeScrollOfSearchResult(listAdapter)
+            if (searchText.isNotBlank() && !it.isSuccess()) {
+                /*
+                 * If blank check is not performed then timeout dialog keeps
+                 * popping up whenever search tab is opened.
+                 */
+                onTimeout()
+            }
+        }
+    }
+
+    private fun observeScrollOfSearchResult(listAdapter: ApplicationListRVAdapter?) {
+        listAdapter?.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                searchView?.run {
+                    /*
+                         * Only scroll back to 0 position for a new search.
+                         *
+                         * If we are getting new results from livedata for the old search query,
+                         * do not scroll to top as the user may be scrolling to see already
+                         * populated results.
+                         */
+                    if (lastSearch != query?.toString()) {
+                        recyclerView?.scrollToPosition(0)
+                        lastSearch = query.toString()
+                    }
+                }
+            }
+        })
+    }
+
+    /**
+     * @return true if Search result is updated, otherwise false
+     */
+    private fun updateSearchResult(
+        listAdapter: ApplicationListRVAdapter?,
+        it: ResultSupreme<Pair<List<FusedApp>, Boolean>>
+    ): Boolean {
+        val currentList = listAdapter?.currentList
+        if (it.data?.first != null && !currentList.isNullOrEmpty() && !searchViewModel.isAnyAppUpdated(
+                it.data?.first!!,
+                currentList
+            )
+        ) {
+            return false
+        }
+        listAdapter?.setData(it.data!!.first)
+        binding.loadingProgressBar.isVisible = it.data!!.second
+        stopLoadingUI()
+        noAppsFoundLayout?.visibility = View.GONE
+        searchHintLayout?.visibility = View.GONE
+        return true
+    }
+
+    private fun setupSearchResult(view: View): ApplicationListRVAdapter? {
         val listAdapter = findNavController().currentDestination?.id?.let {
             ApplicationListRVAdapter(
                 this,
@@ -145,55 +202,28 @@ class SearchFragment :
             adapter = listAdapter
             layoutManager = LinearLayoutManager(view.context)
         }
+        return listAdapter
+    }
 
-        searchViewModel.searchResult.observe(viewLifecycleOwner) {
-            if (it.data?.first.isNullOrEmpty()) {
-                noAppsFoundLayout?.visibility = View.VISIBLE
-            } else {
-                val currentList = listAdapter?.currentList
-                if (it.data?.first != null && !currentList.isNullOrEmpty() && !searchViewModel.isAnyAppUpdated(
-                        it.data?.first!!,
-                        currentList
-                    )
-                ) {
-                    return@observe
-                }
-                listAdapter?.setData(it.data!!.first)
-                binding.loadingProgressBar.isVisible = it.data!!.second
-                stopLoadingUI()
-                noAppsFoundLayout?.visibility = View.GONE
-                searchHintLayout?.visibility = View.GONE
-            }
+    private fun setupSearchViewSuggestions() {
+        val from = arrayOf(SUGGESTION_KEY)
+        val to = intArrayOf(android.R.id.text1)
+        searchView?.suggestionsAdapter = SimpleCursorAdapter(
+            context,
+            R.layout.custom_simple_list_item, null, from, to,
+            CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
+        )
 
-            listAdapter?.let { adapter ->
-                observeDownloadList(adapter)
-            }
-
-            listAdapter?.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-                override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                    searchView?.run {
-                        /*
-                         * Only scroll back to 0 position for a new search.
-                         *
-                         * If we are getting new results from livedata for the old search query,
-                         * do not scroll to top as the user may be scrolling to see already
-                         * populated results.
-                         */
-                        if (lastSearch != query?.toString()) {
-                            recyclerView?.scrollToPosition(0)
-                            lastSearch = query.toString()
-                        }
-                    }
-                }
-            })
-            if (searchText.isNotBlank() && !it.isSuccess()) {
-                /*
-                 * If blank check is not performed then timeout dialog keeps
-                 * popping up whenever search tab is opened.
-                 */
-                onTimeout()
-            }
+        searchViewModel.searchSuggest.observe(viewLifecycleOwner) {
+            it?.let { populateSuggestionsAdapter(it) }
         }
+    }
+
+    private fun setupSearchView() {
+        setHasOptionsMenu(true)
+        searchView?.setOnSuggestionListener(this)
+        searchView?.setOnQueryTextListener(this)
+        searchView?.let { configureCloseButton(it) }
     }
 
     private fun showPaidAppMessage(fusedApp: FusedApp) {

@@ -78,13 +78,7 @@ class ApplicationListFragment :
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentApplicationListBinding.bind(view)
 
-        binding.toolbarTitleTV.text = args.translation
-        binding.toolbar.apply {
-            setNavigationOnClickListener {
-                view.findNavController().navigate(R.id.categoriesFragment)
-            }
-        }
-
+        updateToolbar(view)
         setupRecyclerView(view)
         observeAppListLiveData()
 
@@ -97,6 +91,15 @@ class ApplicationListFragment :
         }
         mainActivityViewModel.authData.observe(viewLifecycleOwner) {
             refreshDataOrRefreshToken(mainActivityViewModel)
+        }
+    }
+
+    private fun updateToolbar(view: View) {
+        binding.toolbarTitleTV.text = args.translation
+        binding.toolbar.apply {
+            setNavigationOnClickListener {
+                view.findNavController().navigate(R.id.categoriesFragment)
+            }
         }
     }
 

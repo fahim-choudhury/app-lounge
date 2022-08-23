@@ -19,9 +19,24 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
     private val exodusTrackerApi: ExodusTrackerApi,
     private val trackerDao: TrackerDao
 ) : IAppPrivacyInfoRepository {
+
+    companion object {
+        private const val MAX_TRACKER_SCORE = 9
+        private const val MIN_TRACKER_SCORE = 0
+        private const val MAX_PERMISSION_SCORE = 10
+        private const val MIN_PERMISSION_SCORE = 0
+        private const val THRESHOLD_OF_NON_ZERO_TRACKER_SCORE = 5
+        private const val THRESHOLD_OF_NON_ZERO_PERMISSION_SCORE = 9
+        private const val FACTOR_OF_PERMISSION_SCORE = 0.2
+        private const val DIVIDER_OF_PERMISSION_SCORE = 2.0
+    }
+
     private var trackers: List<Tracker> = listOf()
 
-    override suspend fun getAppPrivacyInfo(fusedApp: FusedApp, appHandle: String): Result<AppPrivacyInfo> {
+    override suspend fun getAppPrivacyInfo(
+        fusedApp: FusedApp,
+        appHandle: String
+    ): Result<AppPrivacyInfo> {
         if (fusedApp.trackers.isNotEmpty() && fusedApp.permsFromExodus.isNotEmpty()) {
             val appInfo = AppPrivacyInfo(fusedApp.trackers, fusedApp.permsFromExodus)
             return Result.success(appInfo)
@@ -29,7 +44,8 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
 
         val appTrackerInfoResult = getResult { exodusTrackerApi.getTrackerInfoOfApp(appHandle) }
         if (appTrackerInfoResult.isSuccess()) {
-            val appPrivacyPrivacyInfoResult = handleAppPrivacyInfoResultSuccess(appTrackerInfoResult)
+            val appPrivacyPrivacyInfoResult =
+                handleAppPrivacyInfoResultSuccess(appTrackerInfoResult)
             updateFusedApp(fusedApp, appPrivacyPrivacyInfoResult)
             return appPrivacyPrivacyInfoResult
         }
@@ -136,10 +152,12 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
         fusedApp.permsFromExodus.filter { it.contains("android.permission") }.size
 
     private fun calculateTrackersScore(numberOfTrackers: Int): Int {
-        return if (numberOfTrackers > 5) 0 else 9 - numberOfTrackers
+        return if (numberOfTrackers > THRESHOLD_OF_NON_ZERO_TRACKER_SCORE) MIN_TRACKER_SCORE else MAX_TRACKER_SCORE - numberOfTrackers
     }
 
     private fun calculatePermissionsScore(numberOfPermission: Int): Int {
-        return if (numberOfPermission > 9) 0 else round(0.2 * ceil((10 - numberOfPermission) / 2.0)).toInt()
+        return if (numberOfPermission > THRESHOLD_OF_NON_ZERO_PERMISSION_SCORE) MIN_PERMISSION_SCORE else round(
+            FACTOR_OF_PERMISSION_SCORE * ceil((MAX_PERMISSION_SCORE - numberOfPermission) / DIVIDER_OF_PERMISSION_SCORE)
+        ).toInt()
     }
 }
