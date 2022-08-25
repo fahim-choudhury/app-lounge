@@ -28,6 +28,7 @@ import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.preference.CheckBoxPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -69,9 +70,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.settings_preferences, rootKey)
 
         // Show applications preferences
-        val showAllApplications = findPreference<RadioButtonPreference>("showAllApplications")
-        val showFOSSApplications = findPreference<RadioButtonPreference>("showFOSSApplications")
-        val showPWAApplications = findPreference<RadioButtonPreference>("showPWAApplications")
+        val showAllApplications = findPreference<CheckBoxPreference>("showAllApplications")
+        val showFOSSApplications = findPreference<CheckBoxPreference>("showFOSSApplications")
+        val showPWAApplications = findPreference<CheckBoxPreference>("showPWAApplications")
 
         val updateCheckInterval =
             preferenceManager.findPreference<Preference>(getString(R.string.update_check_intervals))
@@ -88,22 +89,22 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         showAllApplications?.setOnPreferenceChangeListener { _, _ ->
-            showFOSSApplications?.isChecked = false
-            showPWAApplications?.isChecked = false
+//            showFOSSApplications?.isChecked = false
+//            showPWAApplications?.isChecked = false
             backToMainActivity()
             true
         }
 
         showFOSSApplications?.setOnPreferenceChangeListener { _, _ ->
-            showAllApplications?.isChecked = false
-            showPWAApplications?.isChecked = false
+//            showAllApplications?.isChecked = false
+//            showPWAApplications?.isChecked = false
             backToMainActivity()
             true
         }
 
         showPWAApplications?.setOnPreferenceChangeListener { _, _ ->
-            showFOSSApplications?.isChecked = false
-            showAllApplications?.isChecked = false
+//            showFOSSApplications?.isChecked = false
+//            showAllApplications?.isChecked = false
             backToMainActivity()
             true
         }

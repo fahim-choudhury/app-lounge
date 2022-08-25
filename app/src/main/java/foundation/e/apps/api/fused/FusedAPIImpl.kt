@@ -143,23 +143,28 @@ class FusedAPIImpl @Inject constructor(
              * To prevent waiting so long and fail early, use withTimeout{}.
              */
             withTimeout(timeoutDurationInMillis) {
-                if (applicationType != APP_TYPE_ANY) {
-                    val response = if (applicationType == APP_TYPE_OPEN) {
-                        cleanAPKRepository.getHomeScreenData(
-                            CleanAPKInterface.APP_TYPE_ANY,
-                            CleanAPKInterface.APP_SOURCE_FOSS
-                        ).body()
-                    } else {
-                        cleanAPKRepository.getHomeScreenData(
-                            CleanAPKInterface.APP_TYPE_PWA,
-                            CleanAPKInterface.APP_SOURCE_ANY
-                        ).body()
-                    }
+                if (preferenceManagerModule.isGplaySelected()) {
+                    list.addAll(fetchGPlayHome(authData))
+                }
+
+                if (preferenceManagerModule.isOpenSourceSelected()) {
+                    val response = cleanAPKRepository.getHomeScreenData(
+                        CleanAPKInterface.APP_TYPE_ANY,
+                        CleanAPKInterface.APP_SOURCE_FOSS
+                    ).body()
                     response?.home?.let {
                         list.addAll(generateCleanAPKHome(it, applicationType))
                     }
-                } else {
-                    list.addAll(fetchGPlayHome(authData))
+                }
+
+                if (preferenceManagerModule.isPWASelected()) {
+                    val response = cleanAPKRepository.getHomeScreenData(
+                        CleanAPKInterface.APP_TYPE_PWA,
+                        CleanAPKInterface.APP_SOURCE_ANY
+                    ).body()
+                    response?.home?.let {
+                        list.addAll(generateCleanAPKHome(it, applicationType))
+                    }
                 }
             }
         } catch (e: TimeoutCancellationException) {
@@ -190,18 +195,10 @@ class FusedAPIImpl @Inject constructor(
         var apiStatus: ResultStatus = ResultStatus.OK
         var applicationCategoryType = preferredApplicationType
 
-        if (preferredApplicationType != APP_TYPE_ANY) {
-            handleCleanApkCategories(preferredApplicationType, categoriesList, type).run {
-                if (this != ResultStatus.OK) {
-                    apiStatus = this
-                }
-            }
-        } else {
-            handleAllSourcesCategories(categoriesList, type, authData).run {
-                if (first != ResultStatus.OK) {
-                    apiStatus = first
-                    applicationCategoryType = second
-                }
+        handleAllSourcesCategories(categoriesList, type, authData).run {
+            if (first != ResultStatus.OK) {
+                apiStatus = first
+                applicationCategoryType = second
             }
         }
         categoriesList.sortBy { item -> item.title.lowercase() }
@@ -803,65 +800,73 @@ class FusedAPIImpl @Inject constructor(
         var apiStatus = ResultStatus.OK
         var errorApplicationCategory = ""
 
-        /*
+        if (preferenceManagerModule.isOpenSourceSelected()) {
+            /*
          * Try within timeout limit for open source native apps categories.
          */
-        runCodeBlockWithTimeout({
-            data = getOpenSourceCategories()
-            data?.let {
-                categoriesList.addAll(
-                    getFusedCategoryBasedOnCategoryType(
-                        it,
-                        type,
-                        AppTag.OpenSource(context.getString(R.string.open_source))
+            runCodeBlockWithTimeout({
+                data = getOpenSourceCategories()
+                data?.let {
+                    categoriesList.addAll(
+                        getFusedCategoryBasedOnCategoryType(
+                            it,
+                            type,
+                            AppTag.OpenSource(context.getString(R.string.open_source))
+                        )
                     )
-                )
-            }
-        }, {
-            errorApplicationCategory = APP_TYPE_OPEN
-            apiStatus = ResultStatus.TIMEOUT
-        }, {
-            errorApplicationCategory = APP_TYPE_OPEN
-            apiStatus = ResultStatus.UNKNOWN
-        })
+                }
+            }, {
+                errorApplicationCategory = APP_TYPE_OPEN
+                apiStatus = ResultStatus.TIMEOUT
+            }, {
+                errorApplicationCategory = APP_TYPE_OPEN
+                apiStatus = ResultStatus.UNKNOWN
+            })
+        }
 
-        /*
+        if (preferenceManagerModule.isPWASelected()) {
+
+            /*
          * Try within timeout limit to get PWA categories
          */
-        runCodeBlockWithTimeout({
-            data = getPWAsCategories()
-            data?.let {
-                categoriesList.addAll(
-                    getFusedCategoryBasedOnCategoryType(
-                        it, type, AppTag.PWA(context.getString(R.string.pwa))
+            runCodeBlockWithTimeout({
+                data = getPWAsCategories()
+                data?.let {
+                    categoriesList.addAll(
+                        getFusedCategoryBasedOnCategoryType(
+                            it, type, AppTag.PWA(context.getString(R.string.pwa))
+                        )
                     )
-                )
-            }
-        }, {
-            errorApplicationCategory = APP_TYPE_PWA
-            apiStatus = ResultStatus.TIMEOUT
-        }, {
-            errorApplicationCategory = APP_TYPE_PWA
-            apiStatus = ResultStatus.UNKNOWN
-        })
+                }
+            }, {
+                errorApplicationCategory = APP_TYPE_PWA
+                apiStatus = ResultStatus.TIMEOUT
+            }, {
+                errorApplicationCategory = APP_TYPE_PWA
+                apiStatus = ResultStatus.UNKNOWN
+            })
+        }
 
-        /*
+        if (preferenceManagerModule.isGplaySelected()) {
+
+            /*
          * Try within timeout limit to get native app categories from Play Store
          */
-        runCodeBlockWithTimeout({
-            val playResponse = gPlayAPIRepository.getCategoriesList(type, authData).map { app ->
-                val category = app.transformToFusedCategory()
-                updateCategoryDrawable(category, app)
-                category
-            }
-            categoriesList.addAll(playResponse)
-        }, {
-            errorApplicationCategory = APP_TYPE_ANY
-            apiStatus = ResultStatus.TIMEOUT
-        }, {
-            errorApplicationCategory = APP_TYPE_ANY
-            apiStatus = ResultStatus.UNKNOWN
-        })
+            runCodeBlockWithTimeout({
+                val playResponse = gPlayAPIRepository.getCategoriesList(type, authData).map { app ->
+                    val category = app.transformToFusedCategory()
+                    updateCategoryDrawable(category, app)
+                    category
+                }
+                categoriesList.addAll(playResponse)
+            }, {
+                errorApplicationCategory = APP_TYPE_ANY
+                apiStatus = ResultStatus.TIMEOUT
+            }, {
+                errorApplicationCategory = APP_TYPE_ANY
+                apiStatus = ResultStatus.UNKNOWN
+            })
+        }
 
         return Pair(apiStatus, errorApplicationCategory)
     }
@@ -905,7 +910,7 @@ class FusedAPIImpl @Inject constructor(
 
     private fun getCategoryIconName(category: FusedCategory): String {
         var categoryTitle = if (category.tag.getOperationalTag()
-            .contentEquals(AppTag.GPlay().getOperationalTag())
+                .contentEquals(AppTag.GPlay().getOperationalTag())
         ) category.id else category.title
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {

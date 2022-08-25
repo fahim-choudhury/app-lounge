@@ -53,16 +53,18 @@
 
     <PreferenceCategory
         android:title="@string/Show_applications">
-        <foundation.e.apps.settings.RadioButtonPreference
+        <CheckBoxPreference
             android:defaultValue="true"
             android:key="showAllApplications"
             android:title="@string/Show_all_apps" />
 
-        <foundation.e.apps.settings.RadioButtonPreference
+        <CheckBoxPreference
+            android:defaultValue="true"
             android:key="showFOSSApplications"
             android:title="@string/show_only_open_source_apps" />
 
-        <foundation.e.apps.settings.RadioButtonPreference
+        <CheckBoxPreference
+            android:defaultValue="true"
             android:key="showPWAApplications"
             android:title="@string/show_only_pwa_apps" />
     </PreferenceCategory>
