@@ -31,7 +31,6 @@ import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.download.data.DownloadProgressLD
 import foundation.e.apps.manager.fused.FusedManagerRepository
-import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
@@ -44,7 +43,6 @@ class ApplicationViewModel @Inject constructor(
     downloadProgressLD: DownloadProgressLD,
     private val fusedAPIRepository: FusedAPIRepository,
     private val fusedManagerRepository: FusedManagerRepository,
-    private val pkgManagerModule: PkgManagerModule
 ) : ViewModel() {
 
     val fusedApp: MutableLiveData<Pair<FusedApp, ResultStatus>> = MutableLiveData()
@@ -110,36 +108,17 @@ class ApplicationViewModel @Inject constructor(
     }
 
     fun handleRatingFormat(rating: Double): String {
-        return if (rating % 1 == 0.0) {
-            rating.toInt().toString()
-        } else {
-            rating.toString()
-        }
+        return fusedManagerRepository.handleRatingFormat(rating)
     }
 
     suspend fun calculateProgress(progress: DownloadProgress): Pair<Long, Long> {
-        fusedApp.value?.first?.let { app ->
-            val appDownload = fusedManagerRepository.getDownloadList()
-                .singleOrNull { it.id.contentEquals(app._id) }
-            val downloadingMap = progress.totalSizeBytes.filter { item ->
-                appDownload?.downloadIdMap?.keys?.contains(item.key) == true
-            }
-            val totalSizeBytes = downloadingMap.values.sum()
-            val downloadedSoFar = progress.bytesDownloadedSoFar.filter { item ->
-                appDownload?.downloadIdMap?.keys?.contains(item.key) == true
-            }.values.sum()
-
-            return Pair(totalSizeBytes, downloadedSoFar)
-        }
-        return Pair(1, 0)
+        return fusedManagerRepository.getCalculateProgressWithTotalSize(fusedApp.value?.first, progress)
     }
 
     fun updateApplicationStatus(downloadList: List<FusedDownload>) {
         fusedApp.value?.first?.let { app ->
-            val downloadingItem =
-                downloadList.find { it.origin == app.origin && (it.packageName == app.package_name || it.id == app.package_name) }
-            appStatus.value =
-                downloadingItem?.status ?: fusedAPIRepository.getFusedAppInstallationStatus(app)
+            appStatus.value = fusedManagerRepository.getDownloadingItemStatus(app, downloadList)
+                ?: fusedAPIRepository.getFusedAppInstallationStatus(app)
         }
     }
 }

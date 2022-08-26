@@ -73,8 +73,8 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private val args: ApplicationFragmentArgs by navArgs()
     private val TAG = ApplicationFragment::class.java.simpleName
-
     private var _binding: FragmentApplicationBinding? = null
+
     private val binding get() = _binding!!
 
     /*
@@ -103,6 +103,8 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private var isDetailsLoaded = false
+
+    private lateinit var screenshotsRVAdapter: ApplicationScreenshotsRVAdapter
 
     @Inject
     lateinit var pkgManagerModule: PkgManagerModule
@@ -139,6 +141,204 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             refreshDataOrRefreshToken(mainActivityViewModel)
         }
 
+        setupToolbar(view)
+
+        setupScreenshotRVAdapter()
+
+        binding.applicationLayout.visibility = View.INVISIBLE
+
+        applicationViewModel.fusedApp.observe(viewLifecycleOwner) { resultPair ->
+            updateUi(resultPair)
+        }
+
+        applicationViewModel.errorMessageLiveData.observe(viewLifecycleOwner) {
+            (requireActivity() as MainActivity).showSnackbarMessage(getString(it))
+        }
+    }
+
+    private fun updateUi(
+        resultPair: Pair<FusedApp, ResultStatus>,
+    ) {
+        if (resultPair.second != ResultStatus.OK) {
+            onTimeout()
+            return
+        }
+
+        /*
+             * Previously fusedApp only had instance of FusedApp.
+             * As such previously all reference was simply using "it", the default variable in
+             * the scope. But now "it" is Pair(FusedApp, ResultStatus), not an instance of FusedApp.
+             *
+             * Avoid Git diffs by using a variable named "it".
+             *
+             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
+             */
+        val it = resultPair.first
+
+        dismissTimeoutDialog()
+
+        isDetailsLoaded = true
+        if (applicationViewModel.appStatus.value == null) {
+            applicationViewModel.appStatus.value = it.status
+        }
+        screenshotsRVAdapter.setData(it.other_images_path)
+
+        // Title widgets
+        updateAppTitlePanel(it)
+
+        binding.downloadInclude.appSize.text = it.appSize
+
+        // Ratings widgets
+        updateAppRating(it)
+
+        updateAppDescriptionText(it)
+
+        // Information widgets
+        updateAppInformation(it)
+
+        // Privacy widgets
+        updatePrivacyPanel()
+
+        if (appInfoFetchViewModel.isAppInBlockedList(it)) {
+            binding.snackbarLayout.visibility = View.VISIBLE
+        }
+        fetchAppTracker(it)
+
+        mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
+            applicationViewModel.updateApplicationStatus(list)
+        }
+    }
+
+    private fun updateAppDescriptionText(it: FusedApp) {
+        binding.appDescription.text =
+            Html.fromHtml(it.description, Html.FROM_HTML_MODE_COMPACT)
+
+        binding.appDescriptionMore.setOnClickListener { view ->
+            val action =
+                ApplicationFragmentDirections.actionApplicationFragmentToDescriptionFragment(it.description)
+            view.findNavController().navigate(action)
+        }
+    }
+
+    private fun updatePrivacyPanel() {
+        binding.privacyInclude.apply {
+            appPermissions.setOnClickListener { _ ->
+                ApplicationDialogFragment(
+                    R.drawable.ic_perm,
+                    getString(R.string.permissions),
+                    getPermissionListString()
+                ).show(childFragmentManager, TAG)
+            }
+            appTrackers.setOnClickListener {
+                val fusedApp = applicationViewModel.fusedApp.value?.first
+                var trackers =
+                    privacyInfoViewModel.getTrackerListText(fusedApp)
+
+                if (fusedApp?.trackers == LIST_OF_NULL) {
+                    trackers = getString(R.string.tracker_information_not_found)
+                } else if (trackers.isNotEmpty()) {
+                    trackers += "<br /> <br />" + getString(
+                        R.string.privacy_computed_using_text,
+                        EXODUS_URL
+                    )
+                } else {
+                    trackers = getString(R.string.no_tracker_found)
+                }
+
+                ApplicationDialogFragment(
+                    R.drawable.ic_tracker,
+                    getString(R.string.trackers_title),
+                    trackers
+                ).show(childFragmentManager, TAG)
+            }
+        }
+    }
+
+    private fun updateAppInformation(
+        it: FusedApp,
+    ) {
+        binding.infoInclude.apply {
+            appUpdatedOn.text = getString(
+                R.string.updated_on,
+                if (origin == Origin.CLEANAPK) it.updatedOn else it.last_modified
+            )
+            val notAvailable = getString(R.string.not_available)
+            appRequires.text = getString(R.string.min_android_version, notAvailable)
+            appVersion.text = getString(
+                R.string.version,
+                if (it.latest_version_number == "-1") notAvailable else it.latest_version_number
+            )
+            appLicense.text = getString(
+                R.string.license,
+                if (it.licence.isBlank() or (it.licence == "unknown")) notAvailable else it.licence
+            )
+            appPackageName.text = getString(R.string.package_name, it.package_name)
+        }
+    }
+
+    private fun updateAppRating(it: FusedApp) {
+        binding.ratingsInclude.apply {
+            if (it.ratings.usageQualityScore != -1.0) {
+                val rating =
+                    applicationViewModel.handleRatingFormat(it.ratings.usageQualityScore)
+                appRating.text =
+                    getString(
+                        R.string.rating_out_of, rating
+                    )
+
+                appRating.setCompoundDrawablesWithIntrinsicBounds(
+                    null, null, getRatingDrawable(rating), null
+                )
+                appRating.compoundDrawablePadding = 15
+            }
+            appRatingLayout.setOnClickListener {
+                ApplicationDialogFragment(
+                    R.drawable.ic_star,
+                    getString(R.string.rating),
+                    getString(R.string.rating_description)
+                ).show(childFragmentManager, TAG)
+            }
+
+            appPrivacyScoreLayout.setOnClickListener {
+                ApplicationDialogFragment(
+                    R.drawable.ic_lock,
+                    getString(R.string.privacy_score),
+                    getString(
+                        R.string.privacy_description,
+                        PRIVACY_SCORE_SOURCE_CODE_URL,
+                        EXODUS_URL,
+                        PRIVACY_GUIDELINE_URL
+                    )
+                ).show(childFragmentManager, TAG)
+            }
+        }
+    }
+
+    private fun updateAppTitlePanel(it: FusedApp) {
+        binding.titleInclude.apply {
+            applicationIcon = appIcon
+            appName.text = it.name
+            appInfoFetchViewModel.getAuthorName(it).observe(viewLifecycleOwner) {
+                appAuthor.text = it
+            }
+            categoryTitle.text = it.category
+            if (origin == Origin.CLEANAPK) {
+                appIcon.load(CleanAPKInterface.ASSET_URL + it.icon_image_path)
+            } else {
+                appIcon.load(it.icon_image_path)
+            }
+        }
+    }
+
+    private fun setupScreenshotRVAdapter() {
+        screenshotsRVAdapter = ApplicationScreenshotsRVAdapter(origin)
+        binding.recyclerView.apply {
+            adapter = screenshotsRVAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        }
+    }
+
+    private fun setupToolbar(view: View) {
         val startDestination = findNavController().graph.startDestination
         if (startDestination == R.id.applicationFragment) {
             binding.toolbar.setNavigationOnClickListener {
@@ -149,168 +349,6 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             binding.toolbar.setNavigationOnClickListener {
                 view.findNavController().navigateUp()
             }
-        }
-
-        val notAvailable = getString(R.string.not_available)
-
-        val screenshotsRVAdapter = ApplicationScreenshotsRVAdapter(origin)
-        binding.recyclerView.apply {
-            adapter = screenshotsRVAdapter
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        }
-
-        binding.applicationLayout.visibility = View.INVISIBLE
-
-        applicationViewModel.fusedApp.observe(viewLifecycleOwner) { resultPair ->
-            if (resultPair.second != ResultStatus.OK) {
-                onTimeout()
-                return@observe
-            }
-
-            /*
-             * Previously fusedApp only had instance of FusedApp.
-             * As such previously all reference was simply using "it", the default variable in
-             * the scope. But now "it" is Pair(FusedApp, ResultStatus), not an instance of FusedApp.
-             *
-             * Avoid Git diffs by using a variable named "it".
-             *
-             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
-             */
-            val it = resultPair.first
-
-            dismissTimeoutDialog()
-
-            isDetailsLoaded = true
-            if (applicationViewModel.appStatus.value == null) {
-                applicationViewModel.appStatus.value = it.status
-            }
-            screenshotsRVAdapter.setData(it.other_images_path)
-
-            // Title widgets
-            binding.titleInclude.apply {
-                applicationIcon = appIcon
-                appName.text = it.name
-                appAuthor.text = it.author
-                appInfoFetchViewModel.setAuthorNameIfNeeded(appAuthor, it)
-                categoryTitle.text = it.category
-                if (origin == Origin.CLEANAPK) {
-                    appIcon.load(CleanAPKInterface.ASSET_URL + it.icon_image_path)
-                } else {
-                    appIcon.load(it.icon_image_path)
-                }
-            }
-
-            binding.downloadInclude.appSize.text = it.appSize
-
-            // Ratings widgets
-            binding.ratingsInclude.apply {
-                if (it.ratings.usageQualityScore != -1.0) {
-                    val rating =
-                        applicationViewModel.handleRatingFormat(it.ratings.usageQualityScore)
-                    appRating.text =
-                        getString(
-                            R.string.rating_out_of, rating
-                        )
-
-                    appRating.setCompoundDrawablesWithIntrinsicBounds(
-                        null, null, getRatingDrawable(rating), null
-                    )
-                    appRating.compoundDrawablePadding = 15
-                }
-                appRatingLayout.setOnClickListener {
-                    ApplicationDialogFragment(
-                        R.drawable.ic_star,
-                        getString(R.string.rating),
-                        getString(R.string.rating_description)
-                    ).show(childFragmentManager, TAG)
-                }
-
-                appPrivacyScoreLayout.setOnClickListener {
-                    ApplicationDialogFragment(
-                        R.drawable.ic_lock,
-                        getString(R.string.privacy_score),
-                        getString(
-                            R.string.privacy_description,
-                            PRIVACY_SCORE_SOURCE_CODE_URL,
-                            EXODUS_URL,
-                            PRIVACY_GUIDELINE_URL
-                        )
-                    ).show(childFragmentManager, TAG)
-                }
-            }
-
-            binding.appDescription.text =
-                Html.fromHtml(it.description, Html.FROM_HTML_MODE_COMPACT)
-
-            binding.appDescriptionMore.setOnClickListener { view ->
-                val action =
-                    ApplicationFragmentDirections.actionApplicationFragmentToDescriptionFragment(it.description)
-                view.findNavController().navigate(action)
-            }
-
-            // Information widgets
-            binding.infoInclude.apply {
-                appUpdatedOn.text = getString(
-                    R.string.updated_on,
-                    if (origin == Origin.CLEANAPK) it.updatedOn else it.last_modified
-                )
-                appRequires.text = getString(R.string.min_android_version, notAvailable)
-                appVersion.text = getString(
-                    R.string.version,
-                    if (it.latest_version_number == "-1") notAvailable else it.latest_version_number
-                )
-                appLicense.text = getString(
-                    R.string.license,
-                    if (it.licence.isBlank() or (it.licence == "unknown")) notAvailable else it.licence
-                )
-                appPackageName.text = getString(R.string.package_name, it.package_name)
-            }
-
-            // Privacy widgets
-            binding.privacyInclude.apply {
-                appPermissions.setOnClickListener { _ ->
-                    ApplicationDialogFragment(
-                        R.drawable.ic_perm,
-                        getString(R.string.permissions),
-                        getPermissionListString()
-                    ).show(childFragmentManager, TAG)
-                }
-                appTrackers.setOnClickListener {
-                    val fusedApp = applicationViewModel.fusedApp.value?.first
-                    var trackers =
-                        privacyInfoViewModel.getTrackerListText(fusedApp)
-
-                    if (fusedApp?.trackers == LIST_OF_NULL) {
-                        trackers = getString(R.string.tracker_information_not_found)
-                    } else if (trackers.isNotEmpty()) {
-                        trackers += "<br /> <br />" + getString(
-                            R.string.privacy_computed_using_text,
-                            EXODUS_URL
-                        )
-                    } else {
-                        trackers = getString(R.string.no_tracker_found)
-                    }
-
-                    ApplicationDialogFragment(
-                        R.drawable.ic_tracker,
-                        getString(R.string.trackers_title),
-                        trackers
-                    ).show(childFragmentManager, TAG)
-                }
-            }
-
-            if (appInfoFetchViewModel.isAppInBlockedList(it)) {
-                binding.snackbarLayout.visibility = View.VISIBLE
-            }
-            fetchAppTracker(it)
-
-            mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
-                applicationViewModel.updateApplicationStatus(list)
-            }
-        }
-
-        applicationViewModel.errorMessageLiveData.observe(viewLifecycleOwner) {
-            (requireActivity() as MainActivity).showSnackbarMessage(getString(it))
         }
     }
 
@@ -380,7 +418,12 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                         downloadPB,
                         appSize
                     )
-                    Status.UNAVAILABLE -> handleUnavaiable(installButton, fusedApp, downloadPB, appSize)
+                    Status.UNAVAILABLE -> handleUnavaiable(
+                        installButton,
+                        fusedApp,
+                        downloadPB,
+                        appSize
+                    )
                     Status.QUEUED, Status.AWAITING, Status.DOWNLOADED -> handleQueued(
                         installButton,
                         fusedApp,
@@ -668,7 +711,8 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun updatePrivacyScore() {
-        val privacyScore = privacyInfoViewModel.getPrivacyScore(applicationViewModel.fusedApp.value?.first)
+        val privacyScore =
+            privacyInfoViewModel.getPrivacyScore(applicationViewModel.fusedApp.value?.first)
         if (privacyScore != -1) {
             val appPrivacyScore = binding.ratingsInclude.appPrivacyScore
             appPrivacyScore.text = getString(

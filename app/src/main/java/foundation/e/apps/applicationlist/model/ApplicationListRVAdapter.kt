@@ -123,66 +123,13 @@ class ApplicationListRVAdapter(
                 hidePrivacyScore()
             }
             applicationList.setOnClickListener {
-                val action = when (currentDestinationId) {
-                    R.id.applicationListFragment -> {
-                        ApplicationListFragmentDirections.actionApplicationListFragmentToApplicationFragment(
-                            searchApp._id,
-                            searchApp.package_name,
-                            searchApp.origin
-                        )
-                    }
-                    R.id.searchFragment -> {
-                        SearchFragmentDirections.actionSearchFragmentToApplicationFragment(
-                            searchApp._id,
-                            searchApp.package_name,
-                            searchApp.origin
-                        )
-                    }
-                    R.id.updatesFragment -> {
-                        UpdatesFragmentDirections.actionUpdatesFragmentToApplicationFragment(
-                            searchApp._id,
-                            searchApp.package_name,
-                            searchApp.origin
-                        )
-                    }
-                    else -> null
-                }
-                action?.let { direction -> view.findNavController().navigate(direction) }
+                handleAppItemClick(searchApp, view)
             }
-            appTitle.text = searchApp.name
-            appAuthor.text = searchApp.author
-            appInfoFetchViewModel.setAuthorNameIfNeeded(appAuthor, searchApp)
-            if (searchApp.ratings.usageQualityScore != -1.0) {
-                appRating.text = searchApp.ratings.usageQualityScore.toString()
-                appRatingBar.rating = searchApp.ratings.usageQualityScore.toFloat()
-            }
-            if (searchApp.ratings.privacyScore != -1.0) {
-                appPrivacyScore.text = view.context.getString(
-                    R.string.privacy_rating_out_of,
-                    searchApp.ratings.privacyScore.toInt().toString()
-                )
-            }
-
-            if (searchApp.source.isEmpty()) {
-                sourceTag.visibility = View.INVISIBLE
-            } else {
-                sourceTag.visibility = View.VISIBLE
-            }
-            sourceTag.text = searchApp.source
-
-            when (searchApp.origin) {
-                Origin.GPLAY -> {
-                    appIcon.load(searchApp.icon_image_path) {
-                        placeholder(shimmerDrawable)
-                    }
-                }
-                Origin.CLEANAPK -> {
-                    appIcon.load(CleanAPKInterface.ASSET_URL + searchApp.icon_image_path) {
-                        placeholder(shimmerDrawable)
-                    }
-                }
-                else -> Log.wtf(TAG, "${searchApp.package_name} is from an unknown origin")
-            }
+            updateAppInfo(searchApp)
+            updateRating(searchApp)
+            updatePrivacyScore(searchApp, view)
+            updateSourceTag(searchApp)
+            setAppIcon(searchApp, shimmerDrawable)
             removeIsPurchasedObserver(holder)
 
             if (appInfoFetchViewModel.isAppInBlockedList(searchApp)) {
@@ -195,6 +142,91 @@ class ApplicationListRVAdapter(
 
             showCalculatedPrivacyScoreData(searchApp, view)
         }
+    }
+
+    private fun ApplicationListItemBinding.setAppIcon(
+        searchApp: FusedApp,
+        shimmerDrawable: ShimmerDrawable
+    ) {
+        when (searchApp.origin) {
+            Origin.GPLAY -> {
+                appIcon.load(searchApp.icon_image_path) {
+                    placeholder(shimmerDrawable)
+                }
+            }
+            Origin.CLEANAPK -> {
+                appIcon.load(CleanAPKInterface.ASSET_URL + searchApp.icon_image_path) {
+                    placeholder(shimmerDrawable)
+                }
+            }
+            else -> Log.wtf(TAG, "${searchApp.package_name} is from an unknown origin")
+        }
+    }
+
+    private fun ApplicationListItemBinding.updateAppInfo(searchApp: FusedApp) {
+        appTitle.text = searchApp.name
+        appInfoFetchViewModel.getAuthorName(searchApp).observe(lifecycleOwner!!) {
+            appAuthor.text = it
+        }
+    }
+
+    private fun ApplicationListItemBinding.updateRating(searchApp: FusedApp) {
+        if (searchApp.ratings.usageQualityScore != -1.0) {
+            appRating.text = searchApp.ratings.usageQualityScore.toString()
+            appRatingBar.rating = searchApp.ratings.usageQualityScore.toFloat()
+        }
+    }
+
+    private fun ApplicationListItemBinding.updatePrivacyScore(
+        searchApp: FusedApp,
+        view: View
+    ) {
+        if (searchApp.ratings.privacyScore != -1.0) {
+            appPrivacyScore.text = view.context.getString(
+                R.string.privacy_rating_out_of,
+                searchApp.ratings.privacyScore.toInt().toString()
+            )
+        }
+    }
+
+    private fun ApplicationListItemBinding.updateSourceTag(searchApp: FusedApp) {
+        if (searchApp.source.isEmpty()) {
+            sourceTag.visibility = View.INVISIBLE
+        } else {
+            sourceTag.visibility = View.VISIBLE
+        }
+        sourceTag.text = searchApp.source
+    }
+
+    private fun handleAppItemClick(
+        searchApp: FusedApp,
+        view: View
+    ) {
+        val action = when (currentDestinationId) {
+            R.id.applicationListFragment -> {
+                ApplicationListFragmentDirections.actionApplicationListFragmentToApplicationFragment(
+                    searchApp._id,
+                    searchApp.package_name,
+                    searchApp.origin
+                )
+            }
+            R.id.searchFragment -> {
+                SearchFragmentDirections.actionSearchFragmentToApplicationFragment(
+                    searchApp._id,
+                    searchApp.package_name,
+                    searchApp.origin
+                )
+            }
+            R.id.updatesFragment -> {
+                UpdatesFragmentDirections.actionUpdatesFragmentToApplicationFragment(
+                    searchApp._id,
+                    searchApp.package_name,
+                    searchApp.origin
+                )
+            }
+            else -> null
+        }
+        action?.let { direction -> view.findNavController().navigate(direction) }
     }
 
     private fun removeIsPurchasedObserver(holder: ViewHolder) {
@@ -346,7 +378,7 @@ class ApplicationListRVAdapter(
         }
         privacyInfoViewModel.getAppPrivacyInfoLiveData(searchApp).observe(lifecycleOwner!!) {
             showPrivacyScore()
-            val calculatedScore = privacyInfoViewModel.calculatePrivacyScore(searchApp)
+            val calculatedScore = privacyInfoViewModel.getPrivacyScore(searchApp)
             if (it.isSuccess() && calculatedScore != -1) {
                 searchApp.privacyScore = calculatedScore
                 appPrivacyScore.text = view.context.getString(

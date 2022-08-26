@@ -38,41 +38,6 @@ class AppProgressViewModel @Inject constructor(
         fusedApp: FusedApp?,
         progress: DownloadProgress
     ): Int {
-        fusedApp?.let { app ->
-            val appDownload = fusedManagerRepository.getDownloadList()
-                .singleOrNull { it.id.contentEquals(app._id) && it.packageName.contentEquals(app.package_name) }
-                ?: return 0
-
-            if (!appDownload.id.contentEquals(app._id) || !appDownload.packageName.contentEquals(app.package_name)) {
-                return@let
-            }
-
-            if (!isProgressValidForApp(fusedApp, progress)) {
-                return -1
-            }
-
-            val downloadingMap = progress.totalSizeBytes.filter { item ->
-                appDownload.downloadIdMap.keys.contains(item.key) && item.value > 0
-            }
-
-            if (appDownload.downloadIdMap.size > downloadingMap.size) { // All files for download are not ready yet
-                return 0
-            }
-
-            val totalSizeBytes = downloadingMap.values.sum()
-            val downloadedSoFar = progress.bytesDownloadedSoFar.filter { item ->
-                appDownload.downloadIdMap.keys.contains(item.key)
-            }.values.sum()
-            return ((downloadedSoFar / totalSizeBytes.toDouble()) * 100).toInt()
-        }
-        return 0
-    }
-
-    private suspend fun isProgressValidForApp(
-        fusedApp: FusedApp,
-        downloadProgress: DownloadProgress
-    ): Boolean {
-        val download = fusedManagerRepository.getFusedDownload(downloadProgress.downloadId)
-        return download.id == fusedApp._id
+        return fusedManagerRepository.calculateProgress(fusedApp, progress)
     }
 }

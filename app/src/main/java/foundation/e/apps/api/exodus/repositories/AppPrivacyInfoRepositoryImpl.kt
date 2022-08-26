@@ -6,24 +6,65 @@ import foundation.e.apps.api.exodus.Report
 import foundation.e.apps.api.exodus.Tracker
 import foundation.e.apps.api.exodus.TrackerDao
 import foundation.e.apps.api.exodus.models.AppPrivacyInfo
+import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.getResult
 import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.ceil
+import kotlin.math.round
 
 @Singleton
 class AppPrivacyInfoRepositoryImpl @Inject constructor(
     private val exodusTrackerApi: ExodusTrackerApi,
     private val trackerDao: TrackerDao
 ) : IAppPrivacyInfoRepository {
+
+    companion object {
+        private const val MAX_TRACKER_SCORE = 9
+        private const val MIN_TRACKER_SCORE = 0
+        private const val MAX_PERMISSION_SCORE = 10
+        private const val MIN_PERMISSION_SCORE = 0
+        private const val THRESHOLD_OF_NON_ZERO_TRACKER_SCORE = 5
+        private const val THRESHOLD_OF_NON_ZERO_PERMISSION_SCORE = 9
+        private const val FACTOR_OF_PERMISSION_SCORE = 0.2
+        private const val DIVIDER_OF_PERMISSION_SCORE = 2.0
+    }
+
     private var trackers: List<Tracker> = listOf()
 
-    override suspend fun getAppPrivacyInfo(appHandle: String): Result<AppPrivacyInfo> {
+    override suspend fun getAppPrivacyInfo(
+        fusedApp: FusedApp,
+        appHandle: String
+    ): Result<AppPrivacyInfo> {
+        if (fusedApp.trackers.isNotEmpty() && fusedApp.permsFromExodus.isNotEmpty()) {
+            val appInfo = AppPrivacyInfo(fusedApp.trackers, fusedApp.permsFromExodus)
+            return Result.success(appInfo)
+        }
+
         val appTrackerInfoResult = getResult { exodusTrackerApi.getTrackerInfoOfApp(appHandle) }
         if (appTrackerInfoResult.isSuccess()) {
-            return handleAppPrivacyInfoResultSuccess(appTrackerInfoResult)
+            val appPrivacyPrivacyInfoResult =
+                handleAppPrivacyInfoResultSuccess(appTrackerInfoResult)
+            updateFusedApp(fusedApp, appPrivacyPrivacyInfoResult)
+            return appPrivacyPrivacyInfoResult
         }
         return Result.error(extractErrorMessage(appTrackerInfoResult))
+    }
+
+    private fun updateFusedApp(
+        fusedApp: FusedApp,
+        appPrivacyPrivacyInfoResult: Result<AppPrivacyInfo>
+    ) {
+        fusedApp.trackers = appPrivacyPrivacyInfoResult.data?.trackerList ?: LIST_OF_NULL
+        fusedApp.permsFromExodus = appPrivacyPrivacyInfoResult.data?.permissionList ?: LIST_OF_NULL
+        if (fusedApp.perms.isEmpty() && fusedApp.permsFromExodus != LIST_OF_NULL) {
+            /*
+                 * fusedApp.perms is generally populated from remote source like Play Store.
+                 * If it is empty then set the value from permissions from exodus api.
+                 */
+            fusedApp.perms = fusedApp.permsFromExodus
+        }
     }
 
     private suspend fun handleAppPrivacyInfoResultSuccess(
@@ -94,5 +135,29 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
         return trackers.filter {
             sortedTrackerData[0].trackers.contains(it.id)
         }.map { it.name }
+    }
+
+    override fun calculatePrivacyScore(fusedApp: FusedApp): Int {
+        if (fusedApp.permsFromExodus == LIST_OF_NULL) {
+            return -1
+        }
+        val calculateTrackersScore = calculateTrackersScore(fusedApp.trackers.size)
+        val calculatePermissionsScore = calculatePermissionsScore(
+            countAndroidPermissions(fusedApp)
+        )
+        return calculateTrackersScore + calculatePermissionsScore
+    }
+
+    private fun countAndroidPermissions(fusedApp: FusedApp) =
+        fusedApp.permsFromExodus.filter { it.contains("android.permission") }.size
+
+    private fun calculateTrackersScore(numberOfTrackers: Int): Int {
+        return if (numberOfTrackers > THRESHOLD_OF_NON_ZERO_TRACKER_SCORE) MIN_TRACKER_SCORE else MAX_TRACKER_SCORE - numberOfTrackers
+    }
+
+    private fun calculatePermissionsScore(numberOfPermission: Int): Int {
+        return if (numberOfPermission > THRESHOLD_OF_NON_ZERO_PERMISSION_SCORE) MIN_PERMISSION_SCORE else round(
+            FACTOR_OF_PERMISSION_SCORE * ceil((MAX_PERMISSION_SCORE - numberOfPermission) / DIVIDER_OF_PERMISSION_SCORE)
+        ).toInt()
     }
 }
