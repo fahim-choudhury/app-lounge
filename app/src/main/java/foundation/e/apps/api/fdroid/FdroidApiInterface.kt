@@ -1,6 +1,7 @@
 package foundation.e.apps.api.fdroid
 
 import foundation.e.apps.api.fdroid.models.FdroidApiModel
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 
@@ -15,5 +16,5 @@ interface FdroidApiInterface {
     }
 
     @GET("{packageName}.yml")
-    suspend fun getFdroidInfoForPackage(@Path("packageName") packageName: String): FdroidApiModel?
+    suspend fun getFdroidInfoForPackage(@Path("packageName") packageName: String): Response<FdroidApiModel?>
 }

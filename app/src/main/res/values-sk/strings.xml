@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="preference_update_notify_available_title">Zobraziť dostupné aktualizácie</string>
+    <string name="preference_update_install_automatically_description">Stiahnutie a inštalácia aktualizácií aplikácií na pozadí</string>
+    <string name="preference_update_install_automatically_title">Automaticky inštalovať aktualizácie</string>
+    <string name="preference_update_interval_title">Interval kontroly aktualizácie</string>
+    <string name="preference_update_interval_default">24</string>
+    <string name="preference_updates_title">Aktualizácie</string>
+    <string name="tos_agree_date">Prijaté</string>
+    <string name="tos_disagree">Odmietnuť</string>
+    <string name="tos_agree">Prijať</string>
+    <string name="or">alebo</string>
+    <string name="sign_in_anonymous">Anonymný režim</string>
+    <string name="sign_in_google">Prihlásenie pomocou služby Google</string>
+    <string name="sign_in_title">Vitajte</string>
+    <string name="pwa">PWA</string>
+    <string name="open_source">Otvorený zdroj</string>
+    <string name="category_icon">Ikona kategórie</string>
+    <string name="games">Hry</string>
+    <string name="apps">Aplikácie</string>
+    <string name="no_apps_found">Nenašli sa žiadne aplikácie…</string>
+    <string name="search_hint">Vyhľadajte aplikáciu</string>
+    <string name="menu_settings">Nastavenia</string>
+    <string name="menu_updates">Aktualizácie</string>
+    <string name="menu_search">Hľadať</string>
+    <string name="menu_categories">Kategórie</string>
+    <string name="menu_home">Domov</string>
+</resources>

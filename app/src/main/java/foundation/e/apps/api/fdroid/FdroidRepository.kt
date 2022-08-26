@@ -1,5 +1,7 @@
 package foundation.e.apps.api.fdroid
 
+import android.content.Context
+import foundation.e.apps.api.cleanapk.ApkSignatureManager
 import foundation.e.apps.api.fdroid.models.FdroidEntity
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.utils.enums.Origin
@@ -26,7 +28,7 @@ class FdroidRepository @Inject constructor(
      */
     private suspend fun getFdroidInfo(packageName: String): FdroidEntity? {
         return fdroidDao.getFdroidEntityFromPackageName(packageName)
-            ?: fdroidApi.getFdroidInfoForPackage(packageName)?.let {
+            ?: fdroidApi.getFdroidInfoForPackage(packageName).body()?.let {
                 FdroidEntity(packageName, it.authorName).also {
                     fdroidDao.saveFdroidEntity(it)
                 }
@@ -45,5 +47,16 @@ class FdroidRepository @Inject constructor(
             }
         }
         return result?.authorName ?: FdroidEntity.DEFAULT_FDROID_AUTHOR_NAME
+    }
+
+    suspend fun isFdroidApplicationSigned(context: Context, packageName: String, apkFilePath: String, signature: String): Boolean {
+        if (isFdroidApplication(packageName)) {
+            return ApkSignatureManager.verifyFdroidSignature(context, apkFilePath, signature)
+        }
+        return false
+    }
+
+    private suspend fun isFdroidApplication(packageName: String): Boolean {
+        return fdroidApi.getFdroidInfoForPackage(packageName).isSuccessful
     }
 }

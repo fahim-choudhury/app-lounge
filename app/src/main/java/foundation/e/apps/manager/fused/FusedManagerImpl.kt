@@ -120,6 +120,7 @@ class FusedManagerImpl @Inject constructor(
                 val parentPathFile = File("$cacheDir/${fusedDownload.packageName}")
                 parentPathFile.listFiles()?.let { list.addAll(it) }
                 list.sort()
+
                 if (list.size != 0) {
                     try {
                         Timber.d("installApp: STARTED ${fusedDownload.name} ${list.size}")
@@ -247,6 +248,9 @@ class FusedManagerImpl @Inject constructor(
             }
         }
     }
+
+    fun getBaseApkPath(fusedDownload: FusedDownload) =
+        "$cacheDir/${fusedDownload.packageName}/${fusedDownload.packageName}_1.apk"
 
     suspend fun installationIssue(fusedDownload: FusedDownload) {
         flushOldDownload(fusedDownload.packageName)
