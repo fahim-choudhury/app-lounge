@@ -78,6 +78,7 @@ class FusedAPIImpl @Inject constructor(
 
     companion object {
         private const val CATEGORY_TITLE_REPLACEABLE_CONJUNCTION = "&"
+
         /*
          * Removing "private" access specifier to allow access in
          * MainActivityViewModel.timeoutAlertDialog
@@ -189,7 +190,10 @@ class FusedAPIImpl @Inject constructor(
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
-    suspend fun getCategoriesList(type: Category.Type, authData: AuthData): Triple<List<FusedCategory>, String, ResultStatus> {
+    suspend fun getCategoriesList(
+        type: Category.Type,
+        authData: AuthData
+    ): Triple<List<FusedCategory>, String, ResultStatus> {
         val categoriesList = mutableListOf<FusedCategory>()
         val preferredApplicationType = preferenceManagerModule.preferredApplicationType()
         var apiStatus: ResultStatus = ResultStatus.OK
@@ -228,26 +232,22 @@ class FusedAPIImpl @Inject constructor(
             var cleanapkPackageResult: FusedApp? = null
 
             val status = runCodeBlockWithTimeout({
-                if (preferenceManagerModule.preferredApplicationType() == APP_TYPE_ANY) {
+                if (preferenceManagerModule.isGplaySelected()) {
                     try {
-                        /*
-                         * Surrounding with try-catch because if query is not a package name,
-                         * then GPlay throws an error.
-                         */
                         getApplicationDetails(query, query, authData, Origin.GPLAY).let {
                             if (it.second == ResultStatus.OK) {
                                 gplayPackageResult = it.first
                             }
                         }
-                    } catch (_: Exception) {}
+                    } catch (_: Exception) {
+                    }
                 }
-                getCleanapkSearchResult(query).let {
-                    /* Cleanapk always returns something, it is never null.
-                     * If nothing is found, it returns a blank FusedApp() object.
-                     * Blank result to be filtered out.
-                     */
-                    if (it.isSuccess() && it.data!!.package_name.isNotBlank()) {
-                        cleanapkPackageResult = it.data!!
+
+                if (preferenceManagerModule.isOpenSourceSelected()) {
+                    getCleanapkSearchResult(query).let {
+                        if (it.isSuccess() && it.data!!.package_name.isNotBlank()) {
+                            cleanapkPackageResult = it.data!!
+                        }
                     }
                 }
             })
@@ -260,6 +260,7 @@ class FusedAPIImpl @Inject constructor(
             cleanapkPackageResult?.let { packageSpecificResults.add(it) } ?: run {
                 gplayPackageResult?.let { packageSpecificResults.add(it) }
             }
+
 
             /*
              * If there was a timeout, return it and don't try to fetch anything else.
@@ -284,67 +285,66 @@ class FusedAPIImpl @Inject constructor(
                 return packageSpecificResults + filteredResults
             }
 
+            val searchResult = mutableListOf<FusedApp>()
             val cleanApkResults = mutableListOf<FusedApp>()
-            when (preferenceManagerModule.preferredApplicationType()) {
-                APP_TYPE_ANY -> {
-                    val status = runCodeBlockWithTimeout({
-                        cleanApkResults.addAll(getCleanAPKSearchResults(query))
-                    })
-                    if (cleanApkResults.isNotEmpty() || status != ResultStatus.OK) {
-                        /*
-                         * If cleanapk results are empty, dont emit emit data as it may
-                         * briefly show "No apps found..."
-                         * If status is timeout, then do emit the value.
-                         * Send true in the pair to signal more results (i.e from GPlay) being loaded.
-                         */
-                        emit(
-                            ResultSupreme.create(
-                                status,
-                                Pair(filterWithKeywordSearch(cleanApkResults), true)
-                            )
-                        )
-                    }
-                    emitSource(
-                        getGplayAndCleanapkCombinedResults(query, authData, cleanApkResults).map {
-                            /*
-                             * We are assuming that there will be no timeout here.
-                             * If there had to be any timeout, it would already have happened
-                             * while fetching package specific results.
-                             */
-                            ResultSupreme.Success(Pair(filterWithKeywordSearch(it.first), it.second))
-                        }
-                    )
-                }
-                APP_TYPE_OPEN -> {
-                    val status = runCodeBlockWithTimeout({
-                        cleanApkResults.addAll(getCleanAPKSearchResults(query))
-                    })
+            if (preferenceManagerModule.isOpenSourceSelected()) {
+                val status = runCodeBlockWithTimeout({
+                    cleanApkResults.addAll(getCleanAPKSearchResults(query))
+                })
+                if (cleanApkResults.isNotEmpty() || status != ResultStatus.OK) {
                     /*
-                     * Send false in pair to signal no more results to load, as only cleanapk
-                     * results are fetched, we don't have to wait for GPlay results.
+                     * If cleanapk results are empty, dont emit emit data as it may
+                     * briefly show "No apps found..."
+                     * If status is timeout, then do emit the value.
+                     * Send true in the pair to signal more results (i.e from GPlay) being loaded.
                      */
+                    searchResult.addAll(cleanApkResults)
                     emit(
                         ResultSupreme.create(
                             status,
-                            Pair(filterWithKeywordSearch(cleanApkResults), false)
+                            Pair(
+                                filterWithKeywordSearch(searchResult),
+                                preferenceManagerModule.isGplaySelected() || preferenceManagerModule.isPWASelected()
+                            )
                         )
                     )
                 }
-                APP_TYPE_PWA -> {
-                    val status = runCodeBlockWithTimeout({
-                        cleanApkResults.addAll(
-                            getCleanAPKSearchResults(
-                                query,
-                                CleanAPKInterface.APP_SOURCE_ANY,
-                                CleanAPKInterface.APP_TYPE_PWA
+            }
+
+            if (preferenceManagerModule.isGplaySelected()) {
+                emitSource(getGplaySearchResults(query, authData).map {
+                    if (it.first.isNotEmpty()) {
+                        searchResult.addAll(it.first)
+                    }
+                    ResultSupreme.Success(Pair(filterWithKeywordSearch(searchResult), it.second))
+                })
+            }
+
+            if (preferenceManagerModule.isPWASelected()) {
+                val pwaApps: MutableList<FusedApp> = mutableListOf()
+                val status = runCodeBlockWithTimeout({
+                    getCleanAPKSearchResults(
+                        query,
+                        CleanAPKInterface.APP_SOURCE_ANY,
+                        CleanAPKInterface.APP_TYPE_PWA
+                    ).apply {
+                        if (this.isNotEmpty()) {
+                            pwaApps.addAll(this)
+                        }
+                    }
+                })
+
+                if (pwaApps.isNotEmpty() || status != ResultStatus.OK) {
+                    searchResult.addAll(pwaApps)
+                    emit(
+                        ResultSupreme.create(
+                            status,
+                            Pair(
+                                filterWithKeywordSearch(searchResult),
+                                false
                             )
                         )
-                    })
-                    /*
-                     * Send false in pair to signal no more results to load, as only cleanapk
-                     * results are fetched for PWAs.
-                     */
-                    emit(ResultSupreme.create(status, Pair(cleanApkResults, false)))
+                    )
                 }
             }
         }
@@ -451,7 +451,8 @@ class FusedAPIImpl @Inject constructor(
     ): ResultSupreme<StreamBundle> {
         var streamBundle = StreamBundle()
         val status = runCodeBlockWithTimeout({
-            streamBundle = gPlayAPIRepository.getNextStreamBundle(authData, homeUrl, currentStreamBundle)
+            streamBundle =
+                gPlayAPIRepository.getNextStreamBundle(authData, homeUrl, currentStreamBundle)
         })
         return ResultSupreme.create(status, streamBundle)
     }
@@ -463,7 +464,8 @@ class FusedAPIImpl @Inject constructor(
     ): ResultSupreme<StreamCluster> {
         var streamCluster = StreamCluster()
         val status = runCodeBlockWithTimeout({
-            streamCluster = gPlayAPIRepository.getAdjustedFirstCluster(authData, streamBundle, pointer)
+            streamCluster =
+                gPlayAPIRepository.getAdjustedFirstCluster(authData, streamBundle, pointer)
         })
         return ResultSupreme.create(status, streamCluster)
     }
@@ -479,7 +481,10 @@ class FusedAPIImpl @Inject constructor(
         return ResultSupreme.create(status, streamCluster)
     }
 
-    suspend fun getPlayStoreApps(browseUrl: String, authData: AuthData): ResultSupreme<List<FusedApp>> {
+    suspend fun getPlayStoreApps(
+        browseUrl: String,
+        authData: AuthData
+    ): ResultSupreme<List<FusedApp>> {
         val list = mutableListOf<FusedApp>()
         val status = runCodeBlockWithTimeout({
             list.addAll(
@@ -1330,7 +1335,8 @@ class FusedAPIImpl @Inject constructor(
             if (it.status == Status.INSTALLATION_ISSUE) {
                 return@forEach
             }
-            val currentAppStatus = pkgManagerModule.getPackageStatus(it.package_name, it.latest_version_code)
+            val currentAppStatus =
+                pkgManagerModule.getPackageStatus(it.package_name, it.latest_version_code)
             if (it.status != currentAppStatus) {
                 return true
             }
