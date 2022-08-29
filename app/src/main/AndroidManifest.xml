@@ -5,6 +5,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="foundation.e.pwaplayer.provider.READ_WRITE" />
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -26,7 +27,6 @@
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
-    <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
 
     <application
         android:name=".AppLoungeApplication"
@@ -95,6 +95,10 @@
             tools:node="remove" />
 
         <service android:name=".manager.pkg.PackageInstallerService" />
+
+        <service
+            android:name=".splitinstall.SplitInstallService"
+            android:exported="true" />
     </application>
 
 </manifest>

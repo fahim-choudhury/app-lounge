@@ -158,6 +158,21 @@ class GPlayAPIImpl @Inject constructor(
         return downloadData
     }
 
+    suspend fun getOnDemandModule(
+        packageName: String,
+        moduleName: String,
+        versionCode: Int,
+        offerType: Int,
+        authData: AuthData
+    ) : List<File> {
+        val downloadData = mutableListOf<File>()
+        withContext(Dispatchers.IO) {
+            val purchaseHelper = PurchaseHelper(authData).using(gPlayHttpClient)
+            downloadData.addAll(purchaseHelper.getOnDemandModule(packageName, moduleName, versionCode, offerType))
+        }
+        return downloadData
+    }
+
     suspend fun getAppDetails(packageName: String, authData: AuthData): App? {
         var appDetails: App?
         withContext(Dispatchers.IO) {

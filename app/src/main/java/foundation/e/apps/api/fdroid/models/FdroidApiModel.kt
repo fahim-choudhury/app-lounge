@@ -21,7 +21,7 @@ class FdroidApiModel() {
     var authorName: String = ""
 
     @JsonCreator
-    constructor(@JsonProperty(" ") AuthorName: String?) : this() {
+    constructor(@JsonProperty("AuthorName") AuthorName: String?) : this() {
         this.authorName = AuthorName ?: ""
     }
 }

@@ -105,6 +105,16 @@ class FusedAPIRepository @Inject constructor(
         )
     }
 
+    suspend fun getOnDemandModule(
+        authData: AuthData,
+        packageName: String,
+        moduleName: String,
+        versionCode: Int,
+        offerType: Int
+    ) : String? {
+        return fusedAPIImpl.getOnDemandModule(authData, packageName, moduleName, versionCode, offerType)
+    }
+
     suspend fun getCategoriesList(
         type: Category.Type,
         authData: AuthData

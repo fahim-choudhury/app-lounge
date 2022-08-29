@@ -54,6 +54,16 @@ class GPlayAPIRepository @Inject constructor(
         return gPlayAPIImpl.getSearchResults(query, authData)
     }
 
+    suspend fun getOnDemandModule(
+        packageName: String,
+        moduleName: String,
+        versionCode: Int,
+        offerType: Int,
+        authData: AuthData
+    ) : List<File> {
+        return gPlayAPIImpl.getOnDemandModule(packageName, moduleName, versionCode, offerType, authData)
+    }
+
     suspend fun getDownloadInfo(
         packageName: String,
         versionCode: Int,

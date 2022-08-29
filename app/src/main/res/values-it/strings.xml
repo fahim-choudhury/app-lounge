@@ -19,10 +19,10 @@
     <string name="category_icon">Icone Categorie</string>
     <string name="open_source">Open Source</string>
     <string name="pwa">PWA</string>
-    <string name="sign_in_title">Accedi</string>
-    <string name="sign_in_desc">Usa un account Google o la Modalità Anonima per accedere privatamente.</string>
-    <string name="sign_in_google">Login Google</string>
-    <string name="sign_in_anonymous">Anonimo</string>
+    <string name="sign_in_title">Benvenuto</string>
+    <string name="sign_in_desc">Accedi ad App Lounge con il tuo account Google, o scegli la Modalità Anonima per farlo privatamente.</string>
+    <string name="sign_in_google">Accedi con Google</string>
+    <string name="sign_in_anonymous">Modalità anonima</string>
     <string name="tos_agree">Accetta</string>
     <string name="tos_disagree">Rifiuta</string>
     <string name="tos_agree_date">Accettato</string>
@@ -98,4 +98,38 @@
     <string name="automatically_install_updates_notification_text">Gli aggiornamenti App verranno installati automaticamente</string>
     <string name="privacy_computed_using_text">Calcolato usando &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus Privacy Analysis</string>
     <string name="all_apps_updated">Tutte le app sono aggiornate</string>
+    <string name="may_not_work_warning_message">Forzando l\'installazione, potrai scaricarla e installarla, ma non possiamo garantire che funzioni. <br/><br/>Tentare di installare app non supportate può risultare in arresti anomali o rallentamenti del sistema. <br/><br/>Cercheremo di migliorare la compatibilità con questa app in un futuro prossimo.</string>
+    <string name="this_app_may_not_work_properly">Questa app potrebbe non funzionare correttamente!</string>
+    <string name="install_anyway">Installa lo stesso</string>
+    <string name="unsupported_app_unreleased">L\'app %s non è supportata. Ciò può essere dovuto al fatto che la app non è ancora stata rilasciata su larga scala o a qualche altro errore.</string>
+    <string name="unsupported_app_title">App non supportata!</string>
+    <string name="purchase_error">Errore nell\'acquisto!</string>
+    <string name="download_automatically_message">L\'app verrà scaricata automaticamente su questo dispositivo</string>
+    <string name="purchase_complete">Acquisto completato!</string>
+    <string name="paid_app_anonymous_message">Le app a pagamento non possono essere installate in modalità anonima. Per installarle, accedi al tuo account Google.</string>
+    <string name="dialog_cancel">ELIMINA</string>
+    <string name="dialog_confirm">CONFERMA</string>
+    <string name="dialog_paidapp_message">Facendo click su conferma, si accede alla pagina Google Play della app per completare l\'acquisto con il browser. Fai click su conferma per acquistare %1$s per %2$s.</string>
+    <string name="dialog_title_paid_app">Acquista <b>%1$s</b></string>
+    <string name="sign_in_failed_desc">A causa di un errore di rete, App Lounge non è riuscita a ottenere i dati di accesso a Google.</string>
+    <string name="sign_in_failed_title">Accesso a Google non riuscito!</string>
+    <string name="open_settings">Apri Impostazioni</string>
+    <string name="timeout_desc_cleanapk">Un problema di rete impedisce il recupero di tutte le app.</string>
+    <string name="timeout_desc_gplay">Un problema di rete impedisce il recupero di tutte le app.
+\n
+\nAprire le impostazioni per selezionare solo app open source o le PWA.</string>
+    <string name="timeout_title">Timeout nel recupero dell\'app!</string>
+    <string name="tracker_information_not_found">Informazioni sui tracker di questa app non disponibili.</string>
+    <string name="update_error">Errore nell\'aggiornamento!</string>
+    <string name="error_signature_mismatch">L\'aggiornamento non può essere installato per la mancata corrispondenza di firma tra l\'aggiornamento di %1$s e la versione istallata sul tuo smartphone. Per ovviare, puoi disinstallare %1$s e quindi installarlo di nuovo da App Lounge. <br/><br/> Nota: questo messaggio non verrà più visualizzato.</string>
+    <string name="show_more">Mostrane altre</string>
+    <string name="something_went_wrong">Qualcosa non ha funzionato!</string>
+    <string name="app_not_found">L\'app non è stata trovata.</string>
+    <string name="not_enough_storage">Non c\'è abbastanza spazio per scaricare questa app!</string>
+    <string name="installing">Sto installando</string>
+    <string name="copied">Copiato</string>
+    <string name="os_version">Versione di /e/ OS</string>
+    <string name="app_version_label">Versione di App Lounge</string>
+    <string name="about">Informazioni</string>
+    <string name="or">o</string>
 </resources>

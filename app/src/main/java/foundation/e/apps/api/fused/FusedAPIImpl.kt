@@ -239,7 +239,8 @@ class FusedAPIImpl @Inject constructor(
                                 gplayPackageResult = it.first
                             }
                         }
-                    } catch (_: Exception) {
+                    } catch (e: Exception) {
+                        Timber.e(e)
                     }
                 }
 
@@ -287,10 +288,12 @@ class FusedAPIImpl @Inject constructor(
 
             val searchResult = mutableListOf<FusedApp>()
             val cleanApkResults = mutableListOf<FusedApp>()
+
             if (preferenceManagerModule.isOpenSourceSelected()) {
                 val status = runCodeBlockWithTimeout({
                     cleanApkResults.addAll(getCleanAPKSearchResults(query))
                 })
+
                 if (cleanApkResults.isNotEmpty() || status != ResultStatus.OK) {
                     /*
                      * If cleanapk results are empty, dont emit emit data as it may
@@ -387,6 +390,23 @@ class FusedAPIImpl @Inject constructor(
     suspend fun validateAuthData(authData: AuthData): PlayResponse {
         return gPlayAPIRepository.validateAuthData(authData)
     }
+
+    suspend fun getOnDemandModule(
+        authData: AuthData,
+        packageName: String,
+        moduleName: String,
+        versionCode: Int,
+        offerType: Int
+    ) : String? {
+        val list = gPlayAPIRepository.getOnDemandModule(packageName, moduleName, versionCode, offerType, authData)
+        for (element in list) {
+            if (element.name == "$moduleName.apk") {
+                return element.url
+            }
+        }
+        return null
+    }
+
 
     suspend fun updateFusedDownloadWithDownloadingInfo(
         authData: AuthData,
@@ -672,6 +692,11 @@ class FusedAPIImpl @Inject constructor(
             return if (fusedApp.origin == Origin.GPLAY) FilterLevel.UNKNOWN
             else FilterLevel.NONE
         }
+
+        if (!fusedApp.isFree && fusedApp.price.isBlank()) {
+            return FilterLevel.UI
+        }
+
         if (fusedApp.restriction != Constants.Restriction.NOT_RESTRICTED) {
             /*
              * Check if app details can be shown. If not then remove the app from lists.
@@ -696,13 +721,8 @@ class FusedAPIImpl @Inject constructor(
             } catch (e: Exception) {
                 return FilterLevel.UI
             }
-        } else {
-            if (!fusedApp.isFree && fusedApp.price.isBlank()) {
-                return FilterLevel.UI
-            }
-            if (fusedApp.originalSize == 0L) {
-                return FilterLevel.UI
-            }
+        } else if (fusedApp.originalSize == 0L) {
+            return FilterLevel.UI
         }
         return FilterLevel.NONE
     }
@@ -1289,7 +1309,7 @@ class FusedAPIImpl @Inject constructor(
 
         oldHomeData.forEach {
             val fusedHome = newHomeData[oldHomeData.indexOf(it)]
-            if (!it.title.contentEquals(fusedHome.title) || !areFusedAppsUpdated(it, fusedHome)) {
+            if (!it.title.contentEquals(fusedHome.title) || areFusedAppsUpdated(it, fusedHome)) {
                 return true
             }
         }
@@ -1301,15 +1321,18 @@ class FusedAPIImpl @Inject constructor(
         newFusedHome: FusedHome,
     ): Boolean {
         val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
+        if (oldFusedHome.list.size != newFusedHome.list.size) {
+            return true
+        }
 
         oldFusedHome.list.forEach { oldFusedApp ->
             val indexOfOldFusedApp = oldFusedHome.list.indexOf(oldFusedApp)
             val fusedApp = newFusedHome.list[indexOfOldFusedApp]
             if (!fusedAppDiffUtil.areContentsTheSame(oldFusedApp, fusedApp)) {
-                return false
+                return true
             }
         }
-        return true
+        return false
     }
 
     /**
