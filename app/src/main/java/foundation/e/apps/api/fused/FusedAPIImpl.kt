@@ -154,7 +154,7 @@ class FusedAPIImpl @Inject constructor(
                         CleanAPKInterface.APP_SOURCE_FOSS
                     ).body()
                     response?.home?.let {
-                        list.addAll(generateCleanAPKHome(it, applicationType))
+                        list.addAll(generateCleanAPKHome(it, APP_TYPE_OPEN))
                     }
                 }
 
@@ -164,7 +164,7 @@ class FusedAPIImpl @Inject constructor(
                         CleanAPKInterface.APP_SOURCE_ANY
                     ).body()
                     response?.home?.let {
-                        list.addAll(generateCleanAPKHome(it, applicationType))
+                        list.addAll(generateCleanAPKHome(it, APP_TYPE_PWA))
                     }
                 }
             }
@@ -1180,7 +1180,10 @@ class FusedAPIImpl @Inject constructor(
                 }
             }
         }
-        return list
+        return list.map {
+            it.source = prefType
+            it
+        }
     }
 
     private suspend fun fetchGPlayHome(authData: AuthData): List<FusedHome> {

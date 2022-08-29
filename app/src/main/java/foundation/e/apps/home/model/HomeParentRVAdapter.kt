@@ -19,6 +19,7 @@
 package foundation.e.apps.home.model
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,6 +27,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import foundation.e.apps.AppInfoFetchViewModel
 import foundation.e.apps.MainActivityViewModel
+import foundation.e.apps.R
+import foundation.e.apps.api.fused.FusedAPIImpl
 import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedHome
@@ -70,6 +73,20 @@ class HomeParentRVAdapter(
         homeChildRVAdapter.setData(fusedHome.list)
 
         holder.binding.titleTV.text = fusedHome.title
+
+        when (fusedHome.source) {
+            FusedAPIImpl.APP_TYPE_OPEN -> {
+                holder.binding.categoryTag.visibility = View.VISIBLE
+                holder.binding.categoryTag.text = holder.binding.root.context.getString(R.string.open_source)
+            }
+            FusedAPIImpl.APP_TYPE_PWA -> {
+                holder.binding.categoryTag.visibility = View.VISIBLE
+                holder.binding.categoryTag.text = holder.binding.root.context.getString(R.string.pwa)
+            }
+            else -> {
+                holder.binding.categoryTag.visibility = View.GONE
+            }
+        }
         holder.binding.childRV.apply {
             recycledViewPool.setMaxRecycledViews(0, 0)
             adapter = homeChildRVAdapter
