@@ -228,51 +228,172 @@ class FusedAPIImpl @Inject constructor(
          */
         return liveData {
             val packageSpecificResults = ArrayList<FusedApp>()
-            var gplayPackageResult: FusedApp? = null
-            var cleanapkPackageResult: FusedApp? = null
-
-            val status = runCodeBlockWithTimeout({
-                if (preferenceManagerModule.isGplaySelected()) {
-                    try {
-                        getApplicationDetails(query, query, authData, Origin.GPLAY).let {
-                            if (it.second == ResultStatus.OK) {
-                                gplayPackageResult = it.first
-                            }
-                        }
-                    } catch (e: Exception) {
-                        Timber.e(e)
-                    }
-                }
-
-                if (preferenceManagerModule.isOpenSourceSelected()) {
-                    getCleanapkSearchResult(query).let {
-                        if (it.isSuccess() && it.data!!.package_name.isNotBlank()) {
-                            cleanapkPackageResult = it.data!!
-                        }
-                    }
-                }
-            })
-
-            /*
-             * Currently only show open source package result if exists in both fdroid and gplay.
-             * This is temporary.
-             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5783
-             */
-            cleanapkPackageResult?.let { packageSpecificResults.add(it) } ?: run {
-                gplayPackageResult?.let { packageSpecificResults.add(it) }
-            }
-
-
-            /*
-             * If there was a timeout, return it and don't try to fetch anything else.
-             * Also send true in the pair to signal more results being loaded.
-             */
-            if (status != ResultStatus.OK) {
-                emit(ResultSupreme.create(status, Pair(packageSpecificResults, true)))
+            fetchPackageSpecificResult(authData, query, packageSpecificResults)?.let {
+                emit(it)
                 return@liveData
             }
 
-            /*
+            val searchResult = mutableListOf<FusedApp>()
+            val cleanApkResults = mutableListOf<FusedApp>()
+
+            if (preferenceManagerModule.isOpenSourceSelected()) {
+                fetchOpenSourceSearchResult(
+                    this@FusedAPIImpl,
+                    cleanApkResults,
+                    query,
+                    searchResult,
+                    packageSpecificResults
+                )?.let { emit(it) }
+            }
+
+            if (preferenceManagerModule.isGplaySelected()) {
+                emitSource(
+                    fetchGplaySearchResults(
+                        query,
+                        authData,
+                        searchResult,
+                        packageSpecificResults
+                    )
+                )
+            }
+
+            if (preferenceManagerModule.isPWASelected()) {
+                fetchPWASearchResult(
+                    this@FusedAPIImpl,
+                    query,
+                    searchResult,
+                    packageSpecificResults
+                )?.let { emit(it) }
+            }
+        }
+    }
+
+    private suspend fun fetchPWASearchResult(
+        fusedAPIImpl: FusedAPIImpl,
+        query: String,
+        searchResult: MutableList<FusedApp>,
+        packageSpecificResults: ArrayList<FusedApp>
+    ): ResultSupreme<Pair<List<FusedApp>, Boolean>>? {
+        val pwaApps: MutableList<FusedApp> = mutableListOf()
+        val status = fusedAPIImpl.runCodeBlockWithTimeout({
+            getCleanAPKSearchResults(
+                query,
+                CleanAPKInterface.APP_SOURCE_ANY,
+                CleanAPKInterface.APP_TYPE_PWA
+            ).apply {
+                if (this.isNotEmpty()) {
+                    pwaApps.addAll(this)
+                }
+            }
+        })
+
+        if (pwaApps.isNotEmpty() || status != ResultStatus.OK) {
+            searchResult.addAll(pwaApps)
+            return ResultSupreme.create(
+                status,
+                Pair(
+                    filterWithKeywordSearch(
+                        searchResult,
+                        packageSpecificResults,
+                        query
+                    ),
+                    false
+                )
+            )
+        }
+        return null
+    }
+
+    private fun fetchGplaySearchResults(
+        query: String,
+        authData: AuthData,
+        searchResult: MutableList<FusedApp>,
+        packageSpecificResults: ArrayList<FusedApp>
+    ): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
+        getGplaySearchResults(query, authData).map {
+            if (it.first.isNotEmpty()) {
+                searchResult.addAll(it.first)
+            }
+            ResultSupreme.Success(
+                Pair(
+                    filterWithKeywordSearch(
+                        searchResult,
+                        packageSpecificResults,
+                        query
+                    ), it.second
+                )
+            )
+        }
+
+    private suspend fun fetchOpenSourceSearchResult(
+        fusedAPIImpl: FusedAPIImpl,
+        cleanApkResults: MutableList<FusedApp>,
+        query: String,
+        searchResult: MutableList<FusedApp>,
+        packageSpecificResults: ArrayList<FusedApp>
+    ): ResultSupreme<Pair<List<FusedApp>, Boolean>>? {
+        val status = fusedAPIImpl.runCodeBlockWithTimeout({
+            cleanApkResults.addAll(getCleanAPKSearchResults(query))
+        })
+
+        if (cleanApkResults.isNotEmpty() || status != ResultStatus.OK) {
+            searchResult.addAll(cleanApkResults)
+            return ResultSupreme.create(
+                status,
+                Pair(
+                    filterWithKeywordSearch(
+                        searchResult,
+                        packageSpecificResults,
+                        query
+                    ),
+                    preferenceManagerModule.isGplaySelected() || preferenceManagerModule.isPWASelected()
+                )
+            )
+
+        }
+        return null
+    }
+
+    private suspend fun fetchPackageSpecificResult(
+        authData: AuthData,
+        query: String,
+        packageSpecificResults: MutableList<FusedApp>
+    ): ResultSupreme<Pair<List<FusedApp>, Boolean>>? {
+        var gplayPackageResult: FusedApp? = null
+        var cleanapkPackageResult: FusedApp? = null
+
+
+        val status = runCodeBlockWithTimeout({
+            if (preferenceManagerModule.isGplaySelected()) {
+                getGplayPackagResult(query, authData, gplayPackageResult)
+            }
+
+            if (preferenceManagerModule.isOpenSourceSelected()) {
+                getCleanApkPackageResult(query, cleanapkPackageResult)
+            }
+        })
+
+        /*
+         * Currently only show open source package result if exists in both fdroid and gplay.
+         * This is temporary.
+         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5783
+         */
+        cleanapkPackageResult?.let { packageSpecificResults.add(it) } ?: run {
+            gplayPackageResult?.let { packageSpecificResults.add(it) }
+        }
+
+
+        /*
+         * If there was a timeout, return it and don't try to fetch anything else.
+         * Also send true in the pair to signal more results being loaded.
+         */
+        if (status != ResultStatus.OK) {
+            return ResultSupreme.create(status, Pair(packageSpecificResults, true))
+        }
+        return null
+    }
+
+    /*
              * The list packageSpecificResults may contain apps with duplicate package names.
              * Example, "org.telegram.messenger" will result in "Telegram" app from Play Store
              * and "Telegram FOSS" from F-droid. We show both of them at the top.
@@ -280,76 +401,42 @@ class FusedAPIImpl @Inject constructor(
              * But for the other keyword related search results, we do not allow duplicate package names.
              * We also filter out apps which are already present in packageSpecificResults list.
              */
-            fun filterWithKeywordSearch(list: List<FusedApp>): List<FusedApp> {
-                val filteredResults = list.distinctBy { it.package_name }
-                    .filter { packageSpecificResults.isEmpty() || it.package_name != query }
-                return packageSpecificResults + filteredResults
+    fun filterWithKeywordSearch(
+        list: List<FusedApp>,
+        packageSpecificResults: List<FusedApp>,
+        query: String
+    ): List<FusedApp> {
+        val filteredResults = list.distinctBy { it.package_name }
+            .filter { packageSpecificResults.isEmpty() || it.package_name != query }
+        return packageSpecificResults + filteredResults
+    }
+
+    private suspend fun FusedAPIImpl.getCleanApkPackageResult(
+        query: String,
+        cleanapkPackageResult: FusedApp?
+    ) {
+        var cleanapkPackageResultReference = cleanapkPackageResult
+        getCleanapkSearchResult(query).let {
+            if (it.isSuccess() && it.data!!.package_name.isNotBlank()) {
+                cleanapkPackageResultReference = it.data!!
             }
+        }
+    }
 
-            val searchResult = mutableListOf<FusedApp>()
-            val cleanApkResults = mutableListOf<FusedApp>()
-
-            if (preferenceManagerModule.isOpenSourceSelected()) {
-                val status = runCodeBlockWithTimeout({
-                    cleanApkResults.addAll(getCleanAPKSearchResults(query))
-                })
-
-                if (cleanApkResults.isNotEmpty() || status != ResultStatus.OK) {
-                    /*
-                     * If cleanapk results are empty, dont emit emit data as it may
-                     * briefly show "No apps found..."
-                     * If status is timeout, then do emit the value.
-                     * Send true in the pair to signal more results (i.e from GPlay) being loaded.
-                     */
-                    searchResult.addAll(cleanApkResults)
-                    emit(
-                        ResultSupreme.create(
-                            status,
-                            Pair(
-                                filterWithKeywordSearch(searchResult),
-                                preferenceManagerModule.isGplaySelected() || preferenceManagerModule.isPWASelected()
-                            )
-                        )
-                    )
+    private suspend fun FusedAPIImpl.getGplayPackagResult(
+        query: String,
+        authData: AuthData,
+        gplayPackageResult: FusedApp?
+    ) {
+        var gplayPackageResultReference = gplayPackageResult
+        try {
+            getApplicationDetails(query, query, authData, Origin.GPLAY).let {
+                if (it.second == ResultStatus.OK) {
+                    gplayPackageResultReference = it.first
                 }
             }
-
-            if (preferenceManagerModule.isGplaySelected()) {
-                emitSource(getGplaySearchResults(query, authData).map {
-                    if (it.first.isNotEmpty()) {
-                        searchResult.addAll(it.first)
-                    }
-                    ResultSupreme.Success(Pair(filterWithKeywordSearch(searchResult), it.second))
-                })
-            }
-
-            if (preferenceManagerModule.isPWASelected()) {
-                val pwaApps: MutableList<FusedApp> = mutableListOf()
-                val status = runCodeBlockWithTimeout({
-                    getCleanAPKSearchResults(
-                        query,
-                        CleanAPKInterface.APP_SOURCE_ANY,
-                        CleanAPKInterface.APP_TYPE_PWA
-                    ).apply {
-                        if (this.isNotEmpty()) {
-                            pwaApps.addAll(this)
-                        }
-                    }
-                })
-
-                if (pwaApps.isNotEmpty() || status != ResultStatus.OK) {
-                    searchResult.addAll(pwaApps)
-                    emit(
-                        ResultSupreme.create(
-                            status,
-                            Pair(
-                                filterWithKeywordSearch(searchResult),
-                                false
-                            )
-                        )
-                    )
-                }
-            }
+        } catch (e: Exception) {
+            Timber.e(e)
         }
     }
 
@@ -397,8 +484,14 @@ class FusedAPIImpl @Inject constructor(
         moduleName: String,
         versionCode: Int,
         offerType: Int
-    ) : String? {
-        val list = gPlayAPIRepository.getOnDemandModule(packageName, moduleName, versionCode, offerType, authData)
+    ): String? {
+        val list = gPlayAPIRepository.getOnDemandModule(
+            packageName,
+            moduleName,
+            versionCode,
+            offerType,
+            authData
+        )
         for (element in list) {
             if (element.name == "$moduleName.apk") {
                 return element.url
@@ -821,79 +914,108 @@ class FusedAPIImpl @Inject constructor(
         type: Category.Type,
         authData: AuthData
     ): Pair<ResultStatus, String> {
-        var data: Categories? = null
         var apiStatus = ResultStatus.OK
         var errorApplicationCategory = ""
 
         if (preferenceManagerModule.isOpenSourceSelected()) {
-            /*
-         * Try within timeout limit for open source native apps categories.
-         */
-            runCodeBlockWithTimeout({
-                data = getOpenSourceCategories()
-                data?.let {
-                    categoriesList.addAll(
-                        getFusedCategoryBasedOnCategoryType(
-                            it,
-                            type,
-                            AppTag.OpenSource(context.getString(R.string.open_source))
-                        )
-                    )
-                }
-            }, {
-                errorApplicationCategory = APP_TYPE_OPEN
-                apiStatus = ResultStatus.TIMEOUT
-            }, {
-                errorApplicationCategory = APP_TYPE_OPEN
-                apiStatus = ResultStatus.UNKNOWN
-            })
+            val openSourceCategoryResult = fetchOpenSourceCategories(type)
+            categoriesList.addAll(openSourceCategoryResult.second)
+            apiStatus = openSourceCategoryResult.first
+            errorApplicationCategory = openSourceCategoryResult.third
         }
 
         if (preferenceManagerModule.isPWASelected()) {
-
-            /*
-         * Try within timeout limit to get PWA categories
-         */
-            runCodeBlockWithTimeout({
-                data = getPWAsCategories()
-                data?.let {
-                    categoriesList.addAll(
-                        getFusedCategoryBasedOnCategoryType(
-                            it, type, AppTag.PWA(context.getString(R.string.pwa))
-                        )
-                    )
-                }
-            }, {
-                errorApplicationCategory = APP_TYPE_PWA
-                apiStatus = ResultStatus.TIMEOUT
-            }, {
-                errorApplicationCategory = APP_TYPE_PWA
-                apiStatus = ResultStatus.UNKNOWN
-            })
+            val pwaCategoriesResult = fetchPWACategories(type)
+            categoriesList.addAll(pwaCategoriesResult.second)
+            apiStatus = pwaCategoriesResult.first
+            errorApplicationCategory = pwaCategoriesResult.third
         }
 
         if (preferenceManagerModule.isGplaySelected()) {
-
-            /*
-         * Try within timeout limit to get native app categories from Play Store
-         */
-            runCodeBlockWithTimeout({
-                val playResponse = gPlayAPIRepository.getCategoriesList(type, authData).map { app ->
-                    val category = app.transformToFusedCategory()
-                    updateCategoryDrawable(category, app)
-                    category
-                }
-                categoriesList.addAll(playResponse)
-            }, {
-                errorApplicationCategory = APP_TYPE_ANY
-                apiStatus = ResultStatus.TIMEOUT
-            }, {
-                errorApplicationCategory = APP_TYPE_ANY
-                apiStatus = ResultStatus.UNKNOWN
-            })
+            val gplayCategoryResult = fetchGplayCategories(
+                type,
+                authData
+            )
+            categoriesList.addAll(gplayCategoryResult.second)
+            apiStatus = gplayCategoryResult.first
+            errorApplicationCategory = gplayCategoryResult.third
         }
 
         return Pair(apiStatus, errorApplicationCategory)
+    }
+
+    private suspend fun FusedAPIImpl.fetchGplayCategories(
+        type: Category.Type,
+        authData: AuthData,
+    ): Triple<ResultStatus, List<FusedCategory>,String> {
+        var errorApplicationCategory = ""
+        var apiStatus = ResultStatus.OK
+        val categoryList = mutableListOf<FusedCategory>()
+        runCodeBlockWithTimeout({
+            val playResponse = gPlayAPIRepository.getCategoriesList(type, authData).map { app ->
+                val category = app.transformToFusedCategory()
+                updateCategoryDrawable(category, app)
+                category
+            }
+            categoryList.addAll(playResponse)
+        }, {
+            errorApplicationCategory = APP_TYPE_ANY
+            apiStatus = ResultStatus.TIMEOUT
+        }, {
+            errorApplicationCategory = APP_TYPE_ANY
+            apiStatus = ResultStatus.UNKNOWN
+        })
+        return Triple(apiStatus, categoryList, errorApplicationCategory)
+    }
+
+    private suspend fun FusedAPIImpl.fetchPWACategories(
+        type: Category.Type,
+    ): Triple<ResultStatus, List<FusedCategory>, String> {
+        var errorApplicationCategory = ""
+        var apiStatus: ResultStatus = ResultStatus.OK
+        val fusedCategoriesList = mutableListOf<FusedCategory>()
+        runCodeBlockWithTimeout({
+            getPWAsCategories()?.let {
+                fusedCategoriesList.addAll(
+                    getFusedCategoryBasedOnCategoryType(
+                        it, type, AppTag.PWA(context.getString(R.string.pwa))
+                    )
+                )
+            }
+        }, {
+            errorApplicationCategory = APP_TYPE_PWA
+            apiStatus = ResultStatus.TIMEOUT
+        }, {
+            errorApplicationCategory = APP_TYPE_PWA
+            apiStatus = ResultStatus.UNKNOWN
+        })
+        return Triple(apiStatus, fusedCategoriesList, errorApplicationCategory)
+    }
+
+    private suspend fun FusedAPIImpl.fetchOpenSourceCategories(
+        type: Category.Type,
+    ): Triple<ResultStatus, List<FusedCategory>, String> {
+        var errorApplicationCategory = ""
+        var apiStatus: ResultStatus = ResultStatus.OK
+        val fusedCategoryList = mutableListOf<FusedCategory>()
+        runCodeBlockWithTimeout({
+            getOpenSourceCategories()?.let {
+                fusedCategoryList.addAll(
+                    getFusedCategoryBasedOnCategoryType(
+                        it,
+                        type,
+                        AppTag.OpenSource(context.getString(R.string.open_source))
+                    )
+                )
+            }
+        }, {
+            errorApplicationCategory = APP_TYPE_OPEN
+            apiStatus = ResultStatus.TIMEOUT
+        }, {
+            errorApplicationCategory = APP_TYPE_OPEN
+            apiStatus = ResultStatus.UNKNOWN
+        })
+        return Triple(apiStatus, fusedCategoryList, errorApplicationCategory)
     }
 
     /**
