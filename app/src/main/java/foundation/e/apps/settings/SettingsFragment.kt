@@ -88,27 +88,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        showAllApplications?.setOnPreferenceChangeListener { _, _ ->
-//            showFOSSApplications?.isChecked = false
-//            showPWAApplications?.isChecked = false
-            backToMainActivity()
-            true
-        }
-
-        showFOSSApplications?.setOnPreferenceChangeListener { _, _ ->
-//            showAllApplications?.isChecked = false
-//            showPWAApplications?.isChecked = false
-            backToMainActivity()
-            true
-        }
-
-        showPWAApplications?.setOnPreferenceChangeListener { _, _ ->
-//            showFOSSApplications?.isChecked = false
-//            showAllApplications?.isChecked = false
-            backToMainActivity()
-            true
-        }
-
         val versionInfo = findPreference<LongPressPreference>("versionInfo")
         versionInfo?.apply {
             summary = BuildConfig.VERSION_NAME
