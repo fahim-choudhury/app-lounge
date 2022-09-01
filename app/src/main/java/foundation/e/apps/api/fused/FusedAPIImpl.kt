@@ -365,11 +365,11 @@ class FusedAPIImpl @Inject constructor(
 
         val status = runCodeBlockWithTimeout({
             if (preferenceManagerModule.isGplaySelected()) {
-                getGplayPackagResult(query, authData, gplayPackageResult)
+                gplayPackageResult = getGplayPackagResult(query, authData)
             }
 
             if (preferenceManagerModule.isOpenSourceSelected()) {
-                getCleanApkPackageResult(query, cleanapkPackageResult)
+                cleanapkPackageResult = getCleanApkPackageResult(query)
             }
         })
 
@@ -390,7 +390,7 @@ class FusedAPIImpl @Inject constructor(
         if (status != ResultStatus.OK) {
             return ResultSupreme.create(status, Pair(packageSpecificResults, true))
         }
-        return null
+        return ResultSupreme.create(status, Pair(packageSpecificResults, false))
     }
 
     /*
@@ -413,31 +413,29 @@ class FusedAPIImpl @Inject constructor(
 
     private suspend fun getCleanApkPackageResult(
         query: String,
-        cleanapkPackageResult: FusedApp?
-    ) {
-        var cleanapkPackageResultReference = cleanapkPackageResult
+    ): FusedApp? {
         getCleanapkSearchResult(query).let {
             if (it.isSuccess() && it.data!!.package_name.isNotBlank()) {
-                cleanapkPackageResultReference = it.data!!
+                return it.data!!
             }
         }
+        return null
     }
 
     private suspend fun getGplayPackagResult(
         query: String,
         authData: AuthData,
-        gplayPackageResult: FusedApp?
-    ) {
-        var gplayPackageResultReference = gplayPackageResult
+    ): FusedApp? {
         try {
             getApplicationDetails(query, query, authData, Origin.GPLAY).let {
                 if (it.second == ResultStatus.OK) {
-                    gplayPackageResultReference = it.first
+                    return it.first
                 }
             }
         } catch (e: Exception) {
             Timber.e(e)
         }
+        return null
     }
 
     /*

@@ -135,8 +135,7 @@ dependencies {
     // Optional -- mockito-kotlin
     testImplementation "org.mockito.kotlin:mockito-kotlin:3.2.0"
     testImplementation 'org.mockito:mockito-inline:2.13.0'
-
-
+    testImplementation "androidx.arch.core:core-testing:2.1.0"
 
     // Coil and PhotoView
     implementation "io.coil-kt:coil:1.4.0"

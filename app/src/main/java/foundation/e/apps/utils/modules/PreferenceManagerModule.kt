@@ -21,10 +21,12 @@ package foundation.e.apps.utils.modules
 import android.content.Context
 import androidx.preference.PreferenceManager
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.OpenForTesting
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@OpenForTesting
 class PreferenceManagerModule @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
