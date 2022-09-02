@@ -164,7 +164,7 @@ class GPlayAPIImpl @Inject constructor(
         versionCode: Int,
         offerType: Int,
         authData: AuthData
-    ) : List<File> {
+    ): List<File> {
         val downloadData = mutableListOf<File>()
         withContext(Dispatchers.IO) {
             val purchaseHelper = PurchaseHelper(authData).using(gPlayHttpClient)

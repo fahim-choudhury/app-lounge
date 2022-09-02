@@ -88,7 +88,6 @@ class FusedApiImplTest {
     @Mock
     private lateinit var gPlayAPIRepository: GPlayAPIRepository
 
-
     private lateinit var preferenceManagerModule: FakePreferenceModule
 
     @Before
@@ -754,13 +753,11 @@ class FusedApiImplTest {
 
         setupMockingSearchApp(packageNameSearchResponse, authData, packageResult, gplayLivedata)
 
-
         val searchResultLiveData = fusedAPIImpl.getSearchResults("com.search.package", authData)
         var size = -1
         val observer = Observer<ResultSupreme<Pair<List<FusedApp>, Boolean>>> {
             size = it.data?.first?.size ?: -2
             println("search result: $size")
-
         }
         searchResultLiveData.observeForever(observer)
         delay(3000)

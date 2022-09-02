@@ -229,8 +229,10 @@ class FusedAPIImpl @Inject constructor(
         return liveData {
             val packageSpecificResults = ArrayList<FusedApp>()
             fetchPackageSpecificResult(authData, query, packageSpecificResults)?.let {
-                emit(it)
-                return@liveData
+                if (it.data?.second == true) { // if there are no data to load
+                    emit(it)
+                    return@liveData
+                }
             }
 
             val searchResult = mutableListOf<FusedApp>()
@@ -320,7 +322,8 @@ class FusedAPIImpl @Inject constructor(
                         searchResult,
                         packageSpecificResults,
                         query
-                    ), it.second
+                    ),
+                    it.second
                 )
             )
         }
@@ -349,7 +352,6 @@ class FusedAPIImpl @Inject constructor(
                     preferenceManagerModule.isGplaySelected() || preferenceManagerModule.isPWASelected()
                 )
             )
-
         }
         return null
     }
@@ -361,7 +363,6 @@ class FusedAPIImpl @Inject constructor(
     ): ResultSupreme<Pair<List<FusedApp>, Boolean>>? {
         var gplayPackageResult: FusedApp? = null
         var cleanapkPackageResult: FusedApp? = null
-
 
         val status = runCodeBlockWithTimeout({
             if (preferenceManagerModule.isGplaySelected()) {
@@ -381,7 +382,6 @@ class FusedAPIImpl @Inject constructor(
         cleanapkPackageResult?.let { packageSpecificResults.add(it) } ?: run {
             gplayPackageResult?.let { packageSpecificResults.add(it) }
         }
-
 
         /*
          * If there was a timeout, return it and don't try to fetch anything else.
@@ -497,7 +497,6 @@ class FusedAPIImpl @Inject constructor(
         }
         return null
     }
-
 
     suspend fun updateFusedDownloadWithDownloadingInfo(
         authData: AuthData,
@@ -945,7 +944,7 @@ class FusedAPIImpl @Inject constructor(
     private suspend fun FusedAPIImpl.fetchGplayCategories(
         type: Category.Type,
         authData: AuthData,
-    ): Triple<ResultStatus, List<FusedCategory>,String> {
+    ): Triple<ResultStatus, List<FusedCategory>, String> {
         var errorApplicationCategory = ""
         var apiStatus = ResultStatus.OK
         val categoryList = mutableListOf<FusedCategory>()
@@ -1055,7 +1054,7 @@ class FusedAPIImpl @Inject constructor(
 
     private fun getCategoryIconName(category: FusedCategory): String {
         var categoryTitle = if (category.tag.getOperationalTag()
-                .contentEquals(AppTag.GPlay().getOperationalTag())
+            .contentEquals(AppTag.GPlay().getOperationalTag())
         ) category.id else category.title
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
@@ -1211,9 +1210,9 @@ class FusedAPIImpl @Inject constructor(
      * Home screen-related internal functions
      */
 
-    private suspend fun generateCleanAPKHome(home: Home, prefType: String): List<FusedHome> {
+    private suspend fun generateCleanAPKHome(home: Home, appType: String): List<FusedHome> {
         val list = mutableListOf<FusedHome>()
-        val headings = if (prefType == APP_TYPE_OPEN) {
+        val headings = if (appType == APP_TYPE_OPEN) {
             mapOf(
                 "top_updated_apps" to context.getString(R.string.top_updated_apps),
                 "top_updated_games" to context.getString(R.string.top_updated_games),
@@ -1303,7 +1302,7 @@ class FusedAPIImpl @Inject constructor(
             }
         }
         return list.map {
-            it.source = prefType
+            it.source = appType
             it
         }
     }
