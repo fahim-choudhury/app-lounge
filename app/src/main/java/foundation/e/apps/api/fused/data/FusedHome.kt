@@ -20,5 +20,6 @@ package foundation.e.apps.api.fused.data
 
 data class FusedHome(
     val title: String = String(),
-    val list: List<FusedApp> = emptyList()
+    val list: List<FusedApp> = emptyList(),
+    var source: String = String()
 )

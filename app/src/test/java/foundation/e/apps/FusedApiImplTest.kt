@@ -18,34 +18,59 @@
 package foundation.e.apps
 
 import android.content.Context
+import android.text.format.Formatter
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.models.Category
+import foundation.e.apps.api.ResultSupreme
+import foundation.e.apps.api.cleanapk.CleanAPKInterface
 import foundation.e.apps.api.cleanapk.CleanAPKRepository
+import foundation.e.apps.api.cleanapk.data.categories.Categories
+import foundation.e.apps.api.cleanapk.data.search.Search
 import foundation.e.apps.api.fused.FusedAPIImpl
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.api.gplay.GPlayAPIRepository
 import foundation.e.apps.manager.pkg.PkgManagerModule
+import foundation.e.apps.util.MainCoroutineRule
 import foundation.e.apps.utils.enums.FilterLevel
 import foundation.e.apps.utils.enums.Origin
+import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.modules.PWAManagerModule
-import foundation.e.apps.utils.modules.PreferenceManagerModule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
+import retrofit2.Response
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FusedApiImplTest {
+
+    // Run tasks synchronously
+    @Rule
+    @JvmField
+    val instantExecutorRule = InstantTaskExecutorRule()
+
+    // Sets the main coroutines dispatcher to a TestCoroutineScope for unit testing.
+    @ExperimentalCoroutinesApi
+    @get:Rule
+    var mainCoroutineRule = MainCoroutineRule()
+
     private lateinit var fusedAPIImpl: FusedAPIImpl
 
     @Mock
@@ -63,12 +88,12 @@ class FusedApiImplTest {
     @Mock
     private lateinit var gPlayAPIRepository: GPlayAPIRepository
 
-    @Mock
-    private lateinit var preferenceManagerModule: PreferenceManagerModule
+    private lateinit var preferenceManagerModule: FakePreferenceModule
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
+        preferenceManagerModule = FakePreferenceModule(context)
         fusedAPIImpl = FusedAPIImpl(
             cleanApkRepository,
             gPlayAPIRepository,
@@ -559,4 +584,219 @@ class FusedApiImplTest {
             val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, authData)
             assertEquals("getAppFilterLevel", FilterLevel.UI, filterLevel)
         }
+
+    @Test
+    fun `getCategory when only pwa is selected`() = runTest {
+        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
+        val categories =
+            Categories(listOf("app one", "app two", "app three"), listOf("game 1", "game 2"), true)
+        val response = Response.success(categories)
+        preferenceManagerModule.isPWASelectedFake = true
+        preferenceManagerModule.isOpenSourceelectedFake = false
+        preferenceManagerModule.isGplaySelectedFake = false
+
+        Mockito.`when`(
+            cleanApkRepository.getCategoriesList(
+                eq(CleanAPKInterface.APP_TYPE_PWA),
+                eq(CleanAPKInterface.APP_SOURCE_ANY)
+            )
+        ).thenReturn(response)
+
+        Mockito.`when`(context.getString(eq(R.string.pwa))).thenReturn("PWA")
+
+        val categoryListResponse =
+            fusedAPIImpl.getCategoriesList(Category.Type.APPLICATION, authData)
+        assertEquals("getCategory", 3, categoryListResponse.first.size)
+    }
+
+    @Test
+    fun `getCategory when only open source is selected`() = runTest {
+        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
+        val categories =
+            Categories(listOf("app one", "app two", "app three"), listOf("game 1", "game 2"), true)
+        val response = Response.success(categories)
+
+        preferenceManagerModule.isPWASelectedFake = false
+        preferenceManagerModule.isOpenSourceelectedFake = true
+        preferenceManagerModule.isGplaySelectedFake = false
+
+        Mockito.`when`(
+            cleanApkRepository.getCategoriesList(
+                eq(CleanAPKInterface.APP_TYPE_ANY),
+                eq(CleanAPKInterface.APP_SOURCE_FOSS)
+            )
+        ).thenReturn(response)
+        Mockito.`when`(context.getString(eq(R.string.open_source))).thenReturn("Open source")
+
+        val categoryListResponse =
+            fusedAPIImpl.getCategoriesList(Category.Type.APPLICATION, authData)
+        assertEquals("getCategory", 3, categoryListResponse.first.size)
+    }
+
+    @Test
+    fun `getCategory when gplay source is selected`() = runTest {
+        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
+        val categories = listOf(Category(), Category(), Category(), Category())
+
+        preferenceManagerModule.isPWASelectedFake = false
+        preferenceManagerModule.isOpenSourceelectedFake = false
+        preferenceManagerModule.isGplaySelectedFake = true
+
+        Mockito.`when`(
+            gPlayAPIRepository.getCategoriesList(Category.Type.APPLICATION, authData)
+        ).thenReturn(categories)
+
+        val categoryListResponse =
+            fusedAPIImpl.getCategoriesList(Category.Type.APPLICATION, authData)
+        assertEquals("getCategory", 4, categoryListResponse.first.size)
+    }
+
+    @Test
+    fun `getCategory when gplay source is selected return error`() = runTest {
+        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
+        val categories = listOf(Category(), Category(), Category(), Category())
+
+        preferenceManagerModule.isPWASelectedFake = false
+        preferenceManagerModule.isOpenSourceelectedFake = false
+        preferenceManagerModule.isGplaySelectedFake = true
+
+        Mockito.`when`(
+            gPlayAPIRepository.getCategoriesList(Category.Type.APPLICATION, authData)
+        ).thenThrow(RuntimeException())
+
+        val categoryListResponse =
+            fusedAPIImpl.getCategoriesList(Category.Type.APPLICATION, authData)
+        assertEquals("getCategory", 0, categoryListResponse.first.size)
+        assertEquals("getCategory", ResultStatus.UNKNOWN, categoryListResponse.third)
+    }
+
+    @Test
+    fun `getCategory when All source is selected`() = runTest {
+        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
+        val gplayCategories = listOf(Category(), Category(), Category(), Category())
+        val openSourcecategories =
+            Categories(
+                listOf("app one", "app two", "app three", "app four"),
+                listOf("game 1", "game 2"),
+                true
+            )
+        val openSourceResponse = Response.success(openSourcecategories)
+        val pwaCategories =
+            Categories(listOf("app one", "app two", "app three"), listOf("game 1", "game 2"), true)
+        val pwaResponse = Response.success(pwaCategories)
+
+        Mockito.`when`(
+            cleanApkRepository.getCategoriesList(
+                eq(CleanAPKInterface.APP_TYPE_ANY),
+                eq(CleanAPKInterface.APP_SOURCE_FOSS)
+            )
+        ).thenReturn(openSourceResponse)
+
+        Mockito.`when`(
+            cleanApkRepository.getCategoriesList(
+                eq(CleanAPKInterface.APP_TYPE_PWA),
+                eq(CleanAPKInterface.APP_SOURCE_ANY)
+            )
+        ).thenReturn(pwaResponse)
+
+        Mockito.`when`(
+            gPlayAPIRepository.getCategoriesList(Category.Type.APPLICATION, authData)
+        ).thenReturn(gplayCategories)
+
+        Mockito.`when`(context.getString(eq(R.string.open_source))).thenReturn("Open source")
+        Mockito.`when`(context.getString(eq(R.string.pwa))).thenReturn("pwa")
+
+        preferenceManagerModule.isPWASelectedFake = true
+        preferenceManagerModule.isOpenSourceelectedFake = true
+        preferenceManagerModule.isGplaySelectedFake = true
+
+        val categoryListResponse =
+            fusedAPIImpl.getCategoriesList(Category.Type.APPLICATION, authData)
+        assertEquals("getCategory", 11, categoryListResponse.first.size)
+    }
+
+    @Test
+    fun `getSearchResult When all sources are selected`() = runTest {
+        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
+        val appList = mutableListOf<FusedApp>(
+            FusedApp(
+                _id = "111",
+                status = Status.UNAVAILABLE,
+                name = "Demo One",
+                package_name = "foundation.e.demoone",
+                latest_version_code = 123
+            ),
+            FusedApp(
+                _id = "112",
+                status = Status.UNAVAILABLE,
+                name = "Demo Two",
+                package_name = "foundation.e.demotwo",
+                latest_version_code = 123
+            ),
+            FusedApp(
+                _id = "113",
+                status = Status.UNAVAILABLE,
+                name = "Demo Three",
+                package_name = "foundation.e.demothree",
+                latest_version_code = 123
+            )
+        )
+        val searchResult = Search(apps = appList, numberOfResults = 3, success = true)
+        val packageNameSearchResponse = Response.success(searchResult)
+        val packageResult = App("com.search.package")
+
+        preferenceManagerModule.isPWASelectedFake = true
+        preferenceManagerModule.isOpenSourceelectedFake = true
+        preferenceManagerModule.isGplaySelectedFake = true
+        val gplayLivedata =
+            MutableLiveData(Pair(listOf(App("a.b.c"), App("c.d.e"), App("d.e.f")), false))
+
+        setupMockingSearchApp(packageNameSearchResponse, authData, packageResult, gplayLivedata)
+
+        val searchResultLiveData = fusedAPIImpl.getSearchResults("com.search.package", authData)
+        var size = -1
+        val observer = Observer<ResultSupreme<Pair<List<FusedApp>, Boolean>>> {
+            size = it.data?.first?.size ?: -2
+            println("search result: $size")
+        }
+        searchResultLiveData.observeForever(observer)
+        delay(3000)
+        searchResultLiveData.removeObserver(observer)
+        assertEquals("getSearchResult", 1, size)
+    }
+
+    private suspend fun setupMockingSearchApp(
+        packageNameSearchResponse: Response<Search>?,
+        authData: AuthData,
+        packageResult: App,
+        gplayLivedata: MutableLiveData<Pair<List<App>, Boolean>>
+    ) {
+        Mockito.`when`(pwaManagerModule.getPwaStatus(any())).thenReturn(Status.UNAVAILABLE)
+        Mockito.`when`(pkgManagerModule.getPackageStatus(any(), any()))
+            .thenReturn(Status.UNAVAILABLE)
+        Mockito.`when`(
+            cleanApkRepository.searchApps(
+                keyword = "com.search.package",
+                by = "package_name"
+            )
+        ).thenReturn(packageNameSearchResponse)
+        val formatterMocked = Mockito.mockStatic(Formatter::class.java)
+        formatterMocked.`when`<String> { Formatter.formatFileSize(any(), any()) }.thenReturn("15MB")
+
+        Mockito.`when`(gPlayAPIRepository.getAppDetails(eq("com.search.package"), eq(authData)))
+            .thenReturn(packageResult)
+
+        Mockito.`when`(cleanApkRepository.searchApps(keyword = "com.search.package"))
+            .thenReturn(packageNameSearchResponse)
+
+        Mockito.`when`(
+            cleanApkRepository.searchApps(
+                keyword = "com.search.package",
+                type = CleanAPKInterface.APP_TYPE_PWA,
+                source = CleanAPKInterface.APP_SOURCE_ANY
+            )
+        ).thenReturn(packageNameSearchResponse)
+        Mockito.`when`(gPlayAPIRepository.getSearchResults(eq("com.search.package"), eq(authData)))
+            .thenReturn(gplayLivedata)
+    }
 }

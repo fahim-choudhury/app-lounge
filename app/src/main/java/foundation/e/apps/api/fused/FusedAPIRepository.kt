@@ -150,7 +150,7 @@ class FusedAPIRepository @Inject constructor(
         moduleName: String,
         versionCode: Int,
         offerType: Int
-    ) : String? {
+    ): String? {
         return fusedAPIImpl.getOnDemandModule(authData, packageName, moduleName, versionCode, offerType)
     }
 

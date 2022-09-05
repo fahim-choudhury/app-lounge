@@ -60,7 +60,7 @@ class GPlayAPIRepository @Inject constructor(
         versionCode: Int,
         offerType: Int,
         authData: AuthData
-    ) : List<File> {
+    ): List<File> {
         return gPlayAPIImpl.getOnDemandModule(packageName, moduleName, versionCode, offerType, authData)
     }
 
