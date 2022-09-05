@@ -38,4 +38,6 @@
     <color name="colorRed">#FB3846</color>
     <color name="colorYellow">#FFEB3B</color>
 
+    <color name="colorGrey2">#EDEDED</color>
+
 </resources>

@@ -84,6 +84,7 @@
     <string name="not_available" translatable="false">N/A</string>
     <string name="open">Open</string>
     <string name="retry">Retry</string>
+    <string name="close">Close</string>
     <string name="more">More</string>
     <string name="update">Update</string>
     <string name="ratings">Ratings</string>
@@ -170,10 +171,17 @@
     </string>
     <string name="timeout_desc_cleanapk">Some network issue is preventing fetching all applications.</string>
     <string name="open_settings">Open Settings</string>
-    
+    <string name="more_info"><u>More info</u></string>
+
+    <!--Data load error-->
+    <string name="data_load_error">Error occurred while loading apps.</string>
+    <string name="data_load_error_desc">This can be because server is not responding or other server error.\n\nPlease retry to try again, or try later.</string>
+
     <!--Sign in failure-->
     <string name="sign_in_failed_title">Google sign in failed!</string>
     <string name="sign_in_failed_desc">Due to a network error, App Lounge was not able to get Google sign-in data.</string>
+    <string name="anonymous_login_failed">Anonymous login failed!</string>
+    <string name="anonymous_login_failed_desc">This can be because token could not be generated / verified or other reasons.\n\nPress Retry to try again.</string>
 
     <!--    paid app message-->
     <string name="dialog_title_paid_app"><![CDATA[Purchase <b>%1$s</b>]]></string>
