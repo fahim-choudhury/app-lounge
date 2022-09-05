@@ -12,7 +12,10 @@ import foundation.e.apps.databinding.DialogErrorLogBinding
 import foundation.e.apps.login.AuthObject
 import foundation.e.apps.login.LoginViewModel
 import foundation.e.apps.utils.enums.User
+import foundation.e.apps.utils.exceptions.CleanApkException
+import foundation.e.apps.utils.exceptions.GPlayException
 import foundation.e.apps.utils.exceptions.GPlayValidationException
+import foundation.e.apps.utils.exceptions.UnknownSourceException
 import kotlinx.coroutines.launch
 
 /**
@@ -288,6 +291,46 @@ abstract class TimeoutFragment2(@LayoutRes layoutId: Int) : Fragment(layoutId) {
         )?.run {
             stopLoadingUI()
             showAndSetDialog(this)
+        }
+    }
+
+    /**
+     * Common code to handle exceptions / errors during data loading.
+     * Can be overridden in child fragments.
+     */
+    open fun handleExceptionsCommon(exceptions: List<Exception>) {
+        val cleanApkException = exceptions.find { it is CleanApkException }?.run {
+            this as CleanApkException
+        }
+        val gPlayException = exceptions.find { it is GPlayException }?.run {
+            this as GPlayException
+        }
+        val unknownSourceException = exceptions.find { it is UnknownSourceException }
+
+        /*
+         * Take caution altering the cases.
+         * Cases to be defined from most restrictive to least restrictive.
+         */
+        when {
+            // Handle timeouts
+            cleanApkException?.isTimeout == true -> showTimeout(cleanApkException)
+            gPlayException?.isTimeout == true -> showTimeout(gPlayException)
+
+            // Handle sign-in error
+            gPlayException is GPlayValidationException -> showSignInError(gPlayException)
+
+            // Other errors - data loading error
+            gPlayException != null -> showDataLoadError(gPlayException)
+            cleanApkException != null -> showDataLoadError(cleanApkException)
+
+            // Unknown exception
+            unknownSourceException != null -> {
+                showAndSetDialog(
+                    AlertDialog.Builder(requireActivity())
+                        .setTitle(R.string.unknown_error)
+                        .setPositiveButton(R.string.close, null)
+                )
+            }
         }
     }
 }
