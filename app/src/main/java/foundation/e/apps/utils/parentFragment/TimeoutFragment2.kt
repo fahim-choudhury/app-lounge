@@ -87,6 +87,26 @@ abstract class TimeoutFragment2(@LayoutRes layoutId: Int) : Fragment(layoutId) {
         predefinedDialog: AlertDialog.Builder,
     ): AlertDialog.Builder?
 
+    /**
+     * Override to contain code to execute for error during loading data.
+     * Do not call this function directly, use [showDataLoadError] for that.
+     *
+     * @param predefinedDialog An AlertDialog builder, already having some properties,
+     * Fragment can change the dialog properties and return as the result.
+     * By default:
+     * 1. Dialog title set to [R.string.data_load_error].
+     * 2. Dialog content set to [R.string.data_load_error_desc].
+     * 3. Dialog can show technical error info on clicking "More Info"
+     * 4. Has a positive button "Retry" which calls [loadData].
+     * 5. Has a negative button "Close" which just closes the dialog.
+     * 6. Dialog is cancellable.
+     */
+    abstract fun onDataLoadError(
+        exception: Exception,
+        predefinedDialog: AlertDialog.Builder,
+    ): AlertDialog.Builder?
+
+
 
     /**
      * Crucial to call this, other wise fragments will never receive any authentications.
@@ -218,6 +238,51 @@ abstract class TimeoutFragment2(@LayoutRes layoutId: Int) : Fragment(layoutId) {
         }
 
         onSignInError(
+            exception,
+            predefinedDialog,
+        )?.run {
+            stopLoadingUI()
+            showAndSetDialog(this)
+        }
+    }
+
+    /**
+     * Call when there is an error during loading data (not error during authentication.)
+     *
+     * Calls [onDataLoadError] which may return a [AlertDialog.Builder]
+     * instance if it deems fit. Else it may return null, at which case no error dialog
+     * is shown to the user.
+     */
+    fun showDataLoadError(
+        exception: Exception,
+    ) {
+
+        val dialogView = DialogErrorLogBinding.inflate(requireActivity().layoutInflater)
+        dialogView.apply {
+            moreInfo.setOnClickListener {
+                logDisplay.isVisible = true
+                moreInfo.isVisible = false
+            }
+            val logToDisplay = exception.message ?: ""
+            if (logToDisplay.isNotBlank()) {
+                logDisplay.text = logToDisplay
+                moreInfo.isVisible = true
+            }
+        }
+
+        val predefinedDialog = AlertDialog.Builder(requireActivity()).apply {
+            setTitle(R.string.data_load_error)
+            setMessage(R.string.data_load_error_desc)
+            setView(dialogView.root)
+            setPositiveButton(R.string.retry) { _, _ ->
+                showLoadingUI()
+                authObjects.value?.let { loadData(it) }
+            }
+            setNegativeButton(R.string.close, null)
+            setCancelable(true)
+        }
+
+        onDataLoadError(
             exception,
             predefinedDialog,
         )?.run {
