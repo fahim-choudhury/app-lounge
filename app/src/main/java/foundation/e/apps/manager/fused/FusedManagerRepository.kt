@@ -5,8 +5,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asFlow
-import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fdroid.FdroidRepository
+import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.utils.enums.Status

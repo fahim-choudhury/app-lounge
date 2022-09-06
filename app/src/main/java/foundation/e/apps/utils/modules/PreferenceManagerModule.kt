@@ -44,9 +44,9 @@ class PreferenceManagerModule @Inject constructor(
         }
     }
 
-    fun isOpenSourceSelected() = preferenceManager.getBoolean("showFOSSApplications", false)
-    fun isPWASelected() = preferenceManager.getBoolean("showPWAApplications", false)
-    fun isGplaySelected() = preferenceManager.getBoolean("showAllApplications", false)
+    fun isOpenSourceSelected() = preferenceManager.getBoolean("showFOSSApplications", true)
+    fun isPWASelected() = preferenceManager.getBoolean("showPWAApplications", true)
+    fun isGplaySelected() = preferenceManager.getBoolean("showAllApplications", true)
 
     fun autoUpdatePreferred(): Boolean {
         return preferenceManager.getBoolean("updateInstallAuto", false)
