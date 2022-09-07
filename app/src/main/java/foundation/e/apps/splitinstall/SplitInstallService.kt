@@ -88,6 +88,7 @@ class SplitInstallService : LifecycleService() {
     }
 
     override fun onBind(intent: Intent): IBinder {
+        super.onBind(intent)
         binder = SplitInstallBinder(
             applicationContext,
             lifecycleScope,
