@@ -61,7 +61,7 @@
     <string name="preference_update_notify_available_title">Show available updates</string>
     <string name="preference_update_notify_available_description">Show a notification when app updates are available</string>
     <string name="Show_applications">Show applications:</string>
-    <string name="Show_all_apps">Show all apps</string>
+    <string name="Show_commercial_apps">Show commercial apps</string>
     <string name="show_only_open_source_apps">Show only open-source apps</string>
     <string name="show_only_pwa_apps">Show only PWAs</string>
     <string name="about">About</string>
@@ -191,5 +191,6 @@
     <string name="install_anyway">Install anyway</string>
     <string name="this_app_may_not_work_properly">This app may not work properly!</string>
     <string name="may_not_work_warning_message">Forcing installation will allow you to download and install it, but it won\'t guarantee that it will work.&lt;br /&gt;&lt;br /&gt;Attempting to install unsupported apps may cause crashes or slow down the system.&lt;br /&gt;&lt;br /&gt;We\'re working on improving compatiblity with this application in a near future.</string>
+    <string name="select_one_source_of_applications">Please select at least one source of applications.</string>
 
 </resources>
