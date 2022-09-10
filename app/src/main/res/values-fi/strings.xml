@@ -43,7 +43,7 @@
     <string name="account">Tili</string>
     <string name="show_only_pwa_apps">Näytä vain PWAt</string>
     <string name="show_only_open_source_apps">Näytä vain avoimen lähdekoodin sovellukset</string>
-    <string name="Show_all_apps">Näytä kaikki sovellukset</string>
+    <string name="Show_commercial_apps">Näytä kaikki sovellukset</string>
     <string name="Show_applications">Näytä sovellukset:</string>
     <string name="preference_update_notify_available_description">Näytä ilmoitus kun sovelluspäivityksiä on saatavilla</string>
     <string name="preference_update_notify_available_title">Näytä saatavilla olevat päivitykset</string>

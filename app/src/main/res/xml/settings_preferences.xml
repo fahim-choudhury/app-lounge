@@ -56,7 +56,7 @@
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="showAllApplications"
-            android:title="@string/Show_all_apps" />
+            android:title="@string/Show_commercial_apps" />
 
         <CheckBoxPreference
             android:defaultValue="true"

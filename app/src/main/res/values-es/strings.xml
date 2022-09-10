@@ -36,7 +36,7 @@
     <string name="preference_update_install_automatically_description">Descargar e instalar actualizaciones de aplicaciones en segundo plano</string>
     <string name="preference_update_notify_available_title">Mostrar aplicaciones disponibles</string>
     <string name="Show_applications">Mostrar aplicaciones:</string>
-    <string name="Show_all_apps">Mostrar todas las aplicaciones</string>
+    <string name="Show_commercial_apps">Mostrar todas las aplicaciones</string>
     <string name="show_only_open_source_apps">Mostrar solo aplicaciones de código abierto</string>
     <string name="show_only_pwa_apps">Mostrar solo las PWA</string>
     <string name="account">Cuenta</string>
