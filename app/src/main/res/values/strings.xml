@@ -62,8 +62,8 @@
     <string name="preference_update_notify_available_description">Show a notification when app updates are available</string>
     <string name="Show_applications">Show applications:</string>
     <string name="Show_commercial_apps">Show commercial apps</string>
-    <string name="show_only_open_source_apps">Show only open-source apps</string>
-    <string name="show_only_pwa_apps">Show only PWAs</string>
+    <string name="show_only_open_source_apps">Show open source apps</string>
+    <string name="show_only_pwa_apps">Show PWAs</string>
     <string name="about">About</string>
     <string name="app_version_label">App Lounge version</string>
     <string name="os_version">/e/ OS version</string>
@@ -127,12 +127,13 @@
 
     <!-- Home Fragment -->
     <string name="discover">Discover</string>
-    <string name="top_updated_apps">Top Updated Apps</string>
-    <string name="top_updated_games">Top Updated Games</string>
-    <string name="popular_apps_in_last_24_hours">Popular Apps In Last 24 Hours</string>
-    <string name="popular_games_in_last_24_hours">Popular Games In Last 24 Hours</string>
-    <string name="popular_apps">Popular Apps</string>
-    <string name="popular_games">Popular Games</string>
+    <string name="discover_pwa">Discover PWA</string>
+    <string name="top_updated_apps">Open Source Top Updated Apps</string>
+    <string name="top_updated_games">Open Source Top Updated Games</string>
+    <string name="popular_apps_in_last_24_hours">Open Source Popular Apps In Last 24 Hours</string>
+    <string name="popular_games_in_last_24_hours">Open Source Popular Games In Last 24 Hours</string>
+    <string name="popular_apps">PWA Popular Apps</string>
+    <string name="popular_games">PWA Popular Games</string>
 
     <string name="topselling_free_apps">Top Free Apps</string>
     <string name="topselling_free_games">Top Free Games</string>
