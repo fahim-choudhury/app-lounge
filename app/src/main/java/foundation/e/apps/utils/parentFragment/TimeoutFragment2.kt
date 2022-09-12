@@ -6,7 +6,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import foundation.e.apps.R
 import foundation.e.apps.databinding.DialogErrorLogBinding
 import foundation.e.apps.login.AuthObject
@@ -16,7 +15,6 @@ import foundation.e.apps.utils.exceptions.CleanApkException
 import foundation.e.apps.utils.exceptions.GPlayException
 import foundation.e.apps.utils.exceptions.GPlayValidationException
 import foundation.e.apps.utils.exceptions.UnknownSourceException
-import kotlinx.coroutines.launch
 
 /**
  * Parent class of all fragments.
@@ -109,8 +107,6 @@ abstract class TimeoutFragment2(@LayoutRes layoutId: Int) : Fragment(layoutId) {
         predefinedDialog: AlertDialog.Builder,
     ): AlertDialog.Builder?
 
-
-
     /**
      * Crucial to call this, other wise fragments will never receive any authentications.
      */
@@ -146,7 +142,6 @@ abstract class TimeoutFragment2(@LayoutRes layoutId: Int) : Fragment(layoutId) {
             lastDialog = this
         }
     }
-
 
     /**
      * Call to trigger [onTimeout].
@@ -193,7 +188,6 @@ abstract class TimeoutFragment2(@LayoutRes layoutId: Int) : Fragment(layoutId) {
             showAndSetDialog(this)
         }
     }
-
 
     /**
      * Call to trigger [onSignInError].
