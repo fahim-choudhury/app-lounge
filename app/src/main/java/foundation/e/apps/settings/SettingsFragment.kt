@@ -55,6 +55,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private val binding get() = _binding!!
     private val viewModel: SignInViewModel by viewModels()
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
+    private var showAllApplications: CheckBoxPreference? = null
+    private var showFOSSApplications: CheckBoxPreference? = null
+    private var showPWAApplications: CheckBoxPreference? = null
 
     @Inject
     lateinit var gson: Gson
@@ -70,10 +73,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.settings_preferences, rootKey)
 
         // Show applications preferences
-        val showAllApplications = findPreference<CheckBoxPreference>("showAllApplications")
-        val showFOSSApplications = findPreference<CheckBoxPreference>("showFOSSApplications")
-        val showPWAApplications = findPreference<CheckBoxPreference>("showPWAApplications")
-
+        showAllApplications = findPreference<CheckBoxPreference>("showAllApplications")
+        showFOSSApplications = findPreference<CheckBoxPreference>("showFOSSApplications")
+        showPWAApplications = findPreference<CheckBoxPreference>("showPWAApplications")
         val updateCheckInterval =
             preferenceManager.findPreference<Preference>(getString(R.string.update_check_intervals))
         updateCheckInterval?.setOnPreferenceChangeListener { _, newValue ->
@@ -148,6 +150,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }, 1500)
         }
     }
+
+    fun isAnyAppSourceSelected() =
+        showAllApplications?.isChecked == true || showFOSSApplications?.isChecked == true || showPWAApplications?.isChecked == true
 
     private fun backToMainActivity() {
         Intent(context, MainActivity::class.java).also {
