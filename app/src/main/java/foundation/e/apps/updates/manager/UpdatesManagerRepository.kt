@@ -19,6 +19,7 @@
 package foundation.e.apps.updates.manager
 
 import com.aurora.gplayapi.data.models.AuthData
+import foundation.e.apps.api.fused.MemoryDao
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.utils.enums.ResultStatus
 import javax.inject.Inject
@@ -27,12 +28,18 @@ class UpdatesManagerRepository @Inject constructor(
     private val updatesManagerImpl: UpdatesManagerImpl
 ) {
 
-    suspend fun getUpdates(authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
+    suspend fun getUpdates(authData: AuthData, isFromUpdateProcess: Boolean = false): Pair<List<FusedApp>, ResultStatus> {
+        if (isFromUpdateProcess && MemoryDao.hasAnyAppsForUpdate()) {
+            return Pair(MemoryDao.appsAwaitingForUpdate, ResultStatus.OK)
+        }
         return updatesManagerImpl.getUpdates(authData).run {
             val filteredApps = first.filter { !(!it.isFree && authData.isAnonymous) }
+            MemoryDao.appsAwaitingForUpdate = filteredApps
             Pair(filteredApps, this.second)
         }
     }
+
+    fun getNumberOfAppsNeedUpdate() = updatesManagerImpl.getNumberOfAppsNeedUpdate()
 
     fun getApplicationCategoryPreference(): String {
         return updatesManagerImpl.getApplicationCategoryPreference()

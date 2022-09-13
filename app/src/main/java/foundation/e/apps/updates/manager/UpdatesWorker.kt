@@ -1,16 +1,21 @@
 package foundation.e.apps.updates.manager
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.os.Build
 import android.util.Base64
 import androidx.hilt.work.HiltWorker
 import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
@@ -30,24 +35,33 @@ import foundation.e.apps.utils.modules.DataStoreModule
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.net.URL
+import java.util.concurrent.atomic.AtomicInteger
 
 @HiltWorker
 class UpdatesWorker @AssistedInject constructor(
     @Assisted private val context: Context,
-    @Assisted params: WorkerParameters,
+    @Assisted private val params: WorkerParameters,
     private val updatesManagerRepository: UpdatesManagerRepository,
     private val fusedAPIRepository: FusedAPIRepository,
     private val fusedManagerRepository: FusedManagerRepository,
     private val dataStoreModule: DataStoreModule,
     private val gson: Gson,
 ) : CoroutineWorker(context, params) {
+
+    companion object {
+        const val IS_AUTO_UPDATE = "IS_AUTO_UPDATE"
+        private val atomicInteger = AtomicInteger(100)
+    }
+
     val TAG = UpdatesWorker::class.simpleName
     private var shouldShowNotification = true
     private var automaticInstallEnabled = true
     private var onlyOnUnmeteredNetwork = false
+    private var isAutoUpdate = true
 
     override suspend fun doWork(): Result {
         return try {
+            isAutoUpdate = params.inputData.getBoolean(IS_AUTO_UPDATE, true)
             checkForUpdates()
             Result.success()
         } catch (e: Throwable) {
@@ -57,16 +71,19 @@ class UpdatesWorker @AssistedInject constructor(
 
     private suspend fun checkForUpdates() {
         loadSettings()
-        val authData = getAuthData()
-        val appsNeededToUpdate = updatesManagerRepository.getUpdates(authData).first
+        val numberOfAppNeedUpdate = updatesManagerRepository.getNumberOfAppsNeedUpdate()
         val isConnectedToUnmeteredNetwork = isConnectedToUnmeteredNetwork(applicationContext)
         /*
          * Show notification only if enabled.
          * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5376
          */
-        if (shouldShowNotification) {
-            handleNotification(appsNeededToUpdate, isConnectedToUnmeteredNetwork)
+        if (shouldShowNotification && !automaticInstallEnabled && isAutoUpdate) {
+            handleNotification(numberOfAppNeedUpdate, isConnectedToUnmeteredNetwork)
+        } else if (!isAutoUpdate || automaticInstallEnabled) {
+            setForeground(createForegroundInfo(numberOfAppNeedUpdate, isConnectedToUnmeteredNetwork))
         }
+        val authData = getAuthData()
+        val appsNeededToUpdate = updatesManagerRepository.getUpdates(authData, true).first
         triggerUpdateProcessOnSettings(
             isConnectedToUnmeteredNetwork,
             appsNeededToUpdate,
@@ -74,12 +91,45 @@ class UpdatesWorker @AssistedInject constructor(
         )
     }
 
+    private fun createForegroundInfo(
+        numberOfApps: Int,
+        isConnectedToUnmeteredNetwork: Boolean
+    ): ForegroundInfo {
+        val title = applicationContext.getString(R.string.app_name)
+        val cancel = applicationContext.getString(R.string.cancel)
+        // This PendingIntent can be used to cancel the worker
+        val intent = WorkManager.getInstance(applicationContext)
+            .createCancelPendingIntent(getId())
+
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as
+                    NotificationManager
+        // Create a Notification channel if necessary
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val mChannel = NotificationChannel(
+                "applounge_notification",
+                title,
+                NotificationManager.IMPORTANCE_LOW
+            )
+            notificationManager.createNotificationChannel(mChannel)
+        }
+
+        val notification = UpdatesNotifier().getNotification(
+            context,
+            numberOfApps,
+            automaticInstallEnabled,
+            onlyOnUnmeteredNetwork,
+            isConnectedToUnmeteredNetwork
+        )
+        return ForegroundInfo(atomicInteger.getAndIncrement(), notification)
+    }
+
     private suspend fun triggerUpdateProcessOnSettings(
         isConnectedToUnmeteredNetwork: Boolean,
         appsNeededToUpdate: List<FusedApp>,
         authData: AuthData
     ) {
-        if (automaticInstallEnabled &&
+        if ((!isAutoUpdate || automaticInstallEnabled) &&
             applicationContext.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         ) {
             if (onlyOnUnmeteredNetwork && isConnectedToUnmeteredNetwork) {
@@ -91,13 +141,13 @@ class UpdatesWorker @AssistedInject constructor(
     }
 
     private fun handleNotification(
-        appsNeededToUpdate: List<FusedApp>,
+        numberOfAppsNeedUpdate: Int,
         isConnectedToUnmeteredNetwork: Boolean
     ) {
-        if (appsNeededToUpdate.isNotEmpty()) {
+        if (numberOfAppsNeedUpdate > 0) {
             UpdatesNotifier().showNotification(
                 applicationContext,
-                appsNeededToUpdate.size,
+                numberOfAppsNeedUpdate,
                 automaticInstallEnabled,
                 onlyOnUnmeteredNetwork,
                 isConnectedToUnmeteredNetwork

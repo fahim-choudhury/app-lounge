@@ -37,7 +37,7 @@ class UpdatesNotifier {
         private const val UPDATES_NOTIFICATION_CHANNEL_TITLE = "App updates"
     }
 
-    private fun getNotification(
+    fun getNotification(
         context: Context,
         numberOfApps: Int,
         installAutomatically: Boolean,

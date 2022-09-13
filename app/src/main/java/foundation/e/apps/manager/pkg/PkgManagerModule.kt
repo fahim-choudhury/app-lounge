@@ -231,11 +231,13 @@ class PkgManagerModule @Inject constructor(
     }
 
     fun getAllUserApps(): List<ApplicationInfo> {
+        Timber.d("===> getAllUsersapp START ${System.currentTimeMillis()}")
         val userPackages = mutableListOf<ApplicationInfo>()
         val allPackages = packageManager.getInstalledApplications(0)
         allPackages.forEach {
             if (it.flags and ApplicationInfo.FLAG_SYSTEM == 0) userPackages.add(it)
         }
+        Timber.d("===> getAllUsersapp END ${System.currentTimeMillis()}")
         return userPackages
     }
 

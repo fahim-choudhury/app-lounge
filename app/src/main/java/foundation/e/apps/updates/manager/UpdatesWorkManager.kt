@@ -19,13 +19,7 @@ package foundation.e.apps.updates.manager
 
 import android.content.Context
 import android.util.Log
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.ExistingWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequest
-import androidx.work.PeriodicWorkRequest
-import androidx.work.WorkManager
+import androidx.work.*
 import java.util.concurrent.TimeUnit
 
 object UpdatesWorkManager {
@@ -58,7 +52,8 @@ object UpdatesWorkManager {
     private fun buildOneTimeWorkRequest(): OneTimeWorkRequest {
         return OneTimeWorkRequest.Builder(UpdatesWorker::class.java).apply {
             setConstraints(buildWorkerConstraints())
-        }.build()
+        }.setInputData(Data.Builder().putBoolean(UpdatesWorker.IS_AUTO_UPDATE, false).build())
+            .build()
     }
 
     fun enqueueWork(

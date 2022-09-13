@@ -81,6 +81,8 @@ class UpdatesManagerImpl @Inject constructor(
         return Pair(nonFaultyUpdateList, status)
     }
 
+    fun getNumberOfAppsNeedUpdate() = pkgManagerModule.getAllUserApps().size
+
     fun getApplicationCategoryPreference(): String {
         return fusedAPIRepository.getApplicationCategoryPreference()
     }
