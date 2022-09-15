@@ -47,8 +47,10 @@ class UpdatesManagerImpl @Inject constructor(
 
         if (pkgList.isNotEmpty()) {
             // Get updates from CleanAPK
+            val openSourcePackages = userApplications.filter { !pkgManagerModule.isGplay(it.packageName) }.map { it.packageName }
+            pkgList.removeAll(openSourcePackages)
             val cleanAPKResult = fusedAPIRepository.getApplicationDetails(
-                pkgList,
+                openSourcePackages,
                 authData,
                 Origin.CLEANAPK
             )
@@ -80,8 +82,6 @@ class UpdatesManagerImpl @Inject constructor(
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
         return Pair(nonFaultyUpdateList, status)
     }
-
-    fun getNumberOfAppsNeedUpdate() = pkgManagerModule.getAllUserApps().size
 
     fun getApplicationCategoryPreference(): String {
         return fusedAPIRepository.getApplicationCategoryPreference()

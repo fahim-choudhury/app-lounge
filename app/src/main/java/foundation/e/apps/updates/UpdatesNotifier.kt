@@ -48,22 +48,31 @@ class UpdatesNotifier {
             NotificationCompat.Builder(context, UPDATES_NOTIFICATION_CHANNEL_ID)
         notificationBuilder.setSmallIcon(R.drawable.ic_app_updated_on)
         notificationBuilder.priority = NotificationCompat.PRIORITY_DEFAULT
-        if (numberOfApps == 1) {
-            notificationBuilder.setContentTitle(
-                context.resources.getQuantityString(
-                    R.plurals.updates_notification_title,
-                    1,
-                    numberOfApps
+
+        when (numberOfApps) {
+            0 -> {
+                notificationBuilder.setContentTitle(
+                    "Checking Updates..."
                 )
-            )
-        } else {
-            notificationBuilder.setContentTitle(
-                context.resources.getQuantityString(
-                    R.plurals.updates_notification_title,
-                    numberOfApps,
-                    numberOfApps
+            }
+            1 -> {
+                notificationBuilder.setContentTitle(
+                    context.resources.getQuantityString(
+                        R.plurals.updates_notification_title,
+                        1,
+                        numberOfApps
+                    )
                 )
-            )
+            }
+            else -> {
+                notificationBuilder.setContentTitle(
+                    context.resources.getQuantityString(
+                        R.plurals.updates_notification_title,
+                        numberOfApps,
+                        numberOfApps
+                    )
+                )
+            }
         }
         if (installAutomatically) {
             notificationBuilder.setContentText(context.getString(R.string.automatically_install_updates_notification_text))

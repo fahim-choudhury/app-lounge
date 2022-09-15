@@ -19,7 +19,14 @@ package foundation.e.apps.updates.manager
 
 import android.content.Context
 import android.util.Log
-import androidx.work.*
+import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
 
 object UpdatesWorkManager {
@@ -43,7 +50,7 @@ object UpdatesWorkManager {
         return PeriodicWorkRequest.Builder(
             UpdatesWorker::class.java,
             interval,
-            TimeUnit.HOURS
+            TimeUnit.MINUTES
         ).apply {
             setConstraints(buildWorkerConstraints())
         }.build()

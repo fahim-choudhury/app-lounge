@@ -20,7 +20,7 @@ package foundation.e.apps.api.fused
 import foundation.e.apps.api.fused.data.FusedApp
 
 object MemoryDao {
-     var appsAwaitingForUpdate: List<FusedApp> = listOf()
+    var appsAwaitingForUpdate: List<FusedApp> = listOf()
 
-     fun hasAnyAppsForUpdate() = appsAwaitingForUpdate.isNotEmpty()
+    fun hasAnyAppsForUpdate() = appsAwaitingForUpdate.isNotEmpty()
 }

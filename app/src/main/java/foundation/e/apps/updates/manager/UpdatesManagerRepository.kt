@@ -39,8 +39,6 @@ class UpdatesManagerRepository @Inject constructor(
         }
     }
 
-    fun getNumberOfAppsNeedUpdate() = updatesManagerImpl.getNumberOfAppsNeedUpdate()
-
     fun getApplicationCategoryPreference(): String {
         return updatesManagerImpl.getApplicationCategoryPreference()
     }
