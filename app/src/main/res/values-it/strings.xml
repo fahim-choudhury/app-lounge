@@ -36,7 +36,7 @@
     <string name="preference_update_install_automatically_description">Scarica ed installa gli aggiornamenti App in background</string>
     <string name="preference_update_notify_available_title">Mostra gli aggiornamenti disponibili</string>
     <string name="Show_applications">Mostra App:</string>
-    <string name="Show_all_apps">Mostra tutte le App</string>
+    <string name="Show_commercial_apps">Mostra tutte le App</string>
     <string name="show_only_open_source_apps">Mostra solo le App open-source</string>
     <string name="show_only_pwa_apps">Mostra solo le PWA</string>
     <string name="account">Account</string>

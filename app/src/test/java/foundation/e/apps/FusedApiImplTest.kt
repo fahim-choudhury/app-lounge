@@ -21,12 +21,10 @@ import android.content.Context
 import android.text.format.Formatter
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
-import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.cleanapk.CleanAPKInterface
 import foundation.e.apps.api.cleanapk.CleanAPKRepository
 import foundation.e.apps.api.cleanapk.data.categories.Categories
@@ -37,13 +35,13 @@ import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.api.gplay.GPlayAPIRepository
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.util.MainCoroutineRule
+import foundation.e.apps.util.getOrAwaitValue
 import foundation.e.apps.utils.enums.FilterLevel
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.modules.PWAManagerModule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -741,34 +739,27 @@ class FusedApiImplTest {
                 latest_version_code = 123
             )
         )
-        val searchResult = Search(apps = appList, numberOfResults = 3, success = true)
+        val searchResult = Search(apps = appList, numberOfResults = 1, success = true)
         val packageNameSearchResponse = Response.success(searchResult)
-        val packageResult = App("com.search.package")
+        val gplayPackageResult = App("com.search.package")
 
         preferenceManagerModule.isPWASelectedFake = true
         preferenceManagerModule.isOpenSourceelectedFake = true
         preferenceManagerModule.isGplaySelectedFake = true
         val gplayLivedata =
-            MutableLiveData(Pair(listOf(App("a.b.c"), App("c.d.e"), App("d.e.f")), false))
+            MutableLiveData(Pair(listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), false))
 
-        setupMockingSearchApp(packageNameSearchResponse, authData, packageResult, gplayLivedata)
+        setupMockingSearchApp(packageNameSearchResponse, authData, gplayPackageResult, gplayLivedata)
 
-        val searchResultLiveData = fusedAPIImpl.getSearchResults("com.search.package", authData)
-        var size = -1
-        val observer = Observer<ResultSupreme<Pair<List<FusedApp>, Boolean>>> {
-            size = it.data?.first?.size ?: -2
-            println("search result: $size")
-        }
-        searchResultLiveData.observeForever(observer)
-        delay(3000)
-        searchResultLiveData.removeObserver(observer)
-        assertEquals("getSearchResult", 1, size)
+        val searchResultLiveData = fusedAPIImpl.getSearchResults("com.search.package", authData).getOrAwaitValue()
+        val size = searchResultLiveData.data?.first?.size ?: -2
+        assertEquals("getSearchResult", 8, size)
     }
 
     private suspend fun setupMockingSearchApp(
         packageNameSearchResponse: Response<Search>?,
         authData: AuthData,
-        packageResult: App,
+        gplayPackageResult: App,
         gplayLivedata: MutableLiveData<Pair<List<App>, Boolean>>
     ) {
         Mockito.`when`(pwaManagerModule.getPwaStatus(any())).thenReturn(Status.UNAVAILABLE)
@@ -784,7 +775,7 @@ class FusedApiImplTest {
         formatterMocked.`when`<String> { Formatter.formatFileSize(any(), any()) }.thenReturn("15MB")
 
         Mockito.`when`(gPlayAPIRepository.getAppDetails(eq("com.search.package"), eq(authData)))
-            .thenReturn(packageResult)
+            .thenReturn(gplayPackageResult)
 
         Mockito.`when`(cleanApkRepository.searchApps(keyword = "com.search.package"))
             .thenReturn(packageNameSearchResponse)

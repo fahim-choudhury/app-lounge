@@ -1224,7 +1224,7 @@ class FusedAPIImpl @Inject constructor(
             mapOf(
                 "popular_apps" to context.getString(R.string.popular_apps),
                 "popular_games" to context.getString(R.string.popular_games),
-                "discover" to context.getString(R.string.discover)
+                "discover" to context.getString(R.string.discover_pwa)
             )
         }
         headings.forEach { (key, value) ->

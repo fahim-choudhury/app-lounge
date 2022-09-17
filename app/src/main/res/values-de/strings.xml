@@ -24,7 +24,7 @@
     <string name="preference_update_notify_available_description">Benachrichtige, wenn App-Aktualisierungen verfügbar sind</string>
     <string name="Show_applications">Zeige Anwendungen:</string>
     <string name="show_only_open_source_apps">Zeige nur quelloffene Apps an</string>
-    <string name="Show_all_apps">Zeige alle Apps an</string>
+    <string name="Show_commercial_apps">Zeige alle Apps an</string>
     <string name="show_only_pwa_apps">Zeige nur PWAs an</string>
     <string name="account">Konto</string>
     <string name="terms_services">Nutzungsbedingungen</string>

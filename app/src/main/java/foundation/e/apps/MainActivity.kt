@@ -29,11 +29,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.aurora.gplayapi.exceptions.ApiException
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
@@ -41,6 +44,7 @@ import foundation.e.apps.databinding.ActivityMainBinding
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.workmanager.InstallWorkManager
 import foundation.e.apps.purchase.AppPurchaseFragmentDirections
+import foundation.e.apps.settings.SettingsFragment
 import foundation.e.apps.setup.signin.SignInViewModel
 import foundation.e.apps.updates.UpdatesNotifier
 import foundation.e.apps.utils.enums.Status
@@ -73,6 +77,7 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.findFragmentById(R.id.fragment) as NavHostFragment
         val navController = navHostFragment.navController
         bottomNavigationView.setupWithNavController(navController)
+        setupBottomNavItemSelectedListener(bottomNavigationView, navHostFragment, navController)
 
         var hasInternet = true
 
@@ -135,7 +140,6 @@ class MainActivity : AppCompatActivity() {
             if (!hasInternet) {
                 showNoInternet()
             }
-
             when (destination.id) {
                 R.id.applicationFragment,
                 R.id.applicationListFragment,
@@ -220,6 +224,30 @@ class MainActivity : AppCompatActivity() {
                     positiveButtonText = getString(R.string.ok)
                 ).show(supportFragmentManager, TAG)
             }
+        }
+    }
+
+    private fun setupBottomNavItemSelectedListener(
+        bottomNavigationView: BottomNavigationView,
+        navHostFragment: NavHostFragment,
+        navController: NavController
+    ) {
+        bottomNavigationView.setOnItemSelectedListener {
+            val fragment =
+                navHostFragment.childFragmentManager.fragments.find { fragment -> fragment is SettingsFragment }
+            if (bottomNavigationView.selectedItemId == R.id.settingsFragment && fragment is SettingsFragment && !fragment.isAnyAppSourceSelected()) {
+                ApplicationDialogFragment(
+                    title = "",
+                    message = getString(R.string.select_one_source_of_applications),
+                    positiveButtonText = getString(R.string.ok)
+                ).show(supportFragmentManager, TAG)
+                return@setOnItemSelectedListener false
+            }
+
+            return@setOnItemSelectedListener NavigationUI.onNavDestinationSelected(
+                it,
+                navController
+            )
         }
     }
 
