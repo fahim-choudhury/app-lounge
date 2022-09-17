@@ -20,8 +20,6 @@ package foundation.e.apps.util
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import kotlinx.coroutines.delay
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 /**
  * Gets the value of a [LiveData] or waits for it to have one, with a timeout.
