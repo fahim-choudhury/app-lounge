@@ -28,6 +28,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.AndroidEntryPoint
@@ -199,7 +200,20 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         showLoadingUI()
         updatesViewModel.getUpdates(authData)
         binding.button.setOnClickListener {
-            UpdatesWorkManager.startUpdateAllWork(requireContext().applicationContext)
+            val id = UpdatesWorkManager.startUpdateAllWork(requireContext().applicationContext)
+            WorkManager.getInstance(requireContext())
+                .getWorkInfosByTagLiveData(UpdatesWorkManager.UPDATES_WORK_NAME)
+                .observe(viewLifecycleOwner) {
+                    val errorStates =
+                        listOf(
+                            WorkInfo.State.FAILED,
+                            WorkInfo.State.BLOCKED,
+                            WorkInfo.State.CANCELLED
+                        )
+                    if (!it.isNullOrEmpty() && errorStates.contains(it.last().state)) {
+                        binding.button.isEnabled = true
+                    }
+                }
             binding.button.isEnabled = false
         }
     }

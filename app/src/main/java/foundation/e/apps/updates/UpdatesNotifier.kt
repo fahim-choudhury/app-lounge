@@ -29,13 +29,11 @@ import androidx.core.app.NotificationManagerCompat
 import foundation.e.apps.MainActivity
 import foundation.e.apps.R
 
-class UpdatesNotifier {
-    companion object {
-        const val UPDATES_NOTIFICATION_CLICK_EXTRA = "updates_notification_click_extra"
-        private const val UPDATES_NOTIFICATION_ID = 76
-        private const val UPDATES_NOTIFICATION_CHANNEL_ID = "updates_notification"
-        private const val UPDATES_NOTIFICATION_CHANNEL_TITLE = "App updates"
-    }
+object UpdatesNotifier {
+    const val UPDATES_NOTIFICATION_CLICK_EXTRA = "updates_notification_click_extra"
+    private const val UPDATES_NOTIFICATION_ID = 76
+    private const val UPDATES_NOTIFICATION_CHANNEL_ID = "updates_notification"
+    private const val UPDATES_NOTIFICATION_CHANNEL_TITLE = "App updates"
 
     fun getNotification(
         context: Context,
@@ -132,5 +130,11 @@ class UpdatesNotifier {
                 )
             )
         }
+    }
+
+    fun cancelNotification(context: Context) {
+        val notificationManager: NotificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(UPDATES_NOTIFICATION_ID)
     }
 }

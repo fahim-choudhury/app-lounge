@@ -28,8 +28,8 @@ class UpdatesManagerRepository @Inject constructor(
     private val updatesManagerImpl: UpdatesManagerImpl
 ) {
 
-    suspend fun getUpdates(authData: AuthData, isFromUpdateProcess: Boolean = false): Pair<List<FusedApp>, ResultStatus> {
-        if (isFromUpdateProcess && MemoryDao.hasAnyAppsForUpdate()) {
+    suspend fun getUpdates(authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
+        if (MemoryDao.hasAnyAppsForUpdate()) {
             return Pair(MemoryDao.appsAwaitingForUpdate, ResultStatus.OK)
         }
         return updatesManagerImpl.getUpdates(authData).run {

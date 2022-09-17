@@ -241,7 +241,6 @@ class PkgManagerModule @Inject constructor(
 
     fun isGplay(packageName: String): Boolean {
         val installerPackageName = packageManager.getInstallerPackageName(packageName)
-        Timber.d("===> installer package name for $packageName : $installerPackageName")
         return installerPackageName?.contains(FAKE_STORE_PACKAGE_NAME) == true
     }
 
