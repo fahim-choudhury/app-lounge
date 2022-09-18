@@ -162,15 +162,7 @@ class HomeChildRVAdapter(
 
     private fun HomeChildListItemBinding.handleInstalling(view: View) {
         installButton.apply {
-            isEnabled = false
-            setTextColor(context.getColor(R.color.light_grey))
-            text = context.getString(R.string.installing)
-            backgroundTintList = ContextCompat.getColorStateList(
-                view.context,
-                android.R.color.transparent
-            )
-            strokeColor =
-                ContextCompat.getColorStateList(view.context, R.color.light_grey)
+            disableInstallButton(this, R.string.installing)
         }
         progressBarInstall.visibility = View.GONE
     }
@@ -215,12 +207,25 @@ class HomeChildRVAdapter(
                     return@setOnClickListener
                 }
                 if (homeApp.isFree) {
+                    disableInstallButton(view, R.string.cancel)
                     installApplication(homeApp, appIcon)
                 } else {
                     paidAppHandler?.invoke(homeApp)
                 }
             }
         }
+    }
+
+    private fun MaterialButton.disableInstallButton(view: View, buttonString: Int) {
+        isEnabled = false
+        text = context.getString(buttonString)
+        setTextColor(context.getColor(R.color.light_grey))
+        backgroundTintList = ContextCompat.getColorStateList(
+            view.context,
+            android.R.color.transparent
+        )
+        strokeColor =
+            ContextCompat.getColorStateList(view.context, R.color.light_grey)
     }
 
     private fun HomeChildListItemBinding.handleUpdatable(

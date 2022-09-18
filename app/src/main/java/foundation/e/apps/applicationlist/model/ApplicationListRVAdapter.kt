@@ -403,12 +403,7 @@ class ApplicationListRVAdapter(
 
     private fun ApplicationListItemBinding.handleInstalling(view: View, holder: ViewHolder) {
         installButton.apply {
-            isEnabled = false
-            text = context.getString(R.string.installing)
-            setTextColor(context.getColor(R.color.light_grey))
-            backgroundTintList =
-                ContextCompat.getColorStateList(view.context, android.R.color.transparent)
-            strokeColor = ContextCompat.getColorStateList(view.context, R.color.light_grey)
+            disableInstallButton(this, R.string.installing)
         }
         progressBarInstall.visibility = View.GONE
     }
@@ -448,12 +443,22 @@ class ApplicationListRVAdapter(
                     return@setOnClickListener
                 }
                 if (searchApp.isFree || searchApp.isPurchased) {
+                    disableInstallButton(view, R.string.cancel)
                     installApplication(searchApp, appIcon)
                 } else {
                     paidAppHandler?.invoke(searchApp)
                 }
             }
         }
+    }
+
+    private fun MaterialButton.disableInstallButton(view: View, buttonString: Int) {
+        isEnabled = false
+        text = context.getString(buttonString)
+        strokeColor = getStrokeColor(isEnabled, view)
+        setButtonTextColor(isEnabled)
+        backgroundTintList =
+            ContextCompat.getColorStateList(view.context, android.R.color.transparent)
     }
 
     private fun updateUIByPaymentType(
