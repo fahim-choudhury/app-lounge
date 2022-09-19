@@ -21,7 +21,7 @@ package foundation.e.apps.api.gplay.utils
 
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.network.IHttpClient
-import foundation.e.apps.utils.modules.CommonUtilsModule.timeoutDurationInMillis
+import foundation.e.apps.utils.Constants.timeoutDurationInMillis
 import okhttp3.Cache
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.HttpUrl
@@ -161,7 +161,9 @@ class GPlayHttpClient @Inject constructor(
 
     private fun handleExceptionOnGooglePlayRequest(e: Exception): PlayResponse {
         Timber.e("processRequest: ${e.localizedMessage}")
-        return PlayResponse()
+        return PlayResponse().apply {
+            errorString = "${this@GPlayHttpClient::class.java.simpleName}: ${e.localizedMessage}"
+        }
     }
 
     private fun buildUrl(url: String, params: Map<String, String>): HttpUrl {
