@@ -48,6 +48,7 @@ import foundation.e.apps.api.gplay.utils.AC2DMUtil
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.manager.pkg.PkgManagerModule
+import foundation.e.apps.utils.Constants.timeoutDurationInMillis
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
@@ -55,7 +56,6 @@ import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.enums.isInitialized
 import foundation.e.apps.utils.enums.isUnFiltered
 import foundation.e.apps.utils.modules.CommonUtilsModule.NETWORK_CODE_SUCCESS
-import foundation.e.apps.utils.modules.CommonUtilsModule.timeoutDurationInMillis
 import foundation.e.apps.utils.modules.DataStoreModule
 import foundation.e.apps.utils.modules.PWAManagerModule
 import kotlinx.coroutines.Dispatchers

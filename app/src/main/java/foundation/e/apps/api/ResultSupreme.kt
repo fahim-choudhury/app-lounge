@@ -70,7 +70,7 @@ sealed class ResultSupreme<T> {
          * @param message A String message to log or display to the user.
          * @param exception Optional exception from try-catch block.
          */
-        constructor(message: String, exception: Exception = Exception()) : this() {
+        constructor(message: String, exception: Exception? = null) : this() {
             this.message = message
             this.exception = exception
         }
@@ -92,6 +92,11 @@ sealed class ResultSupreme<T> {
         private set
 
     /**
+     * Any other information that needs to be transmitted.
+     */
+    var otherPayload: Any? = null
+
+    /**
      * A custom string message for logging or displaying to the user.
      */
     var message: String = ""
@@ -99,7 +104,7 @@ sealed class ResultSupreme<T> {
     /**
      * Exception from try-catch block for error cases.
      */
-    var exception: Exception = Exception()
+    var exception: Exception? = null
 
     fun isValidData() = data != null
 
@@ -121,7 +126,7 @@ sealed class ResultSupreme<T> {
             status: ResultStatus,
             data: T? = null,
             message: String = "",
-            exception: Exception = Exception(),
+            exception: Exception? = null,
         ): ResultSupreme<T> {
             val resultObject = when {
                 status == ResultStatus.OK && data != null -> Success<T>(data)
