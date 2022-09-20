@@ -1,24 +1,22 @@
 /*
- * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2021  E FOUNDATION
+ *  Copyright (C) 2022  ECORP
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.applicationlist.model
+package foundation.e.apps.applicationlist
 
-import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -45,11 +43,12 @@ import foundation.e.apps.R
 import foundation.e.apps.api.cleanapk.CleanAPKInterface
 import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
-import foundation.e.apps.applicationlist.ApplicationListFragmentDirections
 import foundation.e.apps.databinding.ApplicationListItemBinding
 import foundation.e.apps.manager.pkg.InstallerService
 import foundation.e.apps.search.SearchFragmentDirections
 import foundation.e.apps.updates.UpdatesFragmentDirections
+import foundation.e.apps.utils.disableInstallButton
+import foundation.e.apps.utils.enableInstallButton
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
@@ -244,19 +243,19 @@ class ApplicationListRVAdapter(
         showMore.visibility = View.INVISIBLE
         when (searchApp.status) {
             Status.INSTALLED -> {
-                handleInstalled(view, searchApp)
+                handleInstalled(searchApp)
             }
             Status.UPDATABLE -> {
-                handleUpdatable(view, searchApp)
+                handleUpdatable(searchApp)
             }
             Status.UNAVAILABLE -> {
-                handleUnavailable(view, searchApp, holder)
+                handleUnavailable(searchApp, holder)
             }
             Status.QUEUED, Status.AWAITING, Status.DOWNLOADING, Status.DOWNLOADED -> {
-                handleDownloading(view, searchApp)
+                handleDownloading(searchApp)
             }
             Status.INSTALLING, Status.UNINSTALLING -> {
-                handleInstalling(view, holder)
+                handleInstalling()
             }
             Status.BLOCKED -> {
                 handleBlocked(view)
@@ -293,10 +292,8 @@ class ApplicationListRVAdapter(
         searchApp: FusedApp
     ) {
         installButton.apply {
-            isEnabled = !faultyAppResult.first
+            if (faultyAppResult.first) disableInstallButton() else enableInstallButton()
             text = getInstallationIssueText(faultyAppResult, view)
-            strokeColor = getStrokeColor(isEnabled, view)
-            setButtonTextColor(isEnabled)
             backgroundTintList =
                 ContextCompat.getColorStateList(view.context, android.R.color.transparent)
             setOnClickListener {
@@ -401,24 +398,20 @@ class ApplicationListRVAdapter(
         appPrivacyScore.visibility = View.VISIBLE
     }
 
-    private fun ApplicationListItemBinding.handleInstalling(view: View, holder: ViewHolder) {
+    private fun ApplicationListItemBinding.handleInstalling() {
         installButton.apply {
-            disableInstallButton(this, R.string.installing)
+            disableInstallButton()
+            text = context.getText(R.string.installing)
         }
         progressBarInstall.visibility = View.GONE
     }
 
     private fun ApplicationListItemBinding.handleDownloading(
-        view: View,
         searchApp: FusedApp,
     ) {
         installButton.apply {
-            isEnabled = true
+            enableInstallButton()
             text = context.getString(R.string.cancel)
-            setTextColor(context.getColor(R.color.colorAccent))
-            backgroundTintList =
-                ContextCompat.getColorStateList(view.context, android.R.color.transparent)
-            strokeColor = ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
                 cancelDownload(searchApp)
             }
@@ -428,37 +421,24 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.handleUnavailable(
-        view: View,
         searchApp: FusedApp,
         holder: ViewHolder,
     ) {
         installButton.apply {
             updateUIByPaymentType(searchApp, this, this@handleUnavailable, holder)
-            setTextColor(context.getColor(R.color.colorAccent))
-            backgroundTintList =
-                ContextCompat.getColorStateList(view.context, android.R.color.transparent)
-            strokeColor = ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
                 if (mainActivityViewModel.checkUnsupportedApplication(searchApp, context)) {
                     return@setOnClickListener
                 }
                 if (searchApp.isFree || searchApp.isPurchased) {
-                    disableInstallButton(view, R.string.cancel)
+                    disableInstallButton()
+                    text = context.getText(R.string.cancel)
                     installApplication(searchApp, appIcon)
                 } else {
                     paidAppHandler?.invoke(searchApp)
                 }
             }
         }
-    }
-
-    private fun MaterialButton.disableInstallButton(view: View, buttonString: Int) {
-        isEnabled = false
-        text = context.getString(buttonString)
-        strokeColor = getStrokeColor(isEnabled, view)
-        setButtonTextColor(isEnabled)
-        backgroundTintList =
-            ContextCompat.getColorStateList(view.context, android.R.color.transparent)
     }
 
     private fun updateUIByPaymentType(
@@ -469,17 +449,17 @@ class ApplicationListRVAdapter(
     ) {
         when {
             mainActivityViewModel.checkUnsupportedApplication(searchApp) -> {
-                materialButton.isEnabled = true
+                materialButton.enableInstallButton()
                 materialButton.text = materialButton.context.getString(R.string.not_available)
                 applicationListItemBinding.progressBarInstall.visibility = View.GONE
             }
             searchApp.isFree -> {
-                materialButton.isEnabled = true
+                materialButton.enableInstallButton()
                 materialButton.text = materialButton.context.getString(R.string.install)
                 applicationListItemBinding.progressBarInstall.visibility = View.GONE
             }
             else -> {
-                materialButton.isEnabled = false
+                materialButton.disableInstallButton()
                 materialButton.text = ""
                 applicationListItemBinding.progressBarInstall.visibility = View.VISIBLE
                 holder.isPurchasedLiveData = appInfoFetchViewModel.isAppPurchased(searchApp)
@@ -487,7 +467,7 @@ class ApplicationListRVAdapter(
                     return
                 }
                 holder.isPurchasedLiveData.observe(lifecycleOwner!!) {
-                    materialButton.isEnabled = true
+                    materialButton.enableInstallButton()
                     applicationListItemBinding.progressBarInstall.visibility = View.GONE
                     materialButton.text =
                         if (it) materialButton.context.getString(R.string.install) else searchApp.price
@@ -497,17 +477,13 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.handleUpdatable(
-        view: View,
         searchApp: FusedApp
     ) {
         installButton.apply {
-            isEnabled = true
+            enableInstallButton(Status.UPDATABLE)
             text = if (mainActivityViewModel.checkUnsupportedApplication(searchApp))
                 context.getString(R.string.not_available)
             else context.getString(R.string.update)
-            setTextColor(Color.WHITE)
-            backgroundTintList = ContextCompat.getColorStateList(view.context, R.color.colorAccent)
-            strokeColor = ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
                 if (mainActivityViewModel.checkUnsupportedApplication(searchApp, context)) {
                     return@setOnClickListener
@@ -519,15 +495,11 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.handleInstalled(
-        view: View,
         searchApp: FusedApp,
     ) {
         installButton.apply {
-            isEnabled = true
+            enableInstallButton(Status.INSTALLED)
             text = context.getString(R.string.open)
-            setTextColor(Color.WHITE)
-            backgroundTintList = ContextCompat.getColorStateList(view.context, R.color.colorAccent)
-            strokeColor = ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
                 if (searchApp.is_pwa) {
                     mainActivityViewModel.launchPwa(searchApp)
