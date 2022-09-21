@@ -322,6 +322,10 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 appAuthor.text = it
             }
             categoryTitle.text = it.category
+            if (it.origin == Origin.CLEANAPK) {
+                sourceTagCardView.visibility = View.VISIBLE
+                sourceTag.text = it.source
+            }
             if (origin == Origin.CLEANAPK) {
                 appIcon.load(CleanAPKInterface.ASSET_URL + it.icon_image_path)
             } else {

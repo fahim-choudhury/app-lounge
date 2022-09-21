@@ -850,6 +850,7 @@ class FusedAPIImpl @Inject constructor(
             response?.let {
                 it.updateStatus()
                 it.updateType()
+                it.updateSource()
                 it.updateFilterLevel(authData)
             }
         })
@@ -1054,7 +1055,7 @@ class FusedAPIImpl @Inject constructor(
 
     private fun getCategoryIconName(category: FusedCategory): String {
         var categoryTitle = if (category.tag.getOperationalTag()
-            .contentEquals(AppTag.GPlay().getOperationalTag())
+                .contentEquals(AppTag.GPlay().getOperationalTag())
         ) category.id else category.title
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
@@ -1387,6 +1388,13 @@ class FusedAPIImpl @Inject constructor(
 
     private fun FusedApp.updateType() {
         this.type = if (this.is_pwa) Type.PWA else Type.NATIVE
+    }
+
+    private fun FusedApp.updateSource() {
+        this.source =
+            if (this.origin == Origin.CLEANAPK && this.is_pwa) context.getString(R.string.pwa)
+            else if (this.origin == Origin.CLEANAPK) context.getString(R.string.open_source)
+            else ""
     }
 
     private fun MutableList<Artwork>.transformToList(): List<String> {

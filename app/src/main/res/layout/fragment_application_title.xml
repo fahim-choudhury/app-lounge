@@ -19,9 +19,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -72,28 +72,59 @@
         </LinearLayout>
     </LinearLayout>
 
-    <androidx.cardview.widget.CardView
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:layout_marginEnd="20dp"
         android:layout_marginBottom="1dp"
         android:background="@color/colorBackground"
-        android:backgroundTint="@color/colorBackground"
-        android:elevation="2dp"
-        app:cardCornerRadius="5dp"
-        >
+        android:backgroundTint="@color/colorBackground">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/categoryTitle"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/sourceTagCardView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorAccent"
-            android:textSize="16sp"
-            android:layout_margin="4dp"
-            tools:text="Racing" />
-    </androidx.cardview.widget.CardView>
+            android:layout_gravity="end"
+            android:layout_marginEnd="15dp"
+            android:layout_marginBottom="1dp"
+            android:background="@color/colorBackground"
+            android:backgroundTint="@color/colorBackground"
+            android:elevation="2dp"
+            android:visibility="gone"
+            app:cardCornerRadius="5dp">
 
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/sourceTag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:textColor="@color/colorAccent"
+                android:textSize="16sp"
+                tools:text="PWA" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="1dp"
+            android:background="@color/colorBackground"
+            android:backgroundTint="@color/colorBackground"
+            android:elevation="2dp"
+            app:cardCornerRadius="5dp">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/categoryTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:textColor="@color/colorAccent"
+                android:textSize="16sp"
+                tools:text="Racing" />
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
 
 
 </LinearLayout>
