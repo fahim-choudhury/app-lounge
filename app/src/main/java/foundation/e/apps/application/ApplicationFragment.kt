@@ -323,7 +323,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             }
             categoryTitle.text = it.category
             if (it.origin == Origin.CLEANAPK) {
-                sourceTagCardView.visibility = View.VISIBLE
+                sourceTag.visibility = View.VISIBLE
                 sourceTag.text = it.source
             }
             if (origin == Origin.CLEANAPK) {
