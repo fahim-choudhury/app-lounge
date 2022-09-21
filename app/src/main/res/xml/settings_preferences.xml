@@ -53,10 +53,6 @@
 
     <PreferenceCategory
         android:title="@string/Show_applications">
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="showAllApplications"
-            android:title="@string/Show_commercial_apps" />
 
         <CheckBoxPreference
             android:defaultValue="true"
@@ -67,6 +63,11 @@
             android:defaultValue="true"
             android:key="showPWAApplications"
             android:title="@string/show_only_pwa_apps" />
+        
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="showAllApplications"
+            android:title="@string/Show_commercial_apps" />
     </PreferenceCategory>
 
     <PreferenceCategory
