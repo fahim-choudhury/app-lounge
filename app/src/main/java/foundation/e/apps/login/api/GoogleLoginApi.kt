@@ -26,11 +26,8 @@ import foundation.e.apps.api.gplay.utils.GPlayHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Properties
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class GoogleLoginApi @Inject constructor(
+class GoogleLoginApi(
     private val gPlayHttpClient: GPlayHttpClient,
     private val nativeDeviceProperty: Properties,
     private val aC2DMTask: AC2DMTask,
