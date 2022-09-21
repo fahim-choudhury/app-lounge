@@ -54,6 +54,13 @@ class LoginSourceGPlay @Inject constructor(
         get() = LoginApiRepository(gPlayLoginInterface)
 
     override fun isActive(): Boolean {
+        if (user == User.UNAVAILABLE) {
+            /*
+             * UNAVAILABLE user means first login is not completed.
+             * Hence send false.
+             */
+            return false
+        }
         return loginDataStore.isGplaySelected()
     }
 
