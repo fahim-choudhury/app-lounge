@@ -16,13 +16,11 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <PreferenceCategory
-        android:title="@string/preference_updates_title">
+    <PreferenceCategory android:title="@string/preference_updates_title">
         <ListPreference
             android:defaultValue="@string/preference_update_interval_default"
             android:dialogTitle="@string/preference_update_interval_title"
@@ -51,35 +49,34 @@
             android:title="@string/preference_update_wifi_only_title" />
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="@string/Show_applications">
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="showAllApplications"
-            android:title="@string/Show_commercial_apps"
-            android:layout="@layout/layout_source_settings"/>
+    <PreferenceCategory android:title="@string/Show_applications">
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="showFOSSApplications"
-            android:title="@string/show_only_open_source_apps"
-            android:layout="@layout/layout_source_settings"/>
+            android:layout="@layout/layout_source_settings"
+            android:title="@string/show_only_open_source_apps" />
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="showPWAApplications"
-            android:title="@string/show_only_pwa_apps"
-            android:layout="@layout/layout_source_settings"/>
+            android:layout="@layout/layout_source_settings"
+            android:title="@string/show_only_pwa_apps" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="showAllApplications"
+            android:layout="@layout/layout_source_settings"
+            android:title="@string/Show_commercial_apps" />
+
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="@string/about">
+    <PreferenceCategory android:title="@string/about">
 
         <foundation.e.apps.settings.LongPressPreference
             android:key="versionInfo"
             android:title="@string/app_version_label"
-            tools:summary="2.2.1"
-            />
+            tools:summary="2.2.1" />
 
     </PreferenceCategory>
 

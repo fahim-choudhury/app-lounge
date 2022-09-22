@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package foundation.e.apps.applicationlist.model
+package foundation.e.apps.applicationlist
 
 import androidx.recyclerview.widget.DiffUtil
 import foundation.e.apps.api.fused.data.FusedApp
