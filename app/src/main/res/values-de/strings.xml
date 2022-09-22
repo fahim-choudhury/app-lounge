@@ -23,9 +23,9 @@
     <string name="preference_update_notify_available_title">Zeige verfügbare Aktualisierungen</string>
     <string name="preference_update_notify_available_description">Benachrichtige, wenn App-Aktualisierungen verfügbar sind</string>
     <string name="Show_applications">Zeige Anwendungen:</string>
-    <string name="show_only_open_source_apps">Zeige nur quelloffene Apps an</string>
+    <string name="show_only_open_source_apps">Zeige quelloffene Apps an</string>
     <string name="Show_commercial_apps">Zeige alle Apps an</string>
-    <string name="show_only_pwa_apps">Zeige nur PWAs an</string>
+    <string name="show_only_pwa_apps">Zeige PWAs an</string>
     <string name="account">Konto</string>
     <string name="terms_services">Nutzungsbedingungen</string>
     <string name="user_anonymous">Anonym</string>
@@ -56,12 +56,12 @@
     <string name="auto_updates_notification">App-Aktualisierungen werden automatisch installiert</string>
     <string name="manual_updates_notification">App-Aktualisierungen werden nicht automatisch installiert</string>
     <string name="discover">Entdecke</string>
-    <string name="top_updated_apps">Top aktualisierte Apps</string>
-    <string name="top_updated_games">Top aktualisierte Spiele</string>
-    <string name="popular_apps_in_last_24_hours">Beliebteste Apps in den letzten 24 Stunden</string>
-    <string name="popular_games_in_last_24_hours">Beliebteste Spiele in den letzten 24 Stunden</string>
-    <string name="popular_apps">Beliebteste Apps</string>
-    <string name="popular_games">Beliebteste Spiele</string>
+    <string name="top_updated_apps">Top quelloffene aktualisierte Apps</string>
+    <string name="top_updated_games">Top quelloffene aktualisierte Spiele</string>
+    <string name="popular_apps_in_last_24_hours">Beliebteste quelloffene Apps in den letzten 24 Stunden</string>
+    <string name="popular_games_in_last_24_hours">Beliebteste quelloffene Spiele in den letzten 24 Stunden</string>
+    <string name="popular_apps">PWA beliebteste Apps</string>
+    <string name="popular_games">PWA beliebteste Spiele</string>
     <string name="topselling_free_apps">Top kostenlose Apps</string>
     <string name="topselling_free_games">Top kostenlose Spiele</string>
     <string name="topgrossing_apps">Am häufigsten heruntergeladene Apps</string>
@@ -132,4 +132,6 @@
     <string name="os_version">/e/ OS-Version</string>
     <string name="app_version_label">App Lounge-Version</string>
     <string name="about">Über</string>
+    <string name="select_one_source_of_applications">Bitte wähle mindestens eine Quelle von Apps aus.</string>
+    <string name="discover_pwa">Entdecke PWA\'s</string>
 </resources>
