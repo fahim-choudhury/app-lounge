@@ -57,7 +57,6 @@ class LoginSourceGPlay @Inject constructor(
         if (user == User.UNAVAILABLE) {
             /*
              * UNAVAILABLE user means first login is not completed.
-             * Hence send false.
              */
             return false
         }
