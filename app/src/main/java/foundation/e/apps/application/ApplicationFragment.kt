@@ -30,6 +30,7 @@ import android.widget.RelativeLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -176,6 +177,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         val it = resultPair.first
 
         dismissTimeoutDialog()
+        togglePrivacyInfo(false)
 
         isDetailsLoaded = true
         if (applicationViewModel.appStatus.value == null) {
@@ -207,6 +209,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
             applicationViewModel.updateApplicationStatus(list)
         }
+        stopLoadingUI()
     }
 
     private fun updateAppDescriptionText(it: FusedApp) {
@@ -718,7 +721,6 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     private fun fetchAppTracker(fusedApp: FusedApp) {
         privacyInfoViewModel.getAppPrivacyInfoLiveData(fusedApp).observe(viewLifecycleOwner) {
             updatePrivacyScore()
-            stopLoadingUI()
         }
     }
 
@@ -747,6 +749,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             )
             appPrivacyScore.compoundDrawablePadding = 15
         }
+        togglePrivacyInfo(true)
     }
 
     /**
