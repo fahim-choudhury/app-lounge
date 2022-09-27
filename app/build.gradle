@@ -210,4 +210,7 @@ dependencies {
 
     // Flow reactive network
     implementation 'ru.beryukhov:flowreactivenetwork:1.0.4'
+
+    // elib
+    implementation 'foundation.e:elib:0.0.1-alpha11'
 }

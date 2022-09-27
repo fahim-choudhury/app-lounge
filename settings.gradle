@@ -4,6 +4,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
+        maven { url 'https://gitlab.e.foundation/api/v4/groups/9/-/packages/maven'}
 
         // Gitlab repository configuration for gplayapi dependency
         def ciJobToken = System.getenv("CI_JOB_TOKEN")
