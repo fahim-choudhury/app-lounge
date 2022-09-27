@@ -52,7 +52,8 @@
             android:text="@string/permissions"
             android:textColor="?android:textColorPrimary"
             android:textSize="15sp"
-            android:drawableEnd="@drawable/ic_arrow_forward" />
+            android:drawableEnd="@drawable/ic_arrow_forward"
+            android:visibility="invisible" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/appTrackers"
@@ -65,7 +66,16 @@
             android:text="@string/trackers_title"
             android:textColor="?android:textColorPrimary"
             android:textSize="15sp"
-            android:drawableEnd="@drawable/ic_arrow_forward" />
+            android:drawableEnd="@drawable/ic_arrow_forward"
+            android:visibility="invisible" />
+
+        <ProgressBar
+            android:id="@+id/loadingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="visible"
+            />
 
     </RelativeLayout>
 
