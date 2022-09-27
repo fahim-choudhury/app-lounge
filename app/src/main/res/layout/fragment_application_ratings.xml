@@ -69,7 +69,7 @@
                 app:drawableStartCompat="@drawable/ic_star" />
         </LinearLayout>
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/appPrivacyScoreLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -80,24 +80,44 @@
             android:gravity="center"
             android:orientation="vertical">
 
+            <ProgressBar
+                android:id="@+id/loadingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@+id/appPrivacyScore"
+                app:layout_constraintEnd_toStartOf="@+id/appPrivacyScore"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/appPrivacyScore" />
+
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/appPrivacyScore"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/not_available"
                 android:textColor="?android:textColorPrimary"
-                android:textSize="25sp" />
+                android:textSize="25sp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@+id/materialTextView2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/loadingBar"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/materialTextView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawablePadding="5sp"
+                android:drawableTint="@color/colorAccent"
                 android:text="@string/privacy"
                 android:textColor="?android:textColorPrimary"
                 android:textSize="15sp"
-                android:drawableTint="@color/colorAccent"
-                app:drawableStartCompat="@drawable/ic_lock" />
-        </LinearLayout>
+                app:drawableStartCompat="@drawable/ic_lock"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
 
