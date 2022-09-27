@@ -35,7 +35,6 @@
         android:textStyle="bold" />
 
     <RelativeLayout
-        android:id="@+id/appPermissions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -44,49 +43,30 @@
         android:layout_marginBottom="10dp">
 
         <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/appPermissions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
             android:background="?android:selectableItemBackground"
             android:text="@string/permissions"
             android:textColor="?android:textColorPrimary"
-            android:textSize="15sp" />
-
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:padding="4dp"
-            android:src="@drawable/ic_arrow_forward"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"/>
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/appTrackers"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="10dp">
+            android:textSize="15sp"
+            android:drawableEnd="@drawable/ic_arrow_forward" />
 
         <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/appTrackers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
+            android:layout_below="@id/appPermissions"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
             android:background="?android:selectableItemBackground"
             android:text="@string/trackers_title"
             android:textColor="?android:textColorPrimary"
-            android:textSize="15sp" />
+            android:textSize="15sp"
+            android:drawableEnd="@drawable/ic_arrow_forward" />
 
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:padding="4dp"
-            android:src="@drawable/ic_arrow_forward"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"/>
     </RelativeLayout>
-
 
 </LinearLayout>
