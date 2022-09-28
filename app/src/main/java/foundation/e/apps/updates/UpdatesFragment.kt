@@ -200,22 +200,26 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         showLoadingUI()
         updatesViewModel.getUpdates(authData)
         binding.button.setOnClickListener {
-            val id = UpdatesWorkManager.startUpdateAllWork(requireContext().applicationContext)
-            WorkManager.getInstance(requireContext())
-                .getWorkInfosByTagLiveData(UpdatesWorkManager.UPDATES_WORK_NAME)
-                .observe(viewLifecycleOwner) {
-                    val errorStates =
-                        listOf(
-                            WorkInfo.State.FAILED,
-                            WorkInfo.State.BLOCKED,
-                            WorkInfo.State.CANCELLED
-                        )
-                    if (!it.isNullOrEmpty() && errorStates.contains(it.last().state)) {
-                        binding.button.isEnabled = true
-                    }
-                }
+            UpdatesWorkManager.startUpdateAllWork(requireContext().applicationContext)
+            observeUpdateWork()
             binding.button.isEnabled = false
         }
+    }
+
+    private fun observeUpdateWork() {
+        WorkManager.getInstance(requireContext())
+            .getWorkInfosByTagLiveData(UpdatesWorkManager.UPDATES_WORK_NAME)
+            .observe(viewLifecycleOwner) {
+                val errorStates =
+                    listOf(
+                        WorkInfo.State.FAILED,
+                        WorkInfo.State.BLOCKED,
+                        WorkInfo.State.CANCELLED
+                    )
+                if (!it.isNullOrEmpty() && errorStates.contains(it.last().state)) {
+                    binding.button.isEnabled = true
+                }
+            }
     }
 
     private fun showLoadingUI() {

@@ -478,6 +478,7 @@ class MainActivityViewModel @Inject constructor(
         if (shouldShowPaidAppsSnackBar(app)) {
             return
         }
+
         viewModelScope.launch {
             val fusedDownload: FusedDownload
             try {

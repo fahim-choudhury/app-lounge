@@ -53,7 +53,7 @@ object UpdatesWorkManager {
         return PeriodicWorkRequest.Builder(
             UpdatesWorker::class.java,
             interval,
-            TimeUnit.MINUTES
+            TimeUnit.HOURS
         ).apply {
             setConstraints(buildWorkerConstraints())
             addTag(TAG)
