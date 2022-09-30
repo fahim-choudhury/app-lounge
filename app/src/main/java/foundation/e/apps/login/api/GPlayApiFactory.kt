@@ -25,10 +25,6 @@ import java.util.Properties
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Factory method to return appropriate GPlay API.
- * https://medium.com/geekculture/overview-of-factory-method-design-pattern-d3a6fe908ea4
- */
 @Singleton
 class GPlayApiFactory @Inject constructor(
     private val gPlayHttpClient: GPlayHttpClient,

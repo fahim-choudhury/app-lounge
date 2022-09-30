@@ -21,10 +21,6 @@ import foundation.e.apps.utils.enums.User
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Perform various login tasks using login sources.
- * https://gitlab.e.foundation/e/backlog/-/issues/5680
- */
 @JvmSuppressWildcards
 @Singleton
 class LoginSourceRepository @Inject constructor(

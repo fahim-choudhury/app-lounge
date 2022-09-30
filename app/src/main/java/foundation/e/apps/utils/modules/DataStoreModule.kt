@@ -40,8 +40,10 @@ class DataStoreModule @Inject constructor(
     private val gson: Gson
 ) {
 
-    private val preferenceDataStoreName = "Settings"
-    private val Context.dataStore by preferencesDataStore(preferenceDataStoreName)
+    companion object {
+        private const val preferenceDataStoreName = "Settings"
+        val Context.dataStore by preferencesDataStore(preferenceDataStoreName)
+    }
 
     private val AUTHDATA = stringPreferencesKey("authData")
     private val EMAIL = stringPreferencesKey("email")
@@ -137,5 +139,15 @@ class DataStoreModule @Inject constructor(
 
     suspend fun getAASToken(): String {
         return aasToken.first()
+    }
+
+    fun getUserType(): User {
+        return runBlocking {
+            userType.first().run {
+                val userStrings = User.values().map { it.name }
+                if (this !in userStrings) User.UNAVAILABLE
+                else User.valueOf(this)
+            }
+        }
     }
 }

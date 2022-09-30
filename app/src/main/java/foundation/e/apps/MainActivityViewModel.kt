@@ -92,6 +92,8 @@ class MainActivityViewModel @Inject constructor(
     val purchaseDeclined: MutableLiveData<String> = MutableLiveData()
     var authRequestRunning = false
 
+    var gPlayAuthData = AuthData("", "")
+
     /*
      * If this live data is populated, it means Google sign in failed.
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5709
@@ -126,7 +128,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun getUser(): User {
-        return User.valueOf(userType.value ?: User.UNAVAILABLE.name)
+        return dataStoreModule.getUserType()
     }
 
     private fun setFirstTokenFetchTime() {
@@ -164,15 +166,9 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun uploadFaultyTokenToEcloud(description: String) {
+    fun uploadFaultyTokenToEcloud(email: String, description: String = "") {
         viewModelScope.launch {
-            authData.value?.let { authData ->
-                val email: String = authData.run {
-                    if (email != "null") email
-                    else userProfile?.email ?: "null"
-                }
-                ecloudRepository.uploadFaultyEmail(email, description)
-            }
+            ecloudRepository.uploadFaultyEmail(email, description)
         }
     }
 
@@ -460,7 +456,7 @@ class MainActivityViewModel @Inject constructor(
      */
     fun verifyUiFilter(fusedApp: FusedApp, method: () -> Unit) {
         viewModelScope.launch {
-            val authData = authData.value
+            val authData = gPlayAuthData
             if (fusedApp.filterLevel.isInitialized()) {
                 method()
             } else {

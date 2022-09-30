@@ -29,6 +29,7 @@ import foundation.e.apps.utils.Constants.PREFERENCE_SHOW_FOSS
 import foundation.e.apps.utils.Constants.PREFERENCE_SHOW_GPLAY
 import foundation.e.apps.utils.Constants.PREFERENCE_SHOW_PWA
 import foundation.e.apps.utils.enums.User
+import foundation.e.apps.utils.modules.DataStoreModule.Companion.dataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
@@ -41,9 +42,6 @@ class LoginDataStore @Inject constructor(
     private val context: Context,
     private val gson: Gson
 ) {
-
-    private val preferenceDataStoreName = "Settings"
-    private val Context.dataStore by preferencesDataStore(preferenceDataStoreName)
 
     private val preferenceManager = PreferenceManager.getDefaultSharedPreferences(context)
 
