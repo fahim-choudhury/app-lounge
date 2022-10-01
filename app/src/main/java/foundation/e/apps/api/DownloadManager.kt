@@ -127,11 +127,32 @@ class DownloadManager @Inject constructor(
         }
     }
 
-    private fun tickerFlow(downloadId: Long, period: Duration, initialDelay: Duration = Duration.ZERO) = flow {
+    private fun tickerFlow(
+        downloadId: Long,
+        period: Duration,
+        initialDelay: Duration = Duration.ZERO
+    ) = flow {
         delay(initialDelay)
         while (downloadsMaps[downloadId]!!) {
             emit(Unit)
             delay(period)
         }
+    }
+
+    fun getDownloadStatus(downloadId: Long): Int {
+        try {
+            downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
+                .use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val status =
+                            cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+                        Timber.d("Download Failed: downloadId: $downloadId $status")
+                        return status
+                    }
+                }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return DownloadManager.STATUS_FAILED
     }
 }

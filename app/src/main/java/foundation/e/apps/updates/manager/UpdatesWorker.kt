@@ -71,7 +71,7 @@ class UpdatesWorker @AssistedInject constructor(
         val isConnectedToUnmeteredNetwork = isConnectedToUnmeteredNetwork(applicationContext)
         val authData = getAuthData()
         val appsNeededToUpdate = updatesManagerRepository.getUpdates(authData).first
-        if (shouldShowNotification) {
+        if (isAutoUpdate && shouldShowNotification) {
             handleNotification(appsNeededToUpdate.size, isConnectedToUnmeteredNetwork)
         }
 

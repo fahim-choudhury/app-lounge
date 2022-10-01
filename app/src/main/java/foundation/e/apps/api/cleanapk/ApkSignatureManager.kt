@@ -35,11 +35,16 @@ import java.security.Security
 object ApkSignatureManager {
     fun verifyFdroidSignature(context: Context, apkFilePath: String, signature: String): Boolean {
         Security.addProvider(BouncyCastleProvider())
-        return verifyAPKSignature(
-            BufferedInputStream(FileInputStream(apkFilePath)),
-            signature.byteInputStream(Charsets.UTF_8),
-            context.assets.open("f-droid.org-signing-key.gpg")
-        )
+        try {
+            return verifyAPKSignature(
+                BufferedInputStream(FileInputStream(apkFilePath)),
+                signature.byteInputStream(Charsets.UTF_8),
+                context.assets.open("f-droid.org-signing-key.gpg")
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return false
     }
 
     private fun verifyAPKSignature(
