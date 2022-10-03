@@ -112,6 +112,7 @@
     <string name="app_not_found">Your application was not found.</string>
     <string name="something_went_wrong">Something went wrong!</string>
     <string name="show_more">Show more</string>
+    <string name="gplay_data_for_oss">Cannot show Google Play app when only open source apps are allowed.</string>
 
 
     <!-- Updates Fragment -->

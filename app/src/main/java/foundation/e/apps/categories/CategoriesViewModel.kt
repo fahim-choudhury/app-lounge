@@ -19,7 +19,6 @@
 package foundation.e.apps.categories
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
@@ -30,7 +29,6 @@ import foundation.e.apps.login.AuthObject
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.exceptions.CleanApkException
 import foundation.e.apps.utils.exceptions.GPlayException
-import foundation.e.apps.utils.exceptions.UnknownSourceException
 import foundation.e.apps.utils.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -59,7 +57,6 @@ class CategoriesViewModel @Inject constructor(
                 getCategoriesList(type, AuthData("", ""))
                 return@onLoadData
             }
-
         }, retryBlock)
     }
 
