@@ -20,8 +20,6 @@ package foundation.e.apps.utils.modules
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
-import androidx.work.WorkManager
 import java.lang.Exception
 
 object CommonUtilsFunctions {
@@ -50,19 +48,5 @@ object CommonUtilsFunctions {
             e.printStackTrace()
         }
         return value
-    }
-
-    fun checkWorkIsAlreadyAvailable(context: Context, tag: String): Boolean {
-        val works = WorkManager.getInstance(context).getWorkInfosByTag(tag)
-        try {
-            works.get().forEach {
-                if (it.tags.contains(tag) && !it.state.isFinished) {
-                    return true
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return false
     }
 }

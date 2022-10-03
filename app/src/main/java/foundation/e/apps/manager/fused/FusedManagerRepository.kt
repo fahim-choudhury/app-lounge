@@ -11,7 +11,6 @@ import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.workmanager.InstallWorkManager
 import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.modules.CommonUtilsFunctions
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -36,7 +35,7 @@ class FusedManagerRepository @Inject constructor(
     }
 
     suspend fun addDownload(fusedDownload: FusedDownload) {
-        if (CommonUtilsFunctions.checkWorkIsAlreadyAvailable(InstallWorkManager.context, fusedDownload.id)) {
+        if (InstallWorkManager.checkWorkIsAlreadyAvailable(fusedDownload.id)) {
             return
         }
 

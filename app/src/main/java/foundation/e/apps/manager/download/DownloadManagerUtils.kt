@@ -34,7 +34,6 @@ import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import android.app.DownloadManager as androidDownloadManager
 
 @Singleton
 class DownloadManagerUtils @Inject constructor(
@@ -79,10 +78,16 @@ class DownloadManagerUtils @Inject constructor(
         numberOfDownloadedItems: Int,
         fusedDownload: FusedDownload,
         downloadId: Long
-    ) = downloadManager.getDownloadStatus(downloadId) == androidDownloadManager.STATUS_SUCCESSFUL &&
-        numberOfDownloadedItems == fusedDownload.downloadIdMap.size && checkCleanApkSignatureOK(
-        fusedDownload
-    )
+    ) = downloadManager.isDownloadSuccessful(downloadId) &&
+        areAllFilesDownloaded(
+            numberOfDownloadedItems,
+            fusedDownload
+        ) && checkCleanApkSignatureOK(fusedDownload)
+
+    private fun areAllFilesDownloaded(
+        numberOfDownloadedItems: Int,
+        fusedDownload: FusedDownload
+    ) = numberOfDownloadedItems == fusedDownload.downloadIdMap.size
 
     private suspend fun updateDownloadIdMap(
         fusedDownload: FusedDownload,

@@ -27,6 +27,7 @@ import org.bouncycastle.openpgp.PGPUtil
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider
 import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator
+import timber.log.Timber
 import java.io.BufferedInputStream
 import java.io.FileInputStream
 import java.io.InputStream
@@ -42,7 +43,7 @@ object ApkSignatureManager {
                 context.assets.open("f-droid.org-signing-key.gpg")
             )
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e)
         }
         return false
     }

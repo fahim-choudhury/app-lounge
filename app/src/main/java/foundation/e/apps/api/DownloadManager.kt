@@ -139,7 +139,11 @@ class DownloadManager @Inject constructor(
         }
     }
 
-    fun getDownloadStatus(downloadId: Long): Int {
+    fun isDownloadSuccessful(downloadId: Long): Boolean {
+        return getDownloadStatus(downloadId) == DownloadManager.STATUS_SUCCESSFUL
+    }
+
+    private fun getDownloadStatus(downloadId: Long): Int {
         try {
             downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
                 .use { cursor ->
@@ -151,7 +155,7 @@ class DownloadManager @Inject constructor(
                     }
                 }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e)
         }
         return DownloadManager.STATUS_FAILED
     }
