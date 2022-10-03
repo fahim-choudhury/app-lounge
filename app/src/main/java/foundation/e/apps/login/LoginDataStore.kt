@@ -20,7 +20,6 @@ package foundation.e.apps.login
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.preference.PreferenceManager
 import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson

@@ -31,21 +31,6 @@ import javax.inject.Singleton
 class LoginCommon @Inject constructor(
     private val loginDataStore: LoginDataStore,
 ) {
-
-    fun getAuthTypes(): List<String> {
-        if (loginDataStore.getUserType() == User.UNAVAILABLE) {
-            return emptyList()
-        }
-        return ArrayList<String>().apply {
-            if (loginDataStore.isGplaySelected()) {
-                add(AuthObject.GPlayAuth::class.java.simpleName)
-            }
-            if (loginDataStore.isPWASelected() || loginDataStore.isOpenSourceSelected()) {
-                add(AuthObject.CleanApk::class.java.simpleName)
-            }
-        }
-    }
-
     suspend fun saveUserType(user: User) {
         loginDataStore.saveUserType(user)
     }

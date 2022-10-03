@@ -21,19 +21,18 @@ package foundation.e.apps.home
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.AppInfoFetchViewModel
 import foundation.e.apps.AppProgressViewModel
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.R
-import foundation.e.apps.api.fused.FusedAPIImpl
 import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedHome
@@ -41,19 +40,21 @@ import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.databinding.FragmentHomeBinding
 import foundation.e.apps.home.model.HomeChildRVAdapter
 import foundation.e.apps.home.model.HomeParentRVAdapter
+import foundation.e.apps.login.AuthObject
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.User
+import foundation.e.apps.utils.exceptions.GPlayException
+import foundation.e.apps.utils.exceptions.GPlayValidationException
 import foundation.e.apps.utils.modules.CommonUtilsModule.safeNavigate
 import foundation.e.apps.utils.modules.PWAManagerModule
-import foundation.e.apps.utils.parentFragment.TimeoutFragment
+import foundation.e.apps.utils.parentFragment.TimeoutFragment2
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface {
+class HomeFragment : TimeoutFragment2(R.layout.fragment_home), FusedAPIInterface {
 
     /*
      * Make adapter nullable to avoid memory leaks.
@@ -78,14 +79,6 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentHomeBinding.bind(view)
 
-        mainActivityViewModel.userType.observe(viewLifecycleOwner) { user ->
-            if (user.isNullOrEmpty() || User.valueOf(user) == User.UNAVAILABLE) {
-                mainActivityViewModel.tocStatus.observe(viewLifecycleOwner) { tosAccepted ->
-                    onTosAccepted(tosAccepted)
-                }
-            }
-        }
-
         loadHomePageData()
 
         homeParentRVAdapter = initHomeParentRVAdapter()
@@ -102,7 +95,6 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         homeViewModel.homeScreenData.observe(viewLifecycleOwner) {
             stopLoadingUI()
             if (it.second != ResultStatus.OK) {
-                onTimeout()
                 return@observe
             }
 
@@ -110,7 +102,6 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
                 return@observe
             }
 
-            dismissTimeoutDialog()
             homeParentRVAdapter?.setData(it.first)
         }
     }
@@ -119,7 +110,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         this,
         pkgManagerModule,
         pwaManagerModule,
-        User.valueOf(mainActivityViewModel.userType.value ?: User.UNAVAILABLE.name),
+        mainActivityViewModel.getUser(),
         mainActivityViewModel, appInfoFetchViewModel, viewLifecycleOwner
     ) { fusedApp ->
         if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(fusedApp)) {
@@ -128,49 +119,15 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
     }
 
     private fun loadHomePageData() {
-        /*
-         * Previous code:
-         * internetConnection.observe {
-         *     authData.observe {
-         *         // refresh data here.
-         *     }
-         * }
-         *
-         * Code regarding data fetch is placed in two separate observers compared to nested
-         * observers as was done previously.
-         *
-         * refreshDataOrRefreshToken() already checks for internet connectivity and authData.
-         * If authData is null, it requests to fetch new token data.
-         *
-         * With previous nested observer code (commit 8ca1647d), try the following:
-         * 1. Put garbage value in "Proxy" of APN settings of device,
-         *    this will cause host unreachable error.
-         * 2. Open App Lounge. Let it show timeout dialog.
-         * 3. Click "Open Settings", now immediately open Home tab again.
-         * 4. Home keeps loading without any timeout error.
-         *
-         * Why is this happening?
-         * In case of host unreachable error, the authData is itself blank/null. This does not allow
-         * it to get "observed". But mainActivityViewModel.internetConnection always has a value,
-         * and is observable.
-         * When we open Home tab again from Settings tab, no refresh action is performed as
-         * authData.observe {} does not observe anything.
-         *
-         * In the new code, the first observer will always be executed on fragment attach
-         * (as mainActivityViewModel.internetConnection always has a value and is observable),
-         * this will call refreshDataOrRefreshToken(), which will refresh authData if it is null.
-         * Now with new valid authData, the second observer (authData.observe{}) will again call
-         * refreshDataOrRefreshToken() which will now fetch correct data.
-         *
-         *
-         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
-         */
+        setupListening()
 
-        mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) {
-            refreshDataOrRefreshToken(mainActivityViewModel)
+        authObjects.observe(viewLifecycleOwner) {
+            if (it == null) return@observe
+            loadData(it)
         }
-        mainActivityViewModel.authData.observe(viewLifecycleOwner) {
-            refreshDataOrRefreshToken(mainActivityViewModel)
+
+        homeViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
+            handleExceptionsCommon(it)
         }
     }
 
@@ -196,49 +153,61 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
             homeParentRVAdapter?.currentList as List<FusedHome>
         )
 
-    override fun onTimeout() {
-        if (homeViewModel.isFusedHomesEmpty() && !isTimeoutDialogDisplayed()) {
-            mainActivityViewModel.uploadFaultyTokenToEcloud("From " + this::class.java.name)
-            stopLoadingUI()
-            displayTimeoutAlertDialog(
-                timeoutFragment = this,
-                activity = requireActivity(),
-                message =
-                if (homeViewModel.getApplicationCategoryPreference() == FusedAPIImpl.APP_TYPE_ANY) {
-                    getString(R.string.timeout_desc_gplay)
-                } else {
-                    getString(R.string.timeout_desc_cleanapk)
-                },
-                positiveButtonText = getString(R.string.retry),
-                positiveButtonBlock = {
-                    showLoadingUI()
-                    resetTimeoutDialogLock()
-                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
-                },
-                negativeButtonText =
-                if (homeViewModel.getApplicationCategoryPreference() == FusedAPIImpl.APP_TYPE_ANY) {
-                    getString(R.string.open_settings)
-                } else null,
-                negativeButtonBlock = {
+    override fun onTimeout(
+        exception: Exception,
+        predefinedDialog: AlertDialog.Builder
+    ): AlertDialog.Builder? {
+        return predefinedDialog.apply {
+            if (exception is GPlayException) {
+                setMessage(R.string.timeout_desc_gplay)
+                setNegativeButton(R.string.open_settings) { _, _ ->
                     openSettings()
-                },
-                allowCancel = false,
-            )
+                }
+            } else {
+                setMessage(R.string.timeout_desc_cleanapk)
+            }
+            setCancelable(false)
         }
     }
 
-    override fun refreshData(authData: AuthData) {
-        showLoadingUI()
-        homeViewModel.getHomeScreenData(authData)
+    override fun onSignInError(
+        exception: GPlayValidationException,
+        predefinedDialog: AlertDialog.Builder
+    ): AlertDialog.Builder? {
+        return predefinedDialog.apply {
+            setNegativeButton(R.string.open_settings) { _, _ ->
+                openSettings()
+            }
+        }
     }
 
-    private fun showLoadingUI() {
+    override fun onDataLoadError(
+        exception: Exception,
+        predefinedDialog: AlertDialog.Builder
+    ): AlertDialog.Builder? {
+        return predefinedDialog.apply {
+            if (exception is GPlayException) {
+                setNegativeButton(R.string.open_settings) { _, _ ->
+                    openSettings()
+                }
+            }
+        }
+    }
+
+    override fun loadData(authObjectList: List<AuthObject>) {
+        homeViewModel.loadData(authObjectList) { _ ->
+            clearAndRestartGPlayLogin()
+            true
+        }
+    }
+
+    override fun showLoadingUI() {
         binding.shimmerLayout.startShimmer()
         binding.shimmerLayout.visibility = View.VISIBLE
         binding.parentRV.visibility = View.GONE
     }
 
-    private fun stopLoadingUI() {
+    override fun stopLoadingUI() {
         binding.shimmerLayout.stopShimmer()
         binding.shimmerLayout.visibility = View.GONE
         binding.parentRV.visibility = View.VISIBLE
@@ -297,16 +266,13 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
 
     override fun onResume() {
         super.onResume()
-        resetTimeoutDialogLock()
         binding.shimmerLayout.startShimmer()
         appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
             updateProgressOfDownloadingAppItemViews(homeParentRVAdapter, it)
         }
 
         if (homeViewModel.isAnyAppInstallStatusChanged(homeParentRVAdapter?.currentList)) {
-            mainActivityViewModel.authData.value?.let {
-                refreshData(it)
-            }
+            repostAuthObjects()
         }
     }
 
