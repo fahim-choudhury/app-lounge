@@ -20,21 +20,22 @@ package foundation.e.apps.categories
 
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.R
 import foundation.e.apps.categories.model.CategoriesRVAdapter
 import foundation.e.apps.databinding.FragmentGamesBinding
-import foundation.e.apps.utils.enums.ResultStatus
-import foundation.e.apps.utils.parentFragment.TimeoutFragment
+import foundation.e.apps.login.AuthObject
+import foundation.e.apps.utils.exceptions.GPlayValidationException
+import foundation.e.apps.utils.parentFragment.TimeoutFragment2
 
 @AndroidEntryPoint
-class GamesFragment : TimeoutFragment(R.layout.fragment_games) {
+class GamesFragment : TimeoutFragment2(R.layout.fragment_games) {
     private var _binding: FragmentGamesBinding? = null
     private val binding get() = _binding!!
 
@@ -45,15 +46,15 @@ class GamesFragment : TimeoutFragment(R.layout.fragment_games) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentGamesBinding.bind(view)
 
-        /*
-         * Explanation of double observers in HomeFragment.kt
-         */
+        setupListening()
 
-        mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) {
-            refreshDataOrRefreshToken(mainActivityViewModel)
+        authObjects.observe(viewLifecycleOwner) {
+            if (it == null) return@observe
+            loadData(it)
         }
-        mainActivityViewModel.authData.observe(viewLifecycleOwner) {
-            refreshDataOrRefreshToken(mainActivityViewModel)
+
+        categoriesViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
+            handleExceptionsCommon(it)
         }
 
         val categoriesRVAdapter = CategoriesRVAdapter()
@@ -68,47 +69,44 @@ class GamesFragment : TimeoutFragment(R.layout.fragment_games) {
         categoriesViewModel.categoriesList.observe(viewLifecycleOwner) {
             stopLoadingUI()
             categoriesRVAdapter.setData(it.first)
-            if (it.third != ResultStatus.OK) {
-                onTimeout()
-            }
         }
     }
 
-    override fun onTimeout() {
-        if (!isTimeoutDialogDisplayed()) {
-            stopLoadingUI()
-            displayTimeoutAlertDialog(
-                timeoutFragment = this,
-                activity = requireActivity(),
-                message = getString(R.string.timeout_desc_cleanapk),
-                positiveButtonText = getString(android.R.string.ok),
-                positiveButtonBlock = {},
-                negativeButtonText = getString(R.string.retry),
-                negativeButtonBlock = {
-                    showLoadingUI()
-                    resetTimeoutDialogLock()
-                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
-                },
-                allowCancel = true,
-            )
+    override fun loadData(authObjectList: List<AuthObject>) {
+        categoriesViewModel.loadData(Category.Type.GAME, authObjectList) {
+            clearAndRestartGPlayLogin()
+            true
         }
     }
 
-    override fun refreshData(authData: AuthData) {
-        showLoadingUI()
-        categoriesViewModel.getCategoriesList(
-            Category.Type.GAME,
-            authData
-        )
+    override fun onTimeout(
+        exception: Exception,
+        predefinedDialog: AlertDialog.Builder
+    ): AlertDialog.Builder? {
+        return predefinedDialog
     }
 
-    private fun showLoadingUI() {
+    override fun onSignInError(
+        exception: GPlayValidationException,
+        predefinedDialog: AlertDialog.Builder
+    ): AlertDialog.Builder? {
+        return predefinedDialog
+    }
+
+    override fun onDataLoadError(
+        exception: Exception,
+        predefinedDialog: AlertDialog.Builder
+    ): AlertDialog.Builder? {
+        return predefinedDialog
+    }
+
+    override fun showLoadingUI() {
         binding.shimmerLayout.startShimmer()
         binding.shimmerLayout.visibility = View.VISIBLE
         binding.recyclerView.visibility = View.GONE
     }
 
-    private fun stopLoadingUI() {
+    override fun stopLoadingUI() {
         binding.shimmerLayout.stopShimmer()
         binding.shimmerLayout.visibility = View.GONE
         binding.recyclerView.visibility = View.VISIBLE
@@ -116,7 +114,6 @@ class GamesFragment : TimeoutFragment(R.layout.fragment_games) {
 
     override fun onResume() {
         super.onResume()
-        resetTimeoutDialogLock()
         binding.shimmerLayout.startShimmer()
     }
 
