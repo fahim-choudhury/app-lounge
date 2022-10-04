@@ -26,6 +26,7 @@ import android.os.Looper
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.preference.CheckBoxPreference
@@ -41,6 +42,7 @@ import foundation.e.apps.MainActivity
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.R
 import foundation.e.apps.databinding.CustomPreferenceBinding
+import foundation.e.apps.login.LoginViewModel
 import foundation.e.apps.setup.signin.SignInViewModel
 import foundation.e.apps.updates.manager.UpdatesWorkManager
 import foundation.e.apps.utils.enums.User
@@ -53,11 +55,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private var _binding: CustomPreferenceBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: SignInViewModel by viewModels()
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
     private var showAllApplications: CheckBoxPreference? = null
     private var showFOSSApplications: CheckBoxPreference? = null
     private var showPWAApplications: CheckBoxPreference? = null
+
+    val loginViewModel: LoginViewModel by lazy {
+        ViewModelProvider(requireActivity())[LoginViewModel::class.java]
+    }
 
     @Inject
     lateinit var gson: Gson
@@ -120,17 +125,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         super.onViewCreated(view, savedInstanceState)
 
-        mainActivityViewModel.authDataJson.observe(viewLifecycleOwner) {
-            val authData = gson.fromJson(it, AuthData::class.java)
-            viewModel.userType.observe(viewLifecycleOwner) { user ->
+        mainActivityViewModel.gPlayAuthData.let { authData ->
+            mainActivityViewModel.getUser().name.let { user ->
                 when (user) {
                     User.ANONYMOUS.name -> {
                         binding.accountType.text = view.context.getString(R.string.user_anonymous)
                     }
                     User.GOOGLE.name -> {
-                        if (authData != null) {
+                        if (authData.aasToken.isNotBlank()) {
                             binding.accountType.text = authData.userProfile?.name
-                            binding.email.text = authData.userProfile?.email
+                            binding.email.text = mainActivityViewModel.getUserEmail()
                             binding.avatar.load(authData.userProfile?.artwork?.url)
                         }
                     }
@@ -143,11 +147,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         binding.logout.setOnClickListener {
-            viewModel.saveUserType(User.UNAVAILABLE)
-            Toast.makeText(requireContext(), "Signing out...", Toast.LENGTH_LONG).show()
-            Handler(Looper.getMainLooper()).postDelayed({
-                backToMainActivity()
-            }, 1500)
+            loginViewModel.logout()
         }
     }
 

@@ -131,6 +131,10 @@ class MainActivityViewModel @Inject constructor(
         return dataStoreModule.getUserType()
     }
 
+    fun getUserEmail(): String {
+        return dataStoreModule.getEmail()
+    }
+
     private fun setFirstTokenFetchTime() {
         if (firstAuthDataFetchTime == 0L) {
             firstAuthDataFetchTime = SystemClock.uptimeMillis()

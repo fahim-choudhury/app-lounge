@@ -133,8 +133,10 @@ class DataStoreModule @Inject constructor(
         }
     }
 
-    suspend fun getEmail(): String {
-        return emailData.first()
+    fun getEmail(): String {
+        return runBlocking {
+            emailData.first()
+        }
     }
 
     suspend fun getAASToken(): String {

@@ -84,6 +84,7 @@ class LoginViewModel @Inject constructor(
     fun logout() {
         viewModelScope.launch {
             loginSourceRepository.logout()
+            authObjects.postValue(listOf())
         }
     }
 }
