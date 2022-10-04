@@ -6,6 +6,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
+import java.lang.Exception
 
 object InstallWorkManager {
     const val INSTALL_WORK_NAME = "APP_LOUNGE_INSTALL_APP"
@@ -26,5 +27,19 @@ object InstallWorkManager {
 
     fun cancelWork(tag: String) {
         WorkManager.getInstance(context).cancelAllWorkByTag(tag)
+    }
+
+    fun checkWorkIsAlreadyAvailable(tag: String): Boolean {
+        val works = WorkManager.getInstance(context).getWorkInfosByTag(tag)
+        try {
+            works.get().forEach {
+                if (it.tags.contains(tag) && !it.state.isFinished) {
+                    return true
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return false
     }
 }

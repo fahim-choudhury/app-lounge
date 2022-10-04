@@ -20,6 +20,7 @@ package foundation.e.apps.utils.modules
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
+import java.lang.Exception
 
 object CommonUtilsFunctions {
 

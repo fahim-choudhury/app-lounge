@@ -50,6 +50,7 @@ class PkgManagerModule @Inject constructor(
     companion object {
         const val ERROR_PACKAGE_INSTALL = "ERROR_PACKAGE_INSTALL"
         const val PACKAGE_NAME = "packageName"
+        const val FAKE_STORE_PACKAGE_NAME = "com.android.vending"
         private const val TAG = "PkgManagerModule"
     }
     private val packageManager = context.packageManager
@@ -115,12 +116,11 @@ class PkgManagerModule @Inject constructor(
             return
         }
         if (fusedDownload.origin == Origin.GPLAY) {
-            val fakeStorePackageName = "com.android.vending"
-            if (fusedDownload.type == Type.NATIVE && isInstalled(fakeStorePackageName)) {
+            if (fusedDownload.type == Type.NATIVE && isInstalled(FAKE_STORE_PACKAGE_NAME)) {
                 val targetPackage = fusedDownload.packageName
                 try {
-                    packageManager.setInstallerPackageName(targetPackage, fakeStorePackageName)
-                    Timber.d("Changed installer to $fakeStorePackageName for $targetPackage")
+                    packageManager.setInstallerPackageName(targetPackage, FAKE_STORE_PACKAGE_NAME)
+                    Timber.d("Changed installer to $FAKE_STORE_PACKAGE_NAME for $targetPackage")
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -240,6 +240,11 @@ class PkgManagerModule @Inject constructor(
             if (it.flags and ApplicationInfo.FLAG_SYSTEM == 0) userPackages.add(it)
         }
         return userPackages
+    }
+
+    fun isGplay(packageName: String): Boolean {
+        val installerPackageName = packageManager.getInstallerPackageName(packageName)
+        return installerPackageName?.contains(FAKE_STORE_PACKAGE_NAME) == true
     }
 
     fun getAllSystemApps(): List<ApplicationInfo> {
