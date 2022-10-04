@@ -1391,10 +1391,11 @@ class FusedAPIImpl @Inject constructor(
     }
 
     private fun FusedApp.updateSource() {
-        this.source =
-            if (this.origin == Origin.CLEANAPK && this.is_pwa) context.getString(R.string.pwa)
-            else if (this.origin == Origin.CLEANAPK) context.getString(R.string.open_source)
+        this.apply {
+            source = if (origin == Origin.CLEANAPK && is_pwa) context.getString(R.string.pwa)
+            else if (origin == Origin.CLEANAPK) context.getString(R.string.open_source)
             else ""
+        }
     }
 
     private fun MutableList<Artwork>.transformToList(): List<String> {
