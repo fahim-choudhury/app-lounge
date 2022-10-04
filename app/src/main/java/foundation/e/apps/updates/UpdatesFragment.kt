@@ -53,12 +53,12 @@ import foundation.e.apps.utils.exceptions.GPlayException
 import foundation.e.apps.utils.exceptions.GPlayValidationException
 import foundation.e.apps.utils.modules.CommonUtilsModule.safeNavigate
 import foundation.e.apps.utils.modules.PWAManagerModule
-import foundation.e.apps.utils.parentFragment.TimeoutFragment2
+import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class UpdatesFragment : TimeoutFragment2(R.layout.fragment_updates), FusedAPIInterface {
+class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInterface {
 
     private var _binding: FragmentUpdatesBinding? = null
     private val binding get() = _binding!!

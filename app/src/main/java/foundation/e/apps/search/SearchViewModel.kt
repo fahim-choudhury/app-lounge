@@ -47,7 +47,7 @@ class SearchViewModel @Inject constructor(
     fun getSearchSuggestions(query: String, gPlayAuth: AuthObject.GPlayAuth) {
         viewModelScope.launch(Dispatchers.IO) {
             if (gPlayAuth.result.isSuccess())
-            searchSuggest.postValue(fusedAPIRepository.getSearchSuggestions(query, gPlayAuth.result.data!!))
+                searchSuggest.postValue(fusedAPIRepository.getSearchSuggestions(query, gPlayAuth.result.data!!))
         }
     }
 
@@ -71,7 +71,6 @@ class SearchViewModel @Inject constructor(
                 getSearchResults(query, AuthData("", ""), lifecycleOwner)
                 return@onLoadData
             }
-
         }, retryBlock)
     }
 
@@ -90,8 +89,7 @@ class SearchViewModel @Inject constructor(
                     val exception =
                         if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank()) {
                             GPlayException(it.isTimeout(), "Data load error")
-                        }
-                        else CleanApkException(it.isTimeout(), "Data load error")
+                        } else CleanApkException(it.isTimeout(), "Data load error")
 
                     exceptionsList.add(exception)
                     exceptionsLiveData.postValue(exceptionsList)

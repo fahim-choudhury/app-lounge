@@ -64,14 +64,14 @@ import foundation.e.apps.utils.enums.isInitialized
 import foundation.e.apps.utils.exceptions.GPlayValidationException
 import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.utils.modules.PWAManagerModule
-import foundation.e.apps.utils.parentFragment.TimeoutFragment2
+import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ApplicationFragment : TimeoutFragment2(R.layout.fragment_application) {
+class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private val args: ApplicationFragmentArgs by navArgs()
     private val TAG = ApplicationFragment::class.java.simpleName

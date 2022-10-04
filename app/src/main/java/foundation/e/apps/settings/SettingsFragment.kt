@@ -21,11 +21,9 @@ package foundation.e.apps.settings
 import android.content.ClipboardManager
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.Toast
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -34,7 +32,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.work.ExistingPeriodicWorkPolicy
 import coil.load
-import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.BuildConfig
@@ -43,7 +40,6 @@ import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.R
 import foundation.e.apps.databinding.CustomPreferenceBinding
 import foundation.e.apps.login.LoginViewModel
-import foundation.e.apps.setup.signin.SignInViewModel
 import foundation.e.apps.updates.manager.UpdatesWorkManager
 import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.modules.CommonUtilsFunctions
@@ -55,7 +51,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private var _binding: CustomPreferenceBinding? = null
     private val binding get() = _binding!!
-    private val mainActivityViewModel: MainActivityViewModel by viewModels()
+    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
     private var showAllApplications: CheckBoxPreference? = null
     private var showFOSSApplications: CheckBoxPreference? = null
     private var showPWAApplications: CheckBoxPreference? = null
@@ -132,7 +128,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         binding.accountType.text = view.context.getString(R.string.user_anonymous)
                     }
                     User.GOOGLE.name -> {
-                        if (authData.aasToken.isNotBlank()) {
+                        if (!authData.isAnonymous) {
                             binding.accountType.text = authData.userProfile?.name
                             binding.email.text = mainActivityViewModel.getUserEmail()
                             binding.avatar.load(authData.userProfile?.artwork?.url)

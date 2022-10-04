@@ -32,10 +32,10 @@ import foundation.e.apps.categories.model.CategoriesRVAdapter
 import foundation.e.apps.databinding.FragmentAppsBinding
 import foundation.e.apps.login.AuthObject
 import foundation.e.apps.utils.exceptions.GPlayValidationException
-import foundation.e.apps.utils.parentFragment.TimeoutFragment2
+import foundation.e.apps.utils.parentFragment.TimeoutFragment
 
 @AndroidEntryPoint
-class AppsFragment : TimeoutFragment2(R.layout.fragment_apps) {
+class AppsFragment : TimeoutFragment(R.layout.fragment_apps) {
     private var _binding: FragmentAppsBinding? = null
     private val binding get() = _binding!!
 

@@ -49,12 +49,12 @@ import foundation.e.apps.utils.exceptions.GPlayException
 import foundation.e.apps.utils.exceptions.GPlayValidationException
 import foundation.e.apps.utils.modules.CommonUtilsModule.safeNavigate
 import foundation.e.apps.utils.modules.PWAManagerModule
-import foundation.e.apps.utils.parentFragment.TimeoutFragment2
+import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class HomeFragment : TimeoutFragment2(R.layout.fragment_home), FusedAPIInterface {
+class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface {
 
     /*
      * Make adapter nullable to avoid memory leaks.

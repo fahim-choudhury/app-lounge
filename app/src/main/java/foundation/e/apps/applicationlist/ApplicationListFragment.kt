@@ -47,13 +47,13 @@ import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.exceptions.GPlayValidationException
 import foundation.e.apps.utils.modules.PWAManagerModule
-import foundation.e.apps.utils.parentFragment.TimeoutFragment2
+import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class ApplicationListFragment :
-    TimeoutFragment2(R.layout.fragment_application_list),
+    TimeoutFragment(R.layout.fragment_application_list),
     FusedAPIInterface {
 
     private val args: ApplicationListFragmentArgs by navArgs()
