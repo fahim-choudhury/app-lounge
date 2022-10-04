@@ -68,7 +68,6 @@
         android:textColor="?android:textColorPrimary"
         android:textSize="16sp"
         app:layout_constraintLeft_toRightOf="@+id/app_icon_card"
-        app:layout_constraintRight_toLeftOf="@+id/installButton"
         app:layout_constraintTop_toTopOf="@+id/app_icon_card"
         tools:text="Google Chrome - Fast and Secured" />
 
@@ -96,7 +95,7 @@
         android:progressBackgroundTint="@color/colorAccent"
         android:progressTint="@color/colorAccent"
         android:stepSize="0.1"
-        app:layout_constraintBottom_toBottomOf="@id/app_icon_card"
+        app:layout_constraintTop_toBottomOf="@+id/installButton"
         app:layout_constraintLeft_toLeftOf="@+id/app_title" />
 
     <TextView
@@ -141,7 +140,7 @@
         app:autoSizeTextType="uniform"
         app:cornerRadius="4dp"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/app_title" />
+        app:layout_constraintTop_toBottomOf="@+id/app_title" />
 
     <ProgressBar
         android:id="@+id/progressBarInstall"

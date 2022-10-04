@@ -472,7 +472,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         appSize: MaterialTextView
     ) {
         installButton.apply {
-            text = getString(R.string.retry)
+            enableInstallButton(R.string.retry)
             setOnClickListener {
                 applicationIcon?.let {
                     mainActivityViewModel.getApplication(fusedApp, it)
@@ -508,7 +508,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         downloadPB: RelativeLayout,
         appSize: MaterialTextView
     ) {
-        installButton.isEnabled = false
+        installButton.disableInstallButton(R.string.installing)
         downloadPB.visibility = View.GONE
         appSize.visibility = View.VISIBLE
     }
@@ -520,6 +520,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         appSize: MaterialTextView
     ) {
         installButton.apply {
+            enableInstallButton(R.string.cancel)
             text = getString(R.string.cancel)
             setOnClickListener {
                 mainActivityViewModel.cancelDownload(fusedApp)
@@ -543,6 +544,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         downloadPB.visibility = View.GONE
         appSize.visibility = View.VISIBLE
         installButton.apply {
+            enableInstallButton(R.string.cancel)
             text = getString(R.string.cancel)
             setOnClickListener {
                 mainActivityViewModel.cancelDownload(fusedApp)
@@ -557,6 +559,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         appSize: MaterialTextView
     ) {
         installButton.apply {
+            enableInstallButton(R.string.install)
             text = when {
                 mainActivityViewModel.checkUnsupportedApplication(fusedApp) ->
                     getString(R.string.not_available)
@@ -569,6 +572,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 }
                 applicationIcon?.let {
                     if (fusedApp.isFree) {
+                        disableInstallButton(R.string.cancel)
                         installApplication(fusedApp, it)
                     } else {
                         if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(fusedApp)) {
@@ -592,6 +596,24 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
         downloadPB.visibility = View.GONE
         appSize.visibility = View.VISIBLE
+    }
+
+    private fun MaterialButton.disableInstallButton(buttonStringID: Int) {
+        isEnabled = false
+        text = context.getString(buttonStringID)
+        strokeColor = ContextCompat.getColorStateList(context, R.color.light_grey)
+        setTextColor(context.getColor(R.color.light_grey))
+        backgroundTintList =
+            ContextCompat.getColorStateList(context, android.R.color.transparent)
+    }
+
+    private fun MaterialButton.enableInstallButton(buttonStringID: Int) {
+        isEnabled = true
+        text = context.getString(buttonStringID)
+        strokeColor = ContextCompat.getColorStateList(context, R.color.colorAccent)
+        setTextColor(context.getColor(R.color.colorAccent))
+        backgroundTintList =
+            ContextCompat.getColorStateList(context, android.R.color.transparent)
     }
 
     private fun installApplication(
@@ -620,6 +642,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         appSize: MaterialTextView
     ) {
         installButton.apply {
+            enableInstallButton(R.string.not_available)
             text = if (mainActivityViewModel.checkUnsupportedApplication(fusedApp))
                 getString(R.string.not_available)
             else getString(R.string.update)
@@ -649,8 +672,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         downloadPB.visibility = View.GONE
         appSize.visibility = View.VISIBLE
         installButton.apply {
-            isEnabled = true
-            text = getString(R.string.open)
+            enableInstallButton(R.string.open)
             setTextColor(Color.WHITE)
             backgroundTintList =
                 ContextCompat.getColorStateList(view.context, R.color.colorAccent)

@@ -18,7 +18,6 @@
 
 package foundation.e.apps.home.model
 
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -41,6 +40,8 @@ import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.databinding.HomeChildListItemBinding
 import foundation.e.apps.home.HomeFragmentDirections
+import foundation.e.apps.utils.disableInstallButton
+import foundation.e.apps.utils.enableInstallButton
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
@@ -108,13 +109,13 @@ class HomeChildRVAdapter(
                     handleUpdatable(view, homeApp)
                 }
                 Status.UNAVAILABLE -> {
-                    handleUnavailable(homeApp, holder, view)
+                    handleUnavailable(homeApp, holder)
                 }
                 Status.QUEUED, Status.AWAITING, Status.DOWNLOADING, Status.DOWNLOADED -> {
                     handleQueued(view, homeApp)
                 }
                 Status.INSTALLING, Status.UNINSTALLING -> {
-                    handleInstalling(view)
+                    handleInstalling()
                 }
                 Status.BLOCKED -> {
                     handleBlocked(view)
@@ -131,14 +132,8 @@ class HomeChildRVAdapter(
         homeApp: FusedApp
     ) {
         installButton.apply {
+            enableInstallButton()
             text = view.context.getString(R.string.retry)
-            setTextColor(context.getColor(R.color.colorAccent))
-            backgroundTintList = ContextCompat.getColorStateList(
-                view.context,
-                android.R.color.transparent
-            )
-            strokeColor =
-                ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
                 installApplication(homeApp, appIcon)
             }
@@ -147,6 +142,7 @@ class HomeChildRVAdapter(
     }
 
     private fun HomeChildListItemBinding.handleBlocked(view: View) {
+        installButton.enableInstallButton()
         installButton.setOnClickListener {
             val errorMsg = when (mainActivityViewModel.getUser()) {
                 User.ANONYMOUS,
@@ -160,17 +156,10 @@ class HomeChildRVAdapter(
         progressBarInstall.visibility = View.GONE
     }
 
-    private fun HomeChildListItemBinding.handleInstalling(view: View) {
+    private fun HomeChildListItemBinding.handleInstalling() {
         installButton.apply {
-            isEnabled = false
-            setTextColor(context.getColor(R.color.light_grey))
+            disableInstallButton()
             text = context.getString(R.string.installing)
-            backgroundTintList = ContextCompat.getColorStateList(
-                view.context,
-                android.R.color.transparent
-            )
-            strokeColor =
-                ContextCompat.getColorStateList(view.context, R.color.light_grey)
         }
         progressBarInstall.visibility = View.GONE
     }
@@ -180,6 +169,7 @@ class HomeChildRVAdapter(
         homeApp: FusedApp
     ) {
         installButton.apply {
+            enableInstallButton()
             text = context.getString(R.string.cancel)
             setTextColor(context.getColor(R.color.colorAccent))
             backgroundTintList = ContextCompat.getColorStateList(
@@ -199,22 +189,16 @@ class HomeChildRVAdapter(
     private fun HomeChildListItemBinding.handleUnavailable(
         homeApp: FusedApp,
         holder: ViewHolder,
-        view: View
     ) {
         installButton.apply {
             updateUIByPaymentType(homeApp, this, holder.binding)
-            setTextColor(context.getColor(R.color.colorAccent))
-            backgroundTintList = ContextCompat.getColorStateList(
-                view.context,
-                android.R.color.transparent
-            )
-            strokeColor =
-                ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
                 if (mainActivityViewModel.checkUnsupportedApplication(homeApp, context)) {
                     return@setOnClickListener
                 }
                 if (homeApp.isFree) {
+                    disableInstallButton()
+                    text = context.getString(R.string.cancel)
                     installApplication(homeApp, appIcon)
                 } else {
                     paidAppHandler?.invoke(homeApp)
@@ -228,14 +212,10 @@ class HomeChildRVAdapter(
         homeApp: FusedApp
     ) {
         installButton.apply {
+            enableInstallButton(Status.UPDATABLE)
             text = if (mainActivityViewModel.checkUnsupportedApplication(homeApp))
                 context.getString(R.string.not_available)
             else context.getString(R.string.update)
-            setTextColor(Color.WHITE)
-            backgroundTintList =
-                ContextCompat.getColorStateList(view.context, R.color.colorAccent)
-            strokeColor =
-                ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
                 if (mainActivityViewModel.checkUnsupportedApplication(homeApp, context)) {
                     return@setOnClickListener
@@ -251,13 +231,8 @@ class HomeChildRVAdapter(
         homeApp: FusedApp
     ) {
         installButton.apply {
-            isEnabled = true
+            enableInstallButton(Status.INSTALLED)
             text = context.getString(R.string.open)
-            setTextColor(Color.WHITE)
-            backgroundTintList =
-                ContextCompat.getColorStateList(view.context, R.color.colorAccent)
-            strokeColor =
-                ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
                 if (homeApp.is_pwa) {
                     mainActivityViewModel.launchPwa(homeApp)
@@ -276,22 +251,22 @@ class HomeChildRVAdapter(
     ) {
         when {
             mainActivityViewModel.checkUnsupportedApplication(homeApp) -> {
-                materialButton.isEnabled = true
+                materialButton.enableInstallButton()
                 materialButton.text = materialButton.context.getString(R.string.not_available)
             }
             homeApp.isFree -> {
-                materialButton.isEnabled = true
+                materialButton.enableInstallButton()
                 materialButton.text = materialButton.context.getString(R.string.install)
                 homeChildListItemBinding.progressBarInstall.visibility = View.GONE
             }
             else -> {
-                materialButton.isEnabled = false
+                materialButton.disableInstallButton()
                 materialButton.text = ""
                 homeChildListItemBinding.progressBarInstall.visibility = View.VISIBLE
                 lifecycleOwner?.let {
                     appInfoFetchViewModel.isAppPurchased(homeApp).observe(it) {
-                        materialButton.isEnabled = true
                         homeChildListItemBinding.progressBarInstall.visibility = View.GONE
+                        materialButton.enableInstallButton()
                         materialButton.text =
                             if (it) materialButton.context.getString(R.string.install) else homeApp.price
                     }
