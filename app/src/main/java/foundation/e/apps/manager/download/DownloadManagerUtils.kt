@@ -63,6 +63,7 @@ class DownloadManagerUtils @Inject constructor(
                     val numberOfDownloadedItems =
                         fusedDownload.downloadIdMap.values.filter { it }.size
                     Timber.d("===> updateDownloadStatus: ${fusedDownload.name}: $downloadId: $numberOfDownloadedItems/${fusedDownload.downloadIdMap.size}")
+
                     if (validateDownload(numberOfDownloadedItems, fusedDownload, downloadId)) {
                         Timber.d("===> Download is completed for: ${fusedDownload.name}")
                         fusedManagerRepository.moveOBBFileToOBBDirectory(fusedDownload)
