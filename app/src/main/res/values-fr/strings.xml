@@ -17,7 +17,7 @@
     <string name="preference_update_notify_available_title">Afficher les mises à jour disponibles</string>
     <string name="preference_update_notify_available_description">Afficher une notification lorsque des mises à jour d\'applications sont disponibles</string>
     <string name="Show_applications">Afficher les applications :</string>
-    <string name="Show_commercial_apps">Afficher toutes les applications</string>
+    <string name="Show_common_apps">Afficher toutes les applications</string>
     <string name="show_only_pwa_apps">Afficher les PWA uniquement</string>
     <string name="account">Compte</string>
     <string name="terms_services">Conditions de Service</string>

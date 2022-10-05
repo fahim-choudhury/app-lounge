@@ -61,7 +61,7 @@
     <string name="preference_update_notify_available_title">Show available updates</string>
     <string name="preference_update_notify_available_description">Show a notification when app updates are available</string>
     <string name="Show_applications">Show applications:</string>
-    <string name="Show_commercial_apps">Show commercial apps</string>
+    <string name="Show_common_apps">Show common apps</string>
     <string name="show_only_open_source_apps">Show open source apps</string>
     <string name="show_only_pwa_apps">Show PWAs</string>
     <string name="about">About</string>

@@ -34,39 +34,47 @@ import java.net.URL
 @HiltWorker
 class UpdatesWorker @AssistedInject constructor(
     @Assisted private val context: Context,
-    @Assisted params: WorkerParameters,
+    @Assisted private val params: WorkerParameters,
     private val updatesManagerRepository: UpdatesManagerRepository,
     private val fusedAPIRepository: FusedAPIRepository,
     private val fusedManagerRepository: FusedManagerRepository,
     private val dataStoreModule: DataStoreModule,
     private val gson: Gson,
 ) : CoroutineWorker(context, params) {
+
+    companion object {
+        const val IS_AUTO_UPDATE = "IS_AUTO_UPDATE"
+    }
+
     val TAG = UpdatesWorker::class.simpleName
     private var shouldShowNotification = true
     private var automaticInstallEnabled = true
     private var onlyOnUnmeteredNetwork = false
+    private var isAutoUpdate = true // indicates it is auto update or user initiated update
 
     override suspend fun doWork(): Result {
         return try {
+            isAutoUpdate = params.inputData.getBoolean(IS_AUTO_UPDATE, true)
             checkForUpdates()
             Result.success()
         } catch (e: Throwable) {
             Result.failure()
+        } finally {
+            if (shouldShowNotification && automaticInstallEnabled) {
+                UpdatesNotifier.cancelNotification(context)
+            }
         }
     }
 
     private suspend fun checkForUpdates() {
         loadSettings()
+        val isConnectedToUnmeteredNetwork = isConnectedToUnmeteredNetwork(applicationContext)
         val authData = getAuthData()
         val appsNeededToUpdate = updatesManagerRepository.getUpdates(authData).first
-        val isConnectedToUnmeteredNetwork = isConnectedToUnmeteredNetwork(applicationContext)
-        /*
-         * Show notification only if enabled.
-         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5376
-         */
-        if (shouldShowNotification) {
-            handleNotification(appsNeededToUpdate, isConnectedToUnmeteredNetwork)
+        if (isAutoUpdate && shouldShowNotification) {
+            handleNotification(appsNeededToUpdate.size, isConnectedToUnmeteredNetwork)
         }
+
         triggerUpdateProcessOnSettings(
             isConnectedToUnmeteredNetwork,
             appsNeededToUpdate,
@@ -79,7 +87,7 @@ class UpdatesWorker @AssistedInject constructor(
         appsNeededToUpdate: List<FusedApp>,
         authData: AuthData
     ) {
-        if (automaticInstallEnabled &&
+        if ((!isAutoUpdate || automaticInstallEnabled) &&
             applicationContext.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         ) {
             if (onlyOnUnmeteredNetwork && isConnectedToUnmeteredNetwork) {
@@ -91,13 +99,13 @@ class UpdatesWorker @AssistedInject constructor(
     }
 
     private fun handleNotification(
-        appsNeededToUpdate: List<FusedApp>,
+        numberOfAppsNeedUpdate: Int,
         isConnectedToUnmeteredNetwork: Boolean
     ) {
-        if (appsNeededToUpdate.isNotEmpty()) {
-            UpdatesNotifier().showNotification(
+        if (numberOfAppsNeedUpdate > 0) {
+            UpdatesNotifier.showNotification(
                 applicationContext,
-                appsNeededToUpdate.size,
+                numberOfAppsNeedUpdate,
                 automaticInstallEnabled,
                 onlyOnUnmeteredNetwork,
                 isConnectedToUnmeteredNetwork

@@ -9,6 +9,7 @@ import foundation.e.apps.api.fdroid.FdroidRepository
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.download.data.DownloadProgress
+import foundation.e.apps.manager.workmanager.InstallWorkManager
 import foundation.e.apps.utils.enums.Status
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -34,6 +35,16 @@ class FusedManagerRepository @Inject constructor(
     }
 
     suspend fun addDownload(fusedDownload: FusedDownload) {
+        if (InstallWorkManager.checkWorkIsAlreadyAvailable(fusedDownload.id)) {
+            return
+        }
+
+        val existingFusedDownload = fusedManagerImpl.getDownloadById(fusedDownload)
+        // We don't want to add any thing, if it already exists without INSTALLATION_ISSUE
+        if (existingFusedDownload != null && existingFusedDownload.status != Status.INSTALLATION_ISSUE) {
+            return
+        }
+
         return fusedManagerImpl.addDownload(fusedDownload)
     }
 

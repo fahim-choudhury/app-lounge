@@ -20,6 +20,7 @@ package foundation.e.apps.manager.download
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.api.DownloadManager
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.utils.enums.Origin
@@ -36,8 +37,9 @@ import javax.inject.Singleton
 
 @Singleton
 class DownloadManagerUtils @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val fusedManagerRepository: FusedManagerRepository,
-    @ApplicationContext private val context: Context
+    private val downloadManager: DownloadManager
 ) {
     private val TAG = DownloadManagerUtils::class.java.simpleName
     private val mutex = Mutex()
@@ -57,11 +59,13 @@ class DownloadManagerUtils @Inject constructor(
                 delay(1500) // Waiting for downloadmanager to publish the progress of last bytes
                 val fusedDownload = fusedManagerRepository.getFusedDownload(downloadId)
                 if (fusedDownload.id.isNotEmpty()) {
-                    fusedDownload.downloadIdMap[downloadId] = true
-                    fusedManagerRepository.updateFusedDownload(fusedDownload)
-                    val downloaded = fusedDownload.downloadIdMap.values.filter { it }.size
-                    Timber.d("===> updateDownloadStatus: ${fusedDownload.name}: $downloadId: $downloaded/${fusedDownload.downloadIdMap.size}")
-                    if (downloaded == fusedDownload.downloadIdMap.size && checkCleanApkSignatureOK(fusedDownload)) {
+                    updateDownloadIdMap(fusedDownload, downloadId)
+                    val numberOfDownloadedItems =
+                        fusedDownload.downloadIdMap.values.filter { it }.size
+                    Timber.d("===> updateDownloadStatus: ${fusedDownload.name}: $downloadId: $numberOfDownloadedItems/${fusedDownload.downloadIdMap.size}")
+
+                    if (validateDownload(numberOfDownloadedItems, fusedDownload, downloadId)) {
+                        Timber.d("===> Download is completed for: ${fusedDownload.name}")
                         fusedManagerRepository.moveOBBFileToOBBDirectory(fusedDownload)
                         fusedDownload.status = Status.DOWNLOADED
                         fusedManagerRepository.updateFusedDownload(fusedDownload)
@@ -69,6 +73,29 @@ class DownloadManagerUtils @Inject constructor(
                 }
             }
         }
+    }
+
+    private suspend fun validateDownload(
+        numberOfDownloadedItems: Int,
+        fusedDownload: FusedDownload,
+        downloadId: Long
+    ) = downloadManager.isDownloadSuccessful(downloadId) &&
+        areAllFilesDownloaded(
+            numberOfDownloadedItems,
+            fusedDownload
+        ) && checkCleanApkSignatureOK(fusedDownload)
+
+    private fun areAllFilesDownloaded(
+        numberOfDownloadedItems: Int,
+        fusedDownload: FusedDownload
+    ) = numberOfDownloadedItems == fusedDownload.downloadIdMap.size
+
+    private suspend fun updateDownloadIdMap(
+        fusedDownload: FusedDownload,
+        downloadId: Long
+    ) {
+        fusedDownload.downloadIdMap[downloadId] = true
+        fusedManagerRepository.updateFusedDownload(fusedDownload)
     }
 
     private suspend fun checkCleanApkSignatureOK(fusedDownload: FusedDownload): Boolean {
