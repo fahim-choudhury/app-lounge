@@ -97,7 +97,7 @@ class ApplicationListFragment :
         binding.toolbarTitleTV.text = args.translation
         binding.toolbar.apply {
             setNavigationOnClickListener {
-                view.findNavController().navigate(R.id.categoriesFragment)
+                view.findNavController().navigateUp()
             }
         }
     }

@@ -74,6 +74,10 @@ class FusedManagerImpl @Inject constructor(
         databaseRepository.addDownload(fusedDownload)
     }
 
+    suspend fun getDownloadById(fusedDownload: FusedDownload): FusedDownload? {
+        return databaseRepository.getDownloadById(fusedDownload.id)
+    }
+
     suspend fun getDownloadList(): List<FusedDownload> {
         return databaseRepository.getDownloadList()
     }
