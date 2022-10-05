@@ -181,6 +181,10 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         if (applicationViewModel.appStatus.value == null) {
             applicationViewModel.appStatus.value = it.status
         }
+
+        if (it.other_images_path.isEmpty()) {
+            binding.recyclerView.visibility = View.GONE
+        }
         screenshotsRVAdapter.setData(it.other_images_path)
 
         // Title widgets
@@ -322,6 +326,10 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 appAuthor.text = it
             }
             categoryTitle.text = it.category
+            if (it.origin == Origin.CLEANAPK) {
+                sourceTag.visibility = View.VISIBLE
+                sourceTag.text = it.source
+            }
             if (origin == Origin.CLEANAPK) {
                 appIcon.load(CleanAPKInterface.ASSET_URL + it.icon_image_path)
             } else {
