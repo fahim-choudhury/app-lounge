@@ -8,6 +8,7 @@ before_script:
   - export GRADLE_USER_HOME=$(pwd)/.gradle
   - chmod +x ./gradlew
 
+
 # Debug build related jobs
 buildDebug:
   stage: debug
@@ -17,6 +18,20 @@ buildDebug:
     paths:
       - app/build/outputs/apk/debug/
 
+test:
+  allow_failure: true
+  stage: debug
+  script:
+    - ls /usr/lib/jvm/
+    - ./gradlew test -PtestAccountName="$testAccountName" -PtestAccountPwd="$testAccountPwd" -PtestServerUrl="$testServerUrl"
+  artifacts:
+    when: always
+    paths:
+      - app/build/test-results/*/TEST-*.xml
+      - app/build/reports/tests/*
+    reports:
+      junit: app/build/test-results/*/TEST-*.xml
+      
 # Default lint configuration for debug builds
 # Manual as we don't want to run them generally for debug builds
 .lintDebugDefault:
