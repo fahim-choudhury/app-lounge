@@ -172,7 +172,6 @@ class ApplicationListRVAdapter(
     private fun ApplicationListItemBinding.updateRating(searchApp: FusedApp) {
         if (searchApp.ratings.usageQualityScore != -1.0) {
             appRating.text = searchApp.ratings.usageQualityScore.toString()
-            appRatingBar.rating = searchApp.ratings.usageQualityScore.toFloat()
         }
     }
 
@@ -456,6 +455,7 @@ class ApplicationListRVAdapter(
             searchApp.isFree -> {
                 materialButton.enableInstallButton()
                 materialButton.text = materialButton.context.getString(R.string.install)
+                materialButton.strokeColor = ContextCompat.getColorStateList(holder.itemView.context, R.color.light_grey)
                 applicationListItemBinding.progressBarInstall.visibility = View.GONE
             }
             else -> {
