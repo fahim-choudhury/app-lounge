@@ -24,7 +24,7 @@
     android:id="@+id/applicationList"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="5dp"
+    android:layout_margin="10dp"
     android:background="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true">
@@ -41,8 +41,8 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/app_icon_card"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
         app:cardCornerRadius="12dp"
         app:cardElevation="0dp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -63,11 +63,12 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="2dp"
         android:layout_marginEnd="4dp"
-        android:ellipsize="end"
-        android:maxLines="1"
         android:textColor="?android:textColorPrimary"
-        android:textSize="16sp"
+        android:textSize="13sp"
+        android:singleLine="true"
+        android:ellipsize="end"
         app:layout_constraintLeft_toRightOf="@+id/app_icon_card"
+        app:layout_constraintRight_toLeftOf="@+id/installButton"
         app:layout_constraintTop_toTopOf="@+id/app_icon_card"
         tools:text="Google Chrome - Fast and Secured" />
 
@@ -78,25 +79,22 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textColor="?android:textColorPrimary"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@+id/app_rating_bar"
+        android:alpha=".6"
+        android:textSize="13sp"
+        app:layout_constraintTop_toTopOf="@+id/app_icon_card"
         app:layout_constraintLeft_toLeftOf="@+id/app_title"
         app:layout_constraintRight_toLeftOf="@+id/installButton"
-        app:layout_constraintTop_toBottomOf="@+id/app_title"
+        app:layout_constraintBottom_toBottomOf="@+id/app_icon_card"
         tools:text="App author" />
 
-    <RatingBar
-        android:id="@+id/app_rating_bar"
-        style="?android:attr/ratingBarStyleSmall"
+    <ImageView
+        android:id="@+id/icon_star"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:isIndicator="true"
-        android:numStars="5"
-        android:progressBackgroundTint="@color/colorAccent"
-        android:progressTint="@color/colorAccent"
-        android:stepSize="0.1"
-        app:layout_constraintTop_toBottomOf="@+id/installButton"
-        app:layout_constraintLeft_toLeftOf="@+id/app_title" />
+        android:src="@drawable/ic_star"
+        android:layout_marginBottom="1dp"
+        app:layout_constraintBottom_toBottomOf="@+id/app_icon_card"
+        app:layout_constraintLeft_toLeftOf="@+id/app_author"/>
 
     <TextView
         android:id="@+id/app_rating"
@@ -107,10 +105,10 @@
         android:maxLines="1"
         android:text="@string/not_available"
         android:textColor="?android:textColorPrimary"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="@+id/app_rating_bar"
-        app:layout_constraintLeft_toRightOf="@+id/app_rating_bar"
-        app:layout_constraintTop_toTopOf="@+id/app_rating_bar" />
+        android:textSize="13sp"
+        app:layout_constraintTop_toTopOf="@+id/icon_star"
+        app:layout_constraintBottom_toBottomOf="@+id/icon_star"
+        app:layout_constraintLeft_toRightOf="@+id/icon_star" />
 
     <TextView
         android:id="@+id/showMore"
@@ -131,16 +129,15 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/installButton"
         style="@style/InstallButtonStyle"
-        android:layout_width="120dp"
-        android:layout_height="43dp"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
         android:text="@string/install"
-        android:textAllCaps="false"
-        android:textSize="18sp"
+        android:textAllCaps="true"
         android:visibility="invisible"
-        app:autoSizeTextType="uniform"
+        android:textSize="13sp"
         app:cornerRadius="4dp"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/app_title" />
+        app:layout_constraintTop_toTopOf="@+id/app_title" />
 
     <ProgressBar
         android:id="@+id/progressBarInstall"
@@ -160,13 +157,13 @@
         android:layout_marginEnd="4dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/sourceTag"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/installButton">
+        app:layout_constraintTop_toTopOf="@+id/sourceTag">
 
         <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
             android:src="@drawable/ic_lock" />
 
         <TextView
@@ -178,7 +175,7 @@
             android:maxLines="1"
             android:text="@string/not_available"
             android:textColor="?android:textColorPrimary"
-            android:textSize="14sp"
+            android:textSize="13sp"
             android:visibility="gone" />
 
         <ProgressBar
@@ -202,18 +199,10 @@
         android:text="Open Source"
         android:textAllCaps="false"
         android:textColor="#626262"
-        android:textSize="14sp"
+        android:textSize="13sp"
         app:layout_constraintBottom_toBottomOf="@id/app_rating"
         app:layout_constraintLeft_toRightOf="@+id/app_rating"
         app:layout_constraintRight_toLeftOf="@+id/appPrivacyScoreLayout"
         app:layout_constraintTop_toTopOf="@id/app_rating" />
-
-    <View
-        android:id="@+id/divider"
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginTop="12dp"
-        android:background="@color/colorGrey"
-        app:layout_constraintTop_toBottomOf="@+id/app_rating_bar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
