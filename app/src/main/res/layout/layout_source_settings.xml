@@ -52,9 +52,9 @@ android:gravity="center_vertical" android:paddingRight="?android:attr/scrollbarS
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="false"
-                android:textColor="@android:color/black"
                 android:textAppearance="?android:attr/textAppearanceMediumInverse"
                 android:textSize="16sp"
+                android:textColor="?android:attr/textColorPrimary"
                 android:layout_marginTop="12dp"
                 android:fadingEdge="horizontal" />
 
