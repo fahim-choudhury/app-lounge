@@ -20,17 +20,15 @@ package foundation.e.apps.categories
 
 import android.os.Bundle
 import android.view.View
-import com.aurora.gplayapi.data.models.AuthData
+import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
 import foundation.e.apps.categories.model.CategoriesVPAdapter
 import foundation.e.apps.databinding.FragmentCategoriesBinding
-import foundation.e.apps.utils.parentFragment.TimeoutFragment
-import timber.log.Timber
 
 @AndroidEntryPoint
-class CategoriesFragment : TimeoutFragment(R.layout.fragment_categories) {
+class CategoriesFragment : Fragment(R.layout.fragment_categories) {
     private var _binding: FragmentCategoriesBinding? = null
     private val binding get() = _binding!!
 
@@ -55,25 +53,4 @@ class CategoriesFragment : TimeoutFragment(R.layout.fragment_categories) {
         super.onDestroyView()
         _binding = null
     }
-
-    override fun onTimeout() {
-        val position = binding.viewPager.currentItem
-
-        val fragment = childFragmentManager.fragments.find {
-            when (position) {
-                0 -> it is AppsFragment
-                1 -> it is GamesFragment
-                else -> false
-            }
-        }
-
-        fragment?.let {
-            if (it is TimeoutFragment) {
-                Timber.d("Showing timeout on Categories fragment: " + it::class.java.name)
-                it.onTimeout()
-            }
-        }
-    }
-
-    override fun refreshData(authData: AuthData) {}
 }

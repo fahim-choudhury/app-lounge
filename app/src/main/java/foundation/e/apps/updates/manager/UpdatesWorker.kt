@@ -26,6 +26,7 @@ import foundation.e.apps.manager.workmanager.InstallWorkManager
 import foundation.e.apps.updates.UpdatesNotifier
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Type
+import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.modules.DataStoreModule
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
@@ -66,11 +67,40 @@ class UpdatesWorker @AssistedInject constructor(
         }
     }
 
+    private fun getUser(): User {
+        return dataStoreModule.getUserType()
+    }
+
     private suspend fun checkForUpdates() {
         loadSettings()
         val isConnectedToUnmeteredNetwork = isConnectedToUnmeteredNetwork(applicationContext)
+        val appsNeededToUpdate = mutableListOf<FusedApp>()
+        val user = getUser()
         val authData = getAuthData()
-        val appsNeededToUpdate = updatesManagerRepository.getUpdates(authData).first
+
+        if (user in listOf(User.ANONYMOUS, User.GOOGLE) && authData != null) {
+            /*
+             * Signifies valid Google user and valid auth data to update
+             * apps from Google Play store.
+             * The user check will be more useful in No Google mode.
+             */
+            appsNeededToUpdate.addAll(updatesManagerRepository.getUpdates(authData).first)
+        } else if (user != User.UNAVAILABLE) {
+            /*
+             * If authData is null, update apps from cleanapk only.
+             */
+            appsNeededToUpdate.addAll(updatesManagerRepository.getUpdatesOSS().first)
+        } else {
+            /*
+             * If user in UNAVAILABLE, don't do anything.
+             */
+            return
+        }
+
+        /*
+         * Show notification only if enabled.
+         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5376
+         */
         if (isAutoUpdate && shouldShowNotification) {
             handleNotification(appsNeededToUpdate.size, isConnectedToUnmeteredNetwork)
         }
@@ -78,7 +108,12 @@ class UpdatesWorker @AssistedInject constructor(
         triggerUpdateProcessOnSettings(
             isConnectedToUnmeteredNetwork,
             appsNeededToUpdate,
-            authData
+            /*
+             * If authData is null, only cleanApk data will be present
+             * in appsNeededToUpdate list. Hence it is safe to proceed with
+             * blank AuthData.
+             */
+            authData ?: AuthData("", ""),
         )
     }
 
@@ -113,9 +148,10 @@ class UpdatesWorker @AssistedInject constructor(
         }
     }
 
-    private fun getAuthData(): AuthData {
+    private fun getAuthData(): AuthData? {
         val authDataJson = dataStoreModule.getAuthDataSync()
-        return gson.fromJson(authDataJson, AuthData::class.java)
+        return if (authDataJson.isBlank()) return null
+        else gson.fromJson(authDataJson, AuthData::class.java)
     }
 
     private suspend fun startUpdateProcess(
