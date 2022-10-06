@@ -25,7 +25,6 @@ import android.os.Environment
 import android.os.StatFs
 import android.os.storage.StorageManager
 import android.view.View
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.distinctUntilChanged
@@ -335,19 +334,6 @@ class MainActivity : AppCompatActivity() {
         } else {
             getAvailableInternalMemorySize()
         }
-    }
-
-    private fun onSignInError() {
-        AlertDialog.Builder(this).apply {
-            setTitle(R.string.sign_in_failed_title)
-            setMessage(R.string.sign_in_failed_desc)
-            setPositiveButton(R.string.retry) { _, _ ->
-                viewModel.retryFetchingTokenAfterTimeout()
-            }
-            setNegativeButton(R.string.logout) { _, _ ->
-                viewModel.postFalseAuthValidity()
-            }
-        }.show()
     }
 
     private fun getAvailableInternalMemorySize(): Long {
