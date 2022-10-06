@@ -23,7 +23,6 @@ import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
-import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import foundation.e.apps.api.ResultSupreme
@@ -39,9 +38,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FusedAPIRepository @Inject constructor(
-    private val fusedAPIImpl: FusedAPIImpl
-) {
+class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPIImpl) {
 
     var streamBundle = StreamBundle()
         private set
@@ -91,13 +88,6 @@ class FusedAPIRepository @Inject constructor(
 
     fun getApplicationCategoryPreference(): String {
         return fusedAPIImpl.getApplicationCategoryPreference()
-    }
-
-    suspend fun validateAuthData(authData: AuthData): PlayResponse {
-        if (authData.authToken.isNotEmpty() && authData.deviceInfoProvider != null) {
-            return fusedAPIImpl.validateAuthData(authData)
-        }
-        return PlayResponse()
     }
 
     suspend fun getApplicationDetails(
@@ -163,14 +153,6 @@ class FusedAPIRepository @Inject constructor(
 
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {
         return fusedAPIImpl.getSearchSuggestions(query, authData)
-    }
-
-    suspend fun fetchAuthData(): Boolean {
-        return fusedAPIImpl.fetchAuthData()
-    }
-
-    suspend fun fetchAuthData(email: String, aasToken: String): AuthData? {
-        return fusedAPIImpl.fetchAuthData(email, aasToken)
     }
 
     fun getSearchResults(

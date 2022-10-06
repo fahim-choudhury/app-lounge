@@ -21,6 +21,7 @@ package foundation.e.apps.updates
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -30,25 +31,25 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.AppInfoFetchViewModel
 import foundation.e.apps.AppProgressViewModel
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.PrivacyInfoViewModel
 import foundation.e.apps.R
-import foundation.e.apps.api.fused.FusedAPIImpl
 import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.applicationlist.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentUpdatesBinding
+import foundation.e.apps.login.AuthObject
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.manager.workmanager.InstallWorkManager.INSTALL_WORK_NAME
 import foundation.e.apps.updates.manager.UpdatesWorkManager
-import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.utils.exceptions.GPlayException
+import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.modules.CommonUtilsModule.safeNavigate
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
@@ -85,7 +86,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
          * Explanation of double observers in HomeFragment.kt
          */
 
-        mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) {
+        /*mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) {
             if (!updatesViewModel.updatesList.value?.first.isNullOrEmpty()) {
                 return@observe
             }
@@ -93,6 +94,20 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         }
         mainActivityViewModel.authData.observe(viewLifecycleOwner) {
             refreshDataOrRefreshToken(mainActivityViewModel)
+        }*/
+
+        setupListening()
+
+        authObjects.observe(viewLifecycleOwner) {
+            if (it == null) return@observe
+            if (!updatesViewModel.updatesList.value?.first.isNullOrEmpty()) {
+                return@observe
+            }
+            loadData(it)
+        }
+
+        updatesViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
+            handleExceptionsCommon(it)
         }
 
         val recyclerView = binding.recyclerView
@@ -144,9 +159,9 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                     }
                 }
 
-            if (it.second != ResultStatus.OK) {
+            /*if (it.second != ResultStatus.OK) {
                 onTimeout()
-            }
+            }*/
         }
     }
 
@@ -166,7 +181,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         ).show(childFragmentManager, "UpdatesFragment")
     }
 
-    override fun onTimeout() {
+    /*override fun onTimeout() {
         if (!isTimeoutDialogDisplayed()) {
             stopLoadingUI()
             displayTimeoutAlertDialog(
@@ -194,11 +209,54 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                 allowCancel = true,
             )
         }
+    }*/
+
+    override fun onTimeout(
+        exception: Exception,
+        predefinedDialog: AlertDialog.Builder
+    ): AlertDialog.Builder? {
+        return predefinedDialog.apply {
+            if (exception is GPlayException) {
+                setMessage(R.string.timeout_desc_gplay)
+                setNegativeButton(R.string.open_settings) { _, _ ->
+                    openSettings()
+                }
+            } else {
+                setMessage(R.string.timeout_desc_cleanapk)
+            }
+        }
     }
 
-    override fun refreshData(authData: AuthData) {
+    override fun onSignInError(
+        exception: GPlayLoginException,
+        predefinedDialog: AlertDialog.Builder
+    ): AlertDialog.Builder? {
+        return predefinedDialog.apply {
+            setNegativeButton(R.string.open_settings) { _, _ ->
+                openSettings()
+            }
+        }
+    }
+
+    override fun onDataLoadError(
+        exception: Exception,
+        predefinedDialog: AlertDialog.Builder
+    ): AlertDialog.Builder? {
+        return predefinedDialog.apply {
+            if (exception is GPlayException) {
+                setNegativeButton(R.string.open_settings) { _, _ ->
+                    openSettings()
+                }
+            }
+        }
+    }
+
+    override fun loadData(authObjectList: List<AuthObject>) {
         showLoadingUI()
-        updatesViewModel.getUpdates(authData)
+        updatesViewModel.loadData(authObjectList) {
+            clearAndRestartGPlayLogin()
+            true
+        }
         binding.button.setOnClickListener {
             UpdatesWorkManager.startUpdateAllWork(requireContext().applicationContext)
             observeUpdateWork()
@@ -222,14 +280,14 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
             }
     }
 
-    private fun showLoadingUI() {
+    override fun showLoadingUI() {
         binding.button.isEnabled = false
         binding.noUpdates.visibility = View.GONE
         binding.progressBar.visibility = View.VISIBLE
         binding.recyclerView.visibility = View.INVISIBLE
     }
 
-    private fun stopLoadingUI() {
+    override fun stopLoadingUI() {
         binding.progressBar.visibility = View.GONE
         binding.recyclerView.visibility = View.VISIBLE
     }
@@ -239,7 +297,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
             updateProgressOfDownloadingItems(binding.recyclerView, it)
         }
-        resetTimeoutDialogLock()
+//        resetTimeoutDialogLock()
     }
 
     private fun observeDownloadList() {
