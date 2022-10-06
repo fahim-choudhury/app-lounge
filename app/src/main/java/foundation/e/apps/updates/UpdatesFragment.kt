@@ -30,7 +30,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.WorkInfo
-import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.AppInfoFetchViewModel

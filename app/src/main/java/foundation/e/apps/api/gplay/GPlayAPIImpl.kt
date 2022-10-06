@@ -18,7 +18,6 @@
 
 package foundation.e.apps.api.gplay
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import com.aurora.gplayapi.SearchSuggestEntry

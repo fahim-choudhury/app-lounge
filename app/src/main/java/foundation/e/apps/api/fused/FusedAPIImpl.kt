@@ -29,7 +29,6 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Artwork
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
-import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.TopChartsHelper
@@ -1044,7 +1043,7 @@ class FusedAPIImpl @Inject constructor(
 
     private fun getCategoryIconName(category: FusedCategory): String {
         var categoryTitle = if (category.tag.getOperationalTag()
-                .contentEquals(AppTag.GPlay().getOperationalTag())
+            .contentEquals(AppTag.GPlay().getOperationalTag())
         ) category.id else category.title
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
