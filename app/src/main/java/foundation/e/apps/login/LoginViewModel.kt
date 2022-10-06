@@ -37,6 +37,12 @@ class LoginViewModel @Inject constructor(
     /**
      * List of authentication objects which will determine from where to load the data.
      * (i.e. GPlay, CleanApk)
+     *
+     * Allow null as initial value.
+     * This prevents showing login screen before TOS is accepted.
+     * This also allows to set null immediately when sources are changed in Settings,
+     * and when [startLoginFlow] is called, fragments wait till actual AuthObjects
+     * are loaded instead of null.
      */
     val authObjects: MutableLiveData<List<AuthObject>?> = MutableLiveData(null)
 

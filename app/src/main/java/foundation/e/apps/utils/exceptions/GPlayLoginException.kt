@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022  E FOUNDATION
+ * Copyright (C) 2019-2022  MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,13 +20,12 @@ package foundation.e.apps.utils.exceptions
 import foundation.e.apps.utils.enums.User
 
 /**
- * This exception is specifically used when a GPlay auth data could not be validated.
- * This is not the case as timeout, this exception usually means the server informed that the
- * current auth data is not valid.
- * Use [networkCode] to be sure that the server call was successful (should be 200).
+ * Parent class for all GPlay login related errors.
+ * Examples:
+ * unable to get anonymous token, AuthData validation failed, aasToken error etc.
  */
-class GPlayValidationException(
-    message: String,
-    user: User,
-    val networkCode: Int,
-) : GPlayLoginException(false, message, user)
+open class GPlayLoginException(
+    isTimeout: Boolean,
+    message: String? = null,
+    val user: User,
+) : GPlayException(isTimeout, message)

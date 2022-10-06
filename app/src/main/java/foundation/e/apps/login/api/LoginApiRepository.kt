@@ -22,7 +22,8 @@ import com.aurora.gplayapi.data.models.PlayResponse
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.gplay.utils.AC2DMUtil
 import foundation.e.apps.utils.Constants.timeoutDurationInMillis
-import foundation.e.apps.utils.exceptions.GPlayException
+import foundation.e.apps.utils.enums.User
+import foundation.e.apps.utils.exceptions.GPlayLoginException
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 
@@ -37,6 +38,7 @@ import kotlinx.coroutines.withTimeout
  */
 class LoginApiRepository constructor(
     private val gPlayLoginInterface: GPlayLoginInterface,
+    private val user: User,
 ) {
 
     /**
@@ -54,8 +56,8 @@ class LoginApiRepository constructor(
         })
         return result.apply {
             this.exception = when (result) {
-                is ResultSupreme.Timeout -> GPlayException(true, "GPlay API timeout")
-                is ResultSupreme.Error -> GPlayException(false, result.message)
+                is ResultSupreme.Timeout -> GPlayLoginException(true, "GPlay API timeout", user)
+                is ResultSupreme.Error -> GPlayLoginException(false, result.message, user)
                 else -> null
             }
         }
@@ -70,18 +72,19 @@ class LoginApiRepository constructor(
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
      */
-    suspend fun login(authData: AuthData): ResultSupreme<PlayResponse?> {
+    suspend fun login(authData: AuthData): ResultSupreme<PlayResponse> {
+        var response = PlayResponse()
         val result = runCodeBlockWithTimeout({
-            val response = gPlayLoginInterface.login(authData)
+            response = gPlayLoginInterface.login(authData)
             if (response.code != 200) {
                 throw Exception("Validation network code: ${response.code}")
             }
             response
         })
-        return result.apply {
+        return ResultSupreme.replicate(result, response).apply {
             this.exception = when (result) {
-                is ResultSupreme.Timeout -> GPlayException(true, "GPlay API timeout")
-                is ResultSupreme.Error -> GPlayException(false, result.message)
+                is ResultSupreme.Timeout -> GPlayLoginException(true, "GPlay API timeout", user)
+                is ResultSupreme.Error -> GPlayLoginException(false, result.message, user)
                 else -> null
             }
         }
@@ -127,8 +130,8 @@ class LoginApiRepository constructor(
         })
         return result.apply {
             this.exception = when (result) {
-                is ResultSupreme.Timeout -> GPlayException(true, "GPlay API timeout")
-                is ResultSupreme.Error -> GPlayException(false, result.message)
+                is ResultSupreme.Timeout -> GPlayLoginException(true, "GPlay API timeout", User.GOOGLE)
+                is ResultSupreme.Error -> GPlayLoginException(false, result.message, User.GOOGLE)
                 else -> null
             }
         }

@@ -50,7 +50,7 @@ import foundation.e.apps.manager.workmanager.InstallWorkManager.INSTALL_WORK_NAM
 import foundation.e.apps.updates.manager.UpdatesWorkManager
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.exceptions.GPlayException
-import foundation.e.apps.utils.exceptions.GPlayValidationException
+import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.modules.CommonUtilsModule.safeNavigate
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
@@ -229,7 +229,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
     }
 
     override fun onSignInError(
-        exception: GPlayValidationException,
+        exception: GPlayLoginException,
         predefinedDialog: AlertDialog.Builder
     ): AlertDialog.Builder? {
         return predefinedDialog.apply {

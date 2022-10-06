@@ -45,7 +45,7 @@ import foundation.e.apps.login.AuthObject
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.exceptions.GPlayValidationException
+import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
@@ -288,7 +288,7 @@ class ApplicationListFragment :
     }
 
     override fun onSignInError(
-        exception: GPlayValidationException,
+        exception: GPlayLoginException,
         predefinedDialog: AlertDialog.Builder
     ): AlertDialog.Builder? {
         return predefinedDialog

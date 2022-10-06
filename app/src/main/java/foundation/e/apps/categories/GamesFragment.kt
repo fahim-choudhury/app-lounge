@@ -31,7 +31,7 @@ import foundation.e.apps.R
 import foundation.e.apps.categories.model.CategoriesRVAdapter
 import foundation.e.apps.databinding.FragmentGamesBinding
 import foundation.e.apps.login.AuthObject
-import foundation.e.apps.utils.exceptions.GPlayValidationException
+import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 
 @AndroidEntryPoint
@@ -87,7 +87,7 @@ class GamesFragment : TimeoutFragment(R.layout.fragment_games) {
     }
 
     override fun onSignInError(
-        exception: GPlayValidationException,
+        exception: GPlayLoginException,
         predefinedDialog: AlertDialog.Builder
     ): AlertDialog.Builder? {
         return predefinedDialog

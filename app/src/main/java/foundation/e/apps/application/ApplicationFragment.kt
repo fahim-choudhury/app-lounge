@@ -61,7 +61,7 @@ import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.enums.isInitialized
-import foundation.e.apps.utils.exceptions.GPlayValidationException
+import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
@@ -380,7 +380,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     override fun onSignInError(
-        exception: GPlayValidationException,
+        exception: GPlayLoginException,
         predefinedDialog: AlertDialog.Builder
     ): AlertDialog.Builder? {
         return predefinedDialog

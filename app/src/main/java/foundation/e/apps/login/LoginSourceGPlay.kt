@@ -51,7 +51,7 @@ class LoginSourceGPlay @Inject constructor(
         get() = gPlayApiFactory.getGPlayApi(user)
 
     private val loginApiRepository: LoginApiRepository
-        get() = LoginApiRepository(gPlayLoginInterface)
+        get() = LoginApiRepository(gPlayLoginInterface, user)
 
     override fun isActive(): Boolean {
         if (user == User.UNAVAILABLE) {
@@ -220,13 +220,12 @@ class LoginSourceGPlay @Inject constructor(
         } else {
             val message =
                 "Validating AuthData failed.\n\n" +
-                    "Network response code: ${playResponse?.code}.\n" +
                     "Success: ${playResponse?.isSuccessful}" +
-                    (validityResponse.exception?.let { "\nError message: ${it.message}" } ?: "")
+                    (validityResponse.exception?.let { "\n${it.message}" } ?: "")
 
             ResultSupreme.Error(
                 message,
-                GPlayValidationException(message, playResponse?.code ?: -1, user)
+                GPlayValidationException(message, user, playResponse?.code ?: -1)
             )
         }
     }

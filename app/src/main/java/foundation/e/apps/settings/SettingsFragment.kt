@@ -26,7 +26,6 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import androidx.preference.CheckBoxPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -60,6 +59,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
         ViewModelProvider(requireActivity())[LoginViewModel::class.java]
     }
 
+    private var sourcesChangedFlag = false
+
     @Inject
     lateinit var gson: Gson
 
@@ -68,6 +69,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     companion object {
         private const val TAG = "SettingsFragment"
+    }
+
+    private val allSourceCheckboxes by lazy {
+        listOf(showAllApplications, showFOSSApplications, showPWAApplications)
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -113,7 +118,34 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 true
             }
         }
+
+        allSourceCheckboxes.forEach {
+            it?.onPreferenceChangeListener = sourceCheckboxListener
+        }
     }
+
+    /**
+     * Checkbox listener to prevent all checkboxes from getting unchecked.
+     */
+    private val sourceCheckboxListener =
+        Preference.OnPreferenceChangeListener { preference: Preference, newValue: Any? ->
+
+            sourcesChangedFlag = true
+            loginViewModel.authObjects.value = null
+
+            val otherBoxesChecked =
+                allSourceCheckboxes.filter { it != preference }.any { it?.isChecked == true }
+
+            if (newValue == false && !otherBoxesChecked) {
+                (preference as CheckBoxPreference).isChecked = true
+                Toast.makeText(
+                    requireActivity(),
+                    R.string.select_one_source_of_applications,
+                    Toast.LENGTH_SHORT
+                ).show()
+                false
+            } else true
+        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -160,6 +192,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     override fun onDestroyView() {
+        if (sourcesChangedFlag) {
+            loginViewModel.startLoginFlow()
+        }
         super.onDestroyView()
         _binding = null
     }

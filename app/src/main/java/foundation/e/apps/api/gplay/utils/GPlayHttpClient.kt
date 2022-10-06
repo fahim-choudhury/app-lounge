@@ -21,7 +21,6 @@ package foundation.e.apps.api.gplay.utils
 
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.network.IHttpClient
-import foundation.e.apps.utils.Constants.timeoutDurationInMillis
 import okhttp3.Cache
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.HttpUrl
@@ -36,7 +35,6 @@ import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class GPlayHttpClient @Inject constructor(
@@ -51,10 +49,6 @@ class GPlayHttpClient @Inject constructor(
     }
 
     private val okHttpClient = OkHttpClient().newBuilder()
-        .connectTimeout(timeoutDurationInMillis, TimeUnit.MILLISECONDS)
-        .readTimeout(timeoutDurationInMillis, TimeUnit.MILLISECONDS)
-        .writeTimeout(timeoutDurationInMillis, TimeUnit.MILLISECONDS)
-        .callTimeout(timeoutDurationInMillis, TimeUnit.MILLISECONDS)
         .retryOnConnectionFailure(false)
         .followRedirects(true)
         .followSslRedirects(true)

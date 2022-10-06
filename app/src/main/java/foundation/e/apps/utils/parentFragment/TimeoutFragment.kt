@@ -31,6 +31,7 @@ import foundation.e.apps.login.LoginViewModel
 import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.exceptions.CleanApkException
 import foundation.e.apps.utils.exceptions.GPlayException
+import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.exceptions.GPlayValidationException
 import foundation.e.apps.utils.exceptions.UnknownSourceException
 
@@ -102,7 +103,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      * or null to not show anything.
      */
     abstract fun onSignInError(
-        exception: GPlayValidationException,
+        exception: GPlayLoginException,
         predefinedDialog: AlertDialog.Builder,
     ): AlertDialog.Builder?
 
@@ -220,7 +221,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      * instance if it deems fit. Else it may return null, at which case no error dialog
      * is shown to the user.
      */
-    fun showSignInError(exception: GPlayValidationException) {
+    fun showSignInError(exception: GPlayLoginException) {
 
         val dialogView = DialogErrorLogBinding.inflate(requireActivity().layoutInflater)
         dialogView.apply {
@@ -249,7 +250,10 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
 
             setPositiveButton(R.string.retry) { _, _ ->
                 showLoadingUI()
-                clearAndRestartGPlayLogin()
+                when (exception) {
+                    is GPlayValidationException -> clearAndRestartGPlayLogin()
+                    else -> loginViewModel.startLoginFlow()
+                }
             }
             setNegativeButton(R.string.logout) { _, _ ->
                 loginViewModel.logout()
@@ -332,7 +336,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
             gPlayException?.isTimeout == true -> showTimeout(gPlayException)
 
             // Handle sign-in error
-            gPlayException is GPlayValidationException -> showSignInError(gPlayException)
+            gPlayException is GPlayLoginException -> showSignInError(gPlayException)
 
             // Other errors - data loading error
             gPlayException != null -> showDataLoadError(gPlayException)
@@ -347,5 +351,14 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
                 )
             }
         }
+    }
+
+    /**
+     * Clear stale AuthObjects on fragment destruction.
+     * Useful if sources are changed in Settings and new AuthObjects are needed.
+     */
+    override fun onDestroyView() {
+        super.onDestroyView()
+        authObjects.value = null
     }
 }
