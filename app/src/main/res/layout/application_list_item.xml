@@ -133,11 +133,14 @@
         android:layout_height="40dp"
         android:text="@string/install"
         android:textAllCaps="true"
-        android:visibility="invisible"
-        android:textSize="13sp"
+        android:visibility="visible"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMinTextSize="5sp"
+        android:lines="1"
         app:cornerRadius="4dp"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/app_title" />
+        app:layout_constraintTop_toTopOf="@+id/app_title"
+        tools:text="Installing"/>
 
     <ProgressBar
         android:id="@+id/progressBarInstall"
