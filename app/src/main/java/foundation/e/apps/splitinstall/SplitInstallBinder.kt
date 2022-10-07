@@ -63,10 +63,12 @@ class SplitInstallBinder(
     private suspend fun downloadModule(packageName: String, moduleName: String) {
         withContext(Dispatchers.IO) {
             val versionCode = getPackageVersionCode(packageName)
-            val url = fusedAPIRepository.getOnDemandModule(
-                authData!!, packageName, moduleName,
-                versionCode, 1
-            ) ?: return@withContext
+            val url = fetchModuleUrl(packageName, moduleName, versionCode)
+
+            if (url == null) {
+                Timber.e("Could not find module name on the store: $moduleName")
+                return@withContext
+            }
 
             downloadManager.downloadFileInExternalStorage(
                 url, packageName, "$packageName.split.$moduleName.apk"
@@ -86,6 +88,26 @@ class SplitInstallBinder(
     private fun getPackageVersionCode(packageName: String): Int {
         val applicationInfo = context.packageManager.getPackageInfo(packageName, 0)
         return applicationInfo.versionCode
+    }
+
+    private suspend fun fetchModuleUrl(
+        packageName: String,
+        moduleName: String,
+        versionCode: Int
+    ): String? {
+        var url = fusedAPIRepository.getOnDemandModule(
+            authData!!, packageName, moduleName,
+            versionCode, 1
+        )
+
+        if (url == null) {
+            url = fusedAPIRepository.getOnDemandModule(
+                authData, packageName, "config.$moduleName",
+                versionCode, 1
+            )
+        }
+
+        return url
     }
 
     private fun installPendingModules() {
