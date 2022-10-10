@@ -111,7 +111,7 @@
     <string name="dialog_cancel">ANNULER</string>
     <string name="dialog_confirm">CONFIRMER</string>
     <string name="dialog_paidapp_message">Quand vous aurez cliqué sur confirmer, vous serez conduit à la page Google Play de l\'application pour terminer l\'achat depuis votre navigateur. Cliquez sur confirmer pour acheter %1$s pour %2$s.</string>
-    <string name="dialog_title_paid_app">Acheter <b>%1$s</b></string>
+    <string name="dialog_title_paid_app">Achetez <b>%1$s</b></string>
     <string name="anonymous_login_failed_desc">Cela peut être dû à l\'impossibilité de générer / vérifier le token ou à d\'autres raisons.
 \n
 \nCliquez sur Réessayer pour essayer de nouveau.</string>
@@ -123,7 +123,7 @@
 \nMerci de réessayer maintenant ou plus tard.</string>
     <string name="data_load_error">Une erreur est survenue pendant le chargement de l\'application.</string>
     <string name="more_info"><u>Plus d\'informations</u></string>
-    <string name="open_settings">Ouvrez les paramètres</string>
+    <string name="open_settings">Ouvrir les Paramètres</string>
     <string name="timeout_desc_cleanapk">Des problèmes de connexion empêchent de récupérer toutes les applications.</string>
     <string name="timeout_desc_gplay">Des problèmes de connexion empêchent de récupérer toutes les applications.
 \n
