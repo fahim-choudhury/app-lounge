@@ -5,7 +5,7 @@
     <string name="retry">Réessayer</string>
     <string name="ratings">Notes</string>
     <string name="rating">Note</string>
-    <string name="sign_in_anonymous">Anonyme</string>
+    <string name="sign_in_anonymous">Mode anonyme</string>
     <string name="tos_agree">Accepter</string>
     <string name="tos_agree_date">Accepté</string>
     <string name="preference_updates_title">Mises à jour</string>
@@ -35,7 +35,7 @@
     <string name="games">Jeux</string>
     <string name="open_source">Open Source</string>
     <string name="pwa">PWA</string>
-    <string name="sign_in_title">Connexion</string>
+    <string name="sign_in_title">Bienvenue</string>
     <string name="privacy">Confidentialité</string>
     <string name="privacy_score">Score de Confidentialité</string>
     <string name="privacy_analyses">Analyses de confidentialité</string>
