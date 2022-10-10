@@ -17,8 +17,8 @@
     <string name="preference_update_notify_available_title">Afficher les mises à jour disponibles</string>
     <string name="preference_update_notify_available_description">Afficher une notification lorsque des mises à jour d\'applications sont disponibles</string>
     <string name="Show_applications">Afficher les applications :</string>
-    <string name="Show_common_apps">Afficher toutes les applications</string>
-    <string name="show_only_pwa_apps">Afficher les PWA uniquement</string>
+    <string name="Show_common_apps">Afficher les applications répandues</string>
+    <string name="show_only_pwa_apps">Afficher les PWAs</string>
     <string name="account">Compte</string>
     <string name="terms_services">Conditions de Service</string>
     <string name="user_anonymous">Anonyme</string>
@@ -55,12 +55,12 @@
     <string name="auto_updates_notification">Les mises à jour d\'application seront installées automatiquement</string>
     <string name="manual_updates_notification">Les mises à jour d\'application ne seront pas installées automatiquement</string>
     <string name="discover">Découvrir</string>
-    <string name="top_updated_apps">Top des apps mises à jour</string>
-    <string name="top_updated_games">Top des jeux mis à jour</string>
-    <string name="popular_games_in_last_24_hours">Jeux populaires dans les dernières 24 h</string>
-    <string name="popular_apps_in_last_24_hours">Apps populaires dans les dernières 24 h</string>
-    <string name="popular_apps">Apps populaires</string>
-    <string name="popular_games">Jeux populaires</string>
+    <string name="top_updated_apps">Top des apps Open Source mises à jour</string>
+    <string name="top_updated_games">Top des jeux Open Source mis à jour</string>
+    <string name="popular_games_in_last_24_hours">Jeux populaires Open Source dans les dernières 24h</string>
+    <string name="popular_apps_in_last_24_hours">Apps populaires Open Source dans les dernières 24 h</string>
+    <string name="popular_apps">Apps PWA populaires</string>
+    <string name="popular_games">Jeux PWA populaires</string>
     <string name="topselling_free_apps">Top des apps gratuites</string>
     <string name="topselling_free_games">Top des jeux gratuits</string>
     <string name="movers_shakers_apps">Apps les plus en vogue</string>
@@ -78,7 +78,7 @@
     <string name="tos_disagree">Refuser</string>
     <string name="tos_warning">Avant de poursuivre, veuillez lire et approuver les Conditions de Service.</string>
     <string name="preference_update_wifi_only_description">Mettre à jour automatiquement les applications uniquement sur les réseaux illimités, tel que le Wi-Fi</string>
-    <string name="show_only_open_source_apps">Aff. applis Open Source uniquement</string>
+    <string name="show_only_open_source_apps">Afficher les applis Open Source</string>
     <string name="app_icon">Icône de l\'application</string>
     <string name="more">Plus</string>
     <string name="update">Mettre à jour</string>
@@ -94,8 +94,55 @@
     <string name="share_intent">Terminer \"<xliff:g id="rating">%1$s</xliff:g>\"
 \n<xliff:g id="rating">%2$s</xliff:g></string>
     <string name="category_icon">Icône de catégorie</string>
-    <string name="sign_in_desc">Utilisez un compte Google ou le Mode Anonyme pour vous connecter en privé.</string>
+    <string name="sign_in_desc">Connectez-vous à App Lounge en utilisant votre compte Google ou sélectionnez le mode Anonyme pour protéger votre vie privée.</string>
     <string name="topgrossing_apps">Apps les mieux classées</string>
     <string name="topgrossing_games">Jeux les mieux classés</string>
     <string name="all_apps_updated">Toutes les applications sont à jour</string>
+    <string name="select_one_source_of_applications">Merci de sélectionner au moins une source d\'applications.</string>
+    <string name="may_not_work_warning_message">Forcer l\'installation vous permettra de la télécharger et l\'installer, mais cela ne garantira pas son bon fonctionnement.<br/><br/> Tenter d\'installer des applications non supportées pourrait provoquer un crash ou ralentir le système.<br/><br/> Nous travaillons à améliorer la compatibilité de cette application dans un futur proche.</string>
+    <string name="this_app_may_not_work_properly">Cette application pourrait ne pas fonctionner correctement !</string>
+    <string name="install_anyway">Installer quand même</string>
+    <string name="unsupported_app_unreleased">L\'application %s n\'est pas supportée actuellement. Cela peut être dû au fait que l\'application n\'est pas encore publiée largement ou à une autre erreur.</string>
+    <string name="unsupported_app_title">App non supportée !</string>
+    <string name="purchase_error">Erreur lors de l\'achat !</string>
+    <string name="download_automatically_message">Votre application sera automatiquement téléchargée sur cet appareil</string>
+    <string name="purchase_complete">Achat finalisé !</string>
+    <string name="paid_app_anonymous_message">Les applications payantes ne peuvent pas être installées en mode anonyme. Veuillez vous connecter à votre compte Google pour installer les applications payantes.</string>
+    <string name="dialog_cancel">ANNULER</string>
+    <string name="dialog_confirm">CONFIRMER</string>
+    <string name="dialog_paidapp_message">Quand vous aurez cliqué sur confirmer, vous serez conduit à la page Google Play de l\'application pour terminer l\'achat depuis votre navigateur. Cliquez sur confirmer pour acheter %1$s pour %2$s.</string>
+    <string name="dialog_title_paid_app">Acheter <b>%1$s</b></string>
+    <string name="anonymous_login_failed_desc">Cela peut être dû à l\'impossibilité de générer / vérifier le token ou à d\'autres raisons.
+\n
+\nCliquez sur Réessayer pour essayer de nouveau.</string>
+    <string name="anonymous_login_failed">La connexion anonyme a échoué !</string>
+    <string name="sign_in_failed_desc">A cause d\'une erreur réseau, App Lounge n\'a pu récupérer les données de connexion Google.</string>
+    <string name="sign_in_failed_title">La connexion au compte Google a échoué !</string>
+    <string name="data_load_error_desc">Cela peut être dû à une absence de réponse du serveur ou à une autre erreur serveur.
+\n
+\nMerci de réessayer maintenant ou plus tard.</string>
+    <string name="data_load_error">Une erreur est survenue pendant le chargement de l\'application.</string>
+    <string name="more_info"><u>Plus d\'informations</u></string>
+    <string name="open_settings">Ouvrez les paramètres</string>
+    <string name="timeout_desc_cleanapk">Des problèmes réseau empêchent la récupération de toutes les applications.</string>
+    <string name="timeout_desc_gplay">Des problèmes réseau empêchent la récupération de toutes les applications.
+\n
+\nOuvrez les paramètres pour n\'afficher que les applications Open Source et PWA.</string>
+    <string name="timeout_title">Délai expiré pour récupérer les applications !</string>
+    <string name="tracker_information_not_found">Aucune information sur les pisteurs pour cette appli.</string>
+    <string name="discover_pwa">PWA à découvrir</string>
+    <string name="update_error">Erreur lors de la mise à jour !</string>
+    <string name="error_signature_mismatch">La mise à jour ne peut être appliquée car la signature de la mise à jour de %1$s ne correspond pas à la signature de la version installée sur votre téléphone. Pour y remédier vous pouvez désinstaller %1$s puis l\'installer de nouveau depuis App Lounge. <br/><br/> Note : Ce message n\'apparaîtra plus.</string>
+    <string name="gplay_data_for_oss">Il est impossible d\'afficher les applications Google Play quand seules les applications Open Source sont sélectionnées.</string>
+    <string name="show_more">Afficher plus</string>
+    <string name="something_went_wrong">Une erreur s\'est produite !</string>
+    <string name="app_not_found">Application non trouvée.</string>
+    <string name="not_enough_storage">Le stockage disponible n\'est pas suffisant pour télécharger cette application !</string>
+    <string name="close">Fermer</string>
+    <string name="installing">Installation en cours</string>
+    <string name="copied">Copié</string>
+    <string name="os_version">Version d\'/e/OS</string>
+    <string name="app_version_label">Version d\'App Lounge</string>
+    <string name="about">A propos</string>
+    <string name="or">ou</string>
 </resources>
