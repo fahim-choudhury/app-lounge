@@ -142,4 +142,7 @@
     <string name="more_info"><u>Mehr Info</u></string>
     <string name="gplay_data_for_oss">Google Play Apps können nicht angezeigt werden, wenn nur Open Source Apps anzeigen erlaubt sind.</string>
     <string name="close">Schließen</string>
+    <string name="anonymous_login_failed_desc">Dies kann verursacht sein durch einen Fehler bei der Generierung oder Verifizierung des Tokens.
+\n
+\nTippe auf „Nochmals versuchen“.</string>
 </resources>
