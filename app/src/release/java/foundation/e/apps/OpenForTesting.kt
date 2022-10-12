@@ -17,5 +17,5 @@
 
 package foundation.e.apps
 
-@Target(AnnotationTarget.CLASS)
+@Target(allowedTargets = [AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.CLASS])
 annotation class OpenForTesting

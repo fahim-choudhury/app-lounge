@@ -21,12 +21,12 @@ package foundation.e.apps
  * This annotation allows us to open some classes for mocking purposes while they are final in
  * release builds.
  */
-@Target(AnnotationTarget.ANNOTATION_CLASS)
+@Target(allowedTargets = [AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.CLASS])
 annotation class OpenClass
 
 /**
  * Annotate a class with [OpenForTesting] if you want it to be extendable in debug builds.
  */
 @OpenClass
-@Target(AnnotationTarget.CLASS)
+@Target(allowedTargets = [AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.CLASS])
 annotation class OpenForTesting

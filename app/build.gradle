@@ -106,6 +106,7 @@ kapt {
 allOpen {
     // allows mocking for classes w/o directly opening them for release builds
     annotation 'foundation.e.apps.OpenClass'
+    annotation 'foundation.e.apps.OpenForTesting'
 }
 
 dependencies {
