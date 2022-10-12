@@ -22,7 +22,6 @@ test:
   allow_failure: true
   stage: debug
   script:
-    - ls /usr/lib/jvm/
     - ./gradlew test -PtestAccountName="$testAccountName" -PtestAccountPwd="$testAccountPwd" -PtestServerUrl="$testServerUrl"
   artifacts:
     when: always
