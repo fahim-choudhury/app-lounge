@@ -140,7 +140,7 @@
         app:cornerRadius="4dp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/app_title"
-        tools:text="Installing"/>
+        tools:text="@string/installing"/>
 
     <ProgressBar
         android:id="@+id/progressBarInstall"
