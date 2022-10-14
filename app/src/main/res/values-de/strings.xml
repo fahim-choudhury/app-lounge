@@ -22,10 +22,10 @@
     <string name="preference_update_install_automatically_title">Aktualisierungen automatisch installieren</string>
     <string name="preference_update_notify_available_title">Zeige verfügbare Aktualisierungen</string>
     <string name="preference_update_notify_available_description">Benachrichtige, wenn App-Aktualisierungen verfügbar sind</string>
-    <string name="Show_applications">Zeige Anwendungen:</string>
-    <string name="show_only_open_source_apps">Zeige nur quelloffene Apps an</string>
-    <string name="Show_common_apps">Zeige alle Apps an</string>
-    <string name="show_only_pwa_apps">Zeige nur PWAs an</string>
+    <string name="Show_applications">Zeige Anwendungen an:</string>
+    <string name="show_only_open_source_apps">Zeige quelloffene Apps an</string>
+    <string name="Show_common_apps">Zeige allgemeine Apps an</string>
+    <string name="show_only_pwa_apps">Zeige PWAs an</string>
     <string name="account">Konto</string>
     <string name="terms_services">Nutzungsbedingungen</string>
     <string name="user_anonymous">Anonym</string>
@@ -79,7 +79,7 @@
     <string name="search_hint">App-Suche</string>
     <string name="sign_in_desc">Melde dich bei der App Lounge mit einem Google-Konto an, oder wähle den anonymen Modus aus, um dich geheim anzumelden.</string>
     <string name="preference_update_interval_title">Überprüfungsintervall für Aktualisierungen</string>
-    <string name="preference_update_install_automatically_description">App-Aktualisierungen und -Installationen im Hintergrund ausführen</string>
+    <string name="preference_update_install_automatically_description">Das Herunterladen und Installieren von App-Aktualisierungen im Hintergrund ausführen</string>
     <string name="share_intent">Siehe auch \"<xliff:g id="rating">%1$s</xliff:g>\"
 \n<xliff:g id="rating">%2$s</xliff:g></string>
     <string name="privacy_score">Datenschutz-Bewertung</string>
