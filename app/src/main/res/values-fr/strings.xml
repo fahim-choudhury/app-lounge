@@ -139,7 +139,7 @@
     <string name="app_not_found">Application non trouvée.</string>
     <string name="not_enough_storage">Le stockage disponible n\'est pas suffisant pour télécharger cette application !</string>
     <string name="close">Fermer</string>
-    <string name="installing">Installation en cours</string>
+    <string name="installing">En cours</string>
     <string name="copied">Copié</string>
     <string name="os_version">Version d\'/e/OS</string>
     <string name="app_version_label">Version d\'App Lounge</string>
