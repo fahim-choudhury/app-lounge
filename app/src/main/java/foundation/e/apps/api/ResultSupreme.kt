@@ -65,7 +65,7 @@ sealed class ResultSupreme<T> {
      * No valid data from processing.
      * Use [isUnknownError] to check.
      */
-    class Error<T>() : ResultSupreme<T>() {
+    open class Error<T>() : ResultSupreme<T>() {
         /**
          * @param message A String message to log or display to the user.
          * @param exception Optional exception from try-catch block.
@@ -82,6 +82,12 @@ sealed class ResultSupreme<T> {
         constructor(data: T, message: String = "") : this() {
             setData(data)
             this.message = message
+        }
+    }
+
+    class WorkError<T> constructor(data: T, payload: Any? = null) : Error<T>(data) {
+        init {
+            this.otherPayload = payload
         }
     }
 

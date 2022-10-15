@@ -17,6 +17,7 @@ import com.google.gson.Gson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import foundation.e.apps.R
+import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.cleanapk.CleanAPKInterface
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
@@ -25,9 +26,13 @@ import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.manager.workmanager.InstallWorkManager
 import foundation.e.apps.updates.UpdatesNotifier
 import foundation.e.apps.utils.enums.Origin
+import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.enums.User
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.modules.DataStoreModule
+import kotlinx.coroutines.delay
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.net.URL
@@ -52,6 +57,7 @@ class UpdatesWorker @AssistedInject constructor(
     private var automaticInstallEnabled = true
     private var onlyOnUnmeteredNetwork = false
     private var isAutoUpdate = true // indicates it is auto update or user initiated update
+    private var retryCount = 0
 
     override suspend fun doWork(): Result {
         return try {
@@ -77,44 +83,67 @@ class UpdatesWorker @AssistedInject constructor(
         val appsNeededToUpdate = mutableListOf<FusedApp>()
         val user = getUser()
         val authData = getAuthData()
-
+        var resultStatus = ResultStatus.OK
         if (user in listOf(User.ANONYMOUS, User.GOOGLE) && authData != null) {
             /*
              * Signifies valid Google user and valid auth data to update
              * apps from Google Play store.
              * The user check will be more useful in No Google mode.
              */
-            appsNeededToUpdate.addAll(updatesManagerRepository.getUpdates(authData).first)
+            val updateData = updatesManagerRepository.getUpdates(authData)
+            appsNeededToUpdate.addAll(updateData.first)
+            resultStatus = updateData.second
         } else if (user != User.UNAVAILABLE) {
             /*
              * If authData is null, update apps from cleanapk only.
              */
-            appsNeededToUpdate.addAll(updatesManagerRepository.getUpdatesOSS().first)
+            val updateData = updatesManagerRepository.getUpdatesOSS()
+            appsNeededToUpdate.addAll(updateData.first)
+            resultStatus = updateData.second
         } else {
             /*
              * If user in UNAVAILABLE, don't do anything.
              */
+            EventBus.invokeEvent(AppEvent.UpdateEvent(ResultSupreme.WorkError(ResultStatus.USER_NOT_AVAILABLE)))
             return
         }
 
-        /*
+        if (resultStatus != ResultStatus.OK) {
+            manageRetry()
+        } else {
+            /*
          * Show notification only if enabled.
          * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5376
          */
-        if (isAutoUpdate && shouldShowNotification) {
-            handleNotification(appsNeededToUpdate.size, isConnectedToUnmeteredNetwork)
-        }
+            retryCount = 0
+            if (isAutoUpdate && shouldShowNotification) {
+                handleNotification(appsNeededToUpdate.size, isConnectedToUnmeteredNetwork)
+            }
 
-        triggerUpdateProcessOnSettings(
-            isConnectedToUnmeteredNetwork,
-            appsNeededToUpdate,
-            /*
+            triggerUpdateProcessOnSettings(
+                isConnectedToUnmeteredNetwork,
+                appsNeededToUpdate,
+                /*
              * If authData is null, only cleanApk data will be present
              * in appsNeededToUpdate list. Hence it is safe to proceed with
              * blank AuthData.
              */
-            authData ?: AuthData("", ""),
-        )
+                authData ?: AuthData("", ""),
+            )
+        }
+    }
+
+    private suspend fun manageRetry() {
+        retryCount++
+        if (retryCount == 1) {
+            EventBus.invokeEvent(AppEvent.UpdateEvent(ResultSupreme.WorkError(ResultStatus.RETRY)))
+        }
+        if (retryCount <= 10) {
+            delay(3000)
+            checkForUpdates()
+        } else {
+            EventBus.invokeEvent(AppEvent.UpdateEvent(ResultSupreme.WorkError(ResultStatus.UNKNOWN)))
+        }
     }
 
     private suspend fun triggerUpdateProcessOnSettings(
@@ -184,7 +213,15 @@ class UpdatesWorker @AssistedInject constructor(
             try {
                 updateFusedDownloadWithAppDownloadLink(fusedApp, authData, fusedDownload)
             } catch (e: Exception) {
-                e.printStackTrace()
+                Timber.e(e)
+                EventBus.invokeEvent(
+                    AppEvent.UpdateEvent(
+                        ResultSupreme.WorkError(
+                            ResultStatus.UNKNOWN,
+                            fusedDownload
+                        )
+                    )
+                )
                 return@forEach
             }
 

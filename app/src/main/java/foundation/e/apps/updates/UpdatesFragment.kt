@@ -24,6 +24,7 @@ import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -37,22 +38,30 @@ import foundation.e.apps.AppProgressViewModel
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.PrivacyInfoViewModel
 import foundation.e.apps.R
+import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.applicationlist.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentUpdatesBinding
 import foundation.e.apps.login.AuthObject
+import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.manager.workmanager.InstallWorkManager.INSTALL_WORK_NAME
 import foundation.e.apps.updates.manager.UpdatesWorkManager
+import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.exceptions.GPlayException
 import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.modules.CommonUtilsModule.safeNavigate
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
+import foundation.e.apps.utils.toast
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -151,17 +160,39 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                 .observe(viewLifecycleOwner) { workInfoList ->
                     lifecycleScope.launchWhenResumed {
                         binding.button.isEnabled = !(
-                            it.first.isNullOrEmpty() ||
-                                updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(
-                                    workInfoList
+                                it.first.isNullOrEmpty() ||
+                                        updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(
+                                            workInfoList
+                                        )
                                 )
-                            )
                     }
                 }
 
             /*if (it.second != ResultStatus.OK) {
                 onTimeout()
             }*/
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            EventBus.events.flowWithLifecycle(viewLifecycleOwner.lifecycle)
+                .filter { appEvent -> appEvent is AppEvent.UpdateEvent }.collectLatest {
+                    val event = it.data as ResultSupreme.WorkError<*>
+                    when (event.data) {
+                        ResultStatus.USER_NOT_AVAILABLE -> {
+                            requireContext().toast(getString(R.string.user_not_available))
+                        }
+                        ResultStatus.RETRY -> {
+                            requireContext().toast(getString(R.string.message_retry))
+                        }
+                        else -> {
+                            if (event.otherPayload is FusedDownload) {
+                                requireContext().toast("${(event.otherPayload as FusedDownload).name} update is failed!")
+                            } else {
+                                requireContext().toast(getString(R.string.message_update_failed))
+                            }
+                        }
+                    }
+                }
         }
     }
 
@@ -272,7 +303,8 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                     listOf(
                         WorkInfo.State.FAILED,
                         WorkInfo.State.BLOCKED,
-                        WorkInfo.State.CANCELLED
+                        WorkInfo.State.CANCELLED,
+                        WorkInfo.State.SUCCEEDED
                     )
                 if (!it.isNullOrEmpty() && errorStates.contains(it.last().state)) {
                     binding.button.isEnabled = true
