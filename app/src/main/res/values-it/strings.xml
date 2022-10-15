@@ -37,8 +37,8 @@
     <string name="preference_update_notify_available_title">Mostra gli aggiornamenti disponibili</string>
     <string name="Show_applications">Mostra App:</string>
     <string name="Show_common_apps">Mostra tutte le App</string>
-    <string name="show_only_open_source_apps">Mostra solo le App open-source</string>
-    <string name="show_only_pwa_apps">Mostra solo le PWA</string>
+    <string name="show_only_open_source_apps">Mostra App open-source</string>
+    <string name="show_only_pwa_apps">Mostra le PWA</string>
     <string name="account">Account</string>
     <string name="terms_services">Regolamento</string>
     <string name="user_anonymous">Anonimo</string>
@@ -62,12 +62,12 @@
     <string name="auto_updates_notification">Gli aggiornamenti App verranno installati automaticamente</string>
     <string name="manual_updates_notification">Gli aggiornamenti App non verranno installati automaticamente</string>
     <string name="discover">Scopri</string>
-    <string name="popular_apps_in_last_24_hours">App più richieste nelle ultime 24 ore</string>
-    <string name="popular_games_in_last_24_hours">Giochi più richiesti nelle ultime 24 ore</string>
-    <string name="popular_apps">App più richieste</string>
-    <string name="popular_games">Giochi più richiesti</string>
-    <string name="top_updated_apps">Migliori App aggiornate</string>
-    <string name="top_updated_games">Migliori Giochi aggiornati</string>
+    <string name="popular_apps_in_last_24_hours">App Open Source più richieste nelle ultime 24 ore</string>
+    <string name="popular_games_in_last_24_hours">Giochi Open Source più richiesti nelle ultime 24 ore</string>
+    <string name="popular_apps">App PWA più richieste</string>
+    <string name="popular_games">Giochi PWA più richiesti</string>
+    <string name="top_updated_apps">Migliori App Open Source aggiornate</string>
+    <string name="top_updated_games">Migliori Giochi Open Source aggiornati</string>
     <string name="topselling_free_apps">Migliori App Free</string>
     <string name="topselling_free_games">Migliori Giochi Free</string>
     <string name="topgrossing_apps">Migliori App di successo</string>
@@ -132,4 +132,17 @@
     <string name="app_version_label">Versione di App Lounge</string>
     <string name="about">Informazioni</string>
     <string name="or">o</string>
+    <string name="select_one_source_of_applications">Scegli almeno un repository di App.</string>
+    <string name="anonymous_login_failed_desc">Ciò può essere dovuto all\'impossibilità di generare/verificare il token o ad altri motivi.
+\n
+\nPremi Ritenta per riprovare.</string>
+    <string name="anonymous_login_failed">Accesso anonimo non riuscito!</string>
+    <string name="data_load_error_desc">Ciò può essere dovuto al fatto che il server non risponde o ad altri errori del server.
+\n
+\nSi prega di riprovare adesso o più tardi.</string>
+    <string name="data_load_error">Si è verificato un errore durante il caricamento delle App.</string>
+    <string name="more_info"><u>Maggiori informazioni</u></string>
+    <string name="discover_pwa">Scopri le PWA</string>
+    <string name="gplay_data_for_oss">Non posso avviare l\'App Google Play se posso mostrare solo App open source.</string>
+    <string name="close">Chiudi</string>
 </resources>
