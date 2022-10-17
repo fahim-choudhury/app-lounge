@@ -19,9 +19,9 @@
 <resources>
     <!-- Settings Fragment -->
     <string-array name="update_interval_names">
-        <item>Daily</item>
-        <item>Weekly</item>
-        <item>Monthly</item>
+        <item>@string/daily</item>
+        <item>@string/weekly</item>
+        <item>@string/monthly</item>
     </string-array>
 
     <string-array name="update_interval_values">
