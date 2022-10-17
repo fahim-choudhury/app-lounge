@@ -33,6 +33,7 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import foundation.e.apps.R
+import foundation.e.apps.api.fused.UpdatesDao
 import foundation.e.apps.manager.database.DatabaseRepository
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.fused.FusedManagerRepository
@@ -192,9 +193,7 @@ class InstallAppWorker @AssistedInject constructor(
                 Timber.d("===> doWork: Installing ${fusedDownload.name} ${fusedDownload.status}")
             }
             Status.INSTALLED, Status.INSTALLATION_ISSUE -> {
-                isDownloading = false
-                unlockMutex()
-                Timber.d("===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}")
+                finishInstallation(fusedDownload, fusedDownload.status)
             }
             else -> {
                 isDownloading = false
@@ -205,6 +204,15 @@ class InstallAppWorker @AssistedInject constructor(
                 )
             }
         }
+    }
+
+    private fun finishInstallation(fusedDownload: FusedDownload, status: Status) {
+        if (status == Status.INSTALLED) {
+            UpdatesDao.removeUpdateIfExists(fusedDownload.packageName)
+        }
+        isDownloading = false
+        unlockMutex()
+        Timber.d("===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}")
     }
 
     private fun unlockMutex() {

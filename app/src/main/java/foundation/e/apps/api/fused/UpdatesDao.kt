@@ -20,7 +20,12 @@ package foundation.e.apps.api.fused
 import foundation.e.apps.api.fused.data.FusedApp
 
 object UpdatesDao {
-    var appsAwaitingForUpdate: List<FusedApp> = listOf()
+    private var _appsAwaitingForUpdate: MutableList<FusedApp> = mutableListOf()
+    var appsAwaitingForUpdate: List<FusedApp> = _appsAwaitingForUpdate
 
-    fun hasAnyAppsForUpdate() = appsAwaitingForUpdate.isNotEmpty()
+    fun addItemsForUpdate(appsNeedUpdate: List<FusedApp>) = _appsAwaitingForUpdate.addAll(appsNeedUpdate)
+
+    fun hasAnyAppsForUpdate() = _appsAwaitingForUpdate.isNotEmpty()
+
+    fun removeUpdateIfExists(packageName: String) = _appsAwaitingForUpdate.removeIf { it.package_name == packageName }
 }
