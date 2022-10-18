@@ -19,6 +19,10 @@ class TOSFragment : Fragment(R.layout.fragment_tos) {
     private var _binding: FragmentTosBinding? = null
     private val binding get() = _binding!!
 
+    /*
+     * Fix memory leaks related to WebView.
+     * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/485
+     */
     private var webView: WebView? = null
 
     private val viewModel: TOSViewModel by viewModels()
@@ -27,8 +31,12 @@ class TOSFragment : Fragment(R.layout.fragment_tos) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentTosBinding.bind(view)
         webView = binding.tosWebView
+        var canNavigate = false
 
         viewModel.tocStatus.observe(viewLifecycleOwner) {
+            if (canNavigate) {
+                view.findNavController().navigate(R.id.action_TOSFragment_to_signInFragment)
+            }
 
             if (it == true && webView != null) {
                 binding.TOSWarning.visibility = View.GONE
@@ -60,6 +68,7 @@ class TOSFragment : Fragment(R.layout.fragment_tos) {
 
         binding.agreeBT.setOnClickListener {
             viewModel.saveTOCStatus(true)
+            canNavigate = true
         }
     }
 

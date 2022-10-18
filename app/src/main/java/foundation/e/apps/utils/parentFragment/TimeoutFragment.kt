@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022  MURENA SAS
+ * Copyright (C) 2022  ECORP
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,348 +17,202 @@
 
 package foundation.e.apps.utils.parentFragment
 
+import android.app.Activity
+import android.view.KeyEvent
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AlertDialog
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModelProvider
+import com.aurora.gplayapi.data.models.AuthData
+import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.R
-import foundation.e.apps.databinding.DialogErrorLogBinding
-import foundation.e.apps.login.AuthObject
-import foundation.e.apps.login.LoginSourceGPlay
-import foundation.e.apps.login.LoginViewModel
-import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.exceptions.CleanApkException
-import foundation.e.apps.utils.exceptions.GPlayException
-import foundation.e.apps.utils.exceptions.GPlayLoginException
-import foundation.e.apps.utils.exceptions.GPlayValidationException
-import foundation.e.apps.utils.exceptions.UnknownSourceException
 
-/**
- * Parent class of all fragments.
- *
- * Mostly contains UI related code regarding dialogs to display.
- * Does also provide some interaction with [LoginViewModel].
- *
- * https://gitlab.e.foundation/e/backlog/-/issues/5680
+/*
+ * Parent class (extending fragment) for fragments which can display a timeout dialog
+ * for network calls exceeding timeout limit.
+ * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
  */
 abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
 
-    val loginViewModel: LoginViewModel by lazy {
-        ViewModelProvider(requireActivity())[LoginViewModel::class.java]
+    /*
+     * Alert dialog to show to user if App Lounge times out.
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
+     */
+    private var timeoutAlertDialog: AlertDialog? = null
+
+    abstract fun onTimeout()
+
+    /*
+     * Set this to true when timeout dialog is once shown.
+     * Set to false if user clicks "Retry".
+     * Use this to prevent repeatedly showing timeout dialog.
+     *
+     * Setting the value to true is automatically done from displayTimeoutAlertDialog().
+     * To set it as false, call resetTimeoutDialogLock().
+     *
+     * Timeout dialog maybe shown multiple times from MainActivity authData observer,
+     * MainActivityViewModel.downloadList observer, or simply from timing out while
+     * fetch the information for the fragment.
+     */
+    private var timeoutDialogShownLock: Boolean = false
+
+    /*
+     * Do call this in the "Retry" button block of timeout dialog.
+     * Also call this in onResume(), otherwise after screen off, the timeout dialog may not appear.
+     */
+    fun resetTimeoutDialogLock() {
+        timeoutDialogShownLock = false
     }
 
-    /**
-     * Fragments observe this list to load data.
-     * Fragments should not observe [loginViewModel]'s authObjects.
+    /*
+     * Recommended to put code to refresh data inside this block.
+     * But call refreshDataOrRefreshToken() to execute the refresh.
      */
-    val authObjects: MutableLiveData<List<AuthObject>?> = MutableLiveData()
+    abstract fun refreshData(authData: AuthData)
 
-    abstract fun loadData(authObjectList: List<AuthObject>)
-
-    abstract fun showLoadingUI()
-
-    abstract fun stopLoadingUI()
-
-    /**
-     * Override to contain code to execute in case of timeout.
-     * Do not call this function directly, use [showTimeout] for that.
-     *
-     * @param predefinedDialog An AlertDialog builder, already having some properties,
-     * Fragment can change the dialog properties and return as the result.
-     * By default:
-     * 1. Dialog title set to [R.string.timeout_title]
-     * 2. Dialog content set to [R.string.timeout_desc_cleanapk].
-     * 3. Dialog can show technical error info on clicking "More Info"
-     * 4. Has a positive button "Retry" which calls [LoginViewModel.startLoginFlow].
-     * 5. Has a negative button "Close" which just closes the dialog.
-     * 6. Dialog is cancellable.
-     *
-     * @return An alert dialog (created from [predefinedDialog]) to show a timeout dialog,
-     * or null to not show anything.
+    /*
+     * Checks if network connectivity is present.
+     * -- If yes, then checks if valid authData is present.
+     * ---- If yes, then dismiss timeout dialog (if showing) and call refreshData()
+     * ---- If no, then request new token data.
      */
-    abstract fun onTimeout(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder,
-    ): AlertDialog.Builder?
-
-    /**
-     * Override to contain code to execute in case of other sign in error.
-     * This can only happen for GPlay data as cleanapk does not need any login.
-     * Do not call this function directly, use [showSignInError] for that.
-     *
-     * @param predefinedDialog An AlertDialog builder, already having some properties,
-     * Fragment can change the dialog properties and return as the result.
-     * By default:
-     * 1. Dialog title set to [R.string.anonymous_login_failed] or [R.string.sign_in_failed_title]
-     * 2. Content set to [R.string.anonymous_login_failed_desc] or [R.string.sign_in_failed_desc]
-     * 3. Dialog can show technical error info on clicking "More Info"
-     * 4. Has a positive button "Retry" which calls [LoginViewModel.startLoginFlow],
-     *    passing the list of failed auth types.
-     * 5. Has a negative button "Logout" which logs the user out of App Lounge.
-     * 6. Dialog is cancellable.
-     *
-     * @return An alert dialog (created from [predefinedDialog]) to show a timeout dialog,
-     * or null to not show anything.
-     */
-    abstract fun onSignInError(
-        exception: GPlayLoginException,
-        predefinedDialog: AlertDialog.Builder,
-    ): AlertDialog.Builder?
-
-    /**
-     * Override to contain code to execute for error during loading data.
-     * Do not call this function directly, use [showDataLoadError] for that.
-     *
-     * @param predefinedDialog An AlertDialog builder, already having some properties,
-     * Fragment can change the dialog properties and return as the result.
-     * By default:
-     * 1. Dialog title set to [R.string.data_load_error].
-     * 2. Dialog content set to [R.string.data_load_error_desc].
-     * 3. Dialog can show technical error info on clicking "More Info"
-     * 4. Has a positive button "Retry" which calls [loadData].
-     * 5. Has a negative button "Close" which just closes the dialog.
-     * 6. Dialog is cancellable.
-     */
-    abstract fun onDataLoadError(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder,
-    ): AlertDialog.Builder?
-
-    /**
-     * Crucial to call this, other wise fragments will never receive any authentications.
-     */
-    fun setupListening() {
-        loginViewModel.authObjects.observe(viewLifecycleOwner) {
-            authObjects.postValue(it)
-        }
-    }
-
-    /**
-     * Call this to repopulate authObjects with old data, this can be used to refresh data
-     * from inside the observer on [authObjects].
-     */
-    fun repostAuthObjects() {
-        authObjects.postValue(loginViewModel.authObjects.value)
-    }
-
-    /**
-     * Clears saved GPlay AuthData and restarts login process to get
-     */
-    fun clearAndRestartGPlayLogin() {
-        loginViewModel.startLoginFlow(listOf(LoginSourceGPlay::class.java.simpleName))
-    }
-
-    /**
-     * Store the last shown dialog, so that when a new dialog is to be shown,
-     * the old dialog can be automatically dismissed.
-     */
-    private var lastDialog: AlertDialog? = null
-
-    /**
-     * Show a dialog, dismiss previously shown dialog in [lastDialog].
-     */
-    private fun showAndSetDialog(alertDialogBuilder: AlertDialog.Builder) {
-        alertDialogBuilder.create().run {
-            if (lastDialog?.isShowing == true) {
-                lastDialog?.dismiss()
-            }
-            this.show()
-            lastDialog = this
-        }
-    }
-
-    /**
-     * Call to trigger [onTimeout].
-     * Can be called from anywhere in the fragment.
-     *
-     * Calls [onTimeout], which may return a [AlertDialog.Builder]
-     * instance if it deems fit. Else it may return null, in which case no timeout dialog
-     * is shown to the user.
-     */
-    fun showTimeout(exception: Exception) {
-        val dialogView = DialogErrorLogBinding.inflate(requireActivity().layoutInflater)
-        dialogView.apply {
-            moreInfo.setOnClickListener {
-                logDisplay.isVisible = true
-                moreInfo.isVisible = false
-            }
-
-            val logToDisplay = exception.message ?: ""
-
-            if (logToDisplay.isNotBlank()) {
-                logDisplay.text = logToDisplay
-                moreInfo.isVisible = true
-            }
-        }
-        val predefinedDialog = AlertDialog.Builder(requireActivity()).apply {
-            setTitle(R.string.timeout_title)
-            setMessage(R.string.timeout_desc_cleanapk)
-            setView(dialogView.root)
-            setPositiveButton(R.string.retry) { _, _ ->
-                showLoadingUI()
-                loginViewModel.startLoginFlow()
-            }
-            setNegativeButton(R.string.close, null)
-            setCancelable(true)
-        }
-
-        onTimeout(
-            exception,
-            predefinedDialog,
-        )?.run {
-            stopLoadingUI()
-            showAndSetDialog(this)
-        }
-    }
-
-    /**
-     * Call to trigger [onSignInError].
-     * Only works if last loginUiAction was a failure case. Else nothing happens.
-     *
-     * Calls [onSignInError], which may return a [AlertDialog.Builder]
-     * instance if it deems fit. Else it may return null, at which case no error dialog
-     * is shown to the user.
-     */
-    fun showSignInError(exception: GPlayLoginException) {
-
-        val dialogView = DialogErrorLogBinding.inflate(requireActivity().layoutInflater)
-        dialogView.apply {
-
-            moreInfo.setOnClickListener {
-                logDisplay.isVisible = true
-                moreInfo.isVisible = false
-            }
-
-            val logToDisplay = exception.message ?: ""
-            if (logToDisplay.isNotBlank()) {
-                logDisplay.text = logToDisplay
-                moreInfo.isVisible = true
-            }
-        }
-        val predefinedDialog = AlertDialog.Builder(requireActivity()).apply {
-            if (exception.user == User.GOOGLE) {
-                setTitle(R.string.sign_in_failed_title)
-                setMessage(R.string.sign_in_failed_desc)
-            } else {
-                setTitle(R.string.anonymous_login_failed)
-                setMessage(R.string.anonymous_login_failed_desc)
-            }
-
-            setView(dialogView.root)
-
-            setPositiveButton(R.string.retry) { _, _ ->
-                showLoadingUI()
-                when (exception) {
-                    is GPlayValidationException -> clearAndRestartGPlayLogin()
-                    else -> loginViewModel.startLoginFlow()
+    fun refreshDataOrRefreshToken(mainActivityViewModel: MainActivityViewModel) {
+        if (mainActivityViewModel.internetConnection.value == true) {
+            mainActivityViewModel.authData.value?.let { authData ->
+                dismissTimeoutDialog()
+                refreshData(authData)
+            } ?: run {
+                if (mainActivityViewModel.authValidity.value != null) { // checking at least authvalidity is checked for once
+                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
                 }
             }
-            setNegativeButton(R.string.logout) { _, _ ->
-                loginViewModel.logout()
-            }
-            setCancelable(true)
-        }
-
-        onSignInError(
-            exception,
-            predefinedDialog,
-        )?.run {
-            stopLoadingUI()
-            showAndSetDialog(this)
         }
     }
 
     /**
-     * Call when there is an error during loading data (not error during authentication.)
+     * Display timeout alert dialog.
      *
-     * Calls [onDataLoadError] which may return a [AlertDialog.Builder]
-     * instance if it deems fit. Else it may return null, at which case no error dialog
-     * is shown to the user.
+     * @param activity Activity class. Basically the MainActivity.
+     * @param message Alert dialog body.
+     * @param positiveButtonText Positive button text. Example "Retry"
+     * @param positiveButtonBlock Code block when [positiveButtonText] is pressed.
+     * @param negativeButtonText Negative button text. Example "Retry"
+     * @param negativeButtonBlock Code block when [negativeButtonText] is pressed.
+     * @param positiveButtonText Positive button text. Example "Retry"
+     * @param positiveButtonBlock Code block when [positiveButtonText] is pressed.
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
-    fun showDataLoadError(exception: Exception) {
-
-        val dialogView = DialogErrorLogBinding.inflate(requireActivity().layoutInflater)
-        dialogView.apply {
-            moreInfo.setOnClickListener {
-                logDisplay.isVisible = true
-                moreInfo.isVisible = false
-            }
-            val logToDisplay = exception.message ?: ""
-            if (logToDisplay.isNotBlank()) {
-                logDisplay.text = logToDisplay
-                moreInfo.isVisible = true
-            }
-        }
-
-        val predefinedDialog = AlertDialog.Builder(requireActivity()).apply {
-            setTitle(R.string.data_load_error)
-            setMessage(R.string.data_load_error_desc)
-            setView(dialogView.root)
-            setPositiveButton(R.string.retry) { _, _ ->
-                showLoadingUI()
-                authObjects.value?.let { loadData(it) }
-            }
-            setNegativeButton(R.string.close, null)
-            setCancelable(true)
-        }
-
-        onDataLoadError(
-            exception,
-            predefinedDialog,
-        )?.run {
-            stopLoadingUI()
-            showAndSetDialog(this)
-        }
-    }
-
-    /**
-     * Common code to handle exceptions / errors during data loading.
-     * Can be overridden in child fragments.
-     */
-    open fun handleExceptionsCommon(exceptions: List<Exception>) {
-        val cleanApkException = exceptions.find { it is CleanApkException }?.run {
-            this as CleanApkException
-        }
-        val gPlayException = exceptions.find { it is GPlayException }?.run {
-            this as GPlayException
-        }
-        val unknownSourceException = exceptions.find { it is UnknownSourceException }
+    fun displayTimeoutAlertDialog(
+        timeoutFragment: TimeoutFragment,
+        activity: Activity,
+        message: String,
+        positiveButtonText: String? = null,
+        positiveButtonBlock: (() -> Unit)? = null,
+        negativeButtonText: String? = null,
+        negativeButtonBlock: (() -> Unit)? = null,
+        neutralButtonText: String? = null,
+        neutralButtonBlock: (() -> Unit)? = null,
+        allowCancel: Boolean = true,
+    ) {
 
         /*
-         * Take caution altering the cases.
-         * Cases to be defined from most restrictive to least restrictive.
+         * If timeout dialog is already shown, don't proceed.
          */
-        when {
-            // Handle timeouts
-            cleanApkException?.isTimeout == true -> showTimeout(cleanApkException)
-            gPlayException?.isTimeout == true -> showTimeout(gPlayException)
+        if (timeoutFragment.timeoutDialogShownLock) {
+            return
+        }
 
-            // Handle sign-in error
-            gPlayException is GPlayLoginException -> showSignInError(gPlayException)
+        val timeoutAlertDialogBuilder = AlertDialog.Builder(activity).apply {
 
-            // Other errors - data loading error
-            gPlayException != null -> showDataLoadError(gPlayException)
-            cleanApkException != null -> showDataLoadError(cleanApkException)
+            /*
+             * Set title.
+             */
+            setTitle(R.string.timeout_title)
 
-            // Unknown exception
-            unknownSourceException != null -> {
-                showAndSetDialog(
-                    AlertDialog.Builder(requireActivity())
-                        .setTitle(R.string.unknown_error)
-                        .setPositiveButton(R.string.close, null)
-                )
+            if (!allowCancel) {
+                /*
+                 * Prevent dismissing the dialog from pressing outside as it will only
+                 * show a blank screen below the dialog.
+                 */
+                setCancelable(false)
+                /*
+                 * If user presses back button to close the dialog without selecting anything,
+                 * close App Lounge.
+                 */
+                setOnKeyListener { dialog, keyCode, _ ->
+                    if (keyCode == KeyEvent.KEYCODE_BACK) {
+                        dialog.dismiss()
+                        activity.finish()
+                    }
+                    true
+                }
+            } else {
+                setCancelable(true)
+            }
+
+            /*
+             * Set message
+             */
+            setMessage(message)
+
+            /*
+             * Set buttons.
+             */
+            positiveButtonText?.let {
+                setPositiveButton(it) { _, _ ->
+                    positiveButtonBlock?.invoke()
+                }
+            }
+            negativeButtonText?.let {
+                setNegativeButton(it) { _, _ ->
+                    negativeButtonBlock?.invoke()
+                }
+            }
+            neutralButtonText?.let {
+                setNeutralButton(it) { _, _ ->
+                    neutralButtonBlock?.invoke()
+                }
             }
         }
+
+        /*
+         * Dismiss alert dialog if already being shown
+         */
+        try {
+            timeoutAlertDialog?.dismiss()
+        } catch (_: Exception) {
+        }
+
+        timeoutAlertDialog = timeoutAlertDialogBuilder.create()
+        timeoutAlertDialog?.show()
+
+        /*
+         * Mark timeout dialog is already shown.
+         */
+        timeoutFragment.timeoutDialogShownLock = true
     }
 
     /**
-     * Clear stale AuthObjects on fragment destruction.
-     * Useful if sources are changed in Settings and new AuthObjects are needed.
+     * Returns true if [timeoutAlertDialog] is displaying.
+     * Returs false if it is not initialised.
      */
-    override fun onDestroyView() {
-        super.onDestroyView()
-        authObjects.value = null
+    fun isTimeoutDialogDisplayed(): Boolean {
+        return timeoutAlertDialog?.isShowing == true
+    }
+
+    /**
+     * Dismisses the [timeoutAlertDialog] if it is being displayed.
+     * Does nothing if it is not being displayed.
+     * Caller need not check if the dialog is being displayed.
+     */
+    fun dismissTimeoutDialog() {
+        if (isTimeoutDialogDisplayed()) {
+            try {
+                timeoutAlertDialog?.dismiss()
+            } catch (_: Exception) {
+            }
+        }
     }
 }

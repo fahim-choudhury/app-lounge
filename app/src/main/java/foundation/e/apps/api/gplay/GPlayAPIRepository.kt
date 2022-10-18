@@ -24,12 +24,27 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.File
+import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import javax.inject.Inject
 
-class GPlayAPIRepository @Inject constructor(private val gPlayAPIImpl: GPlayAPIImpl) {
+class GPlayAPIRepository @Inject constructor(
+    private val gPlayAPIImpl: GPlayAPIImpl
+) {
+
+    suspend fun fetchAuthData(): Boolean {
+        return gPlayAPIImpl.fetchAuthData()
+    }
+
+    suspend fun fetchAuthData(email: String, aasToken: String): AuthData? {
+        return gPlayAPIImpl.fetchAuthData(email, aasToken)
+    }
+
+    suspend fun validateAuthData(authData: AuthData): PlayResponse {
+        return gPlayAPIImpl.validateAuthData(authData)
+    }
 
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {
         return gPlayAPIImpl.getSearchSuggestions(query, authData)

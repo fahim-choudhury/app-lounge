@@ -21,7 +21,6 @@ package foundation.e.apps.applicationlist
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -30,6 +29,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.AppInfoFetchViewModel
 import foundation.e.apps.AppProgressViewModel
@@ -41,11 +41,9 @@ import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.databinding.FragmentApplicationListBinding
-import foundation.e.apps.login.AuthObject
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
@@ -83,15 +81,15 @@ class ApplicationListFragment :
         setupRecyclerView(view)
         observeAppListLiveData()
 
-        setupListening()
+        /*
+         * Explanation of double observers in HomeFragment.kt
+         */
 
-        authObjects.observe(viewLifecycleOwner) {
-            if (it == null) return@observe
-            loadData(it)
+        mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) {
+            refreshDataOrRefreshToken(mainActivityViewModel)
         }
-
-        viewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
-            handleExceptionsCommon(it)
+        mainActivityViewModel.authData.observe(viewLifecycleOwner) {
+            refreshDataOrRefreshToken(mainActivityViewModel)
         }
     }
 
@@ -123,6 +121,11 @@ class ApplicationListFragment :
                 mainActivityViewModel.updateStatusOfFusedApps(it, list)
                 adapter.setData(it)
             }
+
+            /*
+             * Done in one line, so that on Ctrl+click on appListLiveData,
+             * we can see that it is being updated here.
+             */
         }
     }
 
@@ -136,17 +139,18 @@ class ApplicationListFragment :
         super.onResume()
 
         if (listAdapter.currentList.isNotEmpty() && viewModel.hasAnyAppInstallStatusChanged(listAdapter.currentList)) {
-            /*mainActivityViewModel.authData.value?.let {
+            mainActivityViewModel.authData.value?.let {
                 refreshData(it)
-            }*/
-            repostAuthObjects()
+            }
         }
     }
 
     private fun observeAppListLiveData() {
         viewModel.appListLiveData.observe(viewLifecycleOwner) {
             stopLoadingUI()
-            if (it.isSuccess()) {
+            if (!it.isSuccess()) {
+                onTimeout()
+            } else {
                 if (!isFusedAppsUpdated(it)) {
                     return@observe
                 }
@@ -226,7 +230,31 @@ class ApplicationListFragment :
         currentList
     )
 
-    override fun loadData(authObjectList: List<AuthObject>) {
+    override fun onTimeout() {
+        if (!isTimeoutDialogDisplayed()) {
+            stopLoadingUI()
+            displayTimeoutAlertDialog(
+                timeoutFragment = this,
+                activity = requireActivity(),
+                message = getString(R.string.timeout_desc_cleanapk),
+                positiveButtonText = getString(R.string.retry),
+                positiveButtonBlock = {
+                    showLoadingUI()
+                    resetTimeoutDialogLock()
+                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
+                },
+                negativeButtonText = getString(android.R.string.ok),
+                negativeButtonBlock = {},
+                allowCancel = true,
+            )
+        }
+    }
+
+    override fun refreshData(authData: AuthData) {
+
+        /*
+         * Code moved from onResume()
+         */
 
         /*
          * If details are once loaded, do not load details again,
@@ -239,10 +267,12 @@ class ApplicationListFragment :
          * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/478
          */
         showLoadingUI()
-        viewModel.loadData(args.category, args.browseUrl, args.source, authObjectList) {
-            clearAndRestartGPlayLogin()
-            true
-        }
+        viewModel.getList(
+            args.category,
+            args.browseUrl,
+            authData,
+            args.source
+        )
 
         if (args.source != "Open Source" && args.source != "PWA") {
             /*
@@ -253,10 +283,7 @@ class ApplicationListFragment :
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                     super.onScrollStateChanged(recyclerView, newState)
                     if (!recyclerView.canScrollVertically(1)) {
-                        viewModel.loadMore(
-                            authObjectList.find { it is AuthObject.GPlayAuth },
-                            args.browseUrl
-                        )
+                        viewModel.loadMore(authData, args.browseUrl)
                     }
                 }
             })
@@ -270,44 +297,20 @@ class ApplicationListFragment :
             binding.recyclerView.adapter.apply {
                 if (this is ApplicationListRVAdapter) {
                     onPlaceHolderShow = {
-                        viewModel.loadMore(
-                            authObjectList.find { it is AuthObject.GPlayAuth },
-                            args.browseUrl
-                        )
+                        viewModel.loadMore(authData, args.browseUrl)
                     }
                 }
             }
         }
     }
 
-    override fun onTimeout(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun onSignInError(
-        exception: GPlayLoginException,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun onDataLoadError(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun showLoadingUI() {
+    private fun showLoadingUI() {
         binding.shimmerLayout.startShimmer()
         binding.shimmerLayout.visibility = View.VISIBLE
         binding.recyclerView.visibility = View.GONE
     }
 
-    override fun stopLoadingUI() {
+    private fun stopLoadingUI() {
         binding.shimmerLayout.stopShimmer()
         binding.shimmerLayout.visibility = View.GONE
         binding.recyclerView.visibility = View.VISIBLE

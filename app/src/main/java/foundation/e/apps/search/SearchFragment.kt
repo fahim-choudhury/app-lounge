@@ -27,7 +27,6 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.LinearLayout
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.cursoradapter.widget.CursorAdapter
@@ -39,6 +38,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aurora.gplayapi.SearchSuggestEntry
+import com.aurora.gplayapi.data.models.AuthData
 import com.facebook.shimmer.ShimmerFrameLayout
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.AppInfoFetchViewModel
@@ -52,11 +52,9 @@ import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.applicationlist.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentSearchBinding
-import foundation.e.apps.login.AuthObject
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
@@ -94,7 +92,7 @@ class SearchFragment :
     private var noAppsFoundLayout: LinearLayout? = null
 
     /*
-     * Store the string from onQueryTextSubmit() and access it from loadData()
+     * Store the string from onQueryTextSubmit() and access it from refreshData()
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
     private var searchText = ""
@@ -116,17 +114,6 @@ class SearchFragment :
         val listAdapter = setupSearchResult(view)
 
         observeSearchResult(listAdapter)
-
-        setupListening()
-
-        authObjects.observe(viewLifecycleOwner) {
-            if (it == null) return@observe
-            loadData(it)
-        }
-
-        searchViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
-            handleExceptionsCommon(it)
-        }
     }
 
     private fun observeSearchResult(listAdapter: ApplicationListRVAdapter?) {
@@ -142,6 +129,13 @@ class SearchFragment :
             }
 
             observeScrollOfSearchResult(listAdapter)
+            if (searchText.isNotBlank() && !it.isSuccess()) {
+                /*
+                 * If blank check is not performed then timeout dialog keeps
+                 * popping up whenever search tab is opened.
+                 */
+                onTimeout()
+            }
         }
     }
 
@@ -259,42 +253,39 @@ class SearchFragment :
         }
     }
 
-    override fun onTimeout(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun onDataLoadError(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun onSignInError(
-        exception: GPlayLoginException,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun loadData(authObjectList: List<AuthObject>) {
-        showLoadingUI()
-        searchViewModel.loadData(searchText, viewLifecycleOwner, authObjectList) {
-            clearAndRestartGPlayLogin()
-            true
+    override fun onTimeout() {
+        if (!isTimeoutDialogDisplayed()) {
+            binding.loadingProgressBar.isVisible = false
+            stopLoadingUI()
+            displayTimeoutAlertDialog(
+                timeoutFragment = this,
+                activity = requireActivity(),
+                message = getString(R.string.timeout_desc_cleanapk),
+                positiveButtonText = getString(R.string.retry),
+                positiveButtonBlock = {
+                    showLoadingUI()
+                    resetTimeoutDialogLock()
+                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
+                },
+                negativeButtonText = getString(android.R.string.ok),
+                negativeButtonBlock = {},
+                allowCancel = true,
+            )
         }
     }
 
-    override fun showLoadingUI() {
+    override fun refreshData(authData: AuthData) {
+        showLoadingUI()
+        searchViewModel.getSearchResults(searchText, authData, viewLifecycleOwner)
+    }
+
+    private fun showLoadingUI() {
         binding.shimmerLayout.startShimmer()
         binding.shimmerLayout.visibility = View.VISIBLE
         binding.recyclerView.visibility = View.GONE
     }
 
-    override fun stopLoadingUI() {
+    private fun stopLoadingUI() {
         binding.shimmerLayout.stopShimmer()
         binding.shimmerLayout.visibility = View.GONE
         binding.recyclerView.visibility = View.VISIBLE
@@ -324,13 +315,16 @@ class SearchFragment :
 
     override fun onResume() {
         super.onResume()
+        resetTimeoutDialogLock()
         binding.shimmerLayout.startShimmer()
         appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
             updateProgressOfInstallingApps(it)
         }
 
         if (shouldRefreshData()) {
-            repostAuthObjects()
+            mainActivityViewModel.authData.value?.let {
+                refreshData(it)
+            }
         }
 
         if (searchText.isEmpty() && (recyclerView?.adapter as ApplicationListRVAdapter).currentList.isEmpty()) {
@@ -364,15 +358,15 @@ class SearchFragment :
              * Set the search text and call for network result.
              */
             searchText = text
-            repostAuthObjects()
+            refreshDataOrRefreshToken(mainActivityViewModel)
         }
         return false
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
         newText?.let { text ->
-            authObjects.value?.find { it is AuthObject.GPlayAuth }?.run {
-                searchViewModel.getSearchSuggestions(text, this as AuthObject.GPlayAuth)
+            mainActivityViewModel.authData.value?.let {
+                searchViewModel.getSearchSuggestions(text, it)
             }
         }
         return true
