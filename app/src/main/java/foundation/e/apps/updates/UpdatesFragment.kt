@@ -181,8 +181,8 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         }
     }
 
-    private fun handleUpdateEvent(it: AppEvent) {
-        val event = it.data as ResultSupreme.WorkError<*>
+    private fun handleUpdateEvent(appEvent: AppEvent) {
+        val event = appEvent.data as ResultSupreme.WorkError<*>
         when (event.data) {
             ResultStatus.USER_NOT_AVAILABLE -> {
                 requireContext().toast(getString(R.string.user_not_available))
