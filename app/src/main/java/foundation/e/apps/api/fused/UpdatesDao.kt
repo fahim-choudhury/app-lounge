@@ -20,8 +20,8 @@ package foundation.e.apps.api.fused
 import foundation.e.apps.api.fused.data.FusedApp
 
 object UpdatesDao {
-    private var _appsAwaitingForUpdate: MutableList<FusedApp> = mutableListOf()
-    var appsAwaitingForUpdate: List<FusedApp> = _appsAwaitingForUpdate
+    private val _appsAwaitingForUpdate: MutableList<FusedApp> = mutableListOf()
+    val appsAwaitingForUpdate: List<FusedApp> = _appsAwaitingForUpdate
 
     fun addItemsForUpdate(appsNeedUpdate: List<FusedApp>) = _appsAwaitingForUpdate.addAll(appsNeedUpdate)
 
