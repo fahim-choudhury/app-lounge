@@ -39,7 +39,6 @@ import foundation.e.apps.api.gplay.utils.GPlayHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 
 class GPlayAPIImpl @Inject constructor(private val gPlayHttpClient: GPlayHttpClient) {

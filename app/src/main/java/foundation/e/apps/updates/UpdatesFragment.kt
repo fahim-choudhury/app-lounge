@@ -160,11 +160,11 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                 .observe(viewLifecycleOwner) { workInfoList ->
                     lifecycleScope.launchWhenResumed {
                         binding.button.isEnabled = !(
-                                it.first.isNullOrEmpty() ||
-                                        updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(
-                                            workInfoList
-                                        )
+                            it.first.isNullOrEmpty() ||
+                                updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(
+                                    workInfoList
                                 )
+                            )
                     }
                 }
 
@@ -176,28 +176,39 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         viewLifecycleOwner.lifecycleScope.launch {
             EventBus.events.flowWithLifecycle(viewLifecycleOwner.lifecycle)
                 .filter { appEvent -> appEvent is AppEvent.UpdateEvent }.collectLatest {
-                    val event = it.data as ResultSupreme.WorkError<*>
-                    when (event.data) {
-                        ResultStatus.USER_NOT_AVAILABLE -> {
-                            requireContext().toast(getString(R.string.user_not_available))
-                        }
-                        ResultStatus.RETRY -> {
-                            requireContext().toast(getString(R.string.message_retry))
-                        }
-                        else -> {
-                            if (event.otherPayload is FusedDownload) {
-                                requireContext().toast(
-                                    getString(
-                                        R.string.message_update_failure_single_app,
-                                        (event.otherPayload as FusedDownload).name
-                                    )
-                                )
-                            } else {
-                                requireContext().toast(getString(R.string.message_update_failed))
-                            }
-                        }
-                    }
+                    handleUpdateEvent(it)
                 }
+        }
+    }
+
+    private fun handleUpdateEvent(it: AppEvent) {
+        val event = it.data as ResultSupreme.WorkError<*>
+        when (event.data) {
+            ResultStatus.USER_NOT_AVAILABLE -> {
+                requireContext().toast(getString(R.string.user_not_available))
+            }
+            ResultStatus.RETRY -> {
+                requireContext().toast(getString(R.string.message_retry))
+            }
+            else -> {
+                handleUnknownErrorEvent(event)
+            }
+        }
+    }
+
+    private fun handleUnknownErrorEvent(event: ResultSupreme.WorkError<*>) {
+        if (event.otherPayload == null) {
+            requireContext().toast(getString(R.string.message_update_failed))
+            return
+        }
+
+        if (event.otherPayload is FusedDownload) {
+            requireContext().toast(
+                getString(
+                    R.string.message_update_failure_single_app,
+                    (event.otherPayload as FusedDownload).name
+                )
+            )
         }
     }
 

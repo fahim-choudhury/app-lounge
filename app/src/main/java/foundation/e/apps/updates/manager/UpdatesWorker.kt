@@ -47,9 +47,10 @@ class UpdatesWorker @AssistedInject constructor(
     private val dataStoreModule: DataStoreModule,
     private val gson: Gson,
 ) : CoroutineWorker(context, params) {
-
     companion object {
         const val IS_AUTO_UPDATE = "IS_AUTO_UPDATE"
+        private const val MAX_RETRY_COUNT = 10
+        private const val DELAY_FOR_RETRY = 3000L
     }
 
     val TAG = UpdatesWorker::class.simpleName
@@ -84,22 +85,24 @@ class UpdatesWorker @AssistedInject constructor(
         val user = getUser()
         val authData = getAuthData()
         var resultStatus = ResultStatus.OK
+
+        fun fetchUpdate(updateData: Pair<List<FusedApp>, ResultStatus>) {
+            appsNeededToUpdate.addAll(updateData.first)
+            resultStatus = updateData.second
+        }
+
         if (user in listOf(User.ANONYMOUS, User.GOOGLE) && authData != null) {
             /*
              * Signifies valid Google user and valid auth data to update
              * apps from Google Play store.
              * The user check will be more useful in No Google mode.
              */
-            val updateData = updatesManagerRepository.getUpdates(authData)
-            appsNeededToUpdate.addAll(updateData.first)
-            resultStatus = updateData.second
+            fetchUpdate(updatesManagerRepository.getUpdates(authData))
         } else if (user != User.UNAVAILABLE) {
             /*
              * If authData is null, update apps from cleanapk only.
              */
-            val updateData = updatesManagerRepository.getUpdatesOSS()
-            appsNeededToUpdate.addAll(updateData.first)
-            resultStatus = updateData.second
+            fetchUpdate(updatesManagerRepository.getUpdatesOSS())
         } else {
             /*
              * If user in UNAVAILABLE, don't do anything.
@@ -138,8 +141,9 @@ class UpdatesWorker @AssistedInject constructor(
         if (retryCount == 1) {
             EventBus.invokeEvent(AppEvent.UpdateEvent(ResultSupreme.WorkError(ResultStatus.RETRY)))
         }
-        if (retryCount <= 10) {
-            delay(3000)
+
+        if (retryCount <= MAX_RETRY_COUNT) {
+            delay(DELAY_FOR_RETRY)
             checkForUpdates()
         } else {
             EventBus.invokeEvent(AppEvent.UpdateEvent(ResultSupreme.WorkError(ResultStatus.UNKNOWN)))

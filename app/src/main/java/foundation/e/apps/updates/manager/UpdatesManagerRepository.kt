@@ -22,7 +22,6 @@ import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.api.fused.UpdatesDao
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.utils.enums.ResultStatus
-import timber.log.Timber
 import javax.inject.Inject
 
 class UpdatesManagerRepository @Inject constructor(
@@ -30,7 +29,6 @@ class UpdatesManagerRepository @Inject constructor(
 ) {
 
     suspend fun getUpdates(authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
-        Timber.d("===> getUpdates: ${UpdatesDao.hasAnyAppsForUpdate()}")
         if (UpdatesDao.hasAnyAppsForUpdate()) {
             return Pair(UpdatesDao.appsAwaitingForUpdate, ResultStatus.OK)
         }
