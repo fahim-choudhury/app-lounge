@@ -128,8 +128,7 @@ class InstallAppWorker @AssistedInject constructor(
             .onEach {
                 val download = databaseRepository.getDownloadById(fusedDownload.id)
                 if (download == null) {
-                    isDownloading = false
-                    unlockMutex()
+                    finishInstallation()
                 } else {
                     handleFusedDownloadStatusCheckingException(download)
                     if (isAppDownloading(download)) {
@@ -151,8 +150,7 @@ class InstallAppWorker @AssistedInject constructor(
             handleFusedDownloadStatus(download)
         } catch (e: Exception) {
             Log.e(TAG, "observeDownload: ", e)
-            isDownloading = false
-            unlockMutex()
+            finishInstallation()
         }
     }
 
@@ -193,11 +191,11 @@ class InstallAppWorker @AssistedInject constructor(
                 Timber.d("===> doWork: Installing ${fusedDownload.name} ${fusedDownload.status}")
             }
             Status.INSTALLED, Status.INSTALLATION_ISSUE -> {
-                finishInstallation(fusedDownload, fusedDownload.status)
+                finishInstallation()
+                Timber.d("===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}")
             }
             else -> {
-                isDownloading = false
-                unlockMutex()
+                finishInstallation()
                 Log.wtf(
                     TAG,
                     "===> ${fusedDownload.name} is in wrong state ${fusedDownload.status}"
@@ -206,13 +204,9 @@ class InstallAppWorker @AssistedInject constructor(
         }
     }
 
-    private fun finishInstallation(fusedDownload: FusedDownload, status: Status) {
-        if (status == Status.INSTALLED) {
-            UpdatesDao.removeUpdateIfExists(fusedDownload.packageName)
-        }
+    private fun finishInstallation() {
         isDownloading = false
         unlockMutex()
-        Timber.d("===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}")
     }
 
     private fun unlockMutex() {
