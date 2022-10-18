@@ -25,9 +25,9 @@ import android.os.Environment
 import android.os.StatFs
 import android.os.storage.StorageManager
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
@@ -35,15 +35,12 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
-import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.exceptions.ApiException
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.databinding.ActivityMainBinding
-import foundation.e.apps.login.AuthObject
-import foundation.e.apps.login.LoginViewModel
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.workmanager.InstallWorkManager
 import foundation.e.apps.purchase.AppPurchaseFragmentDirections
@@ -53,12 +50,11 @@ import foundation.e.apps.updates.UpdatesNotifier
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
-import foundation.e.apps.utils.exceptions.GPlayValidationException
 import foundation.e.apps.utils.modules.CommonUtilsModule
+import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import timber.log.Timber
 import java.io.File
 import java.util.UUID
@@ -66,7 +62,6 @@ import java.util.UUID
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var signInViewModel: SignInViewModel
-    private lateinit var loginViewModel: LoginViewModel
     private lateinit var binding: ActivityMainBinding
     private val TAG = MainActivity::class.java.simpleName
     private lateinit var viewModel: MainActivityViewModel
@@ -88,7 +83,6 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
         signInViewModel = ViewModelProvider(this)[SignInViewModel::class.java]
-        loginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
 
         // navOptions and activityNavController for TOS and SignIn Fragments
         val navOptions = NavOptions.Builder()
@@ -96,11 +90,9 @@ class MainActivity : AppCompatActivity() {
             .build()
         navOptions.shouldLaunchSingleTop()
 
-        viewModel.tocStatus.distinctUntilChanged().observe(this) {
+        viewModel.tocStatus.observe(this) {
             if (it != true) {
                 navController.navigate(R.id.TOSFragment, null, navOptions)
-            } else {
-                loginViewModel.startLoginFlow()
             }
         }
 
@@ -109,34 +101,37 @@ class MainActivity : AppCompatActivity() {
             if (isInternetAvailable) {
                 binding.noInternet.visibility = View.GONE
                 binding.fragment.visibility = View.VISIBLE
+
+                // Watch and refresh authentication data
+                if (viewModel.authDataJson.value == null) {
+                    viewModel.authDataJson.observe(this) {
+                        viewModel.handleAuthDataJson()
+                    }
+                }
             }
         }
 
-        loginViewModel.authObjects.distinctUntilChanged().observe(this) {
-            when {
-                it == null -> return@observe
-                it.isEmpty() -> {
-                    // No auth type defined means user has not logged in yet
-                    // Pop back stack to prevent showing TOSFragment on pressing back button.
-                    navController.popBackStack()
-                    navController.navigate(R.id.signInFragment)
-                }
-                else -> {}
-            }
+        viewModel.userType.observe(this) { user ->
+            viewModel.handleAuthDataJson()
+        }
 
-            it.find { it is AuthObject.GPlayAuth }?.result?.run {
-                if (isSuccess()) {
-                    viewModel.gPlayAuthData = data as AuthData
-                } else if (exception is GPlayValidationException) {
-                    val email = otherPayload.toString()
-                    val descriptionJson = JSONObject().apply {
-                        put("versionName", BuildConfig.VERSION_NAME)
-                        put("versionCode", BuildConfig.VERSION_CODE)
-                        put("debuggable", BuildConfig.DEBUG)
-                        put("device", Build.DEVICE)
-                        put("api", Build.VERSION.SDK_INT)
-                    }
-                    viewModel.uploadFaultyTokenToEcloud(email, descriptionJson.toString())
+        if (signInViewModel.authLiveData.value == null) {
+            signInViewModel.authLiveData.observe(this) {
+                viewModel.updateAuthData(it)
+            }
+        }
+
+        viewModel.errorAuthResponse.observe(this) {
+            onSignInError()
+        }
+
+        viewModel.authValidity.observe(this) {
+            viewModel.handleAuthValidity(it) {
+                Timber.d("Timeout validating auth data!")
+                val lastFragment = navHostFragment.childFragmentManager.fragments[0]
+                if (lastFragment is TimeoutFragment) {
+                    Timber.d("Displaying timeout from MainActivity on fragment: " + lastFragment.javaClass.name)
+                    lastFragment.onTimeout()
                 }
             }
         }
@@ -334,6 +329,19 @@ class MainActivity : AppCompatActivity() {
         } else {
             getAvailableInternalMemorySize()
         }
+    }
+
+    private fun onSignInError() {
+        AlertDialog.Builder(this).apply {
+            setTitle(R.string.sign_in_failed_title)
+            setMessage(R.string.sign_in_failed_desc)
+            setPositiveButton(R.string.retry) { _, _ ->
+                viewModel.retryFetchingTokenAfterTimeout()
+            }
+            setNegativeButton(R.string.logout) { _, _ ->
+                viewModel.postFalseAuthValidity()
+            }
+        }.show()
     }
 
     private fun getAvailableInternalMemorySize(): Long {

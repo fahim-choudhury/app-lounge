@@ -39,10 +39,6 @@ class UpdatesManagerRepository @Inject constructor(
         }
     }
 
-    suspend fun getUpdatesOSS(): Pair<List<FusedApp>, ResultStatus> {
-        return updatesManagerImpl.getUpdatesOSS()
-    }
-
     fun getApplicationCategoryPreference(): String {
         return updatesManagerImpl.getApplicationCategoryPreference()
     }
