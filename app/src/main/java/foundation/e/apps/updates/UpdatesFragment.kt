@@ -186,7 +186,12 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                         }
                         else -> {
                             if (event.otherPayload is FusedDownload) {
-                                requireContext().toast("${(event.otherPayload as FusedDownload).name} update is failed!")
+                                requireContext().toast(
+                                    getString(
+                                        R.string.message_update_failure_single_app,
+                                        (event.otherPayload as FusedDownload).name
+                                    )
+                                )
                             } else {
                                 requireContext().toast(getString(R.string.message_update_failed))
                             }

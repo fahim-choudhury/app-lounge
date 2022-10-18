@@ -129,6 +129,7 @@
     <string name="user_not_available">User is not available!</string>
     <string name="message_retry">Update all has failed. Automatic retries are in progress.</string>
     <string name="message_update_failed">Due to temporary failure, your apps cannot be all updated. Please try again later.</string>
+    <string name="message_update_failure_single_app">%1$s\'s update has failed due to a support rule (location, OS version…).</string>
 
     <!-- Home Fragment -->
     <string name="discover">Discover</string>
