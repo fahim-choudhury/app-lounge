@@ -26,6 +26,7 @@ import android.os.IBinder
 import androidx.annotation.RequiresApi
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.api.faultyApps.FaultyAppRepository
+import foundation.e.apps.api.fused.UpdatesDao
 import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.eventBus.AppEvent
@@ -75,6 +76,7 @@ class InstallerService : Service() {
     private fun postStatus(status: Int, packageName: String?, extra: String?) {
         Timber.d("postStatus: $status $packageName $extra")
         if (status == PackageInstaller.STATUS_SUCCESS) {
+            UpdatesDao.removeUpdateIfExists(packageName ?: "")
             return
         }
 

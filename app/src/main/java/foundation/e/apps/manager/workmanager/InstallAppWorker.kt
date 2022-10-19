@@ -127,8 +127,7 @@ class InstallAppWorker @AssistedInject constructor(
             .onEach {
                 val download = databaseRepository.getDownloadById(fusedDownload.id)
                 if (download == null) {
-                    isDownloading = false
-                    unlockMutex()
+                    finishInstallation()
                 } else {
                     handleFusedDownloadStatusCheckingException(download)
                     if (isAppDownloading(download)) {
@@ -150,8 +149,7 @@ class InstallAppWorker @AssistedInject constructor(
             handleFusedDownloadStatus(download)
         } catch (e: Exception) {
             Log.e(TAG, "observeDownload: ", e)
-            isDownloading = false
-            unlockMutex()
+            finishInstallation()
         }
     }
 
@@ -192,19 +190,22 @@ class InstallAppWorker @AssistedInject constructor(
                 Timber.d("===> doWork: Installing ${fusedDownload.name} ${fusedDownload.status}")
             }
             Status.INSTALLED, Status.INSTALLATION_ISSUE -> {
-                isDownloading = false
-                unlockMutex()
+                finishInstallation()
                 Timber.d("===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}")
             }
             else -> {
-                isDownloading = false
-                unlockMutex()
+                finishInstallation()
                 Log.wtf(
                     TAG,
                     "===> ${fusedDownload.name} is in wrong state ${fusedDownload.status}"
                 )
             }
         }
+    }
+
+    private fun finishInstallation() {
+        isDownloading = false
+        unlockMutex()
     }
 
     private fun unlockMutex() {

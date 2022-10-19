@@ -124,6 +124,9 @@
     <string name="all_apps_updated">All apps are up-to-date</string>
     <string name="error_signature_mismatch">The update cannot be applied because there is a signature mismatch between the update of %1$s and the version you\'ve installed on your phone. To remedy this you can uninstall %1$s and then install it again from App Lounge. &lt;br /&gt;&lt;br /&gt; Note: This message won\'t appear again.</string>
     <string name="update_error">Update Error!</string>
+    <string name="message_retry">Update all has failed. Automatic retries are in progress.</string>
+    <string name="message_update_failed">Due to temporary failure, your apps cannot be all updated. Please try again later.</string>
+    <string name="message_update_failure_single_app">%1$s\'s update has failed due to a support rule (location, OS version…).</string>
 
     <!-- Home Fragment -->
     <string name="discover">Discover</string>
