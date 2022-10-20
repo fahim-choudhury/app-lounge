@@ -12,7 +12,7 @@ before_script:
 buildDebug:
   stage: debug
   script:
-    - ./gradlew assembleDebug
+    - ./gradlew assembleDebug --stacktrace
   artifacts:
     paths:
       - app/build/outputs/apk/debug/
