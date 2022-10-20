@@ -55,7 +55,7 @@ buildRelease:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: always
   script:
-    - ./gradlew assembleRelease
+    - ./gradlew assembleRelease --stacktrace
   artifacts:
     paths:
       - app/build/outputs/apk/release/
