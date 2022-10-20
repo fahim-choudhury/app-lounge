@@ -23,7 +23,10 @@ object UpdatesDao {
     private val _appsAwaitingForUpdate: MutableList<FusedApp> = mutableListOf()
     val appsAwaitingForUpdate: List<FusedApp> = _appsAwaitingForUpdate
 
-    fun addItemsForUpdate(appsNeedUpdate: List<FusedApp>) = _appsAwaitingForUpdate.addAll(appsNeedUpdate)
+    fun addItemsForUpdate(appsNeedUpdate: List<FusedApp>) {
+        _appsAwaitingForUpdate.clear()
+        _appsAwaitingForUpdate.addAll(appsNeedUpdate)
+    }
 
     fun hasAnyAppsForUpdate() = _appsAwaitingForUpdate.isNotEmpty()
 
