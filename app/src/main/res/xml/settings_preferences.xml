@@ -17,11 +17,13 @@
   -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <PreferenceCategory android:title="@string/preference_updates_title">
+    <PreferenceCategory
+        android:title="@string/preference_updates_title"
+        app:iconSpaceReserved="false">
         <ListPreference
             android:defaultValue="@string/preference_update_interval_default"
             android:dialogTitle="@string/preference_update_interval_title"
@@ -29,54 +31,66 @@
             android:entryValues="@array/update_interval_values"
             android:key="@string/update_check_intervals"
             android:summary="%s"
-            android:title="@string/preference_update_interval_title" />
+            android:title="@string/preference_update_interval_title"
+            app:iconSpaceReserved="false" />
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="@string/updateNotify"
             android:summary="@string/preference_update_notify_available_description"
-            android:title="@string/preference_update_notify_available_title" />
+            android:title="@string/preference_update_notify_available_title"
+            app:iconSpaceReserved="false" />
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="@string/auto_install_enabled"
             android:summary="@string/preference_update_install_automatically_description"
-            android:title="@string/preference_update_install_automatically_title" />
+            android:title="@string/preference_update_install_automatically_title"
+            app:iconSpaceReserved="false" />
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="@string/only_unmetered_network"
             android:summary="@string/preference_update_wifi_only_description"
-            android:title="@string/preference_update_wifi_only_title" />
+            android:title="@string/preference_update_wifi_only_title"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/Show_applications">
+    <PreferenceCategory
+        android:title="@string/Show_applications"
+        app:iconSpaceReserved="false">
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="showFOSSApplications"
-            app:singleLineTitle="false"
-            android:title="@string/show_only_open_source_apps" />
+            android:title="@string/show_only_open_source_apps"
+            app:iconSpaceReserved="false"
+            app:singleLineTitle="false" />
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="showPWAApplications"
-            app:singleLineTitle="false"
-            android:title="@string/show_only_pwa_apps" />
+            android:title="@string/show_only_pwa_apps"
+            app:iconSpaceReserved="false"
+            app:singleLineTitle="false" />
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="showAllApplications"
-            app:singleLineTitle="false"
-            android:title="@string/Show_common_apps" />
+            android:title="@string/Show_common_apps"
+            app:iconSpaceReserved="false"
+            app:singleLineTitle="false" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/about">
+    <PreferenceCategory
+        android:title="@string/about"
+        app:iconSpaceReserved="false">
 
         <foundation.e.apps.settings.LongPressPreference
             android:key="versionInfo"
             android:title="@string/app_version_label"
+            app:iconSpaceReserved="false"
             tools:summary="2.2.1" />
 
     </PreferenceCategory>
