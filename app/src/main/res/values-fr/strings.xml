@@ -10,7 +10,7 @@
     <string name="tos_agree_date">Accepté</string>
     <string name="preference_updates_title">Mises à jour</string>
     <string name="preference_update_interval_default">24</string>
-    <string name="preference_update_interval_title">Intervalle de vérification des mises à jour</string>
+    <string name="preference_update_interval_title">Vérification des mises à jour :</string>
     <string name="preference_update_wifi_only_title">Seulement sur les réseaux illimités</string>
     <string name="preference_update_install_automatically_title">Installer automatiquement les mises à jour</string>
     <string name="preference_update_install_automatically_description">Télécharger et installer les mises à jour d\'application en arrière-plan</string>
@@ -139,10 +139,13 @@
     <string name="app_not_found">Application non trouvée.</string>
     <string name="not_enough_storage">Le stockage disponible n\'est pas suffisant pour télécharger cette application !</string>
     <string name="close">Fermer</string>
-    <string name="installing">En cours</string>
+    <string name="installing">Installation</string>
     <string name="copied">Copié</string>
     <string name="os_version">Version d\'/e/OS</string>
     <string name="app_version_label">Version d\'App Lounge</string>
     <string name="about">À propos</string>
     <string name="or">ou</string>
+    <string name="monthly">Mensuelle</string>
+    <string name="weekly">Hebdomadaire</string>
+    <string name="daily">Quotidienne</string>
 </resources>
