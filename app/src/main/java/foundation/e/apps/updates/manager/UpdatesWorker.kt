@@ -13,7 +13,6 @@ import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.aurora.gplayapi.data.models.AuthData
-import com.google.gson.Gson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import foundation.e.apps.R
@@ -30,7 +29,7 @@ import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
-import foundation.e.apps.utils.modules.DataStoreModule
+import foundation.e.apps.utils.modules.DataStoreManager
 import kotlinx.coroutines.delay
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
@@ -43,8 +42,7 @@ class UpdatesWorker @AssistedInject constructor(
     private val updatesManagerRepository: UpdatesManagerRepository,
     private val fusedAPIRepository: FusedAPIRepository,
     private val fusedManagerRepository: FusedManagerRepository,
-    private val dataStoreModule: DataStoreModule,
-    private val gson: Gson,
+    private val dataStoreManager: DataStoreManager,
 ) : CoroutineWorker(context, params) {
     companion object {
         const val IS_AUTO_UPDATE = "IS_AUTO_UPDATE"
@@ -76,7 +74,7 @@ class UpdatesWorker @AssistedInject constructor(
     private suspend fun checkForUpdates() {
         loadSettings()
         val isConnectedToUnmeteredNetwork = isConnectedToUnmeteredNetwork(applicationContext)
-        val authData = getAuthData()
+        val authData = dataStoreManager.getAuthData()
         var resultStatus: ResultStatus
 
         val updateData = updatesManagerRepository.getUpdates(authData)
@@ -155,11 +153,6 @@ class UpdatesWorker @AssistedInject constructor(
                 isConnectedToUnmeteredNetwork
             )
         }
-    }
-
-    private fun getAuthData(): AuthData {
-        val authDataJson = dataStoreModule.getAuthDataSync()
-        return gson.fromJson(authDataJson, AuthData::class.java)
     }
 
     private suspend fun startUpdateProcess(

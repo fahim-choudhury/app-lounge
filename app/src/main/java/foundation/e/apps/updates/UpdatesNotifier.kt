@@ -43,9 +43,7 @@ object UpdatesNotifier {
         isConnectedToUnmeteredNetwork: Boolean
     ): Notification {
         val notificationBuilder =
-            NotificationCompat.Builder(context, UPDATES_NOTIFICATION_CHANNEL_ID)
-        notificationBuilder.setSmallIcon(R.drawable.ic_app_updated_on)
-        notificationBuilder.priority = NotificationCompat.PRIORITY_DEFAULT
+            createNotificationBuilder(context)
 
         when (numberOfApps) {
             0 -> {
@@ -86,6 +84,15 @@ object UpdatesNotifier {
         notificationBuilder.setContentIntent(getClickIntent(context))
         notificationBuilder.setAutoCancel(true)
         return notificationBuilder.build()
+    }
+
+    private fun createNotificationBuilder(context: Context): NotificationCompat.Builder {
+        val notificationBuilder =
+            NotificationCompat.Builder(context, UPDATES_NOTIFICATION_CHANNEL_ID)
+
+        notificationBuilder.setSmallIcon(R.drawable.ic_app_updated_on)
+        notificationBuilder.priority = NotificationCompat.PRIORITY_DEFAULT
+        return notificationBuilder
     }
 
     private fun getClickIntent(context: Context): PendingIntent {
@@ -130,6 +137,31 @@ object UpdatesNotifier {
                 )
             )
         }
+    }
+
+    fun showNotification(
+        context: Context,
+        title: String,
+        message: String,
+    ) {
+        with(NotificationManagerCompat.from(context)) {
+            createNotificationChannel(context)
+            notify(
+                UPDATES_NOTIFICATION_ID,
+                getNotification(
+                    context,
+                    title,
+                    message
+                )
+            )
+        }
+    }
+
+    fun getNotification(context: Context, title: String, message: String): Notification {
+        val notificationBuilder = createNotificationBuilder(context)
+        notificationBuilder.setContentTitle(title)
+        notificationBuilder.setContentText(message)
+        return notificationBuilder.build()
     }
 
     fun cancelNotification(context: Context) {

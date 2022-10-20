@@ -36,8 +36,11 @@ import foundation.e.apps.R
 import foundation.e.apps.manager.database.DatabaseRepository
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.fused.FusedManagerRepository
+import foundation.e.apps.manager.pkg.PkgManagerModule
+import foundation.e.apps.updates.UpdatesNotifier
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
+import foundation.e.apps.utils.modules.DataStoreManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -46,6 +49,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.sync.Mutex
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -58,9 +63,12 @@ class InstallAppWorker @AssistedInject constructor(
     private val fusedManagerRepository: FusedManagerRepository,
     private val downloadManager: DownloadManager,
     private val downloadManagerQuery: DownloadManager.Query,
+    private val packageManagerModule: PkgManagerModule,
+    private val dataStoreManager: DataStoreManager
 ) : CoroutineWorker(context, params) {
 
     private var isDownloading: Boolean = false
+    private var isItUpdateWork = false
 
     companion object {
         private const val TAG = "InstallWorker"
@@ -89,6 +97,8 @@ class InstallAppWorker @AssistedInject constructor(
             fusedDownload = databaseRepository.getDownloadById(fusedDownloadString)
             Timber.d(">>> dowork started for Fused download name " + fusedDownload?.name + " " + fusedDownloadString)
             fusedDownload?.let {
+                isItUpdateWork = packageManagerModule.isInstalled(it.packageName)
+
                 if (fusedDownload.status != Status.AWAITING) {
                     return Result.success()
                 }
@@ -112,9 +122,26 @@ class InstallAppWorker @AssistedInject constructor(
                 fusedManagerRepository.installationIssue(it)
             }
         } finally {
+            if (isItUpdateWork && databaseRepository.getDownloadList().isEmpty()) { // show notification for ended update
+                showNotificationOnUpdateEnded()
+            }
+
             Timber.d("doWork: RESULT SUCCESS: ${fusedDownload?.name}")
             return Result.success()
         }
+    }
+
+    private fun showNotificationOnUpdateEnded() {
+        val date = Date(System.currentTimeMillis())
+        val dateFormat =
+            SimpleDateFormat("dd/MM/yyyy-HH:mm", dataStoreManager.getAuthData().locale)
+
+        UpdatesNotifier.showNotification(
+            context, context.getString(R.string.update),
+            context.getString(
+                R.string.message_last_update_triggered, dateFormat.format(date)
+            )
+        )
     }
 
     private suspend fun startAppInstallationProcess(
