@@ -4,7 +4,7 @@
     <string name="retry">Ritenta</string>
     <string name="update">Aggiorna</string>
     <string name="ratings">Rating</string>
-    <string name="rating">Rating</string>
+    <string name="rating">Punteggio</string>
     <string name="privacy">Privacy</string>
     <string name="privacy_score">Punteggio Privacy</string>
     <string name="menu_home">Home</string>
@@ -145,4 +145,7 @@
     <string name="discover_pwa">Scopri le PWA</string>
     <string name="gplay_data_for_oss">Non posso avviare l\'App Google Play se posso mostrare solo App open source.</string>
     <string name="close">Chiudi</string>
+    <string name="monthly">Mensile</string>
+    <string name="weekly">Settimanale</string>
+    <string name="daily">Giornaliero</string>
 </resources>
