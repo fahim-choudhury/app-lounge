@@ -1,2 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="not_enough_storage">Недостатньо доступного місця для завантаження цього додатку!</string>
+    <string name="unknown_error">Непередбачувана помилка!</string>
+    <string name="information">Інформація</string>
+    <string name="trackers_title">Трекери</string>
+    <string name="tracker_information_not_found">Не знайдено інформації стосовно трекерів для цього додатку</string>
+    <string name="terms_services">Умови Використання Сервісів</string>
+    <string name="account">Акаунт</string>
+    <string name="copied">Скопійовано</string>
+    <string name="app_version_label">Версія Простору додатків</string>
+    <string name="about">Про додаток</string>
+    <string name="show_only_pwa_apps">Показати прогресивні вебзастосунки</string>
+    <string name="show_only_open_source_apps">Показати додатки з вільним ПЗ</string>
+    <string name="Show_common_apps">Показати поширені додатки</string>
+    <string name="Show_applications">Показати додатки:</string>
+    <string name="preference_update_install_automatically_title">Автоматично встановлювати оновлення</string>
+    <string name="preference_update_notify_available_description">Надсилати сповіщення якщо доступні оновлення додатків</string>
+    <string name="preference_update_install_automatically_description">Завантажувати та встановлювати оновлення додатків у фоні</string>
+    <string name="preference_update_notify_available_title">Показати доступні оновлення</string>
+    <string name="preference_update_wifi_only_description">Оновлювати додатки автоматично тільки на немобільних мережах, таких як Wi-Fi</string>
+    <string name="preference_update_wifi_only_title">Тільки на немобільних мережах</string>
+    <string name="preference_update_interval_title">Інтервал перевірки оновлень</string>
+    <string name="preference_update_interval_default">24</string>
+    <string name="os_version">Версія операційної системи /e/</string>
+    <string name="preference_updates_title">Оновлення</string>
+    <string name="tos_warning">Перед тим як продовжити, Ви маєте погодитись з Умовами Використання Сервісів.</string>
+    <string name="tos_agree_date">Прийнято</string>
+    <string name="tos_disagree">Відхилити</string>
+    <string name="tos_agree">Прийняти</string>
+    <string name="or">або</string>
+    <string name="sign_in_anonymous">Анонімний режим</string>
+    <string name="sign_in_google">Увійти за допомогою Google</string>
+    <string name="sign_in_desc">Увійдіть у Простір додатків використовуючи Ваш акаунт Google, або оберіть Анонімний режим, якщо хочете увійти анонімно.</string>
+    <string name="sign_in_title">Ласкаво просимо</string>
+    <string name="pwa">Прогресивний вебзастосунок</string>
+    <string name="open_source">Відкрите програмне забезпечення</string>
+    <string name="category_icon">Іконка категорії</string>
+    <string name="apps">Додатки</string>
+    <string name="games">Ігри</string>
+    <string name="no_apps_found">Додатків не знайдено…</string>
+    <string name="search_hint">Шукати додаток</string>
+    <string name="menu_settings">Налаштування</string>
+    <string name="menu_categories">Категорії</string>
+    <string name="menu_home">Домівка</string>
+    <string name="app_name">Простір додатків</string>
+</resources>
