@@ -61,13 +61,13 @@ ktlintDebug:
 buildRelease:
   stage: release
   allow_failure: false
-  #rules:
-   # - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    #  when: always
-    #- if: '$CI_COMMIT_REF_PROTECTED == "true"'
-    #  when: always
-    #- if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
-    #  when: always
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+      when: always
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
   script:
     - ./gradlew assembleRelease
   artifacts:
@@ -146,11 +146,10 @@ pushToPrebuilt:
     - NEW_APK_VERSION=$(awk -F '-' '{print $2}' <<< "$NEW_APK_NAME")
     - echo $NEW_APK_NAME
     - echo $NEW_APK_VERSION
-    - git lfs clone -b 55-test-auto-publish git@gitlab.e.foundation:e/os/android_prebuilts_prebuiltapks_lfs.git
+    - git lfs clone git@gitlab.e.foundation:e/os/android_prebuilts_prebuiltapks_lfs.git
     - cd android_prebuilts_prebuiltapks_lfs
     - rm Apps/*-release.apk
     - mv ../${NEW_APK_PATH}/${NEW_APK_NAME} Apps/
-    - ls -l Apps # Debug only
     - sed -i "6s/.*/LOCAL_SRC_FILES := ${NEW_APK_NAME}/" Apps/Android.mk # todo: improve to replace based on REGEX¨P and not line number
     - git config user.email "gitlab@e.foundation"
     - git config user.name "gitlab"
