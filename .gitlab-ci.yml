@@ -141,6 +141,8 @@ pushToPrebuilt:
     - chmod 700 ~/.ssh
     - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
+    - git config user.email "gitlab@e.foundation"
+    - git config user.name "gitlab"
   script:
     - NEW_APK_NAME=$(basename ${NEW_APK_PATH}*-release.apk)
     - NEW_APK_VERSION=$(awk -F '-' '{print $2}' <<< "$NEW_APK_NAME")
@@ -151,10 +153,8 @@ pushToPrebuilt:
     - rm Apps/*-release.apk
     - mv ../${NEW_APK_PATH}/${NEW_APK_NAME} Apps/
     - sed -i "6s/.*/LOCAL_SRC_FILES := ${NEW_APK_NAME}/" Apps/Android.mk # todo: improve to replace based on REGEX¨P and not line number
-    - git config user.email "gitlab@e.foundation"
-    - git config user.name "gitlab"
     - git add Apps
     - git status
-    - git commit -m "Update Apps Lounge apk to ${NEW_APK_VERSION}"
+    - git commit -m "Update Apps Lounge apk to ${NEW_APK_VERSION}\nFrom ${CI_COMMIT_SHA}"
     - git push
-    - git push
+    - git push # Sometimes a single push doesn't do all the job, so we have to push twice
