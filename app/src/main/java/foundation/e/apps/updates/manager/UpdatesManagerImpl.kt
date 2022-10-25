@@ -47,10 +47,9 @@ class UpdatesManagerImpl @Inject constructor(
 
         if (pkgList.isNotEmpty()) {
             // Get updates from CleanAPK
-            val openSourcePackages = userApplications.filter { !pkgManagerModule.isGplay(it.packageName) }.map { it.packageName }
-            pkgList.removeAll(openSourcePackages)
+
             val cleanAPKResult = fusedAPIRepository.getApplicationDetails(
-                openSourcePackages,
+                pkgList,
                 authData,
                 Origin.CLEANAPK
             )
