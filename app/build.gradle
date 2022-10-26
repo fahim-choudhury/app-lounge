@@ -10,7 +10,7 @@ plugins {
 
 def versionMajor = 2
 def versionMinor = 3
-def versionPatch = 8
+def versionPatch = 9
 
 android {
     compileSdk 31
@@ -106,6 +106,7 @@ kapt {
 allOpen {
     // allows mocking for classes w/o directly opening them for release builds
     annotation 'foundation.e.apps.OpenClass'
+    annotation 'foundation.e.apps.OpenForTesting'
 }
 
 dependencies {
