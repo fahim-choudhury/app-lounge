@@ -114,7 +114,7 @@ class HomeChildRVAdapter(
                 Status.QUEUED, Status.AWAITING, Status.DOWNLOADING, Status.DOWNLOADED -> {
                     handleQueued(view, homeApp)
                 }
-                Status.INSTALLING, Status.UNINSTALLING -> {
+                Status.INSTALLING -> {
                     handleInstalling()
                 }
                 Status.BLOCKED -> {

@@ -437,7 +437,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                         downloadPB,
                         appSize
                     )
-                    Status.INSTALLING, Status.UNINSTALLING -> handleInstallingUninstalling(
+                    Status.INSTALLING -> handleInstalling(
                         installButton,
                         downloadPB,
                         appSize
@@ -496,7 +496,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
     }
 
-    private fun handleInstallingUninstalling(
+    private fun handleInstalling(
         installButton: MaterialButton,
         downloadPB: RelativeLayout,
         appSize: MaterialTextView
