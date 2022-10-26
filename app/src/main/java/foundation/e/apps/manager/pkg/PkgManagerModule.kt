@@ -200,25 +200,6 @@ class PkgManagerModule @Inject constructor(
         outputStream.close()
     }
 
-    /**
-     * Un-install the given package
-     * @param packageName Name of the package
-     */
-    fun uninstallApplication(packageName: String) {
-        val packageInstaller = packageManager.packageInstaller
-        val params = SessionParams(SessionParams.MODE_FULL_INSTALL)
-
-        val sessionId = packageInstaller.createSession(params)
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            sessionId,
-            Intent(Intent.ACTION_PACKAGE_REMOVED),
-            PendingIntent.FLAG_IMMUTABLE
-        )
-
-        packageInstaller.uninstall(packageName, pendingIntent.intentSender)
-    }
-
     fun getFilter(): IntentFilter {
         val filter = IntentFilter()
         filter.addDataScheme("package")

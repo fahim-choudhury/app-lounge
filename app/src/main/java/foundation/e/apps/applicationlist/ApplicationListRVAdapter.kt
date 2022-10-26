@@ -253,7 +253,7 @@ class ApplicationListRVAdapter(
             Status.QUEUED, Status.AWAITING, Status.DOWNLOADING, Status.DOWNLOADED -> {
                 handleDownloading(searchApp)
             }
-            Status.INSTALLING, Status.UNINSTALLING -> {
+            Status.INSTALLING -> {
                 handleInstalling()
             }
             Status.BLOCKED -> {
