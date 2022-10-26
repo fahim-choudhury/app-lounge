@@ -216,7 +216,7 @@ class ApplicationListFragment :
         ) {
             return
         }
-        listAdapter?.setData(fusedAppResult.data!!)
+        listAdapter?.setData(fusedAppResult.data!!, args.translation)
         listAdapter?.let { adapter ->
             observeDownloadList(adapter)
         }
