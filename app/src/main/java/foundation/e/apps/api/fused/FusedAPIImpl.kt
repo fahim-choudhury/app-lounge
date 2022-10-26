@@ -62,7 +62,6 @@ import foundation.e.apps.utils.modules.PreferenceManagerModule
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 import timber.log.Timber
-import java.text.NumberFormat
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -1341,7 +1340,7 @@ class FusedAPIImpl @Inject constructor(
                 usageQualityScore =
                 this.labeledRating.run {
                     if (isNotEmpty()) {
-                        NumberFormat.getInstance().parse(this)?.toDouble() ?: -1.0
+                        this.replace(",", ".").toDoubleOrNull() ?: -1.0
                     } else -1.0
                 }
             ),
