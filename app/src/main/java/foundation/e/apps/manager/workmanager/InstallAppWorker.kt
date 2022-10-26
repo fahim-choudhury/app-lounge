@@ -139,7 +139,6 @@ class InstallAppWorker @AssistedInject constructor(
         return downloadListWithoutAnyIssue.isEmpty()
     }
 
-
     private fun showNotificationOnUpdateEnded() {
         val date = Date(System.currentTimeMillis())
         val dateFormat =
@@ -259,7 +258,7 @@ class InstallAppWorker @AssistedInject constructor(
 
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as
-                    NotificationManager
+                NotificationManager
         // Create a Notification channel if necessary
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val mChannel = NotificationChannel(
