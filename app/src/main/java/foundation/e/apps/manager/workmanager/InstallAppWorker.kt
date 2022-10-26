@@ -122,7 +122,7 @@ class InstallAppWorker @AssistedInject constructor(
                 fusedManagerRepository.installationIssue(it)
             }
         } finally {
-            if (isItUpdateWork && databaseRepository.getDownloadList().isEmpty()) { // show notification for ended update
+            if (isItUpdateWork && isUpdateCompleted()) { // show notification for ended update
                 showNotificationOnUpdateEnded()
             }
 
@@ -130,6 +130,15 @@ class InstallAppWorker @AssistedInject constructor(
             return Result.success()
         }
     }
+
+    private suspend fun isUpdateCompleted(): Boolean {
+        val downloadListWithoutAnyIssue =
+            databaseRepository.getDownloadList()
+                .filter { !listOf(Status.INSTALLATION_ISSUE, Status.PURCHASE_NEEDED).contains(it.status) }
+
+        return downloadListWithoutAnyIssue.isEmpty()
+    }
+
 
     private fun showNotificationOnUpdateEnded() {
         val date = Date(System.currentTimeMillis())
@@ -250,7 +259,7 @@ class InstallAppWorker @AssistedInject constructor(
 
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as
-                NotificationManager
+                    NotificationManager
         // Create a Notification channel if necessary
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val mChannel = NotificationChannel(
