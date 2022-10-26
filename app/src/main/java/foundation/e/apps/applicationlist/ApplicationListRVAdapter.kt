@@ -67,6 +67,8 @@ class ApplicationListRVAdapter(
 
     private val TAG = ApplicationListRVAdapter::class.java.simpleName
 
+    private var optionalCategory = ""
+
     private val shimmer = Shimmer.ColorHighlightBuilder()
         .setDuration(500)
         .setBaseAlpha(0.7f)
@@ -200,26 +202,30 @@ class ApplicationListRVAdapter(
         searchApp: FusedApp,
         view: View
     ) {
+        val catText = searchApp.category.ifBlank { optionalCategory }
         val action = when (currentDestinationId) {
             R.id.applicationListFragment -> {
                 ApplicationListFragmentDirections.actionApplicationListFragmentToApplicationFragment(
                     searchApp._id,
                     searchApp.package_name,
-                    searchApp.origin
+                    searchApp.origin,
+                    catText,
                 )
             }
             R.id.searchFragment -> {
                 SearchFragmentDirections.actionSearchFragmentToApplicationFragment(
                     searchApp._id,
                     searchApp.package_name,
-                    searchApp.origin
+                    searchApp.origin,
+                    catText,
                 )
             }
             R.id.updatesFragment -> {
                 UpdatesFragmentDirections.actionUpdatesFragmentToApplicationFragment(
                     searchApp._id,
                     searchApp.package_name,
-                    searchApp.origin
+                    searchApp.origin,
+                    catText,
                 )
             }
             else -> null
@@ -515,7 +521,10 @@ class ApplicationListRVAdapter(
         progressBarInstall.visibility = View.GONE
     }
 
-    fun setData(newList: List<FusedApp>) {
+    fun setData(newList: List<FusedApp>, optionalCategory: String? = null) {
+        optionalCategory?.let {
+            this.optionalCategory = it
+        }
         currentList.forEach {
             newList.find { item -> item._id == it._id }?.let { foundItem ->
                 foundItem.privacyScore = it.privacyScore

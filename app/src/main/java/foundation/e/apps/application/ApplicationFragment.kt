@@ -30,6 +30,7 @@ import android.widget.RelativeLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -325,7 +326,9 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             appInfoFetchViewModel.getAuthorName(it).observe(viewLifecycleOwner) {
                 appAuthor.text = it
             }
-            categoryTitle.text = it.category
+
+            updateCategoryTitle(it)
+
             if (it.origin == Origin.CLEANAPK) {
                 sourceTag.visibility = View.VISIBLE
                 sourceTag.text = it.source
@@ -335,6 +338,20 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             } else {
                 appIcon.load(it.icon_image_path)
             }
+        }
+    }
+
+    private fun updateCategoryTitle(app: FusedApp) {
+        binding.titleInclude.apply {
+            var catText = app.category.ifBlank { args.category }
+            when {
+                catText.isBlank() -> categoryTitle.isVisible = false
+                catText == "game_open_games" -> catText = getString(R.string.games) // F-droid games
+                catText == "web_games" -> catText = getString(R.string.games) // PWA games
+            }
+
+            catText = catText.replace("_", " ")
+            categoryTitle.text = catText
         }
     }
 
