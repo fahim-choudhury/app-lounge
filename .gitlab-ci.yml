@@ -134,7 +134,7 @@ pushToPrebuilt:
   variables:
     NEW_APK_PATH: "app/build/outputs/apk/release/"
   before_script:
-    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - 'which ssh-agent || ( apt update -y && apt install openssh-client -y )'
     - eval $(ssh-agent -s)
     - echo "$SSH_E_ROBOT_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - mkdir -p ~/.ssh
