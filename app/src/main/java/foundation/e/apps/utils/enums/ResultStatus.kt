@@ -4,4 +4,5 @@ enum class ResultStatus {
     OK,
     TIMEOUT,
     UNKNOWN,
+    RETRY
 }

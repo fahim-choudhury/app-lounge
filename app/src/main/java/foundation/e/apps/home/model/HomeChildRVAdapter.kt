@@ -96,7 +96,8 @@ class HomeChildRVAdapter(
                 val action = HomeFragmentDirections.actionHomeFragmentToApplicationFragment(
                     homeApp._id,
                     homeApp.package_name,
-                    homeApp.origin
+                    homeApp.origin,
+                    homeApp.category
                 )
                 holder.itemView.findNavController().navigate(action)
             }

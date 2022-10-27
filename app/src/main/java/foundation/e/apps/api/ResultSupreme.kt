@@ -65,12 +65,12 @@ sealed class ResultSupreme<T> {
      * No valid data from processing.
      * Use [isUnknownError] to check.
      */
-    class Error<T>() : ResultSupreme<T>() {
+    open class Error<T>() : ResultSupreme<T>() {
         /**
          * @param message A String message to log or display to the user.
          * @param exception Optional exception from try-catch block.
          */
-        constructor(message: String, exception: Exception? = null) : this() {
+        constructor(message: String, exception: Exception = Exception()) : this() {
             this.message = message
             this.exception = exception
         }
@@ -85,6 +85,12 @@ sealed class ResultSupreme<T> {
         }
     }
 
+    class WorkError<T> constructor(data: T, payload: Any? = null) : Error<T>(data) {
+        init {
+            this.otherPayload = payload
+        }
+    }
+
     /**
      * Data from processing. May be null.
      */
@@ -92,19 +98,16 @@ sealed class ResultSupreme<T> {
         private set
 
     /**
-     * Any other information that needs to be transmitted.
-     */
-    var otherPayload: Any? = null
-
-    /**
      * A custom string message for logging or displaying to the user.
      */
     var message: String = ""
 
+    var otherPayload: Any? = null
+
     /**
      * Exception from try-catch block for error cases.
      */
-    var exception: Exception? = null
+    var exception: Exception = Exception()
 
     fun isValidData() = data != null
 
@@ -126,7 +129,7 @@ sealed class ResultSupreme<T> {
             status: ResultStatus,
             data: T? = null,
             message: String = "",
-            exception: Exception? = null,
+            exception: Exception = Exception(),
         ): ResultSupreme<T> {
             val resultObject = when {
                 status == ResultStatus.OK && data != null -> Success<T>(data)

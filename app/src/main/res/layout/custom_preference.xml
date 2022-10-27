@@ -81,9 +81,9 @@
                 android:layout_marginStart="18dp"
                 android:textColor="?android:textColorPrimary"
                 android:textSize="15sp"
+                app:layout_constraintBottom_toBottomOf="@id/avatar"
                 app:layout_constraintStart_toEndOf="@id/avatar"
-                app:layout_constraintTop_toTopOf="@id/avatar"
-                app:layout_constraintVertical_chainStyle="packed"/>
+                app:layout_constraintTop_toTopOf="@id/avatar" />
 
             <TextView
                 android:id="@+id/email"

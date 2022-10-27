@@ -223,15 +223,6 @@ class PkgManagerModule @Inject constructor(
         return userPackages
     }
 
-    fun isGplay(packageName: String): Boolean {
-        val installerPackageName = packageManager.getInstallerPackageName(packageName)
-        return installerPackageName?.contains(FAKE_STORE_PACKAGE_NAME) == true
-    }
-
-    fun getAllSystemApps(): List<ApplicationInfo> {
-        return packageManager.getInstalledApplications(PackageManager.MATCH_SYSTEM_ONLY)
-    }
-
     fun getAppNameFromPackageName(packageName: String): String {
         val packageManager = context.packageManager
         return packageManager.getApplicationLabel(

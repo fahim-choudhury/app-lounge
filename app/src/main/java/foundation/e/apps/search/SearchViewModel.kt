@@ -20,6 +20,7 @@ package foundation.e.apps.search
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.AuthData
@@ -27,10 +28,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
-import foundation.e.apps.login.AuthObject
-import foundation.e.apps.utils.exceptions.CleanApkException
-import foundation.e.apps.utils.exceptions.GPlayException
-import foundation.e.apps.utils.parentFragment.LoadingViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -38,40 +35,16 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val fusedAPIRepository: FusedAPIRepository,
-) : LoadingViewModel() {
+) : ViewModel() {
 
     val searchSuggest: MutableLiveData<List<SearchSuggestEntry>?> = MutableLiveData()
     val searchResult: MutableLiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
         MutableLiveData()
 
-    fun getSearchSuggestions(query: String, gPlayAuth: AuthObject.GPlayAuth) {
+    fun getSearchSuggestions(query: String, authData: AuthData) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (gPlayAuth.result.isSuccess())
-                searchSuggest.postValue(fusedAPIRepository.getSearchSuggestions(query, gPlayAuth.result.data!!))
+            searchSuggest.postValue(fusedAPIRepository.getSearchSuggestions(query, authData))
         }
-    }
-
-    fun loadData(
-        query: String,
-        lifecycleOwner: LifecycleOwner,
-        authObjectList: List<AuthObject>,
-        retryBlock: (failedObjects: List<AuthObject>) -> Boolean
-    ) {
-
-        if (query.isBlank()) return
-
-        super.onLoadData(authObjectList, { successAuthList, _ ->
-
-            successAuthList.find { it is AuthObject.GPlayAuth }?.run {
-                getSearchResults(query, result.data!! as AuthData, lifecycleOwner)
-                return@onLoadData
-            }
-
-            successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getSearchResults(query, AuthData("", ""), lifecycleOwner)
-                return@onLoadData
-            }
-        }, retryBlock)
     }
 
     /*
@@ -84,16 +57,6 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.Main) {
             fusedAPIRepository.getSearchResults(query, authData).observe(lifecycleOwner) {
                 searchResult.postValue(it)
-
-                if (!it.isSuccess()) {
-                    val exception =
-                        if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank()) {
-                            GPlayException(it.isTimeout(), "Data load error")
-                        } else CleanApkException(it.isTimeout(), "Data load error")
-
-                    exceptionsList.add(exception)
-                    exceptionsLiveData.postValue(exceptionsList)
-                }
             }
         }
     }

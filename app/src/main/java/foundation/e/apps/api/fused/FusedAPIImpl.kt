@@ -29,6 +29,7 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Artwork
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
+import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.TopChartsHelper
@@ -49,7 +50,6 @@ import foundation.e.apps.api.gplay.GPlayAPIRepository
 import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.pkg.PkgManagerModule
-import foundation.e.apps.utils.Constants.timeoutDurationInMillis
 import foundation.e.apps.utils.enums.AppTag
 import foundation.e.apps.utils.enums.FilterLevel
 import foundation.e.apps.utils.enums.Origin
@@ -57,6 +57,7 @@ import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.enums.isUnFiltered
+import foundation.e.apps.utils.modules.CommonUtilsModule.timeoutDurationInMillis
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
 import kotlinx.coroutines.TimeoutCancellationException
@@ -461,6 +462,18 @@ class FusedAPIImpl @Inject constructor(
 
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {
         return gPlayAPIRepository.getSearchSuggestions(query, authData)
+    }
+
+    suspend fun fetchAuthData(): Boolean {
+        return gPlayAPIRepository.fetchAuthData()
+    }
+
+    suspend fun fetchAuthData(email: String, aasToken: String): AuthData? {
+        return gPlayAPIRepository.fetchAuthData(email, aasToken)
+    }
+
+    suspend fun validateAuthData(authData: AuthData): PlayResponse {
+        return gPlayAPIRepository.validateAuthData(authData)
     }
 
     suspend fun getOnDemandModule(

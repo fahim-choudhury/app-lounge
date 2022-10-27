@@ -27,10 +27,10 @@ import android.text.format.Formatter
 import android.view.View
 import android.widget.ImageView
 import android.widget.RelativeLayout
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -39,6 +39,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
+import com.aurora.gplayapi.data.models.AuthData
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textview.MaterialTextView
@@ -53,7 +54,6 @@ import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.application.model.ApplicationScreenshotsRVAdapter
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.databinding.FragmentApplicationBinding
-import foundation.e.apps.login.AuthObject
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Origin
@@ -61,7 +61,6 @@ import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.enums.isInitialized
-import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
@@ -132,15 +131,15 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentApplicationBinding.bind(view)
 
-        setupListening()
+        /*
+         * Explanation of double observers in HomeFragment.kt
+         */
 
-        authObjects.observe(viewLifecycleOwner) {
-            if (it == null) return@observe
-            loadData(it)
+        mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) {
+            refreshDataOrRefreshToken(mainActivityViewModel)
         }
-
-        applicationViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
-            handleExceptionsCommon(it)
+        mainActivityViewModel.authData.observe(viewLifecycleOwner) {
+            refreshDataOrRefreshToken(mainActivityViewModel)
         }
 
         setupToolbar(view)
@@ -162,19 +161,22 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         resultPair: Pair<FusedApp, ResultStatus>,
     ) {
         if (resultPair.second != ResultStatus.OK) {
+            onTimeout()
             return
         }
 
         /*
-         * Previously fusedApp only had instance of FusedApp.
-         * As such previously all reference was simply using "it", the default variable in
-         * the scope. But now "it" is Pair(FusedApp, ResultStatus), not an instance of FusedApp.
-         *
-         * Avoid Git diffs by using a variable named "it".
-         *
-         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
-         */
+             * Previously fusedApp only had instance of FusedApp.
+             * As such previously all reference was simply using "it", the default variable in
+             * the scope. But now "it" is Pair(FusedApp, ResultStatus), not an instance of FusedApp.
+             *
+             * Avoid Git diffs by using a variable named "it".
+             *
+             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
+             */
         val it = resultPair.first
+
+        dismissTimeoutDialog()
 
         isDetailsLoaded = true
         if (applicationViewModel.appStatus.value == null) {
@@ -324,7 +326,9 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             appInfoFetchViewModel.getAuthorName(it).observe(viewLifecycleOwner) {
                 appAuthor.text = it
             }
-            categoryTitle.text = it.category
+
+            updateCategoryTitle(it)
+
             if (it.origin == Origin.CLEANAPK) {
                 sourceTag.visibility = View.VISIBLE
                 sourceTag.text = it.source
@@ -334,6 +338,20 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             } else {
                 appIcon.load(it.icon_image_path)
             }
+        }
+    }
+
+    private fun updateCategoryTitle(app: FusedApp) {
+        binding.titleInclude.apply {
+            var catText = app.category.ifBlank { args.category }
+            when {
+                catText.isBlank() -> categoryTitle.isVisible = false
+                catText == "game_open_games" -> catText = getString(R.string.games) // F-droid games
+                catText == "web_games" -> catText = getString(R.string.games) // PWA games
+            }
+
+            catText = catText.replace("_", " ")
+            categoryTitle.text = catText
         }
     }
 
@@ -359,38 +377,44 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
     }
 
-    override fun loadData(authObjectList: List<AuthObject>) {
+    override fun onTimeout() {
+        if (!isTimeoutDialogDisplayed()) {
+            stopLoadingUI()
+            displayTimeoutAlertDialog(
+                timeoutFragment = this,
+                activity = requireActivity(),
+                message = getString(R.string.timeout_desc_cleanapk),
+                positiveButtonText = getString(R.string.retry),
+                positiveButtonBlock = {
+                    showLoadingUI()
+                    resetTimeoutDialogLock()
+                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
+                },
+                negativeButtonText = getString(android.R.string.ok),
+                negativeButtonBlock = {
+                    requireActivity().onBackPressed()
+                },
+                allowCancel = false,
+            )
+        }
+    }
+
+    override fun refreshData(authData: AuthData) {
         if (isDetailsLoaded) return
         /* Show the loading bar. */
         showLoadingUI()
         /* Remove trailing slash (if present) that can become part of the packageName */
         val packageName = args.packageName.run { if (endsWith('/')) dropLast(1) else this }
-
-        applicationViewModel.loadData(args.id, packageName, origin, isFdroidDeepLink, authObjectList) {
-            clearAndRestartGPlayLogin()
-            true
+        if (isFdroidDeepLink) {
+            applicationViewModel.getCleanapkAppDetails(packageName)
+        } else {
+            applicationViewModel.getApplicationDetails(
+                args.id,
+                packageName,
+                authData,
+                origin
+            )
         }
-    }
-
-    override fun onTimeout(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun onSignInError(
-        exception: GPlayLoginException,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun onDataLoadError(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
     }
 
     private fun observeDownloadStatus(view: View) {
@@ -485,7 +509,11 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         view: View
     ) {
         installButton.setOnClickListener {
-            val errorMsg = when (mainActivityViewModel.getUser()) {
+            val errorMsg = when (
+                User.valueOf(
+                    mainActivityViewModel.userType.value ?: User.UNAVAILABLE.name
+                )
+            ) {
                 User.ANONYMOUS,
                 User.UNAVAILABLE -> getString(R.string.install_blocked_anonymous)
                 User.GOOGLE -> getString(R.string.install_blocked_google)
@@ -719,12 +747,12 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
     }
 
-    override fun showLoadingUI() {
+    private fun showLoadingUI() {
         binding.applicationLayout.visibility = View.GONE
         binding.progressBar.visibility = View.VISIBLE
     }
 
-    override fun stopLoadingUI() {
+    private fun stopLoadingUI() {
         binding.applicationLayout.visibility = View.VISIBLE
         binding.progressBar.visibility = View.GONE
     }

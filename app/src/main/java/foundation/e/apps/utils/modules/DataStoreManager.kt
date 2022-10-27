@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2022 MURENA SAS
+ *  Copyright (C) 2022  Murena SAS
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -15,20 +15,23 @@
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.api.fused
+package foundation.e.apps.utils.modules
 
-import foundation.e.apps.api.fused.data.FusedApp
+import com.aurora.gplayapi.data.models.AuthData
+import com.google.gson.Gson
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object UpdatesDao {
-    private val _appsAwaitingForUpdate: MutableList<FusedApp> = mutableListOf()
-    val appsAwaitingForUpdate: List<FusedApp> = _appsAwaitingForUpdate
+@Singleton
+class DataStoreManager @Inject constructor() {
+    @Inject
+    lateinit var dataStoreModule: DataStoreModule
 
-    fun addItemsForUpdate(appsNeedUpdate: List<FusedApp>) {
-        _appsAwaitingForUpdate.clear()
-        _appsAwaitingForUpdate.addAll(appsNeedUpdate)
+    @Inject
+    lateinit var gson: Gson
+
+    fun getAuthData(): AuthData {
+        val authDataJson = dataStoreModule.getAuthDataSync()
+        return gson.fromJson(authDataJson, AuthData::class.java)
     }
-
-    fun hasAnyAppsForUpdate() = _appsAwaitingForUpdate.isNotEmpty()
-
-    fun removeUpdateIfExists(packageName: String) = _appsAwaitingForUpdate.removeIf { it.package_name == packageName }
 }
