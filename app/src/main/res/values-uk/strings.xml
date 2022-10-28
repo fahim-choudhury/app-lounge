@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="not_enough_storage">Недостатньо доступного місця для завантаження цього додатку!</string>
     <string name="unknown_error">Непередбачувана помилка!</string>
     <string name="information">Інформація</string>
@@ -44,4 +44,43 @@
     <string name="menu_categories">Категорії</string>
     <string name="menu_home">Домівка</string>
     <string name="app_name">Простір додатків</string>
+    <string name="message_update_failed">Із-за тимчасової помилки, Ваші додатки не можуть бути оновлені. Будь-ласка, спробуйте пізніше.</string>
+    <string name="update_error">Помилка оновлення!</string>
+    <string name="all_apps_updated">Всі додатки мають останню версію</string>
+    <string name="manual_updates_notification">Оновлення додатків не встановлюватимуться автоматично</string>
+    <string name="auto_updates_notification">Оновлення додатків будуть встановлені автоматично</string>
+    <string name="update_all">Оновити все</string>
+    <string name="show_more">Показати більше</string>
+    <string name="something_went_wrong">Щось пішло не так!</string>
+    <string name="app_not_found">Вашого додатку не було знайдено.</string>
+    <string name="message_app_available_later">Цей додаток буде доступний пізніше!</string>
+    <string name="install_blocked_google">Платні додатки ще не підтримуються Простором Додатків. Потерпіть ще трохи, вони скоро будуть доступні.</string>
+    <string name="install_blocked_anonymous">Платні додатки не можуть бути встановлені, якщо ви знаходитеся в Анонімному режимі. Будь ласка, увійдіть у ваш Google аккаунт, якщо ви хочете встановлювати платні додатки.</string>
+    <string name="package_name">Назва пакету: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="license">Ліцензія: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="min_android_version">Потребує: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="version">Версія: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="permissions">Дозволи</string>
+    <string name="privacy_analyses">Аналізи приватності</string>
+    <string name="privacy_score">Оцінка приватності</string>
+    <string name="privacy">Приватність</string>
+    <string name="rating_description">Оцінка додатку. Обчислено, використовуючи всі рейтинги цього додатку.</string>
+    <string name="rating">Оцінка</string>
+    <string name="ratings">Оцінки</string>
+    <string name="update">Оновити</string>
+    <string name="more">Більше</string>
+    <string name="retry">Спробувати знову</string>
+    <string name="open">Відкрити</string>
+    <string name="app_icon">Іконка додатку</string>
+    <string name="cancel">Скасувати</string>
+    <string name="installing">Встановлення</string>
+    <string name="install">Встановити</string>
+    <string name="ok">ОК</string>
+    <string name="share_intent">Перевірте \"<xliff:g id="rating">%1$s</xliff:g>\"
+\n<xliff:g id="rating">%2$s</xliff:g></string>
+    <string name="description">Опис</string>
+    <string name="logout">Вийти</string>
+    <string name="user_anonymous">Анонімно</string>
+    <string name="menu_updates">Оновлення</string>
+    <string name="menu_search">Пошук</string>
 </resources>
