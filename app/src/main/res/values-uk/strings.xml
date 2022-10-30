@@ -83,4 +83,5 @@
     <string name="user_anonymous">Анонімно</string>
     <string name="menu_updates">Оновлення</string>
     <string name="menu_search">Пошук</string>
+    <string name="message_retry">Оновлення не вдалося. Автоматичні повторні спроби уже в процесі.</string>
 </resources>
