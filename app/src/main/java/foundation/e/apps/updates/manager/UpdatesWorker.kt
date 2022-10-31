@@ -13,6 +13,7 @@ import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.aurora.gplayapi.data.models.AuthData
+import com.google.gson.Gson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import foundation.e.apps.R
@@ -31,6 +32,8 @@ import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.modules.DataStoreManager
 import kotlinx.coroutines.delay
+import foundation.e.apps.utils.enums.User
+import foundation.e.apps.utils.modules.DataStoreModule
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.net.URL
@@ -43,7 +46,9 @@ class UpdatesWorker @AssistedInject constructor(
     private val fusedAPIRepository: FusedAPIRepository,
     private val fusedManagerRepository: FusedManagerRepository,
     private val dataStoreManager: DataStoreManager,
+    private val gson: Gson,
 ) : CoroutineWorker(context, params) {
+
     companion object {
         const val IS_AUTO_UPDATE = "IS_AUTO_UPDATE"
         private const val MAX_RETRY_COUNT = 10
@@ -71,15 +76,41 @@ class UpdatesWorker @AssistedInject constructor(
         }
     }
 
+    private fun getUser(): User {
+        return dataStoreManager.getUserType()
+    }
+
     private suspend fun checkForUpdates() {
         loadSettings()
         val isConnectedToUnmeteredNetwork = isConnectedToUnmeteredNetwork(applicationContext)
-        val authData = dataStoreManager.getAuthData()
-        var resultStatus: ResultStatus
+        val appsNeededToUpdate = mutableListOf<FusedApp>()
+        val user = getUser()
+        val authData = getAuthData()
+        val resultStatus: ResultStatus
 
-        val updateData = updatesManagerRepository.getUpdates(authData)
-        val appsNeededToUpdate = updateData.first
-        resultStatus = updateData.second
+        if (user in listOf(User.ANONYMOUS, User.GOOGLE) && authData != null) {
+            /*
+             * Signifies valid Google user and valid auth data to update
+             * apps from Google Play store.
+             * The user check will be more useful in No Google mode.
+             */
+            val updateData = updatesManagerRepository.getUpdates(authData)
+            appsNeededToUpdate.addAll(updateData.first)
+            resultStatus = updateData.second
+        } else if (user != User.UNAVAILABLE) {
+            /*
+             * If authData is null, update apps from cleanapk only.
+             */
+            val updateData = updatesManagerRepository.getUpdatesOSS()
+            appsNeededToUpdate.addAll(updateData.first)
+            resultStatus = updateData.second
+        } else {
+            /*
+             * If user in UNAVAILABLE, don't do anything.
+             */
+            resultStatus = ResultStatus.OK
+            return
+        }
 
         if (isAutoUpdate && shouldShowNotification) {
             handleNotification(appsNeededToUpdate.size, isConnectedToUnmeteredNetwork)
@@ -89,9 +120,9 @@ class UpdatesWorker @AssistedInject constructor(
             manageRetry()
         } else {
             /*
-         * Show notification only if enabled.
-         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5376
-         */
+             * Show notification only if enabled.
+             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5376
+             */
             retryCount = 0
             if (isAutoUpdate && shouldShowNotification) {
                 handleNotification(appsNeededToUpdate.size, isConnectedToUnmeteredNetwork)
@@ -101,10 +132,10 @@ class UpdatesWorker @AssistedInject constructor(
                 isConnectedToUnmeteredNetwork,
                 appsNeededToUpdate,
                 /*
-             * If authData is null, only cleanApk data will be present
-             * in appsNeededToUpdate list. Hence it is safe to proceed with
-             * blank AuthData.
-             */
+                 * If authData is null, only cleanApk data will be present
+                 * in appsNeededToUpdate list. Hence it is safe to proceed with
+                 * blank AuthData.
+                 */
                 authData ?: AuthData("", ""),
             )
         }
@@ -153,6 +184,12 @@ class UpdatesWorker @AssistedInject constructor(
                 isConnectedToUnmeteredNetwork
             )
         }
+    }
+
+    private fun getAuthData(): AuthData? {
+        val authDataJson = dataStoreManager.getAuthDataJson()
+        return if (authDataJson.isBlank()) return null
+        else gson.fromJson(authDataJson, AuthData::class.java)
     }
 
     private suspend fun startUpdateProcess(

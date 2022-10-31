@@ -18,7 +18,6 @@
 
 package foundation.e.apps.api.gplay
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import com.aurora.gplayapi.SearchSuggestEntry
@@ -26,7 +25,6 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.File
-import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.data.models.SearchBundle
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
@@ -37,66 +35,13 @@ import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.aurora.gplayapi.helpers.SearchHelper
 import com.aurora.gplayapi.helpers.StreamHelper
 import com.aurora.gplayapi.helpers.TopChartsHelper
-import dagger.hilt.android.qualifiers.ApplicationContext
-import foundation.e.apps.api.gplay.token.TokenRepository
-import foundation.e.apps.api.gplay.utils.CustomAuthValidator
 import foundation.e.apps.api.gplay.utils.GPlayHttpClient
-import foundation.e.apps.utils.modules.DataStoreModule
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class GPlayAPIImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val tokenRepository: TokenRepository,
-    private val dataStoreModule: DataStoreModule,
-    private val gPlayHttpClient: GPlayHttpClient
-) {
-
-    /**
-     * Save auth data to preferences.
-     * Updated for network failures.
-     * Issue:
-     * https://gitlab.e.foundation/e/backlog/-/issues/5413
-     * https://gitlab.e.foundation/e/backlog/-/issues/5404
-     *
-     * @return true or false based on if the request was successful.
-     */
-    // TODO: DON'T HARDCODE DISPATCHERS IN ANY METHODS
-    suspend fun fetchAuthData(): Boolean = withContext(Dispatchers.IO) {
-        val data = async { tokenRepository.getAuthData() }
-        data.await().let {
-            if (it == null) return@withContext false
-            it.locale = context.resources.configuration.locales[0] // update locale with the default locale from settings
-            dataStoreModule.saveCredentials(it)
-            return@withContext true
-        }
-    }
-
-    suspend fun fetchAuthData(email: String, aasToken: String): AuthData? {
-        val authData = tokenRepository.getAuthData(email, aasToken)
-        if (authData.authToken.isNotEmpty() && authData.deviceInfoProvider != null) {
-            dataStoreModule.saveCredentials(authData)
-            return authData
-        }
-        return null
-    }
-
-    suspend fun validateAuthData(authData: AuthData): PlayResponse {
-        var result = PlayResponse()
-        withContext(Dispatchers.IO) {
-            try {
-                val authValidator = CustomAuthValidator(authData).using(gPlayHttpClient)
-                result = authValidator.getValidityResponse()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                throw e
-            }
-        }
-        return result
-    }
+class GPlayAPIImpl @Inject constructor(private val gPlayHttpClient: GPlayHttpClient) {
 
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {
         val searchData = mutableListOf<SearchSuggestEntry>()
