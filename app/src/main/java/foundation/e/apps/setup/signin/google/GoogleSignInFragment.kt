@@ -27,21 +27,23 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
 import foundation.e.apps.api.gplay.utils.AC2DMUtil
 import foundation.e.apps.databinding.FragmentGoogleSigninBinding
-import foundation.e.apps.setup.signin.SignInViewModel
-import foundation.e.apps.utils.enums.User
+import foundation.e.apps.login.LoginViewModel
+import foundation.e.apps.utils.modules.CommonUtilsModule.safeNavigate
 
 @AndroidEntryPoint
 class GoogleSignInFragment : Fragment(R.layout.fragment_google_signin) {
     private var _binding: FragmentGoogleSigninBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: SignInViewModel by viewModels()
+    private val viewModel: LoginViewModel by lazy {
+        ViewModelProvider(requireActivity())[LoginViewModel::class.java]
+    }
 
     companion object {
         private const val EMBEDDED_SETUP_URL =
@@ -53,18 +55,6 @@ class GoogleSignInFragment : Fragment(R.layout.fragment_google_signin) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentGoogleSigninBinding.bind(view)
         setupWebView()
-
-        viewModel.userType.observe(viewLifecycleOwner) {
-            if (it.isNotBlank()) {
-                when (User.valueOf(it)) {
-                    User.GOOGLE -> {
-                        view.findNavController()
-                            .navigate(R.id.action_googleSignInFragment_to_homeFragment)
-                    }
-                    else -> {}
-                }
-            }
-        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -84,10 +74,17 @@ class GoogleSignInFragment : Fragment(R.layout.fragment_google_signin) {
                 val cookieMap = AC2DMUtil.parseCookieString(cookies)
                 if (cookieMap.isNotEmpty() && cookieMap[AUTH_TOKEN] != null) {
                     val oauthToken = cookieMap[AUTH_TOKEN] ?: ""
-                    view.evaluateJavascript("(function() { return document.getElementById('profileIdentifier').innerHTML; })();") {
+                    view.evaluateJavascript(
+                        "document.querySelector(\"div[data-profile-identifier]\").textContent;"
+                    ) {
                         val email = it.replace("\"".toRegex(), "")
-                        viewModel.saveEmailToken(email, oauthToken)
-                        viewModel.saveUserType(User.GOOGLE)
+                        viewModel.initialGoogleLogin(email, oauthToken) {
+                            view.findNavController()
+                                .safeNavigate(
+                                    R.id.googleSignInFragment,
+                                    R.id.action_googleSignInFragment_to_homeFragment
+                                )
+                        }
                     }
                 }
             }

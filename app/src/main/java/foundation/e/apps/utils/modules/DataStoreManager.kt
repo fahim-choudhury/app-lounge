@@ -19,6 +19,7 @@ package foundation.e.apps.utils.modules
 
 import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
+import foundation.e.apps.utils.enums.User
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,5 +34,13 @@ class DataStoreManager @Inject constructor() {
     fun getAuthData(): AuthData {
         val authDataJson = dataStoreModule.getAuthDataSync()
         return gson.fromJson(authDataJson, AuthData::class.java)
+    }
+
+    fun getUserType(): User {
+        return dataStoreModule.getUserType()
+    }
+
+    fun getAuthDataJson(): String {
+        return dataStoreModule.getAuthDataSync()
     }
 }
