@@ -88,8 +88,16 @@ class SearchViewModel @Inject constructor(
                 if (!it.isSuccess()) {
                     val exception =
                         if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank()) {
-                            GPlayException(it.isTimeout(), "Data load error")
-                        } else CleanApkException(it.isTimeout(), "Data load error")
+                            GPlayException(
+                                it.isTimeout(),
+                                it.message.ifBlank { "Data load error" }
+                            )
+                        } else {
+                            CleanApkException(
+                                it.isTimeout(),
+                                it.message.ifBlank { "Data load error" }
+                            )
+                        }
 
                     exceptionsList.add(exception)
                     exceptionsLiveData.postValue(exceptionsList)

@@ -68,18 +68,20 @@ class UpdatesViewModel @Inject constructor(
             else updatesManagerRepository.getUpdatesOSS()
             updatesList.postValue(updatesResult)
 
-            if (updatesResult.second != ResultStatus.OK) {
+            val status = updatesResult.second
+
+            if (status != ResultStatus.OK) {
                 val exception =
                     if (authData != null &&
                         (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
                     ) {
                         GPlayException(
                             updatesResult.second == ResultStatus.TIMEOUT,
-                            "Data load error"
+                            status.message.ifBlank { "Data load error" }
                         )
                     } else CleanApkException(
                         updatesResult.second == ResultStatus.TIMEOUT,
-                        "Data load error"
+                        status.message.ifBlank { "Data load error" }
                     )
 
                 exceptionsList.add(exception)

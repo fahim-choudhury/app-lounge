@@ -17,8 +17,10 @@
 
 package foundation.e.apps.login
 
+import android.content.Context
 import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
+import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.login.api.GPlayApiFactory
 import foundation.e.apps.login.api.GPlayLoginInterface
@@ -26,6 +28,7 @@ import foundation.e.apps.login.api.GoogleLoginApi
 import foundation.e.apps.login.api.LoginApiRepository
 import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.exceptions.GPlayValidationException
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,6 +40,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class LoginSourceGPlay @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val gson: Gson,
     private val loginDataStore: LoginDataStore,
 ) : LoginSourceInterface {
@@ -52,6 +56,9 @@ class LoginSourceGPlay @Inject constructor(
 
     private val loginApiRepository: LoginApiRepository
         get() = LoginApiRepository(gPlayLoginInterface, user)
+
+    private val locale: Locale
+        get() = context.resources.configuration.locales[0]
 
     override fun isActive(): Boolean {
         if (user == User.UNAVAILABLE) {
@@ -141,7 +148,7 @@ class LoginSourceGPlay @Inject constructor(
      * Get AuthData for ANONYMOUS mode.
      */
     private suspend fun getAuthData(): ResultSupreme<AuthData?> {
-        return loginApiRepository.fetchAuthData("", "").run {
+        return loginApiRepository.fetchAuthData("", "", locale).run {
             if (isSuccess()) ResultSupreme.Success(formattedAuthData(this.data!!))
             else this
         }
@@ -161,7 +168,7 @@ class LoginSourceGPlay @Inject constructor(
          * Use it to fetch auth data.
          */
         if (aasToken.isNotBlank()) {
-            return loginApiRepository.fetchAuthData(email, aasToken)
+            return loginApiRepository.fetchAuthData(email, aasToken, locale)
         }
 
         /*
@@ -192,7 +199,7 @@ class LoginSourceGPlay @Inject constructor(
          * Finally save the aasToken and create auth data.
          */
         loginDataStore.saveAasToken(aasTokenFetched)
-        return loginApiRepository.fetchAuthData(email, aasTokenFetched)
+        return loginApiRepository.fetchAuthData(email, aasTokenFetched, locale)
     }
 
     /**
@@ -205,6 +212,7 @@ class LoginSourceGPlay @Inject constructor(
     ): ResultSupreme<AuthData?> {
 
         val formattedAuthData = formattedAuthData(authData)
+        formattedAuthData.locale = locale
 
         val validityResponse = loginApiRepository.login(formattedAuthData)
 
@@ -216,7 +224,7 @@ class LoginSourceGPlay @Inject constructor(
 
         val playResponse = validityResponse.data
         return if (validityResponse.isSuccess() && playResponse?.code == 200 && playResponse.isSuccessful) {
-            ResultSupreme.Success(authData)
+            ResultSupreme.Success(formattedAuthData)
         } else {
             val message =
                 "Validating AuthData failed.\n\n" +

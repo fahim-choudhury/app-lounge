@@ -134,7 +134,7 @@ sealed class ResultSupreme<T> {
             val resultObject = when {
                 status == ResultStatus.OK && data != null -> Success<T>(data)
                 status == ResultStatus.TIMEOUT && data != null -> Timeout<T>(data)
-                else -> Error(message, exception)
+                else -> Error(message.ifBlank { status.message }, exception)
             }
             resultObject.apply {
                 if (isUnknownError()) {

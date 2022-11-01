@@ -69,11 +69,19 @@ class HomeViewModel @Inject constructor(
             val screenData = fusedAPIRepository.getHomeScreenData(authData)
             homeScreenData.postValue(screenData)
 
-            if (screenData.second != ResultStatus.OK) {
+            val status = screenData.second
+
+            if (status != ResultStatus.OK) {
                 val exception =
                     if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
-                        GPlayException(screenData.second == ResultStatus.TIMEOUT, "Data load error")
-                    else CleanApkException(screenData.second == ResultStatus.TIMEOUT, "Data load error")
+                        GPlayException(
+                            screenData.second == ResultStatus.TIMEOUT,
+                            status.message.ifBlank { "Data load error" }
+                        )
+                    else CleanApkException(
+                        screenData.second == ResultStatus.TIMEOUT,
+                        status.message.ifBlank { "Data load error" }
+                    )
 
                 exceptionsList.add(exception)
                 exceptionsLiveData.postValue(exceptionsList)

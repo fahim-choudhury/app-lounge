@@ -133,48 +133,32 @@ class FusedAPIImpl @Inject constructor(
         applicationType: String
     ): Pair<List<FusedHome>, ResultStatus> {
         val list = mutableListOf<FusedHome>()
-        var apiStatus = ResultStatus.OK
-        try {
-            /*
-             * Each category of home apps (example "Top Free Apps") will have its own timeout.
-             * Fetching 6 such categories will have a total timeout to 2 mins 30 seconds
-             * (considering each category having 25 seconds timeout).
-             *
-             * To prevent waiting so long and fail early, use withTimeout{}.
-             */
-            withTimeout(timeoutDurationInMillis) {
-                if (preferenceManagerModule.isGplaySelected()) {
-                    list.addAll(fetchGPlayHome(authData))
-                }
+        val apiStatus = runCodeBlockWithTimeout({
 
-                if (preferenceManagerModule.isOpenSourceSelected()) {
-                    val response = cleanAPKRepository.getHomeScreenData(
-                        CleanAPKInterface.APP_TYPE_ANY,
-                        CleanAPKInterface.APP_SOURCE_FOSS
-                    ).body()
-                    response?.home?.let {
-                        list.addAll(generateCleanAPKHome(it, APP_TYPE_OPEN))
-                    }
-                }
+            if (preferenceManagerModule.isGplaySelected()) {
+                list.addAll(fetchGPlayHome(authData))
+            }
 
-                if (preferenceManagerModule.isPWASelected()) {
-                    val response = cleanAPKRepository.getHomeScreenData(
-                        CleanAPKInterface.APP_TYPE_PWA,
-                        CleanAPKInterface.APP_SOURCE_ANY
-                    ).body()
-                    response?.home?.let {
-                        list.addAll(generateCleanAPKHome(it, APP_TYPE_PWA))
-                    }
+            if (preferenceManagerModule.isOpenSourceSelected()) {
+                val response = cleanAPKRepository.getHomeScreenData(
+                    CleanAPKInterface.APP_TYPE_ANY,
+                    CleanAPKInterface.APP_SOURCE_FOSS
+                ).body()
+                response?.home?.let {
+                    list.addAll(generateCleanAPKHome(it, APP_TYPE_OPEN))
                 }
             }
-        } catch (e: TimeoutCancellationException) {
-            e.printStackTrace()
-            apiStatus = ResultStatus.TIMEOUT
-            Timber.d("Timed out fetching home data for type: $applicationType")
-        } catch (e: Exception) {
-            apiStatus = ResultStatus.UNKNOWN
-            Timber.e(e)
-        }
+
+            if (preferenceManagerModule.isPWASelected()) {
+                val response = cleanAPKRepository.getHomeScreenData(
+                    CleanAPKInterface.APP_TYPE_PWA,
+                    CleanAPKInterface.APP_SOURCE_ANY
+                ).body()
+                response?.home?.let {
+                    list.addAll(generateCleanAPKHome(it, APP_TYPE_PWA))
+                }
+            }
+        })
         return Pair(list, apiStatus)
     }
 
@@ -1015,7 +999,7 @@ class FusedAPIImpl @Inject constructor(
     private suspend fun runCodeBlockWithTimeout(
         block: suspend () -> Unit,
         timeoutBlock: (() -> Unit)? = null,
-        exceptionBlock: (() -> Unit)? = null,
+        exceptionBlock: ((e: Exception) -> Unit)? = null,
     ): ResultStatus {
         return try {
             withTimeout(timeoutDurationInMillis) {
@@ -1027,8 +1011,10 @@ class FusedAPIImpl @Inject constructor(
             ResultStatus.TIMEOUT
         } catch (e: Exception) {
             e.printStackTrace()
-            exceptionBlock?.invoke()
-            ResultStatus.UNKNOWN
+            exceptionBlock?.invoke(e)
+            ResultStatus.UNKNOWN.apply {
+                message = e.stackTraceToString()
+            }
         }
     }
 

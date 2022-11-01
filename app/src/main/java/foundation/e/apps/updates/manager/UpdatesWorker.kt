@@ -28,12 +28,11 @@ import foundation.e.apps.updates.UpdatesNotifier
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Type
+import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.modules.DataStoreManager
 import kotlinx.coroutines.delay
-import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.modules.DataStoreModule
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.net.URL

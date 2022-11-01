@@ -26,6 +26,7 @@ import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.exceptions.GPlayLoginException
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
+import java.util.Locale
 
 /**
  * Call methods of [GoogleLoginApi] and [AnonymousLoginApi] from here.
@@ -50,11 +51,12 @@ class LoginApiRepository constructor(
      * @param aasToken For Google login - Access token obtained from [getAasToken] function,
      * else blank for Anonymous login.
      */
-    suspend fun fetchAuthData(email: String, aasToken: String): ResultSupreme<AuthData?> {
+    suspend fun fetchAuthData(email: String, aasToken: String, locale: Locale): ResultSupreme<AuthData?> {
         val result = runCodeBlockWithTimeout({
             gPlayLoginInterface.fetchAuthData(email, aasToken)
         })
         return result.apply {
+            this.data?.locale = locale
             this.exception = when (result) {
                 is ResultSupreme.Timeout -> GPlayLoginException(true, "GPlay API timeout", user)
                 is ResultSupreme.Error -> GPlayLoginException(false, result.message, user)
@@ -143,7 +145,7 @@ class LoginApiRepository constructor(
     private suspend fun <T> runCodeBlockWithTimeout(
         block: suspend () -> T,
         timeoutBlock: (() -> T?)? = null,
-        exceptionBlock: (() -> T?)? = null,
+        exceptionBlock: ((e: Exception) -> T?)? = null,
     ): ResultSupreme<T?> {
         return try {
             withTimeout(timeoutDurationInMillis) {
@@ -155,7 +157,7 @@ class LoginApiRepository constructor(
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            ResultSupreme.Error(exceptionBlock?.invoke(), message = e.message ?: "")
+            ResultSupreme.Error(exceptionBlock?.invoke(e), message = e.message ?: "")
         }
     }
 }
