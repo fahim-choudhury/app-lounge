@@ -151,4 +151,5 @@
     <string name="message_update_failure_single_app">Die Aktualisierung von %1$s ist aufgrund einer Unterstützungs-Vorschrift (Standort, Betriebssystemversion …) fehlgeschlagen.</string>
     <string name="message_update_failed">Aufgrund eines vorübergehenden Fehlers können nicht alle Ihre Anwendungen aktualisiert werden. Bitte versuchen Sie es später noch einmal.</string>
     <string name="message_retry">Aktualisierungen fehlgeschlagen. Automatische Wiederholungsversuche sind im Gange.</string>
+    <string name="message_last_update_triggered">Neueste Aktualisierung ausgelöst %1$s</string>
 </resources>
