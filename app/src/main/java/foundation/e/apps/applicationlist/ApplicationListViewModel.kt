@@ -77,8 +77,14 @@ class ApplicationListViewModel @Inject constructor(
             if (!result.isSuccess()) {
                 val exception =
                     if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
-                        GPlayException(result.isTimeout(), "Data load error")
-                    else CleanApkException(result.isTimeout(), "Data load error")
+                        GPlayException(
+                            result.isTimeout(),
+                            result.message.ifBlank { "Data load error" }
+                        )
+                    else CleanApkException(
+                        result.isTimeout(),
+                        result.message.ifBlank { "Data load error" }
+                    )
 
                 exceptionsList.add(exception)
                 exceptionsLiveData.postValue(exceptionsList)

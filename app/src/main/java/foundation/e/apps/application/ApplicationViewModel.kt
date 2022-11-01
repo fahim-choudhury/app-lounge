@@ -105,11 +105,19 @@ class ApplicationViewModel @Inject constructor(
                     )
                 fusedApp.postValue(appData)
 
+                val status = appData.second
+
                 if (appData.second != ResultStatus.OK) {
                     val exception =
                         if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
-                            GPlayException(appData.second == ResultStatus.TIMEOUT, "Data load error")
-                        else CleanApkException(appData.second == ResultStatus.TIMEOUT, "Data load error")
+                            GPlayException(
+                                appData.second == ResultStatus.TIMEOUT,
+                                status.message.ifBlank { "Data load error" }
+                            )
+                        else CleanApkException(
+                            appData.second == ResultStatus.TIMEOUT,
+                            status.message.ifBlank { "Data load error" }
+                        )
 
                     exceptionsList.add(exception)
                     exceptionsLiveData.postValue(exceptionsList)

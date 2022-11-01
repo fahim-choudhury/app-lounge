@@ -65,11 +65,19 @@ class CategoriesViewModel @Inject constructor(
             val categoriesData = fusedAPIRepository.getCategoriesList(type, authData)
             categoriesList.postValue(categoriesData)
 
-            if (categoriesData.third != ResultStatus.OK) {
+            val status = categoriesData.third
+
+            if (status != ResultStatus.OK) {
                 val exception =
                     if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
-                        GPlayException(categoriesData.third == ResultStatus.TIMEOUT, "Data load error")
-                    else CleanApkException(categoriesData.third == ResultStatus.TIMEOUT, "Data load error")
+                        GPlayException(
+                            categoriesData.third == ResultStatus.TIMEOUT,
+                            status.message.ifBlank { "Data load error" }
+                        )
+                    else CleanApkException(
+                        categoriesData.third == ResultStatus.TIMEOUT,
+                        status.message.ifBlank { "Data load error" }
+                    )
 
                 exceptionsList.add(exception)
                 exceptionsLiveData.postValue(exceptionsList)

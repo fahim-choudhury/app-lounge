@@ -50,7 +50,15 @@ class AnonymousLoginApi(
             val response =
                 gPlayHttpClient.postAuth(tokenUrl, gson.toJson(nativeDeviceProperty).toByteArray())
             if (response.code != 200 || !response.isSuccessful) {
-                throw Exception("Error fetching Anonymous credentials: ${response.errorString}")
+                throw Exception(
+                    "Error fetching Anonymous credentials\n" +
+                        "Network code: ${response.code}\n" +
+                        "Success: ${response.isSuccessful}" +
+                        response.errorString.run {
+                            if (isNotBlank()) "\nError message: ${response.errorString}"
+                            else ""
+                        }
+                )
             } else {
                 authData = gson.fromJson(
                     String(response.responseBytes),

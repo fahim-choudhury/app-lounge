@@ -37,16 +37,23 @@
         android:visibility="gone"
         />
 
-    <TextView
-        android:id="@+id/log_display"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:padding="10dp"
-        android:background="@color/colorGrey2"
-        android:fontFamily="serif-monospace"
-        android:visibility="gone"
-        tools:text="@tools:sample/lorem/random"
-        />
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/log_display"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:padding="10dp"
+            android:background="@color/colorGrey2"
+            android:fontFamily="serif-monospace"
+            android:visibility="gone"
+            android:maxLines="10"
+            tools:text="@tools:sample/lorem/random"
+            />
+
+    </ScrollView>
 
 </LinearLayout>
