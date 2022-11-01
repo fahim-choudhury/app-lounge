@@ -43,6 +43,7 @@ import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.modules.PWAManagerModule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -50,6 +51,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
+import org.mockito.MockedStatic
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
@@ -88,9 +90,12 @@ class FusedApiImplTest {
 
     private lateinit var preferenceManagerModule: FakePreferenceModule
 
+    private lateinit var formatterMocked: MockedStatic<Formatter>
+
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
+        formatterMocked = Mockito.mockStatic(Formatter::class.java)
         preferenceManagerModule = FakePreferenceModule(context)
         fusedAPIImpl = FusedAPIImpl(
             cleanApkRepository,
@@ -100,6 +105,11 @@ class FusedApiImplTest {
             preferenceManagerModule,
             context
         )
+    }
+
+    @After
+    fun after() {
+        formatterMocked.close()
     }
 
     @Test
@@ -747,11 +757,22 @@ class FusedApiImplTest {
         preferenceManagerModule.isOpenSourceelectedFake = true
         preferenceManagerModule.isGplaySelectedFake = true
         val gplayLivedata =
-            MutableLiveData(Pair(listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), false))
+            MutableLiveData(
+                Pair(
+                    listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")),
+                    false
+                )
+            )
 
-        setupMockingSearchApp(packageNameSearchResponse, authData, gplayPackageResult, gplayLivedata)
+        setupMockingSearchApp(
+            packageNameSearchResponse,
+            authData,
+            gplayPackageResult,
+            gplayLivedata
+        )
 
-        val searchResultLiveData = fusedAPIImpl.getSearchResults("com.search.package", authData).getOrAwaitValue()
+        val searchResultLiveData =
+            fusedAPIImpl.getSearchResults("com.search.package", authData).getOrAwaitValue()
         val size = searchResultLiveData.data?.first?.size ?: -2
         assertEquals("getSearchResult", 8, size)
     }
@@ -760,7 +781,8 @@ class FusedApiImplTest {
         packageNameSearchResponse: Response<Search>?,
         authData: AuthData,
         gplayPackageResult: App,
-        gplayLivedata: MutableLiveData<Pair<List<App>, Boolean>>
+        gplayLivedata: MutableLiveData<Pair<List<App>, Boolean>>,
+        willThrowException: Boolean = false
     ) {
         Mockito.`when`(pwaManagerModule.getPwaStatus(any())).thenReturn(Status.UNAVAILABLE)
         Mockito.`when`(pkgManagerModule.getPackageStatus(any(), any()))
@@ -771,11 +793,15 @@ class FusedApiImplTest {
                 by = "package_name"
             )
         ).thenReturn(packageNameSearchResponse)
-        val formatterMocked = Mockito.mockStatic(Formatter::class.java)
         formatterMocked.`when`<String> { Formatter.formatFileSize(any(), any()) }.thenReturn("15MB")
 
-        Mockito.`when`(gPlayAPIRepository.getAppDetails(eq("com.search.package"), eq(authData)))
-            .thenReturn(gplayPackageResult)
+        if (willThrowException) {
+            Mockito.`when`(gPlayAPIRepository.getAppDetails("com.search.package", authData))
+                .thenThrow(RuntimeException())
+        } else {
+            Mockito.`when`(gPlayAPIRepository.getAppDetails(eq("com.search.package"), eq(authData)))
+                .thenReturn(gplayPackageResult)
+        }
 
         Mockito.`when`(cleanApkRepository.searchApps(keyword = "com.search.package"))
             .thenReturn(packageNameSearchResponse)
@@ -789,5 +815,56 @@ class FusedApiImplTest {
         ).thenReturn(packageNameSearchResponse)
         Mockito.`when`(gPlayAPIRepository.getSearchResults(eq("com.search.package"), eq(authData)))
             .thenReturn(gplayLivedata)
+    }
+
+    @Test
+    fun `getSearchResult When getApplicationDetailsThrowsException`() = runTest {
+        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
+        val appList = mutableListOf<FusedApp>(
+            FusedApp(
+                _id = "111",
+                status = Status.UNAVAILABLE,
+                name = "Demo One",
+                package_name = "foundation.e.demoone",
+                latest_version_code = 123
+            ),
+            FusedApp(
+                _id = "112",
+                status = Status.UNAVAILABLE,
+                name = "Demo Two",
+                package_name = "foundation.e.demotwo",
+                latest_version_code = 123
+            ),
+            FusedApp(
+                _id = "113",
+                status = Status.UNAVAILABLE,
+                name = "Demo Three",
+                package_name = "foundation.e.demothree",
+                latest_version_code = 123
+            )
+        )
+        val searchResult = Search(apps = appList, numberOfResults = 1, success = true)
+        val packageNameSearchResponse = Response.success(searchResult)
+        val gplayPackageResult = App("com.search.package")
+
+        val gplayLivedata =
+            MutableLiveData(Pair(listOf(App("a.b.c"), App("c.d.e"), App("d.e.f")), false))
+
+        setupMockingSearchApp(
+            packageNameSearchResponse,
+            authData,
+            gplayPackageResult,
+            gplayLivedata,
+            true
+        )
+
+        preferenceManagerModule.isPWASelectedFake = false
+        preferenceManagerModule.isOpenSourceelectedFake = false
+        preferenceManagerModule.isGplaySelectedFake = true
+
+        val searchResultLiveData =
+            fusedAPIImpl.getSearchResults("com.search.package", authData).getOrAwaitValue()
+        val size = searchResultLiveData.data?.first?.size ?: -2
+        assertEquals("getSearchResult", 3, size)
     }
 }
