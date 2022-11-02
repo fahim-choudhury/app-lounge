@@ -228,7 +228,16 @@ class FusedAPIImpl @Inject constructor(
                     query,
                     searchResult,
                     packageSpecificResults
-                )?.let { emit(it) }
+                ).let { emit(it) }
+            }
+
+            if (preferenceManagerModule.isPWASelected()) {
+                fetchPWASearchResult(
+                    this@FusedAPIImpl,
+                    query,
+                    searchResult,
+                    packageSpecificResults
+                ).let { emit(it) }
             }
 
             if (preferenceManagerModule.isGplaySelected()) {
@@ -241,15 +250,6 @@ class FusedAPIImpl @Inject constructor(
                     )
                 )
             }
-
-            if (preferenceManagerModule.isPWASelected()) {
-                fetchPWASearchResult(
-                    this@FusedAPIImpl,
-                    query,
-                    searchResult,
-                    packageSpecificResults
-                )?.let { emit(it) }
-            }
         }
     }
 
@@ -258,7 +258,7 @@ class FusedAPIImpl @Inject constructor(
         query: String,
         searchResult: MutableList<FusedApp>,
         packageSpecificResults: ArrayList<FusedApp>
-    ): ResultSupreme<Pair<List<FusedApp>, Boolean>>? {
+    ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
         val pwaApps: MutableList<FusedApp> = mutableListOf()
         val status = fusedAPIImpl.runCodeBlockWithTimeout({
             getCleanAPKSearchResults(
@@ -274,19 +274,19 @@ class FusedAPIImpl @Inject constructor(
 
         if (pwaApps.isNotEmpty() || status != ResultStatus.OK) {
             searchResult.addAll(pwaApps)
-            return ResultSupreme.create(
-                status,
-                Pair(
-                    filterWithKeywordSearch(
-                        searchResult,
-                        packageSpecificResults,
-                        query
-                    ),
-                    false
-                )
-            )
         }
-        return null
+
+        return ResultSupreme.create(
+            status,
+            Pair(
+                filterWithKeywordSearch(
+                    searchResult,
+                    packageSpecificResults,
+                    query
+                ),
+                preferenceManagerModule.isGplaySelected()
+            )
+        )
     }
 
     private fun fetchGplaySearchResults(
@@ -317,26 +317,26 @@ class FusedAPIImpl @Inject constructor(
         query: String,
         searchResult: MutableList<FusedApp>,
         packageSpecificResults: ArrayList<FusedApp>
-    ): ResultSupreme<Pair<List<FusedApp>, Boolean>>? {
+    ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
         val status = fusedAPIImpl.runCodeBlockWithTimeout({
             cleanApkResults.addAll(getCleanAPKSearchResults(query))
         })
 
-        if (cleanApkResults.isNotEmpty() || status != ResultStatus.OK) {
+        if (cleanApkResults.isNotEmpty()) {
             searchResult.addAll(cleanApkResults)
-            return ResultSupreme.create(
-                status,
-                Pair(
-                    filterWithKeywordSearch(
-                        searchResult,
-                        packageSpecificResults,
-                        query
-                    ),
-                    preferenceManagerModule.isGplaySelected() || preferenceManagerModule.isPWASelected()
-                )
-            )
         }
-        return null
+
+        return ResultSupreme.create(
+            status,
+            Pair(
+                filterWithKeywordSearch(
+                    searchResult,
+                    packageSpecificResults,
+                    query
+                ),
+                preferenceManagerModule.isGplaySelected() || preferenceManagerModule.isPWASelected()
+            )
+        )
     }
 
     private suspend fun fetchPackageSpecificResult(

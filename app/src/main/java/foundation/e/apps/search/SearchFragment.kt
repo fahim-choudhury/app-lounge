@@ -131,7 +131,7 @@ class SearchFragment :
 
     private fun observeSearchResult(listAdapter: ApplicationListRVAdapter?) {
         searchViewModel.searchResult.observe(viewLifecycleOwner) {
-            if (it.data?.first.isNullOrEmpty()) {
+            if (it.data?.first.isNullOrEmpty() && it.data?.second == false) {
                 noAppsFoundLayout?.visibility = View.VISIBLE
             } else {
                 if (!updateSearchResult(listAdapter, it)) return@observe
