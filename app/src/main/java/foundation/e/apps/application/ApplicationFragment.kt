@@ -776,16 +776,15 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
      * layout contents.
      */
     private fun togglePrivacyInfo(visible: Boolean) {
+        val visibility = if (visible) View.VISIBLE else View.INVISIBLE
         binding.privacyInclude.run {
-            (if (visible) View.VISIBLE else View.INVISIBLE).run {
-                appPermissions.visibility = this
-                appTrackers.visibility = this
-            }
+            appPermissions.visibility = visibility
+            appTrackers.visibility = visibility
             loadingBar.isVisible = !visible
         }
         binding.ratingsInclude.appPrivacyScoreLayout.run {
             findViewById<View>(R.id.loadingBar).isVisible = !visible
-            findViewById<View>(R.id.appPrivacyScore).isVisible = visible
+            findViewById<View>(R.id.appPrivacyScore).visibility = visibility
         }
     }
 
