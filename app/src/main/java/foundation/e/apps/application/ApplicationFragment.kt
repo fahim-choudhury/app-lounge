@@ -772,15 +772,6 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         togglePrivacyInfoVisibility(true)
     }
 
-    /**
-     * It takes fair amount of time to load trackers information after loading app details.
-     * Till trackers are loaded, we should show loading icon for privacy info.
-     *
-     * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/656
-     *
-     * @param visible Boolean to toggle visibility of loading progress bar or the
-     * layout contents.
-     */
     private fun togglePrivacyInfoVisibility(visible: Boolean) {
         val visibility = if (visible) View.VISIBLE else View.INVISIBLE
         binding.privacyInclude.run {
