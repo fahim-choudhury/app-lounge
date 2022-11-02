@@ -386,7 +386,13 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         /* Remove trailing slash (if present) that can become part of the packageName */
         val packageName = args.packageName.run { if (endsWith('/')) dropLast(1) else this }
 
-        applicationViewModel.loadData(args.id, packageName, origin, isFdroidDeepLink, authObjectList) {
+        applicationViewModel.loadData(
+            args.id,
+            packageName,
+            origin,
+            isFdroidDeepLink,
+            authObjectList
+        ) {
             clearAndRestartGPlayLogin()
             true
         }
@@ -707,7 +713,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             return
         }
         val downloadedSize = "${
-        Formatter.formatFileSize(requireContext(), progressResult.second).substringBefore(" MB")
+            Formatter.formatFileSize(requireContext(), progressResult.second).substringBefore(" MB")
         }/${Formatter.formatFileSize(requireContext(), progressResult.first)}"
         val progressPercentage =
             ((progressResult.second / progressResult.first.toDouble()) * 100f).toInt()
@@ -782,10 +788,8 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             appTrackers.visibility = visibility
             loadingBar.isVisible = !visible
         }
-        binding.ratingsInclude.appPrivacyScoreLayout.run {
-            findViewById<View>(R.id.loadingBar).isVisible = !visible
-            findViewById<View>(R.id.appPrivacyScore).visibility = visibility
-        }
+        binding.ratingsInclude.loadingBar.isVisible = !visible
+        binding.ratingsInclude.appPrivacyScore.visibility = visibility
     }
 
     override fun onDestroyView() {
