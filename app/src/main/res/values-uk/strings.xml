@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="not_enough_storage">Недостатньо доступного місця для завантаження цього додатку!</string>
+    <string name="unknown_error">Непередбачувана помилка!</string>
+    <string name="information">Інформація</string>
+    <string name="trackers_title">Трекери</string>
+    <string name="tracker_information_not_found">Не знайдено інформації стосовно трекерів для цього додатку</string>
+    <string name="terms_services">Умови Використання Сервісів</string>
+    <string name="account">Акаунт</string>
+    <string name="copied">Скопійовано</string>
+    <string name="app_version_label">Версія Простору додатків</string>
+    <string name="about">Про додаток</string>
+    <string name="show_only_pwa_apps">Показати прогресивні вебзастосунки</string>
+    <string name="show_only_open_source_apps">Показати додатки з вільним ПЗ</string>
+    <string name="Show_common_apps">Показати поширені додатки</string>
+    <string name="Show_applications">Показати додатки:</string>
+    <string name="preference_update_install_automatically_title">Автоматично встановлювати оновлення</string>
+    <string name="preference_update_notify_available_description">Надсилати сповіщення якщо доступні оновлення додатків</string>
+    <string name="preference_update_install_automatically_description">Завантажувати та встановлювати оновлення додатків у фоні</string>
+    <string name="preference_update_notify_available_title">Показати доступні оновлення</string>
+    <string name="preference_update_wifi_only_description">Оновлювати додатки автоматично тільки на немобільних мережах, таких як Wi-Fi</string>
+    <string name="preference_update_wifi_only_title">Тільки на немобільних мережах</string>
+    <string name="preference_update_interval_title">Інтервал перевірки оновлень</string>
+    <string name="preference_update_interval_default">24</string>
+    <string name="os_version">Версія операційної системи /e/</string>
+    <string name="preference_updates_title">Оновлення</string>
+    <string name="tos_warning">Перед тим як продовжити, Ви маєте погодитись з Умовами Використання Сервісів.</string>
+    <string name="tos_agree_date">Прийнято</string>
+    <string name="tos_disagree">Відхилити</string>
+    <string name="tos_agree">Прийняти</string>
+    <string name="or">або</string>
+    <string name="sign_in_anonymous">Анонімний режим</string>
+    <string name="sign_in_google">Увійти за допомогою Google</string>
+    <string name="sign_in_desc">Увійдіть у Простір додатків використовуючи Ваш акаунт Google, або оберіть Анонімний режим, якщо хочете увійти анонімно.</string>
+    <string name="sign_in_title">Ласкаво просимо</string>
+    <string name="pwa">Прогресивний вебзастосунок</string>
+    <string name="open_source">Відкрите програмне забезпечення</string>
+    <string name="category_icon">Іконка категорії</string>
+    <string name="apps">Додатки</string>
+    <string name="games">Ігри</string>
+    <string name="no_apps_found">Додатків не знайдено…</string>
+    <string name="search_hint">Шукати додаток</string>
+    <string name="menu_settings">Налаштування</string>
+    <string name="menu_categories">Категорії</string>
+    <string name="menu_home">Домівка</string>
+    <string name="app_name">Простір додатків</string>
+    <string name="message_update_failed">Із-за тимчасової помилки, Ваші додатки не можуть бути оновлені. Будь-ласка, спробуйте пізніше.</string>
+    <string name="update_error">Помилка оновлення!</string>
+    <string name="all_apps_updated">Всі додатки мають останню версію</string>
+    <string name="manual_updates_notification">Оновлення додатків не встановлюватимуться автоматично</string>
+    <string name="auto_updates_notification">Оновлення додатків будуть встановлені автоматично</string>
+    <string name="update_all">Оновити все</string>
+    <string name="show_more">Показати більше</string>
+    <string name="something_went_wrong">Щось пішло не так!</string>
+    <string name="app_not_found">Вашого додатку не було знайдено.</string>
+    <string name="message_app_available_later">Цей додаток буде доступний пізніше!</string>
+    <string name="install_blocked_google">Платні додатки ще не підтримуються Простором Додатків. Потерпіть ще трохи, вони скоро будуть доступні.</string>
+    <string name="install_blocked_anonymous">Платні додатки не можуть бути встановлені, якщо ви знаходитеся в Анонімному режимі. Будь ласка, увійдіть у ваш Google аккаунт, якщо ви хочете встановлювати платні додатки.</string>
+    <string name="package_name">Назва пакету: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="license">Ліцензія: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="min_android_version">Потребує: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="version">Версія: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="permissions">Дозволи</string>
+    <string name="privacy_analyses">Аналізи приватності</string>
+    <string name="privacy_score">Оцінка приватності</string>
+    <string name="privacy">Приватність</string>
+    <string name="rating_description">Оцінка додатку. Обчислено, використовуючи всі рейтинги цього додатку.</string>
+    <string name="rating">Оцінка</string>
+    <string name="ratings">Оцінки</string>
+    <string name="update">Оновити</string>
+    <string name="more">Більше</string>
+    <string name="retry">Спробувати знову</string>
+    <string name="open">Відкрити</string>
+    <string name="app_icon">Іконка додатку</string>
+    <string name="cancel">Скасувати</string>
+    <string name="installing">Встановлення</string>
+    <string name="install">Встановити</string>
+    <string name="ok">ОК</string>
+    <string name="share_intent">Перевірте \"<xliff:g id="rating">%1$s</xliff:g>\"
+\n<xliff:g id="rating">%2$s</xliff:g></string>
+    <string name="description">Опис</string>
+    <string name="logout">Вийти</string>
+    <string name="user_anonymous">Анонімно</string>
+    <string name="menu_updates">Оновлення</string>
+    <string name="menu_search">Пошук</string>
+    <string name="message_retry">Оновлення не вдалося. Автоматичні повторні спроби уже в процесі.</string>
+</resources>

@@ -19,7 +19,6 @@
 package foundation.e.apps.application
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.exceptions.ApiException
@@ -27,6 +26,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.R
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
+import foundation.e.apps.login.AuthObject
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.download.data.DownloadProgressLD
@@ -34,6 +34,9 @@ import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.utils.exceptions.CleanApkException
+import foundation.e.apps.utils.exceptions.GPlayException
+import foundation.e.apps.utils.parentFragment.LoadingViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -43,7 +46,7 @@ class ApplicationViewModel @Inject constructor(
     downloadProgressLD: DownloadProgressLD,
     private val fusedAPIRepository: FusedAPIRepository,
     private val fusedManagerRepository: FusedManagerRepository,
-) : ViewModel() {
+) : LoadingViewModel() {
 
     val fusedApp: MutableLiveData<Pair<FusedApp, ResultStatus>> = MutableLiveData()
     val appStatus: MutableLiveData<Status?> = MutableLiveData()
@@ -51,17 +54,74 @@ class ApplicationViewModel @Inject constructor(
     private val _errorMessageLiveData: MutableLiveData<Int> = MutableLiveData()
     val errorMessageLiveData: MutableLiveData<Int> = _errorMessageLiveData
 
+    fun loadData(
+        id: String,
+        packageName: String,
+        origin: Origin,
+        isFdroidLink: Boolean,
+        authObjectList: List<AuthObject>,
+        retryBlock: (failedObjects: List<AuthObject>) -> Boolean,
+    ) {
+
+        if (isFdroidLink) {
+            getCleanapkAppDetails(packageName)
+            return
+        }
+
+        val gPlayObj = authObjectList.find { it is AuthObject.GPlayAuth }
+
+        /*
+         * If user is viewing only open source apps, auth object list will not have
+         * GPlayAuth, it will only have CleanApkAuth.
+         */
+        if (gPlayObj == null && origin == Origin.GPLAY) {
+            _errorMessageLiveData.postValue(R.string.gplay_data_for_oss)
+            return
+        }
+
+        super.onLoadData(authObjectList, { successAuthList, _ ->
+
+            successAuthList.find { it is AuthObject.GPlayAuth }?.run {
+                getApplicationDetails(id, packageName, result.data!! as AuthData, origin)
+                return@onLoadData
+            }
+
+            successAuthList.find { it is AuthObject.CleanApk }?.run {
+                getApplicationDetails(id, packageName, AuthData("", ""), origin)
+                return@onLoadData
+            }
+        }, retryBlock)
+    }
+
     fun getApplicationDetails(id: String, packageName: String, authData: AuthData, origin: Origin) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                fusedApp.postValue(
+                val appData =
                     fusedAPIRepository.getApplicationDetails(
                         id,
                         packageName,
                         authData,
                         origin
                     )
-                )
+                fusedApp.postValue(appData)
+
+                val status = appData.second
+
+                if (appData.second != ResultStatus.OK) {
+                    val exception =
+                        if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
+                            GPlayException(
+                                appData.second == ResultStatus.TIMEOUT,
+                                status.message.ifBlank { "Data load error" }
+                            )
+                        else CleanApkException(
+                            appData.second == ResultStatus.TIMEOUT,
+                            status.message.ifBlank { "Data load error" }
+                        )
+
+                    exceptionsList.add(exception)
+                    exceptionsLiveData.postValue(exceptionsList)
+                }
             } catch (e: ApiException.AppNotFound) {
                 _errorMessageLiveData.postValue(R.string.app_not_found)
             } catch (e: Exception) {

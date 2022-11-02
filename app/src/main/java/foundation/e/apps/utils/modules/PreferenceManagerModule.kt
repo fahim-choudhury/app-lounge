@@ -22,6 +22,9 @@ import android.content.Context
 import androidx.preference.PreferenceManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.OpenForTesting
+import foundation.e.apps.utils.Constants.PREFERENCE_SHOW_FOSS
+import foundation.e.apps.utils.Constants.PREFERENCE_SHOW_GPLAY
+import foundation.e.apps.utils.Constants.PREFERENCE_SHOW_PWA
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -34,8 +37,8 @@ class PreferenceManagerModule @Inject constructor(
     private val preferenceManager = PreferenceManager.getDefaultSharedPreferences(context)
 
     fun preferredApplicationType(): String {
-        val showFOSSApplications = preferenceManager.getBoolean("showFOSSApplications", false)
-        val showPWAApplications = preferenceManager.getBoolean("showPWAApplications", false)
+        val showFOSSApplications = preferenceManager.getBoolean(PREFERENCE_SHOW_FOSS, false)
+        val showPWAApplications = preferenceManager.getBoolean(PREFERENCE_SHOW_PWA, false)
 
         return when {
             showFOSSApplications -> "open"
@@ -44,9 +47,9 @@ class PreferenceManagerModule @Inject constructor(
         }
     }
 
-    fun isOpenSourceSelected() = preferenceManager.getBoolean("showFOSSApplications", true)
-    fun isPWASelected() = preferenceManager.getBoolean("showPWAApplications", true)
-    fun isGplaySelected() = preferenceManager.getBoolean("showAllApplications", true)
+    fun isOpenSourceSelected() = preferenceManager.getBoolean(PREFERENCE_SHOW_FOSS, true)
+    fun isPWASelected() = preferenceManager.getBoolean(PREFERENCE_SHOW_PWA, true)
+    fun isGplaySelected() = preferenceManager.getBoolean(PREFERENCE_SHOW_GPLAY, true)
 
     fun autoUpdatePreferred(): Boolean {
         return preferenceManager.getBoolean("updateInstallAuto", false)

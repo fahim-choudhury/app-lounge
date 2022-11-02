@@ -29,15 +29,13 @@ import androidx.core.app.NotificationManagerCompat
 import foundation.e.apps.MainActivity
 import foundation.e.apps.R
 
-class UpdatesNotifier {
-    companion object {
-        const val UPDATES_NOTIFICATION_CLICK_EXTRA = "updates_notification_click_extra"
-        private const val UPDATES_NOTIFICATION_ID = 76
-        private const val UPDATES_NOTIFICATION_CHANNEL_ID = "updates_notification"
-        private const val UPDATES_NOTIFICATION_CHANNEL_TITLE = "App updates"
-    }
+object UpdatesNotifier {
+    const val UPDATES_NOTIFICATION_CLICK_EXTRA = "updates_notification_click_extra"
+    private const val UPDATES_NOTIFICATION_ID = 76
+    private const val UPDATES_NOTIFICATION_CHANNEL_ID = "updates_notification"
+    private const val UPDATES_NOTIFICATION_CHANNEL_TITLE = "App updates"
 
-    private fun getNotification(
+    fun getNotification(
         context: Context,
         numberOfApps: Int,
         installAutomatically: Boolean,
@@ -45,25 +43,32 @@ class UpdatesNotifier {
         isConnectedToUnmeteredNetwork: Boolean
     ): Notification {
         val notificationBuilder =
-            NotificationCompat.Builder(context, UPDATES_NOTIFICATION_CHANNEL_ID)
-        notificationBuilder.setSmallIcon(R.drawable.ic_app_updated_on)
-        notificationBuilder.priority = NotificationCompat.PRIORITY_DEFAULT
-        if (numberOfApps == 1) {
-            notificationBuilder.setContentTitle(
-                context.resources.getQuantityString(
-                    R.plurals.updates_notification_title,
-                    1,
-                    numberOfApps
+            createNotificationBuilder(context)
+
+        when (numberOfApps) {
+            0 -> {
+                notificationBuilder.setContentTitle(
+                    "Checking Updates..."
                 )
-            )
-        } else {
-            notificationBuilder.setContentTitle(
-                context.resources.getQuantityString(
-                    R.plurals.updates_notification_title,
-                    numberOfApps,
-                    numberOfApps
+            }
+            1 -> {
+                notificationBuilder.setContentTitle(
+                    context.resources.getQuantityString(
+                        R.plurals.updates_notification_title,
+                        1,
+                        numberOfApps
+                    )
                 )
-            )
+            }
+            else -> {
+                notificationBuilder.setContentTitle(
+                    context.resources.getQuantityString(
+                        R.plurals.updates_notification_title,
+                        numberOfApps,
+                        numberOfApps
+                    )
+                )
+            }
         }
         if (installAutomatically) {
             notificationBuilder.setContentText(context.getString(R.string.automatically_install_updates_notification_text))
@@ -79,6 +84,15 @@ class UpdatesNotifier {
         notificationBuilder.setContentIntent(getClickIntent(context))
         notificationBuilder.setAutoCancel(true)
         return notificationBuilder.build()
+    }
+
+    private fun createNotificationBuilder(context: Context): NotificationCompat.Builder {
+        val notificationBuilder =
+            NotificationCompat.Builder(context, UPDATES_NOTIFICATION_CHANNEL_ID)
+
+        notificationBuilder.setSmallIcon(R.drawable.ic_app_updated_on)
+        notificationBuilder.priority = NotificationCompat.PRIORITY_DEFAULT
+        return notificationBuilder
     }
 
     private fun getClickIntent(context: Context): PendingIntent {
@@ -123,5 +137,36 @@ class UpdatesNotifier {
                 )
             )
         }
+    }
+
+    fun showNotification(
+        context: Context,
+        title: String,
+        message: String,
+    ) {
+        with(NotificationManagerCompat.from(context)) {
+            createNotificationChannel(context)
+            notify(
+                UPDATES_NOTIFICATION_ID,
+                getNotification(
+                    context,
+                    title,
+                    message
+                )
+            )
+        }
+    }
+
+    fun getNotification(context: Context, title: String, message: String): Notification {
+        val notificationBuilder = createNotificationBuilder(context)
+        notificationBuilder.setContentTitle(title)
+        notificationBuilder.setContentText(message)
+        return notificationBuilder.build()
+    }
+
+    fun cancelNotification(context: Context) {
+        val notificationManager: NotificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(UPDATES_NOTIFICATION_ID)
     }
 }

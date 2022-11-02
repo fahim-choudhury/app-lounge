@@ -67,6 +67,8 @@ class ApplicationListRVAdapter(
 
     private val TAG = ApplicationListRVAdapter::class.java.simpleName
 
+    private var optionalCategory = ""
+
     private val shimmer = Shimmer.ColorHighlightBuilder()
         .setDuration(500)
         .setBaseAlpha(0.7f)
@@ -172,7 +174,6 @@ class ApplicationListRVAdapter(
     private fun ApplicationListItemBinding.updateRating(searchApp: FusedApp) {
         if (searchApp.ratings.usageQualityScore != -1.0) {
             appRating.text = searchApp.ratings.usageQualityScore.toString()
-            appRatingBar.rating = searchApp.ratings.usageQualityScore.toFloat()
         }
     }
 
@@ -201,26 +202,30 @@ class ApplicationListRVAdapter(
         searchApp: FusedApp,
         view: View
     ) {
+        val catText = searchApp.category.ifBlank { optionalCategory }
         val action = when (currentDestinationId) {
             R.id.applicationListFragment -> {
                 ApplicationListFragmentDirections.actionApplicationListFragmentToApplicationFragment(
                     searchApp._id,
                     searchApp.package_name,
-                    searchApp.origin
+                    searchApp.origin,
+                    catText,
                 )
             }
             R.id.searchFragment -> {
                 SearchFragmentDirections.actionSearchFragmentToApplicationFragment(
                     searchApp._id,
                     searchApp.package_name,
-                    searchApp.origin
+                    searchApp.origin,
+                    catText,
                 )
             }
             R.id.updatesFragment -> {
                 UpdatesFragmentDirections.actionUpdatesFragmentToApplicationFragment(
                     searchApp._id,
                     searchApp.package_name,
-                    searchApp.origin
+                    searchApp.origin,
+                    catText,
                 )
             }
             else -> null
@@ -254,7 +259,7 @@ class ApplicationListRVAdapter(
             Status.QUEUED, Status.AWAITING, Status.DOWNLOADING, Status.DOWNLOADED -> {
                 handleDownloading(searchApp)
             }
-            Status.INSTALLING, Status.UNINSTALLING -> {
+            Status.INSTALLING -> {
                 handleInstalling()
             }
             Status.BLOCKED -> {
@@ -456,6 +461,7 @@ class ApplicationListRVAdapter(
             searchApp.isFree -> {
                 materialButton.enableInstallButton()
                 materialButton.text = materialButton.context.getString(R.string.install)
+                materialButton.strokeColor = ContextCompat.getColorStateList(holder.itemView.context, R.color.light_grey)
                 applicationListItemBinding.progressBarInstall.visibility = View.GONE
             }
             else -> {
@@ -515,7 +521,10 @@ class ApplicationListRVAdapter(
         progressBarInstall.visibility = View.GONE
     }
 
-    fun setData(newList: List<FusedApp>) {
+    fun setData(newList: List<FusedApp>, optionalCategory: String? = null) {
+        optionalCategory?.let {
+            this.optionalCategory = it
+        }
         currentList.forEach {
             newList.find { item -> item._id == it._id }?.let { foundItem ->
                 foundItem.privacyScore = it.privacyScore

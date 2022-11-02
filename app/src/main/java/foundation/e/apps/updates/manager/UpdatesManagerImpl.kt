@@ -47,6 +47,7 @@ class UpdatesManagerImpl @Inject constructor(
 
         if (pkgList.isNotEmpty()) {
             // Get updates from CleanAPK
+
             val cleanAPKResult = fusedAPIRepository.getApplicationDetails(
                 pkgList,
                 authData,
@@ -77,6 +78,37 @@ class UpdatesManagerImpl @Inject constructor(
                 }
             }
         }
+        val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
+        return Pair(nonFaultyUpdateList, status)
+    }
+
+    suspend fun getUpdatesOSS(): Pair<List<FusedApp>, ResultStatus> {
+        val pkgList = mutableListOf<String>()
+        val updateList = mutableListOf<FusedApp>()
+        var status = ResultStatus.OK
+
+        val userApplications = pkgManagerModule.getAllUserApps()
+        userApplications.forEach { pkgList.add(it.packageName) }
+
+        if (pkgList.isNotEmpty()) {
+            // Get updates from CleanAPK
+            val cleanAPKResult = fusedAPIRepository.getApplicationDetails(
+                pkgList,
+                AuthData("", ""),
+                Origin.CLEANAPK
+            )
+            cleanAPKResult.first.forEach {
+                if (it.status == Status.UPDATABLE && it.filterLevel.isUnFiltered()) updateList.add(
+                    it
+                )
+            }
+            cleanAPKResult.second.let {
+                if (it != ResultStatus.OK) {
+                    status = it
+                }
+            }
+        }
+
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
         return Pair(nonFaultyUpdateList, status)
     }

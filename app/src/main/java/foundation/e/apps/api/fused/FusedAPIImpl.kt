@@ -29,7 +29,6 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Artwork
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
-import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.TopChartsHelper
@@ -50,6 +49,7 @@ import foundation.e.apps.api.gplay.GPlayAPIRepository
 import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.pkg.PkgManagerModule
+import foundation.e.apps.utils.Constants.timeoutDurationInMillis
 import foundation.e.apps.utils.enums.AppTag
 import foundation.e.apps.utils.enums.FilterLevel
 import foundation.e.apps.utils.enums.Origin
@@ -57,13 +57,11 @@ import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.enums.isUnFiltered
-import foundation.e.apps.utils.modules.CommonUtilsModule.timeoutDurationInMillis
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 import timber.log.Timber
-import java.text.NumberFormat
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -135,48 +133,32 @@ class FusedAPIImpl @Inject constructor(
         applicationType: String
     ): Pair<List<FusedHome>, ResultStatus> {
         val list = mutableListOf<FusedHome>()
-        var apiStatus = ResultStatus.OK
-        try {
-            /*
-             * Each category of home apps (example "Top Free Apps") will have its own timeout.
-             * Fetching 6 such categories will have a total timeout to 2 mins 30 seconds
-             * (considering each category having 25 seconds timeout).
-             *
-             * To prevent waiting so long and fail early, use withTimeout{}.
-             */
-            withTimeout(timeoutDurationInMillis) {
-                if (preferenceManagerModule.isGplaySelected()) {
-                    list.addAll(fetchGPlayHome(authData))
-                }
+        val apiStatus = runCodeBlockWithTimeout({
 
-                if (preferenceManagerModule.isOpenSourceSelected()) {
-                    val response = cleanAPKRepository.getHomeScreenData(
-                        CleanAPKInterface.APP_TYPE_ANY,
-                        CleanAPKInterface.APP_SOURCE_FOSS
-                    ).body()
-                    response?.home?.let {
-                        list.addAll(generateCleanAPKHome(it, APP_TYPE_OPEN))
-                    }
-                }
+            if (preferenceManagerModule.isGplaySelected()) {
+                list.addAll(fetchGPlayHome(authData))
+            }
 
-                if (preferenceManagerModule.isPWASelected()) {
-                    val response = cleanAPKRepository.getHomeScreenData(
-                        CleanAPKInterface.APP_TYPE_PWA,
-                        CleanAPKInterface.APP_SOURCE_ANY
-                    ).body()
-                    response?.home?.let {
-                        list.addAll(generateCleanAPKHome(it, APP_TYPE_PWA))
-                    }
+            if (preferenceManagerModule.isOpenSourceSelected()) {
+                val response = cleanAPKRepository.getHomeScreenData(
+                    CleanAPKInterface.APP_TYPE_ANY,
+                    CleanAPKInterface.APP_SOURCE_FOSS
+                ).body()
+                response?.home?.let {
+                    list.addAll(generateCleanAPKHome(it, APP_TYPE_OPEN))
                 }
             }
-        } catch (e: TimeoutCancellationException) {
-            e.printStackTrace()
-            apiStatus = ResultStatus.TIMEOUT
-            Timber.d("Timed out fetching home data for type: $applicationType")
-        } catch (e: Exception) {
-            apiStatus = ResultStatus.UNKNOWN
-            Timber.e(e)
-        }
+
+            if (preferenceManagerModule.isPWASelected()) {
+                val response = cleanAPKRepository.getHomeScreenData(
+                    CleanAPKInterface.APP_TYPE_PWA,
+                    CleanAPKInterface.APP_SOURCE_ANY
+                ).body()
+                response?.home?.let {
+                    list.addAll(generateCleanAPKHome(it, APP_TYPE_PWA))
+                }
+            }
+        })
         return Pair(list, apiStatus)
     }
 
@@ -246,7 +228,16 @@ class FusedAPIImpl @Inject constructor(
                     query,
                     searchResult,
                     packageSpecificResults
-                )?.let { emit(it) }
+                ).let { emit(it) }
+            }
+
+            if (preferenceManagerModule.isPWASelected()) {
+                fetchPWASearchResult(
+                    this@FusedAPIImpl,
+                    query,
+                    searchResult,
+                    packageSpecificResults
+                ).let { emit(it) }
             }
 
             if (preferenceManagerModule.isGplaySelected()) {
@@ -259,15 +250,6 @@ class FusedAPIImpl @Inject constructor(
                     )
                 )
             }
-
-            if (preferenceManagerModule.isPWASelected()) {
-                fetchPWASearchResult(
-                    this@FusedAPIImpl,
-                    query,
-                    searchResult,
-                    packageSpecificResults
-                )?.let { emit(it) }
-            }
         }
     }
 
@@ -276,7 +258,7 @@ class FusedAPIImpl @Inject constructor(
         query: String,
         searchResult: MutableList<FusedApp>,
         packageSpecificResults: ArrayList<FusedApp>
-    ): ResultSupreme<Pair<List<FusedApp>, Boolean>>? {
+    ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
         val pwaApps: MutableList<FusedApp> = mutableListOf()
         val status = fusedAPIImpl.runCodeBlockWithTimeout({
             getCleanAPKSearchResults(
@@ -292,19 +274,19 @@ class FusedAPIImpl @Inject constructor(
 
         if (pwaApps.isNotEmpty() || status != ResultStatus.OK) {
             searchResult.addAll(pwaApps)
-            return ResultSupreme.create(
-                status,
-                Pair(
-                    filterWithKeywordSearch(
-                        searchResult,
-                        packageSpecificResults,
-                        query
-                    ),
-                    false
-                )
-            )
         }
-        return null
+
+        return ResultSupreme.create(
+            status,
+            Pair(
+                filterWithKeywordSearch(
+                    searchResult,
+                    packageSpecificResults,
+                    query
+                ),
+                preferenceManagerModule.isGplaySelected()
+            )
+        )
     }
 
     private fun fetchGplaySearchResults(
@@ -335,26 +317,26 @@ class FusedAPIImpl @Inject constructor(
         query: String,
         searchResult: MutableList<FusedApp>,
         packageSpecificResults: ArrayList<FusedApp>
-    ): ResultSupreme<Pair<List<FusedApp>, Boolean>>? {
+    ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
         val status = fusedAPIImpl.runCodeBlockWithTimeout({
             cleanApkResults.addAll(getCleanAPKSearchResults(query))
         })
 
-        if (cleanApkResults.isNotEmpty() || status != ResultStatus.OK) {
+        if (cleanApkResults.isNotEmpty()) {
             searchResult.addAll(cleanApkResults)
-            return ResultSupreme.create(
-                status,
-                Pair(
-                    filterWithKeywordSearch(
-                        searchResult,
-                        packageSpecificResults,
-                        query
-                    ),
-                    preferenceManagerModule.isGplaySelected() || preferenceManagerModule.isPWASelected()
-                )
-            )
         }
-        return null
+
+        return ResultSupreme.create(
+            status,
+            Pair(
+                filterWithKeywordSearch(
+                    searchResult,
+                    packageSpecificResults,
+                    query
+                ),
+                preferenceManagerModule.isGplaySelected() || preferenceManagerModule.isPWASelected()
+            )
+        )
     }
 
     private suspend fun fetchPackageSpecificResult(
@@ -463,18 +445,6 @@ class FusedAPIImpl @Inject constructor(
 
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {
         return gPlayAPIRepository.getSearchSuggestions(query, authData)
-    }
-
-    suspend fun fetchAuthData(): Boolean {
-        return gPlayAPIRepository.fetchAuthData()
-    }
-
-    suspend fun fetchAuthData(email: String, aasToken: String): AuthData? {
-        return gPlayAPIRepository.fetchAuthData(email, aasToken)
-    }
-
-    suspend fun validateAuthData(authData: AuthData): PlayResponse {
-        return gPlayAPIRepository.validateAuthData(authData)
     }
 
     suspend fun getOnDemandModule(
@@ -851,6 +821,7 @@ class FusedAPIImpl @Inject constructor(
             response?.let {
                 it.updateStatus()
                 it.updateType()
+                it.updateSource()
                 it.updateFilterLevel(authData)
             }
         })
@@ -1028,7 +999,7 @@ class FusedAPIImpl @Inject constructor(
     private suspend fun runCodeBlockWithTimeout(
         block: suspend () -> Unit,
         timeoutBlock: (() -> Unit)? = null,
-        exceptionBlock: (() -> Unit)? = null,
+        exceptionBlock: ((e: Exception) -> Unit)? = null,
     ): ResultStatus {
         return try {
             withTimeout(timeoutDurationInMillis) {
@@ -1040,8 +1011,10 @@ class FusedAPIImpl @Inject constructor(
             ResultStatus.TIMEOUT
         } catch (e: Exception) {
             e.printStackTrace()
-            exceptionBlock?.invoke()
-            ResultStatus.UNKNOWN
+            exceptionBlock?.invoke(e)
+            ResultStatus.UNKNOWN.apply {
+                message = e.stackTraceToString()
+            }
         }
     }
 
@@ -1353,7 +1326,7 @@ class FusedAPIImpl @Inject constructor(
                 usageQualityScore =
                 this.labeledRating.run {
                     if (isNotEmpty()) {
-                        NumberFormat.getInstance().parse(this)?.toDouble() ?: -1.0
+                        this.replace(",", ".").toDoubleOrNull() ?: -1.0
                     } else -1.0
                 }
             ),
@@ -1392,6 +1365,14 @@ class FusedAPIImpl @Inject constructor(
 
     private fun FusedApp.updateType() {
         this.type = if (this.is_pwa) Type.PWA else Type.NATIVE
+    }
+
+    private fun FusedApp.updateSource() {
+        this.apply {
+            source = if (origin == Origin.CLEANAPK && is_pwa) context.getString(R.string.pwa)
+            else if (origin == Origin.CLEANAPK) context.getString(R.string.open_source)
+            else ""
+        }
     }
 
     private fun MutableList<Artwork>.transformToList(): List<String> {

@@ -86,8 +86,7 @@
                 android:layout_height="25dp"
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="@+id/appPrivacyScore"
-                app:layout_constraintEnd_toStartOf="@+id/appPrivacyScore"
-                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/appPrivacyScore" />
 
@@ -98,10 +97,10 @@
                 android:text="@string/not_available"
                 android:textColor="?android:textColorPrimary"
                 android:textSize="25sp"
-                android:visibility="gone"
+                android:visibility="invisible"
                 app:layout_constraintBottom_toTopOf="@+id/materialTextView2"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/loadingBar"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.textview.MaterialTextView

@@ -106,6 +106,9 @@
             android:name="origin"
             android:defaultValue="GPLAY"
             app:argType="foundation.e.apps.utils.enums.Origin" />
+        <argument
+            android:name="category"
+            app:argType="string" />
         <deepLink
             app:action="android.intent.action.VIEW"
             app:uri="play.google.com/store/apps/details?id={packageName}" />

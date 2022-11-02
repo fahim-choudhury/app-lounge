@@ -10,7 +10,7 @@ plugins {
 
 def versionMajor = 2
 def versionMinor = 3
-def versionPatch = 6
+def versionPatch = 9
 
 android {
     compileSdk 31
@@ -106,6 +106,7 @@ kapt {
 allOpen {
     // allows mocking for classes w/o directly opening them for release builds
     annotation 'foundation.e.apps.OpenClass'
+    annotation 'foundation.e.apps.OpenForTesting'
 }
 
 dependencies {
@@ -187,6 +188,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "android.arch.lifecycle:extensions:1.1.1"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
 
     // Coroutines
     def coroutines_version = "1.6.0"
@@ -208,4 +210,7 @@ dependencies {
 
     // Flow reactive network
     implementation 'ru.beryukhov:flowreactivenetwork:1.0.4'
+
+    // elib
+    implementation 'foundation.e:elib:0.0.1-alpha11'
 }

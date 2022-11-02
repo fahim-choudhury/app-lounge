@@ -18,10 +18,10 @@
   -->
 
 <resources>
-    <color name="colorAccent">#309DFF</color>
+    <color name="colorAccent">@color/e_accent</color>
     <color name="colorAccent95">#e6f2ff</color>
-    <color name="colorNavBar">#FFFFFF</color>
-    <color name="colorBackground">#FBFBFB</color>
+    <color name="colorNavBar">@color/e_action_bar</color>
+    <color name="colorBackground">@color/e_background</color>
 
     <!-- TOS -->
     <color name="tos_bottom">@android:color/white</color>
@@ -37,5 +37,7 @@
     <color name="colorGreen">#34A853</color>
     <color name="colorRed">#FB3846</color>
     <color name="colorYellow">#FFEB3B</color>
+
+    <color name="colorGrey2">#EDEDED</color>
 
 </resources>

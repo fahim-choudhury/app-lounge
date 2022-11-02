@@ -96,7 +96,8 @@ class HomeChildRVAdapter(
                 val action = HomeFragmentDirections.actionHomeFragmentToApplicationFragment(
                     homeApp._id,
                     homeApp.package_name,
-                    homeApp.origin
+                    homeApp.origin,
+                    homeApp.category
                 )
                 holder.itemView.findNavController().navigate(action)
             }
@@ -114,7 +115,7 @@ class HomeChildRVAdapter(
                 Status.QUEUED, Status.AWAITING, Status.DOWNLOADING, Status.DOWNLOADED -> {
                     handleQueued(view, homeApp)
                 }
-                Status.INSTALLING, Status.UNINSTALLING -> {
+                Status.INSTALLING -> {
                     handleInstalling()
                 }
                 Status.BLOCKED -> {

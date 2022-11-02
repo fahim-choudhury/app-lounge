@@ -41,9 +41,9 @@
     <string name="user_anonymous">Anonyymi</string>
     <string name="terms_services">Käyttöehdot</string>
     <string name="account">Tili</string>
-    <string name="show_only_pwa_apps">Näytä vain PWAt</string>
-    <string name="show_only_open_source_apps">Näytä vain avoimen lähdekoodin sovellukset</string>
-    <string name="Show_commercial_apps">Näytä kaikki sovellukset</string>
+    <string name="show_only_pwa_apps">Näytä PWAt</string>
+    <string name="show_only_open_source_apps">Näytä avoimen lähdekoodin sovellukset</string>
+    <string name="Show_common_apps">Näytä kaikki sovellukset</string>
     <string name="Show_applications">Näytä sovellukset:</string>
     <string name="preference_update_notify_available_description">Näytä ilmoitus kun sovelluspäivityksiä on saatavilla</string>
     <string name="preference_update_notify_available_title">Näytä saatavilla olevat päivitykset</string>
@@ -97,14 +97,55 @@
     <string name="topgrossing_apps">Top tuottavat sovellukset</string>
     <string name="topselling_free_games">Top ilmaiset pelit</string>
     <string name="topselling_free_apps">Top ilmaiset sovellukset</string>
-    <string name="popular_games">Suositut pelit</string>
-    <string name="popular_apps">Suositut sovellukset</string>
-    <string name="popular_games_in_last_24_hours">Suosittuja pelejä viimeisen 24 tunnin aikana</string>
-    <string name="popular_apps_in_last_24_hours">Suosittuja sovelluksia viimeisen 24 tunnin aikana</string>
-    <string name="top_updated_games">Top päivitetyt pelit</string>
-    <string name="top_updated_apps">Top päivitetyt sovellukset</string>
+    <string name="popular_games">PWA Suositut pelit</string>
+    <string name="popular_apps">PWA Suositut sovellukset</string>
+    <string name="popular_games_in_last_24_hours">Suosittuja avoimen lähdekoodin pelejä viimeisen 24 tunnin aikana</string>
+    <string name="popular_apps_in_last_24_hours">Suosittuja avoimen lähdekoodin sovelluksia viimeisen 24 tunnin aikana</string>
+    <string name="top_updated_games">Avoimen lähdekoodin päivitettyjen pelien Top lista</string>
+    <string name="top_updated_apps">Avoimen lähdekoodin päivitettyjen sovellusten Top lista</string>
     <string name="discover">Tutustu</string>
     <string name="all_apps_updated">Kaikki sovellukset ovat ajan tasalla</string>
     <string name="manual_updates_notification">Sovelluspäivityksiä ei asenneta automaattisesti</string>
     <string name="installing">Asennetaan</string>
+    <string name="monthly">Kuukaisittain</string>
+    <string name="weekly">Viikottain</string>
+    <string name="daily">Päivittäin</string>
+    <string name="select_one_source_of_applications">Valitse vähintään yksi sovelluslähde.</string>
+    <string name="may_not_work_warning_message">Asennuksen pakottaminen mahdollistaa sen lataamisen ja asentamisen, mutta se ei takaa, että se toimii.<br/><br/>Yritys asentaa tukemattomia sovelluksia voi aiheuttaa kaatumisia tai hidastaa järjestelmän toimintaa.<br/><br/>Pyrimme parantamaan yhteensopivuutta tämän sovelluksen kanssa lähitulevaisuudessa.</string>
+    <string name="this_app_may_not_work_properly">Tämä sovellus ei välttämättä toimi oikein!</string>
+    <string name="install_anyway">Asenna silti</string>
+    <string name="unsupported_app_unreleased">Sovellusta %s ei ole tueta vielä. Tämä voi johtua siitä, että sovellusta ei ole vielä julkaistu laajalti, tai siinä on jokin muu virhe.</string>
+    <string name="unsupported_app_title">Sovellus ei ole tuettu!</string>
+    <string name="purchase_error">Ostovirhe!</string>
+    <string name="download_automatically_message">Sovelluksesi ladataan automaattisesti tähän laitteeseen</string>
+    <string name="purchase_complete">Osto suoritettu!</string>
+    <string name="anonymous_login_failed_desc">Tämä voi johtua siitä, että tunnusta ei ole voitu luoda/varmentaa tai muista syistä.
+\n
+\nYritä uudelleen painamalla Yritä uudelleen.</string>
+    <string name="anonymous_login_failed">Anonyymi kirjautuminen epäonnistui!</string>
+    <string name="sign_in_failed_desc">Verkkovirheen vuoksi App Lounge ei saanut Google-kirjautumistietoja.</string>
+    <string name="sign_in_failed_title">Google kirjautuminen epäonnistui!</string>
+    <string name="data_load_error_desc">Tämä voi johtua siitä, että palvelin ei vastaa tai muusta palvelinvirheestä.
+\n
+\nYritä uudelleen tai kokeile myöhemmin.</string>
+    <string name="data_load_error">Sovellusten lataamisessa tapahtui virhe.</string>
+    <string name="more_info"><u>Lisätietoja</u></string>
+    <string name="open_settings">Avaa asetukset</string>
+    <string name="timeout_desc_cleanapk">Jokin verkko-ongelma estää kaikkien sovellusten hakemisen.</string>
+    <string name="timeout_desc_gplay">Jokin verkko-ongelma estää kaikkien sovellusten hakemisen.
+\n
+\nAvaa asetukset ja etsi vain avoimen lähdekoodin sovelluksia tai PWA:ita.</string>
+    <string name="timeout_title">Aikakatkaisu sovellusten hakemisessa!</string>
+    <string name="discover_pwa">Tutustu PWA:n</string>
+    <string name="update_error">Päivitysvirhe!</string>
+    <string name="error_signature_mismatch">Päivitystä ei voida suorittaa koska allekirjoitus on ristiriidassa %1$s ja puhelimeesi asennetun version välillä. Voit korjata tämän poistamalla %1$s ja asentamalla se uudestaan App Loungesta. <br/><br/> Huomautus: Tämä viesti ei tule näkyviin uudelleen.</string>
+    <string name="gplay_data_for_oss">Google Play -sovelluksia ei voida näyttää, kun vain avoimen lähdekoodin sovellukset ovat valittuna.</string>
+    <string name="show_more">Näytä lisää</string>
+    <string name="something_went_wrong">Tapahtui virhe!</string>
+    <string name="app_not_found">Sovellusta ei löytynyt.</string>
+    <string name="close">Sulje</string>
+    <string name="copied">Kopioitu</string>
+    <string name="os_version">/e/ OS versio</string>
+    <string name="app_version_label">App Lounge versio</string>
+    <string name="about">Tietoja</string>
 </resources>

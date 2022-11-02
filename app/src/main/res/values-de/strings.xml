@@ -22,9 +22,9 @@
     <string name="preference_update_install_automatically_title">Aktualisierungen automatisch installieren</string>
     <string name="preference_update_notify_available_title">Zeige verfügbare Aktualisierungen</string>
     <string name="preference_update_notify_available_description">Benachrichtige, wenn App-Aktualisierungen verfügbar sind</string>
-    <string name="Show_applications">Zeige Anwendungen:</string>
+    <string name="Show_applications">Zeige Anwendungen an:</string>
     <string name="show_only_open_source_apps">Zeige quelloffene Apps an</string>
-    <string name="Show_commercial_apps">Zeige alle Apps an</string>
+    <string name="Show_common_apps">Zeige allgemeine Apps an</string>
     <string name="show_only_pwa_apps">Zeige PWAs an</string>
     <string name="account">Konto</string>
     <string name="terms_services">Nutzungsbedingungen</string>
@@ -79,7 +79,7 @@
     <string name="search_hint">App-Suche</string>
     <string name="sign_in_desc">Melde dich bei der App Lounge mit einem Google-Konto an, oder wähle den anonymen Modus aus, um dich geheim anzumelden.</string>
     <string name="preference_update_interval_title">Überprüfungsintervall für Aktualisierungen</string>
-    <string name="preference_update_install_automatically_description">App-Aktualisierungen und -Installationen im Hintergrund ausführen</string>
+    <string name="preference_update_install_automatically_description">Das Herunterladen und Installieren von App-Aktualisierungen im Hintergrund ausführen</string>
     <string name="share_intent">Siehe auch \"<xliff:g id="rating">%1$s</xliff:g>\"
 \n<xliff:g id="rating">%2$s</xliff:g></string>
     <string name="privacy_score">Datenschutz-Bewertung</string>
@@ -134,4 +134,21 @@
     <string name="about">Über</string>
     <string name="select_one_source_of_applications">Bitte wähle mindestens eine Quelle von Apps aus.</string>
     <string name="discover_pwa">Entdecke PWA\'s</string>
+    <string name="anonymous_login_failed">Anonymer Login ist fehlgeschlagen!</string>
+    <string name="data_load_error_desc">Das kann verursacht sein, weil ein Server nicht funktioniert.
+\n
+\nBitte versuche es später noch einmal.</string>
+    <string name="data_load_error">Fehler beim Laden der Apps.</string>
+    <string name="more_info"><u>Mehr Info</u></string>
+    <string name="gplay_data_for_oss">Google Play Apps können nicht angezeigt werden, wenn nur Open Source Apps anzeigen erlaubt sind.</string>
+    <string name="close">Schließen</string>
+    <string name="anonymous_login_failed_desc">Dies kann verursacht sein durch einen Fehler bei der Generierung oder Verifizierung des Tokens.
+\n
+\nTippe auf „Nochmals versuchen“.</string>
+    <string name="monthly">Monatlich</string>
+    <string name="weekly">Wöchentlich</string>
+    <string name="daily">Täglich</string>
+    <string name="message_update_failure_single_app">Die Aktualisierung von %1$s ist aufgrund einer Unterstützungs-Vorschrift (Standort, Betriebssystemversion …) fehlgeschlagen.</string>
+    <string name="message_update_failed">Aufgrund eines vorübergehenden Fehlers können nicht alle Ihre Anwendungen aktualisiert werden. Bitte versuchen Sie es später noch einmal.</string>
+    <string name="message_retry">Aktualisierungen fehlgeschlagen. Automatische Wiederholungsversuche sind im Gange.</string>
 </resources>
