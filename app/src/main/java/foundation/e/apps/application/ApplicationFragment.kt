@@ -177,7 +177,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
          */
         val it = resultPair.first
 
-        togglePrivacyInfo(false)
+        togglePrivacyInfoVisibility(false)
 
         isDetailsLoaded = true
         if (applicationViewModel.appStatus.value == null) {
@@ -769,7 +769,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             )
             appPrivacyScore.compoundDrawablePadding = 15
         }
-        togglePrivacyInfo(true)
+        togglePrivacyInfoVisibility(true)
     }
 
     /**
@@ -781,7 +781,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
      * @param visible Boolean to toggle visibility of loading progress bar or the
      * layout contents.
      */
-    private fun togglePrivacyInfo(visible: Boolean) {
+    private fun togglePrivacyInfoVisibility(visible: Boolean) {
         val visibility = if (visible) View.VISIBLE else View.INVISIBLE
         binding.privacyInclude.run {
             appPermissions.visibility = visibility
