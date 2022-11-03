@@ -92,6 +92,8 @@ class FusedApiImplTest {
 
     private lateinit var formatterMocked: MockedStatic<Formatter>
 
+    val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
+
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
@@ -120,22 +122,20 @@ class FusedApiImplTest {
                 status = Status.UNAVAILABLE,
                 name = "Demo One",
                 package_name = "foundation.e.demoone"
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo"
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
                 package_name = "foundation.e.demothree"
             )
         )
-        val newAppList = mutableListOf<FusedApp>()
 
+        val newAppList = mutableListOf<FusedApp>()
         val isFusedAppUpdated = fusedAPIImpl.isAnyFusedAppUpdated(newAppList, oldAppList)
         assertTrue("isAnyAppUpdated", isFusedAppUpdated)
     }
@@ -154,34 +154,31 @@ class FusedApiImplTest {
                 status = Status.UNAVAILABLE,
                 name = "Demo One",
                 package_name = "foundation.e.demoone"
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo"
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
                 package_name = "foundation.e.demothree"
             )
         )
+
         val newAppList = mutableListOf<FusedApp>(
             FusedApp(
                 _id = "111",
                 status = Status.UNAVAILABLE,
                 name = "Demo One",
                 package_name = "foundation.e.demoone"
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "112",
                 status = Status.UNAVAILABLE,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo"
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -202,15 +199,13 @@ class FusedApiImplTest {
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -218,6 +213,7 @@ class FusedApiImplTest {
                 latest_version_code = 123
             )
         )
+
         Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demoone"), eq(123)))
             .thenReturn(
                 Status.UNAVAILABLE
@@ -230,6 +226,7 @@ class FusedApiImplTest {
             .thenReturn(
                 Status.UNAVAILABLE
             )
+
         val isAppStatusUpdated = fusedAPIImpl.isAnyAppInstallStatusChanged(oldAppList)
         assertTrue("hasInstallStatusUpdated", isAppStatusUpdated)
     }
@@ -243,15 +240,13 @@ class FusedApiImplTest {
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -259,6 +254,7 @@ class FusedApiImplTest {
                 latest_version_code = 123
             )
         )
+
         Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demoone"), eq(123)))
             .thenReturn(
                 Status.UNAVAILABLE
@@ -271,6 +267,7 @@ class FusedApiImplTest {
             .thenReturn(
                 Status.UNAVAILABLE
             )
+
         val isAppStatusUpdated = fusedAPIImpl.isAnyAppInstallStatusChanged(oldAppList)
         assertFalse("hasInstallStatusUpdated", isAppStatusUpdated)
     }
@@ -284,15 +281,13 @@ class FusedApiImplTest {
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -300,6 +295,7 @@ class FusedApiImplTest {
                 latest_version_code = 123
             )
         )
+
         Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demoone"), eq(123)))
             .thenReturn(
                 Status.UNAVAILABLE
@@ -312,6 +308,7 @@ class FusedApiImplTest {
             .thenReturn(
                 Status.UNAVAILABLE
             )
+
         val isAppStatusUpdated = fusedAPIImpl.isAnyAppInstallStatusChanged(oldAppList)
         assertFalse("hasInstallStatusUpdated", isAppStatusUpdated)
     }
@@ -325,15 +322,13 @@ class FusedApiImplTest {
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -341,6 +336,7 @@ class FusedApiImplTest {
                 latest_version_code = 123
             )
         )
+
         val newAppList = mutableListOf<FusedApp>(
             FusedApp(
                 _id = "111",
@@ -348,15 +344,13 @@ class FusedApiImplTest {
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "112",
                 status = Status.UNAVAILABLE,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -364,6 +358,7 @@ class FusedApiImplTest {
                 latest_version_code = 123
             )
         )
+
         val oldHomeData =
             listOf(FusedHome("Top Free Apps", oldAppList), FusedHome("Top Free Games", oldAppList))
         var newHomeData =
@@ -372,6 +367,7 @@ class FusedApiImplTest {
         assertFalse("isHomeDataUpdated/NO", isHomeDataUpdated)
         newHomeData =
             listOf(FusedHome("Top Free Apps", oldAppList), FusedHome("Top Free Games", newAppList))
+
         isHomeDataUpdated = fusedAPIImpl.isHomeDataUpdated(newHomeData, oldHomeData)
         assertTrue("isHomeDataUpdated/YES", isHomeDataUpdated)
     }
@@ -408,7 +404,9 @@ class FusedApiImplTest {
             latest_version_code = 123,
             is_pwa = true
         )
+
         Mockito.`when`(pwaManagerModule.getPwaStatus(fusedApp)).thenReturn(fusedApp.status)
+
         val installationStatus = fusedAPIImpl.getFusedAppInstallationStatus(fusedApp)
         assertEquals("getFusedAppInstallationStatusWhenPWA", fusedApp.status, installationStatus)
     }
@@ -421,12 +419,13 @@ class FusedApiImplTest {
             package_name = "foundation.e.demothree",
             latest_version_code = 123,
         )
+
         Mockito.`when`(
             pkgManagerModule.getPackageStatus(
-                fusedApp.package_name,
-                fusedApp.latest_version_code
+                fusedApp.package_name, fusedApp.latest_version_code
             )
         ).thenReturn(Status.INSTALLED)
+
         val installationStatus = fusedAPIImpl.getFusedAppInstallationStatus(fusedApp)
         assertEquals("getFusedAppInstallationStatusWhenPWA", Status.INSTALLED, installationStatus)
     }
@@ -439,7 +438,7 @@ class FusedApiImplTest {
             package_name = "",
             latest_version_code = 123,
         )
-        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
+
         val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, authData)
         assertEquals("getAppFilterLevel", FilterLevel.UNKNOWN, filterLevel)
     }
@@ -454,7 +453,6 @@ class FusedApiImplTest {
             origin = Origin.CLEANAPK
         )
 
-        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
         val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, authData)
         assertEquals("getAppFilterLevel", FilterLevel.NONE, filterLevel)
     }
@@ -468,6 +466,7 @@ class FusedApiImplTest {
             latest_version_code = 123,
             origin = Origin.CLEANAPK
         )
+
         val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, null)
         assertEquals("getAppFilterLevel", FilterLevel.NONE, filterLevel)
     }
@@ -484,7 +483,7 @@ class FusedApiImplTest {
             isFree = false,
             price = ""
         )
-        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
+
         val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, authData)
         assertEquals("getAppFilterLevel", FilterLevel.UI, filterLevel)
     }
@@ -501,7 +500,7 @@ class FusedApiImplTest {
             isFree = false,
             price = ""
         )
-        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
+
         val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, authData)
         assertEquals("getAppFilterLevel", FilterLevel.UI, filterLevel)
     }
@@ -519,7 +518,7 @@ class FusedApiImplTest {
                 isFree = true,
                 price = ""
             )
-            val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
+
             Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name, authData))
                 .thenReturn(App(fusedApp.package_name))
 
@@ -531,71 +530,65 @@ class FusedApiImplTest {
                     authData
                 )
             ).thenReturn(listOf())
+
             val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, authData)
             assertEquals("getAppFilterLevel", FilterLevel.NONE, filterLevel)
         }
 
     @Test
-    fun `getAppFilterLevel when app is restricted and getAppDetails throws exception`() =
-        runTest {
-            val fusedApp = FusedApp(
-                _id = "113",
-                name = "Demo Three",
-                package_name = "foundation.e.demothree",
-                latest_version_code = 123,
-                origin = Origin.GPLAY,
-                restriction = Constants.Restriction.UNKNOWN,
-                isFree = true,
-                price = ""
-            )
-            val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
-            Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name, authData))
-                .thenThrow(RuntimeException())
+    fun `getAppFilterLevel when app is restricted and getAppDetails throws exception`() = runTest {
+        val fusedApp = FusedApp(
+            _id = "113",
+            name = "Demo Three",
+            package_name = "foundation.e.demothree",
+            latest_version_code = 123,
+            origin = Origin.GPLAY,
+            restriction = Constants.Restriction.UNKNOWN,
+            isFree = true,
+            price = ""
+        )
 
-            Mockito.`when`(
-                gPlayAPIRepository.getDownloadInfo(
-                    fusedApp.package_name,
-                    fusedApp.latest_version_code,
-                    fusedApp.offer_type,
-                    authData
-                )
-            ).thenReturn(listOf())
-            val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, authData)
-            assertEquals("getAppFilterLevel", FilterLevel.DATA, filterLevel)
-        }
+        Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name, authData))
+            .thenThrow(RuntimeException())
+
+        Mockito.`when`(
+            gPlayAPIRepository.getDownloadInfo(
+                fusedApp.package_name, fusedApp.latest_version_code, fusedApp.offer_type, authData
+            )
+        ).thenReturn(listOf())
+
+        val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, authData)
+        assertEquals("getAppFilterLevel", FilterLevel.DATA, filterLevel)
+    }
 
     @Test
-    fun `getAppFilterLevel when app is restricted and getDownoadInfo throws exception`() =
-        runTest {
-            val fusedApp = FusedApp(
-                _id = "113",
-                name = "Demo Three",
-                package_name = "foundation.e.demothree",
-                latest_version_code = 123,
-                origin = Origin.GPLAY,
-                restriction = Constants.Restriction.UNKNOWN,
-                isFree = true,
-                price = ""
-            )
-            val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
-            Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name, authData))
-                .thenReturn(App(fusedApp.package_name))
+    fun `getAppFilterLevel when app is restricted and getDownoadInfo throws exception`() = runTest {
+        val fusedApp = FusedApp(
+            _id = "113",
+            name = "Demo Three",
+            package_name = "foundation.e.demothree",
+            latest_version_code = 123,
+            origin = Origin.GPLAY,
+            restriction = Constants.Restriction.UNKNOWN,
+            isFree = true,
+            price = ""
+        )
 
-            Mockito.`when`(
-                gPlayAPIRepository.getDownloadInfo(
-                    fusedApp.package_name,
-                    fusedApp.latest_version_code,
-                    fusedApp.offer_type,
-                    authData
-                )
-            ).thenThrow(RuntimeException())
-            val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, authData)
-            assertEquals("getAppFilterLevel", FilterLevel.UI, filterLevel)
-        }
+        Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name, authData))
+            .thenReturn(App(fusedApp.package_name))
+
+        Mockito.`when`(
+            gPlayAPIRepository.getDownloadInfo(
+                fusedApp.package_name, fusedApp.latest_version_code, fusedApp.offer_type, authData
+            )
+        ).thenThrow(RuntimeException())
+
+        val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, authData)
+        assertEquals("getAppFilterLevel", FilterLevel.UI, filterLevel)
+    }
 
     @Test
     fun `getCategory when only pwa is selected`() = runTest {
-        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
         val categories =
             Categories(listOf("app one", "app two", "app three"), listOf("game 1", "game 2"), true)
         val response = Response.success(categories)
@@ -605,8 +598,7 @@ class FusedApiImplTest {
 
         Mockito.`when`(
             cleanApkRepository.getCategoriesList(
-                eq(CleanAPKInterface.APP_TYPE_PWA),
-                eq(CleanAPKInterface.APP_SOURCE_ANY)
+                eq(CleanAPKInterface.APP_TYPE_PWA), eq(CleanAPKInterface.APP_SOURCE_ANY)
             )
         ).thenReturn(response)
 
@@ -614,12 +606,12 @@ class FusedApiImplTest {
 
         val categoryListResponse =
             fusedAPIImpl.getCategoriesList(Category.Type.APPLICATION, authData)
+        
         assertEquals("getCategory", 3, categoryListResponse.first.size)
     }
 
     @Test
     fun `getCategory when only open source is selected`() = runTest {
-        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
         val categories =
             Categories(listOf("app one", "app two", "app three"), listOf("game 1", "game 2"), true)
         val response = Response.success(categories)
@@ -630,20 +622,19 @@ class FusedApiImplTest {
 
         Mockito.`when`(
             cleanApkRepository.getCategoriesList(
-                eq(CleanAPKInterface.APP_TYPE_ANY),
-                eq(CleanAPKInterface.APP_SOURCE_FOSS)
+                eq(CleanAPKInterface.APP_TYPE_ANY), eq(CleanAPKInterface.APP_SOURCE_FOSS)
             )
         ).thenReturn(response)
         Mockito.`when`(context.getString(eq(R.string.open_source))).thenReturn("Open source")
 
         val categoryListResponse =
             fusedAPIImpl.getCategoriesList(Category.Type.APPLICATION, authData)
+
         assertEquals("getCategory", 3, categoryListResponse.first.size)
     }
 
     @Test
     fun `getCategory when gplay source is selected`() = runTest {
-        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
         val categories = listOf(Category(), Category(), Category(), Category())
 
         preferenceManagerModule.isPWASelectedFake = false
@@ -656,14 +647,12 @@ class FusedApiImplTest {
 
         val categoryListResponse =
             fusedAPIImpl.getCategoriesList(Category.Type.APPLICATION, authData)
+
         assertEquals("getCategory", 4, categoryListResponse.first.size)
     }
 
     @Test
     fun `getCategory when gplay source is selected return error`() = runTest {
-        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
-        val categories = listOf(Category(), Category(), Category(), Category())
-
         preferenceManagerModule.isPWASelectedFake = false
         preferenceManagerModule.isOpenSourceelectedFake = false
         preferenceManagerModule.isGplaySelectedFake = true
@@ -674,20 +663,17 @@ class FusedApiImplTest {
 
         val categoryListResponse =
             fusedAPIImpl.getCategoriesList(Category.Type.APPLICATION, authData)
+
         assertEquals("getCategory", 0, categoryListResponse.first.size)
         assertEquals("getCategory", ResultStatus.UNKNOWN, categoryListResponse.third)
     }
 
     @Test
     fun `getCategory when All source is selected`() = runTest {
-        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
         val gplayCategories = listOf(Category(), Category(), Category(), Category())
-        val openSourcecategories =
-            Categories(
-                listOf("app one", "app two", "app three", "app four"),
-                listOf("game 1", "game 2"),
-                true
-            )
+        val openSourcecategories = Categories(
+            listOf("app one", "app two", "app three", "app four"), listOf("game 1", "game 2"), true
+        )
         val openSourceResponse = Response.success(openSourcecategories)
         val pwaCategories =
             Categories(listOf("app one", "app two", "app three"), listOf("game 1", "game 2"), true)
@@ -695,15 +681,13 @@ class FusedApiImplTest {
 
         Mockito.`when`(
             cleanApkRepository.getCategoriesList(
-                eq(CleanAPKInterface.APP_TYPE_ANY),
-                eq(CleanAPKInterface.APP_SOURCE_FOSS)
+                eq(CleanAPKInterface.APP_TYPE_ANY), eq(CleanAPKInterface.APP_SOURCE_FOSS)
             )
         ).thenReturn(openSourceResponse)
 
         Mockito.`when`(
             cleanApkRepository.getCategoriesList(
-                eq(CleanAPKInterface.APP_TYPE_PWA),
-                eq(CleanAPKInterface.APP_SOURCE_ANY)
+                eq(CleanAPKInterface.APP_TYPE_PWA), eq(CleanAPKInterface.APP_SOURCE_ANY)
             )
         ).thenReturn(pwaResponse)
 
@@ -720,12 +704,12 @@ class FusedApiImplTest {
 
         val categoryListResponse =
             fusedAPIImpl.getCategoriesList(Category.Type.APPLICATION, authData)
+
         assertEquals("getCategory", 11, categoryListResponse.first.size)
     }
 
     @Test
     fun `getSearchResult When all sources are selected`() = runTest {
-        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
         val appList = mutableListOf<FusedApp>(
             FusedApp(
                 _id = "111",
@@ -733,15 +717,13 @@ class FusedApiImplTest {
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "112",
                 status = Status.UNAVAILABLE,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -749,6 +731,7 @@ class FusedApiImplTest {
                 latest_version_code = 123
             )
         )
+
         val searchResult = Search(apps = appList, numberOfResults = 1, success = true)
         val packageNameSearchResponse = Response.success(searchResult)
         val gplayPackageResult = App("com.search.package")
@@ -756,23 +739,19 @@ class FusedApiImplTest {
         preferenceManagerModule.isPWASelectedFake = true
         preferenceManagerModule.isOpenSourceelectedFake = true
         preferenceManagerModule.isGplaySelectedFake = true
-        val gplayLivedata =
-            MutableLiveData(
-                Pair(
-                    listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")),
-                    false
-                )
+        val gplayLivedata = MutableLiveData(
+            Pair(
+                listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), false
             )
+        )
 
         setupMockingSearchApp(
-            packageNameSearchResponse,
-            authData,
-            gplayPackageResult,
-            gplayLivedata
+            packageNameSearchResponse, authData, gplayPackageResult, gplayLivedata
         )
 
         val searchResultLiveData =
             fusedAPIImpl.getSearchResults("com.search.package", authData).getOrAwaitValue()
+
         val size = searchResultLiveData.data?.first?.size ?: -2
         assertEquals("getSearchResult", 8, size)
     }
@@ -789,8 +768,7 @@ class FusedApiImplTest {
             .thenReturn(Status.UNAVAILABLE)
         Mockito.`when`(
             cleanApkRepository.searchApps(
-                keyword = "com.search.package",
-                by = "package_name"
+                keyword = "com.search.package", by = "package_name"
             )
         ).thenReturn(packageNameSearchResponse)
         formatterMocked.`when`<String> { Formatter.formatFileSize(any(), any()) }.thenReturn("15MB")
@@ -819,7 +797,6 @@ class FusedApiImplTest {
 
     @Test
     fun `getSearchResult When getApplicationDetailsThrowsException`() = runTest {
-        val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
         val appList = mutableListOf<FusedApp>(
             FusedApp(
                 _id = "111",
@@ -827,15 +804,13 @@ class FusedApiImplTest {
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "112",
                 status = Status.UNAVAILABLE,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
-            ),
-            FusedApp(
+            ), FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -843,6 +818,7 @@ class FusedApiImplTest {
                 latest_version_code = 123
             )
         )
+
         val searchResult = Search(apps = appList, numberOfResults = 1, success = true)
         val packageNameSearchResponse = Response.success(searchResult)
         val gplayPackageResult = App("com.search.package")
@@ -851,11 +827,7 @@ class FusedApiImplTest {
             MutableLiveData(Pair(listOf(App("a.b.c"), App("c.d.e"), App("d.e.f")), false))
 
         setupMockingSearchApp(
-            packageNameSearchResponse,
-            authData,
-            gplayPackageResult,
-            gplayLivedata,
-            true
+            packageNameSearchResponse, authData, gplayPackageResult, gplayLivedata, true
         )
 
         preferenceManagerModule.isPWASelectedFake = false
@@ -864,6 +836,7 @@ class FusedApiImplTest {
 
         val searchResultLiveData =
             fusedAPIImpl.getSearchResults("com.search.package", authData).getOrAwaitValue()
+
         val size = searchResultLiveData.data?.first?.size ?: -2
         assertEquals("getSearchResult", 3, size)
     }
