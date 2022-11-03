@@ -177,6 +177,8 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
          */
         val it = resultPair.first
 
+        togglePrivacyInfoVisibility(false)
+
         isDetailsLoaded = true
         if (applicationViewModel.appStatus.value == null) {
             applicationViewModel.appStatus.value = it.status
@@ -211,6 +213,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
             applicationViewModel.updateApplicationStatus(list)
         }
+        stopLoadingUI()
     }
 
     private fun updateAppDescriptionText(it: FusedApp) {
@@ -383,7 +386,13 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         /* Remove trailing slash (if present) that can become part of the packageName */
         val packageName = args.packageName.run { if (endsWith('/')) dropLast(1) else this }
 
-        applicationViewModel.loadData(args.id, packageName, origin, isFdroidDeepLink, authObjectList) {
+        applicationViewModel.loadData(
+            args.id,
+            packageName,
+            origin,
+            isFdroidDeepLink,
+            authObjectList
+        ) {
             clearAndRestartGPlayLogin()
             true
         }
@@ -704,7 +713,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             return
         }
         val downloadedSize = "${
-        Formatter.formatFileSize(requireContext(), progressResult.second).substringBefore(" MB")
+            Formatter.formatFileSize(requireContext(), progressResult.second).substringBefore(" MB")
         }/${Formatter.formatFileSize(requireContext(), progressResult.first)}"
         val progressPercentage =
             ((progressResult.second / progressResult.first.toDouble()) * 100f).toInt()
@@ -732,7 +741,6 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     private fun fetchAppTracker(fusedApp: FusedApp) {
         privacyInfoViewModel.getAppPrivacyInfoLiveData(fusedApp).observe(viewLifecycleOwner) {
             updatePrivacyScore()
-            stopLoadingUI()
         }
     }
 
@@ -761,6 +769,18 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             )
             appPrivacyScore.compoundDrawablePadding = 15
         }
+        togglePrivacyInfoVisibility(true)
+    }
+
+    private fun togglePrivacyInfoVisibility(visible: Boolean) {
+        val visibility = if (visible) View.VISIBLE else View.INVISIBLE
+        binding.privacyInclude.run {
+            appPermissions.visibility = visibility
+            appTrackers.visibility = visibility
+            loadingBar.isVisible = !visible
+        }
+        binding.ratingsInclude.loadingBar.isVisible = !visible
+        binding.ratingsInclude.appPrivacyScore.visibility = visibility
     }
 
     override fun onDestroyView() {
