@@ -90,7 +90,7 @@ class UpdatesViewModel @Inject constructor(
         }
     }
 
-    suspend fun checkWorkInfoListHasAnyUpdatableWork(workInfoList: List<WorkInfo>): Boolean {
+    fun checkWorkInfoListHasAnyUpdatableWork(workInfoList: List<WorkInfo>): Boolean {
         workInfoList.forEach { workInfo ->
             if (listOf(
                     WorkInfo.State.ENQUEUED,
@@ -117,5 +117,20 @@ class UpdatesViewModel @Inject constructor(
 
     fun getApplicationCategoryPreference(): String {
         return updatesManagerRepository.getApplicationCategoryPreference()
+    }
+
+    fun hasAnyUpdatableApp(): Boolean {
+        return updatesList.value?.first?.any { it.status == Status.UPDATABLE || it.status == Status.INSTALLATION_ISSUE } == true
+    }
+
+    fun hasAnyPendingAppsForUpdate(): Boolean {
+        val pendingStatesForUpdate = listOf(
+            Status.QUEUED,
+            Status.AWAITING,
+            Status.DOWNLOADING,
+            Status.DOWNLOADED,
+            Status.INSTALLING
+        )
+        return updatesList.value?.first?.any { pendingStatesForUpdate.contains(it.status) } == true
     }
 }
