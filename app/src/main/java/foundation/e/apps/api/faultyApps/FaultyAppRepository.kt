@@ -20,11 +20,13 @@
 
 package foundation.e.apps.api.faultyApps
 
+import foundation.e.apps.OpenForTesting
 import foundation.e.apps.api.fused.data.FusedApp
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@OpenForTesting
 class FaultyAppRepository @Inject constructor(private val faultyAppDao: FaultyAppDao) {
 
     suspend fun addFaultyApp(packageName: String, error: String) {

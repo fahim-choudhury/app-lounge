@@ -63,6 +63,7 @@ import foundation.e.apps.utils.toast
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -90,21 +91,6 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         _binding = FragmentUpdatesBinding.bind(view)
 
         binding.button.isEnabled = false
-
-        /*
-         * Explanation of double observers in HomeFragment.kt
-         */
-
-        /*mainActivityViewModel.internetConnection.observe(viewLifecycleOwner) {
-            if (!updatesViewModel.updatesList.value?.first.isNullOrEmpty()) {
-                return@observe
-            }
-            refreshDataOrRefreshToken(mainActivityViewModel)
-        }
-        mainActivityViewModel.authData.observe(viewLifecycleOwner) {
-            refreshDataOrRefreshToken(mainActivityViewModel)
-        }*/
-
         setupListening()
 
         authObjects.observe(viewLifecycleOwner) {
@@ -139,39 +125,8 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
             adapter = listAdapter
             layoutManager = LinearLayoutManager(view.context)
         }
-
-        updatesViewModel.updatesList.observe(viewLifecycleOwner) {
-            listAdapter?.setData(it.first)
-            if (!isDownloadObserverAdded) {
-                observeDownloadList()
-                isDownloadObserverAdded = true
-            }
-            stopLoadingUI()
-            if (!it.first.isNullOrEmpty()) {
-                binding.button.isEnabled = true
-                binding.noUpdates.visibility = View.GONE
-            } else {
-                binding.noUpdates.visibility = View.VISIBLE
-                binding.button.isEnabled = false
-            }
-
-            WorkManager.getInstance(requireContext())
-                .getWorkInfosForUniqueWorkLiveData(INSTALL_WORK_NAME)
-                .observe(viewLifecycleOwner) { workInfoList ->
-                    lifecycleScope.launchWhenResumed {
-                        binding.button.isEnabled = !(
-                            it.first.isNullOrEmpty() ||
-                                updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(
-                                    workInfoList
-                                )
-                            )
-                    }
-                }
-
-            /*if (it.second != ResultStatus.OK) {
-                onTimeout()
-            }*/
-        }
+        observeAppInstallationWork()
+        observeUpdateList(listAdapter)
 
         viewLifecycleOwner.lifecycleScope.launch {
             EventBus.events.flowWithLifecycle(viewLifecycleOwner.lifecycle)
@@ -180,6 +135,56 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                 }
         }
     }
+
+    private fun observeUpdateList(listAdapter: ApplicationListRVAdapter?) {
+        updatesViewModel.updatesList.observe(viewLifecycleOwner) {
+            listAdapter?.setData(it.first)
+            if (!isDownloadObserverAdded) {
+                handleStateNoUpdates(it.first)
+                observeDownloadList()
+                isDownloadObserverAdded = true
+            }
+
+            stopLoadingUI()
+
+            Timber.d("===>> observeupdate list called")
+            if (it.second != ResultStatus.OK) {
+                val exception = GPlayException(it.second == ResultStatus.TIMEOUT)
+                val alertDialogBuilder = AlertDialog.Builder(requireContext())
+                onTimeout(exception, alertDialogBuilder)
+            }
+        }
+    }
+
+    private fun handleStateNoUpdates(list: List<FusedApp>?) {
+        if (!list.isNullOrEmpty()) {
+            binding.button.isEnabled = true
+            binding.noUpdates.visibility = View.GONE
+        } else {
+            binding.noUpdates.visibility = View.VISIBLE
+            binding.button.isEnabled = false
+        }
+    }
+
+    private fun observeAppInstallationWork() {
+        WorkManager.getInstance(requireContext())
+            .getWorkInfosForUniqueWorkLiveData(INSTALL_WORK_NAME)
+            .observe(viewLifecycleOwner) { workInfoList ->
+                lifecycleScope.launchWhenResumed {
+                    binding.button.isEnabled = shouldUpdateButtonEnable(workInfoList)
+                }
+            }
+    }
+
+    private fun shouldUpdateButtonEnable(workInfoList: MutableList<WorkInfo>) =
+        !updatesViewModel.updatesList.value?.first.isNullOrEmpty() &&
+            (
+                workInfoList.isNullOrEmpty() ||
+                    (
+                        !updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(workInfoList) &&
+                            updatesViewModel.hasAnyUpdatableApp()
+                        )
+                )
 
     private fun handleUpdateEvent(appEvent: AppEvent) {
         val event = appEvent.data as ResultSupreme.WorkError<*>
@@ -213,9 +218,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         ApplicationDialogFragment(
             title = getString(R.string.dialog_title_paid_app, fusedApp.name),
             message = getString(
-                R.string.dialog_paidapp_message,
-                fusedApp.name,
-                fusedApp.price
+                R.string.dialog_paidapp_message, fusedApp.name, fusedApp.price
             ),
             positiveButtonText = getString(R.string.dialog_confirm),
             positiveButtonAction = {
@@ -224,36 +227,6 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
             cancelButtonText = getString(R.string.dialog_cancel),
         ).show(childFragmentManager, "UpdatesFragment")
     }
-
-    /*override fun onTimeout() {
-        if (!isTimeoutDialogDisplayed()) {
-            stopLoadingUI()
-            displayTimeoutAlertDialog(
-                timeoutFragment = this,
-                activity = requireActivity(),
-                message =
-                if (updatesViewModel.getApplicationCategoryPreference() == FusedAPIImpl.APP_TYPE_ANY) {
-                    getString(R.string.timeout_desc_gplay)
-                } else {
-                    getString(R.string.timeout_desc_cleanapk)
-                },
-                positiveButtonText = getString(R.string.retry),
-                positiveButtonBlock = {
-                    showLoadingUI()
-                    resetTimeoutDialogLock()
-                    mainActivityViewModel.retryFetchingTokenAfterTimeout()
-                },
-                negativeButtonText =
-                if (updatesViewModel.getApplicationCategoryPreference() == FusedAPIImpl.APP_TYPE_ANY) {
-                    getString(R.string.open_settings)
-                } else null,
-                negativeButtonBlock = {
-                    openSettings()
-                },
-                allowCancel = true,
-            )
-        }
-    }*/
 
     override fun onTimeout(
         exception: Exception,
@@ -312,17 +285,21 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         WorkManager.getInstance(requireContext())
             .getWorkInfosByTagLiveData(UpdatesWorkManager.UPDATES_WORK_NAME)
             .observe(viewLifecycleOwner) {
-                val errorStates =
-                    listOf(
-                        WorkInfo.State.FAILED,
-                        WorkInfo.State.BLOCKED,
-                        WorkInfo.State.CANCELLED,
-                        WorkInfo.State.SUCCEEDED
-                    )
-                if (!it.isNullOrEmpty() && errorStates.contains(it.last().state)) {
-                    binding.button.isEnabled = true
-                }
+                binding.button.isEnabled = hasAnyPendingUpdates(it)
             }
+    }
+
+    private fun hasAnyPendingUpdates(
+        workInfoList: MutableList<WorkInfo>
+    ): Boolean {
+        val errorStates = listOf(
+            WorkInfo.State.FAILED,
+            WorkInfo.State.BLOCKED,
+            WorkInfo.State.CANCELLED,
+            WorkInfo.State.SUCCEEDED
+        )
+        return !workInfoList.isNullOrEmpty() && errorStates.contains(workInfoList.last().state) &&
+            updatesViewModel.hasAnyUpdatableApp() && !updatesViewModel.hasAnyPendingAppsForUpdate()
     }
 
     override fun showLoadingUI() {
@@ -342,7 +319,6 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
             updateProgressOfDownloadingItems(binding.recyclerView, it)
         }
-//        resetTimeoutDialogLock()
     }
 
     private fun observeDownloadList() {
