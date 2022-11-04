@@ -143,9 +143,13 @@
     <string name="data_load_error">Si è verificato un errore durante il caricamento delle App.</string>
     <string name="more_info"><u>Maggiori informazioni</u></string>
     <string name="discover_pwa">Scopri le PWA</string>
-    <string name="gplay_data_for_oss">Non posso avviare l\'App Google Play se posso mostrare solo App open source.</string>
+    <string name="gplay_data_for_oss">Non posso avviare l\'App Google Play se sono permesse solo App open source.</string>
     <string name="close">Chiudi</string>
     <string name="monthly">Mensile</string>
     <string name="weekly">Settimanale</string>
     <string name="daily">Giornaliero</string>
+    <string name="message_last_update_triggered">Ultimo aggiornamento effettuato %1$s</string>
+    <string name="message_update_failure_single_app">L\'aggiornamento di %1$s e fallito a causa di una problema di supporto (luogo in cui ti trovi, versione del SO, ...).</string>
+    <string name="message_update_failed">A causa di problemi temporanei, le tue app non possono essere aggiornate tutte. Riprova più tardi.</string>
+    <string name="message_retry">Aggiorna tutto non ha funzionato. Ulteriori tentativi di aggiornamento in corso.</string>
 </resources>
