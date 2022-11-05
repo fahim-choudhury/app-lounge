@@ -18,6 +18,7 @@
 
 package foundation.e.apps.api.cleanapk
 
+import android.os.Build
 import android.util.Log
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
@@ -52,8 +53,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object RetrofitModule {
-
-    const val FAKE_ANDROID_VERSION = 7
 
     /**
      * Provides an instance of Retrofit to work with CleanAPK API
@@ -165,7 +164,7 @@ object RetrofitModule {
             val builder = chain.request().newBuilder()
             builder.header(
                 "User-Agent",
-                "Dalvik/2.1.0 (Linux; U; Android $FAKE_ANDROID_VERSION;)"
+                "Dalvik/2.1.0 (Linux; U; Android ${Build.VERSION.RELEASE};)"
             ).header("Accept-Language", Locale.getDefault().language)
             try {
                 return@Interceptor chain.proceed(builder.build())
