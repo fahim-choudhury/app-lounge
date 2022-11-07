@@ -33,6 +33,7 @@ import foundation.e.apps.AppInfoFetchViewModel
 import foundation.e.apps.AppProgressViewModel
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.R
+import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedHome
@@ -43,7 +44,6 @@ import foundation.e.apps.home.model.HomeParentRVAdapter
 import foundation.e.apps.login.AuthObject
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
-import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.exceptions.GPlayException
 import foundation.e.apps.utils.exceptions.GPlayLoginException
@@ -94,7 +94,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
     private fun observeHomeScreenData() {
         homeViewModel.homeScreenData.observe(viewLifecycleOwner) {
             stopLoadingUI()
-            if (it.second != ResultStatus.OK) {
+            if (!it.isSuccess()) {
                 return@observe
             }
 
@@ -102,7 +102,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
                 return@observe
             }
 
-            homeParentRVAdapter?.setData(it.first)
+            homeParentRVAdapter?.setData(it.data!!)
         }
     }
 
@@ -147,9 +147,9 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         ).show(childFragmentManager, "HomeFragment")
     }
 
-    private fun isHomeDataUpdated(homeScreenResult: Pair<List<FusedHome>, ResultStatus>) =
+    private fun isHomeDataUpdated(homeScreenResult: ResultSupreme<List<FusedHome>>) =
         homeParentRVAdapter?.currentList?.isEmpty() == true || homeViewModel.isHomeDataUpdated(
-            homeScreenResult.first,
+            homeScreenResult.data!!,
             homeParentRVAdapter?.currentList as List<FusedHome>
         )
 
@@ -195,7 +195,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
     }
 
     override fun loadData(authObjectList: List<AuthObject>) {
-        homeViewModel.loadData(authObjectList) { _ ->
+        homeViewModel.loadData(authObjectList, viewLifecycleOwner) { _ ->
             clearAndRestartGPlayLogin()
             true
         }

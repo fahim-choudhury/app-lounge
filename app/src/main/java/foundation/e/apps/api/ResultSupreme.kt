@@ -140,7 +140,7 @@ sealed class ResultSupreme<T> {
                 if (isUnknownError()) {
                     this.data = data
                 } else {
-                    this.message = message
+                    this.message = message.ifBlank { status.message }
                     this.exception = exception
                 }
             }

@@ -78,7 +78,7 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPII
     var hasNextStreamCluster = false
         private set
 
-    suspend fun getHomeScreenData(authData: AuthData): Pair<List<FusedHome>, ResultStatus> {
+    suspend fun getHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<FusedHome>>> {
         return fusedAPIImpl.getHomeScreenData(authData)
     }
 

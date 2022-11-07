@@ -21,6 +21,7 @@ package foundation.e.apps.api.fused
 import android.content.Context
 import android.text.format.Formatter
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.LiveDataScope
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import com.aurora.gplayapi.Constants
@@ -54,6 +55,7 @@ import foundation.e.apps.utils.enums.AppTag
 import foundation.e.apps.utils.enums.FilterLevel
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.ResultStatus
+import foundation.e.apps.utils.enums.Source
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.enums.isUnFiltered
@@ -94,19 +96,6 @@ class FusedAPIImpl @Inject constructor(
     private var TAG = FusedAPIImpl::class.java.simpleName
 
     /**
-     * Pass list of FusedHome and status.
-     * Second argument can be of [ResultStatus.TIMEOUT] to indicate timeout.
-     *
-     * Issue:
-     * https://gitlab.e.foundation/e/backlog/-/issues/5404
-     * https://gitlab.e.foundation/e/backlog/-/issues/5413
-     */
-    suspend fun getHomeScreenData(authData: AuthData): Pair<List<FusedHome>, ResultStatus> {
-        val preferredApplicationType = preferenceManagerModule.preferredApplicationType()
-        return getHomeScreenDataBasedOnApplicationType(authData, preferredApplicationType)
-    }
-
-    /**
      * Check if list in all the FusedHome is empty.
      * If any list is not empty, send false.
      * Else (if all lists are empty) send true.
@@ -122,44 +111,74 @@ class FusedAPIImpl @Inject constructor(
         return preferenceManagerModule.preferredApplicationType()
     }
 
-    /*
-     * Offload fetching application to a different method to dynamically fallback to a different
-     * app source if the user selected app source times out.
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
-     */
-    private suspend fun getHomeScreenDataBasedOnApplicationType(
+    suspend fun getHomeScreenData(
         authData: AuthData,
-        applicationType: String
-    ): Pair<List<FusedHome>, ResultStatus> {
-        val list = mutableListOf<FusedHome>()
-        val apiStatus = runCodeBlockWithTimeout({
+    ): LiveData<ResultSupreme<List<FusedHome>>> {
 
+        val list = mutableListOf<FusedHome>()
+
+        return liveData {
             if (preferenceManagerModule.isGplaySelected()) {
-                list.addAll(fetchGPlayHome(authData))
+                loadHomeData(list, Source.GPLAY, authData, this)
             }
 
             if (preferenceManagerModule.isOpenSourceSelected()) {
+                loadHomeData(list, Source.OPEN, authData, this)
+            }
+
+            if (preferenceManagerModule.isPWASelected()) {
+                loadHomeData(list, Source.PWA, authData, this)
+            }
+        }
+    }
+
+    private suspend fun loadHomeData(
+        priorList: MutableList<FusedHome>,
+        source: Source,
+        authData: AuthData,
+        scope: LiveDataScope<ResultSupreme<List<FusedHome>>>,
+    ) {
+
+        val apiStatus = when (source) {
+
+            Source.GPLAY -> runCodeBlockWithTimeout({
+                priorList.addAll(fetchGPlayHome(authData))
+            })
+
+            Source.OPEN -> runCodeBlockWithTimeout({
                 val response = cleanAPKRepository.getHomeScreenData(
                     CleanAPKInterface.APP_TYPE_ANY,
                     CleanAPKInterface.APP_SOURCE_FOSS
                 ).body()
                 response?.home?.let {
-                    list.addAll(generateCleanAPKHome(it, APP_TYPE_OPEN))
+                    priorList.addAll(generateCleanAPKHome(it, APP_TYPE_OPEN))
                 }
-            }
+            })
 
-            if (preferenceManagerModule.isPWASelected()) {
+            Source.PWA -> runCodeBlockWithTimeout({
                 val response = cleanAPKRepository.getHomeScreenData(
                     CleanAPKInterface.APP_TYPE_PWA,
                     CleanAPKInterface.APP_SOURCE_ANY
                 ).body()
                 response?.home?.let {
-                    list.addAll(generateCleanAPKHome(it, APP_TYPE_PWA))
+                    priorList.addAll(generateCleanAPKHome(it, APP_TYPE_PWA))
                 }
+            })
+        }
+
+        setHomeErrorMessage(apiStatus, source)
+
+        scope.emit(ResultSupreme.create(apiStatus, priorList))
+    }
+
+    private fun setHomeErrorMessage(apiStatus: ResultStatus, source: Source) {
+        if (apiStatus != ResultStatus.OK) {
+            apiStatus.message = when (source) {
+                Source.GPLAY -> ("GPlay home loading error\n" + apiStatus.message).trim()
+                Source.OPEN -> ("Open Source home loading error\n" + apiStatus.message).trim()
+                Source.PWA -> ("PWA home loading error\n" + apiStatus.message).trim()
             }
-        })
-        return Pair(list, apiStatus)
+        }
     }
 
     /*
