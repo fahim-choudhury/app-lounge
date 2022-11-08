@@ -1,5 +1,6 @@
 <!--
   ~ Apps  Quickly and easily install Android apps onto your device!
+  ~ Copyright (C) 2022  MURENA SAS
   ~ Copyright (C) 2021  E FOUNDATION
   ~
   ~ This program is free software: you can redistribute it and/or modify
@@ -36,6 +37,7 @@
 
     <style name="CustomPreferenceThemeOverlay" parent="PreferenceThemeOverlay">
         <item name="android:layout">@layout/custom_preference</item>
+        <item name="iconSpaceReserved">false</item>
     </style>
 
     <style name="AppTheme.ActionBarStyle" parent="Widget.MaterialComponents.ActionBar.Surface">
