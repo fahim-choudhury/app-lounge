@@ -1042,7 +1042,7 @@ class FusedAPIImpl @Inject constructor(
         app: Category
     ) {
         category.drawable =
-            getCategoryIconResource(app.type, getCategoryIconName(category))
+            getCategoryIconResource(getCategoryIconName(category))
     }
 
     private fun getCategoryIconName(category: FusedCategory): String {
@@ -1099,17 +1099,13 @@ class FusedAPIImpl @Inject constructor(
         return FusedCategory(
             id = category,
             title = getCategoryTitle(category, categories),
-            drawable = getCategoryIconResource(appType, category),
+            drawable = getCategoryIconResource(category),
             tag = tag
         )
     }
 
-    private fun getCategoryIconResource(appType: Category.Type, category: String): Int {
-        return if (appType == Category.Type.APPLICATION) {
-            CategoryUtils.provideAppsCategoryIconResource(category)
-        } else {
-            CategoryUtils.provideGamesCategoryIconResource(category)
-        }
+    private fun getCategoryIconResource(category: String): Int {
+        return CategoryUtils.provideAppsCategoryIconResource(category)
     }
 
     private fun getCategoryTitle(category: String, categories: Categories): String {

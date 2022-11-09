@@ -124,12 +124,14 @@ class FusedApiImplTest {
                 status = Status.UNAVAILABLE,
                 name = "Demo One",
                 package_name = "foundation.e.demoone"
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo"
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -156,12 +158,14 @@ class FusedApiImplTest {
                 status = Status.UNAVAILABLE,
                 name = "Demo One",
                 package_name = "foundation.e.demoone"
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo"
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -175,12 +179,14 @@ class FusedApiImplTest {
                 status = Status.UNAVAILABLE,
                 name = "Demo One",
                 package_name = "foundation.e.demoone"
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "112",
                 status = Status.UNAVAILABLE,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo"
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -201,13 +207,15 @@ class FusedApiImplTest {
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -242,13 +250,15 @@ class FusedApiImplTest {
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -283,13 +293,15 @@ class FusedApiImplTest {
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -324,13 +336,15 @@ class FusedApiImplTest {
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -346,13 +360,15 @@ class FusedApiImplTest {
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "112",
                 status = Status.UNAVAILABLE,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -608,7 +624,7 @@ class FusedApiImplTest {
 
         val categoryListResponse =
             fusedAPIImpl.getCategoriesList(Category.Type.APPLICATION, AUTH_DATA)
-        
+
         assertEquals("getCategory", 3, categoryListResponse.first.size)
     }
 
@@ -719,13 +735,15 @@ class FusedApiImplTest {
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "112",
                 status = Status.UNAVAILABLE,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -806,13 +824,15 @@ class FusedApiImplTest {
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "112",
                 status = Status.UNAVAILABLE,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
-            ), FusedApp(
+            ),
+            FusedApp(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
