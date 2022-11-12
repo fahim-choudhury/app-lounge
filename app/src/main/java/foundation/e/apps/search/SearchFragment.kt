@@ -122,7 +122,8 @@ class SearchFragment :
         setupListening()
 
         authObjects.observe(viewLifecycleOwner) {
-            if (it == null) return@observe
+            val currentQuery = searchView?.query?.toString() ?: ""
+            if (it == null || (currentQuery.isNotEmpty() && lastSearch == currentQuery)) return@observe
             loadData(it)
         }
 
@@ -326,9 +327,7 @@ class SearchFragment :
     override fun onResume() {
         super.onResume()
         binding.shimmerLayout.startShimmer()
-        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
-            updateProgressOfInstallingApps(it)
-        }
+        addDownloadProgressObservers()
 
         if (shouldRefreshData()) {
             repostAuthObjects()
@@ -337,6 +336,13 @@ class SearchFragment :
         if (searchText.isEmpty() && (recyclerView?.adapter as ApplicationListRVAdapter).currentList.isEmpty()) {
             searchView?.requestFocus()
             showKeyboard()
+        }
+    }
+
+    private fun addDownloadProgressObservers() {
+        appProgressViewModel.downloadProgress.removeObservers(viewLifecycleOwner)
+        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
+            updateProgressOfInstallingApps(it)
         }
     }
 
