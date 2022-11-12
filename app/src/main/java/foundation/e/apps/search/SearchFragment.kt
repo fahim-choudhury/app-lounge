@@ -34,6 +34,7 @@ import androidx.cursoradapter.widget.CursorAdapter
 import androidx.cursoradapter.widget.SimpleCursorAdapter
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -60,6 +61,7 @@ import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -134,13 +136,10 @@ class SearchFragment :
             if (it.data?.first.isNullOrEmpty() && it.data?.second == false) {
                 noAppsFoundLayout?.visibility = View.VISIBLE
             } else {
-                if (!updateSearchResult(listAdapter, it)) return@observe
+                listAdapter?.let { adapter ->
+                    observeDownloadList(adapter)
+                }
             }
-
-            listAdapter?.let { adapter ->
-                observeDownloadList(adapter)
-            }
-
             observeScrollOfSearchResult(listAdapter)
         }
     }
@@ -172,19 +171,20 @@ class SearchFragment :
         listAdapter: ApplicationListRVAdapter?,
         it: ResultSupreme<Pair<List<FusedApp>, Boolean>>
     ): Boolean {
-        val currentList = listAdapter?.currentList
-        if (it.data?.first != null && !currentList.isNullOrEmpty() && !searchViewModel.isAnyAppUpdated(
+        val currentList = listAdapter?.currentList ?: listOf()
+        if (it.data?.first != null && !searchViewModel.isAnyAppUpdated(
                 it.data?.first!!,
                 currentList
             )
         ) {
             return false
         }
-        listAdapter?.setData(it.data!!.first)
+
         binding.loadingProgressBar.isVisible = it.data!!.second
         stopLoadingUI()
         noAppsFoundLayout?.visibility = View.GONE
         searchHintLayout?.visibility = View.GONE
+        listAdapter?.setData(it.data?.first!!)
         return true
     }
 
@@ -249,12 +249,13 @@ class SearchFragment :
     }
 
     private fun observeDownloadList(applicationListRVAdapter: ApplicationListRVAdapter) {
+        mainActivityViewModel.downloadList.removeObservers(viewLifecycleOwner)
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
             val searchList =
                 searchViewModel.searchResult.value?.data?.first?.toMutableList() ?: emptyList()
             searchList.let {
                 mainActivityViewModel.updateStatusOfFusedApps(searchList, list)
-                applicationListRVAdapter.setData(it)
+                updateSearchResult(applicationListRVAdapter, ResultSupreme.Success(Pair(it, true)))
             }
         }
     }
