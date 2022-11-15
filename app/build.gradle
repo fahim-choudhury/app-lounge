@@ -10,7 +10,7 @@ plugins {
 
 def versionMajor = 2
 def versionMinor = 4
-def versionPatch = 0
+def versionPatch = 1
 
 android {
     compileSdk 31
@@ -59,6 +59,7 @@ android {
     buildTypes {
         debug {
             versionNameSuffix ".debug"
+            applicationIdSuffix ".debug"
             signingConfig signingConfigs.debugConfig
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
