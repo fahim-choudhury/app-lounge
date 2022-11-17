@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Timber.d("### oncreate 125")
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

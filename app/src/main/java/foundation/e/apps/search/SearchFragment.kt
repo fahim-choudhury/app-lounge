@@ -34,7 +34,6 @@ import androidx.cursoradapter.widget.CursorAdapter
 import androidx.cursoradapter.widget.SimpleCursorAdapter
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -54,6 +53,7 @@ import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.applicationlist.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentSearchBinding
 import foundation.e.apps.login.AuthObject
+import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Status
@@ -61,7 +61,6 @@ import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -251,14 +250,21 @@ class SearchFragment :
 
     private fun observeDownloadList(applicationListRVAdapter: ApplicationListRVAdapter) {
         mainActivityViewModel.downloadList.removeObservers(viewLifecycleOwner)
-        mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
-            val searchList =
-                searchViewModel.searchResult.value?.data?.first?.toMutableList() ?: emptyList()
-            searchList.let {
-                mainActivityViewModel.updateStatusOfFusedApps(searchList, list)
-                updateSearchResult(applicationListRVAdapter, ResultSupreme.Success(Pair(it, true)))
-            }
+        mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { fusedDownloadList ->
+            refreshUI(fusedDownloadList, applicationListRVAdapter)
         }
+    }
+
+    private fun refreshUI(
+        fusedDownloadList: List<FusedDownload>,
+        applicationListRVAdapter: ApplicationListRVAdapter
+    ) {
+        val searchList =
+            searchViewModel.searchResult.value?.data?.first?.toMutableList() ?: emptyList()
+
+        val hasMoreDataToLoad = searchViewModel.searchResult.value?.data?.second == true
+        mainActivityViewModel.updateStatusOfFusedApps(searchList, fusedDownloadList)
+        updateSearchResult(applicationListRVAdapter, ResultSupreme.Success(Pair(searchList, hasMoreDataToLoad)))
     }
 
     override fun onTimeout(
@@ -330,7 +336,10 @@ class SearchFragment :
         addDownloadProgressObservers()
 
         if (shouldRefreshData()) {
-            repostAuthObjects()
+            if (binding.recyclerView.adapter is ApplicationListRVAdapter) {
+                val searchAdapter = binding.recyclerView.adapter as ApplicationListRVAdapter
+                observeDownloadList(searchAdapter)
+            }
         }
 
         if (searchText.isEmpty() && (recyclerView?.adapter as ApplicationListRVAdapter).currentList.isEmpty()) {
@@ -347,9 +356,7 @@ class SearchFragment :
     }
 
     private fun shouldRefreshData() =
-        searchText.isNotEmpty() && recyclerView?.adapter != null && searchViewModel.hasAnyAppInstallStatusChanged(
-            (recyclerView?.adapter as ApplicationListRVAdapter).currentList
-        )
+        searchText.isNotEmpty() && recyclerView?.adapter != null
 
     override fun onPause() {
         binding.shimmerLayout.stopShimmer()

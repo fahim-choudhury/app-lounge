@@ -49,7 +49,6 @@ import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -123,7 +122,6 @@ class ApplicationListFragment :
     ) {
         mainActivityViewModel.downloadList.removeObservers(viewLifecycleOwner)
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
-            Timber.d("### downloadlist observer responded: ${list.firstOrNull()?.name + ": " + list.firstOrNull()?.status}")
             val appList = viewModel.appListLiveData.value?.data?.toMutableList() ?: emptyList()
 
             appList.let {
@@ -144,16 +142,13 @@ class ApplicationListFragment :
     override fun onResume() {
         super.onResume()
         addDownloadProgressObserver()
+
         if (listAdapter.currentList.isNotEmpty() && viewModel.hasAnyAppInstallStatusChanged(
                 listAdapter.currentList
             )
         ) {
-            /*mainActivityViewModel.authData.value?.let {
-                refreshData(it)
-            }*/
             repostAuthObjects()
         }
-
     }
 
     private fun addDownloadProgressObserver() {
@@ -339,7 +334,6 @@ class ApplicationListFragment :
 
     override fun onPause() {
         binding.shimmerLayout.stopShimmer()
-//        mainActivityViewModel.downloadList.removeObservers(viewLifecycleOwner)
         super.onPause()
     }
 

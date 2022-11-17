@@ -6,7 +6,6 @@ import foundation.e.apps.OpenForTesting
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.database.fusedDownload.FusedDownloadDAO
 import kotlinx.coroutines.flow.Flow
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,7 +28,6 @@ class DatabaseRepository @Inject constructor(
     }
 
     suspend fun updateDownload(fusedDownload: FusedDownload) {
-        Timber.d("### fusedownload updated: ${fusedDownload.name + ": " + fusedDownload.status}")
         fusedDownloadDAO.updateDownload(fusedDownload)
     }
 
