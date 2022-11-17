@@ -84,4 +84,18 @@
     <string name="menu_updates">Оновлення</string>
     <string name="menu_search">Пошук</string>
     <string name="message_retry">Оновлення не вдалося. Автоматичні повторні спроби уже в процесі.</string>
+    <string name="movers_shakers_apps">Трендові додатки в Топі</string>
+    <string name="topselling_free_games">Безкоштовні ігри в Топі</string>
+    <string name="discover_pwa">Дослідити PWA</string>
+    <string name="discover">Дослідити</string>
+    <plurals name="updates_notification_title">
+        <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> оновлення додатку доступне</item>
+        <item quantity="few"><xliff:g id="version_code">%1$d</xliff:g> оновлень додатків доступно</item>
+        <item quantity="many"><xliff:g id="version_code">%1$d</xliff:g> оновлень додатків доступно</item>
+        <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> оновлень додатків доступно</item>
+    </plurals>
+    <string name="gplay_data_for_oss">Неможливо відобразити додаток Google Play коли дозволені тільки додатки з відкритим кодом.</string>
+    <string name="updated_on">Оновлено до: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="privacy_description">Рейтинг Приватності автоматично обчислений з дозволів та трекерів, що були знайдені в додатку.&lt;br /&gt;&lt;br /&gt; Його алгоритм обчислення можна &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;побачити тут&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Виявлення трекерів робиться за допомогою&lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt; Інструментів Exodus Privacy&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Рейтинг від 0 до 10.&lt;br /&gt;&lt;br /&gt;Дізнайтесь більше про те, як обчислюється Рейтинг Приватності, які в нього є обмеження та як він може допомогти Вам захистити себе від мікротаргетингу &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;на цій сторінці&lt;/a&gt;.</string>
+    <string name="close">Закрити</string>
 </resources>
