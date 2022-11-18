@@ -175,47 +175,4 @@ object CategoryUtils {
                 R.drawable.ic_cat_default
         }
     }
-
-    fun provideGamesCategoryIconResource(categoryId: String): Int {
-        return when (categoryId) {
-            "action" ->
-                R.drawable.ic_action
-            "adventure" ->
-                R.drawable.ic_adventure
-            "arcade" ->
-                R.drawable.ic_arcade
-            "board" ->
-                R.drawable.ic_board
-            "card" ->
-                R.drawable.ic_card
-            "casino" ->
-                R.drawable.ic_casino
-            "casual" ->
-                R.drawable.ic_casual
-            "educational" ->
-                R.drawable.ic_educational
-            "music" ->
-                R.drawable.ic_music
-            "game_open_games", "web_games" ->
-                R.drawable.ic_arcade
-            "puzzle" ->
-                R.drawable.ic_puzzle
-            "racing" ->
-                R.drawable.ic_racing
-            "role_playing" ->
-                R.drawable.ic_role_playing
-            "simulation" ->
-                R.drawable.ic_simulation
-            "sports" ->
-                R.drawable.ic_sports
-            "strategy" ->
-                R.drawable.ic_strategy
-            "trivia" ->
-                R.drawable.ic_trivia
-            "word" ->
-                R.drawable.ic_word
-            else ->
-                R.drawable.ic_cat_default
-        }
-    }
 }
