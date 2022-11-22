@@ -1,13 +1,13 @@
-image: registry.gitlab.e.foundation/e/os/docker-android-apps-cicd:latest
+image: registry.gitlab.e.foundation/e/os/docker-android-apps-cicd:55-workshop-auto-release
 
 stages:
   - debug
   - release
+  - publish
 
 before_script:
   - export GRADLE_USER_HOME=$(pwd)/.gradle
   - chmod +x ./gradlew
-
 
 # Debug build related jobs
 buildDebug:
@@ -125,3 +125,38 @@ ktlintRelease:
   artifacts:
     paths:
       - app/build/reports/ktlint/
+
+
+pushToPrebuilt:
+  stage: publish
+  needs: ["buildRelease"]
+  when: manual
+  variables:
+    NEW_APK_PATH: "app/build/outputs/apk/release/"
+  before_script:
+    - 'which ssh-agent || ( apt update -y && apt install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_E_ROBOT_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - git config user.email "gitlab@e.foundation"
+    - git config user.name "gitlab"
+  script:
+    - NEW_APK_NAME=$(basename ${NEW_APK_PATH}*-release.apk)
+    - NEW_APK_VERSION=$(awk -F '-' '{print $2}' <<< "$NEW_APK_NAME")
+    - echo $NEW_APK_NAME
+    - echo $NEW_APK_VERSION
+    - git lfs clone git@gitlab.e.foundation:e/os/android_prebuilts_prebuiltapks_lfs.git
+    - cd android_prebuilts_prebuiltapks_lfs
+    - rm Apps/*-release.apk
+    - mv ../${NEW_APK_PATH}/${NEW_APK_NAME} Apps/
+    # todo: improve to replace sed command, by a new one based on REGEXP (instead of using line number)
+    - sed -i "6s/.*/LOCAL_SRC_FILES := ${NEW_APK_NAME}/" Apps/Android.mk 
+    - git add Apps
+    - git status
+    - git commit -m "Update Apps Lounge apk to ${NEW_APK_VERSION}\nFrom ${CI_COMMIT_SHA}"
+    - git push
+    # Sometimes a single push doesn't do all the job, so we have to push twice
+    - git push 
