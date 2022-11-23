@@ -116,12 +116,19 @@ class ApplicationListFragment :
         }
     }
 
-    private fun observeDownloadList(adapter: ApplicationListRVAdapter) {
+    private fun observeDownloadList(
+        adapter: ApplicationListRVAdapter,
+        fusedAppResult: ResultSupreme<List<FusedApp>>
+    ) {
+        mainActivityViewModel.downloadList.removeObservers(viewLifecycleOwner)
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
             val appList = viewModel.appListLiveData.value?.data?.toMutableList() ?: emptyList()
+
             appList.let {
                 mainActivityViewModel.updateStatusOfFusedApps(it, list)
-                adapter.setData(it)
+                if (isFusedAppsUpdated(fusedAppResult, listAdapter.currentList)) {
+                    adapter.setData(it, args.translation)
+                }
             }
         }
     }
@@ -134,12 +141,20 @@ class ApplicationListFragment :
 
     override fun onResume() {
         super.onResume()
+        addDownloadProgressObserver()
 
-        if (listAdapter.currentList.isNotEmpty() && viewModel.hasAnyAppInstallStatusChanged(listAdapter.currentList)) {
-            /*mainActivityViewModel.authData.value?.let {
-                refreshData(it)
-            }*/
+        if (listAdapter.currentList.isNotEmpty() && viewModel.hasAnyAppInstallStatusChanged(
+                listAdapter.currentList
+            )
+        ) {
             repostAuthObjects()
+        }
+    }
+
+    private fun addDownloadProgressObserver() {
+        appProgressViewModel.downloadProgress.removeObservers(viewLifecycleOwner)
+        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
+            updateProgressOfDownloadingItems(binding.recyclerView, it)
         }
     }
 
@@ -147,13 +162,7 @@ class ApplicationListFragment :
         viewModel.appListLiveData.observe(viewLifecycleOwner) {
             stopLoadingUI()
             if (it.isSuccess()) {
-                if (!isFusedAppsUpdated(it)) {
-                    return@observe
-                }
-                updateAppListRecyclerView(listAdapter, it)
-                appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
-                    updateProgressOfDownloadingItems(binding.recyclerView, it)
-                }
+                observeDownloadList(listAdapter, it)
             }
         }
     }
@@ -201,21 +210,6 @@ class ApplicationListFragment :
         val recyclerView = binding.recyclerView
         recyclerView.recycledViewPool.setMaxRecycledViews(0, 0)
         return recyclerView
-    }
-
-    private fun updateAppListRecyclerView(
-        listAdapter: ApplicationListRVAdapter?,
-        fusedAppResult: ResultSupreme<List<FusedApp>>
-    ) {
-        val currentList = listAdapter?.currentList
-        if (!isFusedAppsUpdated(fusedAppResult, currentList)
-        ) {
-            return
-        }
-        listAdapter?.setData(fusedAppResult.data!!, args.translation)
-        listAdapter?.let { adapter ->
-            observeDownloadList(adapter)
-        }
     }
 
     private fun isFusedAppsUpdated(
@@ -340,7 +334,6 @@ class ApplicationListFragment :
 
     override fun onPause() {
         binding.shimmerLayout.stopShimmer()
-        mainActivityViewModel.downloadList.removeObservers(viewLifecycleOwner)
         super.onPause()
     }
 

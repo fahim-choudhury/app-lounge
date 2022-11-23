@@ -53,6 +53,7 @@ import foundation.e.apps.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.applicationlist.ApplicationListRVAdapter
 import foundation.e.apps.databinding.FragmentSearchBinding
 import foundation.e.apps.login.AuthObject
+import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Status
@@ -120,7 +121,8 @@ class SearchFragment :
         setupListening()
 
         authObjects.observe(viewLifecycleOwner) {
-            if (it == null) return@observe
+            val currentQuery = searchView?.query?.toString() ?: ""
+            if (it == null || (currentQuery.isNotEmpty() && lastSearch == currentQuery)) return@observe
             loadData(it)
         }
 
@@ -134,13 +136,10 @@ class SearchFragment :
             if (it.data?.first.isNullOrEmpty() && it.data?.second == false) {
                 noAppsFoundLayout?.visibility = View.VISIBLE
             } else {
-                if (!updateSearchResult(listAdapter, it)) return@observe
+                listAdapter?.let { adapter ->
+                    observeDownloadList(adapter)
+                }
             }
-
-            listAdapter?.let { adapter ->
-                observeDownloadList(adapter)
-            }
-
             observeScrollOfSearchResult(listAdapter)
         }
     }
@@ -172,19 +171,20 @@ class SearchFragment :
         listAdapter: ApplicationListRVAdapter?,
         it: ResultSupreme<Pair<List<FusedApp>, Boolean>>
     ): Boolean {
-        val currentList = listAdapter?.currentList
-        if (it.data?.first != null && !currentList.isNullOrEmpty() && !searchViewModel.isAnyAppUpdated(
+        val currentList = listAdapter?.currentList ?: listOf()
+        if (it.data?.first != null && !searchViewModel.isAnyAppUpdated(
                 it.data?.first!!,
                 currentList
             )
         ) {
             return false
         }
-        listAdapter?.setData(it.data!!.first)
+
         binding.loadingProgressBar.isVisible = it.data!!.second
         stopLoadingUI()
         noAppsFoundLayout?.visibility = View.GONE
         searchHintLayout?.visibility = View.GONE
+        listAdapter?.setData(it.data?.first!!)
         return true
     }
 
@@ -249,14 +249,22 @@ class SearchFragment :
     }
 
     private fun observeDownloadList(applicationListRVAdapter: ApplicationListRVAdapter) {
-        mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
-            val searchList =
-                searchViewModel.searchResult.value?.data?.first?.toMutableList() ?: emptyList()
-            searchList.let {
-                mainActivityViewModel.updateStatusOfFusedApps(searchList, list)
-                applicationListRVAdapter.setData(it)
-            }
+        mainActivityViewModel.downloadList.removeObservers(viewLifecycleOwner)
+        mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { fusedDownloadList ->
+            refreshUI(fusedDownloadList, applicationListRVAdapter)
         }
+    }
+
+    private fun refreshUI(
+        fusedDownloadList: List<FusedDownload>,
+        applicationListRVAdapter: ApplicationListRVAdapter
+    ) {
+        val searchList =
+            searchViewModel.searchResult.value?.data?.first?.toMutableList() ?: emptyList()
+
+        val hasMoreDataToLoad = searchViewModel.searchResult.value?.data?.second == true
+        mainActivityViewModel.updateStatusOfFusedApps(searchList, fusedDownloadList)
+        updateSearchResult(applicationListRVAdapter, ResultSupreme.Success(Pair(searchList, hasMoreDataToLoad)))
     }
 
     override fun onTimeout(
@@ -325,12 +333,13 @@ class SearchFragment :
     override fun onResume() {
         super.onResume()
         binding.shimmerLayout.startShimmer()
-        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
-            updateProgressOfInstallingApps(it)
-        }
+        addDownloadProgressObservers()
 
         if (shouldRefreshData()) {
-            repostAuthObjects()
+            if (binding.recyclerView.adapter is ApplicationListRVAdapter) {
+                val searchAdapter = binding.recyclerView.adapter as ApplicationListRVAdapter
+                observeDownloadList(searchAdapter)
+            }
         }
 
         if (searchText.isEmpty() && (recyclerView?.adapter as ApplicationListRVAdapter).currentList.isEmpty()) {
@@ -339,10 +348,15 @@ class SearchFragment :
         }
     }
 
+    private fun addDownloadProgressObservers() {
+        appProgressViewModel.downloadProgress.removeObservers(viewLifecycleOwner)
+        appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
+            updateProgressOfInstallingApps(it)
+        }
+    }
+
     private fun shouldRefreshData() =
-        searchText.isNotEmpty() && recyclerView?.adapter != null && searchViewModel.hasAnyAppInstallStatusChanged(
-            (recyclerView?.adapter as ApplicationListRVAdapter).currentList
-        )
+        searchText.isNotEmpty() && recyclerView?.adapter != null
 
     override fun onPause() {
         binding.shimmerLayout.stopShimmer()

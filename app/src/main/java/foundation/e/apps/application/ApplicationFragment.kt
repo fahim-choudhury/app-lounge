@@ -208,12 +208,18 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         if (appInfoFetchViewModel.isAppInBlockedList(it)) {
             binding.snackbarLayout.visibility = View.VISIBLE
         }
-        fetchAppTracker(it)
 
+        fetchAppTracker(it)
+        observeDownloadList()
+        observeDownloadStatus(binding.root)
+        stopLoadingUI()
+    }
+
+    private fun observeDownloadList() {
+        mainActivityViewModel.downloadList.removeObservers(viewLifecycleOwner)
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
             applicationViewModel.updateApplicationStatus(list)
         }
-        stopLoadingUI()
     }
 
     private fun updateAppDescriptionText(it: FusedApp) {
@@ -483,11 +489,6 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        observeDownloadStatus(binding.root)
-    }
-
     private fun handleInstallingIssue(
         installButton: MaterialButton,
         fusedApp: FusedApp,
@@ -709,7 +710,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         downloadProgress: DownloadProgress,
     ) {
         val progressResult = applicationViewModel.calculateProgress(downloadProgress)
-        if (progressResult.first < 1) {
+        if (view == null || progressResult.first < 1) {
             return
         }
         val downloadedSize = "${
@@ -783,16 +784,16 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         binding.ratingsInclude.appPrivacyScore.visibility = visibility
     }
 
+    override fun onResume() {
+        super.onResume()
+        observeDownloadList()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding?.recyclerView?.adapter = null
         _binding = null
         applicationIcon = null
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mainActivityViewModel.downloadList.removeObservers(viewLifecycleOwner)
     }
 
     private fun shareApp(name: String, shareUrl: String): Intent {
