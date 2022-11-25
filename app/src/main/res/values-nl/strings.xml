@@ -1,2 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="monthly">Maandelijks</string>
+    <string name="weekly">Wekelijks</string>
+    <string name="daily">Dagelijks</string>
+    <string name="this_app_may_not_work_properly">Deze app zal mogelijk niet goed werken!</string>
+    <string name="install_anyway">Toch installeren</string>
+    <string name="unsupported_app_title">App niet ondersteund!</string>
+    <string name="purchase_error">Aankoop fout!</string>
+    <string name="download_automatically_message">Je app zal automatisch op dit toestel gedownload worden</string>
+    <string name="purchase_complete">Aankoop voltooid!</string>
+    <string name="paid_app_anonymous_message">Betalende apps kunnen niet geïnstalleerd worden in anonieme modus. Log alstublieft in met je Google account om betalende apps te installeren.</string>
+    <string name="dialog_cancel">ANNULEREN</string>
+    <string name="dialog_confirm">BEVESTIGEN</string>
+    <string name="dialog_title_paid_app"><b>%1$s</b> kopen</string>
+    <string name="anonymous_login_failed">Anoniem inloggen mislukt!</string>
+    <string name="sign_in_failed_title">Google aanmelden mislukt!</string>
+    <string name="data_load_error">Fout tijdens het laden van apps.</string>
+    <string name="more_info"><u>Meer info</u></string>
+    <string name="open_settings">Open Instellingen</string>
+    <string name="no_internet_message">Kan niet verbinden! Kijk alstublieft je internet verbinding na en probeer opnieuw</string>
+    <string name="tracker_information_not_found">Geen tracker informatie beschikbaar voor deze app.</string>
+    <string name="no_tracker_found">Geen trackers gevonden!</string>
+    <string name="privacy_computed_using_text">Berekend met behulp van &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus Privacy Analysis</string>
+    <string name="message_last_update_triggered">Laatste update gestart %1$s</string>
+    <string name="updates_notification_unmetered_network_warning">Wachten op niet-gemeten netwerk</string>
+    <string name="manually_install_updates_notification_text">App updates zullen niet automatisch geïnstalleerd worden</string>
+    <string name="automatically_install_updates_notification_text">App updates zullen automatisch geïnstalleerd worden</string>
+    <string name="updates">Updates</string>
+    <string name="downloads">Downloads</string>
+    <string name="topselling_free_games">Top Gratis Spellen</string>
+    <string name="topselling_free_apps">Top Gratis Apps</string>
+    <string name="popular_games">PWA Populaire Spellen</string>
+    <string name="popular_apps">PWA Populaire Apps</string>
+    <string name="discover_pwa">Ontdek PWA</string>
+    <string name="discover">Ontdek</string>
+    <string name="update_error">Update Fout!</string>
+    <string name="all_apps_updated">Alle apps zijn up-to-date</string>
+    <string name="manual_updates_notification">App updates zullen niet automatisch geïnstalleerd worden</string>
+    <string name="auto_updates_notification">App updates zullen automatisch geïnstalleerd worden</string>
+    <plurals name="updates_notification_title">
+        <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> app update is beschikbaar</item>
+        <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> app updates zijn beschikbaar</item>
+    </plurals>
+    <string name="update_all">Alles updaten</string>
+    <string name="gplay_data_for_oss">Kan geen Google Play app tonen wanneer enkel open source apps toegelaten zijn.</string>
+    <string name="show_more">Toon meer</string>
+    <string name="something_went_wrong">Er is iets fout gegaan!</string>
+    <string name="app_not_found">Je applicatie is niet gevonden.</string>
+    <string name="not_enough_storage">Er is niet genoeg geheugen beschikbaar om deze applicatie te downloaden!</string>
+    <string name="unknown_error">Onbekende fout!</string>
+    <string name="message_app_available_later">Deze app zal binnenkort beschikbaar zijn!</string>
+    <string name="install_blocked_google">Betalende apps worden nog niet ondersteund in de App Lounge. Dit gaat binnenkort mogelijk zijn. Hebt u alstublieft nog een beetje geduld.</string>
+    <string name="install_blocked_anonymous">Betaalde apps kunnen niet geïnstalleerd worden in anonieme modus. Om betalende apps te installeren, gelieve in te loggen op je Google account.</string>
+    <string name="package_name">Pakket naam: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="license">Licentie: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="min_android_version">Vereist: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="updated_on">Bijgewerkt op: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="version">Versie: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="information">Informatie</string>
+    <string name="trackers_title">Trackers</string>
+    <string name="permissions">Machtigingen</string>
+    <string name="privacy_analyses">Privacy-analyses</string>
+    <string name="privacy_description">De Privacy Score is automatisch berekend op basis van machtigingen en gedetecteerde trackers in de applicatie. Het geeft een overzicht in welke mate de app persoonsgegevens verzameld over gebruikers.&lt;br /&gt;&lt;br /&gt; De broncode voor het berekenen van deze score kan &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;hier&lt;/a&gt; bekeken worden.&lt;br /&gt;&lt;br /&gt;Tracker detectie wordt uitgevoerd met behulp van &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Privacy tools&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Score gaat van 0 tot 10.&lt;br /&gt;&lt;br /&gt;Om meer te weten te komen over hoe de Privacy Score is berekend, zijn beperkingen, en hoe je jezelf kan afschermen van profilering kan je &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt; deze link volgen&lt;/a&gt;.</string>
+    <string name="privacy_score">Privacy score</string>
+    <string name="privacy">Privacy</string>
+    <string name="rating_description">Score op 5. Berekend op basis van gebruikersbeoordelingen van de app.</string>
+    <string name="rating">Waardering</string>
+    <string name="ratings">Waarderingen</string>
+    <string name="update">Updaten</string>
+    <string name="more">Meer</string>
+    <string name="close">Sluiten</string>
+    <string name="retry">Opnieuw proberen</string>
+    <string name="open">Openen</string>
+    <string name="app_icon">App icoon</string>
+    <string name="cancel">Annuleren</string>
+    <string name="installing">Installeren</string>
+    <string name="install">Installeren</string>
+    <string name="ok">OK</string>
+    <string name="share_intent">Zie ook \"<xliff:g id="rating">%1$s</xliff:g>\"
+\n<xliff:g id="rating">%2$s</xliff:g></string>
+    <string name="description">Beschrijving</string>
+    <string name="logout">Uitloggen</string>
+    <string name="user_anonymous">Anoniem</string>
+    <string name="terms_services">Gebruiksvoorwaarden</string>
+    <string name="account">Account</string>
+    <string name="copied">Gekopieerd</string>
+    <string name="os_version">/e/ OS versie</string>
+    <string name="app_version_label">App Lounge versie</string>
+    <string name="about">Over</string>
+    <string name="show_only_pwa_apps">Toon PWA\'s</string>
+    <string name="show_only_open_source_apps">Toon open source apps</string>
+    <string name="Show_common_apps">Toon algemene apps</string>
+    <string name="Show_applications">Toon applicaties:</string>
+    <string name="preference_update_notify_available_description">Toon een melding wanneer er app updates beschikbaar zijn</string>
+    <string name="preference_update_notify_available_title">Toon beschikbare updates</string>
+    <string name="preference_update_install_automatically_description">Download en installeer app updates op de achtergrond</string>
+    <string name="preference_update_install_automatically_title">Automatisch updates installeren</string>
+    <string name="preference_update_wifi_only_description">Apps enkel automatisch updaten op niet-gemeten netwerken zoals wifi</string>
+    <string name="preference_update_wifi_only_title">Alleen op niet-gemeten netwerken</string>
+    <string name="preference_update_interval_title">Controle-interval bijwerken</string>
+    <string name="preference_update_interval_default">24</string>
+    <string name="preference_updates_title">Updates</string>
+    <string name="tos_warning">Voordat je verder kan gaan moet je de Gebruiksvoorwaarden lezen en accepteren.</string>
+    <string name="tos_agree_date">Geaccepteerd</string>
+    <string name="tos_disagree">Afwijzen</string>
+    <string name="tos_agree">Accepteren</string>
+    <string name="or">of</string>
+    <string name="sign_in_anonymous">Anonieme modus</string>
+    <string name="sign_in_google">Log in met Google</string>
+    <string name="sign_in_desc">Log in op de App Lounge met jouw Google account, of selecteer de Anonieme modus om privé aan te melden.</string>
+    <string name="sign_in_title">Welkom</string>
+    <string name="pwa">PWA</string>
+    <string name="open_source">Open source</string>
+    <string name="category_icon">Categorie Icoon</string>
+    <string name="games">Spelletjes</string>
+    <string name="apps">Toepassingen</string>
+    <string name="no_apps_found">Geen apps gevonden…</string>
+    <string name="search_hint">App zoeken</string>
+    <string name="menu_settings">Instellingen</string>
+    <string name="menu_updates">Updates</string>
+    <string name="menu_search">Zoeken</string>
+    <string name="menu_categories">Categorieën</string>
+    <string name="menu_home">Home</string>
+    <string name="app_name">App Lounge</string>
+</resources>
