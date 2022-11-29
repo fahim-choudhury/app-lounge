@@ -20,7 +20,9 @@ package foundation.e.apps.utils.modules
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
-import java.lang.Exception
+import android.os.Build
+import foundation.e.apps.BuildConfig
+import org.json.JSONObject
 
 object CommonUtilsFunctions {
 
@@ -44,9 +46,21 @@ object CommonUtilsFunctions {
         try {
             value = Class.forName("android.os.SystemProperties")
                 .getMethod("get", String::class.java).invoke(null, key) as String
-        } catch (e: java.lang.Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
         return value
+    }
+
+    fun getAppBuildInfo(): String {
+        val descriptionJson = JSONObject().apply {
+            put("package", BuildConfig.APPLICATION_ID)
+            put("version", BuildConfig.VERSION_NAME)
+            put("device", Build.DEVICE)
+            put("api", Build.VERSION.SDK_INT)
+            put("os_version", getSystemProperty("ro.lineage.version"))
+            put("build_id", BuildConfig.BUILD_ID)
+        }
+        return descriptionJson.toString()
     }
 }

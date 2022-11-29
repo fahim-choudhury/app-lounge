@@ -12,6 +12,19 @@ def versionMajor = 2
 def versionMinor = 4
 def versionPatch = 0
 
+def getGitHash = { ->
+    def stdOut = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'log', '--pretty=format:%h', '-n', '1'
+        standardOutput = stdOut
+    }
+    return stdOut.toString().trim()
+}
+
+def getDate = { ->
+    return new Date().format('yyyyMMddHHmmss')
+}
+
 android {
     compileSdk 31
 
@@ -21,6 +34,8 @@ android {
         targetSdk 30
         versionCode versionMajor * 1000000 + versionMinor * 1000 + versionPatch
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+
+        buildConfigField "String", "BUILD_ID", "\"${getGitHash() + "." + getDate()}\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

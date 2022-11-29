@@ -21,6 +21,7 @@ package foundation.e.apps.api.gplay.utils
 
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.network.IHttpClient
+import foundation.e.apps.utils.modules.CommonUtilsFunctions
 import okhttp3.Cache
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.HttpUrl
@@ -81,7 +82,11 @@ class GPlayHttpClient @Inject constructor(
 
     override fun postAuth(url: String, body: ByteArray): PlayResponse {
         val requestBody = body.toRequestBody("application/json".toMediaType(), 0, body.size)
+        val headers = mapOf(
+            "User-Agent" to CommonUtilsFunctions.getAppBuildInfo()
+        )
         val request = Request.Builder()
+            .headers(headers.toHeaders())
             .url(url)
             .method(POST, requestBody)
             .build()

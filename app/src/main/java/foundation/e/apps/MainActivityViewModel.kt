@@ -54,6 +54,8 @@ import foundation.e.apps.utils.modules.PWAManagerModule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.beryukhov.reactivenetwork.ReactiveNetwork
+import ru.beryukhov.reactivenetwork.internet.observing.InternetObservingSettings
+import ru.beryukhov.reactivenetwork.internet.observing.strategy.SocketInternetObservingStrategy
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
@@ -331,7 +333,14 @@ class MainActivityViewModel @Inject constructor(
     }
 
     val internetConnection = liveData {
-        emitSource(ReactiveNetwork().observeInternetConnectivity().asLiveData(Dispatchers.Default))
+        emitSource(
+            ReactiveNetwork().observeInternetConnectivity(
+                InternetObservingSettings.builder()
+                    .host("http://204.ecloud.global")
+                    .strategy(SocketInternetObservingStrategy())
+                    .build()
+            ).asLiveData(Dispatchers.Default)
+        )
     }
 
     fun updateStatusOfFusedApps(

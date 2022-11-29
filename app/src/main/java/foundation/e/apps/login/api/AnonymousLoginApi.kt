@@ -55,7 +55,7 @@ class AnonymousLoginApi(
                         "Network code: ${response.code}\n" +
                         "Success: ${response.isSuccessful}" +
                         response.errorString.run {
-                            if (isNotBlank()) "\nError message: ${response.errorString}"
+                            if (isNotBlank()) "\nError message: $this"
                             else ""
                         }
                 )

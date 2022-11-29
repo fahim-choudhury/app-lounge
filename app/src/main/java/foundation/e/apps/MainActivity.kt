@@ -54,11 +54,11 @@ import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.exceptions.GPlayValidationException
+import foundation.e.apps.utils.modules.CommonUtilsFunctions
 import foundation.e.apps.utils.modules.CommonUtilsModule
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import timber.log.Timber
 import java.io.File
 import java.util.UUID
@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -129,14 +129,7 @@ class MainActivity : AppCompatActivity() {
                     viewModel.gPlayAuthData = data as AuthData
                 } else if (exception is GPlayValidationException) {
                     val email = otherPayload.toString()
-                    val descriptionJson = JSONObject().apply {
-                        put("versionName", BuildConfig.VERSION_NAME)
-                        put("versionCode", BuildConfig.VERSION_CODE)
-                        put("debuggable", BuildConfig.DEBUG)
-                        put("device", Build.DEVICE)
-                        put("api", Build.VERSION.SDK_INT)
-                    }
-                    viewModel.uploadFaultyTokenToEcloud(email, descriptionJson.toString())
+                    viewModel.uploadFaultyTokenToEcloud(email, CommonUtilsFunctions.getAppBuildInfo())
                 }
             }
         }
