@@ -227,9 +227,13 @@ class LoginSourceGPlay @Inject constructor(
             ResultSupreme.Success(formattedAuthData)
         } else {
             val message =
-                "Validating AuthData failed.\n\n" +
+                "Validating AuthData failed.\n" +
+                    "Network code: ${playResponse?.code}\n" +
                     "Success: ${playResponse?.isSuccessful}" +
-                    (validityResponse.exception?.let { "\n${it.message}" } ?: "")
+                    playResponse?.errorString?.run {
+                        if (isNotBlank()) "\nError message: $this"
+                        else ""
+                    }
 
             ResultSupreme.Error(
                 message,
