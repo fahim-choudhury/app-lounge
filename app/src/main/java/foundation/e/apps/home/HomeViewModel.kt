@@ -28,8 +28,11 @@ import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.login.AuthObject
+import foundation.e.apps.utils.enums.Source
+import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.exceptions.CleanApkException
 import foundation.e.apps.utils.exceptions.GPlayException
+import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -55,12 +58,12 @@ class HomeViewModel @Inject constructor(
         super.onLoadData(authObjectList, { successAuthList, _ ->
 
             successAuthList.find { it is AuthObject.GPlayAuth }?.run {
-                getHomeScreenData(result.data!! as AuthData, lifecycleOwner)
+                getHomeScreenData(result.data!! as AuthData, this.user, lifecycleOwner)
                 return@onLoadData
             }
 
             successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getHomeScreenData(AuthData("", ""), lifecycleOwner)
+                getHomeScreenData(AuthData("", ""), this.user, lifecycleOwner)
                 return@onLoadData
             }
         }, retryBlock)
@@ -68,13 +71,22 @@ class HomeViewModel @Inject constructor(
 
     fun getHomeScreenData(
         authData: AuthData,
+        user: User,
         lifecycleOwner: LifecycleOwner,
     ) {
         viewModelScope.launch {
             fusedAPIRepository.getHomeScreenData(authData).observe(lifecycleOwner) {
                 homeScreenData.postValue(it)
 
-                if (it.isSuccess()) return@observe
+                val homeList = it.data ?: emptyList()
+                val source = it.otherPayload?.toString() ?: ""
+
+                if (it.isSuccess()) {
+                    if (homeList.all { source == Source.GPLAY.name } && isFusedHomesEmpty(homeList)) {
+                        exceptionsList.add(GPlayLoginException(false, "Received empty Home", user))
+                    }
+                    return@observe
+                }
 
                 val exception =
                     if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
@@ -97,8 +109,8 @@ class HomeViewModel @Inject constructor(
         return fusedAPIRepository.getApplicationCategoryPreference()
     }
 
-    fun isFusedHomesEmpty(): Boolean {
-        return homeScreenData.value?.data?.let {
+    fun isFusedHomesEmpty(fusedHomes: List<FusedHome>): Boolean {
+        return fusedHomes.let {
             fusedAPIRepository.isFusedHomesEmpty(it)
         } ?: true
     }
