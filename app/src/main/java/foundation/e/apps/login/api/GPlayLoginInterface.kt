@@ -18,9 +18,7 @@
 package foundation.e.apps.login.api
 
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.PlayResponse
 
 interface GPlayLoginInterface {
-    suspend fun login(authData: AuthData): PlayResponse
     suspend fun fetchAuthData(email: String, aasToken: String): AuthData?
 }

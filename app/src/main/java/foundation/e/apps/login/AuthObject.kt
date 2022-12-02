@@ -35,8 +35,9 @@ import foundation.e.apps.utils.enums.User
 sealed class AuthObject {
 
     abstract val result: ResultSupreme<*>
+    abstract val user: User
 
-    class GPlayAuth(override val result: ResultSupreme<AuthData?>, val user: User) : AuthObject()
-    class CleanApk(override val result: ResultSupreme<Unit>, val user: User) : AuthObject()
+    class GPlayAuth(override val result: ResultSupreme<AuthData?>, override val user: User) : AuthObject()
+    class CleanApk(override val result: ResultSupreme<Unit>, override val user: User) : AuthObject()
     // Add more auth types here
 }

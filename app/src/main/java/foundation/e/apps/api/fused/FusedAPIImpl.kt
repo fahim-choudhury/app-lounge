@@ -107,6 +107,13 @@ class FusedAPIImpl @Inject constructor(
         return true
     }
 
+    fun isCategoriesEmpty(fusedCategories: List<FusedCategory>): Boolean {
+        fusedCategories.forEach {
+            if (it.title.isNotEmpty()) return false
+        }
+        return true
+    }
+
     fun getApplicationCategoryPreference(): String {
         return preferenceManagerModule.preferredApplicationType()
     }
@@ -168,7 +175,11 @@ class FusedAPIImpl @Inject constructor(
 
         setHomeErrorMessage(apiStatus, source)
 
-        scope.emit(ResultSupreme.create(apiStatus, priorList))
+        scope.emit(
+            ResultSupreme.create(apiStatus, priorList.toList()).apply {
+                otherPayload = source.name
+            }
+        )
     }
 
     private fun setHomeErrorMessage(apiStatus: ResultStatus, source: Source) {
@@ -1314,7 +1325,7 @@ class FusedAPIImpl @Inject constructor(
                     updateFilterLevel(authData)
                 }
             }
-            list.add(FusedHome(it.key, result))
+            list.add(FusedHome(it.key, result, source = APP_TYPE_ANY))
         }
         return list
     }

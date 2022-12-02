@@ -56,6 +56,8 @@ abstract class LoadingViewModel : ViewModel() {
             exceptionsList.add(it.result.exception ?: UnknownSourceException())
         }
 
+        loadingBlock(successAuthList, failedAuthList)
+
         exceptionsList.find {
             it is GPlayValidationException
         }?.run {
@@ -65,8 +67,6 @@ abstract class LoadingViewModel : ViewModel() {
                 return
             }
         }
-
-        loadingBlock(successAuthList, failedAuthList)
 
         if (successAuthList.isEmpty() && exceptionsList.isNotEmpty()) {
             /*

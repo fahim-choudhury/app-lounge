@@ -21,7 +21,6 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.helpers.AuthHelper
 import foundation.e.apps.api.gplay.utils.AC2DMTask
-import foundation.e.apps.api.gplay.utils.CustomAuthValidator
 import foundation.e.apps.api.gplay.utils.GPlayHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -60,23 +59,5 @@ class GoogleLoginApi(
             authData = AuthHelper.build(email, aasToken, nativeDeviceProperty)
         }
         return authData
-    }
-
-    /**
-     * Check if an AuthData is valid. Returns a [PlayResponse].
-     * Check [PlayResponse.isSuccessful] to see if the validation was successful.
-     */
-    override suspend fun login(authData: AuthData): PlayResponse {
-        var result = PlayResponse()
-        withContext(Dispatchers.IO) {
-            try {
-                val authValidator = CustomAuthValidator(authData).using(gPlayHttpClient)
-                result = authValidator.getValidityResponse()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                throw e
-            }
-        }
-        return result
     }
 }

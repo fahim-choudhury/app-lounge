@@ -27,7 +27,6 @@ import foundation.e.apps.login.api.GPlayLoginInterface
 import foundation.e.apps.login.api.GoogleLoginApi
 import foundation.e.apps.login.api.LoginApiRepository
 import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.exceptions.GPlayValidationException
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -75,23 +74,15 @@ class LoginSourceGPlay @Inject constructor(
      */
     override suspend fun getAuthObject(): AuthObject.GPlayAuth {
         val savedAuth = getSavedAuthData()
-
-        val authData = (
-            savedAuth ?: run {
-                // if no saved data, then generate new auth data.
-                generateAuthData().let {
-                    if (it.isSuccess()) it.data!!
-                    else return AuthObject.GPlayAuth(it, user)
-                }
+        return if (savedAuth != null) {
+            AuthObject.GPlayAuth(ResultSupreme.Success(savedAuth), user)
+        } else {
+            generateAuthData().let {
+                if (it.isSuccess()) {
+                    saveAuthData(it.data!!)
+                    AuthObject.GPlayAuth(it, user)
+                } else AuthObject.GPlayAuth(it, user)
             }
-            )
-
-        // validate authData and save it if nothing is saved (first time use.)
-        validateAuthData(authData).run {
-            if (isSuccess() && savedAuth == null) {
-                saveAuthData(authData)
-            }
-            return AuthObject.GPlayAuth(this, user)
         }
     }
 
@@ -199,46 +190,9 @@ class LoginSourceGPlay @Inject constructor(
          * Finally save the aasToken and create auth data.
          */
         loginDataStore.saveAasToken(aasTokenFetched)
-        return loginApiRepository.fetchAuthData(email, aasTokenFetched, locale)
-    }
-
-    /**
-     * Check if a given [AuthData] from Google login or Anonymous login is valid or not.
-     * If valid, return the AuthData wrapped in [ResultSupreme], else return null,
-     * with error message.
-     */
-    private suspend fun validateAuthData(
-        authData: AuthData,
-    ): ResultSupreme<AuthData?> {
-
-        val formattedAuthData = formattedAuthData(authData)
-        formattedAuthData.locale = locale
-
-        val validityResponse = loginApiRepository.login(formattedAuthData)
-
-        /*
-         * Send the email as payload. This is sent to ecloud in case of failure.
-         * See MainActivityViewModel.uploadFaultyTokenToEcloud.
-         */
-        validityResponse.otherPayload = formattedAuthData.email
-
-        val playResponse = validityResponse.data
-        return if (validityResponse.isSuccess() && playResponse?.code == 200 && playResponse.isSuccessful) {
-            ResultSupreme.Success(formattedAuthData)
-        } else {
-            val message =
-                "Validating AuthData failed.\n" +
-                    "Network code: ${playResponse?.code}\n" +
-                    "Success: ${playResponse?.isSuccessful}" +
-                    playResponse?.errorString?.run {
-                        if (isNotBlank()) "\nError message: $this"
-                        else ""
-                    }
-
-            ResultSupreme.Error(
-                message,
-                GPlayValidationException(message, user, playResponse?.code ?: -1)
-            )
+        return loginApiRepository.fetchAuthData(email, aasTokenFetched, locale).run {
+            if (isSuccess()) ResultSupreme.Success(formattedAuthData(this.data!!))
+            else this
         }
     }
 }
