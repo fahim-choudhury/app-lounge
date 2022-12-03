@@ -20,6 +20,7 @@ package foundation.e.apps
 import android.content.Context
 import android.text.format.Formatter
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.data.models.App
@@ -29,6 +30,7 @@ import foundation.e.apps.api.cleanapk.CleanAPKInterface
 import foundation.e.apps.api.cleanapk.CleanAPKRepository
 import foundation.e.apps.api.cleanapk.data.categories.Categories
 import foundation.e.apps.api.cleanapk.data.search.Search
+import foundation.e.apps.api.fdroid.FdroidWebInterface
 import foundation.e.apps.api.fused.FusedAPIImpl
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedHome
@@ -88,6 +90,9 @@ class FusedApiImplTest {
     @Mock
     private lateinit var gPlayAPIRepository: GPlayAPIRepository
 
+    @Mock
+    private lateinit var fdroidWebInterface: FdroidWebInterface
+
     private lateinit var preferenceManagerModule: FakePreferenceModule
 
     private lateinit var formatterMocked: MockedStatic<Formatter>
@@ -107,6 +112,7 @@ class FusedApiImplTest {
             pkgManagerModule,
             pwaManagerModule,
             preferenceManagerModule,
+            fdroidWebInterface,
             context
         )
     }
@@ -759,9 +765,9 @@ class FusedApiImplTest {
         preferenceManagerModule.isPWASelectedFake = true
         preferenceManagerModule.isOpenSourceelectedFake = true
         preferenceManagerModule.isGplaySelectedFake = true
-        val gplayLivedata = MutableLiveData(
+        val gplayLivedata: LiveData<Pair<List<FusedApp>, Boolean>> = MutableLiveData(
             Pair(
-                listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), false
+                listOf(FusedApp("a.b.c"), FusedApp("c.d.e"), FusedApp("d.e.f"), FusedApp("d.e.g")), false
             )
         )
 
@@ -780,7 +786,7 @@ class FusedApiImplTest {
         packageNameSearchResponse: Response<Search>?,
         authData: AuthData,
         gplayPackageResult: App,
-        gplayLivedata: MutableLiveData<Pair<List<App>, Boolean>>,
+        gplayLivedata: LiveData<Pair<List<FusedApp>, Boolean>>?,
         willThrowException: Boolean = false
     ) {
         Mockito.`when`(pwaManagerModule.getPwaStatus(any())).thenReturn(Status.UNAVAILABLE)
@@ -811,7 +817,18 @@ class FusedApiImplTest {
                 source = CleanAPKInterface.APP_SOURCE_ANY
             )
         ).thenReturn(packageNameSearchResponse)
-        Mockito.`when`(gPlayAPIRepository.getSearchResults(eq("com.search.package"), eq(authData)))
+
+        suspend fun replaceWithFDroid(gPlayApp: App): FusedApp {
+            return FusedApp(gPlayApp.id.toString(), gPlayApp.packageName)
+        }
+
+        Mockito.`when`(
+            gPlayAPIRepository.getSearchResults(
+                eq("com.search.package"),
+                eq(authData),
+                eq(::replaceWithFDroid)
+            )
+        )
             .thenReturn(gplayLivedata)
     }
 
@@ -846,7 +863,7 @@ class FusedApiImplTest {
         val gplayPackageResult = App("com.search.package")
 
         val gplayLivedata =
-            MutableLiveData(Pair(listOf(App("a.b.c"), App("c.d.e"), App("d.e.f")), false))
+            MutableLiveData(Pair(listOf(FusedApp("a.b.c"), FusedApp("c.d.e"), FusedApp("d.e.f")), false))
 
         setupMockingSearchApp(
             packageNameSearchResponse, AUTH_DATA, gplayPackageResult, gplayLivedata, true

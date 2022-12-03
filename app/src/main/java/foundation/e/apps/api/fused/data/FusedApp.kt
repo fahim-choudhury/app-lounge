@@ -90,5 +90,6 @@ data class FusedApp(
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5720
      */
-    var filterLevel: FilterLevel = FilterLevel.UNKNOWN
+    var filterLevel: FilterLevel = FilterLevel.UNKNOWN,
+    var isGplayReplaced: Boolean = false
 )

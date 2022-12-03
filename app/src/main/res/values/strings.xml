@@ -113,6 +113,10 @@
     <string name="something_went_wrong">Something went wrong!</string>
     <string name="show_more">Show more</string>
     <string name="gplay_data_for_oss">Cannot show Google Play app when only open source apps are allowed.</string>
+    <string name="why_open_source_version">Why am I seeing the Open Source version?</string>
+    <string name="open_source_apps">Open Source apps</string>
+    <string name="duplicate_app_from_sources">Some proprietary apps may also have an Open Source version. Whenever this happens App Lounge shows the Open Source version only, in order to avoid duplicates.</string>
+
 
 
     <!-- Updates Fragment -->

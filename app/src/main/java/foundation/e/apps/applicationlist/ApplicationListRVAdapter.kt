@@ -218,6 +218,7 @@ class ApplicationListRVAdapter(
                     searchApp.package_name,
                     searchApp.origin,
                     catText,
+                    searchApp.isGplayReplaced
                 )
             }
             R.id.updatesFragment -> {
