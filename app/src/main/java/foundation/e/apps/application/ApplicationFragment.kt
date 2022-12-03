@@ -205,14 +205,26 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         // Privacy widgets
         updatePrivacyPanel()
 
-        if (appInfoFetchViewModel.isAppInBlockedList(it)) {
-            binding.snackbarLayout.visibility = View.VISIBLE
-        }
+        showWarningMessage(it)
 
         fetchAppTracker(it)
         observeDownloadList()
         observeDownloadStatus(binding.root)
         stopLoadingUI()
+    }
+
+    private fun showWarningMessage(it: FusedApp) {
+        if (appInfoFetchViewModel.isAppInBlockedList(it)) {
+            binding.snackbarLayout.visibility = View.VISIBLE
+        } else if (args.isGplayReplaced && !applicationViewModel.isOpenSourceSelected()) {
+            binding.duplicateAppCardview.visibility = View.VISIBLE
+            binding.duplicateAppCardview.setOnClickListener {
+                ApplicationDialogFragment(
+                    title = getString(R.string.open_source_apps),
+                    message = getString(R.string.duplicate_app_from_sources)
+                ).show(childFragmentManager, TAG)
+            }
+        }
     }
 
     private fun observeDownloadList() {

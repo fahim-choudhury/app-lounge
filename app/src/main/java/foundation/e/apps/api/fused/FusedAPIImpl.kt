@@ -41,6 +41,7 @@ import foundation.e.apps.api.cleanapk.CleanAPKRepository
 import foundation.e.apps.api.cleanapk.data.categories.Categories
 import foundation.e.apps.api.cleanapk.data.home.Home
 import foundation.e.apps.api.cleanapk.data.search.Search
+import foundation.e.apps.api.fdroid.FdroidWebInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedCategory
 import foundation.e.apps.api.fused.data.FusedHome
@@ -74,6 +75,7 @@ class FusedAPIImpl @Inject constructor(
     private val pkgManagerModule: PkgManagerModule,
     private val pwaManagerModule: PWAManagerModule,
     private val preferenceManagerModule: PreferenceManagerModule,
+    private val fdroidWebInterface: FdroidWebInterface,
     @ApplicationContext private val context: Context
 ) {
 
@@ -1197,13 +1199,31 @@ class FusedAPIImpl @Inject constructor(
         query: String,
         authData: AuthData
     ): LiveData<Pair<List<FusedApp>, Boolean>> {
-        val searchResults = gPlayAPIRepository.getSearchResults(query, authData)
+        val searchResults = gPlayAPIRepository.getSearchResults(query, authData, ::replaceWithFDroid)
         return searchResults.map {
             Pair(
-                it.first.map { app -> app.transformToFusedApp() },
+                it.first,
                 it.second
             )
         }
+    }
+
+    /*
+         * This function will replace a GPlay app with F-Droid app if exists,
+         * else will show the GPlay app itself.
+         */
+    private suspend fun replaceWithFDroid(gPlayApp: App): FusedApp {
+        val gPlayFusedApp = gPlayApp.transformToFusedApp()
+        val response = fdroidWebInterface.getFdroidApp(gPlayFusedApp.package_name)
+        if (response.isSuccessful) {
+            val fdroidApp = getCleanApkPackageResult(gPlayFusedApp.package_name)?.apply {
+                updateSource()
+                isGplayReplaced = true
+            }
+            return fdroidApp ?: gPlayFusedApp
+        }
+
+        return gPlayFusedApp
     }
 
     /*
@@ -1482,4 +1502,6 @@ class FusedAPIImpl @Inject constructor(
         }
         return false
     }
+
+    fun isOpenSourceSelected() = preferenceManagerModule.isOpenSourceSelected()
 }

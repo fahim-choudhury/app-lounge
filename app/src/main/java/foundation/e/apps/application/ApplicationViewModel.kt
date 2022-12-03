@@ -181,4 +181,6 @@ class ApplicationViewModel @Inject constructor(
                 ?: fusedAPIRepository.getFusedAppInstallationStatus(app)
         }
     }
+
+    fun isOpenSourceSelected() = fusedAPIRepository.isOpenSourceSelected()
 }

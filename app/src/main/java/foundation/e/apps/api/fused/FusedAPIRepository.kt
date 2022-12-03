@@ -480,4 +480,6 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPII
         hasNextStreamCluster = false
         clusterPointer = 0
     }
+
+    fun isOpenSourceSelected() = fusedAPIImpl.isOpenSourceSelected()
 }

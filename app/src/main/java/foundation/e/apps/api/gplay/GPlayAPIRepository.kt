@@ -27,6 +27,7 @@ import com.aurora.gplayapi.data.models.File
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.TopChartsHelper
+import foundation.e.apps.api.fused.data.FusedApp
 import javax.inject.Inject
 
 class GPlayAPIRepository @Inject constructor(private val gPlayAPIImpl: GPlayAPIImpl) {
@@ -35,8 +36,12 @@ class GPlayAPIRepository @Inject constructor(private val gPlayAPIImpl: GPlayAPII
         return gPlayAPIImpl.getSearchSuggestions(query, authData)
     }
 
-    fun getSearchResults(query: String, authData: AuthData): LiveData<Pair<List<App>, Boolean>> {
-        return gPlayAPIImpl.getSearchResults(query, authData)
+    fun getSearchResults(
+        query: String,
+        authData: AuthData,
+        replaceWithFDroid: suspend (App) -> FusedApp,
+    ): LiveData<Pair<List<FusedApp>, Boolean>> {
+        return gPlayAPIImpl.getSearchResults(query, authData, replaceWithFDroid)
     }
 
     suspend fun getOnDemandModule(

@@ -89,6 +89,36 @@
 
                 </androidx.cardview.widget.CardView>
 
+                <RelativeLayout
+                    android:id="@+id/duplicate_app_cardview"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:visibility="gone"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginTop="20dp"
+                    app:cardElevation="8dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/colorBackground">
+
+                        <TextView
+                            android:id="@+id/snackbarText"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:gravity="center"
+                            android:drawableEnd="@drawable/ic_warning_black"
+                            android:drawablePadding="15dp"
+                            android:textColor="?android:textColorPrimary"
+                            android:text="@string/why_open_source_version" />
+                    </RelativeLayout>
+
+                </RelativeLayout>
+
                 <include
                     android:id="@+id/titleInclude"
                     layout="@layout/fragment_application_title" />

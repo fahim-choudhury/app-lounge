@@ -19,6 +19,7 @@
 package foundation.e.apps.search
 
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.SearchSuggestEntry
@@ -43,11 +44,18 @@ class SearchViewModel @Inject constructor(
     val searchSuggest: MutableLiveData<List<SearchSuggestEntry>?> = MutableLiveData()
     val searchResult: MutableLiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
         MutableLiveData()
+    private var searchResultLiveData: LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
+        MutableLiveData()
 
     fun getSearchSuggestions(query: String, gPlayAuth: AuthObject.GPlayAuth) {
         viewModelScope.launch(Dispatchers.IO) {
             if (gPlayAuth.result.isSuccess())
-                searchSuggest.postValue(fusedAPIRepository.getSearchSuggestions(query, gPlayAuth.result.data!!))
+                searchSuggest.postValue(
+                    fusedAPIRepository.getSearchSuggestions(
+                        query,
+                        gPlayAuth.result.data!!
+                    )
+                )
         }
     }
 
@@ -82,7 +90,9 @@ class SearchViewModel @Inject constructor(
      */
     fun getSearchResults(query: String, authData: AuthData, lifecycleOwner: LifecycleOwner) {
         viewModelScope.launch(Dispatchers.Main) {
-            fusedAPIRepository.getSearchResults(query, authData).observe(lifecycleOwner) {
+            searchResultLiveData.removeObservers(lifecycleOwner)
+            searchResultLiveData = fusedAPIRepository.getSearchResults(query, authData)
+            searchResultLiveData.observe(lifecycleOwner) {
                 searchResult.postValue(it)
 
                 if (!it.isSuccess()) {

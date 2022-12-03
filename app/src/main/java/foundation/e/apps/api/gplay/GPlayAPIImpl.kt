@@ -19,6 +19,7 @@
 package foundation.e.apps.api.gplay
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.LiveDataScope
 import androidx.lifecycle.liveData
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
@@ -35,6 +36,7 @@ import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.aurora.gplayapi.helpers.SearchHelper
 import com.aurora.gplayapi.helpers.StreamHelper
 import com.aurora.gplayapi.helpers.TopChartsHelper
+import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.gplay.utils.GPlayHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.supervisorScope
@@ -56,7 +58,11 @@ class GPlayAPIImpl @Inject constructor(private val gPlayHttpClient: GPlayHttpCli
      * Sends livedata of list of apps being loaded from search and a boolean
      * signifying if more data is to be loaded.
      */
-    fun getSearchResults(query: String, authData: AuthData): LiveData<Pair<List<App>, Boolean>> {
+    fun getSearchResults(
+        query: String,
+        authData: AuthData,
+        replaceWithFDroid: suspend (App) -> FusedApp,
+    ): LiveData<Pair<List<FusedApp>, Boolean>> {
         /*
          * Send livedata to improve UI performance, so we don't have to wait for loading all results.
          * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
@@ -70,7 +76,17 @@ class GPlayAPIImpl @Inject constructor(private val gPlayHttpClient: GPlayHttpCli
                 val searchHelper = SearchHelper(authData).using(gPlayHttpClient)
                 val searchBundle = searchHelper.searchResults(query)
 
-                emit(Pair(searchBundle.appList, true))
+                val initialReplacedList = mutableListOf<FusedApp>()
+                val INITIAL_LIMIT = 4
+
+                emitReplacedList(
+                    this@liveData,
+                    initialReplacedList,
+                    INITIAL_LIMIT,
+                    replaceWithFDroid,
+                    searchBundle,
+                    true,
+                )
 
                 var nextSubBundleSet: MutableSet<SearchBundle.SubBundle>
                 do {
@@ -80,11 +96,63 @@ class GPlayAPIImpl @Inject constructor(private val gPlayHttpClient: GPlayHttpCli
                         searchBundle.apply {
                             subBundles.clear()
                             subBundles.addAll(newSearchBundle.subBundles)
-                            appList.addAll(newSearchBundle.appList)
-                            emit(Pair(searchBundle.appList, nextSubBundleSet.isNotEmpty()))
+                            emitReplacedList(
+                                this@liveData,
+                                initialReplacedList,
+                                INITIAL_LIMIT,
+                                replaceWithFDroid,
+                                newSearchBundle,
+                                nextSubBundleSet.isNotEmpty(),
+                            )
                         }
                     }
                 } while (nextSubBundleSet.isNotEmpty())
+
+                /*
+                 * If initialReplacedList size is less than INITIAL_LIMIT,
+                 * it means the results were very less and nothing has been emitted so far.
+                 * Hence emit the list.
+                 */
+                if (initialReplacedList.size < INITIAL_LIMIT) {
+                    emit(Pair(initialReplacedList, false))
+                }
+            }
+        }
+    }
+
+    private suspend fun emitReplacedList(
+        scope: LiveDataScope<Pair<List<FusedApp>, Boolean>>,
+        accumulationList: MutableList<FusedApp>,
+        accumulationLimit: Int,
+        replaceFunction: suspend (App) -> FusedApp,
+        searchBundle: SearchBundle,
+        moreToEmit: Boolean,
+    ) {
+        searchBundle.appList.forEach {
+            val replacedApp = replaceFunction(it)
+            when {
+                accumulationList.size < accumulationLimit - 1 -> {
+                    /*
+                     * If initial limit is 4, add apps to list (without emitting)
+                     * till 2 apps.
+                     */
+                    accumulationList.add(replacedApp)
+                }
+                accumulationList.size == accumulationLimit - 1 -> {
+                    /*
+                     * If initial limit is 4, and we have reached till 3 apps,
+                     * add the 4th app and emit the list.
+                     */
+                    accumulationList.add(replacedApp)
+                    scope.emit(Pair(accumulationList, moreToEmit))
+                }
+                accumulationList.size == accumulationLimit -> {
+                    /*
+                     * If initial limit is 4, and we have emitted 4 apps,
+                     * for all rest of the apps, emit each app one by one.
+                     */
+                    scope.emit(Pair(listOf(replacedApp), moreToEmit))
+                }
             }
         }
     }
@@ -113,7 +181,14 @@ class GPlayAPIImpl @Inject constructor(private val gPlayHttpClient: GPlayHttpCli
         val downloadData = mutableListOf<File>()
         withContext(Dispatchers.IO) {
             val purchaseHelper = PurchaseHelper(authData).using(gPlayHttpClient)
-            downloadData.addAll(purchaseHelper.getOnDemandModule(packageName, moduleName, versionCode, offerType))
+            downloadData.addAll(
+                purchaseHelper.getOnDemandModule(
+                    packageName,
+                    moduleName,
+                    versionCode,
+                    offerType
+                )
+            )
         }
         return downloadData
     }
