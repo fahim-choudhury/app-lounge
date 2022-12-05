@@ -100,8 +100,8 @@ class InstallAppWorker @AssistedInject constructor(
             fusedDownload = databaseRepository.getDownloadById(fusedDownloadString)
             Timber.d(">>> dowork started for Fused download name " + fusedDownload?.name + " " + fusedDownloadString)
             fusedDownload?.let {
-                isItUpdateWork = params.inputData.getBoolean(IS_UPDATE_WORK, false)
-                        && packageManagerModule.isInstalled(it.packageName)
+                isItUpdateWork = params.inputData.getBoolean(IS_UPDATE_WORK, false) &&
+                    packageManagerModule.isInstalled(it.packageName)
 
                 if (fusedDownload.status != Status.AWAITING) {
                     return Result.success()
@@ -291,7 +291,7 @@ class InstallAppWorker @AssistedInject constructor(
 
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as
-                    NotificationManager
+                NotificationManager
         // Create a Notification channel if necessary
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val mChannel = NotificationChannel(

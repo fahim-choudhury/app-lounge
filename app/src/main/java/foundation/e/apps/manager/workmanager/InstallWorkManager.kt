@@ -12,7 +12,7 @@ object InstallWorkManager {
     const val INSTALL_WORK_NAME = "APP_LOUNGE_INSTALL_APP"
     lateinit var context: Application
 
-    fun enqueueWork(fusedDownload: FusedDownload, isUpdateWork:Boolean = false) {
+    fun enqueueWork(fusedDownload: FusedDownload, isUpdateWork: Boolean = false) {
         WorkManager.getInstance(context).enqueueUniqueWork(
             INSTALL_WORK_NAME,
             ExistingWorkPolicy.APPEND_OR_REPLACE,

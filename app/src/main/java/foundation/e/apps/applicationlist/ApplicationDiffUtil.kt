@@ -28,29 +28,29 @@ class ApplicationDiffUtil : DiffUtil.ItemCallback<FusedApp>() {
 
     override fun areContentsTheSame(oldItem: FusedApp, newItem: FusedApp): Boolean {
         return oldItem._id == newItem._id &&
-                oldItem.appSize.contentEquals(newItem.appSize) &&
-                oldItem.author.contentEquals(newItem.author) &&
-                oldItem.category.contentEquals(newItem.category) &&
-                oldItem.description.contentEquals(newItem.description) &&
-                oldItem.icon_image_path.contentEquals(newItem.icon_image_path) &&
-                oldItem.last_modified.contentEquals(newItem.last_modified) &&
-                oldItem.latest_version_code == newItem.latest_version_code &&
-                oldItem.latest_version_number.contentEquals(newItem.latest_version_number) &&
-                oldItem.licence.contentEquals(newItem.licence) &&
-                oldItem.appSize.contentEquals(newItem.appSize) &&
-                oldItem.name.contentEquals(newItem.name) &&
-                oldItem.offer_type == newItem.offer_type &&
-                oldItem.origin == newItem.origin &&
-                oldItem.other_images_path == newItem.other_images_path &&
-                oldItem.package_name.contentEquals(newItem.package_name) &&
-                oldItem.perms == newItem.perms &&
-                oldItem.ratings == newItem.ratings &&
-                oldItem.shareUrl.contentEquals(newItem.shareUrl) &&
-                oldItem.source.contentEquals(newItem.source) &&
-                oldItem.status == newItem.status &&
-                ((oldItem.trackers == LIST_OF_NULL && newItem.trackers.isEmpty()) || oldItem.trackers == newItem.trackers) &&
-                oldItem.url.contentEquals(newItem.url) &&
-                oldItem.isFree == newItem.isFree &&
-                oldItem.is_pwa == newItem.is_pwa
+            oldItem.appSize.contentEquals(newItem.appSize) &&
+            oldItem.author.contentEquals(newItem.author) &&
+            oldItem.category.contentEquals(newItem.category) &&
+            oldItem.description.contentEquals(newItem.description) &&
+            oldItem.icon_image_path.contentEquals(newItem.icon_image_path) &&
+            oldItem.last_modified.contentEquals(newItem.last_modified) &&
+            oldItem.latest_version_code == newItem.latest_version_code &&
+            oldItem.latest_version_number.contentEquals(newItem.latest_version_number) &&
+            oldItem.licence.contentEquals(newItem.licence) &&
+            oldItem.appSize.contentEquals(newItem.appSize) &&
+            oldItem.name.contentEquals(newItem.name) &&
+            oldItem.offer_type == newItem.offer_type &&
+            oldItem.origin == newItem.origin &&
+            oldItem.other_images_path == newItem.other_images_path &&
+            oldItem.package_name.contentEquals(newItem.package_name) &&
+            oldItem.perms == newItem.perms &&
+            oldItem.ratings == newItem.ratings &&
+            oldItem.shareUrl.contentEquals(newItem.shareUrl) &&
+            oldItem.source.contentEquals(newItem.source) &&
+            oldItem.status == newItem.status &&
+            ((oldItem.trackers == LIST_OF_NULL && newItem.trackers.isEmpty()) || oldItem.trackers == newItem.trackers) &&
+            oldItem.url.contentEquals(newItem.url) &&
+            oldItem.isFree == newItem.isFree &&
+            oldItem.is_pwa == newItem.is_pwa
     }
 }

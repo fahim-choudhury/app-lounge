@@ -22,7 +22,7 @@
     <string name="tracker_information_not_found">Geen tracker informatie beschikbaar voor deze app.</string>
     <string name="no_tracker_found">Geen trackers gevonden!</string>
     <string name="privacy_computed_using_text">Berekend met behulp van &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus Privacy Analysis</string>
-    <string name="message_last_update_triggered">Laatste update gestart %1$s</string>
+    <string name="message_last_update_triggered">Update van %1$s apps voltooid op %2$s.</string>
     <string name="updates_notification_unmetered_network_warning">Wachten op niet-gemeten netwerk</string>
     <string name="manually_install_updates_notification_text">App updates zullen niet automatisch geïnstalleerd worden</string>
     <string name="automatically_install_updates_notification_text">App updates zullen automatisch geïnstalleerd worden</string>
