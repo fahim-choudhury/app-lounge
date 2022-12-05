@@ -157,7 +157,7 @@
     <string name="automatically_install_updates_notification_text">App updates will be installed automatically</string>
     <string name="manually_install_updates_notification_text">App updates will not be installed automatically</string>
     <string name="updates_notification_unmetered_network_warning">Waiting for un-metered network</string>
-    <string name="message_last_update_triggered">Last update triggered %1$s</string>
+    <string name="message_last_update_triggered">Update of %1$s apps completed on %2$s.</string>
 
     <!-- Trackers & Permission Dialog-->
     <string name="no_permission_found">No runtime android permission found!</string>

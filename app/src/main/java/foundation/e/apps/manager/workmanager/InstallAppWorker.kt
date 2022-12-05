@@ -33,6 +33,7 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import foundation.e.apps.R
+import foundation.e.apps.api.fused.UpdatesDao
 import foundation.e.apps.manager.database.DatabaseRepository
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.fused.FusedManagerRepository
@@ -49,6 +50,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.sync.Mutex
 import timber.log.Timber
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.concurrent.atomic.AtomicInteger
@@ -73,6 +75,7 @@ class InstallAppWorker @AssistedInject constructor(
     companion object {
         private const val TAG = "InstallWorker"
         const val INPUT_DATA_FUSED_DOWNLOAD = "input_data_fused_download"
+        const val IS_UPDATE_WORK = "is_update_work"
 
         /*
          * If this is not "static" then each notification has the same ID.
@@ -97,7 +100,8 @@ class InstallAppWorker @AssistedInject constructor(
             fusedDownload = databaseRepository.getDownloadById(fusedDownloadString)
             Timber.d(">>> dowork started for Fused download name " + fusedDownload?.name + " " + fusedDownloadString)
             fusedDownload?.let {
-                isItUpdateWork = packageManagerModule.isInstalled(it.packageName)
+                isItUpdateWork =  params.inputData.getBoolean(IS_UPDATE_WORK, false)
+                        && packageManagerModule.isInstalled(it.packageName)
 
                 if (fusedDownload.status != Status.AWAITING) {
                     return Result.success()
@@ -122,12 +126,26 @@ class InstallAppWorker @AssistedInject constructor(
                 fusedManagerRepository.installationIssue(it)
             }
         } finally {
-            if (isItUpdateWork && isUpdateCompleted()) { // show notification for ended update
-                showNotificationOnUpdateEnded()
-            }
-
             Timber.d("doWork: RESULT SUCCESS: ${fusedDownload?.name}")
             return Result.success()
+        }
+    }
+
+    private suspend fun InstallAppWorker.checkUpdateWork(
+        fusedDownload: FusedDownload?
+    ) {
+        if (isItUpdateWork) {
+            fusedDownload?.let {
+                val actualFusedDownload = databaseRepository.getDownloadById(it.id)
+                if (actualFusedDownload?.status == Status.INSTALLED) {
+                    UpdatesDao.addSuccessfullyUpdatedApp(it)
+                }
+
+                if (isUpdateCompleted()) { // show notification for ended update
+                    showNotificationOnUpdateEnded()
+                    UpdatesDao.clearSuccessfullyUpdatedApps()
+                }
+            }
         }
     }
 
@@ -136,18 +154,22 @@ class InstallAppWorker @AssistedInject constructor(
             databaseRepository.getDownloadList()
                 .filter { !listOf(Status.INSTALLATION_ISSUE, Status.PURCHASE_NEEDED).contains(it.status) }
 
-        return downloadListWithoutAnyIssue.isEmpty()
+        return UpdatesDao.successfulUpdatedApps.isNotEmpty() && downloadListWithoutAnyIssue.isEmpty()
     }
 
     private fun showNotificationOnUpdateEnded() {
         val date = Date(System.currentTimeMillis())
+        val locale = dataStoreManager.getAuthData().locale
         val dateFormat =
-            SimpleDateFormat("dd/MM/yyyy-HH:mm", dataStoreManager.getAuthData().locale)
+            SimpleDateFormat("dd/MM/yyyy-HH:mm", locale)
+        val numberOfUpdatedApps = NumberFormat.getNumberInstance(locale)
+            .format(UpdatesDao.successfulUpdatedApps.size)
+            .toString()
 
         UpdatesNotifier.showNotification(
             context, context.getString(R.string.update),
             context.getString(
-                R.string.message_last_update_triggered, dateFormat.format(date)
+                R.string.message_last_update_triggered, numberOfUpdatedApps, dateFormat.format(date)
             )
         )
     }
@@ -161,8 +183,9 @@ class InstallAppWorker @AssistedInject constructor(
         tickerFlow(3.seconds)
             .onEach {
                 val download = databaseRepository.getDownloadById(fusedDownload.id)
+
                 if (download == null) {
-                    finishInstallation()
+                    finishInstallation(fusedDownload)
                 } else {
                     handleFusedDownloadStatusCheckingException(download)
                     if (isAppDownloading(download)) {
@@ -184,7 +207,7 @@ class InstallAppWorker @AssistedInject constructor(
             handleFusedDownloadStatus(download)
         } catch (e: Exception) {
             Log.e(TAG, "observeDownload: ", e)
-            finishInstallation()
+            finishInstallation(download)
         }
     }
 
@@ -225,11 +248,11 @@ class InstallAppWorker @AssistedInject constructor(
                 Timber.d("===> doWork: Installing ${fusedDownload.name} ${fusedDownload.status}")
             }
             Status.INSTALLED, Status.INSTALLATION_ISSUE -> {
-                finishInstallation()
+                finishInstallation(fusedDownload)
                 Timber.d("===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}")
             }
             else -> {
-                finishInstallation()
+                finishInstallation(fusedDownload)
                 Log.wtf(
                     TAG,
                     "===> ${fusedDownload.name} is in wrong state ${fusedDownload.status}"
@@ -238,7 +261,8 @@ class InstallAppWorker @AssistedInject constructor(
         }
     }
 
-    private fun finishInstallation() {
+    private suspend fun finishInstallation(fusedDownload: FusedDownload) {
+        checkUpdateWork(fusedDownload)
         isDownloading = false
         unlockMutex()
     }
