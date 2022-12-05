@@ -152,4 +152,7 @@
     <string name="message_update_failed">Aufgrund eines vorübergehenden Fehlers können nicht alle Ihre Anwendungen aktualisiert werden. Bitte versuchen Sie es später noch einmal.</string>
     <string name="message_retry">Aktualisierungen fehlgeschlagen. Automatische Wiederholungsversuche sind im Gange.</string>
     <string name="message_last_update_triggered">Neueste Aktualisierung ausgelöst %1$s</string>
+    <string name="duplicate_app_from_sources">Einige proprietäre Apps haben manchmal quelloffene Versionen. Wenn das vorkommt, zeigt die App Lounge die quelloffene Variante an, um Duplikate zu vermeiden.</string>
+    <string name="open_source_apps">Quelloffene Apps</string>
+    <string name="why_open_source_version">Warum sehe ich die quelloffene Version\?</string>
 </resources>
