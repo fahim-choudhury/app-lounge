@@ -236,7 +236,7 @@ class UpdatesWorker @AssistedInject constructor(
             fusedManagerRepository.addDownload(fusedDownload)
             fusedManagerRepository.updateAwaiting(fusedDownload)
             Timber.d("startUpdateProcess: Enqueued for update: ${fusedDownload.name} ${fusedDownload.id} ${fusedDownload.status}")
-            InstallWorkManager.enqueueWork(fusedDownload)
+            InstallWorkManager.enqueueWork(fusedDownload, true)
             Timber.d(">>> startUpdateProcess: " + fusedDownload.name)
         }
     }
