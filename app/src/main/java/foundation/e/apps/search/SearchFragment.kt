@@ -61,6 +61,7 @@ import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -177,6 +178,7 @@ class SearchFragment :
                 currentList
             )
         ) {
+            binding.loadingProgressBar.isVisible = it.data!!.second
             return false
         }
 
@@ -299,13 +301,11 @@ class SearchFragment :
     override fun showLoadingUI() {
         binding.shimmerLayout.startShimmer()
         binding.shimmerLayout.visibility = View.VISIBLE
-        binding.recyclerView.visibility = View.GONE
     }
 
     override fun stopLoadingUI() {
         binding.shimmerLayout.stopShimmer()
         binding.shimmerLayout.visibility = View.GONE
-        binding.recyclerView.visibility = View.VISIBLE
     }
 
     private fun updateProgressOfInstallingApps(downloadProgress: DownloadProgress) {
@@ -372,12 +372,14 @@ class SearchFragment :
             view?.requestFocus()
             searchHintLayout?.visibility = View.GONE
             shimmerLayout?.visibility = View.VISIBLE
-            recyclerView?.visibility = View.GONE
             noAppsFoundLayout?.visibility = View.GONE
             /*
              * Set the search text and call for network result.
              */
             searchText = text
+            val applicationListRVAdapter = recyclerView?.adapter as ApplicationListRVAdapter
+            applicationListRVAdapter.setData(mutableListOf())
+//            applicationListRVAdapter.notifyDataSetChanged()
             repostAuthObjects()
         }
         return false
@@ -398,7 +400,9 @@ class SearchFragment :
 
     override fun onSuggestionClick(position: Int): Boolean {
         searchViewModel.searchSuggest.value?.let {
-            searchView?.setQuery(it[position].suggestedQuery, true)
+            if (it.isNotEmpty()) {
+                searchView?.setQuery(it[position].suggestedQuery, true)
+            }
         }
         return true
     }
