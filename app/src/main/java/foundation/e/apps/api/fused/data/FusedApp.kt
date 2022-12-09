@@ -34,7 +34,7 @@ data class FusedApp(
     var trackers: List<String> = emptyList(),
     val icon_image_path: String = String(),
     val last_modified: String = String(),
-    val latest_version_code: Int = -1,
+    var latest_version_code: Int = -1,
     val latest_version_number: String = String(),
     val latest_downloaded_version: String = String(),
     val licence: String = String(),
