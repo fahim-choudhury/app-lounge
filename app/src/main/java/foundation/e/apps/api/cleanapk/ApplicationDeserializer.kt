@@ -33,9 +33,11 @@ class ApplicationDeserializer : JsonDeserializer<Application> {
         val gson = Gson()
         val application = gson.fromJson(json?.asJsonObject?.toString(), Application::class.java)
         val lastUpdate = application.app.latest_downloaded_version
-        val lastUpdatedOn = json?.asJsonObject?.get("app")?.asJsonObject?.get(lastUpdate)
+        val lastUpdateJson = json?.asJsonObject?.get("app")?.asJsonObject?.get(lastUpdate)?.asJsonObject
+        val lastUpdatedOn = lastUpdateJson
             ?.asJsonObject?.get("update_on")?.asString ?: ""
         application.app.updatedOn = lastUpdatedOn
+        application.app.latest_version_code = lastUpdateJson?.get("version_code")?.asInt ?: -1
         return application
     }
 }
