@@ -151,4 +151,8 @@
     <string name="message_update_failure_single_app">La mise à jour de %1$s a échoué à cause d\'une règle de support (localisation, version de l\'OS...).</string>
     <string name="message_update_failed">Des échecs temporaires empêchent la mise à jour de certaines applications. Merci de réessayer plus tard.</string>
     <string name="message_retry">\"Tout mettre à jour\" a échoué. Nouvelles tentatives automatiques en cours.</string>
+    <string name="message_last_update_triggered">Mise à jour de %1$s applis effectuée le %2$s.</string>
+    <string name="duplicate_app_from_sources">Certaines applications propriétaires peuvent également exister en version Open Source. Quand c\'est le cas, App Lounge affiche uniquement la version Open Source afin d\'éviter les doublons.</string>
+    <string name="open_source_apps">Applis Open Source</string>
+    <string name="why_open_source_version">Pourquoi vois-je la version Open Source \?</string>
 </resources>
