@@ -34,18 +34,19 @@ class FusedManagerRepository @Inject constructor(
         return fusedManagerImpl.moveOBBFilesToOBBDirectory(fusedDownload)
     }
 
-    suspend fun addDownload(fusedDownload: FusedDownload) {
+    suspend fun addDownload(fusedDownload: FusedDownload): Int {
         if (InstallWorkManager.checkWorkIsAlreadyAvailable(fusedDownload.id)) {
-            return
+            return -1
         }
 
         val existingFusedDownload = fusedManagerImpl.getDownloadById(fusedDownload)
         // We don't want to add any thing, if it already exists without INSTALLATION_ISSUE
         if (existingFusedDownload != null && existingFusedDownload.status != Status.INSTALLATION_ISSUE) {
-            return
+            return -1
         }
 
-        return fusedManagerImpl.addDownload(fusedDownload)
+        fusedManagerImpl.addDownload(fusedDownload)
+        return 0
     }
 
     suspend fun addFusedDownloadPurchaseNeeded(fusedDownload: FusedDownload) {

@@ -235,7 +235,10 @@ class UpdatesWorker @AssistedInject constructor(
                 return@forEach
             }
 
-            fusedManagerRepository.addDownload(fusedDownload)
+            val statusCode = fusedManagerRepository.addDownload(fusedDownload)
+            if (statusCode == -1) {
+                return@forEach
+            }
             fusedManagerRepository.updateAwaiting(fusedDownload)
             Timber.d("startUpdateProcess: Enqueued for update: ${fusedDownload.name} ${fusedDownload.id} ${fusedDownload.status}")
             InstallWorkManager.enqueueWork(fusedDownload, true)

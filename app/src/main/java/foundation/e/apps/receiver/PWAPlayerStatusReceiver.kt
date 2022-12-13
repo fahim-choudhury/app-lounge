@@ -62,6 +62,8 @@ class PWAPlayerStatusReceiver : BroadcastReceiver() {
                             ACTION_PWA_REMOVED -> {
                                 databaseRepository.deleteDownload(fusedDownload)
                             }
+
+                            else -> {}
                         }
                     }
                 }

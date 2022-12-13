@@ -71,7 +71,7 @@ class FusedManagerImpl @Inject constructor(
 
     suspend fun addDownload(fusedDownload: FusedDownload) {
         fusedDownload.status = Status.QUEUED
-        databaseRepository.addDownload(fusedDownload)
+        return databaseRepository.addDownload(fusedDownload)
     }
 
     suspend fun getDownloadById(fusedDownload: FusedDownload): FusedDownload? {
