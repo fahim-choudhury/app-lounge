@@ -187,6 +187,7 @@ class FusedManagerImpl @Inject constructor(
     }
 
     private suspend fun downloadNativeApp(fusedDownload: FusedDownload) {
+        Timber.d("===> downloadNativeApp: ${fusedDownload.name}")
         var count = 0
         var parentPath = "$cacheDir/${fusedDownload.packageName}"
 
@@ -195,7 +196,8 @@ class FusedManagerImpl @Inject constructor(
         File(parentPath).mkdirs()
 
         fusedDownload.status = Status.DOWNLOADING
-        databaseRepository.updateDownload(fusedDownload)
+        val id = databaseRepository.updateDownload(fusedDownload)
+        Timber.d("===> downloadNativeApp: updateDownload: line:200, ${fusedDownload.name}  $id")
         DownloadProgressLD.setDownloadId(-1)
         fusedDownload.downloadURLList.forEach {
             count += 1
@@ -208,10 +210,12 @@ class FusedManagerImpl @Inject constructor(
                 .setTitle(if (count == 1) fusedDownload.name else "Additional file for ${fusedDownload.name}")
                 .setDestinationUri(Uri.fromFile(packagePath))
             val requestId = downloadManager.enqueue(request)
+            Timber.d("===> downloadNativeApp: downloadRequestID: $requestId")
             DownloadProgressLD.setDownloadId(requestId)
             fusedDownload.downloadIdMap[requestId] = false
         }
-        databaseRepository.updateDownload(fusedDownload)
+        val updateid = databaseRepository.updateDownload(fusedDownload)
+        Timber.d("===> downloadNativeApp: updateDownload: line:217, ${fusedDownload.name}  $updateid")
     }
 
     private fun getGplayInstallationPackagePath(

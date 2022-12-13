@@ -27,7 +27,7 @@ interface FusedDownloadDAO {
     fun getDownloadFlowById(id: String): LiveData<FusedDownload>
 
     @Update
-    suspend fun updateDownload(fusedDownload: FusedDownload)
+    suspend fun updateDownload(fusedDownload: FusedDownload): Long
 
     @Delete
     suspend fun deleteDownload(fusedDownload: FusedDownload)

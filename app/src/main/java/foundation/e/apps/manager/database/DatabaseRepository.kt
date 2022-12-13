@@ -35,9 +35,9 @@ class DatabaseRepository @Inject constructor(
         return fusedDownloadDAO.getDownloadLiveList()
     }
 
-    suspend fun updateDownload(fusedDownload: FusedDownload) {
+    suspend fun updateDownload(fusedDownload: FusedDownload): Long {
         mutex.withLock {
-            fusedDownloadDAO.updateDownload(fusedDownload)
+            return fusedDownloadDAO.updateDownload(fusedDownload)
         }
     }
 

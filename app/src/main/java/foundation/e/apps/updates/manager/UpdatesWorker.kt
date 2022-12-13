@@ -67,6 +67,7 @@ class UpdatesWorker @AssistedInject constructor(
             checkForUpdates()
             Result.success()
         } catch (e: Throwable) {
+            Timber.e(e, "===> Update worker error")
             Result.failure()
         } finally {
             if (shouldShowNotification && automaticInstallEnabled) {
@@ -152,6 +153,7 @@ class UpdatesWorker @AssistedInject constructor(
         } else {
             EventBus.invokeEvent(AppEvent.UpdateEvent(ResultSupreme.WorkError(ResultStatus.UNKNOWN)))
         }
+        Timber.d("===> update manageretry: $retryCount")
     }
 
     private suspend fun triggerUpdateProcessOnSettings(
