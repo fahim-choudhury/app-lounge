@@ -67,6 +67,7 @@ class UpdatesWorker @AssistedInject constructor(
             checkForUpdates()
             Result.success()
         } catch (e: Throwable) {
+            Timber.e(e)
             Result.failure()
         } finally {
             if (shouldShowNotification && automaticInstallEnabled) {
@@ -237,7 +238,7 @@ class UpdatesWorker @AssistedInject constructor(
             fusedManagerRepository.updateAwaiting(fusedDownload)
             Timber.d("startUpdateProcess: Enqueued for update: ${fusedDownload.name} ${fusedDownload.id} ${fusedDownload.status}")
             InstallWorkManager.enqueueWork(fusedDownload, true)
-            Timber.d(">>> startUpdateProcess: " + fusedDownload.name)
+            Timber.i("startUpdateProcess: " + fusedDownload.name)
         }
     }
 

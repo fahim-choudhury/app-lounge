@@ -127,11 +127,11 @@ class FusedManagerImpl @Inject constructor(
 
                 if (list.size != 0) {
                     try {
-                        Timber.d("installApp: STARTED ${fusedDownload.name} ${list.size}")
+                        Timber.i("installApp: STARTED ${fusedDownload.name} ${list.size}")
                         pkgManagerModule.installApplication(list, fusedDownload.packageName)
-                        Timber.d("installApp: ENDED ${fusedDownload.name} ${list.size}")
+                        Timber.i("installApp: ENDED ${fusedDownload.name} ${list.size}")
                     } catch (e: Exception) {
-                        Timber.d(">>> installApp app failed ")
+                        Timber.i(">>> installApp app failed ")
                         installationIssue(fusedDownload)
                         throw e
                     }
