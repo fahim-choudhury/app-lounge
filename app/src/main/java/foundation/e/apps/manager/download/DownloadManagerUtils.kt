@@ -65,7 +65,7 @@ class DownloadManagerUtils @Inject constructor(
                     Timber.d("===> updateDownloadStatus: ${fusedDownload.name}: $downloadId: $numberOfDownloadedItems/${fusedDownload.downloadIdMap.size}")
 
                     if (validateDownload(numberOfDownloadedItems, fusedDownload, downloadId)) {
-                        Timber.d("===> Download is completed for: ${fusedDownload.name}")
+                        Timber.i("===> Download is completed for: ${fusedDownload.name}")
                         fusedManagerRepository.moveOBBFileToOBBDirectory(fusedDownload)
                         fusedDownload.status = Status.DOWNLOADED
                         fusedManagerRepository.updateFusedDownload(fusedDownload)
@@ -109,7 +109,7 @@ class DownloadManagerUtils @Inject constructor(
         }
         fusedDownload.status = Status.INSTALLATION_ISSUE
         fusedManagerRepository.updateFusedDownload(fusedDownload)
-        Timber.d("CleanApk signature is Wrong!")
+        Timber.w("CleanApk signature is Wrong!")
         return false
     }
 }
