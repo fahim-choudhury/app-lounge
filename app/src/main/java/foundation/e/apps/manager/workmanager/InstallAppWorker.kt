@@ -36,6 +36,8 @@ import foundation.e.apps.R
 import foundation.e.apps.api.fused.UpdatesDao
 import foundation.e.apps.manager.database.DatabaseRepository
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
+import foundation.e.apps.manager.database.fusedDownload.isAppInstalling
+import foundation.e.apps.manager.database.fusedDownload.isAwaiting
 import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.updates.UpdatesNotifier
@@ -103,9 +105,10 @@ class InstallAppWorker @AssistedInject constructor(
                 isItUpdateWork = params.inputData.getBoolean(IS_UPDATE_WORK, false) &&
                     packageManagerModule.isInstalled(it.packageName)
 
-                if (fusedDownload.status != Status.AWAITING) {
+                if (!fusedDownload.isAppInstalling()) {
                     return Result.success()
                 }
+
                 setForeground(
                     createForegroundInfo(
                         "Installing ${it.name}"
@@ -186,9 +189,16 @@ class InstallAppWorker @AssistedInject constructor(
     private suspend fun startAppInstallationProcess(
         fusedDownload: FusedDownload
     ) {
-        fusedManagerRepository.downloadApp(fusedDownload)
-        Timber.d("===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}")
+        if (fusedDownload.isAwaiting()) {
+            fusedManagerRepository.downloadApp(fusedDownload)
+            Timber.d("===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}")
+        }
+
         isDownloading = true
+        /**
+         * observe app download/install process in a separate thread as DownloadManager download artifacts in a separate process
+         * It checks install status every three seconds
+         */
         tickerFlow(3.seconds)
             .onEach {
                 val download = databaseRepository.getDownloadById(fusedDownload.id)
@@ -220,6 +230,11 @@ class InstallAppWorker @AssistedInject constructor(
         }
     }
 
+    /**
+     * Triggers a repetitive event according to the delay passed in the parameter
+     * @param period delay of each event
+     * @param initialDelay initial delay to trigger the first event
+     */
     private fun tickerFlow(period: Duration, initialDelay: Duration = Duration.ZERO) = flow {
         delay(initialDelay)
         while (isDownloading) {

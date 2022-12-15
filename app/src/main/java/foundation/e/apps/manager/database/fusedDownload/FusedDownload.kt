@@ -26,3 +26,7 @@ data class FusedDownload(
     var files: List<File> = mutableListOf(),
     var signature: String = String()
 )
+
+fun FusedDownload.isAppInstalling() = listOf<Status>(Status.AWAITING, Status.DOWNLOADING, Status.DOWNLOADED, Status.INSTALLING).contains(status)
+
+fun FusedDownload.isAwaiting() = status == Status.AWAITING
