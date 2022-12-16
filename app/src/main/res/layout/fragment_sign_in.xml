@@ -94,11 +94,30 @@
             android:layout_marginHorizontal="15dp"
             android:text="@string/sign_in_google"
             android:textColor="@color/colorAccent"
-            app:cornerRadius="8dp"
+            app:cornerRadius="5dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:strokeColor="@color/colorAccent" />
+
+        <Button
+            android:id="@+id/anonymousBT"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
+            android:layout_marginTop="5dp"
+            android:text="@string/sign_in_anonymous"
+            android:textColor="@color/colorAccent"
+            app:cornerRadius="5dp"
+            app:icon="@drawable/ic_incognito"
+            app:iconGravity="textStart"
+            app:iconPadding="15dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/googleBT"
             app:strokeColor="@color/colorAccent" />
 
         <TextView
@@ -110,25 +129,23 @@
             android:textSize="15sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/googleBT" />
+            app:layout_constraintTop_toBottomOf="@id/anonymousBT"/>
 
         <Button
-            android:id="@+id/anonymousBT"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:id="@+id/noGoogleBT"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="15dp"
             android:layout_marginTop="5dp"
-            android:text="@string/sign_in_anonymous"
+            android:text="@string/pwa_and_open_source_apps"
             android:textColor="@color/colorAccent"
             app:cornerRadius="8dp"
-            app:icon="@drawable/ic_incognito"
             app:iconGravity="textStart"
             app:iconPadding="15dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.551"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView"
+            app:layout_constraintTop_toBottomOf="@id/textView"
             app:strokeColor="@color/colorAccent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

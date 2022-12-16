@@ -85,6 +85,7 @@
                 android:textSize="15sp"
                 app:layout_constraintStart_toEndOf="@id/avatar"
                 app:layout_constraintTop_toTopOf="@id/avatar"
+                app:layout_constraintBottom_toTopOf="@id/email"
                 app:layout_constraintVertical_chainStyle="packed"/>
 
             <TextView

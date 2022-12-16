@@ -148,6 +148,13 @@ class LoginDataStore @Inject constructor(
     fun isPWASelected() = preferenceManager.getBoolean(PREFERENCE_SHOW_PWA, true)
     fun isGplaySelected() = preferenceManager.getBoolean(PREFERENCE_SHOW_GPLAY, true)
 
+    fun setSource(source: String, value: Boolean) {
+        preferenceManager.edit().run {
+            this.putBoolean(source, value)
+            apply()
+        }
+    }
+
     // Clear data
 
     /**

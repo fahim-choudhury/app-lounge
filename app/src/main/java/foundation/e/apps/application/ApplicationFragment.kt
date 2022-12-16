@@ -526,6 +526,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         installButton.setOnClickListener {
             val errorMsg = when (mainActivityViewModel.getUser()) {
                 User.ANONYMOUS,
+                User.NO_GOOGLE,
                 User.UNAVAILABLE -> getString(R.string.install_blocked_anonymous)
                 User.GOOGLE -> getString(R.string.install_blocked_google)
             }

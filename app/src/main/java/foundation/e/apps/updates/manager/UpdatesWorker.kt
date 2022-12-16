@@ -91,7 +91,7 @@ class UpdatesWorker @AssistedInject constructor(
             /*
              * Signifies valid Google user and valid auth data to update
              * apps from Google Play store.
-             * The user check will be more useful in No Google mode.
+             * The user check will be more useful in No-Google mode.
              */
             val updateData = updatesManagerRepository.getUpdates(authData)
             appsNeededToUpdate.addAll(updateData.first)

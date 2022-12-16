@@ -69,6 +69,14 @@
 
         <CheckBoxPreference
             android:defaultValue="true"
+            android:key="showAllApplications"
+            android:layout="@layout/layout_custom_checkbox_preference"
+            android:title="@string/Show_common_apps"
+            app:iconSpaceReserved="false"
+            app:singleLineTitle="false" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
             android:key="showFOSSApplications"
             android:layout="@layout/layout_custom_checkbox_preference"
             android:title="@string/show_only_open_source_apps"
@@ -80,14 +88,6 @@
             android:key="showPWAApplications"
             android:layout="@layout/layout_custom_checkbox_preference"
             android:title="@string/show_only_pwa_apps"
-            app:iconSpaceReserved="false"
-            app:singleLineTitle="false" />
-
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="showAllApplications"
-            android:layout="@layout/layout_custom_checkbox_preference"
-            android:title="@string/Show_common_apps"
             app:iconSpaceReserved="false"
             app:singleLineTitle="false" />
 

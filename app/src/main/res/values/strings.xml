@@ -42,7 +42,8 @@
     <string name="sign_in_desc">Sign in to App Lounge using your Google account, or select the Anonymous mode to sign in privately.</string>
     <string name="sign_in_google">Sign in with Google</string>
     <string name="sign_in_anonymous">Anonymous mode</string>
-    <string name="or">or</string>
+    <string name="or">Or show only</string>
+    <string name="pwa_and_open_source_apps">PWA and Open Source apps</string>
 
     <!-- TOS Fragment -->
     <string name="tos_agree">Accept</string>
@@ -72,6 +73,10 @@
     <string name="terms_services">Terms of Services</string>
     <string name="user_anonymous">Anonymous</string>
     <string name="logout">Log Out</string>
+    <string name="select_one_source_of_applications">Please select at least one source of applications.</string>
+    <string name="login_to_see_gplay_apps">You need to log in to see common apps.</string>
+    <string name="login">Login</string>
+    <string name="logged_out">Logged out</string>
 
     <!-- Application -->
     <string name="description">Description</string>
@@ -209,7 +214,6 @@
     <string name="install_anyway">Install anyway</string>
     <string name="this_app_may_not_work_properly">This app may not work properly!</string>
     <string name="may_not_work_warning_message">Forcing installation will allow you to download and install it, but it won\'t guarantee that it will work.&lt;br /&gt;&lt;br /&gt;Attempting to install unsupported apps may cause crashes or slow down the system.&lt;br /&gt;&lt;br /&gt;We\'re working on improving compatiblity with this application in a near future.</string>
-    <string name="select_one_source_of_applications">Please select at least one source of applications.</string>
 
     <string name="daily">Daily</string>
     <string name="weekly">Weekly</string>

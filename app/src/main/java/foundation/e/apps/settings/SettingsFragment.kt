@@ -23,6 +23,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -31,6 +32,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.work.ExistingPeriodicWorkPolicy
 import coil.load
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.BuildConfig
@@ -69,6 +71,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     companion object {
         private const val TAG = "SettingsFragment"
+    }
+
+    private val user by lazy {
+        mainActivityViewModel.getUser()
     }
 
     private val allSourceCheckboxes by lazy {
@@ -157,7 +163,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
             mainActivityViewModel.getUser().name.let { user ->
                 when (user) {
                     User.ANONYMOUS.name -> {
-                        binding.accountType.text = view.context.getString(R.string.user_anonymous)
+                        binding.accountType.setText(R.string.user_anonymous)
+                        binding.email.isVisible = false
                     }
                     User.GOOGLE.name -> {
                         if (!authData.isAnonymous) {
@@ -165,6 +172,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
                             binding.email.text = mainActivityViewModel.getUserEmail()
                             binding.avatar.load(authData.userProfile?.artwork?.url)
                         }
+                    }
+                    User.NO_GOOGLE.name -> {
+                        binding.accountType.setText(R.string.logged_out)
+                        binding.email.isVisible = false
                     }
                 }
             }
@@ -176,6 +187,41 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         binding.logout.setOnClickListener {
             loginViewModel.logout()
+        }
+
+        if (user == User.NO_GOOGLE) {
+            /*
+             * For No-Google mode, do not allow the user to click
+             * on the option to show GPlay apps.
+             * Instead show a message and prompt them to login.
+             */
+            showAllApplications?.apply {
+                setOnPreferenceChangeListener { _, _ ->
+                    Snackbar.make(
+                        binding.root,
+                        R.string.login_to_see_gplay_apps,
+                        Snackbar.LENGTH_SHORT
+                    ).setAction(R.string.login) {
+                        /*
+                         * The login and logout logic is the same,
+                         * it clears all login data (authdata, user selection)
+                         * and restarts the login flow.
+                         * Hence it's the same as logout.
+                         */
+                        binding.logout.performClick()
+                    }.show()
+                    this.isChecked = false
+                    return@setOnPreferenceChangeListener false
+                }
+            }
+
+            /*
+             * For no-google mode, just show a "Login" instead of "Logout".
+             * The background logic is the same.
+             */
+            binding.logout.apply {
+                setText(R.string.login)
+            }
         }
     }
 
