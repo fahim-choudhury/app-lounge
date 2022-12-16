@@ -58,11 +58,7 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
     ) {
         fusedApp.trackers = appPrivacyPrivacyInfoResult.data?.trackerList ?: LIST_OF_NULL
         fusedApp.permsFromExodus = appPrivacyPrivacyInfoResult.data?.permissionList ?: LIST_OF_NULL
-        if (fusedApp.perms.isEmpty() && fusedApp.permsFromExodus != LIST_OF_NULL) {
-            /*
-                 * fusedApp.perms is generally populated from remote source like Play Store.
-                 * If it is empty then set the value from permissions from exodus api.
-                 */
+        if (fusedApp.permsFromExodus != LIST_OF_NULL) {
             fusedApp.perms = fusedApp.permsFromExodus
         }
     }
