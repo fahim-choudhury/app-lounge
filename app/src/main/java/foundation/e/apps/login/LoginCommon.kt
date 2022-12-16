@@ -17,6 +17,7 @@
 
 package foundation.e.apps.login
 
+import foundation.e.apps.utils.Constants
 import foundation.e.apps.utils.enums.User
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -39,8 +40,19 @@ class LoginCommon @Inject constructor(
         loginDataStore.saveGoogleLogin(email, oauth)
     }
 
+    suspend fun setNoGoogleMode() {
+        loginDataStore.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
+        loginDataStore.setSource(Constants.PREFERENCE_SHOW_PWA, true)
+        loginDataStore.setSource(Constants.PREFERENCE_SHOW_GPLAY, false)
+        loginDataStore.saveUserType(User.NO_GOOGLE)
+    }
+
     suspend fun logout() {
         loginDataStore.destroyCredentials()
         loginDataStore.clearUserType()
+        // reset app source preferences on logout.
+        loginDataStore.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
+        loginDataStore.setSource(Constants.PREFERENCE_SHOW_PWA, true)
+        loginDataStore.setSource(Constants.PREFERENCE_SHOW_GPLAY, true)
     }
 }

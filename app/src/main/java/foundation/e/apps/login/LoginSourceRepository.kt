@@ -51,6 +51,10 @@ class LoginSourceRepository @Inject constructor(
         loginCommon.saveGoogleLogin(email, oauth)
     }
 
+    suspend fun setNoGoogleMode() {
+        loginCommon.setNoGoogleMode()
+    }
+
     suspend fun logout() {
         loginCommon.logout()
     }

@@ -35,6 +35,13 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
                     .safeNavigate(R.id.signInFragment, R.id.action_signInFragment_to_homeFragment)
             }
         }
+
+        binding.noGoogleBT.setOnClickListener {
+            viewModel.initialNoGoogleLogin {
+                view.findNavController()
+                    .safeNavigate(R.id.signInFragment, R.id.action_signInFragment_to_homeFragment)
+            }
+        }
     }
 
     override fun onDestroyView() {

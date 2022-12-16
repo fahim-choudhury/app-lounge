@@ -46,7 +46,6 @@ import foundation.e.apps.AppProgressViewModel
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.PrivacyInfoViewModel
 import foundation.e.apps.R
-import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
@@ -170,23 +169,20 @@ class SearchFragment :
      */
     private fun updateSearchResult(
         listAdapter: ApplicationListRVAdapter?,
-        it: ResultSupreme<Pair<List<FusedApp>, Boolean>>
+        appList: List<FusedApp>?,
+        hasMore: Boolean,
     ): Boolean {
+        binding.loadingProgressBar.isVisible = hasMore
+
         val currentList = listAdapter?.currentList ?: listOf()
-        if (it.data?.first != null && !searchViewModel.isAnyAppUpdated(
-                it.data?.first!!,
-                currentList
-            )
-        ) {
-            binding.loadingProgressBar.isVisible = it.data!!.second
+        if (appList != null && !searchViewModel.isAnyAppUpdated(appList, currentList)) {
             return false
         }
 
-        binding.loadingProgressBar.isVisible = it.data!!.second
         stopLoadingUI()
         noAppsFoundLayout?.visibility = View.GONE
         searchHintLayout?.visibility = View.GONE
-        listAdapter?.setData(it.data?.first!!)
+        listAdapter?.setData(appList!!)
         return true
     }
 
@@ -266,7 +262,7 @@ class SearchFragment :
 
         val hasMoreDataToLoad = searchViewModel.searchResult.value?.data?.second == true
         mainActivityViewModel.updateStatusOfFusedApps(searchList, fusedDownloadList)
-        updateSearchResult(applicationListRVAdapter, ResultSupreme.Success(Pair(searchList, hasMoreDataToLoad)))
+        updateSearchResult(applicationListRVAdapter, searchList, hasMoreDataToLoad)
     }
 
     override fun onTimeout(

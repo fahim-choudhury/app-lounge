@@ -339,6 +339,7 @@ class ApplicationListRVAdapter(
             setOnClickListener {
                 val errorMsg = when (mainActivityViewModel.getUser()) {
                     User.ANONYMOUS,
+                    User.NO_GOOGLE,
                     User.UNAVAILABLE -> view.context.getString(R.string.install_blocked_anonymous)
                     User.GOOGLE -> view.context.getString(R.string.install_blocked_google)
                 }

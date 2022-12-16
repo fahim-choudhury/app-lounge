@@ -85,6 +85,21 @@ class LoginViewModel @Inject constructor(
     }
 
     /**
+     * Call this to use No-Google mode, i.e. show only PWAs and F-droid apps,
+     * without contacting Google servers.
+     * This method is called only for the first time when logging in the user.
+     * @param onUserSaved Code to execute once email, oauthToken and user is saved.
+     * Ends the sign in screen.
+     */
+    fun initialNoGoogleLogin(onUserSaved: () -> Unit) {
+        viewModelScope.launch {
+            loginSourceRepository.setNoGoogleMode()
+            onUserSaved()
+            startLoginFlow()
+        }
+    }
+
+    /**
      * Clears all saved data and logs out the user to the sign in screen.
      */
     fun logout() {
