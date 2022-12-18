@@ -97,7 +97,7 @@
     <string name="app_name">App Lounge</string>
     <string name="privacy_computed_using_text">Berechnet aus &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus Datenschutz-Analyse</string>
     <string name="all_apps_updated">Alle Apps sind aktuell</string>
-    <string name="or">oder</string>
+    <string name="or">Oder nur anzeigen</string>
     <string name="dialog_title_paid_app"><b>%1$s</b> kaufen</string>
     <string name="dialog_paidapp_message">Wenn du auf die Bestätigung tippst, wirst du zur Google Play Seite weitergeleitet, um den Bezahlvorgang für die App im Browser abzuschließen. Tippe zur Bestätigung des Kaufes von %1$s für %2$s.</string>
     <string name="dialog_confirm">BESTÄTIGUNG</string>
@@ -155,4 +155,8 @@
     <string name="duplicate_app_from_sources">Einige proprietäre Apps haben manchmal quelloffene Versionen. Wenn das vorkommt, zeigt die App Lounge die quelloffene Variante an, um Duplikate zu vermeiden.</string>
     <string name="open_source_apps">Quelloffene Apps</string>
     <string name="why_open_source_version">Warum sehe ich die quelloffene Version\?</string>
+    <string name="logged_out">Abgemeldet</string>
+    <string name="login">Anmelden</string>
+    <string name="login_to_see_gplay_apps">Du musst angemeldet sein, um gemeinsame Apps zu sehen.</string>
+    <string name="pwa_and_open_source_apps">PWA und quelloffene Apps</string>
 </resources>
