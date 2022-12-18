@@ -129,7 +129,7 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/installButton"
         style="@style/InstallButtonStyle"
-        android:layout_width="80dp"
+        android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:text="@string/install"
         android:textAllCaps="true"
