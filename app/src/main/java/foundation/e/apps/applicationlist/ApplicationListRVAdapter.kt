@@ -133,6 +133,8 @@ class ApplicationListRVAdapter(
             setAppIcon(searchApp, shimmerDrawable)
             removeIsPurchasedObserver(holder)
 
+            setInstallButtonDimensions(view)
+
             if (appInfoFetchViewModel.isAppInBlockedList(searchApp)) {
                 setupShowMoreButton()
             } else {
@@ -142,6 +144,16 @@ class ApplicationListRVAdapter(
             }
 
             showCalculatedPrivacyScoreData(searchApp, view)
+        }
+    }
+
+    private fun ApplicationListItemBinding.setInstallButtonDimensions(item: View) {
+        item.post {
+            val maxAllowedWidth = item.measuredWidth / 2
+            installButton.apply {
+                if (width > maxAllowedWidth)
+                    width = maxAllowedWidth
+            }
         }
     }
 

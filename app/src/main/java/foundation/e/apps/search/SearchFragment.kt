@@ -60,7 +60,6 @@ import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
