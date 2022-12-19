@@ -18,6 +18,7 @@
 package foundation.e.apps.login.api
 
 import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.models.PlayResponse
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.gplay.utils.AC2DMUtil
 import foundation.e.apps.utils.Constants.timeoutDurationInMillis
@@ -56,6 +57,33 @@ class LoginApiRepository constructor(
         })
         return result.apply {
             this.data?.locale = locale
+            this.exception = when (result) {
+                is ResultSupreme.Timeout -> GPlayLoginException(true, "GPlay API timeout", user)
+                is ResultSupreme.Error -> GPlayLoginException(false, result.message, user)
+                else -> null
+            }
+        }
+    }
+
+    /**
+     * Get AuthData validity of in the form of PlayResponse.
+     * Advantage of not using a simple boolean is we get error message and
+     * network code of the request inside PlayResponse object.
+     *
+     * Applicable for both Google and Anonymous login.
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
+     */
+    suspend fun login(authData: AuthData): ResultSupreme<PlayResponse> {
+        var response = PlayResponse()
+        val result = runCodeBlockWithTimeout({
+            response = gPlayLoginInterface.login(authData)
+            if (response.code != 200) {
+                throw Exception("Validation network code: ${response.code}")
+            }
+            response
+        })
+        return ResultSupreme.replicate(result, response).apply {
             this.exception = when (result) {
                 is ResultSupreme.Timeout -> GPlayLoginException(true, "GPlay API timeout", user)
                 is ResultSupreme.Error -> GPlayLoginException(false, result.message, user)

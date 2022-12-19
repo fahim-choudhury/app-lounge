@@ -26,12 +26,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedCategory
 import foundation.e.apps.login.AuthObject
-import foundation.e.apps.utils.enums.AppTag
 import foundation.e.apps.utils.enums.ResultStatus
-import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.exceptions.CleanApkException
 import foundation.e.apps.utils.exceptions.GPlayException
-import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -52,50 +49,42 @@ class CategoriesViewModel @Inject constructor(
         super.onLoadData(authObjectList, { successAuthList, _ ->
 
             successAuthList.find { it is AuthObject.GPlayAuth }?.run {
-                getCategoriesList(type, result.data!! as AuthData, this.user)
+                getCategoriesList(type, result.data!! as AuthData)
                 return@onLoadData
             }
 
             successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getCategoriesList(type, AuthData("", ""), this.user)
+                getCategoriesList(type, AuthData("", ""))
                 return@onLoadData
             }
         }, retryBlock)
     }
 
-    fun getCategoriesList(type: Category.Type, authData: AuthData, user: User) {
+    fun getCategoriesList(type: Category.Type, authData: AuthData) {
         viewModelScope.launch {
             val categoriesData = fusedAPIRepository.getCategoriesList(type, authData)
             categoriesList.postValue(categoriesData)
 
             val status = categoriesData.third
 
-            val categoriesList = categoriesData.first
-
-            if (status == ResultStatus.OK) {
-                if (categoriesList.all { it.tag is AppTag.GPlay } && isCategoriesEmpty(categoriesList)) {
-                    exceptionsList.add(GPlayLoginException(false, "Received empty Categories", user))
-                }
-                return@launch
-            }
-
-            val exception =
-                if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
-                    GPlayException(
+            if (status != ResultStatus.OK) {
+                val exception =
+                    if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
+                        GPlayException(
+                            categoriesData.third == ResultStatus.TIMEOUT,
+                            status.message.ifBlank { "Data load error" }
+                        )
+                    else CleanApkException(
                         categoriesData.third == ResultStatus.TIMEOUT,
                         status.message.ifBlank { "Data load error" }
                     )
-                else CleanApkException(
-                    categoriesData.third == ResultStatus.TIMEOUT,
-                    status.message.ifBlank { "Data load error" }
-                )
 
             exceptionsList.add(exception)
-            exceptionsLiveData.postValue(exceptionsList)
+            exceptionsLiveData.postValue(exceptionsList)}
         }
     }
 
-    fun isCategoriesEmpty(fusedCategories: List<FusedCategory>): Boolean {
-        return fusedAPIRepository.isCategoriesEmpty(fusedCategories)
+    fun isCategoriesEmpty(): Boolean {
+        return categoriesList.value?.first?.isEmpty() ?: true
     }
 }
