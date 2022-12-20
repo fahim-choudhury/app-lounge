@@ -131,7 +131,7 @@
     <string name="os_version">Versione di /e/ OS</string>
     <string name="app_version_label">Versione di App Lounge</string>
     <string name="about">Informazioni</string>
-    <string name="or">o</string>
+    <string name="or">O</string>
     <string name="select_one_source_of_applications">Scegli almeno un repository di App.</string>
     <string name="anonymous_login_failed_desc">Ciò può essere dovuto all\'impossibilità di generare/verificare il token o ad altri motivi.
 \n
@@ -151,4 +151,8 @@
     <string name="message_update_failure_single_app">L\'aggiornamento di %1$s e fallito a causa di una problema di supporto (luogo in cui ti trovi, versione del SO, ...).</string>
     <string name="message_update_failed">A causa di problemi temporanei, le tue app non possono essere aggiornate tutte. Riprova più tardi.</string>
     <string name="message_retry">Aggiorna tutto non ha funzionato. Ulteriori tentativi di aggiornamento in corso.</string>
+    <string name="logged_out">Disconnesso</string>
+    <string name="login">Accedi</string>
+    <string name="login_to_see_gplay_apps">E\' necessario accedere per vedere le App comuni.</string>
+    <string name="pwa_and_open_source_apps">App PWA e Open Source</string>
 </resources>
