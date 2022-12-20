@@ -79,8 +79,9 @@ class CategoriesViewModel @Inject constructor(
                         status.message.ifBlank { "Data load error" }
                     )
 
-            exceptionsList.add(exception)
-            exceptionsLiveData.postValue(exceptionsList)}
+                exceptionsList.add(exception)
+                exceptionsLiveData.postValue(exceptionsList)
+            }
         }
     }
 
