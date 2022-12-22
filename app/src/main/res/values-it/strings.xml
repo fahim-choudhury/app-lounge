@@ -155,4 +155,6 @@
     <string name="login">Accedi</string>
     <string name="login_to_see_gplay_apps">E\' necessario accedere per vedere le App comuni.</string>
     <string name="pwa_and_open_source_apps">App PWA e Open Source</string>
+    <string name="open_source_apps">App Open Source</string>
+    <string name="why_open_source_version">Perchè vedo la versione Open Source\?</string>
 </resources>
