@@ -123,4 +123,24 @@
     <string name="select_one_source_of_applications">Будь-ласка, оберіть хоча б одне джерело додатків.</string>
     <string name="pwa_and_open_source_apps">Прогресивні веб-застосунки та застосунки з відкритим кодом</string>
     <string name="monthly">Кожен місяць</string>
+    <string name="anonymous_login_failed">Анонімний вхід не вдався!</string>
+    <string name="sign_in_failed_desc">Внаслідок помилки мережі, Магазин не зміг отримати дані Google для логіну.</string>
+    <string name="sign_in_failed_title">Автентифікація Google не вдалася!</string>
+    <string name="data_load_error_desc">Це може виникати із-за того, що сервер не відповідає, або внаслідок іншої проблеми сервера.
+\n
+\nБудь ласка, повторіть спробу, або спробуйте пізніше.</string>
+    <string name="data_load_error">Виникла проблема при завантаженні застосунків.</string>
+    <string name="more_info"><u>Більше інформації</u></string>
+    <string name="open_settings">Відкрити налаштування</string>
+    <string name="timeout_desc_cleanapk">Деяка проблема мережі не дає отримувати всі застосунки.</string>
+    <string name="timeout_desc_gplay">Деяка проблема з мережою не дає отримувати всі застосунки.
+\n
+\nВідкрийте налаштування, щоб перевірити опції \"Тільки застосунки з відкритим кодом\" та \"Тільки прогресивні вебзастосунки\".</string>
+    <string name="timeout_title">Час запиту на отримання застосунків вичерпано!</string>
+    <string name="no_internet_message">Неможливо приєднатись до мережі! Будь ласка, перевірте налаштування Вашої мережі та спробуйте знову</string>
+    <string name="no_tracker_found">Трекерів не було знайдено!</string>
+    <string name="privacy_computed_using_text">Обчислено, використовуючи &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; аналіз приватності Exodus</string>
+    <string name="no_permission_found">Не було знайдено дозволів runtime android!</string>
+    <string name="message_last_update_triggered">Оновлення застосунків %1$s було завершено %2$s.</string>
+    <string name="error_signature_mismatch">Це оновлення не може бути застосоване, тому що не співпадають сигнатури версії %1$s та версії, що встановлена на Вашому телефоні. Щоб виправити це, Ви можете видалити %1$s, а потім знову встановити з Магазину. <br/><br/> Примітка: Це повідомлення не показуватиметься знову.</string>
 </resources>
