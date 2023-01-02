@@ -108,6 +108,7 @@
             app:argType="foundation.e.apps.utils.enums.Origin" />
         <argument
             android:name="category"
+            android:defaultValue=""
             app:argType="string" />
         <argument
             android:name="isGplayReplaced"

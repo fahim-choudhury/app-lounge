@@ -43,7 +43,7 @@ class DownloadManagerBR : BroadcastReceiver() {
         val action = intent?.action
         if (context != null && action != null) {
             val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0)
-            Timber.d("onReceive: DownloadBR $action $id")
+            Timber.i("onReceive: DownloadBR $action $id")
             when (action) {
                 DownloadManager.ACTION_DOWNLOAD_COMPLETE -> {
                     downloadedList.add(id)

@@ -100,7 +100,7 @@ class InstallAppWorker @AssistedInject constructor(
             Timber.d("Fused download name $fusedDownloadString")
 
             fusedDownload = databaseRepository.getDownloadById(fusedDownloadString)
-            Timber.d(">>> dowork started for Fused download name " + fusedDownload?.name + " " + fusedDownloadString)
+            Timber.i(">>> dowork started for Fused download name " + fusedDownload?.name + " " + fusedDownloadString)
             fusedDownload?.let {
                 isItUpdateWork = params.inputData.getBoolean(IS_UPDATE_WORK, false) &&
                     packageManagerModule.isInstalled(it.packageName)
@@ -129,7 +129,7 @@ class InstallAppWorker @AssistedInject constructor(
                 fusedManagerRepository.installationIssue(it)
             }
         } finally {
-            Timber.d("doWork: RESULT SUCCESS: ${fusedDownload?.name}")
+            Timber.i("doWork: RESULT SUCCESS: ${fusedDownload?.name}")
             return Result.success()
         }
     }
@@ -191,9 +191,8 @@ class InstallAppWorker @AssistedInject constructor(
     ) {
         if (fusedDownload.isAwaiting()) {
             fusedManagerRepository.downloadApp(fusedDownload)
-            Timber.d("===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}")
+            Timber.i("===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}")
         }
-
         isDownloading = true
         /**
          * observe app download/install process in a separate thread as DownloadManager download artifacts in a separate process
@@ -269,11 +268,11 @@ class InstallAppWorker @AssistedInject constructor(
                 fusedManagerRepository.updateDownloadStatus(fusedDownload, Status.INSTALLING)
             }
             Status.INSTALLING -> {
-                Timber.d("===> doWork: Installing ${fusedDownload.name} ${fusedDownload.status}")
+                Timber.i("===> doWork: Installing ${fusedDownload.name} ${fusedDownload.status}")
             }
             Status.INSTALLED, Status.INSTALLATION_ISSUE -> {
                 finishInstallation(fusedDownload)
-                Timber.d("===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}")
+                Timber.i("===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}")
             }
             else -> {
                 finishInstallation(fusedDownload)

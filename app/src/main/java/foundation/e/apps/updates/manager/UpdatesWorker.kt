@@ -67,6 +67,7 @@ class UpdatesWorker @AssistedInject constructor(
             checkForUpdates()
             Result.success()
         } catch (e: Throwable) {
+            Timber.e(e)
             Result.failure()
         } finally {
             if (shouldShowNotification && automaticInstallEnabled) {
@@ -108,9 +109,10 @@ class UpdatesWorker @AssistedInject constructor(
              * If user in UNAVAILABLE, don't do anything.
              */
             resultStatus = ResultStatus.OK
+            Timber.w("User is not available! User is required during update!")
             return
         }
-
+        Timber.i("Updates found: ${appsNeededToUpdate.size}; $resultStatus")
         if (isAutoUpdate && shouldShowNotification) {
             handleNotification(appsNeededToUpdate.size, isConnectedToUnmeteredNetwork)
         }
@@ -233,11 +235,15 @@ class UpdatesWorker @AssistedInject constructor(
                 return@forEach
             }
 
-            fusedManagerRepository.addDownload(fusedDownload)
+            val isSuccess = fusedManagerRepository.addDownload(fusedDownload)
+            if (!isSuccess) {
+                Timber.i("Update adding ABORTED! status: $isSuccess")
+                return@forEach
+            }
+
             fusedManagerRepository.updateAwaiting(fusedDownload)
-            Timber.d("startUpdateProcess: Enqueued for update: ${fusedDownload.name} ${fusedDownload.id} ${fusedDownload.status}")
             InstallWorkManager.enqueueWork(fusedDownload, true)
-            Timber.d(">>> startUpdateProcess: " + fusedDownload.name)
+            Timber.i("startUpdateProcess: Enqueued for update: ${fusedDownload.name} ${fusedDownload.id} ${fusedDownload.status}")
         }
     }
 
