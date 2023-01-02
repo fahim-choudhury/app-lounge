@@ -20,6 +20,7 @@ package foundation.e.apps.updates.manager
 
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.api.faultyApps.FaultyAppRepository
+import foundation.e.apps.api.fused.FusedAPIImpl.Companion.APP_TYPE_ANY
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.manager.pkg.PkgManagerModule
@@ -63,18 +64,22 @@ class UpdatesManagerImpl @Inject constructor(
                 }
             }
 
-            // Check for remaining apps from GPlay
-            val gPlayResult = fusedAPIRepository.getApplicationDetails(
-                pkgList,
-                authData,
-                Origin.GPLAY
-            )
-            gPlayResult.first.forEach {
-                if (it.status == Status.UPDATABLE && it.filterLevel.isUnFiltered()) updateList.add(it)
-            }
-            gPlayResult.second.let {
-                if (it != ResultStatus.OK) {
-                    status = it
+            if (getApplicationCategoryPreference().contains(APP_TYPE_ANY)) {
+                // Check for remaining apps from GPlay
+                val gPlayResult = fusedAPIRepository.getApplicationDetails(
+                    pkgList,
+                    authData,
+                    Origin.GPLAY
+                )
+                gPlayResult.first.forEach {
+                    if (it.status == Status.UPDATABLE && it.filterLevel.isUnFiltered()) updateList.add(
+                        it
+                    )
+                }
+                gPlayResult.second.let {
+                    if (it != ResultStatus.OK) {
+                        status = it
+                    }
                 }
             }
         }
@@ -113,7 +118,7 @@ class UpdatesManagerImpl @Inject constructor(
         return Pair(nonFaultyUpdateList, status)
     }
 
-    fun getApplicationCategoryPreference(): String {
+    fun getApplicationCategoryPreference(): List<String> {
         return fusedAPIRepository.getApplicationCategoryPreference()
     }
 }

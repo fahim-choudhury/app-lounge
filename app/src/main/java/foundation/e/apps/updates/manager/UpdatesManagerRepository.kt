@@ -43,7 +43,7 @@ class UpdatesManagerRepository @Inject constructor(
         return updatesManagerImpl.getUpdatesOSS()
     }
 
-    fun getApplicationCategoryPreference(): String {
+    fun getApplicationCategoryPreference(): List<String> {
         return updatesManagerImpl.getApplicationCategoryPreference()
     }
 }
