@@ -109,8 +109,12 @@ class FusedAPIImpl @Inject constructor(
         return true
     }
 
-    fun getApplicationCategoryPreference(): String {
-        return preferenceManagerModule.preferredApplicationType()
+    fun getApplicationCategoryPreference(): List<String> {
+        val prefs = mutableListOf<String>()
+        if (preferenceManagerModule.isGplaySelected()) prefs.add(APP_TYPE_ANY)
+        if (preferenceManagerModule.isOpenSourceSelected()) prefs.add(APP_TYPE_OPEN)
+        if (preferenceManagerModule.isPWASelected()) prefs.add(APP_TYPE_PWA)
+        return prefs
     }
 
     suspend fun getHomeScreenData(
