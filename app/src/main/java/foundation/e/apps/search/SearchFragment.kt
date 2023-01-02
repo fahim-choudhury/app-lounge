@@ -148,15 +148,18 @@ class SearchFragment :
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 searchView?.run {
                     /*
-                         * Only scroll back to 0 position for a new search.
-                         *
-                         * If we are getting new results from livedata for the old search query,
-                         * do not scroll to top as the user may be scrolling to see already
-                         * populated results.
-                         */
-                    if (lastSearch != query?.toString()) {
+                     * Only scroll back to 0 position for a new search.
+                     *
+                     * If we are getting new results from livedata for the old search query,
+                     * do not scroll to top as the user may be scrolling to see already
+                     * populated results.
+                     *
+                     * Compare lastSearch with searchText to avoid falsely updating to
+                     * current query text even before submitting the new search.
+                     */
+                    if (lastSearch != searchText) {
                         recyclerView?.scrollToPosition(0)
-                        lastSearch = query.toString()
+                        lastSearch = searchText
                     }
                 }
             }

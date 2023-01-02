@@ -1,49 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="not_enough_storage">Недостатньо доступного місця для завантаження цього додатку!</string>
+    <string name="not_enough_storage">Недостатньо доступного місця для завантаження цього застосунку!</string>
     <string name="unknown_error">Непередбачувана помилка!</string>
     <string name="information">Інформація</string>
     <string name="trackers_title">Трекери</string>
     <string name="tracker_information_not_found">Не знайдено інформації стосовно трекерів для цього додатку</string>
-    <string name="terms_services">Умови Використання Сервісів</string>
+    <string name="terms_services">Умови використання сервісів</string>
     <string name="account">Акаунт</string>
     <string name="copied">Скопійовано</string>
-    <string name="app_version_label">Версія Простору додатків</string>
-    <string name="about">Про додаток</string>
+    <string name="app_version_label">Версія застосунку Магазин</string>
+    <string name="about">Про застосунок</string>
     <string name="show_only_pwa_apps">Показати прогресивні вебзастосунки</string>
-    <string name="show_only_open_source_apps">Показати додатки з вільним ПЗ</string>
-    <string name="Show_common_apps">Показати поширені додатки</string>
-    <string name="Show_applications">Показати додатки:</string>
+    <string name="show_only_open_source_apps">Показати застосунки з відкритим кодом</string>
+    <string name="Show_common_apps">Показати поширені застосунки</string>
+    <string name="Show_applications">Показати застосунки:</string>
     <string name="preference_update_install_automatically_title">Автоматично встановлювати оновлення</string>
-    <string name="preference_update_notify_available_description">Надсилати сповіщення якщо доступні оновлення додатків</string>
-    <string name="preference_update_install_automatically_description">Завантажувати та встановлювати оновлення додатків у фоні</string>
+    <string name="preference_update_notify_available_description">Надсилати сповіщення коли доступні оновлення додатків</string>
+    <string name="preference_update_install_automatically_description">Завантажувати та встановлювати оновлення додатків у фоновому режимі</string>
     <string name="preference_update_notify_available_title">Показати доступні оновлення</string>
-    <string name="preference_update_wifi_only_description">Оновлювати додатки автоматично тільки на немобільних мережах, таких як Wi-Fi</string>
+    <string name="preference_update_wifi_only_description">Оновлювати додатки автоматично тільки на немобільних мережах, як-от Wi-Fi</string>
     <string name="preference_update_wifi_only_title">Тільки на немобільних мережах</string>
     <string name="preference_update_interval_title">Інтервал перевірки оновлень</string>
     <string name="preference_update_interval_default">24</string>
     <string name="os_version">Версія операційної системи /e/</string>
     <string name="preference_updates_title">Оновлення</string>
-    <string name="tos_warning">Перед тим як продовжити, Ви маєте погодитись з Умовами Використання Сервісів.</string>
+    <string name="tos_warning">Перед тим як продовжити, Ви маєте погодитись з Умовами використання сервісів.</string>
     <string name="tos_agree_date">Прийнято</string>
     <string name="tos_disagree">Відхилити</string>
     <string name="tos_agree">Прийняти</string>
-    <string name="or">або</string>
+    <string name="or">або тільки показати</string>
     <string name="sign_in_anonymous">Анонімний режим</string>
     <string name="sign_in_google">Увійти за допомогою Google</string>
-    <string name="sign_in_desc">Увійдіть у Простір додатків використовуючи Ваш акаунт Google, або оберіть Анонімний режим, якщо хочете увійти анонімно.</string>
+    <string name="sign_in_desc">Увійдіть у Магазин, використовуючи Ваш акаунт Google, або оберіть Анонімний режим.</string>
     <string name="sign_in_title">Ласкаво просимо</string>
     <string name="pwa">Прогресивний вебзастосунок</string>
     <string name="open_source">Відкрите програмне забезпечення</string>
     <string name="category_icon">Іконка категорії</string>
-    <string name="apps">Додатки</string>
+    <string name="apps">Застосунки</string>
     <string name="games">Ігри</string>
-    <string name="no_apps_found">Додатків не знайдено…</string>
-    <string name="search_hint">Шукати додаток</string>
+    <string name="no_apps_found">Нічого не знайдено…</string>
+    <string name="search_hint">Шукати застосунки</string>
     <string name="menu_settings">Налаштування</string>
     <string name="menu_categories">Категорії</string>
     <string name="menu_home">Домівка</string>
-    <string name="app_name">Простір додатків</string>
+    <string name="app_name">Магазин</string>
     <string name="message_update_failed">Із-за тимчасової помилки, Ваші додатки не можуть бути оновлені. Будь-ласка, спробуйте пізніше.</string>
     <string name="update_error">Помилка оновлення!</string>
     <string name="all_apps_updated">Всі додатки мають останню версію</string>
@@ -52,10 +52,10 @@
     <string name="update_all">Оновити все</string>
     <string name="show_more">Показати більше</string>
     <string name="something_went_wrong">Щось пішло не так!</string>
-    <string name="app_not_found">Вашого додатку не було знайдено.</string>
-    <string name="message_app_available_later">Цей додаток буде доступний пізніше!</string>
-    <string name="install_blocked_google">Платні додатки ще не підтримуються Простором Додатків. Потерпіть ще трохи, вони скоро будуть доступні.</string>
-    <string name="install_blocked_anonymous">Платні додатки не можуть бути встановлені, якщо ви знаходитеся в Анонімному режимі. Будь ласка, увійдіть у ваш Google аккаунт, якщо ви хочете встановлювати платні додатки.</string>
+    <string name="app_not_found">Вашого застосунку не було знайдено.</string>
+    <string name="message_app_available_later">Цей застосунок буде доступний пізніше!</string>
+    <string name="install_blocked_google">Магазин ще не підтримує платні застосунки. Потерпіть ще трохи, вони скоро будуть доступні.</string>
+    <string name="install_blocked_anonymous">Платні застосунки не можуть бути встановлені, якщо ви знаходитеся в Анонімному режимі. Будь ласка, увійдіть у ваш Google аккаунт, якщо ви хочете встановлювати платні застосунки.</string>
     <string name="package_name">Назва пакету: <xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="license">Ліцензія: <xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="min_android_version">Потребує: <xliff:g id="version_code">%1$s</xliff:g></string>
@@ -64,10 +64,10 @@
     <string name="privacy_analyses">Аналізи приватності</string>
     <string name="privacy_score">Оцінка приватності</string>
     <string name="privacy">Приватність</string>
-    <string name="rating_description">Оцінка додатку. Обчислено, використовуючи всі рейтинги цього додатку.</string>
-    <string name="rating">Оцінка</string>
-    <string name="ratings">Оцінки</string>
-    <string name="update">Оновити</string>
+    <string name="rating_description">Рейтинг застосунку. Обчислено, викорисавши всі рейтинги цього застосунку.</string>
+    <string name="rating">Рейтинг</string>
+    <string name="ratings">Оцінка</string>
+    <string name="update">Оновлення</string>
     <string name="more">Більше</string>
     <string name="retry">Спробувати знову</string>
     <string name="open">Відкрити</string>
@@ -89,13 +89,58 @@
     <string name="discover_pwa">Дослідити PWA</string>
     <string name="discover">Дослідити</string>
     <plurals name="updates_notification_title">
-        <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> оновлення додатку доступне</item>
-        <item quantity="few"><xliff:g id="version_code">%1$d</xliff:g> оновлень додатків доступно</item>
-        <item quantity="many"><xliff:g id="version_code">%1$d</xliff:g> оновлень додатків доступно</item>
-        <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> оновлень додатків доступно</item>
+        <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> оновлення застосунку доступне</item>
+        <item quantity="few"><xliff:g id="version_code">%1$d</xliff:g> оновлень застосунків доступно</item>
+        <item quantity="many"><xliff:g id="version_code">%1$d</xliff:g> оновлень застосунків доступно</item>
+        <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> оновлень застосунків доступно</item>
     </plurals>
-    <string name="gplay_data_for_oss">Неможливо відобразити додаток Google Play коли дозволені тільки додатки з відкритим кодом.</string>
+    <string name="gplay_data_for_oss">Неможливо відобразити застосунок Google Play коли дозволені тільки застосунки з відкритим кодом.</string>
     <string name="updated_on">Оновлено до: <xliff:g id="version_code">%1$s</xliff:g></string>
-    <string name="privacy_description">Рейтинг Приватності автоматично обчислений з дозволів та трекерів, що були знайдені в додатку.&lt;br /&gt;&lt;br /&gt; Його алгоритм обчислення можна &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;побачити тут&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Виявлення трекерів робиться за допомогою&lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt; Інструментів Exodus Privacy&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Рейтинг від 0 до 10.&lt;br /&gt;&lt;br /&gt;Дізнайтесь більше про те, як обчислюється Рейтинг Приватності, які в нього є обмеження та як він може допомогти Вам захистити себе від мікротаргетингу &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;на цій сторінці&lt;/a&gt;.</string>
+    <string name="privacy_description">Рейтинг Приватності автоматично обчислюється з дозволів та трекерів, що були знайдені в застосунку.&lt;br /&gt;&lt;br /&gt; Його алгоритм обчислення можна &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;побачити тут&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Виявлення трекерів робиться за допомогою&lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt; Інструментів Exodus Privacy&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Рейтинг від 0 до 10.&lt;br /&gt;&lt;br /&gt;Дізнайтесь більше про те, як обчислюється Рейтинг Приватності, які в нього є обмеження та як він може допомогти Вам захистити себе від мікротаргетингу &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;на цій сторінці&lt;/a&gt;.</string>
     <string name="close">Закрити</string>
+    <string name="open_source_apps">Застосунки з відкритим кодом</string>
+    <string name="why_open_source_version">Чому і бачу версію з відкритим кодом\?</string>
+    <string name="updates_notification_unmetered_network_warning">Очікування не-мобільної мережі</string>
+    <string name="manually_install_updates_notification_text">Оновлення додатків не будуть встановлені автоматично</string>
+    <string name="automatically_install_updates_notification_text">Оновлення додатків будуть встановлені автоматично</string>
+    <string name="updates">Оновлення</string>
+    <string name="downloads">Завантаження</string>
+    <string name="movers_shakers_games">Найпопулярніші ігри</string>
+    <string name="topgrossing_games">Топ платних ігор</string>
+    <string name="topgrossing_apps">Топ платних додатків</string>
+    <string name="topselling_free_apps">Топ безкоштовних ігор</string>
+    <string name="popular_games">Популярні прогресивні веб-ігри</string>
+    <string name="popular_apps">Популярні прогресивні веб-застосунки</string>
+    <string name="popular_games_in_last_24_hours">Популярні ігри з відкритим кодом за останню добу</string>
+    <string name="popular_apps_in_last_24_hours">Популярні додатки з відкритим кодом за останню добу</string>
+    <string name="top_updated_games">Топ оновлених Ігор з відкритим кодом</string>
+    <string name="top_updated_apps">Топ оновлених додатків з відкритим кодом</string>
+    <string name="message_update_failure_single_app">Оновлення %1$s не вдалося з причини підтримки (наприклад місцезнаходження, версія ОС…).</string>
+    <string name="duplicate_app_from_sources">Деякі пропріетарні застосунки можуть також мати версію з відкритим кодом. Коли це так, Магазин показує тільки версію в відкритим кодом, щоб уникнути показ дублікатів.</string>
+    <string name="logged_out">Вихід із системи</string>
+    <string name="login">Увійти</string>
+    <string name="login_to_see_gplay_apps">Будь-ласка, увійдіть, щоб побачити звичайні додатки.</string>
+    <string name="select_one_source_of_applications">Будь-ласка, оберіть хоча б одне джерело додатків.</string>
+    <string name="pwa_and_open_source_apps">Прогресивні веб-застосунки та застосунки з відкритим кодом</string>
+    <string name="monthly">Кожен місяць</string>
+    <string name="anonymous_login_failed">Анонімний вхід не вдався!</string>
+    <string name="sign_in_failed_desc">Внаслідок помилки мережі, Магазин не зміг отримати дані Google для логіну.</string>
+    <string name="sign_in_failed_title">Автентифікація Google не вдалася!</string>
+    <string name="data_load_error_desc">Це може виникати із-за того, що сервер не відповідає, або внаслідок іншої проблеми сервера.
+\n
+\nБудь ласка, повторіть спробу, або спробуйте пізніше.</string>
+    <string name="data_load_error">Виникла проблема при завантаженні застосунків.</string>
+    <string name="more_info"><u>Більше інформації</u></string>
+    <string name="open_settings">Відкрити налаштування</string>
+    <string name="timeout_desc_cleanapk">Деяка проблема мережі не дає отримувати всі застосунки.</string>
+    <string name="timeout_desc_gplay">Деяка проблема з мережою не дає отримувати всі застосунки.
+\n
+\nВідкрийте налаштування, щоб перевірити опції \"Тільки застосунки з відкритим кодом\" та \"Тільки прогресивні вебзастосунки\".</string>
+    <string name="timeout_title">Час запиту на отримання застосунків вичерпано!</string>
+    <string name="no_internet_message">Неможливо приєднатись до мережі! Будь ласка, перевірте налаштування Вашої мережі та спробуйте знову</string>
+    <string name="no_tracker_found">Трекерів не було знайдено!</string>
+    <string name="privacy_computed_using_text">Обчислено, використовуючи &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; аналіз приватності Exodus</string>
+    <string name="no_permission_found">Не було знайдено дозволів runtime android!</string>
+    <string name="message_last_update_triggered">Оновлення застосунків %1$s було завершено %2$s.</string>
+    <string name="error_signature_mismatch">Це оновлення не може бути застосоване, тому що не співпадають сигнатури версії %1$s та версії, що встановлена на Вашому телефоні. Щоб виправити це, Ви можете видалити %1$s, а потім знову встановити з Магазину. <br/><br/> Примітка: Це повідомлення не показуватиметься знову.</string>
 </resources>
