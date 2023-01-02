@@ -92,6 +92,7 @@
     <string name="privacy_description">Il Punteggio Privacy viene calcolato automaticamente a seconda dei permessi richiesti e dei tracker trovati nelle App. Ti da un\'idea di quanto finemente una App sia in grado di profilare i propri utenti.&lt;br /&gt;&lt;br /&gt;Il codice sorgente dell\'algoritmo di calcolo si &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;trova qui&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Il rilevamento dei tracker viene eseguito usando &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Privacy&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Punteggio su scala di 10.&lt;br /&gt;&lt;br /&gt;Altre informazioni sul metodo di calcolo del Punteggio Privacy, i suoi limiti e su come puoi difenderti dalla profilatura li trovi &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;in questa pagina&lt;/a&gt;.</string>
     <plurals name="updates_notification_title">
         <item quantity="one">Disponibile <xliff:g id="version_code">%1$d</xliff:g> aggiornamento App</item>
+        <item quantity="many">Disponibili <xliff:g id="version_code">%1$d</xliff:g> aggiornamenti App</item>
         <item quantity="other">Disponibili <xliff:g id="version_code">%1$d</xliff:g> aggiornamenti App</item>
     </plurals>
     <string name="movers_shakers_apps">Migliori App di tendenza</string>
@@ -157,4 +158,6 @@
     <string name="pwa_and_open_source_apps">App PWA e Open Source</string>
     <string name="open_source_apps">App Open Source</string>
     <string name="why_open_source_version">Perchè vedo la versione Open Source\?</string>
+    <string name="message_last_update_triggered">Aggiornamento di %1$s App eseguito il %2$s.</string>
+    <string name="duplicate_app_from_sources">Alcune App proprietarie potrebbero avere anche una versione Open Source. In questo caso App Lounge mostra solo la versione Open Source, per evitare duplicati.</string>
 </resources>
