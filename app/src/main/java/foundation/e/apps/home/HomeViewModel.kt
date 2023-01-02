@@ -93,7 +93,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getApplicationCategoryPreference(): String {
+    fun getApplicationCategoryPreference(): List<String> {
         return fusedAPIRepository.getApplicationCategoryPreference()
     }
 

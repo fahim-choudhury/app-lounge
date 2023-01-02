@@ -86,7 +86,7 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPII
         return fusedAPIImpl.isFusedHomesEmpty(fusedHomes)
     }
 
-    fun getApplicationCategoryPreference(): String {
+    fun getApplicationCategoryPreference(): List<String> {
         return fusedAPIImpl.getApplicationCategoryPreference()
     }
 

@@ -115,7 +115,7 @@ class UpdatesViewModel @Inject constructor(
         return false
     }
 
-    fun getApplicationCategoryPreference(): String {
+    fun getApplicationCategoryPreference(): List<String> {
         return updatesManagerRepository.getApplicationCategoryPreference()
     }
 
