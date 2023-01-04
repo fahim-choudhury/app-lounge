@@ -4,7 +4,7 @@
     <string name="unknown_error">Непередбачувана помилка!</string>
     <string name="information">Інформація</string>
     <string name="trackers_title">Трекери</string>
-    <string name="tracker_information_not_found">Не знайдено інформації стосовно трекерів для цього додатку</string>
+    <string name="tracker_information_not_found">Не знайдено інформації стосовно трекерів для цього додатку.</string>
     <string name="terms_services">Умови використання сервісів</string>
     <string name="account">Акаунт</string>
     <string name="copied">Скопійовано</string>
@@ -143,4 +143,22 @@
     <string name="no_permission_found">Не було знайдено дозволів runtime android!</string>
     <string name="message_last_update_triggered">Оновлення застосунків %1$s було завершено %2$s.</string>
     <string name="error_signature_mismatch">Це оновлення не може бути застосоване, тому що не співпадають сигнатури версії %1$s та версії, що встановлена на Вашому телефоні. Щоб виправити це, Ви можете видалити %1$s, а потім знову встановити з Магазину. <br/><br/> Примітка: Це повідомлення не показуватиметься знову.</string>
+    <string name="weekly">Щотижня</string>
+    <string name="daily">Щодня</string>
+    <string name="may_not_work_warning_message">Примусове встановлення дозволить Вам завантажити та встановити застосунок, але не буде жодних гарантій, що він працюватиме.<br/><br/>Спроба встановити непідтримуваний додаток може викликати збої або сповільнити Вашу систему.<br/><br/>Ми працюємо над підтримкою цього застосунку та сподіваємося виправити це в найближчий час.</string>
+    <string name="this_app_may_not_work_properly">Цей застосунок може не працювати як слід!</string>
+    <string name="install_anyway">Всановити в будь-якому разі</string>
+    <string name="unsupported_app_unreleased">Застосунок %s в даний момент не підтримується. Це може бути тому, що він ще не був опублікований, або сталася якась інша помилка.</string>
+    <string name="unsupported_app_title">Застосунок не підтримується!</string>
+    <string name="purchase_error">Помилка покупки!</string>
+    <string name="download_automatically_message">Ваш додаток буде автоматично завантажений на цей пристрій</string>
+    <string name="purchase_complete">Покупка завершена успішно!</string>
+    <string name="paid_app_anonymous_message">Платні додатки не можуть бути встановлені з анонімного режиму. Будь ласка, увійдіть в ваш аккаунт Google щоб встановлювати платні додатки.</string>
+    <string name="dialog_cancel">Скасувати</string>
+    <string name="dialog_confirm">Підтвердити</string>
+    <string name="dialog_paidapp_message">Коли натиснуто «Підтвердити», застосунок перенесе Вас до сторінки Google Play для завершення вашої покупки, використовуючи Ваш браузер. Натисніть «Підтвердити» щоб купити %1$s за %2$s.</string>
+    <string name="dialog_title_paid_app">Покупка <b>%1$s</b></string>
+    <string name="anonymous_login_failed_desc">Це може бути тому, що токен не міг бути згенерований / підтверджений, або за інших причин.
+\n
+\nНатисніть «Повторити спробу» щоб спробувати знову.</string>
 </resources>
