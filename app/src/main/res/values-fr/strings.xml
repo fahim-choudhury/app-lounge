@@ -86,6 +86,7 @@
     <string name="privacy_description">Le Score de Confidentialité est calculé automatiquement à partir des permissions et pisteurs qui sont détectés dans l\'application. Il donne un aperçu de la capacité d\'une application à micro-cibler ses utilisateurs.&lt;br /&gt;&lt;br /&gt;Le code source de son algorithme est disponible &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;ici&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;La détection des pisteurs est effectuée en utilisant &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;les outils Exodus Privacy&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Score sur 10.&lt;br /&gt;&lt;br /&gt;En savoir plus sur comment est calculé le Score de Confidentialité, ces limites et comment il peut vous protéger du micro-ciblage &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;on this page&lt;/a&gt;.</string>
     <plurals name="updates_notification_title" tools:ignore="MissingQuantity">
         <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> mise à jour disponible</item>
+        <item quantity="many"><xliff:g id="version_code">%1$d</xliff:g> mises à jour disponibles</item>
         <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> mises à jour disponibles</item>
     </plurals>
     <string name="automatically_install_updates_notification_text">Les mises à jour d\'application seront installées automatiquement</string>
@@ -144,7 +145,7 @@
     <string name="os_version">Version d\'/e/OS</string>
     <string name="app_version_label">Version d\'App Lounge</string>
     <string name="about">À propos</string>
-    <string name="or">ou</string>
+    <string name="or">Ou n\'afficher que</string>
     <string name="monthly">Mensuelle</string>
     <string name="weekly">Hebdomadaire</string>
     <string name="daily">Quotidienne</string>
@@ -155,4 +156,8 @@
     <string name="duplicate_app_from_sources">Certaines applications propriétaires peuvent également exister en version Open Source. Quand c\'est le cas, App Lounge affiche uniquement la version Open Source afin d\'éviter les doublons.</string>
     <string name="open_source_apps">Applis Open Source</string>
     <string name="why_open_source_version">Pourquoi vois-je la version Open Source \?</string>
+    <string name="logged_out">Déconnecté</string>
+    <string name="login">Connexion</string>
+    <string name="login_to_see_gplay_apps">Vous devez vous connecter pour voir les application répandues.</string>
+    <string name="pwa_and_open_source_apps">les applications PWA et Open Source</string>
 </resources>
