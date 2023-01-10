@@ -39,6 +39,7 @@ import foundation.e.apps.BuildConfig
 import foundation.e.apps.MainActivity
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.R
+import foundation.e.apps.api.fused.UpdatesDao
 import foundation.e.apps.databinding.CustomPreferenceBinding
 import foundation.e.apps.login.LoginViewModel
 import foundation.e.apps.updates.manager.UpdatesWorkManager
@@ -239,6 +240,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onDestroyView() {
         if (sourcesChangedFlag) {
+            UpdatesDao.addItemsForUpdate(emptyList())
             loginViewModel.startLoginFlow()
         }
         super.onDestroyView()
