@@ -7,7 +7,7 @@ App Lounge is an open-source application that allows you to install Android apps
 App Lounge use the _Packaging by Features_ approach for packaging the code. A really good explanation for this approach can be found on Philip Hauer's [Package by Feature](https://web.archive.org/web/20211025104408/https://phauer.com/2020/package-by-feature/) blog post.
 
 ```
-.
+./root
 ├── api
 │   ├── cleanapk
 │   │   ├── blockedApps
