@@ -105,7 +105,7 @@
     <string name="tos_agree_date">Geaccepteerd</string>
     <string name="tos_disagree">Afwijzen</string>
     <string name="tos_agree">Accepteren</string>
-    <string name="or">of</string>
+    <string name="or">Of toon alleen</string>
     <string name="sign_in_anonymous">Anonieme modus</string>
     <string name="sign_in_google">Log in met Google</string>
     <string name="sign_in_desc">Log in op de App Lounge met jouw Google account, of selecteer de Anonieme modus om privé aan te melden.</string>
@@ -123,4 +123,40 @@
     <string name="menu_categories">Categorieën</string>
     <string name="menu_home">Home</string>
     <string name="app_name">App Lounge</string>
+    <string name="topgrossing_games">Top Lucratieve Games</string>
+    <string name="topgrossing_apps">Top Lucratieve Apps</string>
+    <string name="may_not_work_warning_message">De installatie afdwingen maakt het mogelijk om het te downloaden en installeren, maar het is niet gegarandeerd dat het zal werken.<br/><br/>Het installeren van niet ondersteunde apps kan je systeem vertragen of doen crashen.<br/><br/>We werken eraan om de compatibiliteit met deze applicatie te verbeteren in de nabije toekomst.</string>
+    <string name="unsupported_app_unreleased">De app %s wordt momenteel niet ondersteund. Dit kan zijn omdat de app nog niet algemeen beschikbaar is, of door een andere fout.</string>
+    <string name="dialog_paidapp_message">Wanneer je klikt op bevestigen zal je naar de Google Play pagina doorgestuurd worden om je aankoop af te ronden in je browser. Klik \'bevestigen\' om %1$s te kopen voor %2$s.</string>
+    <string name="anonymous_login_failed_desc">Dit kan veroorzaakt zijn door een token dat niet kon aangemaakt/geverifieerd worden.
+\n
+\nDruk op \'Opnieuw proberen\'.</string>
+    <string name="data_load_error_desc">Dit kan veroorzaakt zijn door een server probleem.
+\n
+\nProbeer a.u.b. opnieuw op een later tijdstip.</string>
+    <string name="timeout_desc_cleanapk">Een netwerk probleem verhindert het ophalen van de applicaties.</string>
+    <string name="timeout_desc_gplay">Een netwerk probleem verhindert het ophalen van de applicaties.
+\n
+\nOpen Instellingen om enkel voor Open source apps of PWA\'s te kijken.</string>
+    <string name="timeout_title">Time-out bij het ophalen van applicaties!</string>
+    <string name="no_permission_found">Geen \"runtime android\" machtiging gevonden!</string>
+    <string name="movers_shakers_games">Top Populaire Games</string>
+    <string name="movers_shakers_apps">Top Populaire Apps</string>
+    <string name="popular_games_in_last_24_hours">Open Source Populaire Games van de laatste 24 uur</string>
+    <string name="popular_apps_in_last_24_hours">Open Source Populaire Apps van de laatste 24 uur</string>
+    <string name="top_updated_games">Open Source Top Geüpdatete Games</string>
+    <string name="top_updated_apps">Open Source Top Geüpdatet Apps</string>
+    <string name="message_update_failure_single_app">De update voor %1$s is niet door een ondersteuning regel (locatie, OS versie...).</string>
+    <string name="message_update_failed">Door een tijdelijk probleem konden niet alle apps geüpdatet worden. Probeer het later nog eens.</string>
+    <string name="message_retry">Update is niet gelukt. Automatische nieuwe poging in uitvoering.</string>
+    <string name="login_to_see_gplay_apps">Je moet inloggen om gedeelde apps te zien.</string>
+    <string name="error_signature_mismatch">De update kan niet worden uitgevoerd want de software signatuur van de update voor %1$s komt niet overeen met de geïnstalleerde versie op jouw telefoon. Om dit op te lossen kan je %1$s de-installeren en terug installeren vanuit de App Lounge. <br/><br/> Opmerking: Dit bericht wordt niet meer weergegeven.</string>
+    <string name="sign_in_failed_desc">Vanwege een netwerk error kon App Lounge geen Google inloginformatie binnenhalen.</string>
+    <string name="duplicate_app_from_sources">Sommige propriëtaire apps kunnen ook een Open Source versie hebben. Wanneer dit gebeurd zal App Lounge alleen de Open Source versie tonen om duplicaten te voorkomen.</string>
+    <string name="open_source_apps">Open Source apps</string>
+    <string name="why_open_source_version">Waarom zie ik de Open Source versie\?</string>
+    <string name="logged_out">Uitgelogd</string>
+    <string name="login">Inloggen</string>
+    <string name="select_one_source_of_applications">Selecteer ten minste één applicatiebron.</string>
+    <string name="pwa_and_open_source_apps">PWA en Open Source apps</string>
 </resources>
