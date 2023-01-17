@@ -25,7 +25,7 @@ import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.login.api.GPlayApiFactory
 import foundation.e.apps.login.api.GPlayLoginInterface
 import foundation.e.apps.login.api.GoogleLoginApi
-import foundation.e.apps.login.api.LoginApiRepository
+import foundation.e.apps.login.api.GPlayLoginApiRepository
 import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.exceptions.GPlayValidationException
 import java.util.Locale
@@ -54,8 +54,8 @@ class LoginSourceGPlay @Inject constructor(
     private val gPlayLoginInterface: GPlayLoginInterface
         get() = gPlayApiFactory.getGPlayApi(user)
 
-    private val loginApiRepository: LoginApiRepository
-        get() = LoginApiRepository(gPlayLoginInterface, user)
+    private val gPlayLoginApiRepository: GPlayLoginApiRepository
+        get() = GPlayLoginApiRepository(gPlayLoginInterface, user)
 
     private val locale: Locale
         get() = context.resources.configuration.locales[0]
@@ -148,7 +148,7 @@ class LoginSourceGPlay @Inject constructor(
      * Get AuthData for ANONYMOUS mode.
      */
     private suspend fun getAuthData(): ResultSupreme<AuthData?> {
-        return loginApiRepository.fetchAuthData("", "", locale).run {
+        return gPlayLoginApiRepository.fetchAuthData("", "", locale).run {
             if (isSuccess()) ResultSupreme.Success(formattedAuthData(this.data!!))
             else this
         }
@@ -168,13 +168,13 @@ class LoginSourceGPlay @Inject constructor(
          * Use it to fetch auth data.
          */
         if (aasToken.isNotBlank()) {
-            return loginApiRepository.fetchAuthData(email, aasToken, locale)
+            return gPlayLoginApiRepository.fetchAuthData(email, aasToken, locale)
         }
 
         /*
          * If aasToken is not yet saved / made, fetch it from email and oauthToken.
          */
-        val aasTokenResponse = loginApiRepository.getAasToken(
+        val aasTokenResponse = gPlayLoginApiRepository.getAasToken(
             gPlayLoginInterface as GoogleLoginApi,
             email,
             oauthToken
@@ -199,7 +199,7 @@ class LoginSourceGPlay @Inject constructor(
          * Finally save the aasToken and create auth data.
          */
         loginDataStore.saveAasToken(aasTokenFetched)
-        return loginApiRepository.fetchAuthData(email, aasTokenFetched, locale).run {
+        return gPlayLoginApiRepository.fetchAuthData(email, aasTokenFetched, locale).run {
             if (isSuccess()) ResultSupreme.Success(formattedAuthData(this.data!!))
             else this
         }
@@ -217,7 +217,7 @@ class LoginSourceGPlay @Inject constructor(
         val formattedAuthData = formattedAuthData(authData)
         formattedAuthData.locale = locale
 
-        val validityResponse = loginApiRepository.login(formattedAuthData)
+        val validityResponse = gPlayLoginApiRepository.login(formattedAuthData)
 
         /*
          * Send the email as payload. This is sent to ecloud in case of failure.

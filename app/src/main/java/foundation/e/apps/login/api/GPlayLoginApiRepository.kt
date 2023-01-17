@@ -37,7 +37,7 @@ import java.util.Locale
  *
  * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
  */
-class LoginApiRepository constructor(
+class GPlayLoginApiRepository constructor(
     private val gPlayLoginInterface: GPlayLoginInterface,
     private val user: User,
 ) {
