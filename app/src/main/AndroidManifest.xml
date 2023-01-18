@@ -40,6 +40,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Apps"
         android:usesCleartextTraffic="true">
+
         <activity
             android:name=".MainActivity"
             android:exported="true">

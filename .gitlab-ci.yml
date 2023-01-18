@@ -1,5 +1,8 @@
 image: registry.gitlab.e.foundation/e/os/docker-android-apps-cicd:55-workshop-auto-release
 
+variables:
+  SENTRY_DSN: $SENTRY_DSN
+
 stages:
   - debug
   - release
