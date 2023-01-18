@@ -25,6 +25,21 @@ def getDate = { ->
     return new Date().format('yyyyMMddHHmmss')
 }
 
+def getSentryDsn = { ->
+
+    def sentryDsnEnv = System.getenv("SENTRY_DSN")
+    if (sentryDsnEnv != null) {
+        return sentryDsnEnv
+    }
+
+    Properties properties = new Properties()
+    def propertiesFile = project.rootProject.file('local.properties')
+    if (propertiesFile.exists()) {
+        properties.load(propertiesFile.newDataInputStream())
+    }
+    return properties.getProperty('SENTRY_DSN')
+}
+
 android {
     compileSdk 31
 
@@ -36,6 +51,7 @@ android {
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
 
         buildConfigField "String", "BUILD_ID", "\"${getGitHash() + "." + getDate()}\""
+        buildConfigField("String", "SENTRY_DSN", "\"${getSentryDsn()}\"")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -128,6 +144,8 @@ dependencies {
 
     // TODO: Add splitinstall-lib to a repo https://gitlab.e.foundation/e/os/backlog/-/issues/628
     api files('libs/splitinstall-lib.jar')
+
+    implementation 'foundation.e.lib:telemetry:0.0.4-alpha'
 
     implementation 'foundation.e:gplayapi:3.0.1'
     implementation 'androidx.core:core-ktx:1.7.0'
