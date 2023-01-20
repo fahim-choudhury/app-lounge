@@ -19,6 +19,7 @@
 package foundation.e.apps
 
 import android.app.Application
+import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
@@ -72,6 +73,11 @@ class AppLoungeApplication : Application(), Configuration.Provider {
             plant(object : Timber.Tree() {
                 override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
                     Telemetry.reportMessage("$tag: $message")
+                    if (priority == Log.DEBUG || priority == Log.VERBOSE) {
+                        return
+                    }
+
+                    Log.println(priority, tag, message)
                 }
             })
         }
