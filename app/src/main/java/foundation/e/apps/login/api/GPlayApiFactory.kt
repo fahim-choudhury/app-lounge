@@ -17,7 +17,9 @@
 
 package foundation.e.apps.login.api
 
+import android.content.Context
 import com.google.gson.Gson
+import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.api.gplay.utils.AC2DMTask
 import foundation.e.apps.api.gplay.utils.GPlayHttpClient
 import foundation.e.apps.utils.enums.User
@@ -27,6 +29,7 @@ import javax.inject.Singleton
 
 @Singleton
 class GPlayApiFactory @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val gPlayHttpClient: GPlayHttpClient,
     private val nativeDeviceProperty: Properties,
     private val aC2DMTask: AC2DMTask,
@@ -36,7 +39,7 @@ class GPlayApiFactory @Inject constructor(
     fun getGPlayApi(user: User): GPlayLoginInterface {
         return when (user) {
             User.GOOGLE -> GoogleLoginApi(gPlayHttpClient, nativeDeviceProperty, aC2DMTask)
-            else -> AnonymousLoginApi(gPlayHttpClient, nativeDeviceProperty, gson)
+            else -> AnonymousLoginApi(context, gPlayHttpClient, nativeDeviceProperty, gson)
         }
     }
 }

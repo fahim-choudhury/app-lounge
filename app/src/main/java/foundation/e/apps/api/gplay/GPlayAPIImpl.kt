@@ -18,9 +18,12 @@
 
 package foundation.e.apps.api.gplay
 
+import android.util.Base64
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataScope
 import androidx.lifecycle.liveData
+import com.aurora.gplayapi.IntegrityAnswer
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
@@ -29,13 +32,7 @@ import com.aurora.gplayapi.data.models.File
 import com.aurora.gplayapi.data.models.SearchBundle
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
-import com.aurora.gplayapi.helpers.AppDetailsHelper
-import com.aurora.gplayapi.helpers.CategoryHelper
-import com.aurora.gplayapi.helpers.ExpandedBrowseHelper
-import com.aurora.gplayapi.helpers.PurchaseHelper
-import com.aurora.gplayapi.helpers.SearchHelper
-import com.aurora.gplayapi.helpers.StreamHelper
-import com.aurora.gplayapi.helpers.TopChartsHelper
+import com.aurora.gplayapi.helpers.*
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.gplay.utils.GPlayHttpClient
 import kotlinx.coroutines.Dispatchers
@@ -191,6 +188,33 @@ class GPlayAPIImpl @Inject constructor(private val gPlayHttpClient: GPlayHttpCli
             )
         }
         return downloadData
+    }
+
+    suspend fun checkIntegrityService(
+        authData: AuthData,
+        packageName: String,
+        nonce: String,
+        droidGuardToken: String
+    ) {
+
+        val integrityApiKey = "AIzaSyAjf_GZN-B3oyEKTqug3eEcch_4qK3M2Hg"
+
+        withContext(Dispatchers.IO) {
+
+            Log.i("jklee", "checking integrity with token $droidGuardToken")
+            val integrityHelper = IntegrityHelper(authData, integrityApiKey).using(gPlayHttpClient)
+            var response = integrityHelper.checkIntegrity(packageName, nonce, Base64.decode(droidGuardToken, 11))
+            Log.i("jklee", "checkIntegrity reponse ${response.code}")
+            Log.i("jklee", "checkIntegrity successful ${response.isSuccessful}")
+
+
+            val token = IntegrityAnswer.parseFrom(response.responseBytes).tokenWrapper.token.value
+            Log.i("jklee", "token $token");
+            response = integrityHelper.checkToken(token)
+            Log.i("jklee", "checkToken response ${response.code}")
+            Log.i("jklee", "checkToken successful ${response.isSuccessful}")
+            Log.i("jklee", "checkToken response ${String(response.responseBytes)}")
+        }
     }
 
     suspend fun getAppDetails(packageName: String, authData: AuthData): App? {

@@ -19,6 +19,7 @@ package foundation.e.apps.api
 
 import android.app.DownloadManager
 import android.net.Uri
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

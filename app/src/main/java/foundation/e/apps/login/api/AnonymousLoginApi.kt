@@ -17,16 +17,22 @@
 
 package foundation.e.apps.login.api
 
+import android.content.Context
+import android.provider.Settings
+import android.util.Log
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.google.gson.Gson
+import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.api.gplay.utils.CustomAuthValidator
 import foundation.e.apps.api.gplay.utils.GPlayHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Properties
+import javax.inject.Inject
 
-class AnonymousLoginApi(
+class AnonymousLoginApi (
+    private val context: Context,
     private val gPlayHttpClient: GPlayHttpClient,
     private val nativeDeviceProperty: Properties,
     private val gson: Gson,
@@ -47,16 +53,17 @@ class AnonymousLoginApi(
             if (response.code != 200 || !response.isSuccessful) {
                 throw Exception(
                     "Error fetching Anonymous credentials\n" +
-                        "Network code: ${response.code}\n" +
-                        "Success: ${response.isSuccessful}" +
-                        response.errorString.run {
-                            if (isNotBlank()) "\nError message: $this"
-                            else ""
-                        }
+                            "Network code: ${response.code}\n" +
+                            "Success: ${response.isSuccessful}" +
+                            response.errorString.run {
+                                if (isNotBlank()) "\nError message: $this"
+                                else ""
+                            }
                 )
             } else {
+                val serializedAuthData = String(response.responseBytes)
                 authData = gson.fromJson(
-                    String(response.responseBytes),
+                    serializedAuthData,
                     AuthData::class.java
                 )
             }

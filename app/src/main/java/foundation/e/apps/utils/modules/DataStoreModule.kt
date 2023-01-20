@@ -19,6 +19,7 @@
 package foundation.e.apps.utils.modules
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -30,6 +31,7 @@ import foundation.e.apps.utils.enums.User
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -65,6 +67,7 @@ class DataStoreModule @Inject constructor(
     suspend fun saveCredentials(authData: AuthData) {
         context.dataStore.edit {
             it[AUTHDATA] = gson.toJson(authData)
+            Timber.tag("jklee").i("credentials " + it[AUTHDATA])
         }
     }
 

@@ -18,6 +18,7 @@
 package foundation.e.apps.login
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.preference.PreferenceManager
@@ -76,6 +77,7 @@ class LoginDataStore @Inject constructor(
     // Setters
 
     suspend fun saveAuthData(authData: AuthData) {
+        Log.i("jklee", "save Auth data !!!")
         context.dataStore.edit {
             it[AUTHDATA] = gson.toJson(authData)
         }

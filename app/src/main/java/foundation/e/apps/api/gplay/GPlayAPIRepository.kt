@@ -18,6 +18,7 @@
 
 package foundation.e.apps.api.gplay
 
+import android.os.IBinder
 import androidx.lifecycle.LiveData
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
@@ -108,5 +109,14 @@ class GPlayAPIRepository @Inject constructor(private val gPlayAPIImpl: GPlayAPII
 
     suspend fun listApps(browseUrl: String, authData: AuthData): List<App> {
         return gPlayAPIImpl.listApps(browseUrl, authData)
+    }
+
+    suspend fun checkIntegrity(
+        authData: AuthData,
+        packageName: String,
+        nonce: String,
+        droidGuardToken: String
+    ) {
+        gPlayAPIImpl.checkIntegrityService(authData, packageName, nonce, droidGuardToken)
     }
 }
