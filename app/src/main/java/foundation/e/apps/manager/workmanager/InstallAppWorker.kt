@@ -106,7 +106,7 @@ class InstallAppWorker @AssistedInject constructor(
                     packageManagerModule.isInstalled(it.packageName)
 
                 if (!fusedDownload.isAppInstalling()) {
-                    return Result.success()
+                    return@let
                 }
 
                 setForeground(
@@ -130,8 +130,8 @@ class InstallAppWorker @AssistedInject constructor(
             }
         } finally {
             Timber.i("doWork: RESULT SUCCESS: ${fusedDownload?.name}")
-            return Result.success()
         }
+        return Result.success()
     }
 
     private suspend fun InstallAppWorker.checkUpdateWork(
