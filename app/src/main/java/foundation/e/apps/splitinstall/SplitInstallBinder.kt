@@ -19,6 +19,7 @@
 package foundation.e.apps.splitinstall
 
 import android.content.Context
+import androidx.core.content.pm.PackageInfoCompat
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.ISplitInstallService
 import foundation.e.apps.api.DownloadManager
@@ -86,8 +87,9 @@ class SplitInstallBinder(
     }
 
     private fun getPackageVersionCode(packageName: String): Int {
-        val applicationInfo = context.packageManager.getPackageInfo(packageName, 0)
-        return applicationInfo.versionCode
+        val packageInfo = context.packageManager.getPackageInfo(packageName, 0)
+        val longVersionCode = PackageInfoCompat.getLongVersionCode(packageInfo)
+        return longVersionCode.toInt()
     }
 
     private suspend fun fetchModuleUrl(
