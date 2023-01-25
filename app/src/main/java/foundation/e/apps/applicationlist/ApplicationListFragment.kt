@@ -112,7 +112,7 @@ class ApplicationListFragment :
 
         recyclerView.apply {
             adapter = listAdapter
-            layoutManager = LinearLayoutManager(view?.context)
+            layoutManager = LinearLayoutManager(view.context)
         }
     }
 

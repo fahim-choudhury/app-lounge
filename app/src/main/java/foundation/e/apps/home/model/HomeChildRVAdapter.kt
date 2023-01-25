@@ -124,6 +124,7 @@ class HomeChildRVAdapter(
                 Status.INSTALLATION_ISSUE -> {
                     handleInstallationIssue(homeApp)
                 }
+                else -> {}
             }
         }
     }
