@@ -113,28 +113,27 @@ class HomeChildRVAdapter(
                     handleUnavailable(homeApp, holder)
                 }
                 Status.QUEUED, Status.AWAITING, Status.DOWNLOADING, Status.DOWNLOADED -> {
-                    handleQueued(view, homeApp)
+                    handleQueued(homeApp)
                 }
                 Status.INSTALLING -> {
                     handleInstalling()
                 }
                 Status.BLOCKED -> {
-                    handleBlocked(view)
+                    handleBlocked()
                 }
                 Status.INSTALLATION_ISSUE -> {
-                    handleInstallationIssue(view, homeApp)
+                    handleInstallationIssue(homeApp)
                 }
             }
         }
     }
 
     private fun HomeChildListItemBinding.handleInstallationIssue(
-        view: View,
         homeApp: FusedApp
     ) {
         installButton.apply {
             enableInstallButton()
-            text = view.context.getString(R.string.retry)
+            text = context.getString(R.string.retry)
             setOnClickListener {
                 installApplication(homeApp, appIcon)
             }
@@ -142,7 +141,8 @@ class HomeChildRVAdapter(
         progressBarInstall.visibility = View.GONE
     }
 
-    private fun HomeChildListItemBinding.handleBlocked(view: View) {
+    private fun HomeChildListItemBinding.handleBlocked() {
+        val view = this.root
         installButton.enableInstallButton()
         installButton.setOnClickListener {
             val errorMsg = when (mainActivityViewModel.getUser()) {
@@ -167,7 +167,6 @@ class HomeChildRVAdapter(
     }
 
     private fun HomeChildListItemBinding.handleQueued(
-        view: View,
         homeApp: FusedApp
     ) {
         installButton.apply {
@@ -175,11 +174,11 @@ class HomeChildRVAdapter(
             text = context.getString(R.string.cancel)
             setTextColor(context.getColor(R.color.colorAccent))
             backgroundTintList = ContextCompat.getColorStateList(
-                view.context,
+                context,
                 android.R.color.transparent
             )
             strokeColor =
-                ContextCompat.getColorStateList(view.context, R.color.colorAccent)
+                ContextCompat.getColorStateList(context, R.color.colorAccent)
 
             setOnClickListener {
                 cancelDownload(homeApp)
