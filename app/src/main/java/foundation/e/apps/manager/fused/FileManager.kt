@@ -38,9 +38,7 @@ object FileManager {
             Timber.e(e.stackTraceToString())
         } finally {
             inputStream?.close()
-            inputStream = null
             outputStream?.close()
-            outputStream = null
         }
     }
 }
