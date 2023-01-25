@@ -104,10 +104,10 @@ class HomeChildRVAdapter(
 
             when (homeApp.status) {
                 Status.INSTALLED -> {
-                    handleInstalled(view, homeApp)
+                    handleInstalled(homeApp)
                 }
                 Status.UPDATABLE -> {
-                    handleUpdatable(view, homeApp)
+                    handleUpdatable(homeApp)
                 }
                 Status.UNAVAILABLE -> {
                     handleUnavailable(homeApp, holder)
@@ -210,7 +210,6 @@ class HomeChildRVAdapter(
     }
 
     private fun HomeChildListItemBinding.handleUpdatable(
-        view: View,
         homeApp: FusedApp
     ) {
         installButton.apply {
@@ -229,7 +228,6 @@ class HomeChildRVAdapter(
     }
 
     private fun HomeChildListItemBinding.handleInstalled(
-        view: View,
         homeApp: FusedApp
     ) {
         installButton.apply {
