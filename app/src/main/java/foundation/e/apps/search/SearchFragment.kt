@@ -25,6 +25,7 @@ import android.os.Bundle
 import android.provider.BaseColumns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
@@ -430,9 +431,13 @@ class SearchFragment :
     }
 
     private fun showKeyboard() {
-        val imm =
-            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY)
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        searchView?.javaClass?.getDeclaredField("mSearchSrcTextView")?.runCatching {
+            isAccessible = true
+            get(searchView)as EditText
+        }?.onSuccess {
+            imm.showSoftInput(it, InputMethodManager.SHOW_FORCED)
+        }
     }
 
     private fun populateSuggestionsAdapter(suggestions: List<SearchSuggestEntry>?) {
