@@ -77,7 +77,6 @@ class HomeChildRVAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val view = holder.itemView
         val homeApp = getItem(position)
         val shimmerDrawable = ShimmerDrawable().apply { setShimmer(shimmer) }
 

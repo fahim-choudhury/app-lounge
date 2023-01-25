@@ -29,7 +29,7 @@ import androidx.preference.PreferenceViewHolder
  */
 class LongPressPreference : Preference {
 
-    private var longClickListener: View.OnLongClickListener = View.OnLongClickListener { v -> true }
+    private var longClickListener: View.OnLongClickListener = View.OnLongClickListener { true }
 
     constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(
         context,
