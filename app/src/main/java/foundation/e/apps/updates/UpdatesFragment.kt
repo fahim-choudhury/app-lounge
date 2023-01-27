@@ -30,6 +30,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -181,7 +182,9 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
             (
                 workInfoList.isNullOrEmpty() ||
                     (
-                        !updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(workInfoList) &&
+                        !updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(
+                            workInfoList
+                        ) &&
                             updatesViewModel.hasAnyUpdatableApp()
                         )
                 )
@@ -275,7 +278,12 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
             true
         }
         binding.button.setOnClickListener {
-            UpdatesWorkManager.startUpdateAllWork(requireContext().applicationContext)
+            val interval = updatesViewModel.getUpdateInterval()
+            UpdatesWorkManager.enqueueWork(
+                requireContext(),
+                interval,
+                ExistingPeriodicWorkPolicy.REPLACE
+            )
             observeUpdateWork()
             binding.button.isEnabled = false
         }
@@ -283,7 +291,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
 
     private fun observeUpdateWork() {
         WorkManager.getInstance(requireContext())
-            .getWorkInfosByTagLiveData(UpdatesWorkManager.UPDATES_WORK_NAME)
+            .getWorkInfosByTagLiveData(UpdatesWorkManager.TAG)
             .observe(viewLifecycleOwner) {
                 binding.button.isEnabled = hasAnyPendingUpdates(it)
             }
@@ -357,6 +365,8 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
     }
 
     override fun onDestroyView() {
+        mainActivityViewModel.downloadList.removeObservers(viewLifecycleOwner)
+        isDownloadObserverAdded = false
         super.onDestroyView()
         _binding = null
     }

@@ -20,9 +20,8 @@ package foundation.e.apps.updates.manager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.preference.PreferenceManager
 import androidx.work.ExistingPeriodicWorkPolicy
-import foundation.e.apps.R
+import foundation.e.apps.utils.modules.PreferenceManagerModule
 import timber.log.Timber
 
 class UpdatesBroadcastReceiver : BroadcastReceiver() {
@@ -33,13 +32,9 @@ class UpdatesBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         Timber.d("onReceive: ${intent.action}")
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val interval =
-                preferences.getString(
-                    context.getString(R.string.update_check_intervals),
-                    context.getString(R.string.preference_update_interval_default)
-                )!!.toLong()
-            UpdatesWorkManager.enqueueWork(context, interval, ExistingPeriodicWorkPolicy.KEEP)
+            val preferenceManagerModule = PreferenceManagerModule(context)
+            val interval = preferenceManagerModule.getUpdateInterval()
+            UpdatesWorkManager.enqueueWork(context, interval, ExistingPeriodicWorkPolicy.REPLACE)
         }
     }
 }

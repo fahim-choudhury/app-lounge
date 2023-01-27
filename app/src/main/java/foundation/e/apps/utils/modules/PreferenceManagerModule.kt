@@ -22,6 +22,7 @@ import android.content.Context
 import androidx.preference.PreferenceManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.OpenForTesting
+import foundation.e.apps.R
 import foundation.e.apps.utils.Constants.PREFERENCE_SHOW_FOSS
 import foundation.e.apps.utils.Constants.PREFERENCE_SHOW_GPLAY
 import foundation.e.apps.utils.Constants.PREFERENCE_SHOW_PWA
@@ -54,4 +55,9 @@ class PreferenceManagerModule @Inject constructor(
     fun autoUpdatePreferred(): Boolean {
         return preferenceManager.getBoolean("updateInstallAuto", false)
     }
+
+    fun getUpdateInterval() = preferenceManager.getString(
+        context.getString(R.string.update_check_intervals),
+        context.getString(R.string.preference_update_interval_default)
+    )!!.toLong()
 }
