@@ -161,8 +161,10 @@ class ApplicationListFragment :
     private fun observeAppListLiveData() {
         viewModel.appListLiveData.observe(viewLifecycleOwner) {
             stopLoadingUI()
-            if (it.isSuccess()) {
-                observeDownloadList(listAdapter, it)
+            if (it != null) {
+                if (it.isSuccess()) {
+                    observeDownloadList(listAdapter, it)
+                }
             }
         }
     }

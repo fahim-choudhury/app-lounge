@@ -38,7 +38,7 @@ class ApplicationListViewModel @Inject constructor(
     private val fusedAPIRepository: FusedAPIRepository
 ) : LoadingViewModel() {
 
-    val appListLiveData: MutableLiveData<ResultSupreme<List<FusedApp>>> = MutableLiveData()
+    val appListLiveData: MutableLiveData<ResultSupreme<List<FusedApp>>?> = MutableLiveData()
 
     var isLoading = false
 
@@ -118,7 +118,7 @@ class ApplicationListViewModel @Inject constructor(
             isLoading = true
             val result = fusedAPIRepository.loadMore(authData, browseUrl)
             isLoading = false
-            appListLiveData.postValue(result.first!!)
+            appListLiveData.postValue(result.first)
             /*
              * Check if a placeholder app is to be added at the end.
              * If yes then post the updated result.
@@ -127,7 +127,7 @@ class ApplicationListViewModel @Inject constructor(
              * list, and none at the middle of the list.
              */
             if (fusedAPIRepository.addPlaceHolderAppIfNeeded(result.first)) {
-                appListLiveData.postValue(result.first!!)
+                appListLiveData.postValue(result.first)
             }
 
             /*
