@@ -31,6 +31,7 @@ import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.exceptions.CleanApkException
 import foundation.e.apps.utils.exceptions.GPlayException
+import foundation.e.apps.utils.modules.PreferenceManagerModule
 import foundation.e.apps.utils.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -38,7 +39,8 @@ import javax.inject.Inject
 @HiltViewModel
 class UpdatesViewModel @Inject constructor(
     private val updatesManagerRepository: UpdatesManagerRepository,
-    private val fusedAPIRepository: FusedAPIRepository
+    private val fusedAPIRepository: FusedAPIRepository,
+    private val preferenceManagerModule: PreferenceManagerModule
 ) : LoadingViewModel() {
 
     val updatesList: MutableLiveData<Pair<List<FusedApp>, ResultStatus?>> = MutableLiveData()
@@ -133,4 +135,6 @@ class UpdatesViewModel @Inject constructor(
         )
         return updatesList.value?.first?.any { pendingStatesForUpdate.contains(it.status) } == true
     }
+
+    fun getUpdateInterval() = preferenceManagerModule.getUpdateInterval()
 }

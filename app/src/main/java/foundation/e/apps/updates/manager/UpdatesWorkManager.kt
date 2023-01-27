@@ -20,29 +20,15 @@ package foundation.e.apps.updates.manager
 import android.content.Context
 import android.util.Log
 import androidx.work.Constraints
-import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 object UpdatesWorkManager {
-    const val UPDATES_WORK_NAME = "updates_work"
-    private const val TAG = "UpdatesManager"
-
-    fun startUpdateAllWork(context: Context): UUID {
-        val oneTimeWorkRequest = buildOneTimeWorkRequest()
-        WorkManager.getInstance(context).enqueueUniqueWork(
-            UPDATES_WORK_NAME,
-            ExistingWorkPolicy.REPLACE,
-            buildOneTimeWorkRequest()
-        )
-        return oneTimeWorkRequest.id
-    }
+    private const val UPDATES_WORK_NAME = "updates_work"
+    const val TAG = "UpdatesWorkTag"
 
     private fun buildWorkerConstraints() = Constraints.Builder().apply {
         setRequiresBatteryNotLow(true)
@@ -58,14 +44,6 @@ object UpdatesWorkManager {
             setConstraints(buildWorkerConstraints())
             addTag(TAG)
         }.build()
-    }
-
-    private fun buildOneTimeWorkRequest(): OneTimeWorkRequest {
-        return OneTimeWorkRequest.Builder(UpdatesWorker::class.java).apply {
-            setConstraints(buildWorkerConstraints())
-            addTag(UPDATES_WORK_NAME)
-        }.setInputData(Data.Builder().putBoolean(UpdatesWorker.IS_AUTO_UPDATE, false).build())
-            .build()
     }
 
     fun enqueueWork(
