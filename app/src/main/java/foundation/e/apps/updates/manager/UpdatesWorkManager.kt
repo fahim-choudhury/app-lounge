@@ -20,15 +20,36 @@ package foundation.e.apps.updates.manager
 import android.content.Context
 import android.util.Log
 import androidx.work.Constraints
+import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
 
 object UpdatesWorkManager {
     private const val UPDATES_WORK_NAME = "updates_work"
+    private const val UPDATES_WORK_USER_NAME = "updates_work_user"
     const val TAG = "UpdatesWorkTag"
+    const val USER_TAG = "UpdatesWorkUserTag"
+
+    fun startUpdateAllWork(context: Context) {
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            UPDATES_WORK_USER_NAME,
+            ExistingWorkPolicy.REPLACE,
+            buildOneTimeWorkRequest()
+        )
+    }
+
+    private fun buildOneTimeWorkRequest(): OneTimeWorkRequest {
+        return OneTimeWorkRequest.Builder(UpdatesWorker::class.java).apply {
+            setConstraints(buildWorkerConstraints())
+            addTag(USER_TAG)
+        }.setInputData(Data.Builder().putBoolean(UpdatesWorker.IS_AUTO_UPDATE, false).build())
+            .build()
+    }
 
     private fun buildWorkerConstraints() = Constraints.Builder().apply {
         setRequiresBatteryNotLow(true)
