@@ -30,7 +30,6 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -284,11 +283,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
     private fun initUpdataAllButton() {
         binding.button.setOnClickListener {
             val interval = updatesViewModel.getUpdateInterval()
-            UpdatesWorkManager.enqueueWork(
-                requireContext(),
-                interval,
-                ExistingPeriodicWorkPolicy.REPLACE
-            )
+            UpdatesWorkManager.startUpdateAllWork(requireContext())
             observeUpdateWork()
             binding.button.isEnabled = false
         }

@@ -11,7 +11,10 @@ import android.util.Base64
 import androidx.hilt.work.HiltWorker
 import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import androidx.work.await
 import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import dagger.assisted.Assisted
@@ -64,6 +67,10 @@ class UpdatesWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         return try {
             isAutoUpdate = params.inputData.getBoolean(IS_AUTO_UPDATE, true)
+            if (isAutoUpdate && checkManualUpdateRunning()) {
+                return Result.success()
+            }
+
             checkForUpdates()
             Result.success()
         } catch (e: Throwable) {
@@ -74,6 +81,19 @@ class UpdatesWorker @AssistedInject constructor(
                 UpdatesNotifier.cancelNotification(context)
             }
         }
+    }
+
+    private suspend fun checkManualUpdateRunning(): Boolean {
+        val workInfos =
+            WorkManager.getInstance(context).getWorkInfosByTag(UpdatesWorkManager.USER_TAG).await()
+        if (workInfos.isNotEmpty()) {
+            val workInfo = workInfos[0]
+            Timber.d("Manual update status: workInfo.state=${workInfo.state}, id=${workInfo.id}")
+            if (workInfo.state == WorkInfo.State.BLOCKED || workInfo.state == WorkInfo.State.ENQUEUED || workInfo.state == WorkInfo.State.RUNNING) {
+                return true
+            }
+        }
+        return false
     }
 
     private fun getUser(): User {
