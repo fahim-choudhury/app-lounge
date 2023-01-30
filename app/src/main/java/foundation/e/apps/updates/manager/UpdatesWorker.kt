@@ -11,7 +11,7 @@ import android.util.Base64
 import androidx.hilt.work.HiltWorker
 import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
-import androidx.work.WorkInfo
+import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.await
@@ -89,8 +89,9 @@ class UpdatesWorker @AssistedInject constructor(
         if (workInfos.isNotEmpty()) {
             val workInfo = workInfos[0]
             Timber.d("Manual update status: workInfo.state=${workInfo.state}, id=${workInfo.id}")
-            if (workInfo.state == WorkInfo.State.BLOCKED || workInfo.state == WorkInfo.State.ENQUEUED || workInfo.state == WorkInfo.State.RUNNING) {
-                return true
+            return when (workInfo.state) {
+                State.BLOCKED, State.ENQUEUED, State.RUNNING -> true
+                else -> false
             }
         }
         return false
