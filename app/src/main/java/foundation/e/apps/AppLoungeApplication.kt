@@ -27,7 +27,6 @@ import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.manager.workmanager.InstallWorkManager
 import foundation.e.apps.setup.tos.TOS_VERSION
 import foundation.e.apps.utils.modules.DataStoreModule
-import foundation.e.lib.telemetry.Telemetry
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -63,17 +62,8 @@ class AppLoungeApplication : Application(), Configuration.Provider {
                 dataStoreModule.saveTOCStatus(false, "")
             }
         }
-
         if (BuildConfig.DEBUG) {
             plant(Timber.DebugTree())
-        } else {
-            // Allow enabling telemetry only for release builds.
-            Telemetry.init(BuildConfig.SENTRY_DSN, this)
-            plant(object : Timber.Tree() {
-                override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-                    Telemetry.reportMessage("$tag: $message")
-                }
-            })
         }
     }
 
