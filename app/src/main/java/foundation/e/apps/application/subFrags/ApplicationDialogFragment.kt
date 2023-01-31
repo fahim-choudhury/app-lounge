@@ -32,19 +32,37 @@ import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
 
 @AndroidEntryPoint
-class ApplicationDialogFragment(
-    private val drawable: Int = -1,
-    private val title: String,
-    private val message: String,
-    private val positiveButtonText: String = "",
-    private val positiveButtonAction: (() -> Unit)? = null,
-    private val cancelButtonText: String = "",
-    private val cancelButtonAction: (() -> Unit)? = null,
-) : DialogFragment() {
+class ApplicationDialogFragment() : DialogFragment() {
+
+    private var drawable: Int = -1
+    private var title: String? = null
+    private var message: String? = null
+    private var positiveButtonText: String? = null
+    private var positiveButtonAction: (() -> Unit)? = null
+    private var cancelButtonText: String? = null
+    private var cancelButtonAction: (() -> Unit)? = null
+
+    constructor(
+        drawable: Int = -1,
+        title: String,
+        message: String,
+        positiveButtonText: String = "",
+        positiveButtonAction: (() -> Unit)? = null,
+        cancelButtonText: String = "",
+        cancelButtonAction: (() -> Unit)? = null,
+    ) : this() {
+        this.drawable = drawable
+        this.title = title
+        this.message = message
+        this.positiveButtonText = positiveButtonText
+        this.positiveButtonAction = positiveButtonAction
+        this.cancelButtonText = cancelButtonText
+        this.cancelButtonAction = cancelButtonAction
+    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val positiveButtonText =
-            positiveButtonText.ifEmpty { getString(R.string.ok) }
+            positiveButtonText?.ifEmpty { getString(R.string.ok) }
         val materialAlertDialogBuilder = MaterialAlertDialogBuilder(requireContext())
             .setTitle(Html.fromHtml(title, Html.FROM_HTML_MODE_COMPACT))
             .setMessage(Html.fromHtml(message, Html.FROM_HTML_MODE_COMPACT))
@@ -52,7 +70,7 @@ class ApplicationDialogFragment(
                 positiveButtonAction?.invoke()
                 this.dismiss()
             }
-        if (cancelButtonText.isNotEmpty()) {
+        if (cancelButtonText?.isNotEmpty() == true) {
             materialAlertDialogBuilder.setNegativeButton(cancelButtonText) { _, _ ->
                 cancelButtonAction?.invoke()
                 this.dismiss()
