@@ -1,2 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="ok">ОК</string>
+    <string name="close">Закрыть</string>
+    <string name="user_anonymous">Аноним</string>
+    <string name="terms_services">Условия предоставления услуг</string>
+    <string name="account">Акканут</string>
+    <string name="copied">Скопировано</string>
+    <string name="app_version_label">App Lounge версия</string>
+    <string name="os_version">/e/ OS версия</string>
+    <string name="about">О программе</string>
+    <string name="show_only_pwa_apps">Показать только PWA приложения</string>
+    <string name="show_only_open_source_apps">Показать только Open Source приложения</string>
+    <string name="pwa_and_open_source_apps">PWA и Open Source приложения</string>
+    <string name="open_source">Open Source</string>
+    <string name="Show_common_apps">Показать общие приложения</string>
+    <string name="Show_applications">Показать приложения:</string>
+    <string name="preference_update_notify_available_description">Показывать уведомление когда для приложения доступны обновления</string>
+    <string name="preference_update_notify_available_title">Показывать доступные обновления</string>
+    <string name="preference_update_install_automatically_description">Загружать и устанавливать обновления приложений в фоне</string>
+    <string name="preference_update_install_automatically_title">Автоматически устанавливать обновления</string>
+    <string name="preference_update_wifi_only_description">Обновлять приложения автоматически только в безлимитных сетях таких как Wi-Fi</string>
+    <string name="preference_update_wifi_only_title">Только в безлимитных сетях</string>
+    <string name="preference_update_interval_title">Интервал проверки обновлений</string>
+    <string name="preference_update_interval_default">24</string>
+    <string name="preference_updates_title">Обновления</string>
+    <string name="tos_warning">Прежде чем мы сможем продолжить, вы должны прочитать и согласиться с Условиями предоставления услуг.</string>
+    <string name="tos_agree_date">Принято</string>
+    <string name="tos_disagree">Отклонить</string>
+    <string name="tos_agree">Принять</string>
+    <string name="or">Или только просмотр</string>
+    <string name="sign_in_anonymous">Анонимный режим</string>
+    <string name="sign_in_google">Войдите в систему с помощью Google</string>
+    <string name="sign_in_desc">Войдите в App Lounge, используя свою учетную запись Google, или выберите анонимный режим для конфиденциального входа.</string>
+    <string name="sign_in_title">Добро пожаловать</string>
+    <string name="pwa">PWA</string>
+    <string name="category_icon">Значок категории</string>
+    <string name="games">Игры</string>
+    <string name="apps">Приложения</string>
+    <string name="no_apps_found">Приложения не найдены…</string>
+    <string name="search_hint">Поиск приложения</string>
+    <string name="menu_settings">Настройки</string>
+    <string name="menu_updates">Обновления</string>
+    <string name="menu_search">Поиск</string>
+    <string name="menu_categories">Категории</string>
+    <string name="menu_home">Главная</string>
+    <string name="app_name">App Lounge</string>
+</resources>
