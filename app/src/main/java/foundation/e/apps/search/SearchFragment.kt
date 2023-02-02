@@ -54,7 +54,6 @@ import foundation.e.apps.databinding.FragmentSearchBinding
 import foundation.e.apps.login.AuthObject
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.download.data.DownloadProgress
-import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.modules.PWAManagerModule
@@ -68,9 +67,6 @@ class SearchFragment :
     SearchView.OnQueryTextListener,
     SearchView.OnSuggestionListener,
     FusedAPIInterface {
-
-    @Inject
-    lateinit var pkgManagerModule: PkgManagerModule
 
     @Inject
     lateinit var pwaManagerModule: PWAManagerModule

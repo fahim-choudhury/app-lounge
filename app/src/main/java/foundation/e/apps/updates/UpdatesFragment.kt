@@ -47,7 +47,6 @@ import foundation.e.apps.databinding.FragmentUpdatesBinding
 import foundation.e.apps.login.AuthObject
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.download.data.DownloadProgress
-import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.manager.workmanager.InstallWorkManager.INSTALL_WORK_NAME
 import foundation.e.apps.updates.manager.UpdatesWorkManager
 import foundation.e.apps.utils.enums.ResultStatus
@@ -71,9 +70,6 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
 
     private var _binding: FragmentUpdatesBinding? = null
     private val binding get() = _binding!!
-
-    @Inject
-    lateinit var pkgManagerModule: PkgManagerModule
 
     @Inject
     lateinit var pwaManagerModule: PWAManagerModule

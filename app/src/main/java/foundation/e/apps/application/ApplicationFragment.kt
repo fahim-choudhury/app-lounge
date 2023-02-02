@@ -44,11 +44,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textview.MaterialTextView
 import dagger.hilt.android.AndroidEntryPoint
-import foundation.e.apps.AppInfoFetchViewModel
-import foundation.e.apps.MainActivity
-import foundation.e.apps.MainActivityViewModel
-import foundation.e.apps.PrivacyInfoViewModel
-import foundation.e.apps.R
+import foundation.e.apps.*
 import foundation.e.apps.api.cleanapk.CleanAPKInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.application.model.ApplicationScreenshotsRVAdapter
@@ -57,11 +53,7 @@ import foundation.e.apps.databinding.FragmentApplicationBinding
 import foundation.e.apps.login.AuthObject
 import foundation.e.apps.manager.download.data.DownloadProgress
 import foundation.e.apps.manager.pkg.PkgManagerModule
-import foundation.e.apps.utils.enums.Origin
-import foundation.e.apps.utils.enums.ResultStatus
-import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.enums.isInitialized
+import foundation.e.apps.utils.enums.*
 import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.utils.modules.PWAManagerModule

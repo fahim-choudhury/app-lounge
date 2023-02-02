@@ -159,4 +159,26 @@ class DownloadManager @Inject constructor(
         }
         return DownloadManager.STATUS_FAILED
     }
+
+    suspend fun checkDownloadProcess(downloadingIds: LongArray, handleFailed: suspend ()->Unit) {
+        try {
+            downloadManager.query(downloadManagerQuery.setFilterById(*downloadingIds))
+                .use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        while (!cursor.isAfterLast) {
+                            val status =
+                                cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+
+                            if (status == DownloadManager.STATUS_FAILED) {
+                                handleFailed()
+                            }
+
+                            cursor.moveToNext()
+                        }
+                    }
+                }
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
+    }
 }
