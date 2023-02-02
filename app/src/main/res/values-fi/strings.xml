@@ -58,7 +58,7 @@
     <string name="tos_agree_date">Hyväksytty</string>
     <string name="tos_disagree">Hylkää</string>
     <string name="tos_agree">Hyväksy</string>
-    <string name="or">tai</string>
+    <string name="or">tai näytä vain</string>
     <string name="sign_in_anonymous">Anonyymi tila</string>
     <string name="sign_in_google">Kirjaudu sisään Googlella</string>
     <string name="sign_in_desc">Kirjaudu sisään App Loungeen Google-tililläsi tai valitse anonyymi tila kirjautuaksesi sisään yksityisesti.</string>
@@ -148,4 +148,15 @@
     <string name="os_version">/e/ OS versio</string>
     <string name="app_version_label">App Lounge versio</string>
     <string name="about">Tietoja</string>
+    <string name="message_last_update_triggered">%1$s sovelluksen päivitys valmistui %2$s.</string>
+    <string name="message_update_failure_single_app">%1$s\'s päivitys on epäonnistunut tukisäännön vuoksi (sijainti, käyttöjärjestelmän versio...).</string>
+    <string name="message_update_failed">Väliaikaisen vian vuoksi kaikkia sovelluksiasi ei voida päivittää. Yritä myöhemmin uudelleen.</string>
+    <string name="message_retry">Päivitys epäonnistui. Automaattiset uusintayritykset ovat käynnissä.</string>
+    <string name="duplicate_app_from_sources">Joistakin suljetun lähdekoodin sovelluksista voi olla saatavilla myös avoimen lähdekoodin versio. Aina kun tällainen löytyy, App Lounge näyttää vain avoimen lähdekoodin version jotta vältytään päällekkäisyyksiltä.</string>
+    <string name="open_source_apps">Avoimen lähdekoodin sovellukset</string>
+    <string name="why_open_source_version">Miksi näen avoimen lähdekoodin version\?</string>
+    <string name="logged_out">Uloskirjautuneena</string>
+    <string name="login">Kirjaudu sisään</string>
+    <string name="login_to_see_gplay_apps">Sinun on kirjauduttava sisään nähdäksesi yleiset sovellukset.</string>
+    <string name="pwa_and_open_source_apps">PWA ja avoimen lähdekoodin sovellukset</string>
 </resources>
