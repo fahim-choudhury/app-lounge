@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="ok">ОК</string>
     <string name="close">Закрыть</string>
     <string name="user_anonymous">Аноним</string>
@@ -13,7 +13,7 @@
     <string name="show_only_open_source_apps">Показать только Open Source приложения</string>
     <string name="pwa_and_open_source_apps">PWA и Open Source приложения</string>
     <string name="open_source">Open Source</string>
-    <string name="Show_common_apps">Показать общие приложения</string>
+    <string name="Show_common_apps">Показать обычные приложения</string>
     <string name="Show_applications">Показать приложения:</string>
     <string name="preference_update_notify_available_description">Показывать уведомление когда для приложения доступны обновления</string>
     <string name="preference_update_notify_available_title">Показывать доступные обновления</string>
@@ -45,4 +45,120 @@
     <string name="menu_categories">Категории</string>
     <string name="menu_home">Главная</string>
     <string name="app_name">App Lounge</string>
+    <plurals name="updates_notification_title">
+        <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> обновление для приложения доступно</item>
+        <item quantity="few"><xliff:g id="version_code">%1$d</xliff:g> обновления для приложения доступно</item>
+        <item quantity="many"><xliff:g id="version_code">5%1$d6</xliff:g> обновлений для приложения доступно</item>
+        <item quantity="other"><xliff:g id="version_code">5%1$d6</xliff:g> обновлений для приложения доступно</item>
+    </plurals>
+    <string name="privacy_description">Балл конфиденциальности автоматически рассчитывается на основе разрешений и трекеров, обнаруженных в приложениях. Он дает представление о том, насколько вероятно, что приложение является микроцелью для своих пользователей.&lt;br /&gt;&lt;br /&gt;Исходный код алгоритма вычисления можно &lt;a href=6<xliff:g id="source_code">7%1$s8</xliff:g>9&gt;найти здесь&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Обнаружение трекеров осуществляется с помощью &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Privacy tools&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Оценка из 10 баллов. &lt;br /&gt;&lt;br /&gt;Подробнее о том, как рассчитывается оценка конфиденциальности, каковы ее ограничения и как вы можете защитить себя от микротаргетинга &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;на этой странице&lt;/a&gt;.</string>
+    <string name="monthly">Ежемесячно</string>
+    <string name="weekly">Еженедельно</string>
+    <string name="daily">Ежедневно</string>
+    <string name="may_not_work_warning_message">Принудительная установка позволит вам загрузить и установить его, но не гарантирует, что оно будет работать.<br/><br/>Попытка установить неподдерживаемые приложения может привести к сбоям или замедлению работы системы.<br/><br/>Мы работаем над улучшением совместимости с этим приложением в ближайшем будущем.</string>
+    <string name="this_app_may_not_work_properly">Это приложение может работать некорректно!</string>
+    <string name="install_anyway">Всё равно установить</string>
+    <string name="unsupported_app_unreleased">Приложение %s в настоящее время не поддерживается. Это может быть связано с тем, что приложение еще не вышло в широкую продажу, или с какой-то другой ошибкой.</string>
+    <string name="unsupported_app_title">Недодерживаемое приложение!</string>
+    <string name="purchase_error">Ошибка покупки!</string>
+    <string name="download_automatically_message">Ваше приложение будет автоматически загружено на это устройство</string>
+    <string name="purchase_complete">Покупка совершена!</string>
+    <string name="paid_app_anonymous_message">Платные приложения не могут быть установлены в анонимном режиме. Для установки платных приложений войдите в свой аккаунт Google.</string>
+    <string name="dialog_cancel">ОТМЕНА</string>
+    <string name="dialog_confirm">ПОДТВЕРДИТЬ</string>
+    <string name="dialog_paidapp_message">После нажатия кнопки подтверждения вы перейдете на страницу приложения в Google Play, чтобы завершить покупку через браузер. Нажмите подтвердить, чтобы приобрести %1$s для %2$s.</string>
+    <string name="dialog_title_paid_app">Покупка <b>%1$s</b></string>
+    <string name="anonymous_login_failed_desc">Это может быть связано с тем, что токен не может быть сгенерирован / проверен или по другим причинам.
+\n
+\nНажмите Повторить, чтобы повторить попытку.</string>
+    <string name="anonymous_login_failed">Анонимный вход не удался!</string>
+    <string name="sign_in_failed_desc">Из-за сетевой ошибки App Lounge не смог получить данные входа в Google.</string>
+    <string name="sign_in_failed_title">Войти в систему Google не удалось!</string>
+    <string name="data_load_error_desc">Это может быть вызвано тем, что сервер не отвечает или возникла какая-то другая ошибка на сервере.
+\n
+\nПожалуйста, повторите попытку или попробуйте позже.</string>
+    <string name="data_load_error">Произошла ошибка при загрузке приложений.</string>
+    <string name="more_info"><u>Больше информации</u></string>
+    <string name="open_settings">Открыть настройки</string>
+    <string name="timeout_desc_cleanapk">Какая-то сетевая проблема препятствует загрузке всех приложений.</string>
+    <string name="timeout_desc_gplay">Какая-то сетевая проблема препятствует получению всех приложений.
+\n
+\nОткройте настройки, чтобы искать только Open Source приложения или PWA.</string>
+    <string name="timeout_title">Тайм-аут загрузки приложений!</string>
+    <string name="no_internet_message">Не удается подключиться! Пожалуйста, проверьте подключение к Интернету и повторите попытку</string>
+    <string name="tracker_information_not_found">Информация о трекере для этого приложения отсутствует.</string>
+    <string name="no_tracker_found">Трекеры не найдены!</string>
+    <string name="privacy_computed_using_text">Подсчитано с помощью &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus Privacy Analysis</string>
+    <string name="no_permission_found">Не найдено разрешение на выполнение для android!</string>
+    <string name="message_last_update_triggered">Обновление приложений %1$s завершено на %2$s.</string>
+    <string name="updates_notification_unmetered_network_warning">В ожидании безлимитной сети</string>
+    <string name="manually_install_updates_notification_text">Обновления приложений не будут устанавливаться автоматически</string>
+    <string name="automatically_install_updates_notification_text">Обновления приложений будут устанавливаться автоматически</string>
+    <string name="updates">Обновления</string>
+    <string name="downloads">Загрузки</string>
+    <string name="movers_shakers_games">Топ трендовых игр</string>
+    <string name="movers_shakers_apps">Топ трендовых приложений</string>
+    <string name="topgrossing_games">Топ кассовых игр</string>
+    <string name="topgrossing_apps">Топ кассовых приложений</string>
+    <string name="topselling_free_games">Топ бесплатных игр</string>
+    <string name="topselling_free_apps">Топ бесплатных приложений</string>
+    <string name="popular_games">Популярные PWA игры</string>
+    <string name="popular_apps">Популярные PWA приложения</string>
+    <string name="popular_games_in_last_24_hours">Популярные Open Source игры за последние 24 часа</string>
+    <string name="popular_apps_in_last_24_hours">Популярные Open Source приложения за последние 24 часа</string>
+    <string name="top_updated_games">Топ Open Source обновленных игр</string>
+    <string name="top_updated_apps">Топ обновленных Open Source приложений</string>
+    <string name="discover">Откройте для себя</string>
+    <string name="discover_pwa">Откройте для себя PWA</string>
+    <string name="message_update_failure_single_app">Обновление %1$s не произошло из-за поддержки (местоположения, версии ОС...).</string>
+    <string name="message_update_failed">Из-за временного сбоя все ваши приложения не могут быть обновлены. Пожалуйста, повторите попытку позже.</string>
+    <string name="message_retry">Обновить всё не удалось. Выполняются автоматические повторные попытки.</string>
+    <string name="update_error">Ошибка обновления!</string>
+    <string name="error_signature_mismatch">Обновление не может быть применено из-за несоответствия подписи между обновлением %1$s и версией, установленной на вашем телефоне. Чтобы исправить это, вы можете удалить %1$s, а затем снова установить его из App Lounge. <br/><br/> Примечание: это сообщение больше не появится.</string>
+    <string name="all_apps_updated">Все приложения обновлены</string>
+    <string name="manual_updates_notification">Обновления приложений не будут устанавливаться автоматически</string>
+    <string name="auto_updates_notification">Обновления приложений будут устанавливаться автоматически</string>
+    <string name="update_all">Обновить все</string>
+    <string name="gplay_data_for_oss">Невозможно показать приложение Google Play, когда разрешены только Open Source приложения.</string>
+    <string name="duplicate_app_from_sources">Некоторые проприетарные приложения могут также иметь Open Source версию. Когда это происходит, App Lounge показывает только Open Source версию, чтобы избежать дублирования.</string>
+    <string name="why_open_source_version">Почему я вижу Open Source версию\?</string>
+    <string name="open_source_apps">Open Source приложения</string>
+    <string name="show_more">Показать ещё</string>
+    <string name="something_went_wrong">Что-то пошло не так!</string>
+    <string name="app_not_found">Ваше приложение не найдено.</string>
+    <string name="not_enough_storage">Для загрузки этого приложения недостаточно места!</string>
+    <string name="unknown_error">Неизвестная ошибка!</string>
+    <string name="message_app_available_later">Это приложение будет доступно позже!</string>
+    <string name="install_blocked_google">Платные приложения пока не поддерживаются в App Lounge. Еще немного терпения, и скоро это станет возможным.</string>
+    <string name="install_blocked_anonymous">Платные приложения не могут быть установлены в анонимном режиме. Для установки платных приложений войдите в свой аккаунт Google.</string>
+    <string name="package_name">Имя пакета: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="license">Лицензия: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="min_android_version">Требования: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="updated_on">Обновлено: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="version">Версия: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="information">Информация</string>
+    <string name="trackers_title">Трекеры</string>
+    <string name="permissions">Разрешения</string>
+    <string name="privacy_analyses">Анализ конфиденциальности</string>
+    <string name="privacy_score">Очки конфиденциальности</string>
+    <string name="privacy">Конфиденциальность</string>
+    <string name="rating_description">Оценка из 5. Рассчитано с использованием пользовательских рейтингов приложения.</string>
+    <string name="rating">Рейтинг</string>
+    <string name="ratings">Рейтинги</string>
+    <string name="update">Обновить</string>
+    <string name="more">Ещё</string>
+    <string name="retry">Повторить попытку</string>
+    <string name="open">Открыть</string>
+    <string name="app_icon">Иконка приложения</string>
+    <string name="cancel">Отмена</string>
+    <string name="installing">Установка</string>
+    <string name="install">Установить</string>
+    <string name="share_intent">Проверьте \"<xliff:g id="rating">%1$s</xliff:g>\"
+\n<xliff:g id="rating">%2$s</xliff:g></string>
+    <string name="description">Описание</string>
+    <string name="logged_out">Вышел из системы</string>
+    <string name="login">Войти</string>
+    <string name="login_to_see_gplay_apps">Необходимо войти в систему, чтобы увидеть обычные приложения.</string>
+    <string name="select_one_source_of_applications">Пожалуйста, выберите хотя бы один источник приложений.</string>
+    <string name="logout">Выйти из системы</string>
 </resources>
