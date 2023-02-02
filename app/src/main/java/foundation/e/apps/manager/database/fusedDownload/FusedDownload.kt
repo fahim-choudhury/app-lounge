@@ -25,8 +25,10 @@ data class FusedDownload(
     val appSize: Long = 0,
     var files: List<File> = mutableListOf(),
     var signature: String = String()
-)
+) {
+    fun isAppInstalling() = listOf<Status>(Status.AWAITING, Status.DOWNLOADING, Status.DOWNLOADED, Status.INSTALLING).contains(status)
 
-fun FusedDownload.isAppInstalling() = listOf<Status>(Status.AWAITING, Status.DOWNLOADING, Status.DOWNLOADED, Status.INSTALLING).contains(status)
+    fun isAwaiting() = status == Status.AWAITING
 
-fun FusedDownload.isAwaiting() = status == Status.AWAITING
+    fun areFilesDownloaded() = downloadIdMap.isNotEmpty() && !downloadIdMap.values.contains(false)
+}

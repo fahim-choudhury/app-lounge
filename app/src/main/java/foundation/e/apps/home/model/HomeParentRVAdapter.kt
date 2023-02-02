@@ -30,15 +30,9 @@ import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.databinding.HomeParentListItemBinding
-import foundation.e.apps.manager.pkg.PkgManagerModule
-import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.modules.PWAManagerModule
 
 class HomeParentRVAdapter(
     private val fusedAPIInterface: FusedAPIInterface,
-    private val pkgManagerModule: PkgManagerModule,
-    private val pwaManagerModule: PWAManagerModule,
-    private val user: User,
     private val mainActivityViewModel: MainActivityViewModel,
     private val appInfoFetchViewModel: AppInfoFetchViewModel,
     private var lifecycleOwner: LifecycleOwner?,

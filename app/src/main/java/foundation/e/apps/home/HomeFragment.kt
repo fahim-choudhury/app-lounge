@@ -43,7 +43,6 @@ import foundation.e.apps.home.model.HomeChildRVAdapter
 import foundation.e.apps.home.model.HomeParentRVAdapter
 import foundation.e.apps.login.AuthObject
 import foundation.e.apps.manager.download.data.DownloadProgress
-import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.exceptions.GPlayException
 import foundation.e.apps.utils.exceptions.GPlayLoginException
@@ -68,9 +67,6 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
     private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
     private val appProgressViewModel: AppProgressViewModel by viewModels()
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
-
-    @Inject
-    lateinit var pkgManagerModule: PkgManagerModule
 
     @Inject
     lateinit var pwaManagerModule: PWAManagerModule
@@ -108,9 +104,6 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
 
     private fun initHomeParentRVAdapter() = HomeParentRVAdapter(
         this,
-        pkgManagerModule,
-        pwaManagerModule,
-        mainActivityViewModel.getUser(),
         mainActivityViewModel, appInfoFetchViewModel, viewLifecycleOwner
     ) { fusedApp ->
         if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(fusedApp)) {
