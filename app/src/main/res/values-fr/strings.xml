@@ -157,7 +157,7 @@
     <string name="open_source_apps">Applis Open Source</string>
     <string name="why_open_source_version">Pourquoi vois-je la version Open Source \?</string>
     <string name="logged_out">Déconnecté</string>
-    <string name="login">Connexion</string>
+    <string name="login">S\'identifier</string>
     <string name="login_to_see_gplay_apps">Vous devez vous connecter pour voir les application répandues.</string>
     <string name="pwa_and_open_source_apps">les applications PWA et Open Source</string>
 </resources>
