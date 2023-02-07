@@ -164,9 +164,11 @@ class DownloadManager @Inject constructor(
         try {
             downloadManager.query(downloadManagerQuery.setFilterById(*downloadingIds))
                 .use { cursor ->
+
                     if (!cursor.moveToFirst()) {
                         return@use
                     }
+
                     while (!cursor.isAfterLast) {
                         val status =
                             cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))

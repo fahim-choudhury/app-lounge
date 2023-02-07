@@ -1,5 +1,5 @@
 /*
- * Copyright ECORP SAS 2022
+ * Copyright MURENA SAS 2023
  * Apps  Quickly and easily install Android apps onto your device!
  *
  * This program is free software: you can redistribute it and/or modify
