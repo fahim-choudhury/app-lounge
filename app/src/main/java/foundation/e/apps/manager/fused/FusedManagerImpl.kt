@@ -280,4 +280,12 @@ class FusedManagerImpl @Inject constructor(
         fusedDownload.status = Status.PURCHASE_NEEDED
         databaseRepository.addDownload(fusedDownload)
     }
+
+    fun isFusedDownloadInstalled(fusedDownload: FusedDownload): Boolean {
+        return pkgManagerModule.isInstalled(fusedDownload.packageName)
+    }
+
+    fun getFusedDownloadInstallationStatus(fusedApp: FusedDownload): Status {
+        return pkgManagerModule.getPackageStatus(fusedApp.packageName, fusedApp.versionCode)
+    }
 }

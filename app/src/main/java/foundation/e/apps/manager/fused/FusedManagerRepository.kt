@@ -184,4 +184,12 @@ class FusedManagerRepository @Inject constructor(
         val apkFilePath = fusedManagerImpl.getBaseApkPath(fusedDownload)
         return fdroidRepository.isFdroidApplicationSigned(context, fusedDownload.packageName, apkFilePath, fusedDownload.signature)
     }
+
+    fun isFusedDownloadInstalled(fusedDownload: FusedDownload): Boolean {
+        return fusedManagerImpl.isFusedDownloadInstalled(fusedDownload)
+    }
+
+    fun getFusedDownloadPackageStatus(fusedDownload: FusedDownload): Status {
+        return fusedManagerImpl.getFusedDownloadInstallationStatus(fusedDownload)
+    }
 }
