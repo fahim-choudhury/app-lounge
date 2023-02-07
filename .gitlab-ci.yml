@@ -68,6 +68,8 @@ buildRelease:
       when: always
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: always
+    - if: '$CI_COMMIT_TAG !~ "/^$/"'
+      when: always
   script:
     - ./gradlew assembleRelease
   artifacts:
