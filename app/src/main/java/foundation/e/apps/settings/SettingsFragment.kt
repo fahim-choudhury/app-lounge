@@ -97,7 +97,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 UpdatesWorkManager.enqueueWork(
                     it,
                     newValue.toString().toLong(),
-                    ExistingPeriodicWorkPolicy.KEEP
+                    ExistingPeriodicWorkPolicy.REPLACE
                 )
             }
             true

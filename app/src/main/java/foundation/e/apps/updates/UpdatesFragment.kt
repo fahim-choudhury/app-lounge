@@ -155,6 +155,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
     private fun handleStateNoUpdates(list: List<FusedApp>?) {
         if (!list.isNullOrEmpty()) {
             binding.button.isEnabled = true
+            initUpdataAllButton()
             binding.noUpdates.visibility = View.GONE
         } else {
             binding.noUpdates.visibility = View.VISIBLE
@@ -177,7 +178,9 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
             (
                 workInfoList.isNullOrEmpty() ||
                     (
-                        !updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(workInfoList) &&
+                        !updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(
+                            workInfoList
+                        ) &&
                             updatesViewModel.hasAnyUpdatableApp()
                         )
                 )
@@ -270,8 +273,13 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
             clearAndRestartGPlayLogin()
             true
         }
+        initUpdataAllButton()
+    }
+
+    private fun initUpdataAllButton() {
         binding.button.setOnClickListener {
-            UpdatesWorkManager.startUpdateAllWork(requireContext().applicationContext)
+            val interval = updatesViewModel.getUpdateInterval()
+            UpdatesWorkManager.startUpdateAllWork(requireContext())
             observeUpdateWork()
             binding.button.isEnabled = false
         }
@@ -279,7 +287,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
 
     private fun observeUpdateWork() {
         WorkManager.getInstance(requireContext())
-            .getWorkInfosByTagLiveData(UpdatesWorkManager.UPDATES_WORK_NAME)
+            .getWorkInfosByTagLiveData(UpdatesWorkManager.TAG)
             .observe(viewLifecycleOwner) {
                 binding.button.isEnabled = hasAnyPendingUpdates(it)
             }
@@ -353,6 +361,8 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
     }
 
     override fun onDestroyView() {
+        mainActivityViewModel.downloadList.removeObservers(viewLifecycleOwner)
+        isDownloadObserverAdded = false
         super.onDestroyView()
         _binding = null
     }

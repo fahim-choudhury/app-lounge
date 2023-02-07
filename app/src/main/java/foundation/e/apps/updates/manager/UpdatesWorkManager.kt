@@ -27,21 +27,28 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 object UpdatesWorkManager {
-    const val UPDATES_WORK_NAME = "updates_work"
-    private const val TAG = "UpdatesManager"
+    private const val UPDATES_WORK_NAME = "updates_work"
+    private const val UPDATES_WORK_USER_NAME = "updates_work_user"
+    const val TAG = "UpdatesWorkTag"
+    const val USER_TAG = "UpdatesWorkUserTag"
 
-    fun startUpdateAllWork(context: Context): UUID {
-        val oneTimeWorkRequest = buildOneTimeWorkRequest()
+    fun startUpdateAllWork(context: Context) {
         WorkManager.getInstance(context).enqueueUniqueWork(
-            UPDATES_WORK_NAME,
+            UPDATES_WORK_USER_NAME,
             ExistingWorkPolicy.REPLACE,
             buildOneTimeWorkRequest()
         )
-        return oneTimeWorkRequest.id
+    }
+
+    private fun buildOneTimeWorkRequest(): OneTimeWorkRequest {
+        return OneTimeWorkRequest.Builder(UpdatesWorker::class.java).apply {
+            setConstraints(buildWorkerConstraints())
+            addTag(USER_TAG)
+        }.setInputData(Data.Builder().putBoolean(UpdatesWorker.IS_AUTO_UPDATE, false).build())
+            .build()
     }
 
     private fun buildWorkerConstraints() = Constraints.Builder().apply {
@@ -58,14 +65,6 @@ object UpdatesWorkManager {
             setConstraints(buildWorkerConstraints())
             addTag(TAG)
         }.build()
-    }
-
-    private fun buildOneTimeWorkRequest(): OneTimeWorkRequest {
-        return OneTimeWorkRequest.Builder(UpdatesWorker::class.java).apply {
-            setConstraints(buildWorkerConstraints())
-            addTag(UPDATES_WORK_NAME)
-        }.setInputData(Data.Builder().putBoolean(UpdatesWorker.IS_AUTO_UPDATE, false).build())
-            .build()
     }
 
     fun enqueueWork(
