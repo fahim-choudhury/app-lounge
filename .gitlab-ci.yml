@@ -161,7 +161,7 @@ pushToPrebuilt:
     - sed -i "6s/.*/LOCAL_SRC_FILES := ${NEW_APK_NAME}/" Apps/Android.mk 
     - git add Apps
     - git status
-    - git commit -m "Update Apps Lounge apk to ${NEW_APK_VERSION}\nFrom ${CI_COMMIT_SHA}"
+    - git commit -m "Update Apps Lounge apk to ${NEW_APK_VERSION}\nFrom ${CI_COMMIT_SHA}, pipeline ${CI_PIPELINE_ID}"
     - git push
     # Sometimes a single push doesn't do all the job, so we have to push twice
     - git push 
