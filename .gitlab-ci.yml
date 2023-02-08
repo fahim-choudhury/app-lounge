@@ -144,7 +144,7 @@ pushToPrebuilt:
     - echo "$SSH_E_ROBOT_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - ssh-keyscan -t rsa gitlab.e.foundation >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
     - git config user.email "gitlab@e.foundation"
     - git config user.name "gitlab"
