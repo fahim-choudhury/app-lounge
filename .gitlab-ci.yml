@@ -146,8 +146,8 @@ pushToPrebuilt:
     - chmod 700 ~/.ssh
     - ssh-keyscan -t rsa gitlab.e.foundation >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    - git config user.email "gitlab@e.foundation"
-    - git config user.name "gitlab"
+    - git config --global user.email "gitlab@e.foundation"
+    - git config --global user.name "gitlab"
   script:
     - NEW_APK_NAME=$(basename ${NEW_APK_PATH}*-release.apk)
     - NEW_APK_VERSION=$(awk -F '-' '{print $2}' <<< "$NEW_APK_NAME")
