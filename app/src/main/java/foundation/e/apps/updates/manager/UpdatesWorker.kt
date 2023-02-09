@@ -14,7 +14,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import androidx.work.await
 import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import dagger.assisted.Assisted
@@ -35,10 +34,12 @@ import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.modules.DataStoreManager
-import kotlinx.coroutines.delay
-import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.net.URL
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 @HiltWorker
 class UpdatesWorker @AssistedInject constructor(
@@ -85,7 +86,10 @@ class UpdatesWorker @AssistedInject constructor(
 
     private suspend fun checkManualUpdateRunning(): Boolean {
         val workInfos =
-            WorkManager.getInstance(context).getWorkInfosByTag(UpdatesWorkManager.USER_TAG).await()
+            withContext(Dispatchers.IO) {
+                WorkManager.getInstance(context).getWorkInfosByTag(UpdatesWorkManager.USER_TAG)
+                    .get()
+            }
         if (workInfos.isNotEmpty()) {
             val workInfo = workInfos[0]
             Timber.d("Manual update status: workInfo.state=${workInfo.state}, id=${workInfo.id}")

@@ -281,6 +281,7 @@ class ApplicationListRVAdapter(
             Status.INSTALLATION_ISSUE -> {
                 handleInstallationIssue(view, searchApp)
             }
+            else -> {}
         }
     }
 

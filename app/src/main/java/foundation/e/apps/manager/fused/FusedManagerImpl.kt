@@ -57,42 +57,42 @@ class FusedManagerImpl @Inject constructor(
     @Named("download") private val downloadNotificationChannel: NotificationChannel,
     @Named("update") private val updateNotificationChannel: NotificationChannel,
     @ApplicationContext private val context: Context
-) {
+) : IFusedManager {
 
     private val TAG = FusedManagerImpl::class.java.simpleName
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun createNotificationChannels() {
+    override fun createNotificationChannels() {
         notificationManager.apply {
             createNotificationChannel(downloadNotificationChannel)
             createNotificationChannel(updateNotificationChannel)
         }
     }
 
-    suspend fun addDownload(fusedDownload: FusedDownload) {
+    override suspend fun addDownload(fusedDownload: FusedDownload) {
         fusedDownload.status = Status.QUEUED
         databaseRepository.addDownload(fusedDownload)
     }
 
-    suspend fun getDownloadById(fusedDownload: FusedDownload): FusedDownload? {
+    override suspend fun getDownloadById(fusedDownload: FusedDownload): FusedDownload? {
         return databaseRepository.getDownloadById(fusedDownload.id)
     }
 
-    suspend fun getDownloadList(): List<FusedDownload> {
+    override suspend fun getDownloadList(): List<FusedDownload> {
         return databaseRepository.getDownloadList()
     }
 
-    fun getDownloadLiveList(): LiveData<List<FusedDownload>> {
+    override fun getDownloadLiveList(): LiveData<List<FusedDownload>> {
         return databaseRepository.getDownloadLiveList()
     }
 
-    suspend fun clearInstallationIssue(fusedDownload: FusedDownload) {
+    override suspend fun clearInstallationIssue(fusedDownload: FusedDownload) {
         flushOldDownload(fusedDownload.packageName)
         databaseRepository.deleteDownload(fusedDownload)
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    suspend fun updateDownloadStatus(fusedDownload: FusedDownload, status: Status) {
+    override suspend fun updateDownloadStatus(fusedDownload: FusedDownload, status: Status) {
         if (status == Status.INSTALLED) {
             fusedDownload.status = status
             DownloadManagerBR.downloadedList.clear()
@@ -108,7 +108,7 @@ class FusedManagerImpl @Inject constructor(
 
     private val mutex = Mutex()
 
-    suspend fun downloadApp(fusedDownload: FusedDownload) {
+    override suspend fun downloadApp(fusedDownload: FusedDownload) {
         mutex.withLock {
             when (fusedDownload.type) {
                 Type.NATIVE -> downloadNativeApp(fusedDownload)
@@ -117,7 +117,7 @@ class FusedManagerImpl @Inject constructor(
         }
     }
 
-    suspend fun installApp(fusedDownload: FusedDownload) {
+    override suspend fun installApp(fusedDownload: FusedDownload) {
         val list = mutableListOf<File>()
         when (fusedDownload.type) {
             Type.NATIVE -> {
@@ -146,7 +146,7 @@ class FusedManagerImpl @Inject constructor(
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    suspend fun cancelDownload(fusedDownload: FusedDownload) {
+    override suspend fun cancelDownload(fusedDownload: FusedDownload) {
         if (fusedDownload.id.isNotBlank()) {
             fusedDownload.downloadIdMap.forEach { (key, _) ->
                 downloadManager.remove(key)
@@ -164,7 +164,7 @@ class FusedManagerImpl @Inject constructor(
         }
     }
 
-    suspend fun getFusedDownload(downloadId: Long = 0, packageName: String = ""): FusedDownload {
+    override suspend fun getFusedDownload(downloadId: Long, packageName: String): FusedDownload {
         val downloadList = getDownloadList()
         var fusedDownload = FusedDownload()
         downloadList.forEach {
@@ -181,12 +181,12 @@ class FusedManagerImpl @Inject constructor(
         return fusedDownload
     }
 
-    private fun flushOldDownload(packageName: String) {
+    override fun flushOldDownload(packageName: String) {
         val parentPathFile = File("$cacheDir/$packageName")
         if (parentPathFile.exists()) parentPathFile.deleteRecursively()
     }
 
-    private suspend fun downloadNativeApp(fusedDownload: FusedDownload) {
+    override suspend fun downloadNativeApp(fusedDownload: FusedDownload) {
         var count = 0
         var parentPath = "$cacheDir/${fusedDownload.packageName}"
 
@@ -214,7 +214,7 @@ class FusedManagerImpl @Inject constructor(
         databaseRepository.updateDownload(fusedDownload)
     }
 
-    private fun getGplayInstallationPackagePath(
+    override fun getGplayInstallationPackagePath(
         fusedDownload: FusedDownload,
         it: String,
         parentPath: String,
@@ -228,7 +228,7 @@ class FusedManagerImpl @Inject constructor(
         }
     }
 
-    private fun createObbFileForDownload(
+    override fun createObbFileForDownload(
         fusedDownload: FusedDownload,
         url: String
     ): File {
@@ -239,7 +239,7 @@ class FusedManagerImpl @Inject constructor(
         return File(parentPath, obbFile.name)
     }
 
-    fun moveOBBFilesToOBBDirectory(fusedDownload: FusedDownload) {
+    override fun moveOBBFilesToOBBDirectory(fusedDownload: FusedDownload) {
         fusedDownload.files.forEach {
             val parentPath =
                 context.getExternalFilesDir(null)?.absolutePath + "/Android/obb/" + fusedDownload.packageName
@@ -253,39 +253,39 @@ class FusedManagerImpl @Inject constructor(
         }
     }
 
-    fun getBaseApkPath(fusedDownload: FusedDownload) =
+    override fun getBaseApkPath(fusedDownload: FusedDownload) =
         "$cacheDir/${fusedDownload.packageName}/${fusedDownload.packageName}_1.apk"
 
-    suspend fun installationIssue(fusedDownload: FusedDownload) {
+    override suspend fun installationIssue(fusedDownload: FusedDownload) {
         flushOldDownload(fusedDownload.packageName)
         fusedDownload.status = Status.INSTALLATION_ISSUE
         databaseRepository.updateDownload(fusedDownload)
     }
 
-    suspend fun updateAwaiting(fusedDownload: FusedDownload) {
+    override suspend fun updateAwaiting(fusedDownload: FusedDownload) {
         fusedDownload.status = Status.AWAITING
         databaseRepository.updateDownload(fusedDownload)
     }
 
-    suspend fun updateUnavailable(fusedDownload: FusedDownload) {
+    override suspend fun updateUnavailable(fusedDownload: FusedDownload) {
         fusedDownload.status = Status.UNAVAILABLE
         databaseRepository.updateDownload(fusedDownload)
     }
 
-    suspend fun updateFusedDownload(fusedDownload: FusedDownload) {
+    override suspend fun updateFusedDownload(fusedDownload: FusedDownload) {
         databaseRepository.updateDownload(fusedDownload)
     }
 
-    suspend fun insertFusedDownloadPurchaseNeeded(fusedDownload: FusedDownload) {
+    override suspend fun insertFusedDownloadPurchaseNeeded(fusedDownload: FusedDownload) {
         fusedDownload.status = Status.PURCHASE_NEEDED
         databaseRepository.addDownload(fusedDownload)
     }
 
-    fun isFusedDownloadInstalled(fusedDownload: FusedDownload): Boolean {
+    override fun isFusedDownloadInstalled(fusedDownload: FusedDownload): Boolean {
         return pkgManagerModule.isInstalled(fusedDownload.packageName)
     }
 
-    fun getFusedDownloadInstallationStatus(fusedApp: FusedDownload): Status {
+    override fun getFusedDownloadInstallationStatus(fusedApp: FusedDownload): Status {
         return pkgManagerModule.getPackageStatus(fusedApp.packageName, fusedApp.versionCode)
     }
 }

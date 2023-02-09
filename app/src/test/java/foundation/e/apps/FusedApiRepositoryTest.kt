@@ -30,24 +30,24 @@ import org.mockito.kotlin.any
 class FusedApiRepositoryTest {
     private lateinit var fusedApiRepository: FusedAPIRepository
     @Mock
-    private lateinit var fusedApiImple: FusedAPIImpl
+    private lateinit var fusedAPIImpl: FusedAPIImpl
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        fusedApiRepository = FusedAPIRepository(fusedApiImple)
+        fusedApiRepository = FusedAPIRepository(fusedAPIImpl)
     }
 
     @Test
     fun isAnyAppUpdated_ReturnsTrue() {
-        Mockito.`when`(fusedApiImple.isAnyFusedAppUpdated(any(), any())).thenReturn(true)
+        Mockito.`when`(fusedAPIImpl.isAnyFusedAppUpdated(any(), any())).thenReturn(true)
         val isAnyAppUpdated = fusedApiRepository.isAnyFusedAppUpdated(listOf(), listOf())
         assertTrue("isAnyAppUpdated", isAnyAppUpdated)
     }
 
     @Test
     fun isAnyInstallStatusChanged_ReturnsTrue() {
-        Mockito.`when`(fusedApiImple.isAnyAppInstallStatusChanged(any())).thenReturn(true)
+        Mockito.`when`(fusedAPIImpl.isAnyAppInstallStatusChanged(any())).thenReturn(true)
         val isAnyAppUpdated = fusedApiRepository.isAnyAppInstallStatusChanged(listOf())
         assertTrue("isAnyAppUpdated", isAnyAppUpdated)
     }

@@ -19,6 +19,7 @@ package foundation.e.apps.api
 
 import android.app.DownloadManager
 import android.net.Uri
+import foundation.e.apps.OpenForTesting
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -34,6 +35,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 @Singleton
+@OpenForTesting
 class DownloadManager @Inject constructor(
     private val downloadManager: DownloadManager,
     @Named("cacheDir") private val cacheDir: String,

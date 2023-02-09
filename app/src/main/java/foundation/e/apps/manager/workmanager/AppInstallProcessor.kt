@@ -19,7 +19,6 @@
 package foundation.e.apps.manager.workmanager
 
 import android.content.Context
-import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.api.DownloadManager
@@ -86,6 +85,12 @@ class AppInstallProcessor @Inject constructor(
                     return@let
                 }
 
+                if (!fusedManagerRepository.validateFusedDownload(fusedDownload)) {
+                    fusedManagerRepository.installationIssue(it)
+                    Timber.d("!!! installationIssue")
+                    return@let
+                }
+
                 if (fusedDownload.areFilesDownloaded() && !fusedManagerRepository.isFusedDownloadInstalled(
                         fusedDownload
                     )
@@ -95,12 +100,6 @@ class AppInstallProcessor @Inject constructor(
                 }
 
                 runInForeground?.invoke(it.name)
-
-                if (!fusedManagerRepository.validateFusedDownload(fusedDownload)) {
-                    fusedManagerRepository.installationIssue(it)
-                    Timber.d("!!! installationIssue")
-                    return@let
-                }
 
                 startAppInstallationProcess(it)
                 mutex.lock()
@@ -204,7 +203,8 @@ class AppInstallProcessor @Inject constructor(
         try {
             handleFusedDownloadStatus(download)
         } catch (e: Exception) {
-            Log.e(TAG, "observeDownload: ", e)
+            Timber.e(TAG, "observeDownload: ", e)
+            fusedManagerRepository.installationIssue(download)
             finishInstallation(download)
         }
     }
