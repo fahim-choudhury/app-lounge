@@ -43,7 +43,7 @@ class GoogleLoginApi(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
      */
     suspend fun getAC2DMResponse(email: String, oauthToken: String): PlayResponse {
-        var response = PlayResponse()
+        var response: PlayResponse
         withContext(Dispatchers.IO) {
             response = aC2DMTask.getAC2DMResponse(email, oauthToken)
         }
@@ -55,7 +55,7 @@ class GoogleLoginApi(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
      */
     override suspend fun fetchAuthData(email: String, aasToken: String): AuthData? {
-        var authData: AuthData? = null
+        var authData: AuthData?
         withContext(Dispatchers.IO) {
             authData = AuthHelper.build(email, aasToken, nativeDeviceProperty)
         }

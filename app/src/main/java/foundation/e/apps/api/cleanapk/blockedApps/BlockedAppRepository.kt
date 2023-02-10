@@ -50,15 +50,15 @@ class BlockedAppRepository @Inject constructor(
     fun fetchUpdateOfAppWarningList() {
         downloadManager.downloadFileInCache(
             APP_WARNING_LIST_FILE_URL,
-            fileName = "app-lounge-warning-list.json"
-        ) { success, path ->
+            fileName = WARNING_LIST_FILE_NAME
+        ) { success, _ ->
             if (success) {
-                parseBlockedAppDataFromFile(path)
+                parseBlockedAppDataFromFile()
             }
         }
     }
 
-    private fun parseBlockedAppDataFromFile(path: String) {
+    private fun parseBlockedAppDataFromFile() {
         coroutineScope.launch {
             val outputPath = "$cacheDir/warning_list/"
             FileManager.moveFile("$cacheDir/", WARNING_LIST_FILE_NAME, outputPath)

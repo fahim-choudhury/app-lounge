@@ -36,6 +36,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import kotlinx.coroutines.DelicateCoroutinesApi
 
 @AndroidEntryPoint
 class InstallerService : Service() {
@@ -105,6 +106,7 @@ class InstallerService : Service() {
         return null
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun updateDownloadStatus(pkgName: String) {
         if (pkgName.isEmpty()) {
             Timber.d("updateDownloadStatus: package name should not be empty!")
@@ -116,6 +118,7 @@ class InstallerService : Service() {
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun updateInstallationIssue(pkgName: String) {
         if (pkgName.isEmpty()) {
             Timber.d("updateDownloadStatus: package name should not be empty!")

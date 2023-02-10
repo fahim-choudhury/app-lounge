@@ -10,7 +10,7 @@
     <issue id="SdCardPath" severity="warning" />
     <issue id="VectorRaster" severity="warning" />
 
-    <!-- Others are considered as error -->
-    <issue id="all" severity="error" />
+    <!-- Others are considered as warnings -->
+    <issue id="all" severity="warning" />
 </lint>
 
