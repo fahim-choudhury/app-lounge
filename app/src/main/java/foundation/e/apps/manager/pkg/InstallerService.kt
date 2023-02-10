@@ -31,6 +31,7 @@ import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -105,6 +106,7 @@ class InstallerService : Service() {
         return null
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun updateDownloadStatus(pkgName: String) {
         if (pkgName.isEmpty()) {
             Timber.d("updateDownloadStatus: package name should not be empty!")
@@ -116,6 +118,7 @@ class InstallerService : Service() {
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun updateInstallationIssue(pkgName: String) {
         if (pkgName.isEmpty()) {
             Timber.d("updateDownloadStatus: package name should not be empty!")

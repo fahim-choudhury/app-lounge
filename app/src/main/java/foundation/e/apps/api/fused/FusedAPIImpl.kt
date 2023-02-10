@@ -948,7 +948,7 @@ class FusedAPIImpl @Inject constructor(
         runCodeBlockWithTimeout({
             val playResponse = gPlayAPIRepository.getCategoriesList(type, authData).map { app ->
                 val category = app.transformToFusedCategory()
-                updateCategoryDrawable(category, app)
+                updateCategoryDrawable(category)
                 category
             }
             categoryList.addAll(playResponse)
@@ -1045,7 +1045,6 @@ class FusedAPIImpl @Inject constructor(
 
     private fun updateCategoryDrawable(
         category: FusedCategory,
-        app: Category
     ) {
         category.drawable =
             getCategoryIconResource(getCategoryIconName(category))
@@ -1083,7 +1082,7 @@ class FusedAPIImpl @Inject constructor(
         tag: AppTag
     ): List<FusedCategory> {
         return categories.apps.map { category ->
-            createFusedCategoryFromCategory(category, categories, Category.Type.APPLICATION, tag)
+            createFusedCategoryFromCategory(category, categories, tag)
         }
     }
 
@@ -1092,14 +1091,13 @@ class FusedAPIImpl @Inject constructor(
         tag: AppTag
     ): List<FusedCategory> {
         return categories.games.map { category ->
-            createFusedCategoryFromCategory(category, categories, Category.Type.GAME, tag)
+            createFusedCategoryFromCategory(category, categories, tag)
         }
     }
 
     private fun createFusedCategoryFromCategory(
         category: String,
         categories: Categories,
-        appType: Category.Type,
         tag: AppTag
     ): FusedCategory {
         return FusedCategory(

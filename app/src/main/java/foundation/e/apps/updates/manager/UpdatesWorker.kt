@@ -129,7 +129,6 @@ class UpdatesWorker @AssistedInject constructor(
             /*
              * If user in UNAVAILABLE, don't do anything.
              */
-            resultStatus = ResultStatus.OK
             Timber.w("User is not available! User is required during update!")
             return
         }

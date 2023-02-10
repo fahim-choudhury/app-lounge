@@ -112,6 +112,9 @@ android {
     lint {
         lintConfig file('lint.xml')
     }
+    kotlin.sourceSets.all {
+        languageSettings.useExperimentalAnnotation("kotlin.RequiresOptIn")
+    }
 }
 
 kapt {
