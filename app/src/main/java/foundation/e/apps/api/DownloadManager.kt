@@ -103,8 +103,6 @@ class DownloadManager @Inject constructor(
             downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
                 .use { cursor ->
                     if (cursor.moveToFirst()) {
-                        val id =
-                            cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_ID))
                         val status =
                             cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
                         val totalSizeBytes =

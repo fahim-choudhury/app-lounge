@@ -52,6 +52,7 @@ import foundation.e.apps.utils.enableInstallButton
 import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.User
+import timber.log.Timber
 import javax.inject.Singleton
 
 @Singleton
@@ -280,6 +281,9 @@ class ApplicationListRVAdapter(
             }
             Status.INSTALLATION_ISSUE -> {
                 handleInstallationIssue(view, searchApp)
+            }
+            else -> {
+                Timber.w("ApplicationListRVAdapter: Unknown status")
             }
         }
     }

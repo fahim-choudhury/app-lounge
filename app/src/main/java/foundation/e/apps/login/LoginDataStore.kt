@@ -149,10 +149,11 @@ class LoginDataStore @Inject constructor(
     fun isGplaySelected() = preferenceManager.getBoolean(PREFERENCE_SHOW_GPLAY, true)
 
     fun setSource(source: String, value: Boolean) {
-        preferenceManager.edit().run {
+        val editor = preferenceManager.edit()
+        editor.run {
             this.putBoolean(source, value)
-            apply()
         }
+        editor.apply()
     }
 
     // Clear data

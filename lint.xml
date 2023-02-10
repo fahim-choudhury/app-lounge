@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- IGNORES -->
+    <issue id="DuplicateIncludedIds" severity="ignore" />
+    <issue id="Typos" severity="ignore" />
+    <issue id="StopShip" severity="ignore" />
+
+    <!-- WARNINGS -->
+    <issue id="MissingTranslation" severity="warning" />
+    <issue id="SdCardPath" severity="warning" />
+    <issue id="VectorRaster" severity="warning" />
+
+    <!-- Others are considered as warnings -->
+    <issue id="all" severity="warning" />
+</lint>
+
