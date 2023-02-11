@@ -82,7 +82,7 @@
                             android:layout_marginRight="10dp"
                             android:gravity="center_vertical"
                             android:textColor="@android:color/white"
-                            android:drawableLeft="@drawable/ic_warning_white"
+                            app:drawableLeftCompat="@drawable/ic_warning_white"
                             android:drawablePadding="15dp"
                             android:text="@string/this_app_may_not_work_properly" />
                     </RelativeLayout>
@@ -111,7 +111,7 @@
                             android:layout_marginLeft="10dp"
                             android:layout_marginRight="10dp"
                             android:gravity="center"
-                            android:drawableEnd="@drawable/ic_warning_black"
+                            app:drawableEndCompat="@drawable/ic_warning_black"
                             android:drawablePadding="15dp"
                             android:textColor="?android:textColorPrimary"
                             android:text="@string/why_open_source_version" />

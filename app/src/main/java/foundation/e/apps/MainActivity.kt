@@ -304,8 +304,7 @@ class MainActivity : AppCompatActivity() {
 
     // TODO: move storage availability code to FileManager Class
     private fun isStorageAvailable(fusedDownload: FusedDownload): Boolean {
-        var availableSpace = 0L
-        availableSpace = calculateAvailableDiskSpace()
+        val availableSpace = calculateAvailableDiskSpace()
         return availableSpace > fusedDownload.appSize + (500 * (1000 * 1000))
     }
 

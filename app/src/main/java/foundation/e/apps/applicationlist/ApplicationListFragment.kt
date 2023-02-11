@@ -112,7 +112,7 @@ class ApplicationListFragment :
 
         recyclerView.apply {
             adapter = listAdapter
-            layoutManager = LinearLayoutManager(view?.context)
+            layoutManager = LinearLayoutManager(view.context)
         }
     }
 
@@ -161,7 +161,7 @@ class ApplicationListFragment :
     private fun observeAppListLiveData() {
         viewModel.appListLiveData.observe(viewLifecycleOwner) {
             stopLoadingUI()
-            if (it.isSuccess()) {
+            if (it != null && it.isSuccess()) {
                 observeDownloadList(listAdapter, it)
             }
         }
