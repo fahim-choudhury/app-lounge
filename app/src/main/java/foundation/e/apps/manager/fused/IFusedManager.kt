@@ -27,7 +27,6 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import java.io.File
 
 interface IFusedManager {
-    @RequiresApi(Build.VERSION_CODES.O)
     fun createNotificationChannels()
 
     suspend fun addDownload(fusedDownload: FusedDownload)
@@ -39,14 +38,12 @@ interface IFusedManager {
 
     suspend fun clearInstallationIssue(fusedDownload: FusedDownload)
 
-    @OptIn(DelicateCoroutinesApi::class)
     suspend fun updateDownloadStatus(fusedDownload: FusedDownload, status: Status)
 
     suspend fun downloadApp(fusedDownload: FusedDownload)
 
     suspend fun installApp(fusedDownload: FusedDownload)
 
-    @OptIn(DelicateCoroutinesApi::class)
     suspend fun cancelDownload(fusedDownload: FusedDownload)
 
     suspend fun getFusedDownload(downloadId: Long = 0, packageName: String = ""): FusedDownload
