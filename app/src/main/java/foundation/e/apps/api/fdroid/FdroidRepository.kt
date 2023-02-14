@@ -12,7 +12,7 @@ import javax.inject.Singleton
 class FdroidRepository @Inject constructor(
     private val fdroidApi: FdroidApiInterface,
     private val fdroidDao: FdroidDao,
-) {
+) : IFdroidRepository {
 
     companion object {
         const val UNKNOWN = "unknown"
@@ -26,7 +26,7 @@ class FdroidRepository @Inject constructor(
      *
      * Result may be null.
      */
-    private suspend fun getFdroidInfo(packageName: String): FdroidEntity? {
+    override suspend fun getFdroidInfo(packageName: String): FdroidEntity? {
         return fdroidDao.getFdroidEntityFromPackageName(packageName)
             ?: fdroidApi.getFdroidInfoForPackage(packageName).body()?.let {
                 FdroidEntity(packageName, it.authorName).also {
@@ -35,7 +35,7 @@ class FdroidRepository @Inject constructor(
             }
     }
 
-    suspend fun getAuthorName(fusedApp: FusedApp): String {
+    override suspend fun getAuthorName(fusedApp: FusedApp): String {
         if (fusedApp.author != UNKNOWN || fusedApp.origin != Origin.CLEANAPK) {
             return fusedApp.author.ifEmpty { UNKNOWN }
         }
@@ -49,14 +49,14 @@ class FdroidRepository @Inject constructor(
         return result?.authorName ?: FdroidEntity.DEFAULT_FDROID_AUTHOR_NAME
     }
 
-    suspend fun isFdroidApplicationSigned(context: Context, packageName: String, apkFilePath: String, signature: String): Boolean {
+    override suspend fun isFdroidApplicationSigned(context: Context, packageName: String, apkFilePath: String, signature: String): Boolean {
         if (isFdroidApplication(packageName)) {
             return ApkSignatureManager.verifyFdroidSignature(context, apkFilePath, signature)
         }
         return false
     }
 
-    private suspend fun isFdroidApplication(packageName: String): Boolean {
+    override suspend fun isFdroidApplication(packageName: String): Boolean {
         return fdroidApi.getFdroidInfoForPackage(packageName).isSuccessful
     }
 }

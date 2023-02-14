@@ -1,3 +1,4 @@
+
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
@@ -113,7 +114,7 @@ android {
         lintConfig file('lint.xml')
     }
     kotlin.sourceSets.all {
-        languageSettings.useExperimentalAnnotation("kotlin.RequiresOptIn")
+        languageSettings.optIn("kotlin.RequiresOptIn")
     }
 }
 
@@ -155,6 +156,8 @@ dependencies {
     testImplementation "org.mockito.kotlin:mockito-kotlin:3.2.0"
     testImplementation 'org.mockito:mockito-inline:2.13.0'
     testImplementation "androidx.arch.core:core-testing:2.1.0"
+
+    testImplementation "io.mockk:mockk:1.12.3"
 
     // Coil and PhotoView
     implementation "io.coil-kt:coil:1.4.0"

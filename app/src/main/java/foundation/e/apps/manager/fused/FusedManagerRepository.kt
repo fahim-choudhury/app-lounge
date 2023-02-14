@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asFlow
+import foundation.e.apps.OpenForTesting
 import foundation.e.apps.api.fdroid.FdroidRepository
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
@@ -16,8 +17,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@OpenForTesting
 class FusedManagerRepository @Inject constructor(
-    private val fusedManagerImpl: FusedManagerImpl,
+    private val fusedManagerImpl: IFusedManager,
     private val fdroidRepository: FdroidRepository
 ) {
 
