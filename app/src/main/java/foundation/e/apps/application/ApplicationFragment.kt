@@ -69,6 +69,7 @@ import foundation.e.apps.utils.parentFragment.TimeoutFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -126,6 +127,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         private const val PRIVACY_SCORE_SOURCE_CODE_URL =
             "https://gitlab.e.foundation/e/os/apps/-/blob/main/app/src/main/java/foundation/e/apps/api/exodus/repositories/AppPrivacyInfoRepositoryImpl.kt#L136"
         private const val EXODUS_URL = "https://exodus-privacy.eu.org"
+        private const val EXODUS_REPORT_URL = "https://reports.exodus-privacy.eu.org/"
         private const val PRIVACY_GUIDELINE_URL = "https://doc.e.foundation/privacy_score"
     }
 
@@ -264,7 +266,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 } else if (trackers.isNotEmpty()) {
                     trackers += "<br /> <br />" + getString(
                         R.string.privacy_computed_using_text,
-                        EXODUS_URL
+                        generateExodusUrl()
                     )
                 } else {
                     trackers = getString(R.string.no_tracker_found)
@@ -331,7 +333,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                     getString(
                         R.string.privacy_description,
                         PRIVACY_SCORE_SOURCE_CODE_URL,
-                        EXODUS_URL,
+                        generateExodusUrl(),
                         PRIVACY_GUIDELINE_URL
                     )
                 ).show(childFragmentManager, TAG)
@@ -746,10 +748,20 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         } else {
             permission += "<br />" + getString(
                 R.string.privacy_computed_using_text,
-                EXODUS_URL
+                generateExodusUrl()
             )
         }
         return permission
+    }
+
+    private fun generateExodusUrl(): String {
+        // if app info not loaded yet, pass the default exodus homePage url
+        if (applicationViewModel.fusedApp.value == null) {
+            return EXODUS_URL
+        }
+
+        val packageName = applicationViewModel.fusedApp.value!!.first.package_name
+        return "$EXODUS_REPORT_URL${Locale.getDefault().language}/reports/$packageName/latest"
     }
 
     private fun fetchAppTracker(fusedApp: FusedApp) {
