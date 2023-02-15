@@ -18,12 +18,9 @@
 
 package foundation.e.apps.manager.fused
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.utils.enums.Status
-import kotlinx.coroutines.DelicateCoroutinesApi
 import java.io.File
 
 interface IFusedManager {

@@ -34,12 +34,12 @@ import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.modules.DataStoreManager
-import java.io.ByteArrayOutputStream
-import java.net.URL
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.io.ByteArrayOutputStream
+import java.net.URL
 
 @HiltWorker
 class UpdatesWorker @AssistedInject constructor(

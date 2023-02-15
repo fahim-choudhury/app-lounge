@@ -58,7 +58,6 @@ class FakeFusedManagerRepository(
         when (status) {
             Status.INSTALLING -> {
                 handleStatusInstalling(fusedDownload)
-
             }
             Status.INSTALLED -> {
                 if (forceCrash) {
