@@ -85,7 +85,7 @@
     <string name="share_intent">Verifica \"<xliff:g id="rating">%1$s</xliff:g>\"
 \n<xliff:g id="rating">%2$s</xliff:g></string>
     <string name="install">Installa</string>
-    <string name="cancel">Cancella</string>
+    <string name="cancel">Annulla</string>
     <string name="app_icon">Icona App</string>
     <string name="more">Altro</string>
     <string name="rating_description">Punteggio su scala di 5. Calcolato utilizzando i rating degli utenti dell\'App.</string>
@@ -146,7 +146,7 @@
     <string name="discover_pwa">Scopri le PWA</string>
     <string name="gplay_data_for_oss">Non posso avviare l\'App Google Play se sono permesse solo App open source.</string>
     <string name="close">Chiudi</string>
-    <string name="monthly">Mensile</string>
+    <string name="monthly">Ogni mese</string>
     <string name="weekly">Settimanale</string>
     <string name="daily">Giornaliero</string>
     <string name="message_update_failure_single_app">L\'aggiornamento di %1$s e fallito a causa di una problema di supporto (luogo in cui ti trovi, versione del SO, ...).</string>
