@@ -36,6 +36,7 @@ import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.api.ResultSupreme
+import foundation.e.apps.api.StoreApiRepository
 import foundation.e.apps.api.cleanapk.CleanAPKInterface
 import foundation.e.apps.api.cleanapk.CleanAPKRepository
 import foundation.e.apps.api.cleanapk.data.categories.Categories
@@ -48,6 +49,7 @@ import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.api.fused.data.Ratings
 import foundation.e.apps.api.fused.utils.CategoryUtils
 import foundation.e.apps.api.gplay.GPlayAPIRepository
+import foundation.e.apps.api.gplay.GplayRepository
 import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.pkg.PkgManagerModule
@@ -66,6 +68,7 @@ import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
@@ -76,6 +79,7 @@ class FusedAPIImpl @Inject constructor(
     private val pwaManagerModule: PWAManagerModule,
     private val preferenceManagerModule: PreferenceManagerModule,
     private val fdroidWebInterface: FdroidWebInterface,
+    @Named("gplayRepository") private val gplayRepository: StoreApiRepository,
     @ApplicationContext private val context: Context
 ) {
 
@@ -1320,24 +1324,16 @@ class FusedAPIImpl @Inject constructor(
 
     private suspend fun fetchGPlayHome(authData: AuthData): List<FusedHome> {
         val list = mutableListOf<FusedHome>()
-        val homeElements = mutableMapOf(
-            context.getString(R.string.topselling_free_apps) to mapOf(TopChartsHelper.Chart.TOP_SELLING_FREE to TopChartsHelper.Type.APPLICATION),
-            context.getString(R.string.topselling_free_games) to mapOf(TopChartsHelper.Chart.TOP_SELLING_FREE to TopChartsHelper.Type.GAME),
-            context.getString(R.string.topgrossing_apps) to mapOf(TopChartsHelper.Chart.TOP_GROSSING to TopChartsHelper.Type.APPLICATION),
-            context.getString(R.string.topgrossing_games) to mapOf(TopChartsHelper.Chart.TOP_GROSSING to TopChartsHelper.Type.GAME),
-            context.getString(R.string.movers_shakers_apps) to mapOf(TopChartsHelper.Chart.MOVERS_SHAKERS to TopChartsHelper.Type.APPLICATION),
-            context.getString(R.string.movers_shakers_games) to mapOf(TopChartsHelper.Chart.MOVERS_SHAKERS to TopChartsHelper.Type.GAME),
-        )
-        homeElements.forEach {
-            val chart = it.value.keys.iterator().next()
-            val type = it.value.values.iterator().next()
-            val result = gPlayAPIRepository.getTopApps(type, chart, authData).map { app ->
+        val gplayHomeData = gplayRepository.getHomeScreenData() as Map<String, List<App>>
+        gplayHomeData.map {
+            val fusedApps = it.value.map { app ->
                 app.transformToFusedApp().apply {
                     updateFilterLevel(authData)
                 }
             }
-            list.add(FusedHome(it.key, result))
+            list.add(FusedHome(it.key, fusedApps))
         }
+        Timber.d("===> $list")
         return list
     }
 
