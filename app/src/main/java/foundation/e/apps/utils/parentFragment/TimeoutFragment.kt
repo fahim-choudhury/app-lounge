@@ -21,8 +21,12 @@ import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.R
 import foundation.e.apps.databinding.DialogErrorLogBinding
 import foundation.e.apps.login.AuthObject
@@ -34,6 +38,7 @@ import foundation.e.apps.utils.exceptions.GPlayException
 import foundation.e.apps.utils.exceptions.GPlayLoginException
 import foundation.e.apps.utils.exceptions.GPlayValidationException
 import foundation.e.apps.utils.exceptions.UnknownSourceException
+import timber.log.Timber
 
 /**
  * Parent class of all fragments.
@@ -49,17 +54,60 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
         ViewModelProvider(requireActivity())[LoginViewModel::class.java]
     }
 
+    abstract val mainActivityViewModel: MainActivityViewModel
+
     /**
      * Fragments observe this list to load data.
      * Fragments should not observe [loginViewModel]'s authObjects.
      */
     val authObjects: MutableLiveData<List<AuthObject>?> = MutableLiveData()
 
+    /**
+     * Function to loadData using the fragment's viewmodel.
+     */
     abstract fun loadData(authObjectList: List<AuthObject>)
 
     abstract fun showLoadingUI()
 
     abstract fun stopLoadingUI()
+
+    /**
+     * Call this function instead of directly calling [loadData].
+     * This function takes care of checking network availability.
+     */
+    fun loadDataWhenNetworkAvailable(authObjectList: List<AuthObject>) {
+        val hasInternet = mainActivityViewModel.internetConnection.value
+        Timber.d("class name: ${this::class.simpleName} internet: $hasInternet")
+        if (hasInternet == true) {
+            loadData(authObjectList)
+        } else {
+            mainActivityViewModel.internetConnection.loadDataOnce(this) {
+                if (it) {
+                    if (authObjectList.any { !it.result.isSuccess() }) {
+                        Timber.d("Refreshing authObjects failed due to unavailable network")
+                        loginViewModel.startLoginFlow()
+                    } else {
+                        loadData(authObjectList)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * This function will help prevent loading data multiple times if network
+     * is disconnected and reconnected multiple times.
+     */
+    private fun LiveData<Boolean>.loadDataOnce(lifecycleOwner: LifecycleOwner, observer: Observer<Boolean>) {
+        observe(lifecycleOwner, object : Observer<Boolean> {
+            override fun onChanged(t: Boolean) {
+                observer.onChanged(t)
+                if (t) {
+                    removeObserver(this)
+                }
+            }
+        })
+    }
 
     /**
      * Override to contain code to execute in case of timeout.
@@ -117,7 +165,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      * 1. Dialog title set to [R.string.data_load_error].
      * 2. Dialog content set to [R.string.data_load_error_desc].
      * 3. Dialog can show technical error info on clicking "More Info"
-     * 4. Has a positive button "Retry" which calls [loadData].
+     * 4. Has a positive button "Retry" which calls [loadDataWhenNetworkAvailable].
      * 5. Has a negative button "Close" which just closes the dialog.
      * 6. Dialog is cancellable.
      */
@@ -298,7 +346,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
             setView(dialogView.root)
             setPositiveButton(R.string.retry) { _, _ ->
                 showLoadingUI()
-                authObjects.value?.let { loadData(it) }
+                authObjects.value?.let { loadDataWhenNetworkAvailable(it) }
             }
             setNegativeButton(R.string.close, null)
             setCancelable(true)

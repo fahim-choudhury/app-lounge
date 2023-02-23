@@ -119,7 +119,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     private val applicationViewModel: ApplicationViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
-    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
+    override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
 
     private var applicationIcon: ImageView? = null
 
@@ -139,7 +139,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
         authObjects.observe(viewLifecycleOwner) {
             if (it == null) return@observe
-            loadData(it)
+            loadDataWhenNetworkAvailable(it)
         }
 
         applicationViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
