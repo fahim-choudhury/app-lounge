@@ -104,6 +104,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        viewModel.setupConnectivityManager(this)
+
         viewModel.internetConnection.observe(this) { isInternetAvailable ->
             hasInternet = isInternetAvailable
             if (isInternetAvailable) {
@@ -205,7 +207,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        if (!CommonUtilsModule.isNetworkAvailable(this)) {
+        if (viewModel.internetConnection.value != true) {
             showNoInternet()
         }
 

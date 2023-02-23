@@ -40,7 +40,7 @@ class AppsFragment : TimeoutFragment(R.layout.fragment_apps) {
     private val binding get() = _binding!!
 
     private val categoriesViewModel: CategoriesViewModel by viewModels()
-    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
+    override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -50,7 +50,7 @@ class AppsFragment : TimeoutFragment(R.layout.fragment_apps) {
 
         authObjects.observe(viewLifecycleOwner) {
             if (it == null) return@observe
-            loadData(it)
+            loadDataWhenNetworkAvailable(it)
         }
 
         categoriesViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {

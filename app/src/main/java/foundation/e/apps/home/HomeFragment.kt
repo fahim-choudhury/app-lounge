@@ -64,7 +64,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
     private val binding get() = _binding!!
 
     private val homeViewModel: HomeViewModel by viewModels()
-    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
+    override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
     private val appProgressViewModel: AppProgressViewModel by viewModels()
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
 
@@ -116,7 +116,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
 
         authObjects.observe(viewLifecycleOwner) {
             if (it == null) return@observe
-            loadData(it)
+            loadDataWhenNetworkAvailable(it)
         }
 
         homeViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {

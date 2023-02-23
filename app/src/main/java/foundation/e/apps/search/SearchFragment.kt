@@ -78,7 +78,7 @@ class SearchFragment :
     private val searchViewModel: SearchViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
-    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
+    override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
     private val appProgressViewModel: AppProgressViewModel by viewModels()
 
     private val SUGGESTION_KEY = "suggestion"
@@ -119,7 +119,7 @@ class SearchFragment :
         authObjects.observe(viewLifecycleOwner) {
             val currentQuery = searchView?.query?.toString() ?: ""
             if (it == null || (currentQuery.isNotEmpty() && lastSearch == currentQuery)) return@observe
-            loadData(it)
+            loadDataWhenNetworkAvailable(it)
         }
 
         searchViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {

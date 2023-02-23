@@ -67,7 +67,7 @@ class ApplicationListFragment :
     private val viewModel: ApplicationListViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
-    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
+    override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
     private val appProgressViewModel: AppProgressViewModel by viewModels()
 
     private var _binding: FragmentApplicationListBinding? = null
@@ -87,7 +87,7 @@ class ApplicationListFragment :
 
         authObjects.observe(viewLifecycleOwner) {
             if (it == null) return@observe
-            loadData(it)
+            loadDataWhenNetworkAvailable(it)
         }
 
         viewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
