@@ -19,10 +19,8 @@
 package foundation.e.apps.manager.workmanager
 
 import android.content.Context
-import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
-import foundation.e.apps.api.DownloadManager
 import foundation.e.apps.api.fused.UpdatesDao
 import foundation.e.apps.manager.database.DatabaseRepository
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
@@ -30,7 +28,6 @@ import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.updates.UpdatesNotifier
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.modules.DataStoreManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -113,9 +110,11 @@ class AppInstallProcessor @Inject constructor(
     }
 
     private fun areFilesDownloadedButNotInstalled(fusedDownload: FusedDownload) =
-        fusedDownload.areFilesDownloaded() && (!fusedManagerRepository.isFusedDownloadInstalled(
-            fusedDownload
-        ) || fusedDownload.status == Status.INSTALLING)
+        fusedDownload.areFilesDownloaded() && (
+            !fusedManagerRepository.isFusedDownloadInstalled(
+                fusedDownload
+            ) || fusedDownload.status == Status.INSTALLING
+            )
 
     private suspend fun checkUpdateWork(
         fusedDownload: FusedDownload?

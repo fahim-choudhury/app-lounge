@@ -95,16 +95,16 @@ class DownloadManagerUtils @Inject constructor(
         fusedDownload: FusedDownload,
         downloadId: Long
     ) = downloadManager.isDownloadSuccessful(downloadId) &&
-            areAllFilesDownloaded(
-                numberOfDownloadedItems,
-                fusedDownload
-            ) && checkCleanApkSignatureOK(fusedDownload)
+        areAllFilesDownloaded(
+            numberOfDownloadedItems,
+            fusedDownload
+        ) && checkCleanApkSignatureOK(fusedDownload)
 
     private fun areAllFilesDownloaded(
         numberOfDownloadedItems: Int,
         fusedDownload: FusedDownload
-    ) = numberOfDownloadedItems == fusedDownload.downloadIdMap.size
-            && numberOfDownloadedItems == fusedDownload.downloadURLList.size
+    ) = numberOfDownloadedItems == fusedDownload.downloadIdMap.size &&
+        numberOfDownloadedItems == fusedDownload.downloadURLList.size
 
     private suspend fun updateDownloadIdMap(
         fusedDownload: FusedDownload,
