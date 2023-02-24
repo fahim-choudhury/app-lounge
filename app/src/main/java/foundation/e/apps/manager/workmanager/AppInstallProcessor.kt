@@ -51,7 +51,6 @@ class AppInstallProcessor @Inject constructor(
     @ApplicationContext private val context: Context,
     private val databaseRepository: DatabaseRepository,
     private val fusedManagerRepository: FusedManagerRepository,
-    private val downloadManager: DownloadManager,
     private val dataStoreManager: DataStoreManager
 ) {
 
@@ -86,10 +85,7 @@ class AppInstallProcessor @Inject constructor(
                     return@let
                 }
 
-                if (fusedDownload.areFilesDownloaded() && !fusedManagerRepository.isFusedDownloadInstalled(
-                        fusedDownload
-                    )
-                ) {
+                if (areFilesDownloadedButNotInstalled(fusedDownload)) {
                     Timber.i("===> Downloaded But not installed ${fusedDownload.name}")
                     fusedManagerRepository.updateDownloadStatus(fusedDownload, Status.INSTALLING)
                 }
@@ -108,13 +104,18 @@ class AppInstallProcessor @Inject constructor(
         } catch (e: Exception) {
             Timber.e("doWork: Failed: ${e.stackTraceToString()}")
             fusedDownload?.let {
-                fusedManagerRepository.installationIssue(it)
+                fusedManagerRepository.cancelDownload(fusedDownload)
             }
         }
 
         Timber.i("doWork: RESULT SUCCESS: ${fusedDownload?.name}")
         return Result.success(ResultStatus.OK)
     }
+
+    private fun areFilesDownloadedButNotInstalled(fusedDownload: FusedDownload) =
+        fusedDownload.areFilesDownloaded() && (!fusedManagerRepository.isFusedDownloadInstalled(
+            fusedDownload
+        ) || fusedDownload.status == Status.INSTALLING)
 
     private suspend fun checkUpdateWork(
         fusedDownload: FusedDownload?
@@ -182,20 +183,14 @@ class AppInstallProcessor @Inject constructor(
             .onEach {
                 val download = databaseRepository.getDownloadById(fusedDownload.id)
                 if (download == null) {
+                    Timber.d("===> download null: finish installation")
                     finishInstallation(fusedDownload)
                 } else {
                     handleFusedDownloadStatusCheckingException(download)
-                    if (isAppDownloading(download)) {
-                        checkDownloadProcess(download)
-                    }
                 }
             }.launchIn(CoroutineScope(Dispatchers.IO))
         Timber.d(">>> ===> doWork: Download started " + fusedDownload.name + " " + fusedDownload.status)
         return true
-    }
-
-    private fun isAppDownloading(download: FusedDownload): Boolean {
-        return download.type == Type.NATIVE && download.status != Status.INSTALLED && download.status != Status.INSTALLATION_ISSUE
     }
 
     private suspend fun handleFusedDownloadStatusCheckingException(
@@ -204,7 +199,7 @@ class AppInstallProcessor @Inject constructor(
         try {
             handleFusedDownloadStatus(download)
         } catch (e: Exception) {
-            Log.e(TAG, "observeDownload: ", e)
+            Timber.tag(TAG).e(e, "observeDownload: ")
             finishInstallation(download)
         }
     }
@@ -222,12 +217,6 @@ class AppInstallProcessor @Inject constructor(
         }
     }
 
-    private suspend fun checkDownloadProcess(fusedDownload: FusedDownload) {
-        downloadManager.checkDownloadProcess(fusedDownload.downloadIdMap.keys.toLongArray()) {
-            fusedManagerRepository.installationIssue(fusedDownload)
-        }
-    }
-
     private suspend fun handleFusedDownloadStatus(fusedDownload: FusedDownload) {
         when (fusedDownload.status) {
             Status.AWAITING, Status.DOWNLOADING -> {
@@ -239,15 +228,15 @@ class AppInstallProcessor @Inject constructor(
                 Timber.i("===> doWork: Installing ${fusedDownload.name} ${fusedDownload.status}")
             }
             Status.INSTALLED, Status.INSTALLATION_ISSUE -> {
-                finishInstallation(fusedDownload)
                 Timber.i("===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}")
+                finishInstallation(fusedDownload)
             }
             else -> {
-                finishInstallation(fusedDownload)
                 Timber.wtf(
                     TAG,
                     "===> ${fusedDownload.name} is in wrong state ${fusedDownload.status}"
                 )
+                finishInstallation(fusedDownload)
             }
         }
     }

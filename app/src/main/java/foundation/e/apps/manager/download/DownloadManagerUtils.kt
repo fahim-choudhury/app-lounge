@@ -64,15 +64,30 @@ class DownloadManagerUtils @Inject constructor(
                         fusedDownload.downloadIdMap.values.filter { it }.size
                     Timber.d("===> updateDownloadStatus: ${fusedDownload.name}: $downloadId: $numberOfDownloadedItems/${fusedDownload.downloadIdMap.size}")
 
+                    if (downloadManager.hasDownloadFailed(downloadId)) {
+                        handleDownloadFailed(fusedDownload)
+                        return@launch
+                    }
+
                     if (validateDownload(numberOfDownloadedItems, fusedDownload, downloadId)) {
-                        Timber.i("===> Download is completed for: ${fusedDownload.name}")
-                        fusedManagerRepository.moveOBBFileToOBBDirectory(fusedDownload)
-                        fusedDownload.status = Status.DOWNLOADED
-                        fusedManagerRepository.updateFusedDownload(fusedDownload)
+                        handleDownloadSuccess(fusedDownload)
                     }
                 }
             }
         }
+    }
+
+    private suspend fun handleDownloadSuccess(fusedDownload: FusedDownload) {
+        Timber.i("===> Download is completed for: ${fusedDownload.name}")
+        fusedManagerRepository.moveOBBFileToOBBDirectory(fusedDownload)
+        fusedDownload.status = Status.DOWNLOADED
+        fusedManagerRepository.updateFusedDownload(fusedDownload)
+    }
+
+    private suspend fun handleDownloadFailed(fusedDownload: FusedDownload) {
+        fusedManagerRepository.installationIssue(fusedDownload)
+        fusedManagerRepository.cancelDownload(fusedDownload)
+        Timber.i("===> Download failed: ${fusedDownload.name} ${fusedDownload.status}")
     }
 
     private suspend fun validateDownload(
@@ -80,15 +95,16 @@ class DownloadManagerUtils @Inject constructor(
         fusedDownload: FusedDownload,
         downloadId: Long
     ) = downloadManager.isDownloadSuccessful(downloadId) &&
-        areAllFilesDownloaded(
-            numberOfDownloadedItems,
-            fusedDownload
-        ) && checkCleanApkSignatureOK(fusedDownload)
+            areAllFilesDownloaded(
+                numberOfDownloadedItems,
+                fusedDownload
+            ) && checkCleanApkSignatureOK(fusedDownload)
 
     private fun areAllFilesDownloaded(
         numberOfDownloadedItems: Int,
         fusedDownload: FusedDownload
     ) = numberOfDownloadedItems == fusedDownload.downloadIdMap.size
+            && numberOfDownloadedItems == fusedDownload.downloadURLList.size
 
     private suspend fun updateDownloadIdMap(
         fusedDownload: FusedDownload,
