@@ -20,10 +20,7 @@ package foundation.e.apps.api.fused
 
 import android.content.Context
 import android.text.format.Formatter
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataScope
-import androidx.lifecycle.liveData
-import androidx.lifecycle.map
+import androidx.lifecycle.*
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
@@ -65,6 +62,9 @@ import foundation.e.apps.utils.enums.isUnFiltered
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 import javax.inject.Inject
@@ -324,7 +324,7 @@ class FusedAPIImpl @Inject constructor(
         searchResult: MutableList<FusedApp>,
         packageSpecificResults: ArrayList<FusedApp>
     ): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
-        getGplaySearchResults(query, authData).map {
+        getGplaySearchResult(query, authData).map {
             if (it.first.isNotEmpty()) {
                 searchResult.addAll(it.first)
             }
@@ -1203,6 +1203,19 @@ class FusedAPIImpl @Inject constructor(
         }
     }
 
+    private fun getGplaySearchResult(
+        query: String,
+        authData: AuthData
+    ): LiveData<Pair<List<FusedApp>, Boolean>> {
+        val searchResults = gplayRepository.getSearchResult(query) as LiveData<Pair<List<App>, Boolean>>
+        return searchResults.asFlow().map {
+            val fusedAppList = it.first.map { app -> replaceWithFDroid(app) }
+            Pair(
+                fusedAppList,
+                it.second
+            )
+        }.asLiveData()
+    }
     /*
          * This function will replace a GPlay app with F-Droid app if exists,
          * else will show the GPlay app itself.
