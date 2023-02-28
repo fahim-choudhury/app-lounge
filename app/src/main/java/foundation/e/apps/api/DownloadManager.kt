@@ -83,10 +83,18 @@ class DownloadManager @Inject constructor(
         downloadFile: File,
         downloadCompleted: ((Boolean, String) -> Unit)?
     ): Long {
-        val request = DownloadManager.Request(Uri.parse(url))
-            .setTitle("Downloading...")
-            .setDestinationUri(Uri.fromFile(downloadFile))
-        val downloadId = downloadManager.enqueue(request)
+        var downloadId = -1L
+        try {
+            val request = DownloadManager.Request(Uri.parse(url))
+                .setTitle("Downloading...")
+                .setDestinationUri(Uri.fromFile(downloadFile))
+            downloadId = downloadManager.enqueue(request)
+        } catch (e: java.lang.NullPointerException) {
+            Timber.e(e, "Url: $url; downloadFilePath: ${downloadFile.absolutePath}")
+            downloadCompleted?.invoke(false, e.localizedMessage ?: "No message found!")
+            return downloadId
+        }
+
         downloadsMaps[downloadId] = true
         tickerFlow(downloadId, .5.seconds).onEach {
             checkDownloadProgress(downloadId, downloadFile.absolutePath, downloadCompleted)
