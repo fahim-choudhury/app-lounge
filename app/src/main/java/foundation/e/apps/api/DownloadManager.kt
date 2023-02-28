@@ -76,6 +76,13 @@ class DownloadManager @Inject constructor(
         }
 
         val downloadFile = File("$directoryFile/$fileName")
+        if (downloadFile.exists()) {
+            try {
+                downloadFile.delete()
+            } catch (exception: Exception) {
+                Timber.e("Could not delete already existing split apk: $downloadFile", exception)
+            }
+        }
 
         return downloadFile(url, downloadFile, downloadCompleted)
     }
