@@ -46,7 +46,7 @@ class GplayRepository @Inject constructor(
         return homeScreenData
     }
 
-    override fun getSearchResult(query: String): LiveData<Pair<List<App>, Boolean>> {
+    override suspend fun getSearchResult(query: String): LiveData<Pair<List<App>, Boolean>> {
         return liveData {
             withContext(Dispatchers.IO) {
                 /*

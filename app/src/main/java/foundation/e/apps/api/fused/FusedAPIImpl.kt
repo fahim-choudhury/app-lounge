@@ -38,6 +38,7 @@ import foundation.e.apps.api.cleanapk.CleanAPKInterface
 import foundation.e.apps.api.cleanapk.CleanAPKRepository
 import foundation.e.apps.api.cleanapk.data.categories.Categories
 import foundation.e.apps.api.cleanapk.data.home.Home
+import foundation.e.apps.api.cleanapk.data.home.HomeScreen
 import foundation.e.apps.api.cleanapk.data.search.Search
 import foundation.e.apps.api.fdroid.FdroidWebInterface
 import foundation.e.apps.api.fused.data.FusedApp
@@ -66,6 +67,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withTimeout
+import retrofit2.Response
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
@@ -80,6 +82,8 @@ class FusedAPIImpl @Inject constructor(
     private val preferenceManagerModule: PreferenceManagerModule,
     private val fdroidWebInterface: FdroidWebInterface,
     @Named("gplayRepository") private val gplayRepository: StoreApiRepository,
+    @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: StoreApiRepository,
+    @Named("cleanApkPWARepository") private val cleanApkPWARepository: StoreApiRepository,
     @ApplicationContext private val context: Context
 ) {
 
@@ -156,20 +160,14 @@ class FusedAPIImpl @Inject constructor(
             })
 
             Source.OPEN -> runCodeBlockWithTimeout({
-                val response = cleanAPKRepository.getHomeScreenData(
-                    CleanAPKInterface.APP_TYPE_ANY,
-                    CleanAPKInterface.APP_SOURCE_FOSS
-                ).body()
+                val response = (cleanApkAppsRepository.getHomeScreenData() as Response<HomeScreen>).body()
                 response?.home?.let {
                     priorList.addAll(generateCleanAPKHome(it, APP_TYPE_OPEN))
                 }
             })
 
             Source.PWA -> runCodeBlockWithTimeout({
-                val response = cleanAPKRepository.getHomeScreenData(
-                    CleanAPKInterface.APP_TYPE_PWA,
-                    CleanAPKInterface.APP_SOURCE_ANY
-                ).body()
+                val response = (cleanApkPWARepository.getHomeScreenData() as Response<HomeScreen>).body()
                 response?.home?.let {
                     priorList.addAll(generateCleanAPKHome(it, APP_TYPE_PWA))
                 }
@@ -318,7 +316,7 @@ class FusedAPIImpl @Inject constructor(
         )
     }
 
-    private fun fetchGplaySearchResults(
+    private suspend fun fetchGplaySearchResults(
         query: String,
         authData: AuthData,
         searchResult: MutableList<FusedApp>,
@@ -1203,7 +1201,7 @@ class FusedAPIImpl @Inject constructor(
         }
     }
 
-    private fun getGplaySearchResult(
+    private suspend fun getGplaySearchResult(
         query: String,
         authData: AuthData
     ): LiveData<Pair<List<FusedApp>, Boolean>> {
