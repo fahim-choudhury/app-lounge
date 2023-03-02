@@ -21,7 +21,6 @@ package foundation.e.apps.api.fused
 import android.content.Context
 import android.text.format.Formatter
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataScope
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import com.aurora.gplayapi.Constants
@@ -62,8 +61,7 @@ import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.enums.isUnFiltered
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.*
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -122,19 +120,37 @@ class FusedAPIImpl @Inject constructor(
     ): LiveData<ResultSupreme<List<FusedHome>>> {
 
         val list = mutableListOf<FusedHome>()
+        var resultGplay: Deferred<ResultSupreme<List<FusedHome>>>? = null
+        var resultOpenSource: Deferred<ResultSupreme<List<FusedHome>>>? = null
+        var resultPWA: Deferred<ResultSupreme<List<FusedHome>>>? = null
 
         return liveData {
-            if (preferenceManagerModule.isGplaySelected()) {
-                loadHomeData(list, Source.GPLAY, authData, this)
+            coroutineScope {
+
+                if (preferenceManagerModule.isGplaySelected()) {
+                    resultGplay = async { loadHomeData(list, Source.GPLAY, authData) }
+                }
+
+                if (preferenceManagerModule.isOpenSourceSelected()) {
+                    resultOpenSource = async { loadHomeData(list, Source.OPEN, authData) }
+                }
+
+                if (preferenceManagerModule.isPWASelected()) {
+                    resultPWA = async { loadHomeData(list, Source.PWA, authData) }
+                }
+
+                resultGplay?.await()?.let {
+                    emit(it)
+                }
+                resultOpenSource?.await()?.let {
+                    emit(it)
+                }
+                resultPWA?.await()?.let {
+                    emit(it)
+                }
+
             }
 
-            if (preferenceManagerModule.isOpenSourceSelected()) {
-                loadHomeData(list, Source.OPEN, authData, this)
-            }
-
-            if (preferenceManagerModule.isPWASelected()) {
-                loadHomeData(list, Source.PWA, authData, this)
-            }
         }
     }
 
@@ -142,11 +158,9 @@ class FusedAPIImpl @Inject constructor(
         priorList: MutableList<FusedHome>,
         source: Source,
         authData: AuthData,
-        scope: LiveDataScope<ResultSupreme<List<FusedHome>>>,
-    ) {
+    ): ResultSupreme<List<FusedHome>> {
 
         val apiStatus = when (source) {
-
             Source.GPLAY -> runCodeBlockWithTimeout({
                 priorList.addAll(fetchGPlayHome(authData))
             })
@@ -173,8 +187,14 @@ class FusedAPIImpl @Inject constructor(
         }
 
         setHomeErrorMessage(apiStatus, source)
-
-        scope.emit(ResultSupreme.create(apiStatus, priorList))
+        priorList.sortByDescending {
+            when (it.source) {
+                APP_TYPE_OPEN -> 2
+                APP_TYPE_PWA -> 1
+                else -> 3
+            }
+        }
+        return ResultSupreme.create(apiStatus, priorList)
     }
 
     private fun setHomeErrorMessage(apiStatus: ResultStatus, source: Source) {
@@ -1052,7 +1072,7 @@ class FusedAPIImpl @Inject constructor(
 
     private fun getCategoryIconName(category: FusedCategory): String {
         var categoryTitle = if (category.tag.getOperationalTag()
-            .contentEquals(AppTag.GPlay().getOperationalTag())
+                .contentEquals(AppTag.GPlay().getOperationalTag())
         ) category.id else category.title
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
@@ -1190,7 +1210,8 @@ class FusedAPIImpl @Inject constructor(
         query: String,
         authData: AuthData
     ): LiveData<Pair<List<FusedApp>, Boolean>> {
-        val searchResults = gPlayAPIRepository.getSearchResults(query, authData, ::replaceWithFDroid)
+        val searchResults =
+            gPlayAPIRepository.getSearchResults(query, authData, ::replaceWithFDroid)
         return searchResults.map {
             Pair(
                 it.first,
