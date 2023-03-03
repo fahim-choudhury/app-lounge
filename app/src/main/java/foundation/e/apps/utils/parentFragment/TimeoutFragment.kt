@@ -99,14 +99,17 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      * is disconnected and reconnected multiple times.
      */
     private fun LiveData<Boolean>.loadDataOnce(lifecycleOwner: LifecycleOwner, observer: Observer<Boolean>) {
-        observe(lifecycleOwner, object : Observer<Boolean> {
-            override fun onChanged(t: Boolean) {
-                observer.onChanged(t)
-                if (t) {
-                    removeObserver(this)
+        observe(
+            lifecycleOwner,
+            object : Observer<Boolean> {
+                override fun onChanged(t: Boolean) {
+                    observer.onChanged(t)
+                    if (t) {
+                        removeObserver(this)
+                    }
                 }
             }
-        })
+        )
     }
 
     /**

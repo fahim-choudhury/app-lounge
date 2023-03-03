@@ -53,15 +53,14 @@ import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.enums.isInitialized
 import foundation.e.apps.utils.enums.isUnFiltered
-import foundation.e.apps.utils.modules.CommonUtilsModule
 import foundation.e.apps.utils.modules.DataStoreModule
 import foundation.e.apps.utils.modules.PWAManagerModule
-import java.io.ByteArrayOutputStream
-import javax.inject.Inject
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
+import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
@@ -394,9 +393,9 @@ class MainActivityViewModel @Inject constructor(
         val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
 
         val hasInternet =
-            capabilities != null
-                    && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                    && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+            capabilities != null &&
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
 
         trySend(hasInternet)
     }

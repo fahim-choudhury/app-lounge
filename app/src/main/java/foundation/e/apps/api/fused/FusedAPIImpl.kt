@@ -61,10 +61,16 @@ import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.enums.isUnFiltered
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withTimeout
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
+
+typealias FusedHomeDeferred = Deferred<ResultSupreme<List<FusedHome>>>
 
 @Singleton
 class FusedAPIImpl @Inject constructor(
@@ -120,9 +126,9 @@ class FusedAPIImpl @Inject constructor(
     ): LiveData<ResultSupreme<List<FusedHome>>> {
 
         val list = mutableListOf<FusedHome>()
-        var resultGplay: Deferred<ResultSupreme<List<FusedHome>>>? = null
-        var resultOpenSource: Deferred<ResultSupreme<List<FusedHome>>>? = null
-        var resultPWA: Deferred<ResultSupreme<List<FusedHome>>>? = null
+        var resultGplay: FusedHomeDeferred? = null
+        var resultOpenSource: FusedHomeDeferred? = null
+        var resultPWA: FusedHomeDeferred? = null
 
         return liveData {
             coroutineScope {
@@ -148,9 +154,7 @@ class FusedAPIImpl @Inject constructor(
                 resultPWA?.await()?.let {
                     emit(it)
                 }
-
             }
-
         }
     }
 
@@ -1072,7 +1076,7 @@ class FusedAPIImpl @Inject constructor(
 
     private fun getCategoryIconName(category: FusedCategory): String {
         var categoryTitle = if (category.tag.getOperationalTag()
-                .contentEquals(AppTag.GPlay().getOperationalTag())
+            .contentEquals(AppTag.GPlay().getOperationalTag())
         ) category.id else category.title
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
