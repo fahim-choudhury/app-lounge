@@ -2,6 +2,7 @@ package foundation.e.apps.api.cleanapk
 
 import foundation.e.apps.api.StoreApiRepository
 import foundation.e.apps.api.cleanapk.data.home.HomeScreen
+import foundation.e.apps.api.cleanapk.data.search.Search
 import retrofit2.Response
 
 class CleanApkAppsRepository(
@@ -15,14 +16,18 @@ class CleanApkAppsRepository(
         )
     }
 
-    override suspend fun getSearchResult(query: String): Any {
+    override suspend fun getSearchResult(query: String): Response<Search> {
         return cleanAPKInterface.searchApps(
             query,
-            CleanAPKInterface.APP_TYPE_ANY,
             CleanAPKInterface.APP_SOURCE_FOSS,
+            CleanAPKInterface.APP_TYPE_ANY,
             20,
             1,
             null
         )
+    }
+
+    override suspend fun getSearchSuggestions(query: String): Any {
+        TODO("Not yet implemented")
     }
 }

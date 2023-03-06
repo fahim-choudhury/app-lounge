@@ -1,9 +1,7 @@
 package foundation.e.apps.api.gplay
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataScope
-import androidx.lifecycle.liveData
+import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.SearchBundle
@@ -12,11 +10,13 @@ import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.api.StoreApiRepository
-import foundation.e.apps.api.fused.data.FusedApp
-import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.api.gplay.utils.GPlayHttpClient
 import foundation.e.apps.login.LoginSourceRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -46,60 +46,68 @@ class GplayRepository @Inject constructor(
         return homeScreenData
     }
 
-    override suspend fun getSearchResult(query: String): LiveData<Pair<List<App>, Boolean>> {
-        return liveData {
-            withContext(Dispatchers.IO) {
+    override suspend fun getSearchResult(query: String): Flow<Pair<List<App>, Boolean>> {
+        return flow {
                 /*
                  * Variable names and logic made same as that of Aurora store.
                  * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
                  */
-                val searchHelper = SearchHelper(loginSourceRepository.gplayAuth!!).using(gPlayHttpClient)
-                val searchBundle = searchHelper.searchResults(query)
+            val searchHelper =
+                SearchHelper(loginSourceRepository.gplayAuth!!).using(gPlayHttpClient)
+            val searchBundle = searchHelper.searchResults(query)
 
-                val initialReplacedList = mutableListOf<App>()
-                val INITIAL_LIMIT = 4
+            val initialReplacedList = mutableListOf<App>()
+            val INITIAL_LIMIT = 4
 
-                emitReplacedList(
-                    this@liveData,
-                    initialReplacedList,
-                    INITIAL_LIMIT,
-                    searchBundle,
-                    true,
-                )
+            emitReplacedList(
+                this@flow,
+                initialReplacedList,
+                INITIAL_LIMIT,
+                searchBundle,
+                true,
+            )
 
-                var nextSubBundleSet: MutableSet<SearchBundle.SubBundle>
-                do {
-                    nextSubBundleSet = searchBundle.subBundles
-                    val newSearchBundle = searchHelper.next(nextSubBundleSet)
-                    if (newSearchBundle.appList.isNotEmpty()) {
-                        searchBundle.apply {
-                            subBundles.clear()
-                            subBundles.addAll(newSearchBundle.subBundles)
-                            emitReplacedList(
-                                this@liveData,
-                                initialReplacedList,
-                                INITIAL_LIMIT,
-                                newSearchBundle,
-                                nextSubBundleSet.isNotEmpty(),
-                            )
-                        }
+            var nextSubBundleSet: MutableSet<SearchBundle.SubBundle>
+            do {
+                nextSubBundleSet = searchBundle.subBundles
+                val newSearchBundle = searchHelper.next(nextSubBundleSet)
+                if (newSearchBundle.appList.isNotEmpty()) {
+                    searchBundle.apply {
+                        subBundles.clear()
+                        subBundles.addAll(newSearchBundle.subBundles)
+                        emitReplacedList(
+                            this@flow,
+                            initialReplacedList,
+                            INITIAL_LIMIT,
+                            newSearchBundle,
+                            nextSubBundleSet.isNotEmpty(),
+                        )
                     }
-                } while (nextSubBundleSet.isNotEmpty())
+                }
+            } while (nextSubBundleSet.isNotEmpty())
 
                 /*
                  * If initialReplacedList size is less than INITIAL_LIMIT,
                  * it means the results were very less and nothing has been emitted so far.
                  * Hence emit the list.
                  */
-                if (initialReplacedList.size < INITIAL_LIMIT) {
-                    emit(Pair(initialReplacedList, false))
-                }
+            if (initialReplacedList.size < INITIAL_LIMIT) {
+                emitInMain(this@flow, initialReplacedList, false)
             }
+        }.flowOn(Dispatchers.IO)
+    }
+
+    override suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
+        val searchData = mutableListOf<SearchSuggestEntry>()
+        withContext(Dispatchers.IO) {
+            val searchHelper = SearchHelper(loginSourceRepository.gplayAuth!!).using(gPlayHttpClient)
+            searchData.addAll(searchHelper.searchSuggestions(query))
         }
+        return searchData.filter { it.suggestedQuery.isNotBlank() }
     }
 
     private suspend fun emitReplacedList(
-        scope: LiveDataScope<Pair<List<App>, Boolean>>,
+        scope: FlowCollector<Pair<List<App>, Boolean>>,
         accumulationList: MutableList<App>,
         accumulationLimit: Int,
         searchBundle: SearchBundle,
@@ -121,16 +129,25 @@ class GplayRepository @Inject constructor(
                      */
                     accumulationList.add(it)
                     scope.emit(Pair(accumulationList, moreToEmit))
+                    emitInMain(scope, accumulationList, moreToEmit)
                 }
                 accumulationList.size == accumulationLimit -> {
                     /*
                      * If initial limit is 4, and we have emitted 4 apps,
                      * for all rest of the apps, emit each app one by one.
                      */
-                    scope.emit(Pair(listOf(it), moreToEmit))
+                    emitInMain(scope, listOf(it), moreToEmit)
                 }
             }
         }
+    }
+
+    private suspend fun emitInMain(
+        scope: FlowCollector<Pair<List<App>, Boolean>>,
+        it: List<App>,
+        moreToEmit: Boolean
+    ) {
+        scope.emit(Pair(it, moreToEmit))
     }
 
     private suspend fun getTopApps(

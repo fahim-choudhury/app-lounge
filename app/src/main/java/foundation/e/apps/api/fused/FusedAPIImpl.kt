@@ -20,7 +20,11 @@ package foundation.e.apps.api.fused
 
 import android.content.Context
 import android.text.format.Formatter
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.LiveDataScope
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.liveData
+import androidx.lifecycle.map
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
@@ -29,7 +33,6 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
-import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.api.ResultSupreme
@@ -47,7 +50,6 @@ import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.api.fused.data.Ratings
 import foundation.e.apps.api.fused.utils.CategoryUtils
 import foundation.e.apps.api.gplay.GPlayAPIRepository
-import foundation.e.apps.api.gplay.GplayRepository
 import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.pkg.PkgManagerModule
@@ -63,9 +65,8 @@ import foundation.e.apps.utils.enums.isUnFiltered
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withTimeout
 import retrofit2.Response
 import timber.log.Timber
@@ -274,7 +275,7 @@ class FusedAPIImpl @Inject constructor(
                         authData,
                         searchResult,
                         packageSpecificResults
-                    )
+                    ).asLiveData()
                 )
             }
         }
@@ -288,11 +289,8 @@ class FusedAPIImpl @Inject constructor(
     ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
         val pwaApps: MutableList<FusedApp> = mutableListOf()
         val status = fusedAPIImpl.runCodeBlockWithTimeout({
-            getCleanAPKSearchResults(
-                query,
-                CleanAPKInterface.APP_SOURCE_ANY,
-                CleanAPKInterface.APP_TYPE_PWA
-            ).apply {
+            val apps = (cleanApkPWARepository.getSearchResult(query,) as Response<Search>).body()?.apps
+            apps?.apply {
                 if (this.isNotEmpty()) {
                     pwaApps.addAll(this)
                 }
@@ -321,7 +319,7 @@ class FusedAPIImpl @Inject constructor(
         authData: AuthData,
         searchResult: MutableList<FusedApp>,
         packageSpecificResults: ArrayList<FusedApp>
-    ): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
+    ): Flow<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
         getGplaySearchResult(query, authData).map {
             if (it.first.isNotEmpty()) {
                 searchResult.addAll(it.first)
@@ -471,7 +469,7 @@ class FusedAPIImpl @Inject constructor(
     }
 
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {
-        return gPlayAPIRepository.getSearchSuggestions(query, authData)
+        return gplayRepository.getSearchSuggestions(query) as List<SearchSuggestEntry>
     }
 
     suspend fun getOnDemandModule(
@@ -1175,8 +1173,8 @@ class FusedAPIImpl @Inject constructor(
         by: String? = null
     ): List<FusedApp> {
         val list = mutableListOf<FusedApp>()
-        val response =
-            cleanAPKRepository.searchApps(keyword, source, type, nres, page, by).body()?.apps
+        val response = (cleanApkAppsRepository.getSearchResult(keyword) as Response<Search>).body()?.apps
+//        val response = cleanAPKRepository.searchApps(keyword, source, type, nres,page, by).body()?.apps
 
         response?.forEach {
             it.updateStatus()
@@ -1204,15 +1202,15 @@ class FusedAPIImpl @Inject constructor(
     private suspend fun getGplaySearchResult(
         query: String,
         authData: AuthData
-    ): LiveData<Pair<List<FusedApp>, Boolean>> {
-        val searchResults = gplayRepository.getSearchResult(query) as LiveData<Pair<List<App>, Boolean>>
-        return searchResults.asFlow().map {
+    ): Flow<Pair<List<FusedApp>, Boolean>> {
+        val searchResults = gplayRepository.getSearchResult(query) as Flow<Pair<List<App>, Boolean>>
+        return searchResults.map {
             val fusedAppList = it.first.map { app -> replaceWithFDroid(app) }
             Pair(
                 fusedAppList,
                 it.second
             )
-        }.asLiveData()
+        }
     }
     /*
          * This function will replace a GPlay app with F-Droid app if exists,

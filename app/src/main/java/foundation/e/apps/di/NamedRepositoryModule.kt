@@ -49,5 +49,4 @@ object NamedRepositoryModule {
     ): StoreApiRepository {
         return CleanApkAppsRepository(cleanAPKInterface, cleanApkAppDetailApi)
     }
-
 }
