@@ -55,7 +55,6 @@ import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.exceptions.GPlayValidationException
 import foundation.e.apps.utils.modules.CommonUtilsFunctions
-import foundation.e.apps.utils.modules.CommonUtilsModule
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
@@ -214,6 +213,14 @@ class MainActivity : AppCompatActivity() {
         viewModel.updateAppWarningList()
 
         lifecycleScope.launchWhenResumed {
+            EventBus.events.filter { it is AppEvent.AuthUpdateEvent }.collectLatest {
+                Timber.d("Updated AuthObjects")
+                val authObjectMutableList = loginViewModel.authObjects.value?.toMutableList()
+                authObjectMutableList?.removeIf { it.result.data is AuthData }
+                authObjectMutableList?.add(it.data as AuthObject)
+                loginViewModel.authObjects.postValue(authObjectMutableList)
+            }
+
             EventBus.events.filter { appEvent ->
                 appEvent is AppEvent.SignatureMissMatchError
             }.collectLatest {

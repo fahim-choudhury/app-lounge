@@ -47,6 +47,7 @@ class GPlayHttpClient @Inject constructor(
 
     companion object {
         private const val TAG = "GPlayHttpClient"
+        var IS_AUTH_VALID = true
     }
 
     private val okHttpClient = OkHttpClient().newBuilder()
@@ -177,6 +178,10 @@ class GPlayHttpClient @Inject constructor(
         return PlayResponse().apply {
             isSuccessful = response.isSuccessful
             code = response.code
+            Timber.d("GplayHttpClient: Url: ${response.request.url} \n Status: ${response.code}")
+            if (response.code == 401) {
+                IS_AUTH_VALID = false
+            }
 
             if (response.body != null) {
                 responseBytes = response.body!!.bytes()

@@ -4,6 +4,7 @@ enum class ResultStatus {
     OK,
     TIMEOUT,
     UNKNOWN,
+    UNAUTHORIZED,
     RETRY;
     var message: String = ""
 }

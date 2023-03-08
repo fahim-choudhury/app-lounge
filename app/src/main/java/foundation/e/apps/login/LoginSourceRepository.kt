@@ -17,6 +17,7 @@
 
 package foundation.e.apps.login
 
+import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.utils.enums.User
 import javax.inject.Inject
 import javax.inject.Singleton

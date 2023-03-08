@@ -32,6 +32,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
+import com.aurora.gplayapi.exceptions.ApiException
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
@@ -48,7 +49,10 @@ import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.api.fused.data.Ratings
 import foundation.e.apps.api.fused.utils.CategoryUtils
 import foundation.e.apps.api.gplay.GPlayAPIRepository
+import foundation.e.apps.api.gplay.utils.GPlayHttpClient
 import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
+import foundation.e.apps.login.AuthObject
+import foundation.e.apps.login.LoginSourceRepository
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.Constants.timeoutDurationInMillis
@@ -60,6 +64,8 @@ import foundation.e.apps.utils.enums.Source
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.enums.isUnFiltered
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
 import kotlinx.coroutines.TimeoutCancellationException
@@ -76,6 +82,7 @@ class FusedAPIImpl @Inject constructor(
     private val pwaManagerModule: PWAManagerModule,
     private val preferenceManagerModule: PreferenceManagerModule,
     private val fdroidWebInterface: FdroidWebInterface,
+    private val loginSourceRepository: LoginSourceRepository,
     @ApplicationContext private val context: Context
 ) {
 
@@ -148,7 +155,7 @@ class FusedAPIImpl @Inject constructor(
         val apiStatus = when (source) {
 
             Source.GPLAY -> runCodeBlockWithTimeout({
-                priorList.addAll(fetchGPlayHome(authData))
+                priorList.addAll(fetchGPlayHome(it ?: authData))
             })
 
             Source.OPEN -> runCodeBlockWithTimeout({
@@ -234,10 +241,11 @@ class FusedAPIImpl @Inject constructor(
          * for all results to be fetched from network before showing them.
          * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
          */
+
         return liveData {
             val packageSpecificResults = ArrayList<FusedApp>()
             fetchPackageSpecificResult(authData, query, packageSpecificResults)?.let {
-                if (it.data?.second == true) { // if there are no data to load
+                if (it.data?.second == false) { // if there are no data to load
                     emit(it)
                     return@liveData
                 }
@@ -374,7 +382,7 @@ class FusedAPIImpl @Inject constructor(
 
         val status = runCodeBlockWithTimeout({
             if (preferenceManagerModule.isGplaySelected()) {
-                gplayPackageResult = getGplayPackagResult(query, authData)
+                gplayPackageResult = getGplayPackagResult(query, it ?: authData)
             }
 
             if (preferenceManagerModule.isOpenSourceSelected()) {
@@ -395,7 +403,7 @@ class FusedAPIImpl @Inject constructor(
          * If there was a timeout, return it and don't try to fetch anything else.
          * Also send true in the pair to signal more results being loaded.
          */
-        if (status != ResultStatus.OK) {
+        if (status != ResultStatus.OK || packageSpecificResults.isEmpty()) {
             return ResultSupreme.create(status, Pair(packageSpecificResults, true))
         }
         return ResultSupreme.create(status, Pair(packageSpecificResults, false))
@@ -558,7 +566,7 @@ class FusedAPIImpl @Inject constructor(
         var streamBundle = StreamBundle()
         val status = runCodeBlockWithTimeout({
             streamBundle =
-                gPlayAPIRepository.getNextStreamBundle(authData, homeUrl, currentStreamBundle)
+                gPlayAPIRepository.getNextStreamBundle(it ?: authData, homeUrl, currentStreamBundle)
         })
         return ResultSupreme.create(status, streamBundle)
     }
@@ -571,7 +579,7 @@ class FusedAPIImpl @Inject constructor(
         var streamCluster = StreamCluster()
         val status = runCodeBlockWithTimeout({
             streamCluster =
-                gPlayAPIRepository.getAdjustedFirstCluster(authData, streamBundle, pointer)
+                gPlayAPIRepository.getAdjustedFirstCluster(it ?: authData, streamBundle, pointer)
         })
         return ResultSupreme.create(status, streamCluster)
     }
@@ -582,7 +590,8 @@ class FusedAPIImpl @Inject constructor(
     ): ResultSupreme<StreamCluster> {
         var streamCluster = StreamCluster()
         val status = runCodeBlockWithTimeout({
-            streamCluster = gPlayAPIRepository.getNextStreamCluster(authData, currentStreamCluster)
+            streamCluster =
+                gPlayAPIRepository.getNextStreamCluster(it ?: authData, currentStreamCluster)
         })
         return ResultSupreme.create(status, streamCluster)
     }
@@ -594,7 +603,7 @@ class FusedAPIImpl @Inject constructor(
         val list = mutableListOf<FusedApp>()
         val status = runCodeBlockWithTimeout({
             list.addAll(
-                gPlayAPIRepository.listApps(browseUrl, authData).map { app ->
+                gPlayAPIRepository.listApps(browseUrl, it ?: authData).map { app ->
                     app.transformToFusedApp()
                 }
             )
@@ -706,7 +715,7 @@ class FusedAPIImpl @Inject constructor(
          * Old code moved from getApplicationDetails()
          */
         val status = runCodeBlockWithTimeout({
-            gPlayAPIRepository.getAppDetails(packageNameList, authData).forEach { app ->
+            gPlayAPIRepository.getAppDetails(packageNameList, it ?: authData).forEach { app ->
                 /*
                  * Some apps are restricted to locations. Example "com.skype.m2".
                  * For restricted apps, check if it is possible to get their specific app info.
@@ -743,9 +752,9 @@ class FusedAPIImpl @Inject constructor(
         appList: List<App>,
     ): ResultSupreme<List<FusedApp>> {
         val filteredFusedApps = mutableListOf<FusedApp>()
-        val status = runCodeBlockWithTimeout({
+        val status = runCodeBlockWithTimeout({ auth ->
             appList.forEach {
-                val filter = getAppFilterLevel(it, authData)
+                val filter = getAppFilterLevel(it, auth ?: authData)
                 if (filter.isUnFiltered()) {
                     filteredFusedApps.add(
                         it.transformToFusedApp().apply {
@@ -837,10 +846,11 @@ class FusedAPIImpl @Inject constructor(
         var response: FusedApp? = null
 
         val status = runCodeBlockWithTimeout({
+
             response = if (origin == Origin.CLEANAPK) {
                 cleanAPKRepository.getAppOrPWADetailsByID(id).body()?.app
             } else {
-                val app = gPlayAPIRepository.getAppDetails(packageName, authData)
+                val app = gPlayAPIRepository.getAppDetails(packageName, it ?: authData)
                 app?.transformToFusedApp()
             }
             response?.let {
@@ -850,7 +860,7 @@ class FusedAPIImpl @Inject constructor(
                 it.updateFilterLevel(authData)
             }
         })
-
+        Timber.d("getAppDetails: $status")
         return Pair(response ?: FusedApp(), status)
     }
 
@@ -945,12 +955,15 @@ class FusedAPIImpl @Inject constructor(
         var errorApplicationCategory = ""
         var apiStatus = ResultStatus.OK
         val categoryList = mutableListOf<FusedCategory>()
+
         runCodeBlockWithTimeout({
-            val playResponse = gPlayAPIRepository.getCategoriesList(type, authData).map { app ->
-                val category = app.transformToFusedCategory()
-                updateCategoryDrawable(category)
-                category
-            }
+
+            val playResponse =
+                gPlayAPIRepository.getCategoriesList(type, it ?: authData).map { app ->
+                    val category = app.transformToFusedCategory()
+                    updateCategoryDrawable(category)
+                    category
+                }
             categoryList.addAll(playResponse)
         }, {
             errorApplicationCategory = APP_TYPE_ANY
@@ -1022,13 +1035,18 @@ class FusedAPIImpl @Inject constructor(
      * @return Instance of [ResultStatus] based on whether [block] was executed within timeout limit.
      */
     private suspend fun runCodeBlockWithTimeout(
-        block: suspend () -> Unit,
+        block: suspend (authData: AuthData?) -> Unit,
         timeoutBlock: (() -> Unit)? = null,
         exceptionBlock: ((e: Exception) -> Unit)? = null,
     ): ResultStatus {
         return try {
+            var authObject: AuthObject?
             withTimeout(timeoutDurationInMillis) {
-                block()
+                authObject = executeBlockHandlingException(block)
+            }
+
+            authObject?.let {
+                EventBus.invokeEvent(AppEvent.AuthUpdateEvent(it))
             }
             ResultStatus.OK
         } catch (e: TimeoutCancellationException) {
@@ -1041,6 +1059,35 @@ class FusedAPIImpl @Inject constructor(
                 message = e.stackTraceToString()
             }
         }
+    }
+
+    private suspend fun FusedAPIImpl.executeBlockHandlingException(
+        block: suspend (authData: AuthData?) -> Unit,
+    ): AuthObject? {
+        return try {
+            block(null)
+            handleUnauthorizedAuthData(block)
+        } catch (e: ApiException.AppNotFound) {
+            Timber.w(e)
+            handleUnauthorizedAuthData(block) ?: throw e
+        }
+    }
+
+    private suspend fun handleUnauthorizedAuthData(
+        block: suspend (authData: AuthData?) -> Unit
+    ): AuthObject? {
+        if (!GPlayHttpClient.IS_AUTH_VALID) {
+            val loginSources = loginSourceRepository.getAuthObjects()
+
+            loginSources.find { it is AuthObject.GPlayAuth }?.let {
+                val authData = (it.result.data as AuthData)
+                GPlayHttpClient.IS_AUTH_VALID = true
+                block.invoke(authData)
+                Timber.d("data refreshed with new auth!")
+                return it
+            }
+        }
+        return null
     }
 
     private fun updateCategoryDrawable(
@@ -1190,7 +1237,8 @@ class FusedAPIImpl @Inject constructor(
         query: String,
         authData: AuthData
     ): LiveData<Pair<List<FusedApp>, Boolean>> {
-        val searchResults = gPlayAPIRepository.getSearchResults(query, authData, ::replaceWithFDroid)
+        val searchResults =
+            gPlayAPIRepository.getSearchResults(query, authData, ::replaceWithFDroid)
         return searchResults.map {
             Pair(
                 it.first,
@@ -1336,7 +1384,10 @@ class FusedAPIImpl @Inject constructor(
                     updateFilterLevel(authData)
                 }
             }
-            list.add(FusedHome(it.key, result))
+
+            if (result.isNotEmpty()) {
+                list.add(FusedHome(it.key, result))
+            }
         }
         return list
     }

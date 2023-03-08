@@ -21,9 +21,11 @@
 package foundation.e.apps.utils.eventBus
 
 import foundation.e.apps.api.ResultSupreme
+import foundation.e.apps.login.AuthObject
 import foundation.e.apps.utils.enums.ResultStatus
 
 sealed class AppEvent(val data: Any) {
     class SignatureMissMatchError(packageName: String) : AppEvent(packageName)
     class UpdateEvent(result: ResultSupreme.WorkError<ResultStatus>) : AppEvent(result)
+    class AuthUpdateEvent(authObject: AuthObject) : AppEvent(authObject)
 }
