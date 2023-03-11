@@ -28,6 +28,8 @@ import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import foundation.e.apps.api.fused.data.FusedApp
+import foundation.e.apps.api.gplay.utils.GplayUtils
+import foundation.e.apps.login.AuthObject
 import javax.inject.Inject
 
 class GPlayAPIRepository @Inject constructor(private val gPlayAPIImpl: GPlayAPIImpl) {
@@ -40,8 +42,9 @@ class GPlayAPIRepository @Inject constructor(private val gPlayAPIImpl: GPlayAPII
         query: String,
         authData: AuthData,
         replaceWithFDroid: suspend (App) -> FusedApp,
+        authValidator: suspend () -> AuthObject?
     ): LiveData<Pair<List<FusedApp>, Boolean>> {
-        return gPlayAPIImpl.getSearchResults(query, authData, replaceWithFDroid)
+        return gPlayAPIImpl.getSearchResults(query, authData, replaceWithFDroid, authValidator)
     }
 
     suspend fun getOnDemandModule(
@@ -108,5 +111,12 @@ class GPlayAPIRepository @Inject constructor(private val gPlayAPIImpl: GPlayAPII
 
     suspend fun listApps(browseUrl: String, authData: AuthData): List<App> {
         return gPlayAPIImpl.listApps(browseUrl, authData)
+    }
+
+    suspend fun handleUnauthorizedAuthData(
+        block: suspend (authData: AuthData?) -> Unit,
+        authDataFetcher: suspend () -> AuthObject?
+    ): AuthObject? {
+        return GplayUtils.handleUnauthorizedAuthData(block, authDataFetcher)
     }
 }

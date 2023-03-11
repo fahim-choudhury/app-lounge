@@ -43,7 +43,7 @@ class LoginSourceGPlay @Inject constructor(
     @ApplicationContext private val context: Context,
     private val gson: Gson,
     private val loginDataStore: LoginDataStore,
-) : LoginSourceInterface {
+) : LoginSourceInterface, AuthValidator {
 
     @Inject
     lateinit var gPlayApiFactory: GPlayApiFactory
@@ -86,13 +86,8 @@ class LoginSourceGPlay @Inject constructor(
             }
             )
 
-        // validate authData and save it if nothing is saved (first time use.)
-        validateAuthData(authData).run {
-            if (isSuccess() && savedAuth == null) {
-                saveAuthData(authData)
-            }
-            return AuthObject.GPlayAuth(this, user)
-        }
+        loginDataStore.saveAuthData(authData)
+        return AuthObject.GPlayAuth(ResultSupreme.Success(authData), user)
     }
 
     override suspend fun clearSavedAuth() {
@@ -243,5 +238,21 @@ class LoginSourceGPlay @Inject constructor(
                 GPlayValidationException(message, user, playResponse?.code ?: -1)
             )
         }
+    }
+
+    override suspend fun validateAuth(): AuthObject? {
+        val authData = getSavedAuthData()
+
+        // validate authData and save it if nothing is saved (first time use.)
+        authData?.let {
+            validateAuthData(authData).run {
+                if (isSuccess()) {
+                    saveAuthData(authData)
+                }
+                return AuthObject.GPlayAuth(this, user)
+            }
+        }
+
+        return null
     }
 }

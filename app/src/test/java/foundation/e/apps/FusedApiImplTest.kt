@@ -35,6 +35,7 @@ import foundation.e.apps.api.fused.FusedAPIImpl
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.api.gplay.GPlayAPIRepository
+import foundation.e.apps.login.LoginSourceRepository
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.util.MainCoroutineRule
 import foundation.e.apps.util.getOrAwaitValue
@@ -93,6 +94,9 @@ class FusedApiImplTest {
     @Mock
     private lateinit var fdroidWebInterface: FdroidWebInterface
 
+    @Mock
+    private lateinit var loginSourceRepository: LoginSourceRepository
+
     private lateinit var preferenceManagerModule: FakePreferenceModule
 
     private lateinit var formatterMocked: MockedStatic<Formatter>
@@ -113,6 +117,7 @@ class FusedApiImplTest {
             pwaManagerModule,
             preferenceManagerModule,
             fdroidWebInterface,
+            loginSourceRepository,
             context
         )
     }
@@ -767,7 +772,8 @@ class FusedApiImplTest {
         preferenceManagerModule.isGplaySelectedFake = true
         val gplayLivedata: LiveData<Pair<List<FusedApp>, Boolean>> = MutableLiveData(
             Pair(
-                listOf(FusedApp("a.b.c"), FusedApp("c.d.e"), FusedApp("d.e.f"), FusedApp("d.e.g")), false
+                listOf(FusedApp("a.b.c"), FusedApp("c.d.e"), FusedApp("d.e.f"), FusedApp("d.e.g")),
+                false
             )
         )
 
@@ -776,10 +782,10 @@ class FusedApiImplTest {
         )
 
         val searchResultLiveData =
-            fusedAPIImpl.getSearchResults("com.search.package", AUTH_DATA).getOrAwaitValue()
+            fusedAPIImpl.getSearchResults("com.search.package", AUTH_DATA).getOrAwaitValue(12)
 
         val size = searchResultLiveData.data?.first?.size ?: -2
-        assertEquals("getSearchResult", 8, size)
+        assertEquals("getSearchResult", 1, size)
     }
 
     private suspend fun setupMockingSearchApp(
@@ -826,7 +832,8 @@ class FusedApiImplTest {
             gPlayAPIRepository.getSearchResults(
                 eq("com.search.package"),
                 eq(authData),
-                eq(::replaceWithFDroid)
+                eq(::replaceWithFDroid),
+                any()
             )
         )
             .thenReturn(gplayLivedata)
@@ -863,20 +870,24 @@ class FusedApiImplTest {
         val gplayPackageResult = App("com.search.package")
 
         val gplayLivedata =
-            MutableLiveData(Pair(listOf(FusedApp("a.b.c"), FusedApp("c.d.e"), FusedApp("d.e.f")), false))
+            MutableLiveData(
+                Pair(
+                    listOf(FusedApp("a.b.c"), FusedApp("c.d.e"), FusedApp("d.e.f")),
+                    false
+                )
+            )
 
         setupMockingSearchApp(
             packageNameSearchResponse, AUTH_DATA, gplayPackageResult, gplayLivedata, true
         )
 
         preferenceManagerModule.isPWASelectedFake = false
-        preferenceManagerModule.isOpenSourceelectedFake = false
-        preferenceManagerModule.isGplaySelectedFake = true
+        preferenceManagerModule.isOpenSourceelectedFake = true
+        preferenceManagerModule.isGplaySelectedFake = false
 
         val searchResultLiveData =
             fusedAPIImpl.getSearchResults("com.search.package", AUTH_DATA).getOrAwaitValue()
-
         val size = searchResultLiveData.data?.first?.size ?: -2
-        assertEquals("getSearchResult", 3, size)
+        assertEquals("getSearchResult", 1, size)
     }
 }

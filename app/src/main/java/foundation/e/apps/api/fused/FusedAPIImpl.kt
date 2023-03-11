@@ -48,7 +48,6 @@ import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.api.fused.data.Ratings
 import foundation.e.apps.api.fused.utils.CategoryUtils
 import foundation.e.apps.api.gplay.GPlayAPIRepository
-import foundation.e.apps.api.gplay.utils.GPlayHttpClient
 import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.login.AuthObject
 import foundation.e.apps.login.LoginSourceRepository
@@ -884,7 +883,7 @@ class FusedAPIImpl @Inject constructor(
                 it.updateFilterLevel(authData)
             }
         })
-        Timber.d("getAppDetails: $status")
+
         return Pair(response ?: FusedApp(), status)
     }
 
@@ -1085,33 +1084,19 @@ class FusedAPIImpl @Inject constructor(
         }
     }
 
-    private suspend fun FusedAPIImpl.executeBlockHandlingException(
+    private suspend fun executeBlockHandlingException(
         block: suspend (authData: AuthData?) -> Unit,
     ): AuthObject? {
         return try {
             block(null)
-            handleUnauthorizedAuthData(block)
+            gPlayAPIRepository.handleUnauthorizedAuthData(block) { loginSourceRepository.validateAuthObject() }
         } catch (e: ApiException.AppNotFound) {
             Timber.w(e)
-            handleUnauthorizedAuthData(block) ?: throw e
+            gPlayAPIRepository.handleUnauthorizedAuthData(block) { loginSourceRepository.validateAuthObject() }
+                ?: throw e
+        } catch (e: Exception) {
+            throw e
         }
-    }
-
-    private suspend fun handleUnauthorizedAuthData(
-        block: suspend (authData: AuthData?) -> Unit
-    ): AuthObject? {
-        if (!GPlayHttpClient.IS_AUTH_VALID) {
-            val loginSources = loginSourceRepository.getAuthObjects()
-
-            loginSources.find { it is AuthObject.GPlayAuth }?.let {
-                val authData = (it.result.data as AuthData)
-                GPlayHttpClient.IS_AUTH_VALID = true
-                block.invoke(authData)
-                Timber.d("data refreshed with new auth!")
-                return it
-            }
-        }
-        return null
     }
 
     private fun updateCategoryDrawable(
@@ -1123,7 +1108,7 @@ class FusedAPIImpl @Inject constructor(
 
     private fun getCategoryIconName(category: FusedCategory): String {
         var categoryTitle = if (category.tag.getOperationalTag()
-            .contentEquals(AppTag.GPlay().getOperationalTag())
+                .contentEquals(AppTag.GPlay().getOperationalTag())
         ) category.id else category.title
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
@@ -1262,7 +1247,9 @@ class FusedAPIImpl @Inject constructor(
         authData: AuthData
     ): LiveData<Pair<List<FusedApp>, Boolean>> {
         val searchResults =
-            gPlayAPIRepository.getSearchResults(query, authData, ::replaceWithFDroid)
+            gPlayAPIRepository.getSearchResults(query, authData, ::replaceWithFDroid) {
+                loginSourceRepository.validateAuthObject()
+            }
         return searchResults.map {
             Pair(
                 it.first,

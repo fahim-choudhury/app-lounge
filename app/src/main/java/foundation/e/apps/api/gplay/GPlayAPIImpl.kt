@@ -38,12 +38,16 @@ import com.aurora.gplayapi.helpers.StreamHelper
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.gplay.utils.GPlayHttpClient
+import foundation.e.apps.api.gplay.utils.GplayUtils
+import foundation.e.apps.login.AuthObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class GPlayAPIImpl @Inject constructor(private val gPlayHttpClient: GPlayHttpClient) {
+class GPlayAPIImpl @Inject constructor(
+    private val gPlayHttpClient: GPlayHttpClient
+) {
 
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {
         val searchData = mutableListOf<SearchSuggestEntry>()
@@ -62,6 +66,7 @@ class GPlayAPIImpl @Inject constructor(private val gPlayHttpClient: GPlayHttpCli
         query: String,
         authData: AuthData,
         replaceWithFDroid: suspend (App) -> FusedApp,
+        authValidator: suspend () -> AuthObject?
     ): LiveData<Pair<List<FusedApp>, Boolean>> {
         /*
          * Send livedata to improve UI performance, so we don't have to wait for loading all results.
@@ -73,8 +78,15 @@ class GPlayAPIImpl @Inject constructor(private val gPlayHttpClient: GPlayHttpCli
                  * Variable names and logic made same as that of Aurora store.
                  * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
                  */
-                val searchHelper = SearchHelper(authData).using(gPlayHttpClient)
-                val searchBundle = searchHelper.searchResults(query)
+                var searchHelper = SearchHelper(authData).using(gPlayHttpClient)
+                var searchBundle = searchHelper.searchResults(query)
+
+                GplayUtils.handleUnauthorizedAuthData({ authData ->
+                    authData?.let {
+                        searchHelper = SearchHelper(it).using(gPlayHttpClient)
+                        searchBundle = searchHelper.searchResults(query)
+                    }
+                }, authValidator)
 
                 val initialReplacedList = mutableListOf<FusedApp>()
                 val INITIAL_LIMIT = 4
@@ -91,7 +103,15 @@ class GPlayAPIImpl @Inject constructor(private val gPlayHttpClient: GPlayHttpCli
                 var nextSubBundleSet: MutableSet<SearchBundle.SubBundle>
                 do {
                     nextSubBundleSet = searchBundle.subBundles
-                    val newSearchBundle = searchHelper.next(nextSubBundleSet)
+                    var newSearchBundle = searchHelper.next(nextSubBundleSet)
+
+                    GplayUtils.handleUnauthorizedAuthData({ authData ->
+                        authData?.let {
+                            searchHelper = SearchHelper(it).using(gPlayHttpClient)
+                            newSearchBundle = searchHelper.next(nextSubBundleSet)
+                        }
+                    }, authValidator)
+
                     if (newSearchBundle.appList.isNotEmpty()) {
                         searchBundle.apply {
                             subBundles.clear()
