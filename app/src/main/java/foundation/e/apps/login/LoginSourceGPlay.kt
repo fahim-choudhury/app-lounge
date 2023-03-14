@@ -77,14 +77,14 @@ class LoginSourceGPlay @Inject constructor(
         val savedAuth = getSavedAuthData()
 
         val authData = (
-            savedAuth ?: run {
-                // if no saved data, then generate new auth data.
-                generateAuthData().let {
-                    if (it.isSuccess()) it.data!!
-                    else return AuthObject.GPlayAuth(it, user)
+                savedAuth ?: run {
+                    // if no saved data, then generate new auth data.
+                    generateAuthData().let {
+                        if (it.isSuccess()) it.data!!
+                        else return AuthObject.GPlayAuth(it, user)
+                    }
                 }
-            }
-            )
+                )
 
         loginDataStore.saveAuthData(authData)
         return AuthObject.GPlayAuth(ResultSupreme.Success(authData), user)
@@ -226,12 +226,12 @@ class LoginSourceGPlay @Inject constructor(
         } else {
             val message =
                 "Validating AuthData failed.\n" +
-                    "Network code: ${playResponse?.code}\n" +
-                    "Success: ${playResponse?.isSuccessful}" +
-                    playResponse?.errorString?.run {
-                        if (isNotBlank()) "\nError message: $this"
-                        else ""
-                    }
+                        "Network code: ${playResponse?.code}\n" +
+                        "Success: ${playResponse?.isSuccessful}" +
+                        playResponse?.errorString?.run {
+                            if (isNotBlank()) "\nError message: $this"
+                            else ""
+                        }
 
             ResultSupreme.Error(
                 message,
@@ -241,18 +241,8 @@ class LoginSourceGPlay @Inject constructor(
     }
 
     override suspend fun validateAuth(): AuthObject? {
-        val authData = getSavedAuthData()
-
-        // validate authData and save it if nothing is saved (first time use.)
-        authData?.let {
-            validateAuthData(authData).run {
-                if (isSuccess()) {
-                    saveAuthData(authData)
-                }
-                return AuthObject.GPlayAuth(this, user)
-            }
-        }
-
-        return null
+        clearSavedAuth()
+        val authObject = getAuthObject()
+        return if (authObject.result.isSuccess()) authObject else null
     }
 }
