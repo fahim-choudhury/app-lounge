@@ -92,10 +92,18 @@ class DownloadManager @Inject constructor(
         downloadFile: File,
         downloadCompleted: ((Boolean, String) -> Unit)?
     ): Long {
-        val request = DownloadManager.Request(Uri.parse(url))
-            .setTitle("Downloading...")
-            .setDestinationUri(Uri.fromFile(downloadFile))
-        val downloadId = downloadManager.enqueue(request)
+        var downloadId = -1L
+        try {
+            val request = DownloadManager.Request(Uri.parse(url))
+                .setTitle("Downloading...")
+                .setDestinationUri(Uri.fromFile(downloadFile))
+            downloadId = downloadManager.enqueue(request)
+        } catch (e: java.lang.NullPointerException) {
+            Timber.e(e, "Url: $url; downloadFilePath: ${downloadFile.absolutePath}")
+            downloadCompleted?.invoke(false, e.localizedMessage ?: "No message found!")
+            return downloadId
+        }
+
         downloadsMaps[downloadId] = true
         tickerFlow(downloadId, .5.seconds).onEach {
             checkDownloadProgress(downloadId, downloadFile.absolutePath, downloadCompleted)
@@ -150,6 +158,10 @@ class DownloadManager @Inject constructor(
         return getDownloadStatus(downloadId) == DownloadManager.STATUS_SUCCESSFUL
     }
 
+    fun hasDownloadFailed(downloadId: Long): Boolean {
+        return getDownloadStatus(downloadId) == DownloadManager.STATUS_FAILED
+    }
+
     private fun getDownloadStatus(downloadId: Long): Int {
         try {
             downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
@@ -157,7 +169,7 @@ class DownloadManager @Inject constructor(
                     if (cursor.moveToFirst()) {
                         val status =
                             cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
-                        Timber.d("Download Failed: downloadId: $downloadId $status")
+                        Timber.d("Download Status: downloadId: $downloadId $status")
                         return status
                     }
                 }
@@ -165,30 +177,5 @@ class DownloadManager @Inject constructor(
             Timber.e(e)
         }
         return DownloadManager.STATUS_FAILED
-    }
-
-    suspend fun checkDownloadProcess(downloadingIds: LongArray, handleFailed: suspend () -> Unit) {
-        try {
-            downloadManager.query(downloadManagerQuery.setFilterById(*downloadingIds))
-                .use { cursor ->
-
-                    if (!cursor.moveToFirst()) {
-                        return@use
-                    }
-
-                    while (!cursor.isAfterLast) {
-                        val status =
-                            cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
-
-                        if (status == DownloadManager.STATUS_FAILED) {
-                            handleFailed()
-                        }
-
-                        cursor.moveToNext()
-                    }
-                }
-        } catch (e: Exception) {
-            Timber.e(e)
-        }
     }
 }
