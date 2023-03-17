@@ -56,6 +56,7 @@ import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.exceptions.GPlayValidationException
 import foundation.e.apps.utils.modules.CommonUtilsFunctions
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -130,7 +131,10 @@ class MainActivity : AppCompatActivity() {
                     viewModel.gPlayAuthData = data as AuthData
                 } else if (exception is GPlayValidationException) {
                     val email = otherPayload.toString()
-                    viewModel.uploadFaultyTokenToEcloud(email, CommonUtilsFunctions.getAppBuildInfo())
+                    viewModel.uploadFaultyTokenToEcloud(
+                        email,
+                        CommonUtilsFunctions.getAppBuildInfo()
+                    )
                 }
             }
         }
@@ -213,6 +217,8 @@ class MainActivity : AppCompatActivity() {
         viewModel.updateAppWarningList()
 
         lifecycleScope.launchWhenResumed {
+            observeInvalidAuth()
+
             EventBus.events.filter { appEvent ->
                 appEvent is AppEvent.SignatureMissMatchError
             }.collectLatest {
@@ -222,6 +228,19 @@ class MainActivity : AppCompatActivity() {
                     message = getString(R.string.error_signature_mismatch, appName),
                     positiveButtonText = getString(R.string.ok)
                 ).show(supportFragmentManager, TAG)
+            }
+        }
+    }
+
+    private suspend fun observeInvalidAuth() {
+        EventBus.events.filter { appEvent ->
+            appEvent is AppEvent.InvalidAuthEvent
+        }.distinctUntilChanged { old, new ->
+            ((old.data is String) && (new.data is String) && old.data == new.data)
+        }.collectLatest {
+            val data = it.data as String
+            if (data.isNotBlank()) {
+                loginViewModel.markInvalidAuthObject(data)
             }
         }
     }

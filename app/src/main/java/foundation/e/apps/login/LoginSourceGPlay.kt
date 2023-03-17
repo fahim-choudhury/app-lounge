@@ -26,6 +26,7 @@ import foundation.e.apps.login.api.GPlayApiFactory
 import foundation.e.apps.login.api.GPlayLoginInterface
 import foundation.e.apps.login.api.GoogleLoginApi
 import foundation.e.apps.login.api.LoginApiRepository
+import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.exceptions.GPlayValidationException
 import java.util.Locale
@@ -86,13 +87,19 @@ class LoginSourceGPlay @Inject constructor(
             }
             )
 
-        // validate authData and save it if nothing is saved (first time use.)
-        validateAuthData(authData).run {
-            if (isSuccess() && savedAuth == null) {
-                saveAuthData(authData)
-            }
-            return AuthObject.GPlayAuth(this, user)
+        val formattedAuthData = formatAuthData(authData)
+        formattedAuthData.locale = locale
+        val result: ResultSupreme<AuthData?> = ResultSupreme.create(
+            status = ResultStatus.OK,
+            data = formattedAuthData
+        )
+        result.otherPayload = formattedAuthData.email
+
+        if (savedAuth == null) {
+            saveAuthData(formattedAuthData)
         }
+
+        return AuthObject.GPlayAuth(result, user)
     }
 
     override suspend fun clearSavedAuth() {
@@ -139,7 +146,7 @@ class LoginSourceGPlay @Inject constructor(
      * Aurora OSS GPlay API complains of missing headers sometimes.
      * Converting [authData] to Json and back to [AuthData] fixed it.
      */
-    private fun formattedAuthData(authData: AuthData): AuthData {
+    private fun formatAuthData(authData: AuthData): AuthData {
         val localAuthDataJson = gson.toJson(authData)
         return gson.fromJson(localAuthDataJson, AuthData::class.java)
     }
@@ -149,7 +156,7 @@ class LoginSourceGPlay @Inject constructor(
      */
     private suspend fun getAuthData(): ResultSupreme<AuthData?> {
         return loginApiRepository.fetchAuthData("", "", locale).run {
-            if (isSuccess()) ResultSupreme.Success(formattedAuthData(this.data!!))
+            if (isSuccess()) ResultSupreme.Success(formatAuthData(this.data!!))
             else this
         }
     }
@@ -200,7 +207,7 @@ class LoginSourceGPlay @Inject constructor(
          */
         loginDataStore.saveAasToken(aasTokenFetched)
         return loginApiRepository.fetchAuthData(email, aasTokenFetched, locale).run {
-            if (isSuccess()) ResultSupreme.Success(formattedAuthData(this.data!!))
+            if (isSuccess()) ResultSupreme.Success(formatAuthData(this.data!!))
             else this
         }
     }
@@ -214,7 +221,7 @@ class LoginSourceGPlay @Inject constructor(
         authData: AuthData,
     ): ResultSupreme<AuthData?> {
 
-        val formattedAuthData = formattedAuthData(authData)
+        val formattedAuthData = formatAuthData(authData)
         formattedAuthData.locale = locale
 
         val validityResponse = loginApiRepository.login(formattedAuthData)

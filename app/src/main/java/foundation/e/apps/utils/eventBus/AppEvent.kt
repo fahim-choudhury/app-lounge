@@ -26,4 +26,6 @@ import foundation.e.apps.utils.enums.ResultStatus
 sealed class AppEvent(val data: Any) {
     class SignatureMissMatchError(packageName: String) : AppEvent(packageName)
     class UpdateEvent(result: ResultSupreme.WorkError<ResultStatus>) : AppEvent(result)
+
+    class InvalidAuthEvent(authName: String) : AppEvent(authName)
 }

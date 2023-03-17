@@ -28,6 +28,7 @@ import foundation.e.apps.login.LoginSourceInterface
 @InstallIn(SingletonComponent::class)
 @Module
 object LoginModule {
+
     @Provides
     fun providesLoginSources(
         gPlay: LoginSourceGPlay,
