@@ -48,4 +48,14 @@ class CleanApkPWARepository(
     override suspend fun getSearchSuggestions(query: String): Any {
         TODO("Not yet implemented")
     }
+
+    override suspend fun getAppsByCategory(category: String, paginationParameter: Any?): Any {
+        return cleanAPKInterface.listApps(
+            category,
+            CleanAPKInterface.APP_SOURCE_FOSS,
+            CleanAPKInterface.APP_TYPE_PWA,
+            20,
+            1
+        )
+    }
 }

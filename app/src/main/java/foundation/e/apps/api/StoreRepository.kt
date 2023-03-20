@@ -22,4 +22,6 @@ interface StoreRepository {
     suspend fun getHomeScreenData(): Any
     suspend fun getSearchResult(query: String): Any
     suspend fun getSearchSuggestions(query: String): Any
+
+    suspend fun getAppsByCategory(category: String, paginationParameter: Any? = null): Any
 }

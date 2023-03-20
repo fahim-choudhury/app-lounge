@@ -562,7 +562,7 @@ class FusedAPIImpl @Inject constructor(
         var streamBundle = StreamBundle()
         val status = runCodeBlockWithTimeout({
             streamBundle =
-                gPlayAPIRepository.getNextStreamBundle(authData, homeUrl, currentStreamBundle)
+                gplayRepository.getAppsByCategory(homeUrl, currentStreamBundle) as StreamBundle
         })
         return ResultSupreme.create(status, streamBundle)
     }
@@ -575,7 +575,7 @@ class FusedAPIImpl @Inject constructor(
         var streamCluster = StreamCluster()
         val status = runCodeBlockWithTimeout({
             streamCluster =
-                gPlayAPIRepository.getAdjustedFirstCluster(authData, streamBundle, pointer)
+                gplayRepository.getAppsByCategory("", Pair(streamBundle, pointer)) as StreamCluster
         })
         return ResultSupreme.create(status, streamCluster)
     }
@@ -586,7 +586,8 @@ class FusedAPIImpl @Inject constructor(
     ): ResultSupreme<StreamCluster> {
         var streamCluster = StreamCluster()
         val status = runCodeBlockWithTimeout({
-            streamCluster = gPlayAPIRepository.getNextStreamCluster(authData, currentStreamCluster)
+            streamCluster =
+                gplayRepository.getAppsByCategory("", currentStreamCluster) as StreamCluster
         })
         return ResultSupreme.create(status, streamCluster)
     }
@@ -598,7 +599,7 @@ class FusedAPIImpl @Inject constructor(
         val list = mutableListOf<FusedApp>()
         val status = runCodeBlockWithTimeout({
             list.addAll(
-                gPlayAPIRepository.listApps(browseUrl, authData).map { app ->
+                (gplayRepository.getAppsByCategory(browseUrl) as List<App>).map { app ->
                     app.transformToFusedApp()
                 }
             )
@@ -1139,19 +1140,15 @@ class FusedAPIImpl @Inject constructor(
     }
 
     private suspend fun getOpenSourceAppsResponse(category: String): Search? {
-        return cleanAPKRepository.listApps(
+        return (cleanApkAppsRepository.getAppsByCategory(
             category,
-            CleanAPKInterface.APP_SOURCE_FOSS,
-            CleanAPKInterface.APP_TYPE_ANY
-        ).body()
+        ) as Response<Search>).body()
     }
 
     private suspend fun getPWAAppsResponse(category: String): Search? {
-        return cleanAPKRepository.listApps(
+        return (cleanApkPWARepository.getAppsByCategory(
             category,
-            CleanAPKInterface.APP_SOURCE_ANY,
-            CleanAPKInterface.APP_TYPE_PWA
-        ).body()
+        ) as Response<Search>).body()
     }
 
     private fun Category.transformToFusedCategory(): FusedCategory {

@@ -47,6 +47,16 @@ class CleanApkAppsRepository(
     }
 
     override suspend fun getSearchSuggestions(query: String): Any {
-        TODO("Not yet implemented")
+        return Any()
+    }
+
+    override suspend fun getAppsByCategory(category: String, paginationParameter: Any?): Response<Search> {
+        return cleanAPKInterface.listApps(
+            category,
+            CleanAPKInterface.APP_SOURCE_FOSS,
+            CleanAPKInterface.APP_TYPE_ANY,
+            20,
+            1
+        )
     }
 }
