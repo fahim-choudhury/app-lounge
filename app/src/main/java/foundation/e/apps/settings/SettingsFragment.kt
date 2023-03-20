@@ -29,6 +29,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.preference.CheckBoxPreference
 import androidx.preference.Preference
+import androidx.preference.Preference.OnPreferenceChangeListener
 import androidx.preference.PreferenceFragmentCompat
 import androidx.work.ExistingPeriodicWorkPolicy
 import coil.load
@@ -160,6 +161,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         super.onViewCreated(view, savedInstanceState)
 
+        val autoInstallUpdate = fetchCheckboxPreference(R.string.auto_install_enabled)
+        val onlyUnmeteredNetwork = fetchCheckboxPreference(R.string.only_unmetered_network)
+
+        setCheckboxDependency(onlyUnmeteredNetwork, autoInstallUpdate)
+
+        // This is useful if a user from older App Lounge updates to this version
+        disableDependentCheckbox(onlyUnmeteredNetwork, autoInstallUpdate)
+
         mainActivityViewModel.gPlayAuthData.let { authData ->
             mainActivityViewModel.getUser().name.let { user ->
                 when (user) {
@@ -226,6 +235,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
+    private fun fetchCheckboxPreference(id: Int): CheckBoxPreference? {
+        return findPreference(getString(id))
+    }
+
     fun isAnyAppSourceSelected() =
         showAllApplications?.isChecked == true || showFOSSApplications?.isChecked == true || showPWAApplications?.isChecked == true
 
@@ -236,6 +249,34 @@ class SettingsFragment : PreferenceFragmentCompat() {
             startActivity(it)
             activity?.overridePendingTransition(0, 0)
         }
+    }
+
+    private fun disableDependentCheckbox(
+        checkBox: CheckBoxPreference?,
+        parentCheckBox: CheckBoxPreference?
+    ) {
+        checkBox?.apply {
+            if (parentCheckBox?.isChecked == false) {
+                this.isChecked = false
+                this.isEnabled = false
+            }
+        }
+    }
+
+    private fun setCheckboxDependency(
+        checkBox: CheckBoxPreference?,
+        parentCheckBox: CheckBoxPreference?,
+        parentCheckBoxPreferenceChangeListener: OnPreferenceChangeListener? = null,
+    ) {
+        checkBox?.dependency = parentCheckBox?.key
+        parentCheckBox?.onPreferenceChangeListener =
+            OnPreferenceChangeListener { preference, newValue ->
+                if (newValue == false) {
+                    checkBox?.isChecked = false
+                }
+                parentCheckBoxPreferenceChangeListener?.onPreferenceChange(preference, newValue)
+                    ?: true
+            }
     }
 
     override fun onDestroyView() {
