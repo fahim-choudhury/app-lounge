@@ -9,6 +9,9 @@ import foundation.e.apps.api.exodus.models.AppPrivacyInfo
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.getResult
 import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.ceil
@@ -42,7 +45,12 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
             return Result.success(appInfo)
         }
 
-        val appTrackerInfoResult = getResult { exodusTrackerApi.getTrackerInfoOfApp(appHandle) }
+        val appTrackerInfoResult = getResult {
+            exodusTrackerApi.getTrackerInfoOfApp(
+                appHandle,
+                fusedApp.latest_version_code,
+            )
+        }
         if (appTrackerInfoResult.isSuccess()) {
             val appPrivacyPrivacyInfoResult =
                 handleAppPrivacyInfoResultSuccess(appTrackerInfoResult)
@@ -82,7 +90,7 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
     }
 
     private suspend fun generateTrackerListFromExodusApi() {
-        val result = getResult { exodusTrackerApi.getTrackerList() }
+        val result = getResult { exodusTrackerApi.getTrackerList(getDate()) }
         if (result.isSuccess()) {
             result.data?.let {
                 val trackerList = it.trackers.values.toList()
@@ -90,6 +98,11 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
                 this.trackers = trackerList
             }
         }
+    }
+
+    private fun getDate(): String {
+        val dateFormat = SimpleDateFormat("ddMMyyyy", Locale("en"))
+        return dateFormat.format(Date())
     }
 
     private fun extractErrorMessage(appTrackerResult: Result<List<Report>>): String {
