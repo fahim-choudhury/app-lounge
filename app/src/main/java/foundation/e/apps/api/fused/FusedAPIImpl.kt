@@ -22,6 +22,7 @@ import android.content.Context
 import android.text.format.Formatter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataScope
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import com.aurora.gplayapi.Constants
@@ -32,14 +33,15 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
-import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.api.ResultSupreme
+import foundation.e.apps.api.StoreRepository
 import foundation.e.apps.api.cleanapk.CleanAPKInterface
 import foundation.e.apps.api.cleanapk.CleanAPKRepository
 import foundation.e.apps.api.cleanapk.data.categories.Categories
 import foundation.e.apps.api.cleanapk.data.home.Home
+import foundation.e.apps.api.cleanapk.data.home.HomeScreen
 import foundation.e.apps.api.cleanapk.data.search.Search
 import foundation.e.apps.api.fdroid.FdroidWebInterface
 import foundation.e.apps.api.fused.data.FusedApp
@@ -63,10 +65,16 @@ import foundation.e.apps.utils.enums.isUnFiltered
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeout
+import retrofit2.Response
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
+
+typealias GplaySearchResultFlow = Flow<ResultSupreme<Pair<List<FusedApp>, Boolean>>>
 
 @Singleton
 class FusedAPIImpl @Inject constructor(
@@ -76,6 +84,9 @@ class FusedAPIImpl @Inject constructor(
     private val pwaManagerModule: PWAManagerModule,
     private val preferenceManagerModule: PreferenceManagerModule,
     private val fdroidWebInterface: FdroidWebInterface,
+    @Named("gplayRepository") private val gplayRepository: StoreRepository,
+    @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: StoreRepository,
+    @Named("cleanApkPWARepository") private val cleanApkPWARepository: StoreRepository,
     @ApplicationContext private val context: Context
 ) {
 
@@ -152,20 +163,16 @@ class FusedAPIImpl @Inject constructor(
             })
 
             Source.OPEN -> runCodeBlockWithTimeout({
-                val response = cleanAPKRepository.getHomeScreenData(
-                    CleanAPKInterface.APP_TYPE_ANY,
-                    CleanAPKInterface.APP_SOURCE_FOSS
-                ).body()
+                val response =
+                    (cleanApkAppsRepository.getHomeScreenData() as Response<HomeScreen>).body()
                 response?.home?.let {
                     priorList.addAll(generateCleanAPKHome(it, APP_TYPE_OPEN))
                 }
             })
 
             Source.PWA -> runCodeBlockWithTimeout({
-                val response = cleanAPKRepository.getHomeScreenData(
-                    CleanAPKInterface.APP_TYPE_PWA,
-                    CleanAPKInterface.APP_SOURCE_ANY
-                ).body()
+                val response =
+                    (cleanApkPWARepository.getHomeScreenData() as Response<HomeScreen>).body()
                 response?.home?.let {
                     priorList.addAll(generateCleanAPKHome(it, APP_TYPE_PWA))
                 }
@@ -272,7 +279,7 @@ class FusedAPIImpl @Inject constructor(
                         authData,
                         searchResult,
                         packageSpecificResults
-                    )
+                    ).asLiveData()
                 )
             }
         }
@@ -286,11 +293,9 @@ class FusedAPIImpl @Inject constructor(
     ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
         val pwaApps: MutableList<FusedApp> = mutableListOf()
         val status = fusedAPIImpl.runCodeBlockWithTimeout({
-            getCleanAPKSearchResults(
-                query,
-                CleanAPKInterface.APP_SOURCE_ANY,
-                CleanAPKInterface.APP_TYPE_PWA
-            ).apply {
+            val apps =
+                (cleanApkPWARepository.getSearchResult(query) as Response<Search>).body()?.apps
+            apps?.apply {
                 if (this.isNotEmpty()) {
                     pwaApps.addAll(this)
                 }
@@ -314,27 +319,26 @@ class FusedAPIImpl @Inject constructor(
         )
     }
 
-    private fun fetchGplaySearchResults(
+    private suspend fun fetchGplaySearchResults(
         query: String,
         authData: AuthData,
         searchResult: MutableList<FusedApp>,
         packageSpecificResults: ArrayList<FusedApp>
-    ): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
-        getGplaySearchResults(query, authData).map {
-            if (it.first.isNotEmpty()) {
-                searchResult.addAll(it.first)
-            }
-            ResultSupreme.Success(
-                Pair(
-                    filterWithKeywordSearch(
-                        searchResult,
-                        packageSpecificResults,
-                        query
-                    ),
-                    it.second
-                )
-            )
+    ): GplaySearchResultFlow = getGplaySearchResult(query, authData).map {
+        if (it.first.isNotEmpty()) {
+            searchResult.addAll(it.first)
         }
+        ResultSupreme.Success(
+            Pair(
+                filterWithKeywordSearch(
+                    searchResult,
+                    packageSpecificResults,
+                    query
+                ),
+                it.second
+            )
+        )
+    }
 
     private suspend fun fetchOpenSourceSearchResult(
         fusedAPIImpl: FusedAPIImpl,
@@ -469,7 +473,7 @@ class FusedAPIImpl @Inject constructor(
     }
 
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {
-        return gPlayAPIRepository.getSearchSuggestions(query, authData)
+        return gplayRepository.getSearchSuggestions(query) as List<SearchSuggestEntry>
     }
 
     suspend fun getOnDemandModule(
@@ -1052,7 +1056,7 @@ class FusedAPIImpl @Inject constructor(
 
     private fun getCategoryIconName(category: FusedCategory): String {
         var categoryTitle = if (category.tag.getOperationalTag()
-            .contentEquals(AppTag.GPlay().getOperationalTag())
+                .contentEquals(AppTag.GPlay().getOperationalTag())
         ) category.id else category.title
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
@@ -1174,7 +1178,7 @@ class FusedAPIImpl @Inject constructor(
     ): List<FusedApp> {
         val list = mutableListOf<FusedApp>()
         val response =
-            cleanAPKRepository.searchApps(keyword, source, type, nres, page, by).body()?.apps
+            (cleanApkAppsRepository.getSearchResult(keyword) as Response<Search>).body()?.apps
 
         response?.forEach {
             it.updateStatus()
@@ -1190,10 +1194,25 @@ class FusedAPIImpl @Inject constructor(
         query: String,
         authData: AuthData
     ): LiveData<Pair<List<FusedApp>, Boolean>> {
-        val searchResults = gPlayAPIRepository.getSearchResults(query, authData, ::replaceWithFDroid)
+        val searchResults =
+            gPlayAPIRepository.getSearchResults(query, authData, ::replaceWithFDroid)
         return searchResults.map {
             Pair(
                 it.first,
+                it.second
+            )
+        }
+    }
+
+    private suspend fun getGplaySearchResult(
+        query: String,
+        authData: AuthData
+    ): Flow<Pair<List<FusedApp>, Boolean>> {
+        val searchResults = gplayRepository.getSearchResult(query) as Flow<Pair<List<App>, Boolean>>
+        return searchResults.map {
+            val fusedAppList = it.first.map { app -> replaceWithFDroid(app) }
+            Pair(
+                fusedAppList,
                 it.second
             )
         }
@@ -1320,24 +1339,16 @@ class FusedAPIImpl @Inject constructor(
 
     private suspend fun fetchGPlayHome(authData: AuthData): List<FusedHome> {
         val list = mutableListOf<FusedHome>()
-        val homeElements = mutableMapOf(
-            context.getString(R.string.topselling_free_apps) to mapOf(TopChartsHelper.Chart.TOP_SELLING_FREE to TopChartsHelper.Type.APPLICATION),
-            context.getString(R.string.topselling_free_games) to mapOf(TopChartsHelper.Chart.TOP_SELLING_FREE to TopChartsHelper.Type.GAME),
-            context.getString(R.string.topgrossing_apps) to mapOf(TopChartsHelper.Chart.TOP_GROSSING to TopChartsHelper.Type.APPLICATION),
-            context.getString(R.string.topgrossing_games) to mapOf(TopChartsHelper.Chart.TOP_GROSSING to TopChartsHelper.Type.GAME),
-            context.getString(R.string.movers_shakers_apps) to mapOf(TopChartsHelper.Chart.MOVERS_SHAKERS to TopChartsHelper.Type.APPLICATION),
-            context.getString(R.string.movers_shakers_games) to mapOf(TopChartsHelper.Chart.MOVERS_SHAKERS to TopChartsHelper.Type.GAME),
-        )
-        homeElements.forEach {
-            val chart = it.value.keys.iterator().next()
-            val type = it.value.values.iterator().next()
-            val result = gPlayAPIRepository.getTopApps(type, chart, authData).map { app ->
+        val gplayHomeData = gplayRepository.getHomeScreenData() as Map<String, List<App>>
+        gplayHomeData.map {
+            val fusedApps = it.value.map { app ->
                 app.transformToFusedApp().apply {
                     updateFilterLevel(authData)
                 }
             }
-            list.add(FusedHome(it.key, result))
+            list.add(FusedHome(it.key, fusedApps))
         }
+        Timber.d("===> $list")
         return list
     }
 
