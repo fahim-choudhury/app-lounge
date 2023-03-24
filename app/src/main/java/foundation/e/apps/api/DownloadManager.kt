@@ -111,7 +111,7 @@ class DownloadManager @Inject constructor(
         return downloadId
     }
 
-    private fun checkDownloadProgress(
+    fun checkDownloadProgress(
         downloadId: Long,
         filePath: String = "",
         downloadCompleted: ((Boolean, String) -> Unit)?
