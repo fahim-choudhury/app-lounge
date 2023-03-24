@@ -179,8 +179,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.purchaseAppLiveData.observe(this) {
             val action =
-                AppPurchaseFragmentDirections.actionGlobalAppPurchaseFragment()
-            action.packageName = it.packageName
+                AppPurchaseFragmentDirections.actionGlobalAppPurchaseFragment(it.packageName)
             findNavController(R.id.fragment).navigate(action)
         }
 

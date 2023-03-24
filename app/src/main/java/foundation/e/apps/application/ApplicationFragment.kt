@@ -242,8 +242,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
         binding.appDescriptionMore.setOnClickListener { view ->
             val action =
-                ApplicationFragmentDirections.actionApplicationFragmentToDescriptionFragment()
-            action.description = it.description
+                ApplicationFragmentDirections.actionApplicationFragmentToDescriptionFragment(it.description)
             view.findNavController().navigate(action)
         }
     }
@@ -387,7 +386,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun setupToolbar(view: View) {
-        val startDestination = findNavController().graph.startDestination
+        val startDestination = findNavController().graph.startDestinationId
         if (startDestination == R.id.applicationFragment) {
             binding.toolbar.setNavigationOnClickListener {
                 val action = ApplicationFragmentDirections.actionApplicationFragmentToHomeFragment()

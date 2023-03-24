@@ -40,11 +40,12 @@ class FakeFusedManagerRepository(
         fusedDownload.status = Status.DOWNLOADING
         fusedDownload.downloadIdMap = mutableMapOf(Pair(341, false), Pair(342, false))
         fusedDownloadDAO.updateDownload(fusedDownload)
-        delay(10000)
+        delay(5000)
 
         if (willDownloadFail) {
             fusedDownload.downloadIdMap.clear()
             fusedDownload.downloadIdMap = mutableMapOf(Pair(-1, false), Pair(-1, false))
+            fusedDownload.status = Status.INSTALLATION_ISSUE
             fusedDownloadDAO.updateDownload(fusedDownload)
             return
         }

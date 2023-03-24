@@ -218,29 +218,31 @@ class ApplicationListRVAdapter(
         val catText = searchApp.category.ifBlank { optionalCategory }
         val action = when (currentDestinationId) {
             R.id.applicationListFragment -> {
-                val action = ApplicationListFragmentDirections.actionApplicationListFragmentToApplicationFragment(searchApp.package_name)
-                action.id = searchApp._id
-                action.packageName = searchApp.package_name
-                action.origin = searchApp.origin
-                action.category = catText
-                action
+                ApplicationListFragmentDirections.actionApplicationListFragmentToApplicationFragment(
+                    searchApp.package_name,
+                    searchApp._id,
+                    searchApp.origin,
+                    catText,
+                    searchApp.isGplayReplaced
+                )
             }
             R.id.searchFragment -> {
-                val action = SearchFragmentDirections.actionSearchFragmentToApplicationFragment(searchApp.package_name)
-                action.id = searchApp._id
-                action.packageName = searchApp.package_name
-                action.origin = searchApp.origin
-                action.category = catText
-                action.isGplayReplaced = searchApp.isGplayReplaced
-                action
+                SearchFragmentDirections.actionSearchFragmentToApplicationFragment(
+                    searchApp.package_name,
+                    searchApp._id,
+                    searchApp.origin,
+                    catText,
+                    searchApp.isGplayReplaced
+                )
             }
             R.id.updatesFragment -> {
-                val action = UpdatesFragmentDirections.actionUpdatesFragmentToApplicationFragment(searchApp.package_name)
-                action.id = searchApp._id
-                action.packageName = searchApp.package_name
-                action.origin = searchApp.origin
-                action.category = catText
-                action
+                UpdatesFragmentDirections.actionUpdatesFragmentToApplicationFragment(
+                    searchApp.package_name,
+                    searchApp._id,
+                    searchApp.origin,
+                    catText,
+                    searchApp.isGplayReplaced
+                )
             }
             else -> null
         }
@@ -479,7 +481,8 @@ class ApplicationListRVAdapter(
             searchApp.isFree -> {
                 materialButton.enableInstallButton()
                 materialButton.text = materialButton.context.getString(R.string.install)
-                materialButton.strokeColor = ContextCompat.getColorStateList(holder.itemView.context, R.color.light_grey)
+                materialButton.strokeColor =
+                    ContextCompat.getColorStateList(holder.itemView.context, R.color.light_grey)
                 applicationListItemBinding.progressBarInstall.visibility = View.GONE
             }
             else -> {
