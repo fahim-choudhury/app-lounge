@@ -92,12 +92,11 @@ class HomeChildRVAdapter(
             }
             appName.text = homeApp.name
             homeLayout.setOnClickListener {
-                val action = HomeFragmentDirections.actionHomeFragmentToApplicationFragment(
-                    homeApp._id,
-                    homeApp.package_name,
-                    homeApp.origin,
-                    homeApp.category
-                )
+                val action = HomeFragmentDirections.actionHomeFragmentToApplicationFragment(homeApp.package_name)
+                action.id = homeApp._id
+                action.packageName = homeApp.package_name
+                action.origin = homeApp.origin
+                action.category = homeApp.category
                 holder.itemView.findNavController().navigate(action)
             }
 

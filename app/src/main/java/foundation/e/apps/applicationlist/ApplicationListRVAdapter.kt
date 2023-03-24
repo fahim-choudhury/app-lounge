@@ -218,29 +218,29 @@ class ApplicationListRVAdapter(
         val catText = searchApp.category.ifBlank { optionalCategory }
         val action = when (currentDestinationId) {
             R.id.applicationListFragment -> {
-                ApplicationListFragmentDirections.actionApplicationListFragmentToApplicationFragment(
-                    searchApp._id,
-                    searchApp.package_name,
-                    searchApp.origin,
-                    catText,
-                )
+                val action = ApplicationListFragmentDirections.actionApplicationListFragmentToApplicationFragment(searchApp.package_name)
+                action.id = searchApp._id
+                action.packageName = searchApp.package_name
+                action.origin = searchApp.origin
+                action.category = catText
+                action
             }
             R.id.searchFragment -> {
-                SearchFragmentDirections.actionSearchFragmentToApplicationFragment(
-                    searchApp._id,
-                    searchApp.package_name,
-                    searchApp.origin,
-                    catText,
-                    searchApp.isGplayReplaced
-                )
+                val action = SearchFragmentDirections.actionSearchFragmentToApplicationFragment(searchApp.package_name)
+                action.id = searchApp._id
+                action.packageName = searchApp.package_name
+                action.origin = searchApp.origin
+                action.category = catText
+                action.isGplayReplaced = searchApp.isGplayReplaced
+                action
             }
             R.id.updatesFragment -> {
-                UpdatesFragmentDirections.actionUpdatesFragmentToApplicationFragment(
-                    searchApp._id,
-                    searchApp.package_name,
-                    searchApp.origin,
-                    catText,
-                )
+                val action = UpdatesFragmentDirections.actionUpdatesFragmentToApplicationFragment(searchApp.package_name)
+                action.id = searchApp._id
+                action.packageName = searchApp.package_name
+                action.origin = searchApp.origin
+                action.category = catText
+                action
             }
             else -> null
         }

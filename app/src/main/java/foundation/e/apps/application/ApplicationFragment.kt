@@ -242,7 +242,8 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
         binding.appDescriptionMore.setOnClickListener { view ->
             val action =
-                ApplicationFragmentDirections.actionApplicationFragmentToDescriptionFragment(it.description)
+                ApplicationFragmentDirections.actionApplicationFragmentToDescriptionFragment()
+            action.description = it.description
             view.findNavController().navigate(action)
         }
     }

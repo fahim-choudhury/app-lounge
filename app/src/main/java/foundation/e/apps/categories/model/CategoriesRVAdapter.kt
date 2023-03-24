@@ -51,12 +51,11 @@ class CategoriesRVAdapter :
         holder.binding.apply {
             categoryLayout.setOnClickListener {
                 val direction =
-                    CategoriesFragmentDirections.actionCategoriesFragmentToApplicationListFragment(
-                        oldList[position].id,
-                        oldList[position].title,
-                        oldList[position].tag.getOperationalTag(),
-                        oldList[position].browseUrl
-                    )
+                    CategoriesFragmentDirections.actionCategoriesFragmentToApplicationListFragment()
+                direction.browseUrl = oldList[position].browseUrl
+                direction.translation = oldList[position].title
+                direction.source = oldList[position].tag.getOperationalTag()
+                direction.category = oldList[position].id
                 holder.itemView.findNavController().navigate(direction)
             }
             loadCategoryIcon(position)
