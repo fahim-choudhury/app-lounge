@@ -24,10 +24,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.aurora.gplayapi.data.models.Category
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.R
+import foundation.e.apps.api.fused.utils.CategoryType
 import foundation.e.apps.categories.model.CategoriesRVAdapter
 import foundation.e.apps.databinding.FragmentGamesBinding
 import foundation.e.apps.login.AuthObject
@@ -73,7 +73,7 @@ class GamesFragment : TimeoutFragment(R.layout.fragment_games) {
     }
 
     override fun loadData(authObjectList: List<AuthObject>) {
-        categoriesViewModel.loadData(Category.Type.GAME, authObjectList) {
+        categoriesViewModel.loadData(CategoryType.GAMES, authObjectList) {
             clearAndRestartGPlayLogin()
             true
         }

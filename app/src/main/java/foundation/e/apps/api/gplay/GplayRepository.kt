@@ -25,6 +25,7 @@ import com.aurora.gplayapi.helpers.*
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.api.StoreRepository
+import foundation.e.apps.api.fused.utils.CategoryType
 import foundation.e.apps.api.gplay.utils.GPlayHttpClient
 import foundation.e.apps.login.LoginSourceRepository
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +43,8 @@ class GplayRepository @Inject constructor(
     private val loginSourceRepository: LoginSourceRepository
 ) : StoreRepository {
 
+    private val authData by lazy { loginSourceRepository.gplayAuth!! }
+
     override suspend fun getHomeScreenData(): Any {
         val homeScreenData = mutableMapOf<String, List<App>>()
         val homeElements = createTopChartElements()
@@ -49,7 +52,7 @@ class GplayRepository @Inject constructor(
         homeElements.forEach {
             val chart = it.value.keys.iterator().next()
             val type = it.value.values.iterator().next()
-            val result = getTopApps(type, chart, loginSourceRepository.gplayAuth!!)
+            val result = getTopApps(type, chart, authData)
             homeScreenData[it.key] = result
         }
 
@@ -65,14 +68,14 @@ class GplayRepository @Inject constructor(
         context.getString(R.string.movers_shakers_games) to mapOf(TopChartsHelper.Chart.MOVERS_SHAKERS to TopChartsHelper.Type.GAME),
     )
 
-    override suspend fun getSearchResult(query: String): Flow<Pair<List<App>, Boolean>> {
+    override suspend fun getSearchResult(query: String, searchBy: String?): Flow<Pair<List<App>, Boolean>> {
         return flow {
             /*
              * Variable names and logic made same as that of Aurora store.
              * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
              */
             val searchHelper =
-                SearchHelper(loginSourceRepository.gplayAuth!!).using(gPlayHttpClient)
+                SearchHelper(authData).using(gPlayHttpClient)
             val searchBundle = searchHelper.searchResults(query)
 
             val initialReplacedList = mutableListOf<App>()
@@ -137,7 +140,7 @@ class GplayRepository @Inject constructor(
         val searchData = mutableListOf<SearchSuggestEntry>()
         withContext(Dispatchers.IO) {
             val searchHelper =
-                SearchHelper(loginSourceRepository.gplayAuth!!).using(gPlayHttpClient)
+                SearchHelper(authData).using(gPlayHttpClient)
             searchData.addAll(searchHelper.searchSuggestions(query))
         }
         return searchData.filter { it.suggestedQuery.isNotBlank() }
@@ -145,12 +148,12 @@ class GplayRepository @Inject constructor(
 
     override suspend fun getAppsByCategory(category: String, paginationParameter: Any?): Any {
         if (paginationParameter != null && paginationParameter is StreamCluster) {
-            return getNextStreamCluster(loginSourceRepository.gplayAuth!!, paginationParameter)
+            return getNextStreamCluster(authData, paginationParameter)
         }
 
         if (paginationParameter != null && paginationParameter is StreamBundle) {
             return getNextStreamBundle(
-                loginSourceRepository.gplayAuth!!,
+                authData,
                 category,
                 paginationParameter
             )
@@ -158,7 +161,7 @@ class GplayRepository @Inject constructor(
 
         if (paginationParameter != null && paginationParameter is Pair<*, *>) {
             return getAdjustedFirstCluster(
-                loginSourceRepository.gplayAuth!!,
+                authData,
                 paginationParameter.first as StreamBundle,
                 paginationParameter.second as Int
             )
@@ -167,12 +170,29 @@ class GplayRepository @Inject constructor(
         return getGplayApps(category)
     }
 
+    override suspend fun getCategories(type: CategoryType?): List<Category> {
+        val categoryList = mutableListOf<Category>()
+        if (type == null) {
+            return categoryList
+        }
+
+        withContext(Dispatchers.IO) {
+            val categoryHelper = CategoryHelper(authData).using(gPlayHttpClient)
+            categoryList.addAll(categoryHelper.getAllCategoriesList(getCategoryType(type)))
+        }
+        return categoryList
+    }
+
+    private fun getCategoryType(type: CategoryType): Category.Type {
+        return if (type == CategoryType.APPLICATION) Category.Type.APPLICATION else Category.Type.GAME
+    }
+
     private suspend fun getGplayApps(category: String): List<App> {
         val list = mutableListOf<App>()
         withContext(Dispatchers.IO) {
             supervisorScope {
                 val categoryHelper =
-                    CategoryHelper(loginSourceRepository.gplayAuth!!).using(gPlayHttpClient)
+                    CategoryHelper(authData).using(gPlayHttpClient)
 
                 var streamBundle: StreamBundle
                 var nextStreamBundleUrl = category

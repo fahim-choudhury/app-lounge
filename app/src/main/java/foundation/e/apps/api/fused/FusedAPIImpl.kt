@@ -20,19 +20,10 @@ package foundation.e.apps.api.fused
 
 import android.content.Context
 import android.text.format.Formatter
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataScope
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.liveData
-import androidx.lifecycle.map
+import androidx.lifecycle.*
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.SearchSuggestEntry
-import com.aurora.gplayapi.data.models.App
-import com.aurora.gplayapi.data.models.Artwork
-import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.Category
-import com.aurora.gplayapi.data.models.StreamBundle
-import com.aurora.gplayapi.data.models.StreamCluster
+import com.aurora.gplayapi.data.models.*
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.api.ResultSupreme
@@ -48,20 +39,14 @@ import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedCategory
 import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.api.fused.data.Ratings
+import foundation.e.apps.api.fused.utils.CategoryType
 import foundation.e.apps.api.fused.utils.CategoryUtils
 import foundation.e.apps.api.gplay.GPlayAPIRepository
 import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.Constants.timeoutDurationInMillis
-import foundation.e.apps.utils.enums.AppTag
-import foundation.e.apps.utils.enums.FilterLevel
-import foundation.e.apps.utils.enums.Origin
-import foundation.e.apps.utils.enums.ResultStatus
-import foundation.e.apps.utils.enums.Source
-import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.Type
-import foundation.e.apps.utils.enums.isUnFiltered
+import foundation.e.apps.utils.enums.*
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
 import kotlinx.coroutines.TimeoutCancellationException
@@ -206,15 +191,14 @@ class FusedAPIImpl @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
     suspend fun getCategoriesList(
-        type: Category.Type,
-        authData: AuthData
+        type: CategoryType,
     ): Triple<List<FusedCategory>, String, ResultStatus> {
         val categoriesList = mutableListOf<FusedCategory>()
         val preferredApplicationType = preferenceManagerModule.preferredApplicationType()
         var apiStatus: ResultStatus = ResultStatus.OK
         var applicationCategoryType = preferredApplicationType
 
-        handleAllSourcesCategories(categoriesList, type, authData).run {
+        handleAllSourcesCategories(categoriesList, type).run {
             if (first != ResultStatus.OK) {
                 apiStatus = first
                 applicationCategoryType = second
@@ -461,10 +445,11 @@ class FusedAPIImpl @Inject constructor(
     private suspend fun getCleanapkSearchResult(packageName: String): ResultSupreme<FusedApp> {
         var fusedApp = FusedApp()
         val status = runCodeBlockWithTimeout({
-            val result = cleanAPKRepository.searchApps(
-                keyword = packageName,
-                by = "package_name"
-            ).body()
+            val result = (cleanApkAppsRepository.getSearchResult(
+                packageName,
+                "package_name"
+            ) as Response<Search>).body()
+
             if (result?.apps?.isNotEmpty() == true && result.numberOfResults == 1) {
                 fusedApp = result.apps[0]
             }
@@ -616,10 +601,11 @@ class FusedAPIImpl @Inject constructor(
     suspend fun getCleanapkAppDetails(packageName: String): Pair<FusedApp, ResultStatus> {
         var fusedApp = FusedApp()
         val status = runCodeBlockWithTimeout({
-            val result = cleanAPKRepository.searchApps(
-                keyword = packageName,
-                by = "package_name"
-            ).body()
+            val result = (cleanApkAppsRepository.getSearchResult(
+                packageName,
+                "package_name"
+            ) as Response<Search>).body()
+
             if (result?.apps?.isNotEmpty() == true && result.numberOfResults == 1) {
                 fusedApp =
                     cleanAPKRepository.getAppOrPWADetailsByID(result.apps[0]._id).body()?.app
@@ -672,10 +658,10 @@ class FusedAPIImpl @Inject constructor(
          */
         for (packageName in packageNameList) {
             status = runCodeBlockWithTimeout({
-                cleanAPKRepository.searchApps(
-                    keyword = packageName,
-                    by = "package_name"
-                ).body()?.run {
+                (cleanApkAppsRepository.getSearchResult(
+                    packageName,
+                    "package_name"
+                ) as Response<Search>).body()?.run {
                     if (apps.isNotEmpty() && numberOfResults == 1) {
                         fusedAppList.add(
                             apps[0].apply {
@@ -860,45 +846,6 @@ class FusedAPIImpl @Inject constructor(
     }
 
     /*
-     * Categories-related internal functions
-     */
-
-    private suspend fun handleCleanApkCategories(
-        preferredApplicationType: String,
-        categoriesList: MutableList<FusedCategory>,
-        type: Category.Type
-    ): ResultStatus {
-        return runCodeBlockWithTimeout({
-            val data = getCleanApkCategories(preferredApplicationType)
-            data?.let { category ->
-                categoriesList.addAll(
-                    getFusedCategoryBasedOnCategoryType(
-                        category,
-                        type,
-                        getCategoryTag(preferredApplicationType)
-                    )
-                )
-            }
-        })
-    }
-
-    private fun getCategoryTag(preferredApplicationType: String): AppTag {
-        return if (preferredApplicationType == APP_TYPE_OPEN) {
-            AppTag.OpenSource(context.getString(R.string.open_source))
-        } else {
-            AppTag.PWA(context.getString(R.string.pwa))
-        }
-    }
-
-    private suspend fun getCleanApkCategories(preferredApplicationType: String): Categories? {
-        return if (preferredApplicationType == APP_TYPE_OPEN) {
-            getOpenSourceCategories()
-        } else {
-            getPWAsCategories()
-        }
-    }
-
-    /*
      * Function to populate a given category list, from all GPlay categories, open source categories,
      * and PWAs.
      *
@@ -910,8 +857,7 @@ class FusedAPIImpl @Inject constructor(
      */
     private suspend fun handleAllSourcesCategories(
         categoriesList: MutableList<FusedCategory>,
-        type: Category.Type,
-        authData: AuthData
+        type: CategoryType,
     ): Pair<ResultStatus, String> {
         var apiStatus = ResultStatus.OK
         var errorApplicationCategory = ""
@@ -933,7 +879,6 @@ class FusedAPIImpl @Inject constructor(
         if (preferenceManagerModule.isGplaySelected()) {
             val gplayCategoryResult = fetchGplayCategories(
                 type,
-                authData
             )
             categoriesList.addAll(gplayCategoryResult.second)
             apiStatus = gplayCategoryResult.first
@@ -944,14 +889,13 @@ class FusedAPIImpl @Inject constructor(
     }
 
     private suspend fun FusedAPIImpl.fetchGplayCategories(
-        type: Category.Type,
-        authData: AuthData,
+        type: CategoryType,
     ): Triple<ResultStatus, List<FusedCategory>, String> {
         var errorApplicationCategory = ""
         var apiStatus = ResultStatus.OK
         val categoryList = mutableListOf<FusedCategory>()
         runCodeBlockWithTimeout({
-            val playResponse = gPlayAPIRepository.getCategoriesList(type, authData).map { app ->
+            val playResponse = (gplayRepository.getCategories(type) as List<Category>).map { app ->
                 val category = app.transformToFusedCategory()
                 updateCategoryDrawable(category)
                 category
@@ -968,7 +912,7 @@ class FusedAPIImpl @Inject constructor(
     }
 
     private suspend fun FusedAPIImpl.fetchPWACategories(
-        type: Category.Type,
+        type: CategoryType,
     ): Triple<ResultStatus, List<FusedCategory>, String> {
         var errorApplicationCategory = ""
         var apiStatus: ResultStatus = ResultStatus.OK
@@ -992,7 +936,7 @@ class FusedAPIImpl @Inject constructor(
     }
 
     private suspend fun FusedAPIImpl.fetchOpenSourceCategories(
-        type: Category.Type,
+        type: CategoryType,
     ): Triple<ResultStatus, List<FusedCategory>, String> {
         var errorApplicationCategory = ""
         var apiStatus: ResultStatus = ResultStatus.OK
@@ -1069,14 +1013,14 @@ class FusedAPIImpl @Inject constructor(
 
     private fun getFusedCategoryBasedOnCategoryType(
         categories: Categories,
-        categoryType: Category.Type,
+        categoryType: CategoryType,
         tag: AppTag
     ): List<FusedCategory> {
         return when (categoryType) {
-            Category.Type.APPLICATION -> {
+            CategoryType.APPLICATION -> {
                 getAppsCategoriesAsFusedCategory(categories, tag)
             }
-            Category.Type.GAME -> {
+            CategoryType.GAMES -> {
                 getGamesCategoriesAsFusedCategory(categories, tag)
             }
         }
@@ -1126,17 +1070,11 @@ class FusedAPIImpl @Inject constructor(
     }
 
     private suspend fun getPWAsCategories(): Categories? {
-        return cleanAPKRepository.getCategoriesList(
-            CleanAPKInterface.APP_TYPE_PWA,
-            CleanAPKInterface.APP_SOURCE_ANY
-        ).body()
+        return (cleanApkPWARepository.getCategories() as Response<Categories>).body()
     }
 
     private suspend fun getOpenSourceCategories(): Categories? {
-        return cleanAPKRepository.getCategoriesList(
-            CleanAPKInterface.APP_TYPE_ANY,
-            CleanAPKInterface.APP_SOURCE_FOSS
-        ).body()
+        return (cleanApkAppsRepository.getCategories() as Response<Categories>).body()
     }
 
     private suspend fun getOpenSourceAppsResponse(category: String): Search? {
@@ -1185,20 +1123,6 @@ class FusedAPIImpl @Inject constructor(
             list.add(it)
         }
         return list
-    }
-
-    private fun getGplaySearchResults(
-        query: String,
-        authData: AuthData
-    ): LiveData<Pair<List<FusedApp>, Boolean>> {
-        val searchResults =
-            gPlayAPIRepository.getSearchResults(query, authData, ::replaceWithFDroid)
-        return searchResults.map {
-            Pair(
-                it.first,
-                it.second
-            )
-        }
     }
 
     private suspend fun getGplaySearchResult(

@@ -22,13 +22,13 @@ import androidx.lifecycle.LiveData
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedCategory
 import foundation.e.apps.api.fused.data.FusedHome
+import foundation.e.apps.api.fused.utils.CategoryType
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.utils.enums.FilterLevel
 import foundation.e.apps.utils.enums.Origin
@@ -145,10 +145,9 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPII
     }
 
     suspend fun getCategoriesList(
-        type: Category.Type,
-        authData: AuthData
+        type: CategoryType,
     ): Triple<List<FusedCategory>, String, ResultStatus> {
-        return fusedAPIImpl.getCategoriesList(type, authData)
+        return fusedAPIImpl.getCategoriesList(type)
     }
 
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {

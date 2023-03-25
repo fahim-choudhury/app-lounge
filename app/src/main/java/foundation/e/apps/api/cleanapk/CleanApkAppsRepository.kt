@@ -19,8 +19,10 @@
 package foundation.e.apps.api.cleanapk
 
 import foundation.e.apps.api.StoreRepository
+import foundation.e.apps.api.cleanapk.data.categories.Categories
 import foundation.e.apps.api.cleanapk.data.home.HomeScreen
 import foundation.e.apps.api.cleanapk.data.search.Search
+import foundation.e.apps.api.fused.utils.CategoryType
 import retrofit2.Response
 
 class CleanApkAppsRepository(
@@ -35,14 +37,14 @@ class CleanApkAppsRepository(
         )
     }
 
-    override suspend fun getSearchResult(query: String): Response<Search> {
+    override suspend fun getSearchResult(query: String, searchBy: String?): Response<Search> {
         return cleanAPKInterface.searchApps(
             query,
             CleanAPKInterface.APP_SOURCE_FOSS,
             CleanAPKInterface.APP_TYPE_ANY,
             20,
             1,
-            null
+            searchBy
         )
     }
 
@@ -50,13 +52,23 @@ class CleanApkAppsRepository(
         return Any()
     }
 
-    override suspend fun getAppsByCategory(category: String, paginationParameter: Any?): Response<Search> {
+    override suspend fun getAppsByCategory(
+        category: String,
+        paginationParameter: Any?
+    ): Response<Search> {
         return cleanAPKInterface.listApps(
             category,
             CleanAPKInterface.APP_SOURCE_FOSS,
             CleanAPKInterface.APP_TYPE_ANY,
             20,
             1
+        )
+    }
+
+    override suspend fun getCategories(type: CategoryType?): Response<Categories> {
+        return cleanAPKInterface.getCategoriesList(
+            CleanAPKInterface.APP_TYPE_ANY,
+            CleanAPKInterface.APP_SOURCE_FOSS
         )
     }
 }

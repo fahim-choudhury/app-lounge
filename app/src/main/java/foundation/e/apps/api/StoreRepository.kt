@@ -18,10 +18,12 @@
 
 package foundation.e.apps.api
 
+import foundation.e.apps.api.fused.utils.CategoryType
+
 interface StoreRepository {
     suspend fun getHomeScreenData(): Any
-    suspend fun getSearchResult(query: String): Any
+    suspend fun getSearchResult(query: String, searchBy: String? = null): Any
     suspend fun getSearchSuggestions(query: String): Any
-
     suspend fun getAppsByCategory(category: String, paginationParameter: Any? = null): Any
+    suspend fun getCategories(type: CategoryType? = null): Any
 }
