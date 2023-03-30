@@ -29,6 +29,7 @@ import foundation.e.apps.api.StoreRepository
 import foundation.e.apps.api.cleanapk.CleanAPKInterface
 import foundation.e.apps.api.cleanapk.CleanApkAppDetailApi
 import foundation.e.apps.api.cleanapk.CleanApkAppsRepository
+import foundation.e.apps.api.cleanapk.CleanApkPWARepository
 import foundation.e.apps.api.gplay.GplayRepository
 import foundation.e.apps.api.gplay.utils.GPlayHttpClient
 import foundation.e.apps.login.LoginSourceRepository
@@ -52,20 +53,14 @@ object NamedRepositoryModule {
     @Singleton
     @Provides
     @Named("cleanApkAppsRepository")
-    fun getCleanApkAppsRepository(
-        cleanAPKInterface: CleanAPKInterface,
-        cleanApkAppDetailApi: CleanApkAppDetailApi
-    ): StoreRepository {
-        return CleanApkAppsRepository(cleanAPKInterface, cleanApkAppDetailApi)
+    fun getCleanApkAppsRepository(cleanAPKInterface: CleanAPKInterface): StoreRepository {
+        return CleanApkAppsRepository(cleanAPKInterface)
     }
 
     @Singleton
     @Provides
     @Named("cleanApkPWARepository")
-    fun getCleanApkPWARepository(
-        cleanAPKInterface: CleanAPKInterface,
-        cleanApkAppDetailApi: CleanApkAppDetailApi
-    ): StoreRepository {
-        return CleanApkAppsRepository(cleanAPKInterface, cleanApkAppDetailApi)
+    fun getCleanApkPWARepository(cleanAPKInterface: CleanAPKInterface): StoreRepository {
+        return CleanApkPWARepository(cleanAPKInterface)
     }
 }

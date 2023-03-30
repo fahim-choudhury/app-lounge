@@ -24,10 +24,7 @@ import foundation.e.apps.api.cleanapk.data.search.Search
 import foundation.e.apps.api.fused.utils.CategoryType
 import retrofit2.Response
 
-class CleanApkPWARepository(
-    private val cleanAPKInterface: CleanAPKInterface,
-    private val cleanApkAppDetailApi: CleanApkAppDetailApi
-) : StoreRepository {
+class CleanApkPWARepository(private val cleanAPKInterface: CleanAPKInterface) : StoreRepository {
 
     override suspend fun getHomeScreenData(): Any {
         return cleanAPKInterface.getHomeScreenData(

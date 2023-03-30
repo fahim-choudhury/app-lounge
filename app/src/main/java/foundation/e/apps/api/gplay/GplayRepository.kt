@@ -139,8 +139,7 @@ class GplayRepository @Inject constructor(
     override suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
         val searchData = mutableListOf<SearchSuggestEntry>()
         withContext(Dispatchers.IO) {
-            val searchHelper =
-                SearchHelper(authData).using(gPlayHttpClient)
+            val searchHelper = SearchHelper(authData).using(gPlayHttpClient)
             searchData.addAll(searchHelper.searchSuggestions(query))
         }
         return searchData.filter { it.suggestedQuery.isNotBlank() }

@@ -27,7 +27,6 @@ import retrofit2.Response
 
 class CleanApkAppsRepository(
     private val cleanAPKInterface: CleanAPKInterface,
-    private val cleanApkAppDetailApi: CleanApkAppDetailApi
 ) : StoreRepository {
 
     override suspend fun getHomeScreenData(): Response<HomeScreen> {
