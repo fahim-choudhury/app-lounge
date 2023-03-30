@@ -21,6 +21,10 @@ package foundation.e.apps
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Build
 import android.util.Base64
 import android.widget.ImageView
@@ -31,7 +35,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.liveData
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.exceptions.ApiException
@@ -49,15 +53,15 @@ import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.enums.isInitialized
 import foundation.e.apps.utils.enums.isUnFiltered
+import foundation.e.apps.utils.modules.CommonUtilsModule
 import foundation.e.apps.utils.modules.DataStoreModule
 import foundation.e.apps.utils.modules.PWAManagerModule
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import ru.beryukhov.reactivenetwork.ReactiveNetwork
-import ru.beryukhov.reactivenetwork.internet.observing.InternetObservingSettings
-import ru.beryukhov.reactivenetwork.internet.observing.strategy.SocketInternetObservingStrategy
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
+import kotlinx.coroutines.channels.ProducerScope
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
@@ -88,9 +92,10 @@ class MainActivityViewModel @Inject constructor(
     private val _errorMessageStringResource = MutableLiveData<Int>()
     val errorMessageStringResource: LiveData<Int> = _errorMessageStringResource
 
+    lateinit var connectivityManager: ConnectivityManager
+
     companion object {
         private const val TAG = "MainActivityViewModel"
-        private var isGoogleLoginRunning = false
     }
 
     fun getUser(): User {
@@ -332,15 +337,68 @@ class MainActivityViewModel @Inject constructor(
         return Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT)
     }
 
-    val internetConnection = liveData {
-        emitSource(
-            ReactiveNetwork().observeInternetConnectivity(
-                InternetObservingSettings.builder()
-                    .host("http://204.ecloud.global")
-                    .strategy(SocketInternetObservingStrategy())
-                    .build()
-            ).asLiveData(Dispatchers.Default)
-        )
+    fun setupConnectivityManager(context: Context) {
+        connectivityManager =
+            context.getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+    }
+
+    val internetConnection =
+        callbackFlow {
+            if (!this@MainActivityViewModel::connectivityManager.isInitialized) {
+                awaitClose { }
+                return@callbackFlow
+            }
+
+            sendInternetStatus(connectivityManager)
+            val networkCallback = getNetworkCallback(this)
+            connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
+
+            awaitClose {
+                connectivityManager.unregisterNetworkCallback(networkCallback)
+            }
+        }.asLiveData().distinctUntilChanged()
+
+    private val networkRequest = NetworkRequest.Builder()
+        .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+        .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+        .build()
+
+    private fun getNetworkCallback(
+        callbackFlowScope: ProducerScope<Boolean>,
+    ): ConnectivityManager.NetworkCallback {
+        return object : ConnectivityManager.NetworkCallback() {
+
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                callbackFlowScope.sendInternetStatus(connectivityManager)
+            }
+
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities
+            ) {
+                super.onCapabilitiesChanged(network, networkCapabilities)
+                callbackFlowScope.sendInternetStatus(connectivityManager)
+            }
+
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                callbackFlowScope.sendInternetStatus(connectivityManager)
+            }
+        }
+    }
+
+    private fun ProducerScope<Boolean>.sendInternetStatus(connectivityManager: ConnectivityManager) {
+
+        val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+
+        val hasInternet =
+            capabilities != null
+                    && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                    && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+
+        trySend(hasInternet)
     }
 
     fun updateStatusOfFusedApps(

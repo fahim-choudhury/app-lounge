@@ -40,7 +40,7 @@ class GamesFragment : TimeoutFragment(R.layout.fragment_games) {
     private val binding get() = _binding!!
 
     private val categoriesViewModel: CategoriesViewModel by viewModels()
-    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
+    override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -50,7 +50,7 @@ class GamesFragment : TimeoutFragment(R.layout.fragment_games) {
 
         authObjects.observe(viewLifecycleOwner) {
             if (it == null) return@observe
-            loadData(it)
+            loadDataWhenNetworkAvailable(it)
         }
 
         categoriesViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {

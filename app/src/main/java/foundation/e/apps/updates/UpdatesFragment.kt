@@ -77,7 +77,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
     private val updatesViewModel: UpdatesViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
-    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
+    override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
     private val appProgressViewModel: AppProgressViewModel by viewModels()
 
     private var isDownloadObserverAdded = false
@@ -94,7 +94,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
             if (!updatesViewModel.updatesList.value?.first.isNullOrEmpty()) {
                 return@observe
             }
-            loadData(it)
+            loadDataWhenNetworkAvailable(it)
         }
 
         updatesViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
