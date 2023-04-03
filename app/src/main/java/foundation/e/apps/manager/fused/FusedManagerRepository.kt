@@ -37,11 +37,11 @@ class FusedManagerRepository @Inject constructor(
     }
 
     suspend fun addDownload(fusedDownload: FusedDownload): Boolean {
-        if (InstallWorkManager.checkWorkIsAlreadyAvailable(fusedDownload.id)) {
+        val existingFusedDownload = fusedManagerImpl.getDownloadById(fusedDownload)
+        if (isInstallWorkRunning(existingFusedDownload, fusedDownload)) {
             return false
         }
 
-        val existingFusedDownload = fusedManagerImpl.getDownloadById(fusedDownload)
         // We don't want to add any thing, if it already exists without INSTALLATION_ISSUE
         if (existingFusedDownload != null && existingFusedDownload.status != Status.INSTALLATION_ISSUE) {
             return false
@@ -50,6 +50,14 @@ class FusedManagerRepository @Inject constructor(
         fusedManagerImpl.addDownload(fusedDownload)
         return true
     }
+
+    private fun isInstallWorkRunning(
+        existingFusedDownload: FusedDownload?,
+        fusedDownload: FusedDownload
+    ) =
+        existingFusedDownload != null && InstallWorkManager.checkWorkIsAlreadyAvailable(
+            fusedDownload.id
+        )
 
     suspend fun addFusedDownloadPurchaseNeeded(fusedDownload: FusedDownload) {
         fusedManagerImpl.insertFusedDownloadPurchaseNeeded(fusedDownload)
