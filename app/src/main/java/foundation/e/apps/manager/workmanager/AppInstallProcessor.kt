@@ -64,7 +64,7 @@ class AppInstallProcessor @Inject constructor(
             fusedDownload?.let {
 
                 this.isItUpdateWork = isItUpdateWork &&
-                        fusedManagerRepository.isFusedDownloadInstalled(fusedDownload)
+                    fusedManagerRepository.isFusedDownloadInstalled(fusedDownload)
 
                 if (!fusedDownload.isAppInstalling()) {
                     Timber.d("!!! returned")
@@ -99,10 +99,10 @@ class AppInstallProcessor @Inject constructor(
 
     private fun areFilesDownloadedButNotInstalled(fusedDownload: FusedDownload) =
         fusedDownload.areFilesDownloaded() && (
-                !fusedManagerRepository.isFusedDownloadInstalled(
-                    fusedDownload
-                ) || fusedDownload.status == Status.INSTALLING
-                )
+            !fusedManagerRepository.isFusedDownloadInstalled(
+                fusedDownload
+            ) || fusedDownload.status == Status.INSTALLING
+            )
 
     private suspend fun checkUpdateWork(
         fusedDownload: FusedDownload?

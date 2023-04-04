@@ -30,10 +30,8 @@ import androidx.lifecycle.LiveData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.manager.database.DatabaseRepository
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
-import foundation.e.apps.manager.download.DownloadManagerBR
 import foundation.e.apps.manager.download.data.DownloadProgressLD
 import foundation.e.apps.manager.pkg.PkgManagerModule
-import foundation.e.apps.manager.workmanager.InstallWorkManager
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.modules.PWAManagerModule
