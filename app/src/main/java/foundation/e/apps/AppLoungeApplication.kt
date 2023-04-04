@@ -83,9 +83,6 @@ class AppLoungeApplication : Application(), Configuration.Provider {
                     if (priority < Log.WARN) {
                         return
                     }
-                    if (priority == Log.ERROR) {
-                        Telemetry.reportMessage("$tag: $message")
-                    }
                     Log.println(priority, tag, message)
                 }
             })
