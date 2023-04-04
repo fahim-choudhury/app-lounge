@@ -53,7 +53,7 @@ class DatabaseRepository @Inject constructor(
         }
     }
 
-    fun getDownloadFlowById(id: String): Flow<FusedDownload> {
+    fun getDownloadFlowById(id: String): Flow<FusedDownload?> {
         return fusedDownloadDAO.getDownloadFlowById(id).asFlow()
     }
 }
