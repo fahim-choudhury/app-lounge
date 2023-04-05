@@ -25,6 +25,8 @@ import org.microg.gms.common.api.ReturningGoogleApiCall
 import org.microg.gms.droidguard.DroidGuardApiClient
 import java.security.MessageDigest
 
+const val BASE64_ENCODING_FLAGS = Base64.URL_SAFE or Base64.NO_WRAP // = 10
+
 class IntegrityBinder(
     private val context: Context,
     private val lifecycleCoroutineScope: LifecycleCoroutineScope,
@@ -51,7 +53,11 @@ class IntegrityBinder(
         val data = DroidGuardIntegrityRequest.newBuilder()
             .setPackage(integrityPackage)
             .setVersion(versionCode)
-            .setNonce(Base64.encodeToString(digest.digest(Base64.decode(nonce, 11)), 11))
+            .setNonce(
+                Base64.decode(nonce, BASE64_ENCODING_FLAGS)
+                    .let { digest.digest(it) }
+                    .let { Base64.encodeToString(it, BASE64_ENCODING_FLAGS) }
+            )
             .setTimestamp(timestamp)
             .build()
 
@@ -77,7 +83,7 @@ class IntegrityBinder(
             "vc_key" to request.version.version.toString(),
             "nonce_sha256_key" to request.nonce,
             "tm_s_key" to request.timestamp.seconds.toString(),
-            "binding_key" to Base64.encodeToString(request.toByteArray(), 10)
+            "binding_key" to Base64.encodeToString(request.toByteArray(), BASE64_ENCODING_FLAGS)
         )
     }
 }
