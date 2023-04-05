@@ -116,7 +116,5 @@ class GPlayAPIRepository @Inject constructor(private val gPlayAPIImpl: GPlayAPII
         packageName: String,
         nonce: String,
         droidGuardToken: String
-    ) {
-        gPlayAPIImpl.checkIntegrityService(authData, packageName, nonce, droidGuardToken)
-    }
+    ) = gPlayAPIImpl.checkIntegrityService(authData, packageName, nonce, droidGuardToken)
 }

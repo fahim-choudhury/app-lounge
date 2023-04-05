@@ -15,6 +15,7 @@ import com.google.android.gms.droidguard.DroidGuard
 import com.google.android.gms.droidguard.DroidGuardClient
 import com.google.android.gms.droidguard.internal.DroidGuardResultsRequest
 import foundation.e.apps.IAppLoungeIntegrityService
+import foundation.e.apps.IAppLoungeIntegrityServiceCallback
 import foundation.e.apps.api.gplay.GPlayAPIRepository
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -37,13 +38,14 @@ class IntegrityBinder(
 
     companion object {
         const val TAG = "IntegrityBinder"
+        const val INTEGRITY_ERROR_NETWORK_ERROR = -3
     }
 
-    override fun checkIntegrity(packageName: String, nonce: String) {
-        requestDroidGuardToken(packageName, nonce)
+    override fun checkIntegrity(packageName: String, nonce: String, callback: IAppLoungeIntegrityServiceCallback) {
+        requestDroidGuardToken(packageName, nonce, callback)
     }
 
-    private fun requestDroidGuardToken(packageName: String, nonce: String) {
+    private fun requestDroidGuardToken(packageName: String, nonce: String, callback: IAppLoungeIntegrityServiceCallback) {
         val integrityPackage = IntegrityPackage.newBuilder().setPackageName(packageName)
         val versionCode = PackageVersionCode.newBuilder().setVersion(10)
         val timestamp = System.currentTimeMillis().asProtoTimestamp()
@@ -72,7 +74,10 @@ class IntegrityBinder(
         request.bundle.putString("thirdPartyCallerAppPackageName", packageName)
         client.getResults("pia_attest", map, request).addOnSuccessListener {
             lifecycleCoroutineScope.launch {
-                gPlayAPIRepository.checkIntegrity(authData, packageName, nonce, it)
+                gPlayAPIRepository.checkIntegrity(authData, packageName, nonce, it).let {
+                    if (it == null) callback.onError(INTEGRITY_ERROR_NETWORK_ERROR)
+                    else callback.onSuccess(it)
+                }
             }
         }
     }

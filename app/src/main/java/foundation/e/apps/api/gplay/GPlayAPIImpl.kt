@@ -195,11 +195,11 @@ class GPlayAPIImpl @Inject constructor(private val gPlayHttpClient: GPlayHttpCli
         packageName: String,
         nonce: String,
         droidGuardToken: String
-    ) {
+    ): String? {
 
         val integrityApiKey = "AIzaSyAjf_GZN-B3oyEKTqug3eEcch_4qK3M2Hg"
 
-        withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.IO) {
 
             Log.i("jklee", "checking integrity with token $droidGuardToken")
             val integrityHelper = IntegrityHelper(authData, integrityApiKey).using(gPlayHttpClient)
@@ -207,13 +207,11 @@ class GPlayAPIImpl @Inject constructor(private val gPlayHttpClient: GPlayHttpCli
             Log.i("jklee", "checkIntegrity reponse ${response.code}")
             Log.i("jklee", "checkIntegrity successful ${response.isSuccessful}")
 
-
-            val token = IntegrityAnswer.parseFrom(response.responseBytes).tokenWrapper.token.value
-            Log.i("jklee", "token $token");
-            response = integrityHelper.checkToken(token)
-            Log.i("jklee", "checkToken response ${response.code}")
-            Log.i("jklee", "checkToken successful ${response.isSuccessful}")
-            Log.i("jklee", "checkToken response ${String(response.responseBytes)}")
+            if (!response.isSuccessful) {
+                null
+            } else {
+                IntegrityAnswer.parseFrom(response.responseBytes).tokenWrapper.token.value
+            }
         }
     }
 
