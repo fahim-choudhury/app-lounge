@@ -67,7 +67,6 @@ class DataStoreModule @Inject constructor(
     suspend fun saveCredentials(authData: AuthData) {
         context.dataStore.edit {
             it[AUTHDATA] = gson.toJson(authData)
-            Timber.tag("jklee").i("credentials " + it[AUTHDATA])
         }
     }
 

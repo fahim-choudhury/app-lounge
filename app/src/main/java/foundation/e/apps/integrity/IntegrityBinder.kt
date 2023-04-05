@@ -1,29 +1,19 @@
 package foundation.e.apps.integrity
 
 import android.content.Context
-import android.os.Bundle
-import android.os.Handler
 import android.util.Base64
-import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.preference.PreferenceManager
-import com.aurora.gplayapi.*
+import com.aurora.gplayapi.DroidGuardIntegrityRequest
+import com.aurora.gplayapi.IntegrityPackage
+import com.aurora.gplayapi.PackageVersionCode
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.utils.asProtoTimestamp
-import com.google.android.gms.common.api.GoogleApi
 import com.google.android.gms.droidguard.DroidGuard
-import com.google.android.gms.droidguard.DroidGuardClient
 import com.google.android.gms.droidguard.internal.DroidGuardResultsRequest
 import foundation.e.apps.IAppLoungeIntegrityService
 import foundation.e.apps.IAppLoungeIntegrityServiceCallback
 import foundation.e.apps.api.gplay.GPlayAPIRepository
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.microg.gms.common.api.ConnectionCallbacks
-import org.microg.gms.common.api.GoogleApiManager
-import org.microg.gms.common.api.OnConnectionFailedListener
-import org.microg.gms.common.api.ReturningGoogleApiCall
-import org.microg.gms.droidguard.DroidGuardApiClient
 import java.security.MessageDigest
 
 const val BASE64_ENCODING_FLAGS = Base64.URL_SAFE or Base64.NO_WRAP // = 10
@@ -33,7 +23,6 @@ class IntegrityBinder(
     private val lifecycleCoroutineScope: LifecycleCoroutineScope,
     private val authData: AuthData,
     private val gPlayAPIRepository: GPlayAPIRepository,
-    private val handler: Handler
 ) : IAppLoungeIntegrityService.Stub() {
 
     companion object {
@@ -61,10 +50,6 @@ class IntegrityBinder(
         val client = DroidGuard.getClient(context)
         val request = DroidGuardResultsRequest()
         val map = buildDroidGuardData(data)
-
-        for (entry in map.entries) {
-            Log.i("jklee", "${entry.key}:${entry.value}")
-        }
 
         request.bundle.putString("thirdPartyCallerAppPackageName", packageName)
         client.getResults("pia_attest", map, request).addOnSuccessListener {

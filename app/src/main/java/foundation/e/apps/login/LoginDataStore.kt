@@ -77,7 +77,6 @@ class LoginDataStore @Inject constructor(
     // Setters
 
     suspend fun saveAuthData(authData: AuthData) {
-        Log.i("jklee", "save Auth data !!!")
         context.dataStore.edit {
             it[AUTHDATA] = gson.toJson(authData)
         }
