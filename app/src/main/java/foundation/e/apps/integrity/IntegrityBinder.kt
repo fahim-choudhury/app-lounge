@@ -9,6 +9,7 @@ import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.preference.PreferenceManager
 import com.aurora.gplayapi.*
 import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.utils.asProtoTimestamp
 import com.google.android.gms.common.api.GoogleApi
 import com.google.android.gms.droidguard.DroidGuard
 import com.google.android.gms.droidguard.DroidGuardClient
@@ -43,8 +44,7 @@ class IntegrityBinder(
     private fun requestDroidGuardToken(packageName: String, nonce: String) {
         val integrityPackage = IntegrityPackage.newBuilder().setPackageName(packageName)
         val versionCode = PackageVersionCode.newBuilder().setVersion(10)
-        val timestamp = Timestamp.newBuilder()
-            .setUnknown1((System.currentTimeMillis() / 1000).toInt())
+        val timestamp = System.currentTimeMillis().asProtoTimestamp()
 
         val digest = MessageDigest.getInstance("SHA-256")
 
@@ -76,7 +76,7 @@ class IntegrityBinder(
             "pkg_key" to request.`package`.packageName,
             "vc_key" to request.version.version.toString(),
             "nonce_sha256_key" to request.nonce,
-            "tm_s_key" to request.timestamp.unknown1.toString(),
+            "tm_s_key" to request.timestamp.seconds.toString(),
             "binding_key" to Base64.encodeToString(request.toByteArray(), 10)
         )
     }
