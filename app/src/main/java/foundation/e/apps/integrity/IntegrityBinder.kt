@@ -50,16 +50,11 @@ class IntegrityBinder(
         val versionCode = PackageVersionCode.newBuilder().setVersion(10)
         val timestamp = System.currentTimeMillis().asProtoTimestamp()
 
-        val digest = MessageDigest.getInstance("SHA-256")
 
         val data = DroidGuardIntegrityRequest.newBuilder()
             .setPackage(integrityPackage)
             .setVersion(versionCode)
-            .setNonce(
-                Base64.decode(nonce, BASE64_ENCODING_FLAGS)
-                    .let { digest.digest(it) }
-                    .let { Base64.encodeToString(it, BASE64_ENCODING_FLAGS) }
-            )
+            .setNonce(nonce)
             .setTimestamp(timestamp)
             .build()
 
@@ -83,10 +78,15 @@ class IntegrityBinder(
     }
 
     private fun buildDroidGuardData(request: DroidGuardIntegrityRequest): Map<String, String> {
+        val digest = MessageDigest.getInstance("SHA-256")
+
         return mapOf(
             "pkg_key" to request.`package`.packageName,
             "vc_key" to request.version.version.toString(),
-            "nonce_sha256_key" to request.nonce,
+            "nonce_sha256_key" to request.nonce
+                .let { Base64.decode(it, BASE64_ENCODING_FLAGS) }
+                .let { digest.digest(it) }
+                .let { Base64.encodeToString(it, BASE64_ENCODING_FLAGS or Base64.NO_PADDING) },
             "tm_s_key" to request.timestamp.seconds.toString(),
             "binding_key" to Base64.encodeToString(request.toByteArray(), BASE64_ENCODING_FLAGS)
         )
