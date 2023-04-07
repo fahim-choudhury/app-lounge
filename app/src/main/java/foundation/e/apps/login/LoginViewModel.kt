@@ -20,12 +20,8 @@ package foundation.e.apps.login
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
-import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.exceptions.CleanApkException
-import foundation.e.apps.utils.exceptions.GPlayValidationException
 import foundation.e.apps.utils.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -114,14 +110,7 @@ class LoginViewModel @Inject constructor(
         val authObjectsLocal = authObjects.value?.toMutableList()
         val invalidObject = authObjectsLocal?.find { it::class.java.simpleName == authObjectName }
 
-        val replacedObject = when (invalidObject) {
-            is AuthObject.GPlayAuth -> {
-                createInvalidGplayAuth(invalidObject)
-            }
-            is AuthObject.CleanApk ->
-                createInvalidCleanApkAuth(invalidObject)
-            else -> null
-        }
+        val replacedObject = invalidObject?.createInvalidAuthObject()
 
         authObjectsLocal?.apply {
             if (invalidObject != null && replacedObject != null) {
@@ -131,36 +120,6 @@ class LoginViewModel @Inject constructor(
         }
 
         authObjects.postValue(authObjectsLocal)
-    }
-
-    private fun createInvalidCleanApkAuth(invalidObject: AuthObject.CleanApk) =
-        AuthObject.CleanApk(
-            ResultSupreme.Error(
-                message = "Unauthorized",
-                exception = CleanApkException(
-                    isTimeout = false,
-                    message = "Unauthorized",
-                )
-            ),
-            invalidObject.user,
-        )
-
-    private fun createInvalidGplayAuth(invalidObject: AuthObject.GPlayAuth): AuthObject.GPlayAuth {
-        val message = "Validating AuthData failed.\nNetwork code: 401"
-
-        return AuthObject.GPlayAuth(
-            ResultSupreme.Error<AuthData?>(
-                message = message,
-                exception = GPlayValidationException(
-                    message,
-                    invalidObject.user,
-                    401,
-                )
-            ).apply {
-                otherPayload = invalidObject.result.otherPayload
-            },
-            invalidObject.user,
-        )
     }
 
     /**
