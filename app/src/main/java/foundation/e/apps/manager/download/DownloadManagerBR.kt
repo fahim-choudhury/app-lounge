@@ -22,6 +22,7 @@ import android.app.DownloadManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import androidx.annotation.UiThread
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
 import timber.log.Timber
@@ -36,9 +37,9 @@ class DownloadManagerBR : BroadcastReceiver() {
 
     companion object {
         private const val TAG = "DownloadManagerBR"
-        val downloadedList = mutableListOf<Long>()
     }
 
+    @UiThread
     override fun onReceive(context: Context?, intent: Intent?) {
         val action = intent?.action
         if (context != null && action != null) {
@@ -46,7 +47,6 @@ class DownloadManagerBR : BroadcastReceiver() {
             Timber.i("onReceive: DownloadBR $action $id")
             when (action) {
                 DownloadManager.ACTION_DOWNLOAD_COMPLETE -> {
-                    downloadedList.add(id)
                     downloadManagerUtils.updateDownloadStatus(id)
                 }
                 DownloadManager.ACTION_NOTIFICATION_CLICKED -> {

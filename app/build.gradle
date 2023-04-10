@@ -10,8 +10,8 @@ plugins {
 }
 
 def versionMajor = 2
-def versionMinor = 4
-def versionPatch = 9
+def versionMinor = 5
+def versionPatch = 0
 
 def getGitHash = { ->
     def stdOut = new ByteArrayOutputStream()
@@ -91,6 +91,7 @@ android {
     buildTypes {
         debug {
             versionNameSuffix ".debug"
+            applicationIdSuffix ".debug"
             signingConfig signingConfigs.debugConfig
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
