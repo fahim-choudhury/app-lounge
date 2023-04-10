@@ -19,7 +19,7 @@ package foundation.e.apps.api.ecloud
 
 import foundation.e.apps.api.ecloud.modules.FaultyToken
 import retrofit2.http.Body
-import retrofit2.http.Header
+import retrofit2.http.Headers
 import retrofit2.http.POST
 
 interface EcloudApiInterface {
@@ -28,9 +28,9 @@ interface EcloudApiInterface {
         val BASE_URL = "https://eu.gtoken.ecloud.global/"
     }
 
+    @Headers("Content-Type: application/json")
     @POST("report")
     suspend fun uploadFaultyEmail(
         @Body faultyToken: FaultyToken,
-        @Header("Content-Type") contentType: String = "application/json",
     )
 }

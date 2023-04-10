@@ -17,4 +17,7 @@
 
 package foundation.e.apps.api.ecloud.modules
 
-data class FaultyToken(val email: String, val description: String)
+data class FaultyToken(
+    val email: String,
+    val description: String,
+)
