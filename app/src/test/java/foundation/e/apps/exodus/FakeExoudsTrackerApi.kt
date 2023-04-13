@@ -40,8 +40,8 @@ class FakeExoudsTrackerApi : ExodusTrackerApi {
         if (appHandle.isEmpty()) {
             return Response.error(404, null)
         }
-        val reportOne = Report(System.currentTimeMillis(), "12-12-12", "1.2.3", "123", listOf(1,2,3), listOf())
-        val reportTwo = Report(System.currentTimeMillis(), "12-12-12", "1.2.3", "123", listOf(1,2,3), listOf())
+        val reportOne = Report(System.currentTimeMillis(), "12-12-12", "1.2.3", "123", "google", listOf(1,2,3), listOf())
+        val reportTwo = Report(System.currentTimeMillis(), "12-12-12", "1.2.3", "123", "fdroid", listOf(1,2,3), listOf())
         return Response.success(listOf(reportOne, reportTwo))
     }
 }

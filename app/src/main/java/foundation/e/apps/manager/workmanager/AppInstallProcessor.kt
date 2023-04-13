@@ -28,13 +28,14 @@ import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.updates.UpdatesNotifier
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.utils.getFormattedString
 import foundation.e.apps.utils.modules.DataStoreManager
 import kotlinx.coroutines.flow.transformWhile
 import timber.log.Timber
 import java.text.NumberFormat
-import java.text.SimpleDateFormat
 import java.util.Date
 import javax.inject.Inject
+
 
 class AppInstallProcessor @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -47,6 +48,7 @@ class AppInstallProcessor @Inject constructor(
 
     companion object {
         private const val TAG = "AppInstallProcessor"
+        private const val DATE_FORMAT = "dd/MM/yyyy-HH:mm"
     }
 
     suspend fun processInstall(
@@ -138,10 +140,8 @@ class AppInstallProcessor @Inject constructor(
     }
 
     private fun showNotificationOnUpdateEnded() {
-        val date = Date(System.currentTimeMillis())
         val locale = dataStoreManager.getAuthData().locale
-        val dateFormat =
-            SimpleDateFormat("dd/MM/yyyy-HH:mm", locale)
+        val date = Date().getFormattedString(DATE_FORMAT, locale)
         val numberOfUpdatedApps = NumberFormat.getNumberInstance(locale)
             .format(UpdatesDao.successfulUpdatedApps.size)
             .toString()
@@ -149,7 +149,7 @@ class AppInstallProcessor @Inject constructor(
         UpdatesNotifier.showNotification(
             context, context.getString(R.string.update),
             context.getString(
-                R.string.message_last_update_triggered, numberOfUpdatedApps, dateFormat.format(date)
+                R.string.message_last_update_triggered, numberOfUpdatedApps, date
             )
         )
     }
