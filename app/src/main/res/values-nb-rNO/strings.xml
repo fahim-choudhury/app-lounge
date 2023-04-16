@@ -1,2 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">App Lounge</string>
+    <string name="monthly">Månedlig</string>
+    <string name="weekly">Ukentlig</string>
+    <string name="daily">Daglig</string>
+    <string name="may_not_work_warning_message">Å tvinge gjennom installering vil gjøre deg istand til å laste ned og installere den, men den vil ikke garantere at den vil fungere.<br/><br/>Forsøk på å installere ustøttede applikasjoner kan føre til systemkrasj eller tregere system.<br/><br/>Vi jobber med å forbedre kompabiliteten med denne applikasjonen i nær framtid.</string>
+    <string name="this_app_may_not_work_properly">Denne applikasjonen kan potensielt ikke fungere som den skal!</string>
+    <string name="install_anyway">Installer allikevel</string>
+    <string name="unsupported_app_unreleased">Applikasjonen %s er for øyeblikket ikke støttet. Dette kan være fordi applikasjonen ikke er tilgjengelig for alle, eller der er en annen feil.</string>
+    <string name="unsupported_app_title">Applikasjon støttes ikke!</string>
+    <string name="download_automatically_message">Applikasjonen din vil bli lastet ned automatisk på denne enheten</string>
+    <string name="purchase_complete">Kjøp fullført!</string>
+    <string name="dialog_cancel">AVBRYT</string>
+    <string name="dialog_title_paid_app">Kjøp <b>%1$s</b></string>
+    <string name="anonymous_login_failed_desc">Dette kan være fordi symbol ikke kunne genereres/verifiseres eller av andre grunner.
+\n
+\nTrykk Prøv igjen for å prøve igjen.</string>
+    <string name="anonymous_login_failed">Anonym pålogging mislyktes!</string>
+    <string name="sign_in_failed_desc">På gunn av en nettverksfeil kunne ikke App Lounge hente Google-påloggingsdata.</string>
+    <string name="sign_in_failed_title">Google-pålogging mislyktes!</string>
+    <string name="data_load_error_desc">Dette kan være fordi tjener ikke svarer eller andre tjenerfeil.
+\n
+\nPrøv igjen nå, eller prøv igjen senere.</string>
+    <string name="data_load_error">Feil oppstod ved applikasjonslasting.</string>
+    <string name="more_info"><u>Mer informasjon</u></string>
+    <string name="open_settings">Åpne innstillinger</string>
+    <string name="timeout_desc_cleanapk">Nettverksproblem forhindrer henting av alle applikasjoner.</string>
+    <string name="timeout_desc_gplay">Nettverksproblem forhindrer henting av alle applikasjoner.
+\n
+\nÅpne instillinger for å kun se etter åpen kildekode-applikasjoner eller PWAer.</string>
+    <string name="timeout_title">Tidsavbrudd ved henting av applikasjoner!</string>
+    <string name="no_internet_message">Kan ikke koble til! Kontroller internettilgangen og prøv igjen</string>
+    <string name="privacy_computed_using_text">Utregnet med &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus Privacy-analyse</string>
+    <string name="message_last_update_triggered">Oppdatering av %1$s applikasjoner ble fullført %2$s.</string>
+    <string name="updates_notification_unmetered_network_warning">Venter på ubegrenset nettverk</string>
+    <string name="manually_install_updates_notification_text">Applikasjonsoppdateringer vil ikke bli installert automatisk</string>
+    <string name="automatically_install_updates_notification_text">Applikasjonsoppdateringer vil bli installert automatisk</string>
+    <string name="updates">Oppdateringer</string>
+    <string name="downloads">Nedlastinger</string>
+    <string name="discover_pwa">Oppdag PWA</string>
+    <string name="discover">Oppdag</string>
+    <string name="message_update_failure_single_app">%1$s sin oppdatering har feilet på grunn av en regel for støtte (posisjon, operativsystemversjon…).</string>
+    <string name="message_update_failed">På gunn av forbigående feil kan ikke alle dine applikasjoner bli oppdaterte. Prøv igjen senere.</string>
+    <string name="update_error">Oppdateringsfeil!</string>
+    <string name="all_apps_updated">Alle applikasjoner er oppdaterte</string>
+    <string name="manual_updates_notification">Applikasjonsoppdateringer vil ikke bli installert automatisk</string>
+    <string name="auto_updates_notification">Applikasjonsoppdateringer vil bli installert automatisk</string>
+    <plurals name="updates_notification_title">
+        <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> applikasjonsoppdatering er tilgjengelig</item>
+        <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> applikasjonsoppdateringer er tilgjengelige</item>
+    </plurals>
+    <string name="update_all">Oppdater alle</string>
+    <string name="open_source_apps">Åpen kildekode-applikasjoner</string>
+    <string name="why_open_source_version">Hvorfor ser jeg åpen kildekode-versjonen\?</string>
+    <string name="gplay_data_for_oss">Kan ikke vise Google Play-applikasjoner når kun åpen kildekode-applikasjoner er tillatt.</string>
+    <string name="show_more">Vis mer</string>
+    <string name="app_not_found">Applikasjonen den ble ikke funnet.</string>
+    <string name="not_enough_storage">Der er ikke nok tilgjengelig lagringsplass for å laste ned denne applikasjonen!</string>
+    <string name="unknown_error">Ukjent feil!</string>
+    <string name="message_app_available_later">Denne applikasjonen vil bli tilgjengelig senere!</string>
+    <string name="install_blocked_anonymous">Applikasjoner som koster penger kan ikke installeres i anonym modus. Logg på din Google-konto for å installere betalte applikasjoner.</string>
+    <string name="package_name">Pakkenavn: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="license">Lisens: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="min_android_version">Krever: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="updated_on">Oppdatert: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="version">Versjon: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="information">Informasjon</string>
+    <string name="trackers_title">Sporere</string>
+    <string name="permissions">Tillatelser</string>
+    <string name="privacy_analyses">Personvernsanalyser</string>
+    <string name="privacy">Personvern</string>
+    <string name="rating_description">Poeng ut av 5. Utregnet fra brukernes vurderinger av applikasjonen.</string>
+    <string name="update">Oppdater</string>
+    <string name="more">Mer</string>
+    <string name="close">Lukk</string>
+    <string name="retry">Prøv igjen</string>
+    <string name="open">Åpen</string>
+    <string name="app_icon">Applikasjon-ikon</string>
+    <string name="cancel">Avbryt</string>
+    <string name="installing">Installerer</string>
+    <string name="install">Installer</string>
+    <string name="ok">OK</string>
+    <string name="share_intent">Sjekk ut \"<xliff:g id="rating">%1$s</xliff:g>\"
+\n<xliff:g id="rating">%2$s</xliff:g></string>
+    <string name="description">Beskrivelse</string>
+    <string name="login">Logg inn</string>
+    <string name="select_one_source_of_applications">Velg minst én applikasjonskilde.</string>
+    <string name="logout">Logg ut</string>
+    <string name="search_hint">Søk etter applikasjon</string>
+    <string name="menu_settings">Innstillinger</string>
+    <string name="menu_updates">Oppdateringer</string>
+    <string name="menu_search">Søk</string>
+    <string name="menu_categories">Kategorier</string>
+    <string name="menu_home">Hjem</string>
+    <string name="sign_in_desc">Logg på App Lounge med din Google-konto, eller velg anonym modus for å logge på privat.</string>
+    <string name="user_anonymous">Anonym</string>
+    <string name="terms_services">Bruksvilkår</string>
+    <string name="account">Konto</string>
+    <string name="copied">Kopiert</string>
+    <string name="os_version">/e/ OS-versjon</string>
+    <string name="about">Om</string>
+    <string name="show_only_pwa_apps">Vis PWAer</string>
+    <string name="show_only_open_source_apps">Vis åpen kildekode-applikasjoner</string>
+    <string name="Show_applications">Vis applikasjoner:</string>
+    <string name="preference_update_notify_available_description">Vi en notifikasjon når en applikasjonsoppdatering er tilgjengelig</string>
+    <string name="preference_update_notify_available_title">Vil tilgjengelige oppdateringer</string>
+    <string name="preference_update_install_automatically_description">Last ned og installer applikasjonsoppdateringer i bakgrunnen</string>
+    <string name="preference_update_install_automatically_title">Installer oppdateringer automatisk</string>
+    <string name="preference_update_wifi_only_title">Kun på ubegrensede nettverk</string>
+    <string name="preference_update_wifi_only_description">Oppdater applikasjoner kun på ubegrensede nettverk som f.eks. Wi-Fi</string>
+    <string name="preference_update_interval_default">24</string>
+    <string name="preference_updates_title">Oppdateringer</string>
+    <string name="tos_warning">Før vi kan gå videre må du lese og godta bruksvilkårene.</string>
+    <string name="tos_agree_date">Godkjent</string>
+    <string name="tos_disagree">Avslå</string>
+    <string name="tos_agree">Godta</string>
+    <string name="pwa_and_open_source_apps">PWA- og åpen kildekode-applikasjoner</string>
+    <string name="or">Eller vis bare</string>
+    <string name="sign_in_anonymous">Anonym modus</string>
+    <string name="sign_in_google">Logg på med Google</string>
+    <string name="sign_in_title">Velkommen</string>
+    <string name="pwa">PWA</string>
+    <string name="open_source">Åpen kildekode</string>
+    <string name="category_icon">Kategoriikon</string>
+    <string name="games">Spill</string>
+    <string name="apps">Applikasjoner</string>
+    <string name="no_apps_found">Ingen applikasjoner ble funnet…</string>
+</resources>
