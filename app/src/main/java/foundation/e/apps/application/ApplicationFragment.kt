@@ -257,20 +257,9 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 ).show(childFragmentManager, TAG)
             }
             appTrackers.setOnClickListener {
-                val fusedApp = applicationViewModel.fusedApp.value?.first
+                val fusedApp = applicationViewModel.getFusedApp()
                 var trackers =
-                    privacyInfoViewModel.getTrackerListText(fusedApp)
-
-                if (fusedApp?.trackers == LIST_OF_NULL) {
-                    trackers = getString(R.string.tracker_information_not_found)
-                } else if (trackers.isNotEmpty()) {
-                    trackers += "<br /> <br />" + getString(
-                        R.string.privacy_computed_using_text,
-                        generateExodusUrl()
-                    )
-                } else {
-                    trackers = getString(R.string.no_tracker_found)
-                }
+                    buildTrackersString(fusedApp)
 
                 ApplicationDialogFragment(
                     R.drawable.ic_tracker,
@@ -279,6 +268,24 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 ).show(childFragmentManager, TAG)
             }
         }
+    }
+
+    private fun buildTrackersString(fusedApp: FusedApp?): String {
+        var trackers =
+            privacyInfoViewModel.getTrackerListText(fusedApp)
+
+        if (fusedApp?.trackers == LIST_OF_NULL) {
+            trackers = getString(R.string.tracker_information_not_found)
+        } else if (trackers.isNotEmpty()) {
+            trackers += "<br /> <br />" + getString(
+                R.string.privacy_computed_using_text,
+                generateExodusUrl()
+            )
+        } else {
+            trackers = getString(R.string.no_tracker_found)
+        }
+
+        return trackers
     }
 
     private fun updateAppInformation(
@@ -327,6 +334,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             }
 
             appPrivacyScoreLayout.setOnClickListener {
+
                 ApplicationDialogFragment(
                     R.drawable.ic_lock,
                     getString(R.string.privacy_score),
@@ -444,7 +452,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             val installButton = binding.downloadInclude.installButton
             val downloadPB = binding.downloadInclude.progressLayout
             val appSize = binding.downloadInclude.appSize
-            val fusedApp = applicationViewModel.fusedApp.value?.first ?: FusedApp()
+            val fusedApp = applicationViewModel.getFusedApp() ?: FusedApp()
 
             mainActivityViewModel.verifyUiFilter(fusedApp) {
                 if (!fusedApp.filterLevel.isInitialized()) {
@@ -756,12 +764,13 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun generateExodusUrl(): String {
         // if app info not loaded yet, pass the default exodus homePage url
-        if (applicationViewModel.fusedApp.value == null) {
+        val fusedApp = applicationViewModel.getFusedApp()
+        if (fusedApp == null || fusedApp.permsFromExodus == LIST_OF_NULL) {
             return EXODUS_URL
         }
 
-        val packageName = applicationViewModel.fusedApp.value!!.first.package_name
-        return "$EXODUS_REPORT_URL${Locale.getDefault().language}/reports/$packageName/latest"
+        val reportId = applicationViewModel.fusedApp.value!!.first.reportId
+        return "$EXODUS_REPORT_URL${Locale.getDefault().language}/reports/$reportId"
     }
 
     private fun fetchAppTracker(fusedApp: FusedApp) {
@@ -782,7 +791,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun updatePrivacyScore() {
         val privacyScore =
-            privacyInfoViewModel.getPrivacyScore(applicationViewModel.fusedApp.value?.first)
+            privacyInfoViewModel.getPrivacyScore(applicationViewModel.getFusedApp())
         if (privacyScore != -1) {
             val appPrivacyScore = binding.ratingsInclude.appPrivacyScore
             appPrivacyScore.text = getString(

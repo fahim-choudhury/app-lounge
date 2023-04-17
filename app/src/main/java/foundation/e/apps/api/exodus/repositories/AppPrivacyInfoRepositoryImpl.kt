@@ -26,8 +26,9 @@ import foundation.e.apps.api.exodus.TrackerDao
 import foundation.e.apps.api.exodus.models.AppPrivacyInfo
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.getResult
+import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
-import java.text.SimpleDateFormat
+import foundation.e.apps.utils.getFormattedString
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
@@ -35,12 +36,12 @@ import javax.inject.Singleton
 import kotlin.math.ceil
 import kotlin.math.round
 
+
 @Singleton
 class AppPrivacyInfoRepositoryImpl @Inject constructor(
     private val exodusTrackerApi: ExodusTrackerApi,
     private val trackerDao: TrackerDao
 ) : IAppPrivacyInfoRepository {
-
     companion object {
         private const val MAX_TRACKER_SCORE = 9
         private const val MIN_TRACKER_SCORE = 0
@@ -50,6 +51,9 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
         private const val THRESHOLD_OF_NON_ZERO_PERMISSION_SCORE = 9
         private const val FACTOR_OF_PERMISSION_SCORE = 0.2
         private const val DIVIDER_OF_PERMISSION_SCORE = 2.0
+        private const val DATE_FORMAT = "ddMMyyyy"
+        private const val SOURCE_FDROID = "fdroid"
+        private const val SOURCE_GOOGLE = "google"
     }
 
     private var trackers: List<Tracker> = listOf()
@@ -59,7 +63,7 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
         appHandle: String
     ): Result<AppPrivacyInfo> {
         if (fusedApp.trackers.isNotEmpty() && fusedApp.permsFromExodus.isNotEmpty()) {
-            val appInfo = AppPrivacyInfo(fusedApp.trackers, fusedApp.permsFromExodus)
+            val appInfo = AppPrivacyInfo(fusedApp.trackers, fusedApp.permsFromExodus, fusedApp.reportId)
             return Result.success(appInfo)
         }
 
@@ -69,13 +73,22 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
                 fusedApp.latest_version_code,
             )
         }
+
         if (appTrackerInfoResult.isSuccess()) {
-            val appPrivacyPrivacyInfoResult =
-                handleAppPrivacyInfoResultSuccess(appTrackerInfoResult)
-            updateFusedApp(fusedApp, appPrivacyPrivacyInfoResult)
-            return appPrivacyPrivacyInfoResult
+            return parsePrivacyInfo(fusedApp, appTrackerInfoResult)
         }
         return Result.error(extractErrorMessage(appTrackerInfoResult))
+    }
+
+    private suspend fun parsePrivacyInfo(
+        fusedApp: FusedApp,
+        appTrackerInfoResult: Result<List<Report>>
+    ): Result<AppPrivacyInfo> {
+        val appPrivacyPrivacyInfoResult =
+            handleAppPrivacyInfoResultSuccess(fusedApp, appTrackerInfoResult)
+
+        updateFusedApp(fusedApp, appPrivacyPrivacyInfoResult)
+        return appPrivacyPrivacyInfoResult
     }
 
     private fun updateFusedApp(
@@ -84,18 +97,20 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
     ) {
         fusedApp.trackers = appPrivacyPrivacyInfoResult.data?.trackerList ?: LIST_OF_NULL
         fusedApp.permsFromExodus = appPrivacyPrivacyInfoResult.data?.permissionList ?: LIST_OF_NULL
+        fusedApp.reportId = appPrivacyPrivacyInfoResult.data?.reportId ?: -1L
         if (fusedApp.permsFromExodus != LIST_OF_NULL) {
             fusedApp.perms = fusedApp.permsFromExodus
         }
     }
 
     private suspend fun handleAppPrivacyInfoResultSuccess(
+        fusedApp: FusedApp,
         appTrackerResult: Result<List<Report>>,
     ): Result<AppPrivacyInfo> {
         if (trackers.isEmpty()) {
             generateTrackerList()
         }
-        return createAppPrivacyInfoResult(appTrackerResult)
+        return createAppPrivacyInfo(fusedApp, appTrackerResult)
     }
 
     private suspend fun generateTrackerList() {
@@ -108,7 +123,8 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
     }
 
     private suspend fun generateTrackerListFromExodusApi() {
-        val result = getResult { exodusTrackerApi.getTrackerList(getDate()) }
+        val date = Date().getFormattedString(DATE_FORMAT, Locale("en"))
+        val result = getResult { exodusTrackerApi.getTrackerList(date) }
         if (result.isSuccess()) {
             result.data?.let {
                 val trackerList = it.trackers.values.toList()
@@ -118,25 +134,22 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun getDate(): String {
-        val dateFormat = SimpleDateFormat("ddMMyyyy", Locale("en"))
-        return dateFormat.format(Date())
-    }
-
     private fun extractErrorMessage(appTrackerResult: Result<List<Report>>): String {
         return appTrackerResult.message ?: "Unknown Error"
     }
 
-    private fun createAppPrivacyInfoResult(
+    private fun createAppPrivacyInfo(
+        fusedApp: FusedApp,
         appTrackerResult: Result<List<Report>>,
     ): Result<AppPrivacyInfo> {
         appTrackerResult.data?.let {
-            return Result.success(getAppPrivacyInfo(it))
+            return Result.success(getAppPrivacyInfo(fusedApp, it))
         }
         return Result.error(extractErrorMessage(appTrackerResult))
     }
 
     private fun getAppPrivacyInfo(
+        fusedApp: FusedApp,
         appTrackerData: List<Report>,
     ): AppPrivacyInfo {
         /*
@@ -151,16 +164,33 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
         if (appTrackerData.isEmpty()) {
             return AppPrivacyInfo(LIST_OF_NULL, LIST_OF_NULL)
         }
-        val sortedTrackerData =
-            appTrackerData.sortedByDescending { trackerData -> trackerData.versionCode.toLong() }
-        val appTrackers = extractAppTrackers(sortedTrackerData)
-        val permissions = sortedTrackerData[0].permissions
-        return AppPrivacyInfo(appTrackers, permissions)
+
+        val latestTrackerData = getLatestTrackerData(fusedApp, appTrackerData)
+            ?: return AppPrivacyInfo(LIST_OF_NULL, LIST_OF_NULL)
+
+        val appTrackers = extractAppTrackers(latestTrackerData)
+        val permissions = latestTrackerData.permissions
+        return AppPrivacyInfo(appTrackers, permissions, latestTrackerData.report)
     }
 
-    private fun extractAppTrackers(sortedTrackerData: List<Report>): List<String> {
+    private fun getLatestTrackerData(
+        fusedApp: FusedApp,
+        appTrackerData: List<Report>
+    ): Report? {
+        val source = if (fusedApp.origin == Origin.CLEANAPK) SOURCE_FDROID else SOURCE_GOOGLE
+        val filteredAppTrackerData = appTrackerData.filter { it.source == source }
+        if (filteredAppTrackerData.isEmpty()) {
+            return null
+        }
+
+        val sortedTrackerData =
+            filteredAppTrackerData.sortedByDescending { trackerData -> trackerData.versionCode.toLong() }
+        return sortedTrackerData[0]
+    }
+
+    private fun extractAppTrackers(latestTrackerData: Report): List<String> {
         return trackers.filter {
-            sortedTrackerData[0].trackers.contains(it.id)
+            latestTrackerData.trackers.contains(it.id)
         }.map { it.name }
     }
 
@@ -168,6 +198,7 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
         if (fusedApp.permsFromExodus == LIST_OF_NULL) {
             return -1
         }
+
         val calculateTrackersScore = calculateTrackersScore(fusedApp.trackers.size)
         val calculatePermissionsScore = calculatePermissionsScore(
             countAndroidPermissions(fusedApp)

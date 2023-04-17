@@ -12,7 +12,7 @@ interface ExodusTrackerApi {
     }
 
     @GET("trackers?v={date}")
-    suspend fun getTrackerList(@Path("date") date: String): Response<Trackers>
+    suspend fun getTrackerList(@Query("date") date: String): Response<Trackers>
 
     @GET("search/{appHandle}/details")
     suspend fun getTrackerInfoOfApp(
