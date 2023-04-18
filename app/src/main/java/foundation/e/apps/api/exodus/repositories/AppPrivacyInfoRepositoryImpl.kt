@@ -27,15 +27,14 @@ import foundation.e.apps.api.exodus.models.AppPrivacyInfo
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.getResult
 import foundation.e.apps.utils.enums.Origin
-import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.utils.getFormattedString
+import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.ceil
 import kotlin.math.round
-
 
 @Singleton
 class AppPrivacyInfoRepositoryImpl @Inject constructor(

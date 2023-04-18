@@ -36,7 +36,6 @@ import java.text.NumberFormat
 import java.util.Date
 import javax.inject.Inject
 
-
 class AppInstallProcessor @Inject constructor(
     @ApplicationContext private val context: Context,
     private val databaseRepository: DatabaseRepository,

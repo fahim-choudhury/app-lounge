@@ -27,8 +27,6 @@ import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -68,7 +66,7 @@ class AppPrivacyInfoRepositoryImplTest {
             is_pwa = true,
         )
         val result = appPrivacyInfoRepository.getAppPrivacyInfo(fusedApp, fusedApp.package_name)
-        assertEquals("getAppPrivacyInfo", true, result.isSuccess() )
+        assertEquals("getAppPrivacyInfo", true, result.isSuccess())
         assertEquals("getAppPrivacyInfo", 3, result.data?.trackerList?.size)
     }
 
@@ -83,7 +81,7 @@ class AppPrivacyInfoRepositoryImplTest {
             is_pwa = true,
         )
         val result = appPrivacyInfoRepository.getAppPrivacyInfo(fusedApp, fusedApp.package_name)
-        assertEquals("getAppPrivacyInfo", false, result.isSuccess() )
+        assertEquals("getAppPrivacyInfo", false, result.isSuccess())
     }
 
     @Test
@@ -98,7 +96,7 @@ class AppPrivacyInfoRepositoryImplTest {
         )
         fakeTrackerDao.trackers.clear()
         val result = appPrivacyInfoRepository.getAppPrivacyInfo(fusedApp, fusedApp.package_name)
-        assertEquals("getAppPrivacyInfo", 2, result.data?.trackerList?.size )
+        assertEquals("getAppPrivacyInfo", 2, result.data?.trackerList?.size)
     }
 
     @Test
@@ -115,7 +113,7 @@ class AppPrivacyInfoRepositoryImplTest {
             trackers = listOf()
         )
         val privacyScore = appPrivacyInfoRepository.calculatePrivacyScore(fusedApp)
-        assertEquals("getAppPrivacyInfo", 10, privacyScore )
+        assertEquals("getAppPrivacyInfo", 10, privacyScore)
     }
 
     @Test
@@ -131,7 +129,7 @@ class AppPrivacyInfoRepositoryImplTest {
             trackers = listOf()
         )
         val privacyScore = appPrivacyInfoRepository.calculatePrivacyScore(fusedApp)
-        assertEquals("getAppPrivacyInfo", -1, privacyScore )
+        assertEquals("getAppPrivacyInfo", -1, privacyScore)
     }
 
     @Test
@@ -148,6 +146,6 @@ class AppPrivacyInfoRepositoryImplTest {
             trackers = LIST_OF_NULL
         )
         val privacyScore = appPrivacyInfoRepository.calculatePrivacyScore(fusedApp)
-        assertEquals("getAppPrivacyInfo", 9, privacyScore )
+        assertEquals("getAppPrivacyInfo", 9, privacyScore)
     }
 }

@@ -24,13 +24,11 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import dagger.hilt.android.HiltAndroidApp
-import foundation.e.apps.login.LoginDataStore
 import foundation.e.apps.manager.pkg.PkgManagerBR
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.manager.workmanager.InstallWorkManager
 import foundation.e.apps.setup.tos.TOS_VERSION
 import foundation.e.apps.updates.manager.UpdatesWorkManager
-import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.modules.DataStoreModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
 import foundation.e.lib.telemetry.Telemetry

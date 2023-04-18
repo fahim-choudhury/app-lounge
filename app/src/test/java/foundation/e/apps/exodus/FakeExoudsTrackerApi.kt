@@ -35,13 +35,15 @@ class FakeExoudsTrackerApi : ExodusTrackerApi {
         return Response.success(Trackers(mutableMapOf(Pair("one", trackers[0]), Pair("two", trackers[1]))))
     }
 
-    override suspend fun getTrackerInfoOfApp(appHandle: String,
-                                             versionCode: Int): Response<List<Report>> {
+    override suspend fun getTrackerInfoOfApp(
+        appHandle: String,
+        versionCode: Int
+    ): Response<List<Report>> {
         if (appHandle.isEmpty()) {
             return Response.error(404, null)
         }
-        val reportOne = Report(System.currentTimeMillis(), "12-12-12", "1.2.3", "123", "google", listOf(1,2,3), listOf())
-        val reportTwo = Report(System.currentTimeMillis(), "12-12-12", "1.2.3", "123", "fdroid", listOf(1,2,3), listOf())
+        val reportOne = Report(System.currentTimeMillis(), "12-12-12", "1.2.3", "123", "google", listOf(1, 2, 3), listOf())
+        val reportTwo = Report(System.currentTimeMillis(), "12-12-12", "1.2.3", "123", "fdroid", listOf(1, 2, 3), listOf())
         return Response.success(listOf(reportOne, reportTwo))
     }
 }
