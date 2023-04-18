@@ -28,6 +28,7 @@ import android.os.Environment
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.R
 import foundation.e.apps.manager.database.DatabaseRepository
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.download.data.DownloadProgressLD
@@ -208,7 +209,7 @@ class FusedManagerImpl @Inject constructor(
                 File(parentPath, "${fusedDownload.packageName}_$count.apk")
             }
             val request = DownloadManager.Request(Uri.parse(it))
-                .setTitle(if (count == 1) fusedDownload.name else "Additional file for ${fusedDownload.name}")
+                .setTitle(if (count == 1) fusedDownload.name else context.getString(R.string.additional_file_for, fusedDownload.name))
                 .setDestinationUri(Uri.fromFile(packagePath))
             val requestId = downloadManager.enqueue(request)
             DownloadProgressLD.setDownloadId(requestId)
