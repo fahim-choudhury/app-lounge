@@ -18,7 +18,7 @@
     <string name="menu_updates">Actualizaciones</string>
     <string name="menu_settings">Ajustes</string>
     <string name="search_hint">Buscar una aplicación</string>
-    <string name="no_apps_found">No se han encontrado aplicaciones…</string>
+    <string name="no_apps_found">No se encontraron aplicaciones…</string>
     <string name="games">Juegos</string>
     <string name="open_source">Código abierto</string>
     <string name="pwa">PWA</string>
@@ -85,7 +85,7 @@
     <string name="preference_update_notify_available_description">Mostrar una notificación cuando hayan actualizaciones disponibles</string>
     <string name="share_intent">Comprobar \"<xliff:g id="rating">%1$s</xliff:g>\"
 \n<xliff:g id="rating">%2$s</xliff:g></string>
-    <string name="preference_update_wifi_only_description">Actualizar las aplicaciones automaticamente solo en redes sin datos móviles como el WI-FI</string>
+    <string name="preference_update_wifi_only_description">Actualizar las aplicaciones automáticamente solo en redes sin datos móviles como el WI-FI</string>
     <string name="update">Actualizar</string>
     <string name="rating_description">Puntuación sobre 5. Calculada usando las valoraciones de los usuarios de la aplicación.</string>
     <string name="privacy_description">El nivel de privacidad se calcula automáticamente a partir de los permisos y rastreadores detectados en las aplicaciones. Da una idea hasta qué punto es posible que una aplicación esté rastreando sus usuarios..&lt;br /&gt;&lt;br /&gt;El código fuente de su algoritmo de cálculo puede ser &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;se encontrado aquí&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;La detección de rastreadores se realiza mediante &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Privacy tools&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Puntuación sobre 10.&lt;br /&gt;&lt;br /&gt;Aprende más sobre cómo se calcula el nivel de Privacidad, sus limitaciones y cómo puedes protegerte del rastreo &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;on this page&lt;/a&gt;.</string>
