@@ -219,16 +219,17 @@ class ApplicationListRVAdapter(
         val action = when (currentDestinationId) {
             R.id.applicationListFragment -> {
                 ApplicationListFragmentDirections.actionApplicationListFragmentToApplicationFragment(
-                    searchApp._id,
                     searchApp.package_name,
+                    searchApp._id,
                     searchApp.origin,
                     catText,
+                    searchApp.isGplayReplaced
                 )
             }
             R.id.searchFragment -> {
                 SearchFragmentDirections.actionSearchFragmentToApplicationFragment(
-                    searchApp._id,
                     searchApp.package_name,
+                    searchApp._id,
                     searchApp.origin,
                     catText,
                     searchApp.isGplayReplaced
@@ -236,10 +237,11 @@ class ApplicationListRVAdapter(
             }
             R.id.updatesFragment -> {
                 UpdatesFragmentDirections.actionUpdatesFragmentToApplicationFragment(
-                    searchApp._id,
                     searchApp.package_name,
+                    searchApp._id,
                     searchApp.origin,
                     catText,
+                    searchApp.isGplayReplaced
                 )
             }
             else -> null
@@ -479,7 +481,8 @@ class ApplicationListRVAdapter(
             searchApp.isFree -> {
                 materialButton.enableInstallButton()
                 materialButton.text = materialButton.context.getString(R.string.install)
-                materialButton.strokeColor = ContextCompat.getColorStateList(holder.itemView.context, R.color.light_grey)
+                materialButton.strokeColor =
+                    ContextCompat.getColorStateList(holder.itemView.context, R.color.light_grey)
                 applicationListItemBinding.progressBarInstall.visibility = View.GONE
             }
             else -> {

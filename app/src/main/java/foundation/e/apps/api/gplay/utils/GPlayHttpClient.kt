@@ -21,7 +21,12 @@ package foundation.e.apps.api.gplay.utils
 
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.network.IHttpClient
+import foundation.e.apps.login.AuthObject
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.modules.CommonUtilsFunctions
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import okhttp3.Cache
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.HttpUrl
@@ -39,7 +44,7 @@ import java.net.UnknownHostException
 import javax.inject.Inject
 
 class GPlayHttpClient @Inject constructor(
-    cache: Cache
+    cache: Cache,
 ) : IHttpClient {
 
     private val POST = "POST"
@@ -177,6 +182,16 @@ class GPlayHttpClient @Inject constructor(
         return PlayResponse().apply {
             isSuccessful = response.isSuccessful
             code = response.code
+
+            Timber.d("$TAG: Url: ${response.request.url}\nStatus: $code")
+
+            if (code == 401) {
+                MainScope().launch {
+                    EventBus.invokeEvent(
+                        AppEvent.InvalidAuthEvent(AuthObject.GPlayAuth::class.java.simpleName)
+                    )
+                }
+            }
 
             if (response.body != null) {
                 responseBytes = response.body!!.bytes()

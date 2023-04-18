@@ -157,8 +157,10 @@ class FusedManagerImpl @Inject constructor(
 
             // Reset the status before deleting download
             updateDownloadStatus(fusedDownload, fusedDownload.orgStatus)
+            if (fusedDownload.status != Status.INSTALLATION_ISSUE) {
+                databaseRepository.deleteDownload(fusedDownload)
+            }
 
-            databaseRepository.deleteDownload(fusedDownload)
             flushOldDownload(fusedDownload.packageName)
         } else {
             Timber.d("Unable to cancel download!")

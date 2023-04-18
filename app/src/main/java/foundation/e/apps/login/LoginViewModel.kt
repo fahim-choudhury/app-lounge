@@ -20,8 +20,13 @@ package foundation.e.apps.login
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.utils.enums.User
+import foundation.e.apps.utils.exceptions.CleanApkException
+import foundation.e.apps.utils.exceptions.GPlayValidationException
+import foundation.e.apps.utils.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -97,6 +102,65 @@ class LoginViewModel @Inject constructor(
             onUserSaved()
             startLoginFlow()
         }
+    }
+
+    /**
+     * Once an AuthObject is marked as invalid, it will be refreshed
+     * automatically by LoadingViewModel.
+     * If GPlay auth is invalid, [LoadingViewModel.onLoadData] has a retry block,
+     * this block will clear existing GPlay AuthData and freshly start the login flow.
+     */
+    fun markInvalidAuthObject(authObjectName: String) {
+        val authObjectsLocal = authObjects.value?.toMutableList()
+        val invalidObject = authObjectsLocal?.find { it::class.java.simpleName == authObjectName }
+
+        val replacedObject = when (invalidObject) {
+            is AuthObject.GPlayAuth -> {
+                createInvalidGplayAuth(invalidObject)
+            }
+            is AuthObject.CleanApk ->
+                createInvalidCleanApkAuth(invalidObject)
+            else -> null
+        }
+
+        authObjectsLocal?.apply {
+            if (invalidObject != null && replacedObject != null) {
+                remove(invalidObject)
+                add(replacedObject)
+            }
+        }
+
+        authObjects.postValue(authObjectsLocal)
+    }
+
+    private fun createInvalidCleanApkAuth(invalidObject: AuthObject.CleanApk) =
+        AuthObject.CleanApk(
+            ResultSupreme.Error(
+                message = "Unauthorized",
+                exception = CleanApkException(
+                    isTimeout = false,
+                    message = "Unauthorized",
+                )
+            ),
+            invalidObject.user,
+        )
+
+    private fun createInvalidGplayAuth(invalidObject: AuthObject.GPlayAuth): AuthObject.GPlayAuth {
+        val message = "Validating AuthData failed.\nNetwork code: 401"
+
+        return AuthObject.GPlayAuth(
+            ResultSupreme.Error<AuthData?>(
+                message = message,
+                exception = GPlayValidationException(
+                    message,
+                    invalidObject.user,
+                    401,
+                )
+            ).apply {
+                otherPayload = invalidObject.result.otherPayload
+            },
+            invalidObject.user,
+        )
     }
 
     /**

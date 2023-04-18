@@ -93,10 +93,11 @@ class HomeChildRVAdapter(
             appName.text = homeApp.name
             homeLayout.setOnClickListener {
                 val action = HomeFragmentDirections.actionHomeFragmentToApplicationFragment(
-                    homeApp._id,
                     homeApp.package_name,
+                    homeApp._id,
                     homeApp.origin,
-                    homeApp.category
+                    homeApp.category,
+                    homeApp.isGplayReplaced
                 )
                 holder.itemView.findNavController().navigate(action)
             }
@@ -236,7 +237,11 @@ class HomeChildRVAdapter(
                 if (homeApp.is_pwa) {
                     mainActivityViewModel.launchPwa(homeApp)
                 } else {
-                    context.startActivity(mainActivityViewModel.getLaunchIntentForPackageName(homeApp.package_name))
+                    context.startActivity(
+                        mainActivityViewModel.getLaunchIntentForPackageName(
+                            homeApp.package_name
+                        )
+                    )
                 }
             }
         }
