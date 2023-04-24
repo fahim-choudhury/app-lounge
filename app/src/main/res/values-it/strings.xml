@@ -160,4 +160,6 @@
     <string name="why_open_source_version">Perchè vedo la versione Open Source\?</string>
     <string name="message_last_update_triggered">Aggiornamento di %1$s App eseguito il %2$s.</string>
     <string name="duplicate_app_from_sources">Alcune App proprietarie potrebbero avere anche una versione Open Source. In questo caso App Lounge mostra solo la versione Open Source, per evitare duplicati.</string>
+    <string name="additional_file_for">File agiuntivo per %s</string>
+    <string name="downloading">Scaricamento…</string>
 </resources>
