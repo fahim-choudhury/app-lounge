@@ -29,7 +29,6 @@
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
     <application
-        android:networkSecurityConfig="@xml/network_security_config"
         android:name=".AppLoungeApplication"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
