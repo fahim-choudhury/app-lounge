@@ -118,4 +118,18 @@
     <string name="timeout_desc_gplay">Einhver vandamál í netkerfinu koma í veg fyrir að hægt sé að sækja öll forrit.
 \n
 \nOpnaðu stillingar til að leita einungis að forritum með opinn grunnkóða eða PWA-vefforritum.</string>
+    <string name="not_enough_storage">Það er ekki nægt pláss tiltækt til að sækja þetta forrit!</string>
+    <string name="message_retry">Að uppfæra allt mistókst. Sjálfvirkar tilraunir til endurtekningar í gangi.</string>
+    <string name="discover">Kynntu þér</string>
+    <string name="top_updated_apps">Vinsælustu uppfærðu forritin með opinn grunnkóða</string>
+    <string name="top_updated_games">Vinsælustu uppfærðir leikir með opinn grunnkóða</string>
+    <string name="topselling_free_apps">Vinsælustu ókeypis og frjálsu forritin</string>
+    <string name="popular_apps_in_last_24_hours">Vinsæl forrit síðasta sólahring með opinn grunnkóða</string>
+    <string name="popular_games_in_last_24_hours">Vinsæla leiki síðasta sólahring með opinn grunnkóða</string>
+    <string name="topselling_free_games">Vinsælustu ókeypis og frjálsu leikirnir</string>
+    <string name="topgrossing_apps">Forrit með mestu innkomuna</string>
+    <string name="topgrossing_games">Leikir með mestu innkomuna</string>
+    <string name="automatically_install_updates_notification_text">Uppfærslur forrita verða sjálfkrafa settar inn</string>
+    <string name="manually_install_updates_notification_text">Uppfærslur forrita verða ekki settar sjálfkrafa inn</string>
+    <string name="updates_notification_unmetered_network_warning">Bíð eftir gjaldfrjálsu neti</string>
 </resources>
