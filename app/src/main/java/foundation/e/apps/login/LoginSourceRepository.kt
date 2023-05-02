@@ -17,6 +17,8 @@
 
 package foundation.e.apps.login
 
+import com.aurora.gplayapi.data.models.AuthData
+import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.utils.enums.User
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -57,5 +59,10 @@ class LoginSourceRepository @Inject constructor(
 
     suspend fun logout() {
         loginCommon.logout()
+    }
+
+    suspend fun getValidatedAuthData(): ResultSupreme<AuthData?> {
+        val authDataValidator = (sources.find { it is AuthDataValidator } as AuthDataValidator)
+        return authDataValidator.fetchValidatedAuthData()
     }
 }

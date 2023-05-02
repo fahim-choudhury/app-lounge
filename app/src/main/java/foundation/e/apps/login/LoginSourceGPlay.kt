@@ -19,9 +19,11 @@ package foundation.e.apps.login
 
 import android.content.Context
 import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.helpers.AuthValidator
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.api.ResultSupreme
+import foundation.e.apps.api.gplay.utils.GPlayHttpClient
 import foundation.e.apps.login.api.GPlayApiFactory
 import foundation.e.apps.login.api.GPlayLoginInterface
 import foundation.e.apps.login.api.GoogleLoginApi
@@ -44,10 +46,13 @@ class LoginSourceGPlay @Inject constructor(
     @ApplicationContext private val context: Context,
     private val gson: Gson,
     private val loginDataStore: LoginDataStore,
-) : LoginSourceInterface {
+) : LoginSourceInterface, AuthDataValidator {
 
     @Inject
     lateinit var gPlayApiFactory: GPlayApiFactory
+
+    @Inject
+    lateinit var gPlayHttpClient: GPlayHttpClient
 
     private val user: User
         get() = loginDataStore.getUserType()
@@ -250,5 +255,15 @@ class LoginSourceGPlay @Inject constructor(
                 GPlayValidationException(message, user, playResponse?.code ?: -1)
             )
         }
+    }
+
+    override suspend fun fetchValidatedAuthData(): ResultSupreme<AuthData?> {
+        val savedAuth = getSavedAuthData()
+        val isValid = AuthValidator(savedAuth!!).using(gPlayHttpClient).isValid()
+        if (!isValid) {
+            return generateAuthData()
+        }
+
+        return ResultSupreme.create(ResultStatus.OK, savedAuth)
     }
 }
