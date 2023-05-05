@@ -2,6 +2,7 @@ package foundation.e.apps.integrity
 
 import android.content.Context
 import android.util.Base64
+import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.aurora.gplayapi.DroidGuardIntegrityRequest
 import com.aurora.gplayapi.IntegrityPackage
@@ -9,11 +10,13 @@ import com.aurora.gplayapi.PackageVersionCode
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.utils.asProtoTimestamp
 import com.google.android.gms.droidguard.DroidGuard
+import com.google.android.gms.droidguard.DroidGuardClient
 import com.google.android.gms.droidguard.internal.DroidGuardResultsRequest
 import foundation.e.apps.IAppLoungeIntegrityService
 import foundation.e.apps.IAppLoungeIntegrityServiceCallback
 import foundation.e.apps.api.gplay.GPlayAPIRepository
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.security.MessageDigest
 
 const val BASE64_ENCODING_FLAGS = Base64.URL_SAFE or Base64.NO_WRAP // = 10
@@ -39,7 +42,6 @@ class IntegrityBinder(
         val versionCode = PackageVersionCode.newBuilder().setVersion(10)
         val timestamp = System.currentTimeMillis().asProtoTimestamp()
 
-
         val data = DroidGuardIntegrityRequest.newBuilder()
             .setPackage(integrityPackage)
             .setVersion(versionCode)
@@ -49,14 +51,39 @@ class IntegrityBinder(
 
         val client = DroidGuard.getClient(context)
         val request = DroidGuardResultsRequest()
+        request.bundle.putString("thirdPartyCallerAppPackageName", packageName)
+        //request.bundle.putBoolean("apsh", false)
+
         val map = buildDroidGuardData(data)
 
-        request.bundle.putString("thirdPartyCallerAppPackageName", packageName)
-        client.getResults("pia_attest", map, request).addOnSuccessListener {
-            lifecycleCoroutineScope.launch {
-                gPlayAPIRepository.checkIntegrity(authData, packageName, nonce, it).let {
-                    if (it == null) callback.onError(INTEGRITY_ERROR_NETWORK_ERROR)
-                    else callback.onSuccess(it)
+        client.getResults(
+            "pia_attest",
+            map,
+            request
+        ).addOnSuccessListener {
+            onDroidGuardSuccess(packageName, nonce, it, callback)
+        }.addOnFailureListener {
+            Timber.e("Droid guard error")
+        }
+    }
+
+    private fun onDroidGuardSuccess(
+        packageName: String,
+        nonce: String,
+        droidGuardToken: String,
+        callback: IAppLoungeIntegrityServiceCallback
+    ) {
+        lifecycleCoroutineScope.launch {
+            gPlayAPIRepository.checkIntegrity(
+                authData,
+                packageName,
+                nonce,
+                droidGuardToken
+            ).let {
+                if (it == null) {
+                    callback.onError(INTEGRITY_ERROR_NETWORK_ERROR)
+                } else {
+                    callback.onSuccess(it)
                 }
             }
         }

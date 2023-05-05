@@ -18,14 +18,19 @@
 
 package foundation.e.apps
 
+import android.app.AlertDialog
+import android.app.Dialog
 import android.app.usage.StorageStatsManager
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.StatFs
 import android.os.storage.StorageManager
+import android.provider.Settings
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope

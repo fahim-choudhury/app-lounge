@@ -18,7 +18,13 @@
 
 package foundation.e.apps
 
+import android.app.AlertDialog
 import android.app.Application
+import android.app.Dialog
+import android.content.Intent
+import android.os.Bundle
+import android.provider.Settings
+import androidx.fragment.app.DialogFragment
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
