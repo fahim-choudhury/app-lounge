@@ -183,7 +183,7 @@ class PkgManagerModule @Inject constructor(
                 setInstallReason(PackageManager.INSTALL_REASON_USER)
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                setRequireUserAction(SessionParams.USER_ACTION_NOT_REQUIRED)
+                setRequireUserAction(SessionParams.USER_ACTION_REQUIRED)
             }
         }
 

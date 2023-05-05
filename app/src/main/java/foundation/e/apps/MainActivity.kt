@@ -25,6 +25,7 @@ import android.os.Environment
 import android.os.StatFs
 import android.os.storage.StorageManager
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.distinctUntilChanged
@@ -46,6 +47,7 @@ import foundation.e.apps.login.AuthObject
 import foundation.e.apps.login.LoginViewModel
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.workmanager.InstallWorkManager
+import foundation.e.apps.permission.PermissionChecker
 import foundation.e.apps.purchase.AppPurchaseFragmentDirections
 import foundation.e.apps.settings.SettingsFragment
 import foundation.e.apps.setup.signin.SignInViewModel
@@ -71,6 +73,7 @@ class MainActivity : AppCompatActivity() {
     private val TAG = MainActivity::class.java.simpleName
     private lateinit var viewModel: MainActivityViewModel
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -230,6 +233,8 @@ class MainActivity : AppCompatActivity() {
                 ).show(supportFragmentManager, TAG)
             }
         }
+
+        PermissionChecker.run(applicationContext, supportFragmentManager)
     }
 
     private suspend fun observeInvalidAuth() {

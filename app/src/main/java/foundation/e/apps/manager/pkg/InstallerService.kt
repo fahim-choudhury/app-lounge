@@ -69,9 +69,30 @@ class InstallerService : Service() {
         val packageNamePackageManagerModule = intent.getStringExtra(PkgManagerModule.PACKAGE_NAME)
 
         packageName = packageName ?: packageNamePackageManagerModule
-        postStatus(status, packageName, extra)
+
+        when (status) {
+            PackageInstaller.STATUS_PENDING_USER_ACTION -> promptUser(intent)
+            else -> postStatus(status, packageName, extra)
+        }
+
         stopSelf()
         return START_NOT_STICKY
+    }
+
+    private fun promptUser(intent: Intent) {
+        val confirmationIntent: Intent? = intent.getParcelableExtra(Intent.EXTRA_INTENT)
+
+        confirmationIntent?.let {
+            it.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
+            it.putExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME, PkgManagerModule.FAKE_STORE_PACKAGE_NAME)
+            it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+            try {
+                startActivity(it)
+            } catch (e: Exception) {
+                Timber.e(e.message)
+            }
+        }
     }
 
     private fun postStatus(status: Int, packageName: String?, extra: String?) {
