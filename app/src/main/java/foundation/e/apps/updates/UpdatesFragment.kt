@@ -315,7 +315,15 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
 
     override fun stopLoadingUI() {
         binding.progressBar.visibility = View.GONE
-        binding.recyclerView.visibility = View.VISIBLE
+
+        if ((binding.recyclerView.adapter?.itemCount ?: 0) > 0) {
+            binding.noUpdates.visibility = View.GONE
+            binding.recyclerView.visibility = View.VISIBLE
+            return
+        }
+
+        binding.noUpdates.visibility = View.VISIBLE
+        binding.recyclerView.visibility = View.INVISIBLE
     }
 
     override fun onResume() {
