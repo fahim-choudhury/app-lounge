@@ -253,7 +253,7 @@ class LoginSourceGPlay @Inject constructor(
         }
     }
 
-    override suspend fun fetchAuthData(): ResultSupreme<AuthData?> {
+    override suspend fun validateAuthData(): ResultSupreme<AuthData?> {
         val savedAuth = getSavedAuthData()
         if (!isAuthDataValid(savedAuth)) {
             Timber.i("Validating AuthData...")
