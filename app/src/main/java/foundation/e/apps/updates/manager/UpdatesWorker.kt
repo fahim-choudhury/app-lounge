@@ -23,6 +23,7 @@ import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.cleanapk.CleanAPKInterface
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
+import foundation.e.apps.login.LoginSourceRepository
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.manager.workmanager.InstallWorkManager
@@ -49,6 +50,7 @@ class UpdatesWorker @AssistedInject constructor(
     private val fusedAPIRepository: FusedAPIRepository,
     private val fusedManagerRepository: FusedManagerRepository,
     private val dataStoreManager: DataStoreManager,
+    private val loginSourceRepository: LoginSourceRepository,
     private val gson: Gson,
 ) : CoroutineWorker(context, params) {
 
@@ -110,7 +112,7 @@ class UpdatesWorker @AssistedInject constructor(
         val isConnectedToUnmeteredNetwork = isConnectedToUnmeteredNetwork(applicationContext)
         val appsNeededToUpdate = mutableListOf<FusedApp>()
         val user = getUser()
-        val authData = getAuthData()
+        val authData = loginSourceRepository.getValidatedAuthData().data
         val resultStatus: ResultStatus
 
         if (user in listOf(User.ANONYMOUS, User.GOOGLE) && authData != null) {
@@ -225,6 +227,7 @@ class UpdatesWorker @AssistedInject constructor(
             if (!fusedApp.isFree && authData.isAnonymous) {
                 return@forEach
             }
+
             val iconBase64 = getIconImageToBase64(fusedApp)
 
             val fusedDownload = FusedDownload(
