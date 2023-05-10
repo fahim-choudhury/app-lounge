@@ -18,14 +18,22 @@
 
 package foundation.e.apps.applicationlist
 
+import android.text.format.Formatter
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.aurora.gplayapi.data.models.App
+import com.aurora.gplayapi.data.models.Artwork
 import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.models.StreamBundle
+import com.aurora.gplayapi.helpers.CategoryHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
+import foundation.e.apps.api.fused.data.Ratings
 import foundation.e.apps.login.AuthObject
+import foundation.e.apps.utils.enums.Origin
+import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.exceptions.CleanApkException
 import foundation.e.apps.utils.exceptions.GPlayException
 import foundation.e.apps.utils.parentFragment.LoadingViewModel
@@ -41,6 +49,12 @@ class ApplicationListViewModel @Inject constructor(
     val appListLiveData: MutableLiveData<ResultSupreme<List<FusedApp>>?> = MutableLiveData()
 
     var isLoading = false
+
+    var streamBundle: StreamBundle = StreamBundle()
+
+    lateinit var homeUrl: String
+
+    lateinit var categoryHelper: CategoryHelper
 
     fun loadData(
         category: String,
@@ -63,33 +77,124 @@ class ApplicationListViewModel @Inject constructor(
         }, retryBlock)
     }
 
-    fun getList(category: String, browseUrl: String, authData: AuthData, source: String) {
+    private fun getList(category: String, browseUrl: String, authData: AuthData, source: String) {
+        categoryHelper = CategoryHelper(authData)
+        homeUrl = browseUrl
         if (isLoading) {
             return
         }
+
         viewModelScope.launch(Dispatchers.IO) {
             isLoading = true
-            val result = fusedAPIRepository.getAppList(category, browseUrl, authData, source).apply {
+//            val result = fusedAPIRepository.getAppList(category, browseUrl, authData, source).apply {
+//                isLoading = false
+//            }
+//            appListLiveData.postValue(result)
+
+            try {
+                if (!streamBundle.hasCluster() || streamBundle.hasNext()) {
+                    //Fetch new stream bundle
+                    var appList = fetchAppList()
+                    val fusedApps = appList.map { it.transformToFusedApp() }.toMutableList()
+//                    appList = fetchAppList()
+//                    fusedApps.addAll(appList.map { it.transformToFusedApp() }.toMutableList())
+                    appListLiveData.postValue(ResultSupreme.create(ResultStatus.OK, fusedApps))
+                    //Post updated to UI
+                } else {
+
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
                 isLoading = false
             }
-            appListLiveData.postValue(result)
 
-            if (!result.isSuccess()) {
-                val exception =
-                    if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
-                        GPlayException(
-                            result.isTimeout(),
-                            result.message.ifBlank { "Data load error" }
-                        )
-                    else CleanApkException(
-                        result.isTimeout(),
-                        result.message.ifBlank { "Data load error" }
-                    )
-
-                exceptionsList.add(exception)
-                exceptionsLiveData.postValue(exceptionsList)
-            }
+//            if (!result.isSuccess()) {
+//                val exception =
+//                    if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
+//                        GPlayException(
+//                            result.isTimeout(),
+//                            result.message.ifBlank { "Data load error" }
+//                        )
+//                    else CleanApkException(
+//                        result.isTimeout(),
+//                        result.message.ifBlank { "Data load error" }
+//                    )
+//
+//                exceptionsList.add(exception)
+//                exceptionsLiveData.postValue(exceptionsList)
+//            }
         }
+    }
+
+    private fun fetchAppList(): MutableList<App> {
+        val newBundle = getCategoryStreamBundle(
+            streamBundle.streamNextPageUrl
+        )
+
+        //Update old bundle
+        streamBundle.apply {
+            streamClusters.putAll(newBundle.streamClusters)
+            streamNextPageUrl = newBundle.streamNextPageUrl
+        }
+        var appList = mutableListOf<App>()
+        streamBundle.streamClusters.values.forEach {
+            appList.addAll(it.clusterAppList)
+        }
+        return appList
+    }
+
+    private fun App.transformToFusedApp(): FusedApp {
+        val app = FusedApp(
+            _id = this.id.toString(),
+            author = this.developerName,
+            category = this.categoryName,
+            description = this.description,
+            perms = this.permissions,
+            icon_image_path = this.iconArtwork.url,
+            last_modified = this.updatedOn,
+            latest_version_code = this.versionCode,
+            latest_version_number = this.versionName,
+            name = this.displayName,
+            other_images_path = this.screenshots.transformToList(),
+            package_name = this.packageName,
+            ratings = Ratings(
+                usageQualityScore =
+                this.labeledRating.run {
+                    if (isNotEmpty()) {
+                        this.replace(",", ".").toDoubleOrNull() ?: -1.0
+                    } else -1.0
+                }
+            ),
+            offer_type = this.offerType,
+            origin = Origin.GPLAY,
+            shareUrl = this.shareUrl,
+            originalSize = this.size,
+            appSize = "",
+            isFree = this.isFree,
+            price = this.price,
+            restriction = this.restriction,
+        )
+        return app
+    }
+
+    private fun MutableList<Artwork>.transformToList(): List<String> {
+        val list = mutableListOf<String>()
+        this.forEach {
+            list.add(it.url)
+        }
+        return list
+    }
+
+
+
+    private fun getCategoryStreamBundle(
+        nextPageUrl: String
+    ): StreamBundle {
+        return if (streamBundle.streamClusters.isEmpty())
+            categoryHelper.getSubCategoryBundle(homeUrl)
+        else
+            categoryHelper.getSubCategoryBundle(nextPageUrl)
     }
 
     /**
