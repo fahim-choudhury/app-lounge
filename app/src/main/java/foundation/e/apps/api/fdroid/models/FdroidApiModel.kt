@@ -19,9 +19,14 @@ import com.fasterxml.jackson.annotation.JsonProperty
 @JsonIgnoreProperties(ignoreUnknown = true)
 class FdroidApiModel() {
     var authorName: String = ""
+    var builds: List<BuildInfo> = mutableListOf()
 
     @JsonCreator
-    constructor(@JsonProperty("AuthorName") AuthorName: String?) : this() {
+    constructor(
+        @JsonProperty("AuthorName") AuthorName: String?,
+        @JsonProperty("Builds") Builds: List<BuildInfo>?,
+    ) : this() {
         this.authorName = AuthorName ?: ""
+        this.builds = Builds ?: emptyList()
     }
 }

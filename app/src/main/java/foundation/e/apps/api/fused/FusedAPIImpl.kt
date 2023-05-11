@@ -546,6 +546,9 @@ class FusedAPIImpl @Inject constructor(
         fusedDownload.downloadURLList = list
     }
 
+    suspend fun getOSSDownloadInfo(id: String, version: String?) =
+        cleanAPKRepository.getDownloadInfo(id, version)
+
     suspend fun getPWAApps(category: String): ResultSupreme<List<FusedApp>> {
         val list = mutableListOf<FusedApp>()
         val status = runCodeBlockWithTimeout({

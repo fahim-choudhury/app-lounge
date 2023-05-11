@@ -2,6 +2,7 @@ package foundation.e.apps.api.fdroid
 
 import android.content.Context
 import foundation.e.apps.api.cleanapk.ApkSignatureManager
+import foundation.e.apps.api.fdroid.models.BuildInfo
 import foundation.e.apps.api.fdroid.models.FdroidEntity
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.utils.enums.Origin
@@ -33,6 +34,10 @@ class FdroidRepository @Inject constructor(
                     fdroidDao.saveFdroidEntity(it)
                 }
             }
+    }
+
+    suspend fun getBuildVersionInfo(packageName: String): List<BuildInfo>? {
+        return fdroidApi.getFdroidInfoForPackage(packageName).body()?.builds
     }
 
     override suspend fun getAuthorName(fusedApp: FusedApp): String {
