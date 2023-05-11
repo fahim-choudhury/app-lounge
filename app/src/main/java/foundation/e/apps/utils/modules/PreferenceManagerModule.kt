@@ -60,4 +60,9 @@ class PreferenceManagerModule @Inject constructor(
         context.getString(R.string.update_check_intervals),
         context.getString(R.string.preference_update_interval_default)
     )!!.toLong()
+
+    fun shouldUpdateAppsFromOtherStores() = preferenceManager.getBoolean(
+        context.getString(R.string.update_apps_from_other_stores),
+        true
+    )
 }

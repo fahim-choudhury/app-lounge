@@ -128,6 +128,15 @@ class PkgManagerModule @Inject constructor(
         }
     }
 
+    fun getInstallerName(packageName: String): String {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val installerInfo = packageManager.getInstallSourceInfo(packageName)
+            installerInfo.originatingPackageName ?: installerInfo.installingPackageName ?: ""
+        } else {
+            packageManager.getInstallerPackageName(packageName) ?: ""
+        }
+    }
+
     /**
      * Installs the given package using system API
      * @param list List of [File] to be written to install session.

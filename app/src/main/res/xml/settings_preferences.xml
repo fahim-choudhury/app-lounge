@@ -61,6 +61,14 @@
             android:title="@string/preference_update_wifi_only_title"
             app:singleLineTitle="false"
             app:iconSpaceReserved="false" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/update_apps_from_other_stores"
+            android:summary="@string/preference_update_apps_from_other_stores_description"
+            android:title="@string/preference_update_apps_from_other_stores_title"
+            app:singleLineTitle="false"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
     <PreferenceCategory

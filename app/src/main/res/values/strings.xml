@@ -57,6 +57,8 @@
     <string name="preference_update_interval_title">Update check interval</string>
     <string name="preference_update_wifi_only_title">Only on un-metered networks</string>
     <string name="preference_update_wifi_only_description">Update apps automatically only on un-metered networks such as Wi-Fi</string>
+    <string name="preference_update_apps_from_other_stores_title">Update apps installed by other stores</string>
+    <string name="preference_update_apps_from_other_stores_description">Update apps installed from other app stores.\nSuch apps will be attempted to be updated from common apps and open source category.</string>
     <string name="preference_update_install_automatically_title">Automatically install updates</string>
     <string name="preference_update_install_automatically_description">Download and install app updates in the background</string>
     <string name="preference_update_notify_available_title">Show available updates</string>
@@ -176,6 +178,7 @@
     <string name="updateNotify" translatable="false">updateNotify</string>
     <string name="auto_install_enabled" translatable="false">updateInstallAuto</string>
     <string name="only_unmetered_network" translatable="false">updateUnmeteredOnly</string>
+    <string name="update_apps_from_other_stores" translatable="false">updateAppsFromOtherStores</string>
 
     <!-- No Internet Fragment -->
     <string name="no_internet_message">Can\'t connect! Please check your internet connection and try again</string>
