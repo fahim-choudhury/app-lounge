@@ -134,6 +134,9 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPII
         )
     }
 
+    suspend fun getOSSDownloadInfo(id: String, version: String? = null) =
+        fusedAPIImpl.getOSSDownloadInfo(id, version)
+
     suspend fun getOnDemandModule(
         authData: AuthData,
         packageName: String,

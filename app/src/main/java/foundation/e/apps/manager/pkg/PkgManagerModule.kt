@@ -138,6 +138,29 @@ class PkgManagerModule @Inject constructor(
     }
 
     /**
+     * For an installed app, get the path to the base.apk.
+     */
+    fun getBaseApkPath(packageName: String): String {
+        val packageInfo = getPackageInfo(packageName)
+        return packageInfo?.applicationInfo?.publicSourceDir ?: ""
+    }
+
+    fun getVersionCode(packageName: String): String {
+        val packageInfo = getPackageInfo(packageName)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            packageInfo?.longVersionCode?.toString() ?: ""
+        } else {
+            @Suppress("DEPRECATION")
+            packageInfo?.versionCode?.toString() ?: ""
+        }
+    }
+
+    fun getVersionName(packageName: String): String {
+        val packageInfo = getPackageInfo(packageName)
+        return packageInfo?.versionName?.toString() ?: ""
+    }
+
+    /**
      * Installs the given package using system API
      * @param list List of [File] to be written to install session.
      */
