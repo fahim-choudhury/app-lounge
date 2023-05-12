@@ -21,6 +21,8 @@ import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.login.AuthObject.GPlayAuth
 import foundation.e.apps.utils.enums.User
+import foundation.e.apps.utils.exceptions.CleanApkException
+import foundation.e.apps.utils.exceptions.GPlayValidationException
 
 /**
  * Auth objects define which sources data is to be loaded from, for each source, also provides
@@ -37,7 +39,41 @@ sealed class AuthObject {
     abstract val result: ResultSupreme<*>
     abstract val user: User
 
-    class GPlayAuth(override val result: ResultSupreme<AuthData?>, override val user: User) : AuthObject()
-    class CleanApk(override val result: ResultSupreme<Unit>, override val user: User) : AuthObject()
+    abstract fun createInvalidAuthObject(): AuthObject
+
+    class GPlayAuth(override val result: ResultSupreme<AuthData?>, override val user: User) : AuthObject() {
+        override fun createInvalidAuthObject(): AuthObject {
+            val message = "Validating AuthData failed.\nNetwork code: 401"
+
+            return GPlayAuth(
+                ResultSupreme.Error<AuthData?>(
+                    message = message,
+                    exception = GPlayValidationException(
+                        message,
+                        this.user,
+                        401,
+                    )
+                ).apply {
+                    otherPayload = this@GPlayAuth.result.otherPayload
+                },
+                this.user,
+            )
+        }
+    }
+
+    class CleanApk(override val result: ResultSupreme<Unit>, override val user: User) : AuthObject() {
+        override fun createInvalidAuthObject(): AuthObject {
+            return CleanApk(
+                ResultSupreme.Error(
+                    message = "Unauthorized",
+                    exception = CleanApkException(
+                        isTimeout = false,
+                        message = "Unauthorized",
+                    )
+                ),
+                this.user,
+            )
+        }
+    }
     // Add more auth types here
 }

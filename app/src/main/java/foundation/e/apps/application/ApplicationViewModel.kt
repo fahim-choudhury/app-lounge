@@ -167,6 +167,9 @@ class ApplicationViewModel @Inject constructor(
         return permissionString
     }
 
+    fun getFusedApp(): FusedApp? {
+        return fusedApp.value?.first
+    }
     fun handleRatingFormat(rating: Double): String {
         return fusedManagerRepository.handleRatingFormat(rating)
     }

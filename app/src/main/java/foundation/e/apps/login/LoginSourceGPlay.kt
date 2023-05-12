@@ -26,8 +26,10 @@ import foundation.e.apps.login.api.GPlayApiFactory
 import foundation.e.apps.login.api.GPlayLoginInterface
 import foundation.e.apps.login.api.GoogleLoginApi
 import foundation.e.apps.login.api.LoginApiRepository
+import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.exceptions.GPlayValidationException
+import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -43,7 +45,7 @@ class LoginSourceGPlay @Inject constructor(
     @ApplicationContext private val context: Context,
     private val gson: Gson,
     private val loginDataStore: LoginDataStore,
-) : LoginSourceInterface {
+) : LoginSourceInterface, AuthDataValidator {
 
     @Inject
     lateinit var gPlayApiFactory: GPlayApiFactory
@@ -77,22 +79,28 @@ class LoginSourceGPlay @Inject constructor(
         val savedAuth = getSavedAuthData()
 
         val authData = (
-            savedAuth ?: run {
-                // if no saved data, then generate new auth data.
-                generateAuthData().let {
-                    if (it.isSuccess()) it.data!!
-                    else return AuthObject.GPlayAuth(it, user)
+                savedAuth ?: run {
+                    // if no saved data, then generate new auth data.
+                    generateAuthData().let {
+                        if (it.isSuccess()) it.data!!
+                        else return AuthObject.GPlayAuth(it, user)
+                    }
                 }
-            }
-            )
+                )
 
-        // validate authData and save it if nothing is saved (first time use.)
-        validateAuthData(authData).run {
-            if (isSuccess() && savedAuth == null) {
-                saveAuthData(authData)
-            }
-            return AuthObject.GPlayAuth(this, user)
+        val formattedAuthData = formatAuthData(authData)
+        formattedAuthData.locale = locale
+        val result: ResultSupreme<AuthData?> = ResultSupreme.create(
+            status = ResultStatus.OK,
+            data = formattedAuthData
+        )
+        result.otherPayload = formattedAuthData.email
+
+        if (savedAuth == null) {
+            saveAuthData(formattedAuthData)
         }
+
+        return AuthObject.GPlayAuth(result, user)
     }
 
     override suspend fun clearSavedAuth() {
@@ -139,7 +147,7 @@ class LoginSourceGPlay @Inject constructor(
      * Aurora OSS GPlay API complains of missing headers sometimes.
      * Converting [authData] to Json and back to [AuthData] fixed it.
      */
-    private fun formattedAuthData(authData: AuthData): AuthData {
+    private fun formatAuthData(authData: AuthData): AuthData {
         val localAuthDataJson = gson.toJson(authData)
         return gson.fromJson(localAuthDataJson, AuthData::class.java)
     }
@@ -149,7 +157,7 @@ class LoginSourceGPlay @Inject constructor(
      */
     private suspend fun getAuthData(): ResultSupreme<AuthData?> {
         return loginApiRepository.fetchAuthData("", "", locale).run {
-            if (isSuccess()) ResultSupreme.Success(formattedAuthData(this.data!!))
+            if (isSuccess()) ResultSupreme.Success(formatAuthData(this.data!!))
             else this
         }
     }
@@ -200,7 +208,7 @@ class LoginSourceGPlay @Inject constructor(
          */
         loginDataStore.saveAasToken(aasTokenFetched)
         return loginApiRepository.fetchAuthData(email, aasTokenFetched, locale).run {
-            if (isSuccess()) ResultSupreme.Success(formattedAuthData(this.data!!))
+            if (isSuccess()) ResultSupreme.Success(formatAuthData(this.data!!))
             else this
         }
     }
@@ -214,7 +222,7 @@ class LoginSourceGPlay @Inject constructor(
         authData: AuthData,
     ): ResultSupreme<AuthData?> {
 
-        val formattedAuthData = formattedAuthData(authData)
+        val formattedAuthData = formatAuthData(authData)
         formattedAuthData.locale = locale
 
         val validityResponse = loginApiRepository.login(formattedAuthData)
@@ -231,12 +239,12 @@ class LoginSourceGPlay @Inject constructor(
         } else {
             val message =
                 "Validating AuthData failed.\n" +
-                    "Network code: ${playResponse?.code}\n" +
-                    "Success: ${playResponse?.isSuccessful}" +
-                    playResponse?.errorString?.run {
-                        if (isNotBlank()) "\nError message: $this"
-                        else ""
-                    }
+                        "Network code: ${playResponse?.code}\n" +
+                        "Success: ${playResponse?.isSuccessful}" +
+                        playResponse?.errorString?.run {
+                            if (isNotBlank()) "\nError message: $this"
+                            else ""
+                        }
 
             ResultSupreme.Error(
                 message,
@@ -244,4 +252,22 @@ class LoginSourceGPlay @Inject constructor(
             )
         }
     }
+
+    override suspend fun validateAuthData(): ResultSupreme<AuthData?> {
+        val savedAuth = getSavedAuthData()
+        if (!isAuthDataValid(savedAuth)) {
+            Timber.i("Validating AuthData...")
+            val authData = generateAuthData()
+            authData.data?.let {
+                saveAuthData(it)
+                return authData
+            }
+            return ResultSupreme.create(ResultStatus.UNKNOWN)
+        }
+
+        return ResultSupreme.create(ResultStatus.OK, savedAuth)
+    }
+
+    private suspend fun isAuthDataValid(savedAuth: AuthData?) =
+        savedAuth != null && loginApiRepository.login(savedAuth).exception == null
 }

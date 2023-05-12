@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="rating">Einkunn</string>
+    <string name="preference_update_install_automatically_title">Setja uppfærslur upp sjálfkrafa</string>
+    <string name="unknown_error">Óþekkt villa!</string>
+    <string name="app_name">App Lounge</string>
+    <string name="menu_home">Heim</string>
+    <string name="menu_categories">Flokkar</string>
+    <string name="menu_search">Leita</string>
+    <string name="menu_updates">Uppfærslur</string>
+    <string name="menu_settings">Stillingar</string>
+    <string name="search_hint">Leita að forriti</string>
+    <string name="no_apps_found">Engin forrit fundust…</string>
+    <string name="apps">Forrit</string>
+    <string name="games">Leikir</string>
+    <string name="category_icon">Táknmynd flokks</string>
+    <string name="open_source">Opinn hugbúnaður</string>
+    <string name="sign_in_title">Velkomin</string>
+    <string name="sign_in_google">Skrá inn með Google</string>
+    <string name="sign_in_anonymous">Nafnlaus hamur</string>
+    <string name="or">Eða sýna eingöngu</string>
+    <string name="tos_agree">Samþykkja</string>
+    <string name="tos_disagree">Hafna</string>
+    <string name="tos_agree_date">Samþykkt</string>
+    <string name="tos_warning">Áður en við höldum áfram verður þú að lesa og samþykkja þjónustuskilmálana.</string>
+    <string name="preference_updates_title">Uppfærslur</string>
+    <string name="preference_update_interval_default">24</string>
+    <string name="preference_update_interval_title">Bil milli athugana á uppfærslum</string>
+    <string name="preference_update_wifi_only_title">Aðeins á gjaldfrjálsum netkerfum</string>
+    <string name="preference_update_wifi_only_description">Einungis uppfæra forrit sjálfvirkt þegar tengst er gjaldfrjálsum netum á borð við Wi-Fi</string>
+    <string name="install_anyway">Setja samt upp</string>
+    <string name="preference_update_install_automatically_description">Sækja uppfærslur og uppfæra forrit í bakgrunni</string>
+    <string name="preference_update_notify_available_title">Birta tiltækar uppfærslur</string>
+    <string name="preference_update_notify_available_description">Birta tilkynningu þegar uppfærslur eru tiltækar</string>
+    <string name="Show_applications">Birta forrit:</string>
+    <string name="Show_common_apps">Birta algeng forrit</string>
+    <string name="show_only_open_source_apps">Birta opinn hugbúnað</string>
+    <string name="about">Um hugbúnaðinn</string>
+    <string name="app_version_label">Útgáfa App Lounge</string>
+    <string name="copied">Afritað</string>
+    <string name="account">Aðgangur</string>
+    <string name="terms_services">Þjónustuskilmálar</string>
+    <string name="user_anonymous">Nafnlaust</string>
+    <string name="logout">Skrá út</string>
+    <string name="login">Innskráning</string>
+    <string name="logged_out">Skráð út</string>
+    <string name="description">Lýsing</string>
+    <string name="ok">Í lagi</string>
+    <string name="install">Setja upp</string>
+    <string name="installing">Uppsetning</string>
+    <string name="cancel">Hætta við</string>
+    <string name="app_icon">Forritstákn</string>
+    <string name="open">Opna</string>
+    <string name="retry">Reyna aftur</string>
+    <string name="close">Loka</string>
+    <string name="more">Meira</string>
+    <string name="update">Uppfæra</string>
+    <string name="ratings">Einkunnir</string>
+    <string name="privacy">Persónuvernd</string>
+    <string name="privacy_score">Persónuverndarstig</string>
+    <string name="permissions">Aðgangsheimildir</string>
+    <string name="information">Upplýsingar</string>
+    <string name="version">Útgáfa: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="updated_on">Uppfært: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="min_android_version">Krefst: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="license">Notkunarleyfi: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="package_name">Heiti pakka: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="something_went_wrong">Eitthvað fór úrskeiðis!</string>
+    <string name="show_more">Sýna meira</string>
+    <string name="downloading">Sæki gögn…</string>
+    <string name="additional_file_for">Viðbótarskrá fyrir %s</string>
+    <string name="update_all">Uppfæra allt</string>
+    <string name="update_error">Uppfærsluvilla!</string>
+    <string name="downloads">Sótt gögn</string>
+    <string name="updates">Uppfærslur</string>
+    <string name="open_settings">Opna stillingar</string>
+    <string name="more_info"><u>Nánari upplýsingar</u></string>
+    <string name="sign_in_failed_title">Innskráning með Google mistókst!</string>
+    <string name="anonymous_login_failed">Nafnlaus innskráning mistókst!</string>
+    <string name="dialog_title_paid_app">Kaupa <b>%1$s</b></string>
+    <string name="dialog_confirm">STAÐFESTA</string>
+    <string name="dialog_cancel">HÆTTA VIÐ</string>
+    <string name="purchase_complete">Kaupum er lokið!</string>
+    <string name="purchase_error">Villa í innkaupum!</string>
+    <string name="unsupported_app_title">Óstutt forrit!</string>
+    <string name="this_app_may_not_work_properly">Þetta forrit mun kannski ekki virka eðlilega!</string>
+    <string name="daily">Daglega</string>
+    <string name="weekly">Vikulega</string>
+    <string name="monthly">Mánaðarlega</string>
+    <string name="show_only_pwa_apps">Sýna PWA-vefforrit</string>
+    <string name="os_version">Útgáfa /e/ OS</string>
+    <string name="select_one_source_of_applications">Veldu a.m.k. ein upptök forrita.</string>
+    <string name="login_to_see_gplay_apps">Þú verður að skrá þig inn til að sjá algeng forrit.</string>
+    <string name="share_intent">Skoðaðu \"<xliff:g id="rating">%1$s</xliff:g>\"
+\n<xliff:g id="rating">%2$s</xliff:g></string>
+    <string name="timeout_desc_cleanapk">Einhver vandamál í netkerfinu koma í veg fyrir að hægt sé að sækja öll forrit.</string>
+    <string name="data_load_error">Villa kom upp við að hlaða inn forritum.</string>
+    <string name="pwa">PWA-vefforrit</string>
+    <plurals name="updates_notification_title">
+        <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> uppfærsla forrits er tiltæk</item>
+        <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> uppfærslur forrita eru tiltækar</item>
+    </plurals>
+    <string name="auto_updates_notification">Uppfærslur forrita verða sjálfkrafa settar inn</string>
+    <string name="sign_in_desc">Skráðu þig inn með Google-aðgangnum þínum, eða veldu nafnleysisham til að skrá þig inn í kyrrþey.</string>
+    <string name="pwa_and_open_source_apps">PWA-vefforrit og opinn hugbúnaður</string>
+    <string name="rating_description">Stig af 5 mögulegum. Reiknað út frá þeim einkunnum sem notendur hafa gefið forritinu.</string>
+    <string name="message_app_available_later">Þetta forrit verður tiltækt síðar!</string>
+    <string name="app_not_found">Forritið þitt fannst ekki.</string>
+    <string name="why_open_source_version">Af hverju sé ég opnu hugbúnaðarútgáfuna\?</string>
+    <string name="open_source_apps">Forrit með opinn grunnkóða</string>
+    <string name="manual_updates_notification">Uppfærslur forrita verða ekki settar sjálfkrafa inn</string>
+    <string name="all_apps_updated">Öll forrit eru af nýjustu útgáfu</string>
+    <string name="discover_pwa">Kynntu þér PWA-vefforrit</string>
+    <string name="popular_apps">Vinsæl PWA-vefforrit</string>
+    <string name="popular_games">Vinsælir PWA-leikir</string>
+    <string name="no_internet_message">Næ ekki að tengjast! Athugaðu internettenginguna þína og prófaðu svo aftur</string>
+    <string name="timeout_title">Féll á tímamörkum við að sækja forrit!</string>
+    <string name="timeout_desc_gplay">Einhver vandamál í netkerfinu koma í veg fyrir að hægt sé að sækja öll forrit.
+\n
+\nOpnaðu stillingar til að leita einungis að forritum með opinn grunnkóða eða PWA-vefforritum.</string>
+    <string name="not_enough_storage">Það er ekki nægt pláss tiltækt til að sækja þetta forrit!</string>
+    <string name="message_retry">Að uppfæra allt mistókst. Sjálfvirkar tilraunir til endurtekningar í gangi.</string>
+    <string name="discover">Kynntu þér</string>
+    <string name="top_updated_apps">Vinsælustu uppfærðu forritin með opinn grunnkóða</string>
+    <string name="top_updated_games">Vinsælustu uppfærðir leikir með opinn grunnkóða</string>
+    <string name="topselling_free_apps">Vinsælustu ókeypis og frjálsu forritin</string>
+    <string name="popular_apps_in_last_24_hours">Vinsæl forrit síðasta sólahring með opinn grunnkóða</string>
+    <string name="popular_games_in_last_24_hours">Vinsæla leiki síðasta sólahring með opinn grunnkóða</string>
+    <string name="topselling_free_games">Vinsælustu ókeypis og frjálsu leikirnir</string>
+    <string name="topgrossing_apps">Forrit með mestu innkomuna</string>
+    <string name="topgrossing_games">Leikir með mestu innkomuna</string>
+    <string name="automatically_install_updates_notification_text">Uppfærslur forrita verða sjálfkrafa settar inn</string>
+    <string name="manually_install_updates_notification_text">Uppfærslur forrita verða ekki settar sjálfkrafa inn</string>
+    <string name="updates_notification_unmetered_network_warning">Bíð eftir gjaldfrjálsu neti</string>
+</resources>

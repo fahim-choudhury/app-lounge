@@ -32,6 +32,7 @@ data class FusedApp(
     val description: String = String(),
     var perms: List<String> = emptyList(),
     var trackers: List<String> = emptyList(),
+    var reportId: Long = -1L,
     val icon_image_path: String = String(),
     val last_modified: String = String(),
     var latest_version_code: Int = -1,

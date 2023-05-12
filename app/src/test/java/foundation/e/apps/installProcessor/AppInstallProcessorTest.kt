@@ -56,7 +56,6 @@ class AppInstallProcessorTest {
 
     private lateinit var fakeFusedDownloadDAO: FakeFusedDownloadDAO
     private lateinit var databaseRepository: DatabaseRepository
-    private lateinit var fakeDownloadManager: DownloadManager
     private lateinit var fakeFusedManagerRepository: FakeFusedManagerRepository
 
     @Mock
@@ -86,14 +85,11 @@ class AppInstallProcessorTest {
         databaseRepository = DatabaseRepository(fakeFusedDownloadDAO)
         fakeFusedManagerRepository =
             FakeFusedManagerRepository(fakeFusedDownloadDAO, fakeFusedManager, fakeFdroidRepository)
-        fakeDownloadManager =
-            FakeDownloadManager(downloadManager, "/home/data/foundation.e.apps/", query)
 
         appInstallProcessor = AppInstallProcessor(
             context,
             databaseRepository,
             fakeFusedManagerRepository,
-            fakeDownloadManager,
             dataStoreManager
         )
     }

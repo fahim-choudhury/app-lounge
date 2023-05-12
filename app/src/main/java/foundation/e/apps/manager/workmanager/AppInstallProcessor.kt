@@ -21,7 +21,6 @@ package foundation.e.apps.manager.workmanager
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
-import foundation.e.apps.api.DownloadManager
 import foundation.e.apps.api.fused.UpdatesDao
 import foundation.e.apps.manager.database.DatabaseRepository
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
@@ -29,39 +28,27 @@ import foundation.e.apps.manager.fused.FusedManagerRepository
 import foundation.e.apps.updates.UpdatesNotifier
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.Type
+import foundation.e.apps.utils.getFormattedString
 import foundation.e.apps.utils.modules.DataStoreManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.flow.transformWhile
 import timber.log.Timber
 import java.text.NumberFormat
-import java.text.SimpleDateFormat
 import java.util.Date
 import javax.inject.Inject
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 class AppInstallProcessor @Inject constructor(
     @ApplicationContext private val context: Context,
     private val databaseRepository: DatabaseRepository,
     private val fusedManagerRepository: FusedManagerRepository,
-    private val downloadManager: DownloadManager,
     private val dataStoreManager: DataStoreManager
 ) {
 
-    private var isDownloading: Boolean = false
     private var isItUpdateWork = false
 
     companion object {
         private const val TAG = "AppInstallProcessor"
+        private const val DATE_FORMAT = "dd/MM/yyyy-HH:mm"
     }
-
-    private val mutex = Mutex(true)
 
     suspend fun processInstall(
         fusedDownloadId: String,
@@ -91,10 +78,7 @@ class AppInstallProcessor @Inject constructor(
                     return@let
                 }
 
-                if (fusedDownload.areFilesDownloaded() && !fusedManagerRepository.isFusedDownloadInstalled(
-                        fusedDownload
-                    )
-                ) {
+                if (areFilesDownloadedButNotInstalled(fusedDownload)) {
                     Timber.i("===> Downloaded But not installed ${fusedDownload.name}")
                     fusedManagerRepository.updateDownloadStatus(fusedDownload, Status.INSTALLING)
                 }
@@ -102,12 +86,11 @@ class AppInstallProcessor @Inject constructor(
                 runInForeground?.invoke(it.name)
 
                 startAppInstallationProcess(it)
-                mutex.lock()
             }
         } catch (e: Exception) {
             Timber.e("doWork: Failed: ${e.stackTraceToString()}")
             fusedDownload?.let {
-                fusedManagerRepository.installationIssue(it)
+                fusedManagerRepository.cancelDownload(fusedDownload)
             }
         }
 
@@ -115,12 +98,20 @@ class AppInstallProcessor @Inject constructor(
         return Result.success(ResultStatus.OK)
     }
 
+    private fun areFilesDownloadedButNotInstalled(fusedDownload: FusedDownload) =
+        fusedDownload.areFilesDownloaded() && (
+            !fusedManagerRepository.isFusedDownloadInstalled(
+                fusedDownload
+            ) || fusedDownload.status == Status.INSTALLING
+            )
+
     private suspend fun checkUpdateWork(
         fusedDownload: FusedDownload?
     ) {
         if (isItUpdateWork) {
             fusedDownload?.let {
-                val packageStatus = fusedManagerRepository.getFusedDownloadPackageStatus(fusedDownload)
+                val packageStatus =
+                    fusedManagerRepository.getFusedDownloadPackageStatus(fusedDownload)
 
                 if (packageStatus == Status.INSTALLED) {
                     UpdatesDao.addSuccessfullyUpdatedApp(it)
@@ -148,10 +139,8 @@ class AppInstallProcessor @Inject constructor(
     }
 
     private fun showNotificationOnUpdateEnded() {
-        val date = Date(System.currentTimeMillis())
         val locale = dataStoreManager.getAuthData().locale
-        val dateFormat =
-            SimpleDateFormat("dd/MM/yyyy-HH:mm", locale)
+        val date = Date().getFormattedString(DATE_FORMAT, locale)
         val numberOfUpdatedApps = NumberFormat.getNumberInstance(locale)
             .format(UpdatesDao.successfulUpdatedApps.size)
             .toString()
@@ -159,43 +148,48 @@ class AppInstallProcessor @Inject constructor(
         UpdatesNotifier.showNotification(
             context, context.getString(R.string.update),
             context.getString(
-                R.string.message_last_update_triggered, numberOfUpdatedApps, dateFormat.format(date)
+                R.string.message_last_update_triggered, numberOfUpdatedApps, date
             )
         )
     }
 
-    private suspend fun startAppInstallationProcess(
-        fusedDownload: FusedDownload
-    ): Boolean {
+    private suspend fun startAppInstallationProcess(fusedDownload: FusedDownload) {
         if (fusedDownload.isAwaiting()) {
             fusedManagerRepository.downloadApp(fusedDownload)
             Timber.i("===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}")
         }
 
-        isDownloading = true
-        /**
-         * observe app download/install process in a separate thread as DownloadManager download artifacts in a separate process
-         * It checks install status every three seconds
-         */
-        tickerFlow(3.seconds)
-            .onEach {
-                val download = databaseRepository.getDownloadById(fusedDownload.id)
-                if (download == null) {
-                    finishInstallation(fusedDownload)
-                } else {
-                    handleFusedDownloadStatusCheckingException(download)
-                    if (isAppDownloading(download)) {
-                        checkDownloadProcess(download)
-                    }
-                }
-            }.launchIn(CoroutineScope(Dispatchers.IO))
-        Timber.d(">>> ===> doWork: Download started " + fusedDownload.name + " " + fusedDownload.status)
-        return true
+        databaseRepository.getDownloadFlowById(fusedDownload.id)
+            .transformWhile {
+                emit(it)
+                isInstallRunning(it)
+            }.collect { latestFusedDownload ->
+                handleFusedDownload(latestFusedDownload, fusedDownload)
+            }
     }
 
-    private fun isAppDownloading(download: FusedDownload): Boolean {
-        return download.type == Type.NATIVE && download.status != Status.INSTALLED && download.status != Status.INSTALLATION_ISSUE
+    /**
+     * Takes actions depending on the status of [FusedDownload]
+     *
+     * @param latestFusedDownload comes from Room database when [Status] is updated
+     * @param fusedDownload is the original object when install process isn't started. It's used when [latestFusedDownload]
+     * becomes null, After installation is completed.
+     */
+    private suspend fun handleFusedDownload(
+        latestFusedDownload: FusedDownload?,
+        fusedDownload: FusedDownload
+    ) {
+        if (latestFusedDownload == null) {
+            Timber.d("===> download null: finish installation")
+            finishInstallation(fusedDownload)
+            return
+        }
+
+        handleFusedDownloadStatusCheckingException(latestFusedDownload)
     }
+
+    private fun isInstallRunning(it: FusedDownload?) =
+        it != null && it.status != Status.INSTALLATION_ISSUE
 
     private suspend fun handleFusedDownloadStatusCheckingException(
         download: FusedDownload
@@ -206,25 +200,6 @@ class AppInstallProcessor @Inject constructor(
             Timber.e(TAG, "observeDownload: ", e)
             fusedManagerRepository.installationIssue(download)
             finishInstallation(download)
-        }
-    }
-
-    /**
-     * Triggers a repetitive event according to the delay passed in the parameter
-     * @param period delay of each event
-     * @param initialDelay initial delay to trigger the first event
-     */
-    private fun tickerFlow(period: Duration, initialDelay: Duration = Duration.ZERO) = flow {
-        delay(initialDelay)
-        while (isDownloading) {
-            emit(Unit)
-            delay(period)
-        }
-    }
-
-    private suspend fun checkDownloadProcess(fusedDownload: FusedDownload) {
-        downloadManager.checkDownloadProcess(fusedDownload.downloadIdMap.keys.toLongArray()) {
-            fusedManagerRepository.installationIssue(fusedDownload)
         }
     }
 
@@ -239,28 +214,20 @@ class AppInstallProcessor @Inject constructor(
                 Timber.i("===> doWork: Installing ${fusedDownload.name} ${fusedDownload.status}")
             }
             Status.INSTALLED, Status.INSTALLATION_ISSUE -> {
-                finishInstallation(fusedDownload)
                 Timber.i("===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}")
+                finishInstallation(fusedDownload)
             }
             else -> {
-                finishInstallation(fusedDownload)
                 Timber.wtf(
                     TAG,
                     "===> ${fusedDownload.name} is in wrong state ${fusedDownload.status}"
                 )
+                finishInstallation(fusedDownload)
             }
         }
     }
 
     private suspend fun finishInstallation(fusedDownload: FusedDownload) {
         checkUpdateWork(fusedDownload)
-        isDownloading = false
-        unlockMutex()
-    }
-
-    private fun unlockMutex() {
-        if (mutex.isLocked) {
-            mutex.unlock()
-        }
     }
 }
