@@ -159,4 +159,6 @@
     <string name="login">Anmelden</string>
     <string name="login_to_see_gplay_apps">Du musst angemeldet sein, um gemeinsame Apps zu sehen.</string>
     <string name="pwa_and_open_source_apps">PWA und quelloffene Apps</string>
+    <string name="additional_file_for">Zusätzliche Dateien für %s</string>
+    <string name="downloading">Herunterladen …</string>
 </resources>

@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2022  ECORP
+ * Copyright MURENA SAS 2023
+ * Apps  Quickly and easily install Android apps onto your device!
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,22 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.api.ecloud
+package foundation.e.apps.login
 
-import foundation.e.apps.api.ecloud.modules.FaultyToken
-import retrofit2.http.Body
-import retrofit2.http.Headers
-import retrofit2.http.POST
+import com.aurora.gplayapi.data.models.AuthData
+import foundation.e.apps.api.ResultSupreme
 
-interface EcloudApiInterface {
-
-    companion object {
-        val BASE_URL = "https://eu.gtoken.ecloud.global/"
-    }
-
-    @Headers("Content-Type: application/json")
-    @POST("report")
-    suspend fun uploadFaultyEmail(
-        @Body faultyToken: FaultyToken,
-    )
+interface AuthDataValidator {
+    suspend fun validateAuthData(): ResultSupreme<AuthData?>
 }

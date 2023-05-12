@@ -1,6 +1,5 @@
 /*
- * Copyright MURENA SAS 2023
- * Apps  Quickly and easily install Android apps onto your device!
+ * Copyright (C) 2019-2023  E FOUNDATION
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,22 +15,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.installProcessor
+package foundation.e.apps.api.fdroid.models
 
-import foundation.e.apps.api.DownloadManager
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 
-class FakeDownloadManager(
-    downloadManger: android.app.DownloadManager,
-    cacheDir: String,
-    query: android.app.DownloadManager.Query
-) : DownloadManager(downloadManger, cacheDir, query) {
+@JsonIgnoreProperties(ignoreUnknown = true)
+class BuildInfo() {
+    var versionCode: String = ""
+    var versionName: String = ""
 
-    override suspend fun checkDownloadProcess(
-        downloadingIds: LongArray,
-        handleFailed: suspend () -> Unit
-    ) {
-        if (downloadingIds.contains(-1)) {
-            handleFailed()
-        }
+    @JsonCreator
+    constructor(
+        @JsonProperty("versionCode") versionCode: String?,
+        @JsonProperty("versionName") versionName: String?,
+    ) : this() {
+        this.versionCode = versionCode ?: ""
+        this.versionName = versionName ?: ""
     }
 }

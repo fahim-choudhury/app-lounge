@@ -28,9 +28,9 @@ import android.os.Environment
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.R
 import foundation.e.apps.manager.database.DatabaseRepository
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
-import foundation.e.apps.manager.download.DownloadManagerBR
 import foundation.e.apps.manager.download.data.DownloadProgressLD
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.enums.Status
@@ -60,6 +60,8 @@ class FusedManagerImpl @Inject constructor(
 ) : IFusedManager {
 
     private val TAG = FusedManagerImpl::class.java.simpleName
+
+    private val mutex = Mutex()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun createNotificationChannels() {
@@ -95,7 +97,6 @@ class FusedManagerImpl @Inject constructor(
     override suspend fun updateDownloadStatus(fusedDownload: FusedDownload, status: Status) {
         if (status == Status.INSTALLED) {
             fusedDownload.status = status
-            DownloadManagerBR.downloadedList.clear()
             flushOldDownload(fusedDownload.packageName)
             databaseRepository.deleteDownload(fusedDownload)
         } else if (status == Status.INSTALLING) {
@@ -105,8 +106,6 @@ class FusedManagerImpl @Inject constructor(
             installApp(fusedDownload)
         }
     }
-
-    private val mutex = Mutex()
 
     override suspend fun downloadApp(fusedDownload: FusedDownload) {
         mutex.withLock {
@@ -147,21 +146,26 @@ class FusedManagerImpl @Inject constructor(
 
     @OptIn(DelicateCoroutinesApi::class)
     override suspend fun cancelDownload(fusedDownload: FusedDownload) {
-        if (fusedDownload.id.isNotBlank()) {
-            fusedDownload.downloadIdMap.forEach { (key, _) ->
-                downloadManager.remove(key)
+        mutex.withLock {
+            if (fusedDownload.id.isNotBlank()) {
+                removeFusedDownload(fusedDownload)
+            } else {
+                Timber.d("Unable to cancel download!")
             }
-            DownloadProgressLD.setDownloadId(-1)
-            DownloadManagerBR.downloadedList.clear()
-
-            // Reset the status before deleting download
-            updateDownloadStatus(fusedDownload, fusedDownload.orgStatus)
-
-            databaseRepository.deleteDownload(fusedDownload)
-            flushOldDownload(fusedDownload.packageName)
-        } else {
-            Timber.d("Unable to cancel download!")
         }
+    }
+
+    private suspend fun removeFusedDownload(fusedDownload: FusedDownload) {
+        fusedDownload.downloadIdMap.forEach { (key, _) ->
+            downloadManager.remove(key)
+        }
+        DownloadProgressLD.setDownloadId(-1)
+
+        if (fusedDownload.status != Status.INSTALLATION_ISSUE) {
+            databaseRepository.deleteDownload(fusedDownload)
+        }
+
+        flushOldDownload(fusedDownload.packageName)
     }
 
     override suspend fun getFusedDownload(downloadId: Long, packageName: String): FusedDownload {
@@ -205,7 +209,7 @@ class FusedManagerImpl @Inject constructor(
                 File(parentPath, "${fusedDownload.packageName}_$count.apk")
             }
             val request = DownloadManager.Request(Uri.parse(it))
-                .setTitle(if (count == 1) fusedDownload.name else "Additional file for ${fusedDownload.name}")
+                .setTitle(if (count == 1) fusedDownload.name else context.getString(R.string.additional_file_for, fusedDownload.name))
                 .setDestinationUri(Uri.fromFile(packagePath))
             val requestId = downloadManager.enqueue(request)
             DownloadProgressLD.setDownloadId(requestId)

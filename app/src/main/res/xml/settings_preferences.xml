@@ -33,33 +33,41 @@
             android:entries="@array/update_interval_names"
             android:entryValues="@array/update_interval_values"
             android:key="@string/update_check_intervals"
-            android:layout="@layout/layout_custom_checkbox_preference"
             android:summary="%s"
             android:title="@string/preference_update_interval_title"
+            app:singleLineTitle="false"
             app:iconSpaceReserved="false" />
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="@string/updateNotify"
-            android:layout="@layout/layout_custom_checkbox_preference"
             android:summary="@string/preference_update_notify_available_description"
             android:title="@string/preference_update_notify_available_title"
+            app:singleLineTitle="false"
             app:iconSpaceReserved="false" />
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="@string/auto_install_enabled"
-            android:layout="@layout/layout_custom_checkbox_preference"
             android:summary="@string/preference_update_install_automatically_description"
             android:title="@string/preference_update_install_automatically_title"
+            app:singleLineTitle="false"
             app:iconSpaceReserved="false" />
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="@string/only_unmetered_network"
-            android:layout="@layout/layout_custom_checkbox_preference"
             android:summary="@string/preference_update_wifi_only_description"
             android:title="@string/preference_update_wifi_only_title"
+            app:singleLineTitle="false"
+            app:iconSpaceReserved="false" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/update_apps_from_other_stores"
+            android:summary="@string/preference_update_apps_from_other_stores_description"
+            android:title="@string/preference_update_apps_from_other_stores_title"
+            app:singleLineTitle="false"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
@@ -70,7 +78,6 @@
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="showAllApplications"
-            android:layout="@layout/layout_custom_checkbox_preference"
             android:title="@string/Show_common_apps"
             app:iconSpaceReserved="false"
             app:singleLineTitle="false" />
@@ -78,7 +85,6 @@
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="showFOSSApplications"
-            android:layout="@layout/layout_custom_checkbox_preference"
             android:title="@string/show_only_open_source_apps"
             app:iconSpaceReserved="false"
             app:singleLineTitle="false" />
@@ -86,7 +92,6 @@
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="showPWAApplications"
-            android:layout="@layout/layout_custom_checkbox_preference"
             android:title="@string/show_only_pwa_apps"
             app:iconSpaceReserved="false"
             app:singleLineTitle="false" />
@@ -100,6 +105,7 @@
         <foundation.e.apps.settings.LongPressPreference
             android:key="versionInfo"
             android:title="@string/app_version_label"
+            app:singleLineTitle="false"
             app:iconSpaceReserved="false"
             tools:summary="2.2.1" />
 

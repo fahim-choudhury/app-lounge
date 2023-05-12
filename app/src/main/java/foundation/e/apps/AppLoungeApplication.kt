@@ -22,12 +22,15 @@ import android.app.Application
 import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import androidx.work.ExistingPeriodicWorkPolicy
 import dagger.hilt.android.HiltAndroidApp
 import foundation.e.apps.manager.pkg.PkgManagerBR
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.manager.workmanager.InstallWorkManager
 import foundation.e.apps.setup.tos.TOS_VERSION
+import foundation.e.apps.updates.manager.UpdatesWorkManager
 import foundation.e.apps.utils.modules.DataStoreModule
+import foundation.e.apps.utils.modules.PreferenceManagerModule
 import foundation.e.lib.telemetry.Telemetry
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.MainScope
@@ -49,6 +52,9 @@ class AppLoungeApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var dataStoreModule: DataStoreModule
+
+    @Inject
+    lateinit var preferenceManagerModule: PreferenceManagerModule
 
     override fun onCreate() {
         super.onCreate()
@@ -75,13 +81,16 @@ class AppLoungeApplication : Application(), Configuration.Provider {
                     if (priority < Log.WARN) {
                         return
                     }
-                    if (priority == Log.ERROR) {
-                        Telemetry.reportMessage("$tag: $message")
-                    }
                     Log.println(priority, tag, message)
                 }
             })
         }
+
+        UpdatesWorkManager.enqueueWork(
+            this,
+            preferenceManagerModule.getUpdateInterval(),
+            ExistingPeriodicWorkPolicy.KEEP
+        )
     }
 
     override fun getWorkManagerConfiguration() =

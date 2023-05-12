@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.utils.enums.User
+import foundation.e.apps.utils.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -97,6 +98,28 @@ class LoginViewModel @Inject constructor(
             onUserSaved()
             startLoginFlow()
         }
+    }
+
+    /**
+     * Once an AuthObject is marked as invalid, it will be refreshed
+     * automatically by LoadingViewModel.
+     * If GPlay auth is invalid, [LoadingViewModel.onLoadData] has a retry block,
+     * this block will clear existing GPlay AuthData and freshly start the login flow.
+     */
+    fun markInvalidAuthObject(authObjectName: String) {
+        val authObjectsLocal = authObjects.value?.toMutableList()
+        val invalidObject = authObjectsLocal?.find { it::class.java.simpleName == authObjectName }
+
+        val replacedObject = invalidObject?.createInvalidAuthObject()
+
+        authObjectsLocal?.apply {
+            if (invalidObject != null && replacedObject != null) {
+                remove(invalidObject)
+                add(replacedObject)
+            }
+        }
+
+        authObjects.postValue(authObjectsLocal)
     }
 
     /**

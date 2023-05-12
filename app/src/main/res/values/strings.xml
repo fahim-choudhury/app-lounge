@@ -20,48 +20,50 @@
     <string name="app_name">App Lounge</string>
 
     <!-- Bottom Navigation Bar -->
-    <string name="menu_home">Home</string>
-    <string name="menu_categories">Categories</string>
-    <string name="menu_search">Search</string>
-    <string name="menu_updates">Updates</string>
-    <string name="menu_settings">Settings</string>
+    <string name="menu_home" weblate_ctx="home">Home</string>
+    <string name="menu_categories" weblate_ctx="home">Categories</string>
+    <string name="menu_search" weblate_ctx="home">Search</string>
+    <string name="menu_updates" weblate_ctx="home">Updates</string>
+    <string name="menu_settings" weblate_ctx="home">Settings</string>
 
     <!-- Search Fragment -->
-    <string name="search_hint">Search for an app</string>
+    <string name="search_hint" weblate_ctx="search">Search for an app</string>
     <string name="no_apps_found">No apps found…</string>
 
     <!-- Categories Fragment -->
-    <string name="apps">Applications</string>
-    <string name="games">Games</string>
-    <string name="category_icon">Category Icon</string>
-    <string name="open_source">Open Source</string>
-    <string name="pwa">PWA</string>
+    <string name="apps" weblate_ctx="categories_applications">Applications</string>
+    <string name="games" weblate_ctx="categories_games">Games</string>
+    <string name="category_icon" weblate_ctx="categories_applications">Category Icon</string>
+    <string name="open_source" weblate_ctx="categories_applications">Open Source</string>
+    <string name="pwa" weblate_ctx="categories_applications">PWA</string>
 
     <!-- SignIn Fragment -->
-    <string name="sign_in_title">Welcome</string>
-    <string name="sign_in_desc">Sign in to App Lounge using your Google account, or select the Anonymous mode to sign in privately.</string>
-    <string name="sign_in_google">Sign in with Google</string>
-    <string name="sign_in_anonymous">Anonymous mode</string>
-    <string name="or">Or show only</string>
-    <string name="pwa_and_open_source_apps">PWA and Open Source apps</string>
+    <string name="sign_in_title" weblate_ctx="welcome">Welcome</string>
+    <string name="sign_in_desc" weblate_ctx="welcome">Sign in to App Lounge using your Google account, or select the Anonymous mode to sign in privately.</string>
+    <string name="sign_in_google" weblate_ctx="welcome">Sign in with Google</string>
+    <string name="sign_in_anonymous" weblate_ctx="welcome">Anonymous mode</string>
+    <string name="or" weblate_ctx="welcome">Or show only</string>
+    <string name="pwa_and_open_source_apps" weblate_ctx="welcome">PWA and Open Source apps</string>
 
     <!-- TOS Fragment -->
-    <string name="tos_agree">Accept</string>
-    <string name="tos_disagree">Reject</string>
+    <string name="tos_agree" weblate_ctx="tos">Accept</string>
+    <string name="tos_disagree" weblate_ctx="tos">Reject</string>
     <string name="tos_agree_date">Accepted</string>
-    <string name="tos_warning">Before we can proceed you must read and agree to the Terms of Service.</string>
+    <string name="tos_warning" weblate_ctx="tos">Before we can proceed you must read and agree to the Terms of Service.</string>
 
     <!-- Settings Fragment -->
-    <string name="preference_updates_title">Updates</string>
+    <string name="preference_updates_title" weblate_ctx="settings">Updates</string>
     <string name="preference_update_interval_default">24</string>
-    <string name="preference_update_interval_title">Update check interval</string>
-    <string name="preference_update_wifi_only_title">Only on un-metered networks</string>
-    <string name="preference_update_wifi_only_description">Update apps automatically only on un-metered networks such as Wi-Fi</string>
-    <string name="preference_update_install_automatically_title">Automatically install updates</string>
-    <string name="preference_update_install_automatically_description">Download and install app updates in the background</string>
-    <string name="preference_update_notify_available_title">Show available updates</string>
+    <string name="preference_update_interval_title" weblate_ctx="settings">Update check interval</string>
+    <string name="preference_update_wifi_only_title" weblate_ctx="settings">Only on un-metered networks</string>
+    <string name="preference_update_wifi_only_description" weblate_ctx="settings">Update apps automatically only on un-metered networks such as Wi-Fi</string>
+    <string name="preference_update_apps_from_other_stores_title">Update apps installed by other stores</string>
+    <string name="preference_update_apps_from_other_stores_description">Update apps installed from other app stores.\nSuch apps will be attempted to be updated from common apps and open source category.</string>
+    <string name="preference_update_install_automatically_title" weblate_ctx="settings">Automatically install updates</string>
+    <string name="preference_update_install_automatically_description" weblate_ctx="settings">Download and install app updates in the background</string>
+    <string name="preference_update_notify_available_title" weblate_ctx="settings">Show available updates</string>
     <string name="preference_update_notify_available_description">Show a notification when app updates are available</string>
-    <string name="Show_applications">Show applications:</string>
+    <string name="Show_applications" weblate_ctx="settings">Show applications:</string>
     <string name="Show_common_apps">Show common apps</string>
     <string name="show_only_open_source_apps">Show open source apps</string>
     <string name="show_only_pwa_apps">Show PWAs</string>
@@ -69,10 +71,10 @@
     <string name="app_version_label">App Lounge version</string>
     <string name="os_version">/e/ OS version</string>
     <string name="copied">Copied</string>
-    <string name="account">Account</string>
-    <string name="terms_services">Terms of Services</string>
-    <string name="user_anonymous">Anonymous</string>
-    <string name="logout">Log Out</string>
+    <string name="account" weblate_ctx="settings">Account</string>
+    <string name="terms_services" weblate_ctx="settings">Terms of Services</string>
+    <string name="user_anonymous" weblate_ctx="settings">Anonymous</string>
+    <string name="logout" weblate_ctx="settings">Log Out</string>
     <string name="select_one_source_of_applications">Please select at least one source of applications.</string>
     <string name="login_to_see_gplay_apps">You need to log in to see common apps.</string>
     <string name="login">Login</string>
@@ -121,7 +123,8 @@
     <string name="why_open_source_version">Why am I seeing the Open Source version?</string>
     <string name="open_source_apps">Open Source apps</string>
     <string name="duplicate_app_from_sources">Some proprietary apps may also have an Open Source version. Whenever this happens App Lounge shows the Open Source version only, in order to avoid duplicates.</string>
-
+    <string name="downloading">Downloading…</string>
+    <string name="additional_file_for">Additional file for %s</string>
 
 
     <!-- Updates Fragment -->
@@ -132,7 +135,7 @@
     </plurals>
     <string name="auto_updates_notification">App updates will be installed automatically</string>
     <string name="manual_updates_notification">App updates will not be installed automatically</string>
-    <string name="all_apps_updated">All apps are up-to-date</string>
+    <string name="all_apps_updated" weblate_ctx="updates">All apps are up-to-date</string>
     <string name="error_signature_mismatch">The update cannot be applied because there is a signature mismatch between the update of %1$s and the version you\'ve installed on your phone. To remedy this you can uninstall %1$s and then install it again from App Lounge. &lt;br /&gt;&lt;br /&gt; Note: This message won\'t appear again.</string>
     <string name="update_error">Update Error!</string>
     <string name="message_retry">Update all has failed. Automatic retries are in progress.</string>
@@ -149,9 +152,9 @@
     <string name="popular_apps">PWA Popular Apps</string>
     <string name="popular_games">PWA Popular Games</string>
 
-    <string name="topselling_free_apps">Top Free Apps</string>
-    <string name="topselling_free_games">Top Free Games</string>
-    <string name="topgrossing_apps">Top Grossing Apps</string>
+    <string name="topselling_free_apps" weblate_ctx="home">Top Free Apps</string>
+    <string name="topselling_free_games" weblate_ctx="home">Top Free Games</string>
+    <string name="topgrossing_apps" weblate_ctx="home">Top Grossing Apps</string>
     <string name="topgrossing_games">Top Grossing Games</string>
     <string name="movers_shakers_apps">Top Trending Apps</string>
     <string name="movers_shakers_games">Top Trending Games</string>
@@ -175,6 +178,7 @@
     <string name="updateNotify" translatable="false">updateNotify</string>
     <string name="auto_install_enabled" translatable="false">updateInstallAuto</string>
     <string name="only_unmetered_network" translatable="false">updateUnmeteredOnly</string>
+    <string name="update_apps_from_other_stores" translatable="false">updateAppsFromOtherStores</string>
 
     <!-- No Internet Fragment -->
     <string name="no_internet_message">Can\'t connect! Please check your internet connection and try again</string>

@@ -21,7 +21,6 @@ package foundation.e.apps.api.fused
 import android.content.Context
 import android.text.format.Formatter
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataScope
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
@@ -64,9 +63,12 @@ import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.enums.isUnFiltered
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withTimeout
 import retrofit2.Response
 import timber.log.Timber
@@ -75,6 +77,7 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 typealias GplaySearchResultFlow = Flow<ResultSupreme<Pair<List<FusedApp>, Boolean>>>
+typealias FusedHomeDeferred = Deferred<ResultSupreme<List<FusedHome>>>
 
 @Singleton
 class FusedAPIImpl @Inject constructor(
@@ -83,7 +86,7 @@ class FusedAPIImpl @Inject constructor(
     private val pkgManagerModule: PkgManagerModule,
     private val pwaManagerModule: PWAManagerModule,
     private val preferenceManagerModule: PreferenceManagerModule,
-    private val fdroidWebInterface: FdroidWebInterface,
+    private val fdroidWebInterface: FdroidWebInterface,Build Analyzer detected new build performance issues Review to improve build performance
     @Named("gplayRepository") private val gplayRepository: StoreRepository,
     @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: StoreRepository,
     @Named("cleanApkPWARepository") private val cleanApkPWARepository: StoreRepository,
@@ -133,18 +136,34 @@ class FusedAPIImpl @Inject constructor(
     ): LiveData<ResultSupreme<List<FusedHome>>> {
 
         val list = mutableListOf<FusedHome>()
+        var resultGplay: FusedHomeDeferred? = null
+        var resultOpenSource: FusedHomeDeferred? = null
+        var resultPWA: FusedHomeDeferred? = null
 
         return liveData {
-            if (preferenceManagerModule.isGplaySelected()) {
-                loadHomeData(list, Source.GPLAY, authData, this)
-            }
+            coroutineScope {
 
-            if (preferenceManagerModule.isOpenSourceSelected()) {
-                loadHomeData(list, Source.OPEN, authData, this)
-            }
+                if (preferenceManagerModule.isGplaySelected()) {
+                    resultGplay = async { loadHomeData(list, Source.GPLAY, authData) }
+                }
 
-            if (preferenceManagerModule.isPWASelected()) {
-                loadHomeData(list, Source.PWA, authData, this)
+                if (preferenceManagerModule.isOpenSourceSelected()) {
+                    resultOpenSource = async { loadHomeData(list, Source.OPEN, authData) }
+                }
+
+                if (preferenceManagerModule.isPWASelected()) {
+                    resultPWA = async { loadHomeData(list, Source.PWA, authData) }
+                }
+
+                resultGplay?.await()?.let {
+                    emit(it)
+                }
+                resultOpenSource?.await()?.let {
+                    emit(it)
+                }
+                resultPWA?.await()?.let {
+                    emit(it)
+                }
             }
         }
     }
@@ -153,11 +172,9 @@ class FusedAPIImpl @Inject constructor(
         priorList: MutableList<FusedHome>,
         source: Source,
         authData: AuthData,
-        scope: LiveDataScope<ResultSupreme<List<FusedHome>>>,
-    ) {
+    ): ResultSupreme<List<FusedHome>> {
 
         val apiStatus = when (source) {
-
             Source.GPLAY -> runCodeBlockWithTimeout({
                 priorList.addAll(fetchGPlayHome(authData))
             })
@@ -180,8 +197,14 @@ class FusedAPIImpl @Inject constructor(
         }
 
         setHomeErrorMessage(apiStatus, source)
-
-        scope.emit(ResultSupreme.create(apiStatus, priorList))
+        priorList.sortByDescending {
+            when (it.source) {
+                APP_TYPE_OPEN -> 2
+                APP_TYPE_PWA -> 1
+                else -> 3
+            }
+        }
+        return ResultSupreme.create(apiStatus, priorList)
     }
 
     private fun setHomeErrorMessage(apiStatus: ResultStatus, source: Source) {
@@ -525,6 +548,9 @@ class FusedAPIImpl @Inject constructor(
         }
         fusedDownload.downloadURLList = list
     }
+
+    suspend fun getOSSDownloadInfo(id: String, version: String?) =
+        cleanAPKRepository.getDownloadInfo(id, version)
 
     suspend fun getPWAApps(category: String): ResultSupreme<List<FusedApp>> {
         val list = mutableListOf<FusedApp>()
