@@ -16,23 +16,23 @@
     <string name="no_apps_found">Non ho trovato App…</string>
     <string name="apps">App</string>
     <string name="games">Giochi</string>
-    <string name="category_icon">Icone Categorie</string>
+    <string name="category_icon">Icona Categorie</string>
     <string name="open_source">Open Source</string>
     <string name="pwa">PWA</string>
     <string name="sign_in_title">Benvenuto</string>
-    <string name="sign_in_desc">Accedi ad App Lounge con il tuo account Google, o scegli la Modalità Anonima per farlo privatamente.</string>
+    <string name="sign_in_desc">Accedi ad App Lounge con il tuo account Google, o scegli la Modalità Anonima per accedere privatamente.</string>
     <string name="sign_in_google">Accedi con Google</string>
     <string name="sign_in_anonymous">Modalità anonima</string>
     <string name="tos_agree">Accetta</string>
     <string name="tos_disagree">Rifiuta</string>
     <string name="tos_agree_date">Accettato</string>
-    <string name="tos_warning">Prima di poter procedere devi leggere e accettare il Regolamento.</string>
+    <string name="tos_warning">Prima di poter procedere devi leggere e accettare il Contratto di Servizio.</string>
     <string name="preference_updates_title">Aggiornamenti</string>
     <string name="preference_update_interval_default">24</string>
     <string name="preference_update_interval_title">Intervallo verifica aggiornamenti</string>
     <string name="preference_update_wifi_only_title">Solo con WiFi</string>
     <string name="preference_update_wifi_only_description">Aggiorna le App solo con WiFi</string>
-    <string name="preference_update_install_automatically_title">Installa gli aggiornamenti Automaticamente</string>
+    <string name="preference_update_install_automatically_title">Installa gli aggiornamenti automaticamente</string>
     <string name="preference_update_install_automatically_description">Scarica ed installa gli aggiornamenti App in background</string>
     <string name="preference_update_notify_available_title">Mostra gli aggiornamenti disponibili</string>
     <string name="Show_applications">Mostra App:</string>
@@ -40,7 +40,7 @@
     <string name="show_only_open_source_apps">Mostra App open-source</string>
     <string name="show_only_pwa_apps">Mostra le PWA</string>
     <string name="account">Account</string>
-    <string name="terms_services">Regolamento</string>
+    <string name="terms_services">Contratto di Servizio</string>
     <string name="user_anonymous">Anonimo</string>
     <string name="logout">Esci</string>
     <string name="description">Descrizione</string>
@@ -73,14 +73,14 @@
     <string name="topgrossing_apps">Migliori App di successo</string>
     <string name="topgrossing_games">Migliori Giochi di successo</string>
     <string name="movers_shakers_games">Migliori Giochi di tendenza</string>
-    <string name="downloads">Downloads</string>
+    <string name="downloads">Download</string>
     <string name="updates">Aggiornamenti</string>
     <string name="manually_install_updates_notification_text">Gli aggiornamenti App non verranno installati automaticamente</string>
     <string name="updates_notification_unmetered_network_warning">Attesa connessione WiFi</string>
     <string name="no_permission_found">Permessi di runtime per android non rilevati!</string>
     <string name="no_tracker_found">Nessun Tracker rilevato!</string>
-    <string name="install_blocked_google">Le App a pagamento non sono ancora supportate da App Lounge. Un pò di oazienza e lo saranno.</string>
-    <string name="no_internet_message">Non riesco a connettermi! verifica la connessione internet e ritenta</string>
+    <string name="install_blocked_google">Le App a pagamento non sono ancora supportate da App Lounge. Un pò di pazienza e lo saranno.</string>
+    <string name="no_internet_message">Non riesco a connettermi! Verifica la connessione internet e ritenta</string>
     <string name="preference_update_notify_available_description">Mostra una notifica quando sono disponibili aggiornamenti App</string>
     <string name="share_intent">Verifica \"<xliff:g id="rating">%1$s</xliff:g>\"
 \n<xliff:g id="rating">%2$s</xliff:g></string>
@@ -89,7 +89,7 @@
     <string name="app_icon">Icona App</string>
     <string name="more">Altro</string>
     <string name="rating_description">Punteggio su scala di 5. Calcolato utilizzando i rating degli utenti dell\'App.</string>
-    <string name="privacy_description">Il Punteggio Privacy viene calcolato automaticamente a seconda dei permessi richiesti e dei tracker trovati nelle App. Ti da un\'idea di quanto finemente una App sia in grado di profilare i propri utenti.&lt;br /&gt;&lt;br /&gt;Il codice sorgente dell\'algoritmo di calcolo si &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;trova qui&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Il rilevamento dei tracker viene eseguito usando &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Privacy&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Punteggio su scala di 10.&lt;br /&gt;&lt;br /&gt;Altre informazioni sul metodo di calcolo del Punteggio Privacy, i suoi limiti e su come puoi difenderti dalla profilatura li trovi &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;in questa pagina&lt;/a&gt;.</string>
+    <string name="privacy_description">Il Punteggio Privacy viene calcolato automaticamente a seconda dei permessi richiesti e dei tracker trovati nelle App. Ti da un\'idea di quanto una App sia in grado di profilare con precisione i propri utenti.&lt;br /&gt;&lt;br /&gt;Il codice sorgente dell\'algoritmo di calcolo si &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;trova qui&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Il rilevamento dei tracker viene eseguito usando &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Privacy&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Punteggio su scala di 10.&lt;br /&gt;&lt;br /&gt;Altre informazioni sul metodo di calcolo del Punteggio Privacy, i suoi limiti e su come puoi difenderti dalla profilatura li trovi &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;in questa pagina&lt;/a&gt;.</string>
     <plurals name="updates_notification_title">
         <item quantity="one">Disponibile <xliff:g id="version_code">%1$d</xliff:g> aggiornamento App</item>
         <item quantity="many">Disponibili <xliff:g id="version_code">%1$d</xliff:g> aggiornamenti App</item>
@@ -108,7 +108,7 @@
     <string name="download_automatically_message">L\'app verrà scaricata automaticamente su questo dispositivo</string>
     <string name="purchase_complete">Acquisto completato!</string>
     <string name="paid_app_anonymous_message">Le app a pagamento non possono essere installate in modalità anonima. Per installarle, accedi al tuo account Google.</string>
-    <string name="dialog_cancel">ELIMINA</string>
+    <string name="dialog_cancel">ANNULLA</string>
     <string name="dialog_confirm">CONFERMA</string>
     <string name="dialog_paidapp_message">Facendo click su conferma, si accede alla pagina Google Play della app per completare l\'acquisto con il browser. Fai click su conferma per acquistare %1$s per %2$s.</string>
     <string name="dialog_title_paid_app">Acquista <b>%1$s</b></string>
@@ -119,7 +119,7 @@
     <string name="timeout_desc_gplay">Un problema di rete impedisce il recupero di tutte le app.
 \n
 \nAprire le impostazioni per selezionare solo app open source o le PWA.</string>
-    <string name="timeout_title">Timeout nel recupero dell\'app!</string>
+    <string name="timeout_title">Timeout nel recupero delle app!</string>
     <string name="tracker_information_not_found">Informazioni sui tracker di questa app non disponibili.</string>
     <string name="update_error">Errore nell\'aggiornamento!</string>
     <string name="error_signature_mismatch">L\'aggiornamento non può essere installato per la mancata corrispondenza di firma tra l\'aggiornamento di %1$s e la versione istallata sul tuo smartphone. Per ovviare, puoi disinstallare %1$s e quindi installarlo di nuovo da App Lounge. <br/><br/> Nota: questo messaggio non verrà più visualizzato.</string>
@@ -132,7 +132,7 @@
     <string name="os_version">Versione di /e/ OS</string>
     <string name="app_version_label">Versione di App Lounge</string>
     <string name="about">Informazioni</string>
-    <string name="or">O</string>
+    <string name="or">O mostra solo</string>
     <string name="select_one_source_of_applications">Scegli almeno un repository di App.</string>
     <string name="anonymous_login_failed_desc">Ciò può essere dovuto all\'impossibilità di generare/verificare il token o ad altri motivi.
 \n
@@ -140,15 +140,15 @@
     <string name="anonymous_login_failed">Accesso anonimo non riuscito!</string>
     <string name="data_load_error_desc">Ciò può essere dovuto al fatto che il server non risponde o ad altri errori del server.
 \n
-\nSi prega di riprovare adesso o più tardi.</string>
+\nPuoi riprovare adesso o più tardi.</string>
     <string name="data_load_error">Si è verificato un errore durante il caricamento delle App.</string>
     <string name="more_info"><u>Maggiori informazioni</u></string>
     <string name="discover_pwa">Scopri le PWA</string>
     <string name="gplay_data_for_oss">Non posso avviare l\'App Google Play se sono permesse solo App open source.</string>
     <string name="close">Chiudi</string>
-    <string name="monthly">Ogni mese</string>
-    <string name="weekly">Settimanale</string>
-    <string name="daily">Giornaliero</string>
+    <string name="monthly">Mensilmente</string>
+    <string name="weekly">Settimanalmente</string>
+    <string name="daily">Giornalmente</string>
     <string name="message_update_failure_single_app">L\'aggiornamento di %1$s e fallito a causa di una problema di supporto (luogo in cui ti trovi, versione del SO, ...).</string>
     <string name="message_update_failed">A causa di problemi temporanei, le tue app non possono essere aggiornate tutte. Riprova più tardi.</string>
     <string name="message_retry">Aggiorna tutto non ha funzionato. Ulteriori tentativi di aggiornamento in corso.</string>
@@ -162,4 +162,7 @@
     <string name="duplicate_app_from_sources">Alcune App proprietarie potrebbero avere anche una versione Open Source. In questo caso App Lounge mostra solo la versione Open Source, per evitare duplicati.</string>
     <string name="additional_file_for">File agiuntivo per %s</string>
     <string name="downloading">Scaricamento…</string>
+    <string name="preference_update_apps_from_other_stores_title">Aggiorna le app installate da altri store</string>
+    <string name="preference_update_apps_from_other_stores_description">Aggiorna le app installate da altri app store.
+\nTali app proveremo ad aggiornarle dalla categoria app comuni e open source.</string>
 </resources>
