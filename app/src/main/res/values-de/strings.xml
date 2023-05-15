@@ -161,4 +161,5 @@
     <string name="pwa_and_open_source_apps">PWA und quelloffene Apps</string>
     <string name="additional_file_for">Zusätzliche Dateien für %s</string>
     <string name="downloading">Herunterladen …</string>
+    <string name="preference_update_apps_from_other_stores_title">Apps aktualisieren, die von anderen App-Stores aus installiert wurden</string>
 </resources>
