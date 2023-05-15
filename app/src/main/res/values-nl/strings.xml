@@ -159,4 +159,7 @@
     <string name="login">Inloggen</string>
     <string name="select_one_source_of_applications">Selecteer ten minste één applicatiebron.</string>
     <string name="pwa_and_open_source_apps">PWA en Open Source apps</string>
+    <string name="downloading">Downloaden…</string>
+    <string name="additional_file_for">Aanvullend bestand voor %s</string>
+    <string name="preference_update_apps_from_other_stores_title">Update apps geïnstalleerd door andere app-stores</string>
 </resources>
