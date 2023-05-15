@@ -132,4 +132,20 @@
     <string name="automatically_install_updates_notification_text">Uppfærslur forrita verða sjálfkrafa settar inn</string>
     <string name="manually_install_updates_notification_text">Uppfærslur forrita verða ekki settar sjálfkrafa inn</string>
     <string name="updates_notification_unmetered_network_warning">Bíð eftir gjaldfrjálsu neti</string>
+    <string name="gplay_data_for_oss">Get ekki birt forrit úr Google Play þegar einungis eru leyfð forrit með opinn grunnkóða.</string>
+    <string name="privacy_analyses">Greining persónuverndar</string>
+    <string name="trackers_title">Rekjarar</string>
+    <string name="message_update_failed">Vegna tímabundinna vandamála er ekki hægt að uppfæra öll forritin þín. Reyndu aftur síðar.</string>
+    <string name="message_update_failure_single_app">Uppfærsla á %1$s mistókst vegna reglu varðandi stuðning (staðsetning, útgáfa stýrikerfis…).</string>
+    <string name="movers_shakers_apps">Vinsælustu forrit í umræðunni</string>
+    <string name="download_automatically_message">Forritinu þínu verður sjálfkrafa hlaðið inn á þetta tæki</string>
+    <string name="movers_shakers_games">Vinsælustu leikir í umræðunni</string>
+    <string name="preference_update_apps_from_other_stores_title">Uppfæra forrit sem önnur hugbúnaðarsöfn hafa sett inn</string>
+    <string name="preference_update_apps_from_other_stores_description">Uppfæra forrit sem önnur hugbúnaðarsöfn hafa sett inn.
+\nReynt verður að uppfæra slík forrit úr flokkum almenns hugbúnaðar og forrita með opnum notkunarleyfum.</string>
+    <string name="message_last_update_triggered">Uppfærslu %1$s forrita lokið á %2$s.</string>
+    <string name="no_permission_found">Engar Android keyrsluheimildir fundust!</string>
+    <string name="privacy_computed_using_text">Reiknað út frá &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus Privacy Analysis</string>
+    <string name="no_tracker_found">Enginn rekjari fannst!</string>
+    <string name="tracker_information_not_found">Það eru engar upplýsingar fáanlegar yfir rekjara í þessu forriti.</string>
 </resources>
