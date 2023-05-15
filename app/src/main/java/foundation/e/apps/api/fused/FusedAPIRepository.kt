@@ -144,7 +144,7 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPII
         versionCode: Int,
         offerType: Int
     ): String? {
-        return fusedAPIImpl.getOnDemandModule(authData, packageName, moduleName, versionCode, offerType)
+        return fusedAPIImpl.getOnDemandModule(packageName, moduleName, versionCode, offerType)
     }
 
     suspend fun getCategoriesList(

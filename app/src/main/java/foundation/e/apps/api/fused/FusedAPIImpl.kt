@@ -24,17 +24,20 @@ import androidx.lifecycle.*
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
-import androidx.lifecycle.map
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.*
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.api.DownloadInfoFetcher
 import foundation.e.apps.R
+import foundation.e.apps.api.OnDemandModuleFetcher
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.StoreRepository
 import foundation.e.apps.api.cleanapk.CleanAPKInterface
 import foundation.e.apps.api.cleanapk.CleanAPKRepository
+import foundation.e.apps.api.cleanapk.data.app.Application
 import foundation.e.apps.api.cleanapk.data.categories.Categories
+import foundation.e.apps.api.cleanapk.data.download.Download
 import foundation.e.apps.api.cleanapk.data.home.Home
 import foundation.e.apps.api.cleanapk.data.home.HomeScreen
 import foundation.e.apps.api.cleanapk.data.search.Search
@@ -71,8 +74,6 @@ typealias FusedHomeDeferred = Deferred<ResultSupreme<List<FusedHome>>>
 
 @Singleton
 class FusedAPIImpl @Inject constructor(
-    private val cleanAPKRepository: CleanAPKRepository,
-    private val gPlayAPIRepository: GPlayAPIRepository,
     private val pkgManagerModule: PkgManagerModule,
     private val pwaManagerModule: PWAManagerModule,
     private val preferenceManagerModule: PreferenceManagerModule,
@@ -490,19 +491,17 @@ class FusedAPIImpl @Inject constructor(
     }
 
     suspend fun getOnDemandModule(
-        authData: AuthData,
         packageName: String,
         moduleName: String,
         versionCode: Int,
         offerType: Int
     ): String? {
-        val list = gPlayAPIRepository.getOnDemandModule(
+        val list = (gplayRepository as OnDemandModuleFetcher).getOnDemandModule(
             packageName,
             moduleName,
             versionCode,
             offerType,
-            authData
-        )
+        ) as List<File>
         for (element in list) {
             if (element.name == "$moduleName.apk") {
                 return element.url
@@ -519,17 +518,18 @@ class FusedAPIImpl @Inject constructor(
         val list = mutableListOf<String>()
         when (origin) {
             Origin.CLEANAPK -> {
-                val downloadInfo = cleanAPKRepository.getDownloadInfo(fusedDownload.id).body()
+                val downloadInfo =
+                    ((cleanApkAppsRepository as DownloadInfoFetcher).getDownloadInfo(fusedDownload.id) as Response<Download>).body()
                 downloadInfo?.download_data?.download_link?.let { list.add(it) }
                 fusedDownload.signature = downloadInfo?.download_data?.signature ?: ""
             }
             Origin.GPLAY -> {
-                val downloadList = gPlayAPIRepository.getDownloadInfo(
-                    fusedDownload.packageName,
-                    fusedDownload.versionCode,
-                    fusedDownload.offerType,
-                    authData
-                )
+                val downloadList =
+                    (gplayRepository as DownloadInfoFetcher).getDownloadInfo(
+                        fusedDownload.packageName,
+                        fusedDownload.versionCode,
+                        fusedDownload.offerType
+                    ) as List<File>
                 fusedDownload.files = downloadList
                 list.addAll(downloadList.map { it.url })
             }
@@ -540,7 +540,7 @@ class FusedAPIImpl @Inject constructor(
     }
 
     suspend fun getOSSDownloadInfo(id: String, version: String?) =
-        cleanAPKRepository.getDownloadInfo(id, version)
+        (cleanApkAppsRepository as DownloadInfoFetcher).getDownloadInfo(id, version) as Response<Download>
 
     suspend fun getPWAApps(category: String): ResultSupreme<List<FusedApp>> {
         val list = mutableListOf<FusedApp>()
@@ -639,7 +639,7 @@ class FusedAPIImpl @Inject constructor(
 
             if (result?.apps?.isNotEmpty() == true && result.numberOfResults == 1) {
                 fusedApp =
-                    cleanAPKRepository.getAppOrPWADetailsByID(result.apps[0]._id).body()?.app
+                    (cleanApkAppsRepository.getAppDetails(result.apps[0]._id) as Response<Application>).body()?.app
                         ?: FusedApp()
             }
             fusedApp.updateFilterLevel(null)
@@ -728,7 +728,7 @@ class FusedAPIImpl @Inject constructor(
          * Old code moved from getApplicationDetails()
          */
         val status = runCodeBlockWithTimeout({
-            gPlayAPIRepository.getAppDetails(packageNameList, authData).forEach { app ->
+            (gplayRepository.getAppsDetails(packageNameList) as List<App>).forEach { app ->
                 /*
                  * Some apps are restricted to locations. Example "com.skype.m2".
                  * For restricted apps, check if it is possible to get their specific app info.
@@ -810,7 +810,7 @@ class FusedAPIImpl @Inject constructor(
              * Check if app details can be shown. If not then remove the app from lists.
              */
             try {
-                gPlayAPIRepository.getAppDetails(fusedApp.package_name, authData)
+                gplayRepository.getAppDetails(fusedApp.package_name)
             } catch (e: Exception) {
                 return FilterLevel.DATA
             }
@@ -820,11 +820,10 @@ class FusedAPIImpl @Inject constructor(
              * If not then change "Install" button to "N/A"
              */
             try {
-                gPlayAPIRepository.getDownloadInfo(
+                (gplayRepository as DownloadInfoFetcher).getDownloadInfo(
                     fusedApp.package_name,
                     fusedApp.latest_version_code,
                     fusedApp.offer_type,
-                    authData
                 )
             } catch (e: Exception) {
                 return FilterLevel.UI
@@ -860,9 +859,9 @@ class FusedAPIImpl @Inject constructor(
 
         val status = runCodeBlockWithTimeout({
             response = if (origin == Origin.CLEANAPK) {
-                cleanAPKRepository.getAppOrPWADetailsByID(id).body()?.app
+                (cleanApkAppsRepository.getAppDetails(id) as Response<Application>).body()?.app
             } else {
-                val app = gPlayAPIRepository.getAppDetails(packageName, authData)
+                val app = gplayRepository.getAppDetails(packageName) as App?
                 app?.transformToFusedApp()
             }
             response?.let {

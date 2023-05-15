@@ -18,16 +18,21 @@
 
 package foundation.e.apps.api.cleanapk
 
+import foundation.e.apps.api.DownloadInfoFetcher
 import foundation.e.apps.api.StoreRepository
+import foundation.e.apps.api.cleanapk.data.app.Application
 import foundation.e.apps.api.cleanapk.data.categories.Categories
+import foundation.e.apps.api.cleanapk.data.download.Download
 import foundation.e.apps.api.cleanapk.data.home.HomeScreen
 import foundation.e.apps.api.cleanapk.data.search.Search
 import foundation.e.apps.api.fused.utils.CategoryType
+import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import retrofit2.Response
 
 class CleanApkAppsRepository(
     private val cleanAPKInterface: CleanAPKInterface,
-) : StoreRepository {
+    private val cleanApkAppDetailApi: CleanApkAppDetailApi
+) : StoreRepository, DownloadInfoFetcher {
 
     override suspend fun getHomeScreenData(): Response<HomeScreen> {
         return cleanAPKInterface.getHomeScreenData(
@@ -69,5 +74,26 @@ class CleanApkAppsRepository(
             CleanAPKInterface.APP_TYPE_ANY,
             CleanAPKInterface.APP_SOURCE_FOSS
         )
+    }
+
+    override suspend fun getAppDetails(packageNameOrId: String): Response<Application> {
+        return cleanApkAppDetailApi.getAppOrPWADetailsByID(packageNameOrId, null, null)
+    }
+
+    override suspend fun getAppsDetails(packageNamesOrIds: List<String>): Any {
+        val applications = mutableListOf<Application>()
+
+        packageNamesOrIds.forEach {
+            val applicationResponse = getAppDetails(it)
+            if (applicationResponse.isSuccessful && applicationResponse.body() != null) {
+                applications.add(applicationResponse.body()!!)
+            }
+        }
+        return applications
+    }
+
+    override suspend fun getDownloadInfo(idOrPackageName: String, versionCode: Any?, offerType: Int): Response<Download> {
+        val version = versionCode?.let { it as String }
+        return cleanAPKInterface.getDownloadInfo(idOrPackageName, version, null)
     }
 }

@@ -23,11 +23,14 @@ import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.*
 import com.aurora.gplayapi.helpers.*
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.api.DownloadInfoFetcher
 import foundation.e.apps.R
+import foundation.e.apps.api.OnDemandModuleFetcher
 import foundation.e.apps.api.StoreRepository
 import foundation.e.apps.api.fused.utils.CategoryType
 import foundation.e.apps.api.gplay.utils.GPlayHttpClient
 import foundation.e.apps.login.LoginSourceRepository
+import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
@@ -41,7 +44,7 @@ class GplayRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val gPlayHttpClient: GPlayHttpClient,
     private val loginSourceRepository: LoginSourceRepository
-) : StoreRepository {
+) : StoreRepository, DownloadInfoFetcher, OnDemandModuleFetcher {
 
     private val authData by lazy { loginSourceRepository.gplayAuth!! }
 
@@ -68,7 +71,10 @@ class GplayRepository @Inject constructor(
         context.getString(R.string.movers_shakers_games) to mapOf(TopChartsHelper.Chart.MOVERS_SHAKERS to TopChartsHelper.Type.GAME),
     )
 
-    override suspend fun getSearchResult(query: String, searchBy: String?): Flow<Pair<List<App>, Boolean>> {
+    override suspend fun getSearchResult(
+        query: String,
+        searchBy: String?
+    ): Flow<Pair<List<App>, Boolean>> {
         return flow {
             /*
              * Variable names and logic made same as that of Aurora store.
@@ -180,6 +186,24 @@ class GplayRepository @Inject constructor(
             categoryList.addAll(categoryHelper.getAllCategoriesList(getCategoryType(type)))
         }
         return categoryList
+    }
+
+    override suspend fun getAppDetails(packageNameOrId: String): App? {
+        var appDetails: App?
+        withContext(Dispatchers.IO) {
+            val appDetailsHelper = AppDetailsHelper(authData).using(gPlayHttpClient)
+            appDetails = appDetailsHelper.getAppByPackageName(packageNameOrId)
+        }
+        return appDetails
+    }
+
+    override suspend fun getAppsDetails(packageNamesOrIds: List<String>): List<App> {
+        val appDetailsList = mutableListOf<App>()
+        withContext(Dispatchers.IO) {
+            val appDetailsHelper = AppDetailsHelper(authData).using(gPlayHttpClient)
+            appDetailsList.addAll(appDetailsHelper.getAppByPackageName(packageNamesOrIds))
+        }
+        return appDetailsList
     }
 
     private fun getCategoryType(type: CategoryType): Category.Type {
@@ -446,5 +470,40 @@ class GplayRepository @Inject constructor(
             topApps.addAll(topChartsHelper.getCluster(type, chart).clusterAppList)
         }
         return topApps
+    }
+
+    override suspend fun getDownloadInfo(
+        idOrPackageName: String,
+        versionCode: Any?,
+        offerType: Int
+    ): List<File> {
+        val downloadData = mutableListOf<File>()
+        withContext(Dispatchers.IO) {
+            val version = versionCode?.let { it as Int } ?: -1
+            val purchaseHelper = PurchaseHelper(authData).using(gPlayHttpClient)
+            downloadData.addAll(purchaseHelper.purchase(idOrPackageName, version, offerType))
+        }
+        return downloadData
+    }
+
+    override suspend fun getOnDemandModule(
+        packageName: String,
+        moduleName: String,
+        versionCode: Int,
+        offerType: Int
+    ): List<File> {
+        val downloadData = mutableListOf<File>()
+        withContext(Dispatchers.IO) {
+            val purchaseHelper = PurchaseHelper(authData).using(gPlayHttpClient)
+            downloadData.addAll(
+                purchaseHelper.getOnDemandModule(
+                    packageName,
+                    moduleName,
+                    versionCode,
+                    offerType
+                )
+            )
+        }
+        return downloadData
     }
 }

@@ -26,4 +26,6 @@ interface StoreRepository {
     suspend fun getSearchSuggestions(query: String): Any
     suspend fun getAppsByCategory(category: String, paginationParameter: Any? = null): Any
     suspend fun getCategories(type: CategoryType? = null): Any
+    suspend fun getAppDetails(packageNameOrId: String): Any?
+    suspend fun getAppsDetails(packageNamesOrIds: List<String>): Any
 }

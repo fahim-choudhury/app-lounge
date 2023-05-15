@@ -19,12 +19,16 @@
 package foundation.e.apps.api.cleanapk
 
 import foundation.e.apps.api.StoreRepository
+import foundation.e.apps.api.cleanapk.data.app.Application
 import foundation.e.apps.api.cleanapk.data.categories.Categories
 import foundation.e.apps.api.cleanapk.data.search.Search
 import foundation.e.apps.api.fused.utils.CategoryType
 import retrofit2.Response
 
-class CleanApkPWARepository(private val cleanAPKInterface: CleanAPKInterface) : StoreRepository {
+class CleanApkPWARepository(
+    private val cleanAPKInterface: CleanAPKInterface,
+    private val cleanApkAppDetailApi: CleanApkAppDetailApi
+) : StoreRepository {
 
     override suspend fun getHomeScreenData(): Any {
         return cleanAPKInterface.getHomeScreenData(
@@ -63,5 +67,21 @@ class CleanApkPWARepository(private val cleanAPKInterface: CleanAPKInterface) : 
             CleanAPKInterface.APP_TYPE_PWA,
             CleanAPKInterface.APP_SOURCE_ANY
         )
+    }
+
+    override suspend fun getAppDetails(packageNameOrId: String): Response<Application> {
+        return cleanApkAppDetailApi.getAppOrPWADetailsByID(packageNameOrId, null, null)
+    }
+
+    override suspend fun getAppsDetails(packageNamesOrIds: List<String>): Any {
+        val applications = mutableListOf<Application>()
+
+        packageNamesOrIds.forEach {
+            val applicationResponse = getAppDetails(it)
+            if (applicationResponse.isSuccessful && applicationResponse.body() != null) {
+                applications.add(applicationResponse.body()!!)
+            }
+        }
+        return applications
     }
 }

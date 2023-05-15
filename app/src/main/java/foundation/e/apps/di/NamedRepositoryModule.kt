@@ -53,14 +53,20 @@ object NamedRepositoryModule {
     @Singleton
     @Provides
     @Named("cleanApkAppsRepository")
-    fun getCleanApkAppsRepository(cleanAPKInterface: CleanAPKInterface): StoreRepository {
-        return CleanApkAppsRepository(cleanAPKInterface)
+    fun getCleanApkAppsRepository(
+        cleanAPKInterface: CleanAPKInterface,
+        cleanApkAppDetailApi: CleanApkAppDetailApi
+    ): StoreRepository {
+        return CleanApkAppsRepository(cleanAPKInterface, cleanApkAppDetailApi)
     }
 
     @Singleton
     @Provides
     @Named("cleanApkPWARepository")
-    fun getCleanApkPWARepository(cleanAPKInterface: CleanAPKInterface): StoreRepository {
-        return CleanApkPWARepository(cleanAPKInterface)
+    fun getCleanApkPWARepository(
+        cleanAPKInterface: CleanAPKInterface,
+        cleanApkAppDetailApi: CleanApkAppDetailApi
+    ): StoreRepository {
+        return CleanApkPWARepository(cleanAPKInterface, cleanApkAppDetailApi)
     }
 }
