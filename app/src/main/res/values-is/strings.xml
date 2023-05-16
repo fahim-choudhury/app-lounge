@@ -149,7 +149,7 @@
     <string name="no_tracker_found">Enginn rekjari fannst!</string>
     <string name="tracker_information_not_found">Það eru engar upplýsingar fáanlegar yfir rekjara í þessu forriti.</string>
     <string name="privacy_description">Persónuverndarstig eru sjálfvirkt reiknuð út frá þeim heimildakröfum og rekjurum sem finnast í viðkomandi forriti. Það gefur vísbendingu um hve líklegt sé að forritið sé að fylgjast með notendum sínum.&lt;br /&gt;&lt;br /&gt;Grunnkóða reikniritsins má &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;finna hér&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Greining á rekjurum er framkvæmd með &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus gagnaleyndarverkfærum&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Stig af 10 mögulegum.&lt;br /&gt;&lt;br /&gt;Sjáðu nánar hvernig persónuverndarstig eru reiknuð, hvaða takmarkanir þau hafa og hvernig þú getur varið þig fyrir slíku snuðri &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;á þessari síðu&lt;/a&gt;.</string>
-    <string name="data_load_error_desc">Þetta gæti verið vegna þess að netþjónn svari ekki eða annarar villu á netþjóni. 
+    <string name="data_load_error_desc">Þetta gæti verið vegna þess að netþjónn svari ekki eða annarar villu á netþjóni.
 \n
 \nReyndu aftur núna eða síðar.</string>
     <string name="sign_in_failed_desc">Vegna villu í netkerfi tókst App Lounge ekki að nálgast innskráningargögn frá Google.</string>
@@ -162,4 +162,6 @@
     <string name="duplicate_app_from_sources">Ýmis séreignarhugbúnaður gæti einnig átt sér útgáfu með opnu hugbúnaðarleyfi. Þegar slíkt á sér stað, mun App Lounge einungis sýna frjálsu opnu útgáfuna, til að koma í veg fyrir tvítekningar.</string>
     <string name="paid_app_anonymous_message">Ekki er hægt að setja keypt forrit upp í nafnleysisham. Skráðu þig inn á Google-aðganginn þinn til að setja upp keypt forrit.</string>
     <string name="unsupported_app_unreleased">Forritið %s er ekki stutt í augnablikinu. Það gæti verið raunin ef forritið sé ekki enn komið í almenna dreifingu, eða vegna einhverrar villu.</string>
+    <string name="error_signature_mismatch">Uppfærsluna er ekki hægt að virkja þar sem ósamræmi er í undirritunum uppfærslunnar fyrir %1$s og útgáfunnar sem uppsett er á símanum. Til að laga þetta geturðu tekið út %1$s og síðan sett það aftur upp í App Lounge. <br/><br/> Athugaðu: Þessi skilaboð munu ekki birtast aftur.</string>
+    <string name="may_not_work_warning_message">Þvingun uppsetningar mun gerir þér kleift að sækja og setja hana upp, en tryggir ekki endilega að hún muni virka rétt.<br/><br/>Tilraunir til að setja upp óstuddan hugbúnað geta valdi hruni eða hægt á kerfinu.<br/><br/>Við erum að vinna í að bæta samhæfni við þetta forrit.</string>
 </resources>
