@@ -79,14 +79,14 @@ class LoginSourceGPlay @Inject constructor(
         val savedAuth = getSavedAuthData()
 
         val authData = (
-                savedAuth ?: run {
-                    // if no saved data, then generate new auth data.
-                    generateAuthData().let {
-                        if (it.isSuccess()) it.data!!
-                        else return AuthObject.GPlayAuth(it, user)
-                    }
+            savedAuth ?: run {
+                // if no saved data, then generate new auth data.
+                generateAuthData().let {
+                    if (it.isSuccess()) it.data!!
+                    else return AuthObject.GPlayAuth(it, user)
                 }
-                )
+            }
+            )
 
         val formattedAuthData = formatAuthData(authData)
         formattedAuthData.locale = locale
@@ -239,12 +239,12 @@ class LoginSourceGPlay @Inject constructor(
         } else {
             val message =
                 "Validating AuthData failed.\n" +
-                        "Network code: ${playResponse?.code}\n" +
-                        "Success: ${playResponse?.isSuccessful}" +
-                        playResponse?.errorString?.run {
-                            if (isNotBlank()) "\nError message: $this"
-                            else ""
-                        }
+                    "Network code: ${playResponse?.code}\n" +
+                    "Success: ${playResponse?.isSuccessful}" +
+                    playResponse?.errorString?.run {
+                        if (isNotBlank()) "\nError message: $this"
+                        else ""
+                    }
 
             ResultSupreme.Error(
                 message,
