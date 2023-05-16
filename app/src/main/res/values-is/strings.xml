@@ -150,6 +150,7 @@
     <string name="tracker_information_not_found">Það eru engar upplýsingar fáanlegar yfir rekjara í þessu forriti.</string>
     <string name="privacy_description">Persónuverndarstig eru sjálfvirkt reiknuð út frá þeim heimildakröfum og rekjurum sem finnast í viðkomandi forriti. Það gefur vísbendingu um hve líklegt sé að forritið sé að fylgjast með notendum sínum.&lt;br /&gt;&lt;br /&gt;Grunnkóða reikniritsins má &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;finna hér&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Greining á rekjurum er framkvæmd með &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus gagnaleyndarverkfærum&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Stig af 10 mögulegum.&lt;br /&gt;&lt;br /&gt;Sjáðu nánar hvernig persónuverndarstig eru reiknuð, hvaða takmarkanir þau hafa og hvernig þú getur varið þig fyrir slíku snuðri &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;á þessari síðu&lt;/a&gt;.</string>
     <string name="data_load_error_desc">Þetta gæti verið vegna þess að netþjónn svari ekki eða annarar villu á netþjóni. 
+\n
 \nReyndu aftur núna eða síðar.</string>
     <string name="sign_in_failed_desc">Vegna villu í netkerfi tókst App Lounge ekki að nálgast innskráningargögn frá Google.</string>
     <string name="anonymous_login_failed_desc">Þetta gæti verið vegna þess að ekki hafi tekist að útbúa auðkennisteikn, sannreyna það eða af öðrum ástæðums.
