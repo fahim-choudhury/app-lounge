@@ -23,14 +23,10 @@ import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.*
 import com.aurora.gplayapi.helpers.*
 import dagger.hilt.android.qualifiers.ApplicationContext
-import foundation.e.apps.api.DownloadInfoFetcher
 import foundation.e.apps.R
-import foundation.e.apps.api.OnDemandModuleFetcher
-import foundation.e.apps.api.StoreRepository
 import foundation.e.apps.api.fused.utils.CategoryType
 import foundation.e.apps.api.gplay.utils.GPlayHttpClient
 import foundation.e.apps.login.LoginSourceRepository
-import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
@@ -40,11 +36,11 @@ import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class GplayRepository @Inject constructor(
+class GplayStoreRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val gPlayHttpClient: GPlayHttpClient,
     private val loginSourceRepository: LoginSourceRepository
-) : StoreRepository, DownloadInfoFetcher, OnDemandModuleFetcher {
+) : GplayStoreRepository {
 
     private val authData by lazy { loginSourceRepository.gplayAuth!! }
 
@@ -73,7 +69,6 @@ class GplayRepository @Inject constructor(
 
     override suspend fun getSearchResult(
         query: String,
-        searchBy: String?
     ): Flow<Pair<List<App>, Boolean>> {
         return flow {
             /*
@@ -221,9 +216,6 @@ class GplayRepository @Inject constructor(
                 var nextStreamBundleUrl = category
 
                 /*
-                 * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131
-                 * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
-                 *
                  * Logic: We start with the browseUrl.
                  * When we call getSubCategoryBundle(), we get a new StreamBundle object, having
                  * StreamClusters, which have app data.
@@ -258,12 +250,6 @@ class GplayRepository @Inject constructor(
 
                     nextStreamBundleUrl = streamBundle.streamNextPageUrl
                 } while (streamBundle.hasNext())
-
-                // TODO: DEAL WITH DUPLICATE AND LESS ITEMS
-                /*val streamClusters = categoryHelper.getSubCategoryBundle(browseUrl).streamClusters
-                streamClusters.values.forEach {
-                    list.addAll(it.clusterAppList)
-                }*/
             }
         }
         return list.distinctBy { it.packageName }

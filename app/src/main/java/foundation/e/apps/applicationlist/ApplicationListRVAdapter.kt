@@ -40,7 +40,7 @@ import foundation.e.apps.AppInfoFetchViewModel
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.PrivacyInfoViewModel
 import foundation.e.apps.R
-import foundation.e.apps.api.cleanapk.CleanAPKInterface
+import foundation.e.apps.api.cleanapk.CleanApkRetrofit
 import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.databinding.ApplicationListItemBinding
@@ -169,7 +169,7 @@ class ApplicationListRVAdapter(
                 }
             }
             Origin.CLEANAPK -> {
-                appIcon.load(CleanAPKInterface.ASSET_URL + searchApp.icon_image_path) {
+                appIcon.load(CleanApkRetrofit.ASSET_URL + searchApp.icon_image_path) {
                     placeholder(shimmerDrawable)
                 }
             }

@@ -25,7 +25,7 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface CleanApkAppDetailApi {
+interface CleanApkAppDetailsRetrofit {
 
     companion object {
         // API endpoints
