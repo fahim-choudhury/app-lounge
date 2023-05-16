@@ -34,8 +34,8 @@ import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.isUnFiltered
 import foundation.e.apps.utils.modules.PreferenceManagerModule
-import javax.inject.Inject
 import timber.log.Timber
+import javax.inject.Inject
 
 class UpdatesManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -90,7 +90,8 @@ class UpdatesManagerImpl @Inject constructor(
 
         // Get GPlay app updates
         if (getApplicationCategoryPreference().contains(APP_TYPE_ANY) &&
-            gPlayInstalledApps.isNotEmpty()) {
+            gPlayInstalledApps.isNotEmpty()
+        ) {
 
             status = getUpdatesFromApi({
                 fusedAPIRepository.getApplicationDetails(
@@ -239,8 +240,8 @@ class UpdatesManagerImpl @Inject constructor(
 
         Timber.i(
             "Signature calculated for : ${cleanApkFusedApp.package_name}, " +
-                    "signature version: ${installedVersionSignature}, " +
-                    "is sig blank: ${pgpSignature.isBlank()}"
+                "signature version: $installedVersionSignature, " +
+                "is sig blank: ${pgpSignature.isBlank()}"
         )
 
         return downloadInfo?.signature ?: ""
@@ -301,7 +302,6 @@ class UpdatesManagerImpl @Inject constructor(
             return ""
         }
 
-
         // Received list has build info of the latest version at the bottom.
         // We want it at the top.
         val builds = fdroidRepository.getBuildVersionInfo(packageName)?.asReversed() ?: return ""
@@ -310,7 +310,7 @@ class UpdatesManagerImpl @Inject constructor(
             it.versionCode == installedVersionCode && it.versionName == installedVersionName
         }?.run {
             builds.indexOf(this)
-        }?: return ""
+        } ?: return ""
 
         Timber.i("Build info match at index: $matchingIndex")
 

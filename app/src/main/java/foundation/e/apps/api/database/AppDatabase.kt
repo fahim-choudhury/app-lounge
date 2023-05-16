@@ -39,7 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
             return INSTANCE
         }
 
-        private val migration3To4 = object: Migration(3, 4) {
+        private val migration3To4 = object : Migration(3, 4) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("DELETE FROM FaultyApp")
             }
