@@ -86,7 +86,7 @@ class FusedAPIImpl @Inject constructor(
     private val pkgManagerModule: PkgManagerModule,
     private val pwaManagerModule: PWAManagerModule,
     private val preferenceManagerModule: PreferenceManagerModule,
-    private val fdroidWebInterface: FdroidWebInterface,Build Analyzer detected new build performance issues Review to improve build performance
+    private val fdroidWebInterface: FdroidWebInterface,
     @Named("gplayRepository") private val gplayRepository: StoreRepository,
     @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: StoreRepository,
     @Named("cleanApkPWARepository") private val cleanApkPWARepository: StoreRepository,
