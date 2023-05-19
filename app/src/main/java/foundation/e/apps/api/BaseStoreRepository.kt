@@ -18,8 +18,9 @@
 
 package foundation.e.apps.api
 
-interface StoreRepository {
+
+interface BaseStoreRepository {
     suspend fun getHomeScreenData(): Any
-    suspend fun getSearchResult(query: String): Any
-    suspend fun getSearchSuggestions(query: String): Any
+    suspend fun getAppDetails(packageNameOrId: String): Any?
 }
+

@@ -97,15 +97,14 @@ class SplitInstallBinder(
         moduleName: String,
         versionCode: Int
     ): String? {
-        var url = fusedAPIRepository.getOnDemandModule(
-            authData!!, packageName, moduleName,
-            versionCode, 1
-        )
+        var url = fusedAPIRepository.getOnDemandModule(packageName, moduleName, versionCode, 1)
 
         if (url == null) {
             url = fusedAPIRepository.getOnDemandModule(
-                authData, packageName, "config.$moduleName",
-                versionCode, 1
+                packageName,
+                "config.$moduleName",
+                versionCode,
+                1
             )
         }
 

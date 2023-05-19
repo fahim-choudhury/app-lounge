@@ -26,7 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import coil.load
 import foundation.e.apps.R
-import foundation.e.apps.api.cleanapk.CleanAPKInterface
+import foundation.e.apps.api.cleanapk.CleanApkRetrofit
 import foundation.e.apps.databinding.ScreenshotListItemBinding
 import foundation.e.apps.utils.enums.Origin
 
@@ -57,7 +57,7 @@ class ScreenshotRVAdapter(private val list: List<String>, private val origin: Or
         val imageView = holder.binding.imageView
         when (origin) {
             Origin.CLEANAPK -> {
-                imageView.load(CleanAPKInterface.ASSET_URL + list[position]) {
+                imageView.load(CleanApkRetrofit.ASSET_URL + list[position]) {
                     placeholder(circularProgressDrawable)
                 }
             }

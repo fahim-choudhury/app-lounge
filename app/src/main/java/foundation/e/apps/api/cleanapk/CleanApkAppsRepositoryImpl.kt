@@ -20,50 +20,60 @@ package foundation.e.apps.api.cleanapk
 
 import foundation.e.apps.api.cleanapk.data.app.Application
 import foundation.e.apps.api.cleanapk.data.categories.Categories
+import foundation.e.apps.api.cleanapk.data.download.Download
+import foundation.e.apps.api.cleanapk.data.home.HomeScreen
 import foundation.e.apps.api.cleanapk.data.search.Search
 import retrofit2.Response
 
-class CleanApkPWARepository(
-    private val cleanAPKRetrofit: CleanApkRetrofit,
+class CleanApkAppsRepositoryImpl(
+    private val cleanApkRetrofit: CleanApkRetrofit,
     private val cleanApkAppDetailsRetrofit: CleanApkAppDetailsRetrofit
-) : CleanApkRepository {
+) : CleanApkRepository, CleanApkDownloadInfoFetcher{
 
-    override suspend fun getHomeScreenData(): Any {
-        return cleanAPKRetrofit.getHomeScreenData(
-            CleanApkRetrofit.APP_TYPE_PWA,
-            CleanApkRetrofit.APP_SOURCE_ANY
+    override suspend fun getHomeScreenData(): Response<HomeScreen> {
+        return cleanApkRetrofit.getHomeScreenData(
+            CleanApkRetrofit.APP_TYPE_ANY,
+            CleanApkRetrofit.APP_SOURCE_FOSS
         )
     }
 
     override suspend fun getSearchResult(query: String, searchBy: String?): Response<Search> {
-        return cleanAPKRetrofit.searchApps(
+        return cleanApkRetrofit.searchApps(
             query,
-            CleanApkRetrofit.APP_SOURCE_ANY,
-            CleanApkRetrofit.APP_TYPE_PWA,
-            20,
-            1,
+            CleanApkRetrofit.APP_SOURCE_FOSS,
+            CleanApkRetrofit.APP_TYPE_ANY,
+            NUMBER_OF_ITEMS,
+            NUMBER_OF_PAGES,
             searchBy
         )
     }
 
-    override suspend fun getAppsByCategory(category: String, paginationParameter: Any?): Response<Search> {
-        return cleanAPKRetrofit.listApps(
+    override suspend fun getAppsByCategory(
+        category: String,
+        paginationParameter: Any?
+    ): Response<Search> {
+        return cleanApkRetrofit.listApps(
             category,
-            CleanApkRetrofit.APP_SOURCE_ANY,
-            CleanApkRetrofit.APP_TYPE_PWA,
+            CleanApkRetrofit.APP_SOURCE_FOSS,
+            CleanApkRetrofit.APP_TYPE_ANY,
             NUMBER_OF_ITEMS,
             NUMBER_OF_PAGES
         )
     }
 
     override suspend fun getCategories(): Response<Categories> {
-        return cleanAPKRetrofit.getCategoriesList(
-            CleanApkRetrofit.APP_TYPE_PWA,
-            CleanApkRetrofit.APP_SOURCE_ANY
+        return cleanApkRetrofit.getCategoriesList(
+            CleanApkRetrofit.APP_TYPE_ANY,
+            CleanApkRetrofit.APP_SOURCE_FOSS
         )
     }
 
     override suspend fun getAppDetails(packageNameOrId: String): Response<Application> {
         return cleanApkAppDetailsRetrofit.getAppOrPWADetailsByID(packageNameOrId, null, null)
+    }
+
+    override suspend fun getDownloadInfo(idOrPackageName: String, versionCode: Any?): Response<Download> {
+        val version = versionCode?.let { it as String }
+        return cleanApkRetrofit.getDownloadInfo(idOrPackageName, version, null)
     }
 }

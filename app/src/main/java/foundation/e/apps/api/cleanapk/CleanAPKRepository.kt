@@ -29,15 +29,15 @@ import javax.inject.Inject
 
 @OpenForTesting
 class CleanAPKRepository @Inject constructor(
-    private val cleanAPKInterface: CleanAPKInterface,
-    private val cleanApkAppDetailApi: CleanApkAppDetailApi
+    private val cleanAPKRetrofit: CleanApkRetrofit,
+    private val cleanApkAppDetailsRetrofit: CleanApkAppDetailsRetrofit
 ) {
 
     suspend fun getHomeScreenData(
-        type: String = CleanAPKInterface.APP_TYPE_ANY,
-        source: String = CleanAPKInterface.APP_SOURCE_ANY
+        type: String = CleanApkRetrofit.APP_TYPE_ANY,
+        source: String = CleanApkRetrofit.APP_SOURCE_ANY
     ): Response<HomeScreen> {
-        return cleanAPKInterface.getHomeScreenData(type, source)
+        return cleanAPKRetrofit.getHomeScreenData(type, source)
     }
 
     suspend fun getAppOrPWADetailsByID(
@@ -45,28 +45,28 @@ class CleanAPKRepository @Inject constructor(
         architectures: List<String>? = null,
         type: String? = null
     ): Response<Application> {
-        return cleanApkAppDetailApi.getAppOrPWADetailsByID(id, architectures, type)
+        return cleanApkAppDetailsRetrofit.getAppOrPWADetailsByID(id, architectures, type)
     }
 
     suspend fun searchApps(
         keyword: String,
-        source: String = CleanAPKInterface.APP_SOURCE_FOSS,
-        type: String = CleanAPKInterface.APP_TYPE_ANY,
+        source: String = CleanApkRetrofit.APP_SOURCE_FOSS,
+        type: String = CleanApkRetrofit.APP_TYPE_ANY,
         nres: Int = 20,
         page: Int = 1,
         by: String? = null
     ): Response<Search> {
-        return cleanAPKInterface.searchApps(keyword, source, type, nres, page, by)
+        return cleanAPKRetrofit.searchApps(keyword, source, type, nres, page, by)
     }
 
     suspend fun listApps(
         category: String,
-        source: String = CleanAPKInterface.APP_SOURCE_FOSS,
-        type: String = CleanAPKInterface.APP_TYPE_ANY,
+        source: String = CleanApkRetrofit.APP_SOURCE_FOSS,
+        type: String = CleanApkRetrofit.APP_TYPE_ANY,
         nres: Int = 20,
         page: Int = 1,
     ): Response<Search> {
-        return cleanAPKInterface.listApps(category, source, type, nres, page)
+        return cleanAPKRetrofit.listApps(category, source, type, nres, page)
     }
 
     suspend fun getDownloadInfo(
@@ -74,13 +74,13 @@ class CleanAPKRepository @Inject constructor(
         version: String? = null,
         architecture: String? = null
     ): Response<Download> {
-        return cleanAPKInterface.getDownloadInfo(id, version, architecture)
+        return cleanAPKRetrofit.getDownloadInfo(id, version, architecture)
     }
 
     suspend fun getCategoriesList(
-        type: String = CleanAPKInterface.APP_TYPE_ANY,
-        source: String = CleanAPKInterface.APP_SOURCE_ANY
+        type: String = CleanApkRetrofit.APP_TYPE_ANY,
+        source: String = CleanApkRetrofit.APP_SOURCE_ANY
     ): Response<Categories> {
-        return cleanAPKInterface.getCategoriesList(type, source)
+        return cleanAPKRetrofit.getCategoriesList(type, source)
     }
 }

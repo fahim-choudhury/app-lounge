@@ -176,3 +176,7 @@ object CategoryUtils {
         }
     }
 }
+
+enum class CategoryType {
+    APPLICATION, GAMES
+}

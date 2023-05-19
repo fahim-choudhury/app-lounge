@@ -21,10 +21,10 @@ package foundation.e.apps.categories
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.Category
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedCategory
+import foundation.e.apps.api.fused.utils.CategoryType
 import foundation.e.apps.login.AuthObject
 import foundation.e.apps.utils.enums.ResultStatus
 import foundation.e.apps.utils.exceptions.CleanApkException
@@ -42,7 +42,7 @@ class CategoriesViewModel @Inject constructor(
         MutableLiveData()
 
     fun loadData(
-        type: Category.Type,
+        type: CategoryType,
         authObjectList: List<AuthObject>,
         retryBlock: (failedObjects: List<AuthObject>) -> Boolean,
     ) {
@@ -60,9 +60,9 @@ class CategoriesViewModel @Inject constructor(
         }, retryBlock)
     }
 
-    fun getCategoriesList(type: Category.Type, authData: AuthData) {
+    fun getCategoriesList(type: CategoryType, authData: AuthData) {
         viewModelScope.launch {
-            val categoriesData = fusedAPIRepository.getCategoriesList(type, authData)
+            val categoriesData = fusedAPIRepository.getCategoriesList(type)
             categoriesList.postValue(categoriesData)
 
             val status = categoriesData.third

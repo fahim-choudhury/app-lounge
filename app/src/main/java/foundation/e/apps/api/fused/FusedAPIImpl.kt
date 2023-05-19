@@ -23,21 +23,21 @@ import android.text.format.Formatter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
-import androidx.lifecycle.map
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
-import com.aurora.gplayapi.data.models.Artwork
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
-import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
+import com.aurora.gplayapi.data.models.StreamBundle
+import com.aurora.gplayapi.data.models.Artwork
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.api.ResultSupreme
-import foundation.e.apps.api.StoreRepository
-import foundation.e.apps.api.cleanapk.CleanAPKInterface
-import foundation.e.apps.api.cleanapk.CleanAPKRepository
+import foundation.e.apps.api.cleanapk.CleanApkRetrofit
+import foundation.e.apps.api.cleanapk.CleanApkDownloadInfoFetcher
+import foundation.e.apps.api.cleanapk.CleanApkRepository
+import foundation.e.apps.api.cleanapk.data.app.Application
 import foundation.e.apps.api.cleanapk.data.categories.Categories
 import foundation.e.apps.api.cleanapk.data.home.Home
 import foundation.e.apps.api.cleanapk.data.home.HomeScreen
@@ -47,20 +47,21 @@ import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedCategory
 import foundation.e.apps.api.fused.data.FusedHome
 import foundation.e.apps.api.fused.data.Ratings
+import foundation.e.apps.api.fused.utils.CategoryType
 import foundation.e.apps.api.fused.utils.CategoryUtils
-import foundation.e.apps.api.gplay.GPlayAPIRepository
+import foundation.e.apps.api.gplay.GplayStoreRepository
 import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.Constants.timeoutDurationInMillis
-import foundation.e.apps.utils.enums.AppTag
-import foundation.e.apps.utils.enums.FilterLevel
-import foundation.e.apps.utils.enums.Origin
 import foundation.e.apps.utils.enums.ResultStatus
-import foundation.e.apps.utils.enums.Source
 import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.Type
+import foundation.e.apps.utils.enums.Source
+import foundation.e.apps.utils.enums.FilterLevel
+import foundation.e.apps.utils.enums.AppTag
 import foundation.e.apps.utils.enums.isUnFiltered
+import foundation.e.apps.utils.enums.Origin
+import foundation.e.apps.utils.enums.Type
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
 import kotlinx.coroutines.Deferred
@@ -81,15 +82,13 @@ typealias FusedHomeDeferred = Deferred<ResultSupreme<List<FusedHome>>>
 
 @Singleton
 class FusedAPIImpl @Inject constructor(
-    private val cleanAPKRepository: CleanAPKRepository,
-    private val gPlayAPIRepository: GPlayAPIRepository,
     private val pkgManagerModule: PkgManagerModule,
     private val pwaManagerModule: PWAManagerModule,
     private val preferenceManagerModule: PreferenceManagerModule,
     private val fdroidWebInterface: FdroidWebInterface,
-    @Named("gplayRepository") private val gplayRepository: StoreRepository,
-    @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: StoreRepository,
-    @Named("cleanApkPWARepository") private val cleanApkPWARepository: StoreRepository,
+    @Named("gplayRepository") private val gplayRepository: GplayStoreRepository,
+    @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
+    @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository,
     @ApplicationContext private val context: Context
 ) {
 
@@ -108,8 +107,6 @@ class FusedAPIImpl @Inject constructor(
         private const val CATEGORY_OPEN_GAMES_ID = "game_open_games"
         private const val CATEGORY_OPEN_GAMES_TITLE = "Open games"
     }
-
-    private var TAG = FusedAPIImpl::class.java.simpleName
 
     /**
      * Check if list in all the FusedHome is empty.
@@ -229,15 +226,14 @@ class FusedAPIImpl @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
     suspend fun getCategoriesList(
-        type: Category.Type,
-        authData: AuthData
+        type: CategoryType,
     ): Triple<List<FusedCategory>, String, ResultStatus> {
         val categoriesList = mutableListOf<FusedCategory>()
         val preferredApplicationType = preferenceManagerModule.preferredApplicationType()
         var apiStatus: ResultStatus = ResultStatus.OK
         var applicationCategoryType = preferredApplicationType
 
-        handleAllSourcesCategories(categoriesList, type, authData).run {
+        handleAllSourcesCategories(categoriesList, type).run {
             if (first != ResultStatus.OK) {
                 apiStatus = first
                 applicationCategoryType = second
@@ -266,7 +262,7 @@ class FusedAPIImpl @Inject constructor(
          */
         return liveData {
             val packageSpecificResults = ArrayList<FusedApp>()
-            fetchPackageSpecificResult(authData, query, packageSpecificResults)?.let {
+            fetchPackageSpecificResult(authData, query, packageSpecificResults).let {
                 if (it.data?.second == true) { // if there are no data to load
                     emit(it)
                     return@liveData
@@ -299,7 +295,6 @@ class FusedAPIImpl @Inject constructor(
                 emitSource(
                     fetchGplaySearchResults(
                         query,
-                        authData,
                         searchResult,
                         packageSpecificResults
                     ).asLiveData()
@@ -317,7 +312,7 @@ class FusedAPIImpl @Inject constructor(
         val pwaApps: MutableList<FusedApp> = mutableListOf()
         val status = fusedAPIImpl.runCodeBlockWithTimeout({
             val apps =
-                (cleanApkPWARepository.getSearchResult(query) as Response<Search>).body()?.apps
+                cleanApkPWARepository.getSearchResult(query).body()?.apps
             apps?.apply {
                 if (this.isNotEmpty()) {
                     pwaApps.addAll(this)
@@ -344,10 +339,9 @@ class FusedAPIImpl @Inject constructor(
 
     private suspend fun fetchGplaySearchResults(
         query: String,
-        authData: AuthData,
         searchResult: MutableList<FusedApp>,
         packageSpecificResults: ArrayList<FusedApp>
-    ): GplaySearchResultFlow = getGplaySearchResult(query, authData).map {
+    ): GplaySearchResultFlow = getGplaySearchResult(query).map {
         if (it.first.isNotEmpty()) {
             searchResult.addAll(it.first)
         }
@@ -395,7 +389,7 @@ class FusedAPIImpl @Inject constructor(
         authData: AuthData,
         query: String,
         packageSpecificResults: MutableList<FusedApp>
-    ): ResultSupreme<Pair<List<FusedApp>, Boolean>>? {
+    ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
         var gplayPackageResult: FusedApp? = null
         var cleanapkPackageResult: FusedApp? = null
 
@@ -484,10 +478,11 @@ class FusedAPIImpl @Inject constructor(
     private suspend fun getCleanapkSearchResult(packageName: String): ResultSupreme<FusedApp> {
         var fusedApp = FusedApp()
         val status = runCodeBlockWithTimeout({
-            val result = cleanAPKRepository.searchApps(
-                keyword = packageName,
-                by = "package_name"
+            val result = cleanApkAppsRepository.getSearchResult(
+                packageName,
+                "package_name"
             ).body()
+
             if (result?.apps?.isNotEmpty() == true && result.numberOfResults == 1) {
                 fusedApp = result.apps[0]
             }
@@ -495,23 +490,21 @@ class FusedAPIImpl @Inject constructor(
         return ResultSupreme.create(status, fusedApp)
     }
 
-    suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {
-        return gplayRepository.getSearchSuggestions(query) as List<SearchSuggestEntry>
+    suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
+        return gplayRepository.getSearchSuggestions(query)
     }
 
     suspend fun getOnDemandModule(
-        authData: AuthData,
         packageName: String,
         moduleName: String,
         versionCode: Int,
         offerType: Int
     ): String? {
-        val list = gPlayAPIRepository.getOnDemandModule(
+        val list = gplayRepository.getOnDemandModule(
             packageName,
             moduleName,
             versionCode,
             offerType,
-            authData
         )
         for (element in list) {
             if (element.name == "$moduleName.apk") {
@@ -522,24 +515,27 @@ class FusedAPIImpl @Inject constructor(
     }
 
     suspend fun updateFusedDownloadWithDownloadingInfo(
-        authData: AuthData,
         origin: Origin,
         fusedDownload: FusedDownload
     ) {
         val list = mutableListOf<String>()
         when (origin) {
             Origin.CLEANAPK -> {
-                val downloadInfo = cleanAPKRepository.getDownloadInfo(fusedDownload.id).body()
+                val downloadInfo =
+                    (cleanApkAppsRepository as CleanApkDownloadInfoFetcher).getDownloadInfo(
+                        fusedDownload.id
+                    )
+                        .body()
                 downloadInfo?.download_data?.download_link?.let { list.add(it) }
                 fusedDownload.signature = downloadInfo?.download_data?.signature ?: ""
             }
             Origin.GPLAY -> {
-                val downloadList = gPlayAPIRepository.getDownloadInfo(
-                    fusedDownload.packageName,
-                    fusedDownload.versionCode,
-                    fusedDownload.offerType,
-                    authData
-                )
+                val downloadList =
+                    gplayRepository.getDownloadInfo(
+                        fusedDownload.packageName,
+                        fusedDownload.versionCode,
+                        fusedDownload.offerType
+                    )
                 fusedDownload.files = downloadList
                 list.addAll(downloadList.map { it.url })
             }
@@ -550,7 +546,7 @@ class FusedAPIImpl @Inject constructor(
     }
 
     suspend fun getOSSDownloadInfo(id: String, version: String?) =
-        cleanAPKRepository.getDownloadInfo(id, version)
+        (cleanApkAppsRepository as CleanApkDownloadInfoFetcher).getDownloadInfo(id, version)
 
     suspend fun getPWAApps(category: String): ResultSupreme<List<FusedApp>> {
         val list = mutableListOf<FusedApp>()
@@ -581,50 +577,47 @@ class FusedAPIImpl @Inject constructor(
     }
 
     suspend fun getNextStreamBundle(
-        authData: AuthData,
         homeUrl: String,
         currentStreamBundle: StreamBundle,
     ): ResultSupreme<StreamBundle> {
         var streamBundle = StreamBundle()
         val status = runCodeBlockWithTimeout({
             streamBundle =
-                gPlayAPIRepository.getNextStreamBundle(authData, homeUrl, currentStreamBundle)
+                gplayRepository.getAppsByCategory(homeUrl, currentStreamBundle) as StreamBundle
         })
         return ResultSupreme.create(status, streamBundle)
     }
 
     suspend fun getAdjustedFirstCluster(
-        authData: AuthData,
         streamBundle: StreamBundle,
         pointer: Int = 0,
     ): ResultSupreme<StreamCluster> {
         var streamCluster = StreamCluster()
         val status = runCodeBlockWithTimeout({
             streamCluster =
-                gPlayAPIRepository.getAdjustedFirstCluster(authData, streamBundle, pointer)
+                gplayRepository.getAppsByCategory("", Pair(streamBundle, pointer)) as StreamCluster
         })
         return ResultSupreme.create(status, streamCluster)
     }
 
     suspend fun getNextStreamCluster(
-        authData: AuthData,
         currentStreamCluster: StreamCluster,
     ): ResultSupreme<StreamCluster> {
         var streamCluster = StreamCluster()
         val status = runCodeBlockWithTimeout({
-            streamCluster = gPlayAPIRepository.getNextStreamCluster(authData, currentStreamCluster)
+            streamCluster =
+                gplayRepository.getAppsByCategory("", currentStreamCluster) as StreamCluster
         })
         return ResultSupreme.create(status, streamCluster)
     }
 
     suspend fun getPlayStoreApps(
         browseUrl: String,
-        authData: AuthData
     ): ResultSupreme<List<FusedApp>> {
         val list = mutableListOf<FusedApp>()
         val status = runCodeBlockWithTimeout({
             list.addAll(
-                gPlayAPIRepository.listApps(browseUrl, authData).map { app ->
+                (gplayRepository.getAppsByCategory(browseUrl) as List<App>).map { app ->
                     app.transformToFusedApp()
                 }
             )
@@ -641,13 +634,14 @@ class FusedAPIImpl @Inject constructor(
     suspend fun getCleanapkAppDetails(packageName: String): Pair<FusedApp, ResultStatus> {
         var fusedApp = FusedApp()
         val status = runCodeBlockWithTimeout({
-            val result = cleanAPKRepository.searchApps(
-                keyword = packageName,
-                by = "package_name"
+            val result = cleanApkAppsRepository.getSearchResult(
+                packageName,
+                "package_name"
             ).body()
+
             if (result?.apps?.isNotEmpty() == true && result.numberOfResults == 1) {
                 fusedApp =
-                    cleanAPKRepository.getAppOrPWADetailsByID(result.apps[0]._id).body()?.app
+                    (cleanApkAppsRepository.getAppDetails(result.apps[0]._id) as Response<Application>).body()?.app
                         ?: FusedApp()
             }
             fusedApp.updateFilterLevel(null)
@@ -697,9 +691,9 @@ class FusedAPIImpl @Inject constructor(
          */
         for (packageName in packageNameList) {
             status = runCodeBlockWithTimeout({
-                cleanAPKRepository.searchApps(
-                    keyword = packageName,
-                    by = "package_name"
+                cleanApkAppsRepository.getSearchResult(
+                    packageName,
+                    "package_name"
                 ).body()?.run {
                     if (apps.isNotEmpty() && numberOfResults == 1) {
                         fusedAppList.add(
@@ -736,7 +730,7 @@ class FusedAPIImpl @Inject constructor(
          * Old code moved from getApplicationDetails()
          */
         val status = runCodeBlockWithTimeout({
-            gPlayAPIRepository.getAppDetails(packageNameList, authData).forEach { app ->
+            gplayRepository.getAppsDetails(packageNameList).forEach { app ->
                 /*
                  * Some apps are restricted to locations. Example "com.skype.m2".
                  * For restricted apps, check if it is possible to get their specific app info.
@@ -818,7 +812,7 @@ class FusedAPIImpl @Inject constructor(
              * Check if app details can be shown. If not then remove the app from lists.
              */
             try {
-                gPlayAPIRepository.getAppDetails(fusedApp.package_name, authData)
+                gplayRepository.getAppDetails(fusedApp.package_name)
             } catch (e: Exception) {
                 return FilterLevel.DATA
             }
@@ -828,11 +822,10 @@ class FusedAPIImpl @Inject constructor(
              * If not then change "Install" button to "N/A"
              */
             try {
-                gPlayAPIRepository.getDownloadInfo(
+                gplayRepository.getDownloadInfo(
                     fusedApp.package_name,
                     fusedApp.latest_version_code,
                     fusedApp.offer_type,
-                    authData
                 )
             } catch (e: Exception) {
                 return FilterLevel.UI
@@ -868,9 +861,9 @@ class FusedAPIImpl @Inject constructor(
 
         val status = runCodeBlockWithTimeout({
             response = if (origin == Origin.CLEANAPK) {
-                cleanAPKRepository.getAppOrPWADetailsByID(id).body()?.app
+                (cleanApkAppsRepository.getAppDetails(id) as Response<Application>).body()?.app
             } else {
-                val app = gPlayAPIRepository.getAppDetails(packageName, authData)
+                val app = gplayRepository.getAppDetails(packageName) as App?
                 app?.transformToFusedApp()
             }
             response?.let {
@@ -885,45 +878,6 @@ class FusedAPIImpl @Inject constructor(
     }
 
     /*
-     * Categories-related internal functions
-     */
-
-    private suspend fun handleCleanApkCategories(
-        preferredApplicationType: String,
-        categoriesList: MutableList<FusedCategory>,
-        type: Category.Type
-    ): ResultStatus {
-        return runCodeBlockWithTimeout({
-            val data = getCleanApkCategories(preferredApplicationType)
-            data?.let { category ->
-                categoriesList.addAll(
-                    getFusedCategoryBasedOnCategoryType(
-                        category,
-                        type,
-                        getCategoryTag(preferredApplicationType)
-                    )
-                )
-            }
-        })
-    }
-
-    private fun getCategoryTag(preferredApplicationType: String): AppTag {
-        return if (preferredApplicationType == APP_TYPE_OPEN) {
-            AppTag.OpenSource(context.getString(R.string.open_source))
-        } else {
-            AppTag.PWA(context.getString(R.string.pwa))
-        }
-    }
-
-    private suspend fun getCleanApkCategories(preferredApplicationType: String): Categories? {
-        return if (preferredApplicationType == APP_TYPE_OPEN) {
-            getOpenSourceCategories()
-        } else {
-            getPWAsCategories()
-        }
-    }
-
-    /*
      * Function to populate a given category list, from all GPlay categories, open source categories,
      * and PWAs.
      *
@@ -935,8 +889,7 @@ class FusedAPIImpl @Inject constructor(
      */
     private suspend fun handleAllSourcesCategories(
         categoriesList: MutableList<FusedCategory>,
-        type: Category.Type,
-        authData: AuthData
+        type: CategoryType,
     ): Pair<ResultStatus, String> {
         var apiStatus = ResultStatus.OK
         var errorApplicationCategory = ""
@@ -958,7 +911,6 @@ class FusedAPIImpl @Inject constructor(
         if (preferenceManagerModule.isGplaySelected()) {
             val gplayCategoryResult = fetchGplayCategories(
                 type,
-                authData
             )
             categoriesList.addAll(gplayCategoryResult.second)
             apiStatus = gplayCategoryResult.first
@@ -968,15 +920,14 @@ class FusedAPIImpl @Inject constructor(
         return Pair(apiStatus, errorApplicationCategory)
     }
 
-    private suspend fun FusedAPIImpl.fetchGplayCategories(
-        type: Category.Type,
-        authData: AuthData,
+    private suspend fun fetchGplayCategories(
+        type: CategoryType,
     ): Triple<ResultStatus, List<FusedCategory>, String> {
         var errorApplicationCategory = ""
         var apiStatus = ResultStatus.OK
         val categoryList = mutableListOf<FusedCategory>()
         runCodeBlockWithTimeout({
-            val playResponse = gPlayAPIRepository.getCategoriesList(type, authData).map { app ->
+            val playResponse = gplayRepository.getCategories(type).map { app ->
                 val category = app.transformToFusedCategory()
                 updateCategoryDrawable(category)
                 category
@@ -992,8 +943,8 @@ class FusedAPIImpl @Inject constructor(
         return Triple(apiStatus, categoryList, errorApplicationCategory)
     }
 
-    private suspend fun FusedAPIImpl.fetchPWACategories(
-        type: Category.Type,
+    private suspend fun fetchPWACategories(
+        type: CategoryType,
     ): Triple<ResultStatus, List<FusedCategory>, String> {
         var errorApplicationCategory = ""
         var apiStatus: ResultStatus = ResultStatus.OK
@@ -1016,8 +967,8 @@ class FusedAPIImpl @Inject constructor(
         return Triple(apiStatus, fusedCategoriesList, errorApplicationCategory)
     }
 
-    private suspend fun FusedAPIImpl.fetchOpenSourceCategories(
-        type: Category.Type,
+    private suspend fun fetchOpenSourceCategories(
+        type: CategoryType,
     ): Triple<ResultStatus, List<FusedCategory>, String> {
         var errorApplicationCategory = ""
         var apiStatus: ResultStatus = ResultStatus.OK
@@ -1094,14 +1045,14 @@ class FusedAPIImpl @Inject constructor(
 
     private fun getFusedCategoryBasedOnCategoryType(
         categories: Categories,
-        categoryType: Category.Type,
+        categoryType: CategoryType,
         tag: AppTag
     ): List<FusedCategory> {
         return when (categoryType) {
-            Category.Type.APPLICATION -> {
+            CategoryType.APPLICATION -> {
                 getAppsCategoriesAsFusedCategory(categories, tag)
             }
-            Category.Type.GAME -> {
+            CategoryType.GAMES -> {
                 getGamesCategoriesAsFusedCategory(categories, tag)
             }
         }
@@ -1151,32 +1102,22 @@ class FusedAPIImpl @Inject constructor(
     }
 
     private suspend fun getPWAsCategories(): Categories? {
-        return cleanAPKRepository.getCategoriesList(
-            CleanAPKInterface.APP_TYPE_PWA,
-            CleanAPKInterface.APP_SOURCE_ANY
-        ).body()
+        return cleanApkPWARepository.getCategories().body()
     }
 
     private suspend fun getOpenSourceCategories(): Categories? {
-        return cleanAPKRepository.getCategoriesList(
-            CleanAPKInterface.APP_TYPE_ANY,
-            CleanAPKInterface.APP_SOURCE_FOSS
-        ).body()
+        return cleanApkAppsRepository.getCategories().body()
     }
 
     private suspend fun getOpenSourceAppsResponse(category: String): Search? {
-        return cleanAPKRepository.listApps(
+        return cleanApkAppsRepository.getAppsByCategory(
             category,
-            CleanAPKInterface.APP_SOURCE_FOSS,
-            CleanAPKInterface.APP_TYPE_ANY
         ).body()
     }
 
     private suspend fun getPWAAppsResponse(category: String): Search? {
-        return cleanAPKRepository.listApps(
+        return cleanApkPWARepository.getAppsByCategory(
             category,
-            CleanAPKInterface.APP_SOURCE_ANY,
-            CleanAPKInterface.APP_TYPE_PWA
         ).body()
     }
 
@@ -1196,45 +1137,26 @@ class FusedAPIImpl @Inject constructor(
 
     private suspend fun getCleanAPKSearchResults(
         keyword: String,
-        source: String = CleanAPKInterface.APP_SOURCE_FOSS,
-        type: String = CleanAPKInterface.APP_TYPE_ANY,
-        nres: Int = 20,
-        page: Int = 1,
-        by: String? = null
+        source: String = CleanApkRetrofit.APP_SOURCE_FOSS,
     ): List<FusedApp> {
         val list = mutableListOf<FusedApp>()
         val response =
-            (cleanApkAppsRepository.getSearchResult(keyword) as Response<Search>).body()?.apps
+            cleanApkAppsRepository.getSearchResult(keyword).body()?.apps
 
         response?.forEach {
             it.updateStatus()
             it.updateType()
             it.source =
-                if (source.contentEquals(CleanAPKInterface.APP_SOURCE_FOSS)) "Open Source" else "PWA"
+                if (source.contentEquals(CleanApkRetrofit.APP_SOURCE_FOSS)) "Open Source" else "PWA"
             list.add(it)
         }
         return list
     }
 
-    private fun getGplaySearchResults(
-        query: String,
-        authData: AuthData
-    ): LiveData<Pair<List<FusedApp>, Boolean>> {
-        val searchResults =
-            gPlayAPIRepository.getSearchResults(query, authData, ::replaceWithFDroid)
-        return searchResults.map {
-            Pair(
-                it.first,
-                it.second
-            )
-        }
-    }
-
     private suspend fun getGplaySearchResult(
         query: String,
-        authData: AuthData
     ): Flow<Pair<List<FusedApp>, Boolean>> {
-        val searchResults = gplayRepository.getSearchResult(query) as Flow<Pair<List<App>, Boolean>>
+        val searchResults = gplayRepository.getSearchResult(query)
         return searchResults.map {
             val fusedAppList = it.first.map { app -> replaceWithFDroid(app) }
             Pair(

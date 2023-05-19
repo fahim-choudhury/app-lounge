@@ -18,34 +18,17 @@
 
 package foundation.e.apps.api.cleanapk
 
-import foundation.e.apps.api.StoreRepository
-import foundation.e.apps.api.cleanapk.data.home.HomeScreen
+import foundation.e.apps.api.BaseStoreRepository
+import foundation.e.apps.api.cleanapk.data.categories.Categories
+import foundation.e.apps.api.cleanapk.data.download.Download
 import foundation.e.apps.api.cleanapk.data.search.Search
 import retrofit2.Response
 
-class CleanApkAppsRepository(
-    private val cleanAPKInterface: CleanAPKInterface,
-) : StoreRepository {
+const val NUMBER_OF_ITEMS = 20
 
-    override suspend fun getHomeScreenData(): Response<HomeScreen> {
-        return cleanAPKInterface.getHomeScreenData(
-            CleanAPKInterface.APP_TYPE_ANY,
-            CleanAPKInterface.APP_SOURCE_FOSS
-        )
-    }
-
-    override suspend fun getSearchResult(query: String): Response<Search> {
-        return cleanAPKInterface.searchApps(
-            query,
-            CleanAPKInterface.APP_SOURCE_FOSS,
-            CleanAPKInterface.APP_TYPE_ANY,
-            20,
-            1,
-            null
-        )
-    }
-
-    override suspend fun getSearchSuggestions(query: String): Any {
-        TODO("Not yet implemented")
-    }
+const val NUMBER_OF_PAGES = 1
+interface CleanApkRepository : BaseStoreRepository {
+    suspend fun getSearchResult(query: String, searchBy: String? = null): Response<Search>
+    suspend fun getAppsByCategory(category: String, paginationParameter: Any? = null): Response<Search>
+    suspend fun getCategories(): Response<Categories>
 }
