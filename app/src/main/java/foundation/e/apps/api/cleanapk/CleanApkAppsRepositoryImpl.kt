@@ -28,7 +28,7 @@ import retrofit2.Response
 class CleanApkAppsRepositoryImpl(
     private val cleanApkRetrofit: CleanApkRetrofit,
     private val cleanApkAppDetailsRetrofit: CleanApkAppDetailsRetrofit
-) : CleanApkRepository, CleanApkDownloadInfoFetcher{
+) : CleanApkRepository, CleanApkDownloadInfoFetcher {
 
     override suspend fun getHomeScreenData(): Response<HomeScreen> {
         return cleanApkRetrofit.getHomeScreenData(

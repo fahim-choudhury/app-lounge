@@ -26,17 +26,17 @@ import androidx.lifecycle.liveData
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
+import com.aurora.gplayapi.data.models.Artwork
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
-import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.data.models.StreamBundle
-import com.aurora.gplayapi.data.models.Artwork
+import com.aurora.gplayapi.data.models.StreamCluster
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.api.ResultSupreme
-import foundation.e.apps.api.cleanapk.CleanApkRetrofit
 import foundation.e.apps.api.cleanapk.CleanApkDownloadInfoFetcher
 import foundation.e.apps.api.cleanapk.CleanApkRepository
+import foundation.e.apps.api.cleanapk.CleanApkRetrofit
 import foundation.e.apps.api.cleanapk.data.app.Application
 import foundation.e.apps.api.cleanapk.data.categories.Categories
 import foundation.e.apps.api.cleanapk.data.home.Home
@@ -54,22 +54,22 @@ import foundation.e.apps.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.manager.pkg.PkgManagerModule
 import foundation.e.apps.utils.Constants.timeoutDurationInMillis
-import foundation.e.apps.utils.enums.ResultStatus
-import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.Source
-import foundation.e.apps.utils.enums.FilterLevel
 import foundation.e.apps.utils.enums.AppTag
-import foundation.e.apps.utils.enums.isUnFiltered
+import foundation.e.apps.utils.enums.FilterLevel
 import foundation.e.apps.utils.enums.Origin
+import foundation.e.apps.utils.enums.ResultStatus
+import foundation.e.apps.utils.enums.Source
+import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.enums.Type
+import foundation.e.apps.utils.enums.isUnFiltered
 import foundation.e.apps.utils.modules.PWAManagerModule
 import foundation.e.apps.utils.modules.PreferenceManagerModule
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeout
 import retrofit2.Response
 import timber.log.Timber
@@ -1033,7 +1033,7 @@ class FusedAPIImpl @Inject constructor(
 
     private fun getCategoryIconName(category: FusedCategory): String {
         var categoryTitle = if (category.tag.getOperationalTag()
-                .contentEquals(AppTag.GPlay().getOperationalTag())
+            .contentEquals(AppTag.GPlay().getOperationalTag())
         ) category.id else category.title
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {

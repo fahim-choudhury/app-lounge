@@ -20,7 +20,6 @@ package foundation.e.apps.api.cleanapk
 
 import foundation.e.apps.api.BaseStoreRepository
 import foundation.e.apps.api.cleanapk.data.categories.Categories
-import foundation.e.apps.api.cleanapk.data.download.Download
 import foundation.e.apps.api.cleanapk.data.search.Search
 import retrofit2.Response
 

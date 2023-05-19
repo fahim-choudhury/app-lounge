@@ -26,8 +26,8 @@ import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
-import foundation.e.apps.api.cleanapk.CleanApkRetrofit
 import foundation.e.apps.api.cleanapk.CleanAPKRepository
+import foundation.e.apps.api.cleanapk.CleanApkRetrofit
 import foundation.e.apps.api.cleanapk.data.categories.Categories
 import foundation.e.apps.api.cleanapk.data.search.Search
 import foundation.e.apps.api.fdroid.FdroidWebInterface

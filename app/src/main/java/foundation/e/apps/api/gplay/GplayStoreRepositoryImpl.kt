@@ -20,8 +20,20 @@ package foundation.e.apps.api.gplay
 
 import android.content.Context
 import com.aurora.gplayapi.SearchSuggestEntry
-import com.aurora.gplayapi.data.models.*
-import com.aurora.gplayapi.helpers.*
+import com.aurora.gplayapi.data.models.App
+import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.models.Category
+import com.aurora.gplayapi.data.models.File
+import com.aurora.gplayapi.data.models.SearchBundle
+import com.aurora.gplayapi.data.models.StreamBundle
+import com.aurora.gplayapi.data.models.StreamCluster
+import com.aurora.gplayapi.helpers.AppDetailsHelper
+import com.aurora.gplayapi.helpers.CategoryHelper
+import com.aurora.gplayapi.helpers.ExpandedBrowseHelper
+import com.aurora.gplayapi.helpers.PurchaseHelper
+import com.aurora.gplayapi.helpers.SearchHelper
+import com.aurora.gplayapi.helpers.StreamHelper
+import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.api.fused.utils.CategoryType
