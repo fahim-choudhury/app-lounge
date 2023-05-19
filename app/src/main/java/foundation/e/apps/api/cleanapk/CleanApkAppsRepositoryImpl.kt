@@ -42,8 +42,8 @@ class CleanApkAppsRepositoryImpl(
             query,
             CleanApkRetrofit.APP_SOURCE_FOSS,
             CleanApkRetrofit.APP_TYPE_ANY,
-            20,
-            1,
+            NUMBER_OF_ITEMS,
+            NUMBER_OF_PAGES,
             searchBy
         )
     }
@@ -56,8 +56,8 @@ class CleanApkAppsRepositoryImpl(
             category,
             CleanApkRetrofit.APP_SOURCE_FOSS,
             CleanApkRetrofit.APP_TYPE_ANY,
-            20,
-            1
+            NUMBER_OF_ITEMS,
+            NUMBER_OF_PAGES
         )
     }
 

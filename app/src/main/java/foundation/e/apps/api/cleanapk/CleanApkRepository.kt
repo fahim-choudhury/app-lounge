@@ -24,6 +24,9 @@ import foundation.e.apps.api.cleanapk.data.download.Download
 import foundation.e.apps.api.cleanapk.data.search.Search
 import retrofit2.Response
 
+const val NUMBER_OF_ITEMS = 20
+
+const val NUMBER_OF_PAGES = 1
 interface CleanApkRepository : BaseStoreRepository {
     suspend fun getSearchResult(query: String, searchBy: String? = null): Response<Search>
     suspend fun getAppsByCategory(category: String, paginationParameter: Any? = null): Response<Search>

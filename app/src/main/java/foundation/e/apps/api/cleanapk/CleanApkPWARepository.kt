@@ -51,8 +51,8 @@ class CleanApkPWARepository(
             category,
             CleanApkRetrofit.APP_SOURCE_ANY,
             CleanApkRetrofit.APP_TYPE_PWA,
-            20,
-            1
+            NUMBER_OF_ITEMS,
+            NUMBER_OF_PAGES
         )
     }
 
