@@ -13,9 +13,9 @@ import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.OpenForTesting
-import foundation.e.apps.api.fused.data.FusedApp
-import foundation.e.apps.manager.database.DatabaseRepository
-import foundation.e.apps.manager.database.fusedDownload.FusedDownload
+import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.database.fusedDownload.DatabaseRepository
+import foundation.e.apps.data.database.fusedDownload.FusedDownload
 import foundation.e.apps.utils.enums.Status
 import kotlinx.coroutines.delay
 import javax.inject.Inject

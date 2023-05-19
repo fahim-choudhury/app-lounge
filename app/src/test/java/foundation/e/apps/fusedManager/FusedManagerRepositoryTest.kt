@@ -20,12 +20,12 @@ package foundation.e.apps.fusedManager
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import foundation.e.apps.api.fdroid.FdroidRepository
+import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.installProcessor.FakeFusedDownloadDAO
-import foundation.e.apps.manager.database.fusedDownload.FusedDownload
-import foundation.e.apps.manager.database.fusedDownload.FusedDownloadDAO
-import foundation.e.apps.manager.fused.FusedManagerRepository
-import foundation.e.apps.manager.workmanager.InstallWorkManager
+import foundation.e.apps.data.database.fusedDownload.FusedDownload
+import foundation.e.apps.data.database.fusedDownload.FusedDownloadDAO
+import foundation.e.apps.data.fusedDownload.FusedManagerRepository
+import foundation.e.apps.install.workmanager.InstallWorkManager
 import foundation.e.apps.util.MainCoroutineRule
 import foundation.e.apps.utils.enums.Status
 import io.mockk.every

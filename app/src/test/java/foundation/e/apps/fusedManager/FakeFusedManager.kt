@@ -19,9 +19,9 @@
 package foundation.e.apps.fusedManager
 
 import androidx.lifecycle.LiveData
-import foundation.e.apps.manager.database.fusedDownload.FusedDownload
-import foundation.e.apps.manager.database.fusedDownload.FusedDownloadDAO
-import foundation.e.apps.manager.fused.IFusedManager
+import foundation.e.apps.data.database.fusedDownload.FusedDownload
+import foundation.e.apps.data.database.fusedDownload.FusedDownloadDAO
+import foundation.e.apps.data.fusedDownload.IFusedManager
 import foundation.e.apps.utils.enums.Status
 import java.io.File
 

@@ -22,7 +22,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".application.subFrags.ScreenshotFragment">
+    tools:context=".ui.application.subFrags.ScreenshotFragment">
 
     <com.google.android.material.appbar.MaterialToolbar
         style="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"

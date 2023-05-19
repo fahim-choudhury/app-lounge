@@ -26,12 +26,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import foundation.e.apps.MainActivityViewModel
+import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.R
 import foundation.e.apps.databinding.DialogErrorLogBinding
-import foundation.e.apps.login.AuthObject
-import foundation.e.apps.login.LoginSourceGPlay
-import foundation.e.apps.login.LoginViewModel
+import foundation.e.apps.data.login.AuthObject
+import foundation.e.apps.data.login.LoginSourceGPlay
+import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.utils.enums.User
 import foundation.e.apps.utils.exceptions.CleanApkException
 import foundation.e.apps.utils.exceptions.GPlayException

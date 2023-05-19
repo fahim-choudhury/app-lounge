@@ -22,12 +22,11 @@ import android.app.DownloadManager.Query
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.AuthData
-import foundation.e.apps.api.DownloadManager
-import foundation.e.apps.api.fdroid.FdroidRepository
-import foundation.e.apps.manager.database.DatabaseRepository
-import foundation.e.apps.manager.database.fusedDownload.FusedDownload
-import foundation.e.apps.manager.fused.IFusedManager
-import foundation.e.apps.manager.workmanager.AppInstallProcessor
+import foundation.e.apps.data.fdroid.FdroidRepository
+import foundation.e.apps.data.database.fusedDownload.DatabaseRepository
+import foundation.e.apps.data.database.fusedDownload.FusedDownload
+import foundation.e.apps.data.fusedDownload.IFusedManager
+import foundation.e.apps.install.workmanager.AppInstallProcessor
 import foundation.e.apps.util.MainCoroutineRule
 import foundation.e.apps.utils.enums.Status
 import foundation.e.apps.utils.modules.DataStoreManager

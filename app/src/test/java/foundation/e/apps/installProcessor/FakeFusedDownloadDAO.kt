@@ -19,8 +19,8 @@
 package foundation.e.apps.installProcessor
 
 import androidx.lifecycle.LiveData
-import foundation.e.apps.manager.database.fusedDownload.FusedDownload
-import foundation.e.apps.manager.database.fusedDownload.FusedDownloadDAO
+import foundation.e.apps.data.database.fusedDownload.FusedDownload
+import foundation.e.apps.data.database.fusedDownload.FusedDownloadDAO
 
 class FakeFusedDownloadDAO : FusedDownloadDAO {
     val fusedDownloadList = mutableListOf<FusedDownload>()

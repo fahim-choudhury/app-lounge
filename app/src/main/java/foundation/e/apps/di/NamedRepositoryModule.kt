@@ -25,15 +25,15 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import foundation.e.apps.api.cleanapk.CleanApkRepository
-import foundation.e.apps.api.gplay.GplayStoreRepository
-import foundation.e.apps.api.cleanapk.CleanApkRetrofit
-import foundation.e.apps.api.cleanapk.CleanApkAppDetailsRetrofit
-import foundation.e.apps.api.cleanapk.CleanApkAppsRepositoryImpl
-import foundation.e.apps.api.cleanapk.CleanApkPWARepository
-import foundation.e.apps.api.gplay.GplayStoreRepositoryImpl
-import foundation.e.apps.api.gplay.utils.GPlayHttpClient
-import foundation.e.apps.login.LoginSourceRepository
+import foundation.e.apps.data.cleanapk.CleanApkRepository
+import foundation.e.apps.data.gplay.GplayStoreRepository
+import foundation.e.apps.data.cleanapk.CleanApkRetrofit
+import foundation.e.apps.data.cleanapk.CleanApkAppDetailsRetrofit
+import foundation.e.apps.data.cleanapk.CleanApkAppsRepositoryImpl
+import foundation.e.apps.data.cleanapk.CleanApkPWARepository
+import foundation.e.apps.data.gplay.GplayStoreRepositoryImpl
+import foundation.e.apps.data.gplay.utils.GPlayHttpClient
+import foundation.e.apps.data.login.LoginSourceRepository
 import javax.inject.Named
 import javax.inject.Singleton
 

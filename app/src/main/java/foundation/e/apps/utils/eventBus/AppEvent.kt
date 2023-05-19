@@ -20,7 +20,7 @@
 
 package foundation.e.apps.utils.eventBus
 
-import foundation.e.apps.api.ResultSupreme
+import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.utils.enums.ResultStatus
 
 sealed class AppEvent(val data: Any) {

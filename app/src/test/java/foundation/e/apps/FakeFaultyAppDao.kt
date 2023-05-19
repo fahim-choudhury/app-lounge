@@ -17,8 +17,8 @@
 
 package foundation.e.apps
 
-import foundation.e.apps.api.faultyApps.FaultyApp
-import foundation.e.apps.api.faultyApps.FaultyAppDao
+import foundation.e.apps.data.faultyApps.FaultyApp
+import foundation.e.apps.data.faultyApps.FaultyAppDao
 
 class FakeFaultyAppDao : FaultyAppDao {
 

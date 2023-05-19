@@ -19,7 +19,7 @@ package foundation.e.apps.utils.parentFragment
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import foundation.e.apps.login.AuthObject
+import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.utils.exceptions.GPlayValidationException
 import foundation.e.apps.utils.exceptions.UnknownSourceException
 

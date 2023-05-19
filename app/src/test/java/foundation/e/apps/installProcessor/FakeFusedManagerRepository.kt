@@ -18,10 +18,10 @@
 
 package foundation.e.apps.installProcessor
 
-import foundation.e.apps.api.fdroid.FdroidRepository
-import foundation.e.apps.manager.database.fusedDownload.FusedDownload
-import foundation.e.apps.manager.fused.FusedManagerRepository
-import foundation.e.apps.manager.fused.IFusedManager
+import foundation.e.apps.data.fdroid.FdroidRepository
+import foundation.e.apps.data.database.fusedDownload.FusedDownload
+import foundation.e.apps.data.fusedDownload.FusedManagerRepository
+import foundation.e.apps.data.fusedDownload.IFusedManager
 import foundation.e.apps.utils.enums.Status
 import kotlinx.coroutines.delay
 
