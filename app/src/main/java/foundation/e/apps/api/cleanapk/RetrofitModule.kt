@@ -57,35 +57,35 @@ object RetrofitModule {
 
     /**
      * Provides an instance of Retrofit to work with CleanAPK API
-     * @return instance of [CleanAPKInterface]
+     * @return instance of [CleanApkRetrofit]
      */
     @Singleton
     @Provides
-    fun provideCleanAPKInterface(okHttpClient: OkHttpClient, moshi: Moshi): CleanAPKInterface {
+    fun provideCleanAPKInterface(okHttpClient: OkHttpClient, moshi: Moshi): CleanApkRetrofit {
         return Retrofit.Builder()
-            .baseUrl(CleanAPKInterface.BASE_URL)
+            .baseUrl(CleanApkRetrofit.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
-            .create(CleanAPKInterface::class.java)
+            .create(CleanApkRetrofit::class.java)
     }
 
     /**
      * Provides an instance of Retrofit to work with CleanAPK API
-     * @return instance of [CleanApkAppDetailApi]
+     * @return instance of [CleanApkAppDetailsRetrofit]
      */
     @Singleton
     @Provides
     fun provideCleanAPKDetailApi(
         okHttpClient: OkHttpClient,
         @Named("gsonCustomAdapter") gson: Gson
-    ): CleanApkAppDetailApi {
+    ): CleanApkAppDetailsRetrofit {
         return Retrofit.Builder()
-            .baseUrl(CleanAPKInterface.BASE_URL)
+            .baseUrl(CleanApkRetrofit.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
-            .create(CleanApkAppDetailApi::class.java)
+            .create(CleanApkAppDetailsRetrofit::class.java)
     }
 
     @Singleton

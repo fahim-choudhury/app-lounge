@@ -35,7 +35,7 @@ import com.google.android.material.snackbar.Snackbar
 import foundation.e.apps.AppInfoFetchViewModel
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.R
-import foundation.e.apps.api.cleanapk.CleanAPKInterface
+import foundation.e.apps.api.cleanapk.CleanApkRetrofit
 import foundation.e.apps.api.fused.FusedAPIInterface
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.databinding.HomeChildListItemBinding
@@ -82,7 +82,7 @@ class HomeChildRVAdapter(
 
         holder.binding.apply {
             if (homeApp.origin == Origin.CLEANAPK) {
-                appIcon.load(CleanAPKInterface.ASSET_URL + homeApp.icon_image_path) {
+                appIcon.load(CleanApkRetrofit.ASSET_URL + homeApp.icon_image_path) {
                     placeholder(shimmerDrawable)
                 }
             } else {

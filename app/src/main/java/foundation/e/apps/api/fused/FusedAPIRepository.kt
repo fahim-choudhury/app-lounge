@@ -22,13 +22,13 @@ import androidx.lifecycle.LiveData
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import foundation.e.apps.api.ResultSupreme
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.api.fused.data.FusedCategory
 import foundation.e.apps.api.fused.data.FusedHome
+import foundation.e.apps.api.fused.utils.CategoryType
 import foundation.e.apps.manager.database.fusedDownload.FusedDownload
 import foundation.e.apps.utils.enums.FilterLevel
 import foundation.e.apps.utils.enums.Origin
@@ -128,7 +128,6 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPII
         fusedDownload: FusedDownload
     ) {
         fusedAPIImpl.updateFusedDownloadWithDownloadingInfo(
-            authData,
             origin,
             fusedDownload
         )
@@ -138,24 +137,22 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPII
         fusedAPIImpl.getOSSDownloadInfo(id, version)
 
     suspend fun getOnDemandModule(
-        authData: AuthData,
         packageName: String,
         moduleName: String,
         versionCode: Int,
         offerType: Int
     ): String? {
-        return fusedAPIImpl.getOnDemandModule(authData, packageName, moduleName, versionCode, offerType)
+        return fusedAPIImpl.getOnDemandModule(packageName, moduleName, versionCode, offerType)
     }
 
     suspend fun getCategoriesList(
-        type: Category.Type,
-        authData: AuthData
+        type: CategoryType,
     ): Triple<List<FusedCategory>, String, ResultStatus> {
-        return fusedAPIImpl.getCategoriesList(type, authData)
+        return fusedAPIImpl.getCategoriesList(type)
     }
 
     suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {
-        return fusedAPIImpl.getSearchSuggestions(query, authData)
+        return fusedAPIImpl.getSearchSuggestions(query)
     }
 
     fun getSearchResults(
@@ -166,11 +163,10 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPII
     }
 
     suspend fun getNextStreamBundle(
-        authData: AuthData,
         homeUrl: String,
         currentStreamBundle: StreamBundle,
     ): ResultSupreme<StreamBundle> {
-        return fusedAPIImpl.getNextStreamBundle(authData, homeUrl, currentStreamBundle).apply {
+        return fusedAPIImpl.getNextStreamBundle(homeUrl, currentStreamBundle).apply {
             if (isValidData()) streamBundle = data!!
             hasNextStreamBundle = streamBundle.hasNext()
             clusterPointer = 0
@@ -178,30 +174,27 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPII
     }
 
     suspend fun getAdjustedFirstCluster(
-        authData: AuthData,
         streamBundle: StreamBundle,
         pointer: Int = 0,
     ): ResultSupreme<StreamCluster> {
-        return fusedAPIImpl.getAdjustedFirstCluster(authData, streamBundle, pointer)
+        return fusedAPIImpl.getAdjustedFirstCluster(streamBundle, pointer)
     }
 
     suspend fun getNextStreamCluster(
-        authData: AuthData,
         currentStreamCluster: StreamCluster,
     ): ResultSupreme<StreamCluster> {
-        return fusedAPIImpl.getNextStreamCluster(authData, currentStreamCluster)
+        return fusedAPIImpl.getNextStreamCluster(currentStreamCluster)
     }
 
     suspend fun getAppsListBasedOnCategory(
         category: String,
         browseUrl: String,
-        authData: AuthData,
         source: String
     ): ResultSupreme<List<FusedApp>> {
         return when (source) {
             "Open Source" -> fusedAPIImpl.getOpenSourceApps(category)
             "PWA" -> fusedAPIImpl.getPWAApps(category)
-            else -> fusedAPIImpl.getPlayStoreApps(browseUrl, authData)
+            else -> fusedAPIImpl.getPlayStoreApps(browseUrl)
         }
     }
 
@@ -232,7 +225,6 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPII
             getAppsListBasedOnCategory(
                 category,
                 browseUrl,
-                authData,
                 source
             )
         } else {
@@ -351,7 +343,7 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPII
                 }
             }
         } else if (hasNextStreamBundle) {
-            getNextStreamBundle(authData, browseUrl).run {
+            getNextStreamBundle(browseUrl).run {
                 if (!isSuccess()) {
                     return ResultSupreme.replicate(this, listOf())
                 }
@@ -402,10 +394,9 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPII
      * @see getNextDataSet
      */
     private suspend fun getNextStreamBundle(
-        authData: AuthData,
         browseUrl: String,
     ): ResultSupreme<StreamBundle> {
-        return getNextStreamBundle(authData, browseUrl, streamBundle).apply {
+        return getNextStreamBundle(browseUrl, streamBundle).apply {
             if (isValidData()) streamBundle = data!!
             hasNextStreamBundle = streamBundle.hasNext()
             clusterPointer = 0
@@ -423,7 +414,7 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPII
     private suspend fun getAdjustedFirstCluster(
         authData: AuthData,
     ): ResultSupreme<StreamCluster> {
-        return getAdjustedFirstCluster(authData, streamBundle, clusterPointer)
+        return getAdjustedFirstCluster(streamBundle, clusterPointer)
             .apply {
                 if (isValidData()) addNewClusterData(this.data!!)
             }
@@ -440,7 +431,7 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPII
     private suspend fun getNextStreamCluster(
         authData: AuthData,
     ): ResultSupreme<StreamCluster> {
-        return getNextStreamCluster(authData, streamCluster).apply {
+        return getNextStreamCluster(streamCluster).apply {
             if (isValidData()) addNewClusterData(this.data!!)
         }
     }

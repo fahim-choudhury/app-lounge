@@ -20,7 +20,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import foundation.e.apps.R
 import foundation.e.apps.api.ResultSupreme
-import foundation.e.apps.api.cleanapk.CleanAPKInterface
+import foundation.e.apps.api.cleanapk.CleanApkRetrofit
 import foundation.e.apps.api.fused.FusedAPIRepository
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.login.LoginSourceRepository
@@ -318,7 +318,7 @@ class UpdatesWorker @AssistedInject constructor(
 
     private fun getIconImageToBase64(fusedApp: FusedApp): String {
         val url =
-            if (fusedApp.origin == Origin.CLEANAPK) "${CleanAPKInterface.ASSET_URL}${fusedApp.icon_image_path}" else fusedApp.icon_image_path
+            if (fusedApp.origin == Origin.CLEANAPK) "${CleanApkRetrofit.ASSET_URL}${fusedApp.icon_image_path}" else fusedApp.icon_image_path
         val stream = URL(url).openStream()
         val bitmap = BitmapFactory.decodeStream(stream)
         val byteArrayOS = ByteArrayOutputStream()

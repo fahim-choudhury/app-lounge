@@ -30,6 +30,7 @@ class LoginSourceRepository @Inject constructor(
     private val sources: List<LoginSourceInterface>,
 ) {
 
+    var gplayAuth: AuthData? = null
     suspend fun getAuthObjects(clearAuthTypes: List<String> = listOf()): List<AuthObject> {
 
         val authObjectsLocal = ArrayList<AuthObject>()
@@ -38,6 +39,9 @@ class LoginSourceRepository @Inject constructor(
             if (!source.isActive()) continue
             if (source::class.java.simpleName in clearAuthTypes) {
                 source.clearSavedAuth()
+            }
+            if (source is LoginSourceGPlay) {
+                gplayAuth = source.getAuthObject().result.data
             }
             authObjectsLocal.add(source.getAuthObject())
         }

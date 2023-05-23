@@ -49,7 +49,7 @@ import foundation.e.apps.MainActivity
 import foundation.e.apps.MainActivityViewModel
 import foundation.e.apps.PrivacyInfoViewModel
 import foundation.e.apps.R
-import foundation.e.apps.api.cleanapk.CleanAPKInterface
+import foundation.e.apps.api.cleanapk.CleanApkRetrofit
 import foundation.e.apps.api.fused.data.FusedApp
 import foundation.e.apps.application.model.ApplicationScreenshotsRVAdapter
 import foundation.e.apps.application.subFrags.ApplicationDialogFragment
@@ -364,7 +364,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 sourceTag.text = it.source
             }
             if (origin == Origin.CLEANAPK) {
-                appIcon.load(CleanAPKInterface.ASSET_URL + it.icon_image_path)
+                appIcon.load(CleanApkRetrofit.ASSET_URL + it.icon_image_path)
             } else {
                 appIcon.load(it.icon_image_path)
             }

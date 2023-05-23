@@ -26,8 +26,8 @@ import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
-import foundation.e.apps.api.cleanapk.CleanAPKInterface
 import foundation.e.apps.api.cleanapk.CleanAPKRepository
+import foundation.e.apps.api.cleanapk.CleanApkRetrofit
 import foundation.e.apps.api.cleanapk.data.categories.Categories
 import foundation.e.apps.api.cleanapk.data.search.Search
 import foundation.e.apps.api.fdroid.FdroidWebInterface
@@ -622,7 +622,7 @@ class FusedApiImplTest {
 
         Mockito.`when`(
             cleanApkRepository.getCategoriesList(
-                eq(CleanAPKInterface.APP_TYPE_PWA), eq(CleanAPKInterface.APP_SOURCE_ANY)
+                eq(CleanApkRetrofit.APP_TYPE_PWA), eq(CleanApkRetrofit.APP_SOURCE_ANY)
             )
         ).thenReturn(response)
 
@@ -646,7 +646,7 @@ class FusedApiImplTest {
 
         Mockito.`when`(
             cleanApkRepository.getCategoriesList(
-                eq(CleanAPKInterface.APP_TYPE_ANY), eq(CleanAPKInterface.APP_SOURCE_FOSS)
+                eq(CleanApkRetrofit.APP_TYPE_ANY), eq(CleanApkRetrofit.APP_SOURCE_FOSS)
             )
         ).thenReturn(response)
         Mockito.`when`(context.getString(eq(R.string.open_source))).thenReturn("Open source")
@@ -705,13 +705,13 @@ class FusedApiImplTest {
 
         Mockito.`when`(
             cleanApkRepository.getCategoriesList(
-                eq(CleanAPKInterface.APP_TYPE_ANY), eq(CleanAPKInterface.APP_SOURCE_FOSS)
+                eq(CleanApkRetrofit.APP_TYPE_ANY), eq(CleanApkRetrofit.APP_SOURCE_FOSS)
             )
         ).thenReturn(openSourceResponse)
 
         Mockito.`when`(
             cleanApkRepository.getCategoriesList(
-                eq(CleanAPKInterface.APP_TYPE_PWA), eq(CleanAPKInterface.APP_SOURCE_ANY)
+                eq(CleanApkRetrofit.APP_TYPE_PWA), eq(CleanApkRetrofit.APP_SOURCE_ANY)
             )
         ).thenReturn(pwaResponse)
 
@@ -813,8 +813,8 @@ class FusedApiImplTest {
         Mockito.`when`(
             cleanApkRepository.searchApps(
                 keyword = "com.search.package",
-                type = CleanAPKInterface.APP_TYPE_PWA,
-                source = CleanAPKInterface.APP_SOURCE_ANY
+                type = CleanApkRetrofit.APP_TYPE_PWA,
+                source = CleanApkRetrofit.APP_SOURCE_ANY
             )
         ).thenReturn(packageNameSearchResponse)
 
