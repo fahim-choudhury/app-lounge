@@ -15,11 +15,11 @@
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.utils.modules
+package foundation.e.apps.data.prefrences
 
 import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
-import foundation.e.apps.utils.enums.User
+import foundation.e.apps.data.enums.User
 import javax.inject.Inject
 import javax.inject.Singleton
 

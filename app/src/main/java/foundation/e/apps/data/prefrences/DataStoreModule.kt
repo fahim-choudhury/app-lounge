@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.utils.modules
+package foundation.e.apps.data.prefrences
 
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -26,7 +26,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
-import foundation.e.apps.utils.enums.User
+import foundation.e.apps.data.enums.User
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking

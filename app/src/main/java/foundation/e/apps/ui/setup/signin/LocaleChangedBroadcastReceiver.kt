@@ -24,7 +24,7 @@ import android.content.Intent
 import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
-import foundation.e.apps.utils.modules.DataStoreModule
+import foundation.e.apps.data.prefrences.DataStoreModule
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

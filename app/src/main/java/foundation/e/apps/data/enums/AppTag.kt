@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.utils.enums
+package foundation.e.apps.data.enums
 
 /**
  * This sealed class is used for the tags shown in the categories screen,

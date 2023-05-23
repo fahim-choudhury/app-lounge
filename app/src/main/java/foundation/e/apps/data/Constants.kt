@@ -1,4 +1,4 @@
-package foundation.e.apps.utils
+package foundation.e.apps.data
 
 object Constants {
     const val timeoutDurationInMillis: Long = 10000

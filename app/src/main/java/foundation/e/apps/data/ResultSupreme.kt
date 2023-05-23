@@ -17,7 +17,7 @@
 
 package foundation.e.apps.data
 
-import foundation.e.apps.utils.enums.ResultStatus
+import foundation.e.apps.data.enums.ResultStatus
 import java.util.concurrent.TimeoutException
 
 /**

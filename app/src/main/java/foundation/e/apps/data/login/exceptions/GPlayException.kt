@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022  MURENA SAS
+ * Copyright (C) 2019-2022  E FOUNDATION
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.utils.enums
+package foundation.e.apps.data.login.exceptions
 
-enum class Source {
-    GPLAY,
-    OPEN,
-    PWA,
-}
+/**
+ * This exception is for all Google Play network calls or other GPlay related exceptions.
+ */
+open class GPlayException(
+    val isTimeout: Boolean,
+    message: String? = null,
+) : LoginException(message)

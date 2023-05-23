@@ -11,7 +11,7 @@ import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.database.fusedDownload.FusedDownload
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.workmanager.InstallWorkManager
-import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.data.enums.Status
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton

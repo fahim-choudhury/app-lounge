@@ -18,7 +18,7 @@
 
 package foundation.e.apps.data.fused.data
 
-import foundation.e.apps.utils.enums.AppTag
+import foundation.e.apps.data.enums.AppTag
 import java.util.UUID
 
 data class FusedCategory(

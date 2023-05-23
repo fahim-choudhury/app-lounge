@@ -26,10 +26,10 @@ import foundation.e.apps.data.database.fusedDownload.DatabaseRepository
 import foundation.e.apps.data.database.fusedDownload.FusedDownload
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.ui.updates.UpdatesNotifier
-import foundation.e.apps.utils.enums.ResultStatus
-import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.enums.Status
 import foundation.e.apps.utils.getFormattedString
-import foundation.e.apps.utils.modules.DataStoreManager
+import foundation.e.apps.data.prefrences.DataStoreManager
 import kotlinx.coroutines.flow.transformWhile
 import timber.log.Timber
 import java.text.NumberFormat

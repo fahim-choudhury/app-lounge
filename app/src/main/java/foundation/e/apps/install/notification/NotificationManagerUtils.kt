@@ -22,7 +22,7 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
-import foundation.e.apps.utils.modules.PreferenceManagerModule
+import foundation.e.apps.data.prefrences.PreferenceManagerModule
 import javax.inject.Inject
 
 class NotificationManagerUtils @Inject constructor(

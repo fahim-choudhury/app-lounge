@@ -18,7 +18,7 @@
 package foundation.e.apps
 
 import android.content.Context
-import foundation.e.apps.utils.modules.PreferenceManagerModule
+import foundation.e.apps.data.prefrences.PreferenceManagerModule
 
 class FakePreferenceModule(context: Context) : PreferenceManagerModule(context) {
     var isPWASelectedFake = false

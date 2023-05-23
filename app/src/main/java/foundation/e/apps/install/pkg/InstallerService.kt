@@ -28,7 +28,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fused.UpdatesDao
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
-import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.data.enums.Status
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.DelicateCoroutinesApi

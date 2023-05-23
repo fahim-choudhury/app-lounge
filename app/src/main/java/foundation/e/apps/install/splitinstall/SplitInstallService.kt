@@ -29,7 +29,7 @@ import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.install.download.DownloadManager
 import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.utils.modules.DataStoreModule
+import foundation.e.apps.data.prefrences.DataStoreModule
 import foundation.e.splitinstall.ISplitInstallService
 import foundation.e.splitinstall.SplitInstall
 import kotlinx.coroutines.launch

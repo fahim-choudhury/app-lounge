@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.utils.enums
+package foundation.e.apps.data.enums
 
 /**
  * Use this class for various levels of filtering.

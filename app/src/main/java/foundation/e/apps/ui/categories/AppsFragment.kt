@@ -31,8 +31,8 @@ import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.ui.categories.model.CategoriesRVAdapter
 import foundation.e.apps.databinding.FragmentAppsBinding
 import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.utils.exceptions.GPlayLoginException
-import foundation.e.apps.utils.parentFragment.TimeoutFragment
+import foundation.e.apps.data.login.exceptions.GPlayLoginException
+import foundation.e.apps.ui.parentFragment.TimeoutFragment
 
 @AndroidEntryPoint
 class AppsFragment : TimeoutFragment(R.layout.fragment_apps) {

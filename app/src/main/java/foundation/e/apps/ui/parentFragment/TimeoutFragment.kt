@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.utils.parentFragment
+package foundation.e.apps.ui.parentFragment
 
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AlertDialog
@@ -32,12 +32,12 @@ import foundation.e.apps.databinding.DialogErrorLogBinding
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.LoginSourceGPlay
 import foundation.e.apps.data.login.LoginViewModel
-import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.exceptions.CleanApkException
-import foundation.e.apps.utils.exceptions.GPlayException
-import foundation.e.apps.utils.exceptions.GPlayLoginException
-import foundation.e.apps.utils.exceptions.GPlayValidationException
-import foundation.e.apps.utils.exceptions.UnknownSourceException
+import foundation.e.apps.data.enums.User
+import foundation.e.apps.data.login.exceptions.CleanApkException
+import foundation.e.apps.data.login.exceptions.GPlayException
+import foundation.e.apps.data.login.exceptions.GPlayLoginException
+import foundation.e.apps.data.login.exceptions.GPlayValidationException
+import foundation.e.apps.data.login.exceptions.UnknownSourceException
 import timber.log.Timber
 
 /**

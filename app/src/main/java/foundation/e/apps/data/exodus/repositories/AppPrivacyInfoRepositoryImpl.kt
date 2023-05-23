@@ -26,9 +26,9 @@ import foundation.e.apps.data.exodus.TrackerDao
 import foundation.e.apps.data.exodus.models.AppPrivacyInfo
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.getResult
-import foundation.e.apps.utils.enums.Origin
+import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.utils.getFormattedString
-import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
+import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject

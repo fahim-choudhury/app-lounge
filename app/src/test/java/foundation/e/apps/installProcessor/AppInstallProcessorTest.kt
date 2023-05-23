@@ -28,8 +28,8 @@ import foundation.e.apps.data.database.fusedDownload.FusedDownload
 import foundation.e.apps.data.fusedDownload.IFusedManager
 import foundation.e.apps.install.workmanager.AppInstallProcessor
 import foundation.e.apps.util.MainCoroutineRule
-import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.modules.DataStoreManager
+import foundation.e.apps.data.enums.Status
+import foundation.e.apps.data.prefrences.DataStoreManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals

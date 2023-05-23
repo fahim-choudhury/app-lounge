@@ -9,7 +9,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
 import foundation.e.apps.databinding.FragmentSignInBinding
 import foundation.e.apps.data.login.LoginViewModel
-import foundation.e.apps.utils.modules.CommonUtilsModule.safeNavigate
+import foundation.e.apps.di.CommonUtilsModule.safeNavigate
 
 @AndroidEntryPoint
 class SignInFragment : Fragment(R.layout.fragment_sign_in) {

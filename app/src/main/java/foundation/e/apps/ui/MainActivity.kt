@@ -51,11 +51,11 @@ import foundation.e.apps.ui.purchase.AppPurchaseFragmentDirections
 import foundation.e.apps.ui.settings.SettingsFragment
 import foundation.e.apps.ui.setup.signin.SignInViewModel
 import foundation.e.apps.ui.updates.UpdatesNotifier
-import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.data.enums.Status
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
-import foundation.e.apps.utils.exceptions.GPlayValidationException
-import foundation.e.apps.utils.modules.CommonUtilsFunctions
+import foundation.e.apps.data.login.exceptions.GPlayValidationException
+import foundation.e.apps.utils.CommonUtilsFunctions
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter

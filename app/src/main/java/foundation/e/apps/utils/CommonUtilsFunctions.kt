@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.utils.modules
+package foundation.e.apps.utils
 
 import android.annotation.SuppressLint
 import android.content.ClipData

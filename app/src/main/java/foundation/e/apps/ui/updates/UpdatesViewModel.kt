@@ -27,12 +27,12 @@ import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.updates.UpdatesManagerRepository
-import foundation.e.apps.utils.enums.ResultStatus
-import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.exceptions.CleanApkException
-import foundation.e.apps.utils.exceptions.GPlayException
-import foundation.e.apps.utils.modules.PreferenceManagerModule
-import foundation.e.apps.utils.parentFragment.LoadingViewModel
+import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.enums.Status
+import foundation.e.apps.data.login.exceptions.CleanApkException
+import foundation.e.apps.data.login.exceptions.GPlayException
+import foundation.e.apps.data.prefrences.PreferenceManagerModule
+import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

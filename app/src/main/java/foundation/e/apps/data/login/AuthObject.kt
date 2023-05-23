@@ -20,9 +20,9 @@ package foundation.e.apps.data.login
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.login.AuthObject.GPlayAuth
-import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.exceptions.CleanApkException
-import foundation.e.apps.utils.exceptions.GPlayValidationException
+import foundation.e.apps.data.enums.User
+import foundation.e.apps.data.login.exceptions.CleanApkException
+import foundation.e.apps.data.login.exceptions.GPlayValidationException
 
 /**
  * Auth objects define which sources data is to be loaded from, for each source, also provides

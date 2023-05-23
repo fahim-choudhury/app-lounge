@@ -24,11 +24,11 @@ import androidx.preference.PreferenceManager
 import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
-import foundation.e.apps.utils.Constants.PREFERENCE_SHOW_FOSS
-import foundation.e.apps.utils.Constants.PREFERENCE_SHOW_GPLAY
-import foundation.e.apps.utils.Constants.PREFERENCE_SHOW_PWA
-import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.modules.DataStoreModule.Companion.dataStore
+import foundation.e.apps.data.Constants.PREFERENCE_SHOW_FOSS
+import foundation.e.apps.data.Constants.PREFERENCE_SHOW_GPLAY
+import foundation.e.apps.data.Constants.PREFERENCE_SHOW_PWA
+import foundation.e.apps.data.enums.User
+import foundation.e.apps.data.prefrences.DataStoreModule.Companion.dataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking

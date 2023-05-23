@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022  E FOUNDATION
+ * Copyright (C) 2019-2022  MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.utils.exceptions
+package foundation.e.apps.data.login.exceptions
+
+import foundation.e.apps.data.enums.User
 
 /**
- * This exception is for all CleanApk data loading exceptions.
+ * Parent class for all GPlay login related errors.
+ * Examples:
+ * unable to get anonymous token, AuthData validation failed, aasToken error etc.
  */
-class CleanApkException(
-    val isTimeout: Boolean,
+open class GPlayLoginException(
+    isTimeout: Boolean,
     message: String? = null,
-) : LoginException(message)
+    val user: User,
+) : GPlayException(isTimeout, message)

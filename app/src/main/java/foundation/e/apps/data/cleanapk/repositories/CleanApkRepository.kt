@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2019-2022  E FOUNDATION
+ * Copyright MURENA SAS 2023
+ * Apps  Quickly and easily install Android apps onto your device!
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.utils.exceptions
+package foundation.e.apps.data.cleanapk.repositories
 
-/**
- * This exception is for all Google Play network calls or other GPlay related exceptions.
- */
-open class GPlayException(
-    val isTimeout: Boolean,
-    message: String? = null,
-) : LoginException(message)
+import foundation.e.apps.data.BaseStoreRepository
+import foundation.e.apps.data.cleanapk.data.categories.Categories
+import foundation.e.apps.data.cleanapk.data.search.Search
+import retrofit2.Response
+
+interface CleanApkRepository : BaseStoreRepository {
+    suspend fun getSearchResult(query: String, searchBy: String? = null): Response<Search>
+    suspend fun getAppsByCategory(category: String, paginationParameter: Any? = null): Response<Search>
+    suspend fun getCategories(): Response<Categories>
+}

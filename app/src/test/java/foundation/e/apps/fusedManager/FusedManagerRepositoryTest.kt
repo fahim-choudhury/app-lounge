@@ -27,7 +27,7 @@ import foundation.e.apps.data.database.fusedDownload.FusedDownloadDAO
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.install.workmanager.InstallWorkManager
 import foundation.e.apps.util.MainCoroutineRule
-import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.data.enums.Status
 import io.mockk.every
 import io.mockk.mockkObject
 import kotlinx.coroutines.ExperimentalCoroutinesApi

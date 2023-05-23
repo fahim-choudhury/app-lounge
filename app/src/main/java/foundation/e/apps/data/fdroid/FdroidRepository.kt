@@ -5,7 +5,7 @@ import foundation.e.apps.data.cleanapk.ApkSignatureManager
 import foundation.e.apps.data.fdroid.models.BuildInfo
 import foundation.e.apps.data.fdroid.models.FdroidEntity
 import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.utils.enums.Origin
+import foundation.e.apps.data.enums.Origin
 import javax.inject.Inject
 import javax.inject.Singleton
 

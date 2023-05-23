@@ -27,10 +27,10 @@ import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.data.updates.UpdatesManagerImpl
 import foundation.e.apps.util.MainCoroutineRule
-import foundation.e.apps.utils.enums.FilterLevel
-import foundation.e.apps.utils.enums.Origin
-import foundation.e.apps.utils.enums.ResultStatus
-import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.data.enums.FilterLevel
+import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.enums.Status
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals

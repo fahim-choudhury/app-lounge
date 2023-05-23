@@ -19,7 +19,7 @@
 package foundation.e.apps.data.cleanapk.data.home
 
 import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.utils.enums.Origin
+import foundation.e.apps.data.enums.Origin
 
 data class Home(
     val top_updated_apps: List<FusedApp> = emptyList(),

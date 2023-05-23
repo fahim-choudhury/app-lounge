@@ -27,7 +27,7 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
-import foundation.e.apps.data.cleanapk.CleanAPKRepository
+import foundation.e.apps.data.cleanapk.repositories.CleanAPKRepository
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.search.Search
 import foundation.e.apps.data.fdroid.FdroidWebInterface
@@ -38,11 +38,11 @@ import foundation.e.apps.data.gplay.GPlayAPIRepository
 import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.util.MainCoroutineRule
 import foundation.e.apps.util.getOrAwaitValue
-import foundation.e.apps.utils.enums.FilterLevel
-import foundation.e.apps.utils.enums.Origin
-import foundation.e.apps.utils.enums.ResultStatus
-import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.modules.PWAManagerModule
+import foundation.e.apps.data.enums.FilterLevel
+import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.enums.Status
+import foundation.e.apps.install.pkg.PWAManagerModule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After

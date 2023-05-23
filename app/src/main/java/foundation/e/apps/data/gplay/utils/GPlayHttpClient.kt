@@ -24,7 +24,7 @@ import com.aurora.gplayapi.network.IHttpClient
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
-import foundation.e.apps.utils.modules.CommonUtilsFunctions
+import foundation.e.apps.utils.CommonUtilsFunctions
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import okhttp3.Cache

@@ -29,9 +29,9 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.utils.exceptions.CleanApkException
-import foundation.e.apps.utils.exceptions.GPlayException
-import foundation.e.apps.utils.parentFragment.LoadingViewModel
+import foundation.e.apps.data.login.exceptions.CleanApkException
+import foundation.e.apps.data.login.exceptions.GPlayException
+import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject

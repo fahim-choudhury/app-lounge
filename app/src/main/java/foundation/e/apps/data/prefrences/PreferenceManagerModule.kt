@@ -16,16 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.utils.modules
+package foundation.e.apps.data.prefrences
 
 import android.content.Context
 import androidx.preference.PreferenceManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.OpenForTesting
 import foundation.e.apps.R
-import foundation.e.apps.utils.Constants.PREFERENCE_SHOW_FOSS
-import foundation.e.apps.utils.Constants.PREFERENCE_SHOW_GPLAY
-import foundation.e.apps.utils.Constants.PREFERENCE_SHOW_PWA
+import foundation.e.apps.data.Constants.PREFERENCE_SHOW_FOSS
+import foundation.e.apps.data.Constants.PREFERENCE_SHOW_GPLAY
+import foundation.e.apps.data.Constants.PREFERENCE_SHOW_PWA
 import javax.inject.Inject
 import javax.inject.Singleton
 

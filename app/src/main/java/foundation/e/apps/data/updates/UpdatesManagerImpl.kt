@@ -29,11 +29,11 @@ import foundation.e.apps.data.fused.FusedAPIImpl.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.install.pkg.PkgManagerModule
-import foundation.e.apps.utils.enums.Origin
-import foundation.e.apps.utils.enums.ResultStatus
-import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.isUnFiltered
-import foundation.e.apps.utils.modules.PreferenceManagerModule
+import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.enums.Status
+import foundation.e.apps.data.enums.isUnFiltered
+import foundation.e.apps.data.prefrences.PreferenceManagerModule
 import javax.inject.Inject
 import timber.log.Timber
 

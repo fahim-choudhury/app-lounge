@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.utils.exceptions
+package foundation.e.apps.data.login.exceptions
 
 /**
  * Generic exception class - used to define unknown errors.

@@ -25,7 +25,7 @@ import android.content.pm.PackageInstaller
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
-import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.data.enums.Status
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope

@@ -15,13 +15,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.utils.parentFragment
+package foundation.e.apps.ui.parentFragment
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.utils.exceptions.GPlayValidationException
-import foundation.e.apps.utils.exceptions.UnknownSourceException
+import foundation.e.apps.data.login.exceptions.GPlayValidationException
+import foundation.e.apps.data.login.exceptions.UnknownSourceException
 
 abstract class LoadingViewModel : ViewModel() {
 

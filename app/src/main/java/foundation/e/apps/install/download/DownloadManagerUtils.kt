@@ -22,8 +22,8 @@ import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.database.fusedDownload.FusedDownload
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
-import foundation.e.apps.utils.enums.Origin
-import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Status
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay

@@ -3,9 +3,9 @@ package foundation.e.apps.data.database.fusedDownload
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.aurora.gplayapi.data.models.File
-import foundation.e.apps.utils.enums.Origin
-import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.Type
+import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Status
+import foundation.e.apps.data.enums.Type
 
 @Entity
 data class FusedDownload(

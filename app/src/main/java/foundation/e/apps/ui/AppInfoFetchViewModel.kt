@@ -11,7 +11,7 @@ import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.gplay.GPlayAPIRepository
-import foundation.e.apps.utils.modules.DataStoreModule
+import foundation.e.apps.data.prefrences.DataStoreModule
 import javax.inject.Inject
 
 /**

@@ -21,7 +21,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.work.ExistingPeriodicWorkPolicy
-import foundation.e.apps.utils.modules.PreferenceManagerModule
+import foundation.e.apps.data.prefrences.PreferenceManagerModule
 import timber.log.Timber
 
 class UpdatesBroadcastReceiver : BroadcastReceiver() {

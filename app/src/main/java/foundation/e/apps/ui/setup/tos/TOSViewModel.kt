@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import foundation.e.apps.utils.modules.DataStoreModule
+import foundation.e.apps.data.prefrences.DataStoreModule
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

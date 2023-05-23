@@ -33,9 +33,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.OpenForTesting
 import foundation.e.apps.data.fused.FusedAPIImpl
 import foundation.e.apps.data.database.fusedDownload.FusedDownload
-import foundation.e.apps.utils.enums.Origin
-import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.Type
+import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Status
+import foundation.e.apps.data.enums.Type
 import kotlinx.coroutines.DelicateCoroutinesApi
 import timber.log.Timber
 import java.io.File

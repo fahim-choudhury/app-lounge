@@ -19,11 +19,11 @@
 package foundation.e.apps.data.fused.data
 
 import com.aurora.gplayapi.Constants.Restriction
-import foundation.e.apps.utils.enums.FilterLevel
-import foundation.e.apps.utils.enums.Origin
-import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.Type
-import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
+import foundation.e.apps.data.enums.FilterLevel
+import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Status
+import foundation.e.apps.data.enums.Type
+import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 
 data class FusedApp(
     val _id: String = String(),

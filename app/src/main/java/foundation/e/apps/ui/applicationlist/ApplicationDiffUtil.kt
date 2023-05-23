@@ -19,7 +19,7 @@ package foundation.e.apps.ui.applicationlist
 
 import androidx.recyclerview.widget.DiffUtil
 import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
+import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 
 class ApplicationDiffUtil : DiffUtil.ItemCallback<FusedApp>() {
     override fun areItemsTheSame(oldItem: FusedApp, newItem: FusedApp): Boolean {

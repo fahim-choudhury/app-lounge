@@ -21,7 +21,7 @@ package foundation.e.apps.data.updates
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.fused.UpdatesDao
 import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.utils.enums.ResultStatus
+import foundation.e.apps.data.enums.ResultStatus
 import javax.inject.Inject
 
 class UpdatesManagerRepository @Inject constructor(

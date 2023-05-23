@@ -49,9 +49,9 @@ import foundation.e.apps.ui.search.SearchFragmentDirections
 import foundation.e.apps.ui.updates.UpdatesFragmentDirections
 import foundation.e.apps.utils.disableInstallButton
 import foundation.e.apps.utils.enableInstallButton
-import foundation.e.apps.utils.enums.Origin
-import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.User
+import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Status
+import foundation.e.apps.data.enums.User
 import timber.log.Timber
 import javax.inject.Singleton
 

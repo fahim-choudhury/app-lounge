@@ -21,7 +21,7 @@
 package foundation.e.apps.utils.eventBus
 
 import foundation.e.apps.data.ResultSupreme
-import foundation.e.apps.utils.enums.ResultStatus
+import foundation.e.apps.data.enums.ResultStatus
 
 sealed class AppEvent(val data: Any) {
     class SignatureMissMatchError(packageName: String) : AppEvent(packageName)

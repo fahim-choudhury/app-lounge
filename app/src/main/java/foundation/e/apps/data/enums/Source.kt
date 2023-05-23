@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022  E FOUNDATION
+ * Copyright (C) 2019-2022  MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +15,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.utils.exceptions
+package foundation.e.apps.data.enums
 
-/**
- * Super class for all Login related exceptions.
- * https://gitlab.e.foundation/e/backlog/-/issues/5680
- */
-open class LoginException(message: String?) : Exception(message)
+enum class Source {
+    GPLAY,
+    OPEN,
+    PWA,
+}

@@ -1,4 +1,4 @@
-package foundation.e.apps.utils.modules
+package foundation.e.apps.install.pkg
 
 import android.content.ContentUris
 import android.content.ContentValues
@@ -16,7 +16,7 @@ import foundation.e.apps.OpenForTesting
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.database.fusedDownload.DatabaseRepository
 import foundation.e.apps.data.database.fusedDownload.FusedDownload
-import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.data.enums.Status
 import kotlinx.coroutines.delay
 import javax.inject.Inject
 import javax.inject.Singleton

@@ -33,9 +33,9 @@ import foundation.e.apps.data.database.fusedDownload.DatabaseRepository
 import foundation.e.apps.data.database.fusedDownload.FusedDownload
 import foundation.e.apps.install.download.data.DownloadProgressLD
 import foundation.e.apps.install.pkg.PkgManagerModule
-import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.Type
-import foundation.e.apps.utils.modules.PWAManagerModule
+import foundation.e.apps.data.enums.Status
+import foundation.e.apps.data.enums.Type
+import foundation.e.apps.install.pkg.PWAManagerModule
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

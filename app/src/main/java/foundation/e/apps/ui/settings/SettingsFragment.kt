@@ -44,8 +44,8 @@ import foundation.e.apps.data.fused.UpdatesDao
 import foundation.e.apps.databinding.CustomPreferenceBinding
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.install.updates.UpdatesWorkManager
-import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.modules.CommonUtilsFunctions
+import foundation.e.apps.data.enums.User
+import foundation.e.apps.utils.CommonUtilsFunctions
 import timber.log.Timber
 import javax.inject.Inject
 

@@ -20,7 +20,7 @@ package foundation.e.apps.data.fusedDownload
 
 import androidx.lifecycle.LiveData
 import foundation.e.apps.data.database.fusedDownload.FusedDownload
-import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.data.enums.Status
 import java.io.File
 
 interface IFusedManager {

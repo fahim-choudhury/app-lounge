@@ -42,9 +42,9 @@ import foundation.e.apps.databinding.HomeChildListItemBinding
 import foundation.e.apps.ui.home.HomeFragmentDirections
 import foundation.e.apps.utils.disableInstallButton
 import foundation.e.apps.utils.enableInstallButton
-import foundation.e.apps.utils.enums.Origin
-import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.enums.User
+import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Status
+import foundation.e.apps.data.enums.User
 
 class HomeChildRVAdapter(
     private var fusedAPIInterface: FusedAPIInterface?,

@@ -7,8 +7,8 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
-import foundation.e.apps.utils.enums.User
-import foundation.e.apps.utils.modules.DataStoreModule
+import foundation.e.apps.data.enums.User
+import foundation.e.apps.data.prefrences.DataStoreModule
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

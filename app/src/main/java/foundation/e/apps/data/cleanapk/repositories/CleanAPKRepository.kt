@@ -16,9 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.cleanapk
+package foundation.e.apps.data.cleanapk.repositories
 
 import foundation.e.apps.OpenForTesting
+import foundation.e.apps.data.cleanapk.CleanApkAppDetailsRetrofit
+import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.cleanapk.data.app.Application
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.download.Download

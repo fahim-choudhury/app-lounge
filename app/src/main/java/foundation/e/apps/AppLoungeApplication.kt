@@ -29,8 +29,8 @@ import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.install.workmanager.InstallWorkManager
 import foundation.e.apps.ui.setup.tos.TOS_VERSION
 import foundation.e.apps.install.updates.UpdatesWorkManager
-import foundation.e.apps.utils.modules.DataStoreModule
-import foundation.e.apps.utils.modules.PreferenceManagerModule
+import foundation.e.apps.data.prefrences.DataStoreModule
+import foundation.e.apps.data.prefrences.PreferenceManagerModule
 import foundation.e.lib.telemetry.Telemetry
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.MainScope

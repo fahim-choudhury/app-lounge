@@ -27,7 +27,7 @@ import coil.load
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.databinding.ApplicationScreenshotsListItemBinding
 import foundation.e.apps.ui.application.ApplicationFragmentDirections
-import foundation.e.apps.utils.enums.Origin
+import foundation.e.apps.data.enums.Origin
 
 class ApplicationScreenshotsRVAdapter(
     private val origin: Origin

@@ -43,12 +43,12 @@ import foundation.e.apps.ui.home.model.HomeChildRVAdapter
 import foundation.e.apps.ui.home.model.HomeParentRVAdapter
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.install.download.data.DownloadProgress
-import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.exceptions.GPlayException
-import foundation.e.apps.utils.exceptions.GPlayLoginException
-import foundation.e.apps.utils.modules.CommonUtilsModule.safeNavigate
-import foundation.e.apps.utils.modules.PWAManagerModule
-import foundation.e.apps.utils.parentFragment.TimeoutFragment
+import foundation.e.apps.data.enums.Status
+import foundation.e.apps.data.login.exceptions.GPlayException
+import foundation.e.apps.data.login.exceptions.GPlayLoginException
+import foundation.e.apps.di.CommonUtilsModule.safeNavigate
+import foundation.e.apps.install.pkg.PWAManagerModule
+import foundation.e.apps.ui.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

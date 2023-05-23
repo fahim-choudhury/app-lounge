@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.utils.modules
+package foundation.e.apps.di
 
 import android.content.ClipboardManager
 import android.content.Context

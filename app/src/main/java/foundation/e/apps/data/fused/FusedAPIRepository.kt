@@ -30,10 +30,10 @@ import foundation.e.apps.data.fused.data.FusedCategory
 import foundation.e.apps.data.fused.data.FusedHome
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.database.fusedDownload.FusedDownload
-import foundation.e.apps.utils.enums.FilterLevel
-import foundation.e.apps.utils.enums.Origin
-import foundation.e.apps.utils.enums.ResultStatus
-import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.data.enums.FilterLevel
+import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.enums.Status
 import javax.inject.Inject
 import javax.inject.Singleton
 

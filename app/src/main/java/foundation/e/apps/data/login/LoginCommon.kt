@@ -17,8 +17,8 @@
 
 package foundation.e.apps.data.login
 
-import foundation.e.apps.utils.Constants
-import foundation.e.apps.utils.enums.User
+import foundation.e.apps.data.Constants
+import foundation.e.apps.data.enums.User
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -20,7 +20,7 @@ package foundation.e.apps.data.login.api
 import com.google.gson.Gson
 import foundation.e.apps.data.gplay.utils.AC2DMTask
 import foundation.e.apps.data.gplay.utils.GPlayHttpClient
-import foundation.e.apps.utils.enums.User
+import foundation.e.apps.data.enums.User
 import java.util.Properties
 import javax.inject.Inject
 import javax.inject.Singleton

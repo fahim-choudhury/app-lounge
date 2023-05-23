@@ -1,6 +1,5 @@
 /*
- * Copyright MURENA SAS 2023
- * Apps  Quickly and easily install Android apps onto your device!
+ * Copyright (C) 2019-2022  E FOUNDATION
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,15 +15,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.cleanapk
+package foundation.e.apps.data.login.exceptions
 
-import foundation.e.apps.data.BaseStoreRepository
-import foundation.e.apps.data.cleanapk.data.categories.Categories
-import foundation.e.apps.data.cleanapk.data.search.Search
-import retrofit2.Response
-
-interface CleanApkRepository : BaseStoreRepository {
-    suspend fun getSearchResult(query: String, searchBy: String? = null): Response<Search>
-    suspend fun getAppsByCategory(category: String, paginationParameter: Any? = null): Response<Search>
-    suspend fun getCategories(): Response<Categories>
-}
+/**
+ * Super class for all Login related exceptions.
+ * https://gitlab.e.foundation/e/backlog/-/issues/5680
+ */
+open class LoginException(message: String?) : Exception(message)

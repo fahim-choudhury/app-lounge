@@ -28,7 +28,7 @@ import coil.load
 import foundation.e.apps.R
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.databinding.ScreenshotListItemBinding
-import foundation.e.apps.utils.enums.Origin
+import foundation.e.apps.data.enums.Origin
 
 class ScreenshotRVAdapter(private val list: List<String>, private val origin: Origin) :
     RecyclerView.Adapter<ScreenshotRVAdapter.ViewHolder>() {

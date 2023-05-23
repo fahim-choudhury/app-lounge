@@ -15,18 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.utils.exceptions
-
-import foundation.e.apps.utils.enums.User
+package foundation.e.apps.data.login.exceptions
 
 /**
- * This exception is specifically used when a GPlay auth data could not be validated.
- * This is not the case as timeout, this exception usually means the server informed that the
- * current auth data is not valid.
- * Use [networkCode] to be sure that the server call was successful (should be 200).
+ * This exception is for all CleanApk data loading exceptions.
  */
-class GPlayValidationException(
-    message: String,
-    user: User,
-    val networkCode: Int,
-) : GPlayLoginException(false, message, user)
+class CleanApkException(
+    val isTimeout: Boolean,
+    message: String? = null,
+) : LoginException(message)
