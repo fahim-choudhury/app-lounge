@@ -17,9 +17,9 @@
 
 package foundation.e.apps
 
-import foundation.e.apps.api.faultyApps.FaultyApp
-import foundation.e.apps.api.faultyApps.FaultyAppDao
-import foundation.e.apps.api.faultyApps.FaultyAppRepository
+import foundation.e.apps.data.faultyApps.FaultyApp
+import foundation.e.apps.data.faultyApps.FaultyAppDao
+import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals

@@ -1,0 +1,88 @@
+/*
+ * Apps  Quickly and easily install Android apps onto your device!
+ * Copyright (C) 2021  E FOUNDATION
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package foundation.e.apps.data.cleanapk.repositories
+
+import foundation.e.apps.OpenForTesting
+import foundation.e.apps.data.cleanapk.CleanApkAppDetailsRetrofit
+import foundation.e.apps.data.cleanapk.CleanApkRetrofit
+import foundation.e.apps.data.cleanapk.data.app.Application
+import foundation.e.apps.data.cleanapk.data.categories.Categories
+import foundation.e.apps.data.cleanapk.data.download.Download
+import foundation.e.apps.data.cleanapk.data.home.HomeScreen
+import foundation.e.apps.data.cleanapk.data.search.Search
+import retrofit2.Response
+import javax.inject.Inject
+
+@OpenForTesting
+class CleanAPKRepository @Inject constructor(
+    private val cleanAPKRetrofit: CleanApkRetrofit,
+    private val cleanApkAppDetailsRetrofit: CleanApkAppDetailsRetrofit
+) {
+
+    suspend fun getHomeScreenData(
+        type: String = CleanApkRetrofit.APP_TYPE_ANY,
+        source: String = CleanApkRetrofit.APP_SOURCE_ANY
+    ): Response<HomeScreen> {
+        return cleanAPKRetrofit.getHomeScreenData(type, source)
+    }
+
+    suspend fun getAppOrPWADetailsByID(
+        id: String,
+        architectures: List<String>? = null,
+        type: String? = null
+    ): Response<Application> {
+        return cleanApkAppDetailsRetrofit.getAppOrPWADetailsByID(id, architectures, type)
+    }
+
+    suspend fun searchApps(
+        keyword: String,
+        source: String = CleanApkRetrofit.APP_SOURCE_FOSS,
+        type: String = CleanApkRetrofit.APP_TYPE_ANY,
+        nres: Int = 20,
+        page: Int = 1,
+        by: String? = null
+    ): Response<Search> {
+        return cleanAPKRetrofit.searchApps(keyword, source, type, nres, page, by)
+    }
+
+    suspend fun listApps(
+        category: String,
+        source: String = CleanApkRetrofit.APP_SOURCE_FOSS,
+        type: String = CleanApkRetrofit.APP_TYPE_ANY,
+        nres: Int = 20,
+        page: Int = 1,
+    ): Response<Search> {
+        return cleanAPKRetrofit.listApps(category, source, type, nres, page)
+    }
+
+    suspend fun getDownloadInfo(
+        id: String,
+        version: String? = null,
+        architecture: String? = null
+    ): Response<Download> {
+        return cleanAPKRetrofit.getDownloadInfo(id, version, architecture)
+    }
+
+    suspend fun getCategoriesList(
+        type: String = CleanApkRetrofit.APP_TYPE_ANY,
+        source: String = CleanApkRetrofit.APP_SOURCE_ANY
+    ): Response<Categories> {
+        return cleanAPKRetrofit.getCategoriesList(type, source)
+    }
+}

@@ -18,8 +18,8 @@
 
 package foundation.e.apps.exodus
 
-import foundation.e.apps.api.exodus.Tracker
-import foundation.e.apps.api.exodus.TrackerDao
+import foundation.e.apps.data.exodus.Tracker
+import foundation.e.apps.data.exodus.TrackerDao
 
 class FakeTrackerDao : TrackerDao {
 

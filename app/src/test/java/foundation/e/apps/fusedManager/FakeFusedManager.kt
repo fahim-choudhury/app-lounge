@@ -19,10 +19,10 @@
 package foundation.e.apps.fusedManager
 
 import androidx.lifecycle.LiveData
-import foundation.e.apps.manager.database.fusedDownload.FusedDownload
-import foundation.e.apps.manager.database.fusedDownload.FusedDownloadDAO
-import foundation.e.apps.manager.fused.IFusedManager
-import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.data.enums.Status
+import foundation.e.apps.data.fusedDownload.FusedDownloadDAO
+import foundation.e.apps.data.fusedDownload.IFusedManager
+import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import java.io.File
 
 class FakeFusedManager(private val fusedDownloadDAO: FusedDownloadDAO) : IFusedManager {

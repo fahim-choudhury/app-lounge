@@ -23,7 +23,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/colorBackground"
-    tools:context=".categories.CategoriesFragment">
+    tools:context=".ui.categories.CategoriesFragment">
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
