@@ -11,7 +11,7 @@ interface ExodusTrackerApi {
         const val BASE_URL = "https://exodus.ecloud.global/api/"
     }
 
-    @GET("trackers?v={date}")
+    @GET("trackers")
     suspend fun getTrackerList(@Query("date") date: String): Response<Trackers>
 
     @GET("search/{appHandle}/details")
