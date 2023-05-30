@@ -45,7 +45,7 @@
         android:usesCleartextTraffic="true">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -54,10 +54,10 @@
             </intent-filter>
             <nav-graph android:value="@navigation/navigation_resource" />
         </activity>
-        <service android:name=".manager.pkg.InstallerService" />
+        <service android:name=".install.pkg.InstallerService" />
 
         <receiver
-            android:name="foundation.e.apps.manager.download.DownloadManagerBR"
+            android:name="foundation.e.apps.install.download.DownloadManagerBR"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
@@ -67,13 +67,13 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".updates.manager.UpdatesBroadcastReceiver">
+        <receiver android:name=".install.updates.UpdatesBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".receiver.PWAPlayerStatusReceiver"
+        <receiver android:name=".install.receiver.PWAPlayerStatusReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="foundation.e.pwaplayer.PWA_ADDED" />
@@ -86,7 +86,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".setup.signin.LocaleChangedBroadcastReceiver">
+        <receiver android:name=".ui.setup.signin.LocaleChangedBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.LOCALE_CHANGED"/>
             </intent-filter>
@@ -98,10 +98,10 @@
             android:authorities="${applicationId}.androidx-startup"
             tools:node="remove" />
 
-        <service android:name=".manager.pkg.PackageInstallerService" />
+        <service android:name=".install.pkg.PackageInstallerService" />
 
         <service
-            android:name=".splitinstall.SplitInstallService"
+            android:name=".install.splitinstall.SplitInstallService"
             android:exported="true" />
     </application>
 

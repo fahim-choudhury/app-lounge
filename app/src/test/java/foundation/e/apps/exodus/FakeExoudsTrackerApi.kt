@@ -18,10 +18,10 @@
 
 package foundation.e.apps.exodus
 
-import foundation.e.apps.api.exodus.ExodusTrackerApi
-import foundation.e.apps.api.exodus.Report
-import foundation.e.apps.api.exodus.Tracker
-import foundation.e.apps.api.exodus.Trackers
+import foundation.e.apps.data.exodus.ExodusTrackerApi
+import foundation.e.apps.data.exodus.Report
+import foundation.e.apps.data.exodus.Tracker
+import foundation.e.apps.data.exodus.Trackers
 import retrofit2.Response
 
 class FakeExoudsTrackerApi : ExodusTrackerApi {

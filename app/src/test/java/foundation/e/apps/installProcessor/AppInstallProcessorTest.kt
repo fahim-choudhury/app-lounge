@@ -22,15 +22,14 @@ import android.app.DownloadManager.Query
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.AuthData
-import foundation.e.apps.api.DownloadManager
-import foundation.e.apps.api.fdroid.FdroidRepository
-import foundation.e.apps.manager.database.DatabaseRepository
-import foundation.e.apps.manager.database.fusedDownload.FusedDownload
-import foundation.e.apps.manager.fused.IFusedManager
-import foundation.e.apps.manager.workmanager.AppInstallProcessor
+import foundation.e.apps.data.enums.Status
+import foundation.e.apps.data.fdroid.FdroidRepository
+import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
+import foundation.e.apps.data.fusedDownload.IFusedManager
+import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.preference.DataStoreManager
+import foundation.e.apps.install.workmanager.AppInstallProcessor
 import foundation.e.apps.util.MainCoroutineRule
-import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.modules.DataStoreManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -55,7 +54,7 @@ class AppInstallProcessorTest {
     var mainCoroutineRule = MainCoroutineRule()
 
     private lateinit var fakeFusedDownloadDAO: FakeFusedDownloadDAO
-    private lateinit var databaseRepository: DatabaseRepository
+    private lateinit var fusedDownloadRepository: FusedDownloadRepository
     private lateinit var fakeFusedManagerRepository: FakeFusedManagerRepository
 
     @Mock
@@ -82,13 +81,13 @@ class AppInstallProcessorTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         fakeFusedDownloadDAO = FakeFusedDownloadDAO()
-        databaseRepository = DatabaseRepository(fakeFusedDownloadDAO)
+        fusedDownloadRepository = FusedDownloadRepository(fakeFusedDownloadDAO)
         fakeFusedManagerRepository =
             FakeFusedManagerRepository(fakeFusedDownloadDAO, fakeFusedManager, fakeFdroidRepository)
 
         appInstallProcessor = AppInstallProcessor(
             context,
-            databaseRepository,
+            fusedDownloadRepository,
             fakeFusedManagerRepository,
             dataStoreManager
         )

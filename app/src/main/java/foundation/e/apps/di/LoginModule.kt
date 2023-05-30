@@ -21,9 +21,9 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import foundation.e.apps.login.LoginSourceCleanApk
-import foundation.e.apps.login.LoginSourceGPlay
-import foundation.e.apps.login.LoginSourceInterface
+import foundation.e.apps.data.login.LoginSourceCleanApk
+import foundation.e.apps.data.login.LoginSourceGPlay
+import foundation.e.apps.data.login.LoginSourceInterface
 
 @InstallIn(SingletonComponent::class)
 @Module

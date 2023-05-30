@@ -4,12 +4,12 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import foundation.e.apps.api.exodus.repositories.AppPrivacyInfoRepositoryImpl
-import foundation.e.apps.api.exodus.repositories.IAppPrivacyInfoRepository
-import foundation.e.apps.api.fdroid.FdroidRepository
-import foundation.e.apps.api.fdroid.IFdroidRepository
-import foundation.e.apps.manager.fused.FusedManagerImpl
-import foundation.e.apps.manager.fused.IFusedManager
+import foundation.e.apps.data.exodus.repositories.AppPrivacyInfoRepositoryImpl
+import foundation.e.apps.data.exodus.repositories.IAppPrivacyInfoRepository
+import foundation.e.apps.data.fdroid.FdroidRepository
+import foundation.e.apps.data.fdroid.IFdroidRepository
+import foundation.e.apps.data.fusedDownload.FusedManagerImpl
+import foundation.e.apps.data.fusedDownload.IFusedManager
 import javax.inject.Singleton
 
 @Module

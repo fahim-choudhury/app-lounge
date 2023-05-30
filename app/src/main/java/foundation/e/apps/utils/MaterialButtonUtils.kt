@@ -21,7 +21,7 @@ import android.graphics.Color
 import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import foundation.e.apps.R
-import foundation.e.apps.utils.enums.Status
+import foundation.e.apps.data.enums.Status
 
 fun MaterialButton.disableInstallButton(status: Status? = null) {
     toggleEnableMaterialButton(false, status)
