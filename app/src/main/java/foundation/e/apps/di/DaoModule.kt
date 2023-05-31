@@ -6,10 +6,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import foundation.e.apps.api.database.AppDatabase
-import foundation.e.apps.api.exodus.TrackerDao
-import foundation.e.apps.api.faultyApps.FaultyAppDao
-import foundation.e.apps.api.fdroid.FdroidDao
+import foundation.e.apps.data.database.AppDatabase
+import foundation.e.apps.data.exodus.TrackerDao
+import foundation.e.apps.data.faultyApps.FaultyAppDao
+import foundation.e.apps.data.fdroid.FdroidDao
 
 @InstallIn(SingletonComponent::class)
 @Module

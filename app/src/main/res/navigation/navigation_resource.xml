@@ -24,7 +24,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="foundation.e.apps.home.HomeFragment"
+        android:name="foundation.e.apps.ui.home.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home">
         <action
@@ -51,7 +51,7 @@
     </fragment>
     <fragment
         android:id="@+id/categoriesFragment"
-        android:name="foundation.e.apps.categories.CategoriesFragment"
+        android:name="foundation.e.apps.ui.categories.CategoriesFragment"
         android:label="Categories"
         tools:layout="@layout/fragment_categories">
         <action
@@ -60,7 +60,7 @@
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
-        android:name="foundation.e.apps.search.SearchFragment"
+        android:name="foundation.e.apps.ui.search.SearchFragment"
         android:label="Search"
         tools:layout="@layout/fragment_search">
         <action
@@ -69,7 +69,7 @@
     </fragment>
     <fragment
         android:id="@+id/updatesFragment"
-        android:name="foundation.e.apps.updates.UpdatesFragment"
+        android:name="foundation.e.apps.ui.updates.UpdatesFragment"
         android:label="Updates"
         tools:layout="@layout/fragment_updates">
         <action
@@ -81,7 +81,7 @@
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="foundation.e.apps.settings.SettingsFragment"
+        android:name="foundation.e.apps.ui.settings.SettingsFragment"
         android:label="Settings">
         <action
             android:id="@+id/action_settingsFragment_to_TOSFragment"
@@ -92,7 +92,7 @@
     </fragment>
     <fragment
         android:id="@+id/applicationFragment"
-        android:name="foundation.e.apps.application.ApplicationFragment"
+        android:name="foundation.e.apps.ui.application.ApplicationFragment"
         android:label="Application"
         tools:layout="@layout/fragment_application">
         <argument
@@ -105,7 +105,7 @@
         <argument
             android:name="origin"
             android:defaultValue="GPLAY"
-            app:argType="foundation.e.apps.utils.enums.Origin" />
+            app:argType="foundation.e.apps.data.enums.Origin" />
         <argument
             android:name="category"
             android:defaultValue=""
@@ -145,7 +145,7 @@
     </fragment>
     <fragment
         android:id="@+id/applicationListFragment"
-        android:name="foundation.e.apps.applicationlist.ApplicationListFragment"
+        android:name="foundation.e.apps.ui.applicationlist.ApplicationListFragment"
         android:label="ApplicationList"
         tools:layout="@layout/fragment_application_list">
         <argument
@@ -170,7 +170,7 @@
     </fragment>
     <fragment
         android:id="@+id/screenshotFragment"
-        android:name="foundation.e.apps.application.subFrags.ScreenshotFragment"
+        android:name="foundation.e.apps.ui.application.subFrags.ScreenshotFragment"
         android:label="Screenshot"
         tools:layout="@layout/fragment_screenshot">
         <argument
@@ -181,11 +181,11 @@
             app:argType="integer" />
         <argument
             android:name="origin"
-            app:argType="foundation.e.apps.utils.enums.Origin" />
+            app:argType="foundation.e.apps.data.enums.Origin" />
     </fragment>
     <fragment
         android:id="@+id/descriptionFragment"
-        android:name="foundation.e.apps.application.subFrags.DescriptionFragment"
+        android:name="foundation.e.apps.ui.application.subFrags.DescriptionFragment"
         android:label="fragment_description"
         tools:layout="@layout/fragment_description">
         <argument
@@ -195,7 +195,7 @@
     </fragment>
     <fragment
         android:id="@+id/TOSFragment"
-        android:name="foundation.e.apps.setup.tos.TOSFragment"
+        android:name="foundation.e.apps.ui.setup.tos.TOSFragment"
         android:label="fragment_tos"
         tools:layout="@layout/fragment_tos">
         <action
@@ -206,7 +206,7 @@
     </fragment>
     <fragment
         android:id="@+id/signInFragment"
-        android:name="foundation.e.apps.setup.signin.SignInFragment"
+        android:name="foundation.e.apps.ui.setup.signin.SignInFragment"
         android:label="fragment_sign_in"
         tools:layout="@layout/fragment_sign_in">
         <action
@@ -220,7 +220,7 @@
     </fragment>
     <fragment
         android:id="@+id/googleSignInFragment"
-        android:name="foundation.e.apps.setup.signin.google.GoogleSignInFragment"
+        android:name="foundation.e.apps.ui.setup.signin.google.GoogleSignInFragment"
         android:label="fragment_google_signin"
         tools:layout="@layout/fragment_google_signin">
         <action
@@ -236,7 +236,7 @@
     </fragment>
     <fragment
         android:id="@+id/appPurchaseFragment"
-        android:name="foundation.e.apps.purchase.AppPurchaseFragment"
+        android:name="foundation.e.apps.ui.purchase.AppPurchaseFragment"
         android:label="fragment_app_purchase"
         tools:layout="@layout/fragment_app_purchase">
         <argument

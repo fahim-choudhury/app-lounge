@@ -19,11 +19,11 @@
 package foundation.e.apps.exodus
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import foundation.e.apps.api.exodus.repositories.AppPrivacyInfoRepositoryImpl
-import foundation.e.apps.api.fused.data.FusedApp
+import foundation.e.apps.data.enums.Status
+import foundation.e.apps.data.exodus.repositories.AppPrivacyInfoRepositoryImpl
+import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.util.MainCoroutineRule
-import foundation.e.apps.utils.enums.Status
-import foundation.e.apps.utils.modules.CommonUtilsModule.LIST_OF_NULL
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals

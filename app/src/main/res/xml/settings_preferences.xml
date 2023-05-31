@@ -102,7 +102,7 @@
         android:title="@string/about"
         app:iconSpaceReserved="false">
 
-        <foundation.e.apps.settings.LongPressPreference
+        <foundation.e.apps.ui.settings.LongPressPreference
             android:key="versionInfo"
             android:title="@string/app_version_label"
             app:singleLineTitle="false"

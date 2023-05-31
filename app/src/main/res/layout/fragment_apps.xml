@@ -22,7 +22,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/colorBackground"
-    tools:context=".categories.AppsFragment">
+    tools:context=".ui.categories.AppsFragment">
 
 
     <androidx.recyclerview.widget.RecyclerView

@@ -17,8 +17,8 @@
 
 package foundation.e.apps
 
-import foundation.e.apps.api.fused.FusedAPIImpl
-import foundation.e.apps.api.fused.FusedAPIRepository
+import foundation.e.apps.data.fused.FusedAPIImpl
+import foundation.e.apps.data.fused.FusedAPIRepository
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
