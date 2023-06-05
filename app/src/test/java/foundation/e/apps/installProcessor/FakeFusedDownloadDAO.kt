@@ -19,9 +19,7 @@
 package foundation.e.apps.installProcessor
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.liveData
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fusedDownload.FusedDownloadDAO
 import foundation.e.apps.data.fusedDownload.models.FusedDownload

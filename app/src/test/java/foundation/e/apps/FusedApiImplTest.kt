@@ -45,7 +45,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -90,7 +89,7 @@ class FusedApiImplTest {
     private lateinit var cleanApkAppsRepository: CleanApkRepository
 
     @Mock
-    private lateinit var cleanApkPWARepository:  CleanApkRepository
+    private lateinit var cleanApkPWARepository: CleanApkRepository
 
     @Mock
     private lateinit var gPlayAPIRepository: GplayStoreRepository
@@ -762,9 +761,11 @@ class FusedApiImplTest {
         preferenceManagerModule.isPWASelectedFake = true
         preferenceManagerModule.isOpenSourceelectedFake = true
         preferenceManagerModule.isGplaySelectedFake = true
-        val gplayFlow: Flow<Pair<List<App>, Boolean>> = flowOf(Pair(
-            listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), false
-        ))
+        val gplayFlow: Flow<Pair<List<App>, Boolean>> = flowOf(
+            Pair(
+                listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), false
+            )
+        )
 
         setupMockingSearchApp(
             packageNameSearchResponse, gplayPackageResult, gplayFlow
@@ -848,9 +849,11 @@ class FusedApiImplTest {
         val packageNameSearchResponse = Response.success(searchResult)
         val gplayPackageResult = App("com.search.package")
 
-        val gplayFlow: Flow<Pair<List<App>, Boolean>> = flowOf(Pair(
-            listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), false
-        ))
+        val gplayFlow: Flow<Pair<List<App>, Boolean>> = flowOf(
+            Pair(
+                listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), false
+            )
+        )
 
         setupMockingSearchApp(
             packageNameSearchResponse, gplayPackageResult, gplayFlow, true

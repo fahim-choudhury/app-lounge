@@ -27,7 +27,6 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
-import foundation.e.apps.data.fused.FusedApiImpl
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.FusedApi
 import foundation.e.apps.data.fused.data.FusedApp

@@ -34,7 +34,6 @@ import com.aurora.gplayapi.data.models.StreamCluster
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.Constants.timeoutDurationInMillis
-import foundation.e.apps.data.Result
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
