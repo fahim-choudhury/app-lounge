@@ -44,6 +44,23 @@ suspend fun <T> LiveData<T>.getOrAwaitValue(
     return data as T
 }
 
+//suspend fun <T> LiveData<T>.getOrAwaitMultipleResults(
+//    time: Long = 5,
+//    afterObserve: () -> Unit = {}
+//): List<T> {
+//    var data: MutableList<T> = mutableListOf()
+//    val observer = Observer<List<T>> { o ->
+//        data.addAll(o)
+//        print("onChanged: $o")
+//    }
+//    this.observeForever(observer)
+//    afterObserve.invoke()
+//    delay(time * 1000)
+//    this.removeObserver(observer)
+//    @Suppress("UNCHECKED_CAST")
+//    return data as List<T>
+//}
+
 /**
  * Observes a [LiveData] until the `block` is done executing.
  */

@@ -17,6 +17,7 @@
 
 package foundation.e.apps
 
+import android.content.Context
 import android.content.pm.ApplicationInfo
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.AuthData
@@ -25,8 +26,10 @@ import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
-import foundation.e.apps.data.fused.FusedAPIImpl
+import foundation.e.apps.data.fdroid.FdroidRepository
+import foundation.e.apps.data.fused.FusedApiImpl
 import foundation.e.apps.data.fused.FusedAPIRepository
+import foundation.e.apps.data.fused.FusedApi
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.updates.UpdatesManagerImpl
 import foundation.e.apps.install.pkg.PkgManagerModule
@@ -60,12 +63,20 @@ class UpdateManagerImptTest {
     private lateinit var updatesManagerImpl: UpdatesManagerImpl
 
     @Mock
+    private lateinit var context: Context
+
+    @Mock
     private lateinit var pkgManagerModule: PkgManagerModule
 
     @Mock
     private lateinit var fusedAPIRepository: FusedAPIRepository
 
+    private lateinit var preferenceModule: FakePreferenceModule
+
     private lateinit var faultyAppRepository: FaultyAppRepository
+
+    @Mock
+    private lateinit var fdroidRepository: FdroidRepository
 
     val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
 
@@ -79,8 +90,9 @@ class UpdateManagerImptTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         faultyAppRepository = FaultyAppRepository(FakeFaultyAppDao())
+        preferenceModule = FakePreferenceModule(context)
         updatesManagerImpl =
-            UpdatesManagerImpl(pkgManagerModule, fusedAPIRepository, faultyAppRepository)
+            UpdatesManagerImpl(context, pkgManagerModule, fusedAPIRepository, faultyAppRepository, preferenceModule, fdroidRepository)
     }
 
     @Test
@@ -296,9 +308,9 @@ class UpdateManagerImptTest {
         openSourceUpdates: Pair<MutableList<FusedApp>, ResultStatus>,
         gplayUpdates: Pair<MutableList<FusedApp>, ResultStatus>,
         selectedApplicationSources: List<String> = mutableListOf(
-            FusedAPIImpl.APP_TYPE_ANY,
-            FusedAPIImpl.APP_TYPE_OPEN,
-            FusedAPIImpl.APP_TYPE_PWA
+            FusedApi.APP_TYPE_ANY,
+            FusedApi.APP_TYPE_OPEN,
+            FusedApi.APP_TYPE_PWA
         )
     ) {
         Mockito.`when`(pkgManagerModule.getAllUserApps()).thenReturn(applicationInfo)

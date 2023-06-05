@@ -38,7 +38,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPIImpl) {
+class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi) {
 
     var streamBundle = StreamBundle()
         private set

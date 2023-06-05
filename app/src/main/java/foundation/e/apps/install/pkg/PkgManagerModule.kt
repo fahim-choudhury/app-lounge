@@ -34,7 +34,7 @@ import foundation.e.apps.OpenForTesting
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
-import foundation.e.apps.data.fused.FusedAPIImpl
+import foundation.e.apps.data.fused.FusedApi
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import kotlinx.coroutines.DelicateCoroutinesApi
 import timber.log.Timber
@@ -88,7 +88,7 @@ class PkgManagerModule @Inject constructor(
      * This method should be only used for native apps!
      * If you are using for any FusedApp, please consider that it can be a PWA!
      *
-     * Recommended to use: [FusedAPIImpl.getFusedAppInstallationStatus].
+     * Recommended to use: [FusedApi.getFusedAppInstallationStatus].
      */
     fun getPackageStatus(packageName: String, versionCode: Int): Status {
         return if (isInstalled(packageName)) {

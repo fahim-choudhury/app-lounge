@@ -53,18 +53,18 @@ class FakeFusedManagerRepository(
         fusedDownload.downloadIdMap.replaceAll { _, _ -> true }
         fusedDownload.status = Status.DOWNLOADED
         fusedDownloadDAO.updateDownload(fusedDownload)
+        updateDownloadStatus(fusedDownload, Status.INSTALLING)
     }
 
     override suspend fun updateDownloadStatus(fusedDownload: FusedDownload, status: Status) {
         when (status) {
             Status.INSTALLING -> {
+                if (forceCrash) {
+                    throw RuntimeException("test exception!")
+                }
                 handleStatusInstalling(fusedDownload)
             }
             Status.INSTALLED -> {
-                if (forceCrash) {
-                    throw RuntimeException()
-                }
-
                 fusedDownloadDAO.deleteDownload(fusedDownload)
             }
             else -> {

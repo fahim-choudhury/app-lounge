@@ -8,6 +8,8 @@ import foundation.e.apps.data.exodus.repositories.AppPrivacyInfoRepositoryImpl
 import foundation.e.apps.data.exodus.repositories.IAppPrivacyInfoRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.fdroid.IFdroidRepository
+import foundation.e.apps.data.fused.FusedApi
+import foundation.e.apps.data.fused.FusedApiImpl
 import foundation.e.apps.data.fusedDownload.FusedManagerImpl
 import foundation.e.apps.data.fusedDownload.IFusedManager
 import javax.inject.Singleton
@@ -26,4 +28,8 @@ interface RepositoryModule {
     @Singleton
     @Binds
     fun getFdroidRepository(fusedManagerImpl: FdroidRepository): IFdroidRepository
+
+    @Singleton
+    @Binds
+    fun getFusedApi(fusedApiImpl: FusedApiImpl): FusedApi
 }
