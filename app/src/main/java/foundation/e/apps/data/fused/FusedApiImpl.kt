@@ -52,6 +52,9 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.fdroid.FdroidWebInterface
+import foundation.e.apps.data.fused.FusedApi.Companion.APP_TYPE_ANY
+import foundation.e.apps.data.fused.FusedApi.Companion.APP_TYPE_OPEN
+import foundation.e.apps.data.fused.FusedApi.Companion.APP_TYPE_PWA
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fused.data.FusedCategory
 import foundation.e.apps.data.fused.data.FusedHome
@@ -81,7 +84,7 @@ typealias GplaySearchResultFlow = Flow<ResultSupreme<Pair<List<FusedApp>, Boolea
 typealias FusedHomeDeferred = Deferred<ResultSupreme<List<FusedHome>>>
 
 @Singleton
-class FusedAPIImpl @Inject constructor(
+class FusedApiImpl @Inject constructor(
     private val pkgManagerModule: PkgManagerModule,
     private val pwaManagerModule: PWAManagerModule,
     private val preferenceManagerModule: PreferenceManagerModule,
@@ -90,20 +93,10 @@ class FusedAPIImpl @Inject constructor(
     @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
     @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository,
     @ApplicationContext private val context: Context
-) {
+) : FusedApi {
 
     companion object {
         private const val CATEGORY_TITLE_REPLACEABLE_CONJUNCTION = "&"
-
-        /*
-         * Removing "private" access specifier to allow access in
-         * MainActivityViewModel.timeoutAlertDialog
-         *
-         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
-         */
-        const val APP_TYPE_ANY = "any"
-        const val APP_TYPE_OPEN = "open"
-        const val APP_TYPE_PWA = "pwa"
         private const val CATEGORY_OPEN_GAMES_ID = "game_open_games"
         private const val CATEGORY_OPEN_GAMES_TITLE = "Open games"
     }
@@ -113,14 +106,14 @@ class FusedAPIImpl @Inject constructor(
      * If any list is not empty, send false.
      * Else (if all lists are empty) send true.
      */
-    fun isFusedHomesEmpty(fusedHomes: List<FusedHome>): Boolean {
+    override fun isHomesEmpty(fusedHomes: List<FusedHome>): Boolean {
         fusedHomes.forEach {
             if (it.list.isNotEmpty()) return false
         }
         return true
     }
 
-    fun getApplicationCategoryPreference(): List<String> {
+    override fun getApplicationCategoryPreference(): List<String> {
         val prefs = mutableListOf<String>()
         if (preferenceManagerModule.isGplaySelected()) prefs.add(APP_TYPE_ANY)
         if (preferenceManagerModule.isOpenSourceSelected()) prefs.add(APP_TYPE_OPEN)
@@ -128,7 +121,7 @@ class FusedAPIImpl @Inject constructor(
         return prefs
     }
 
-    suspend fun getHomeScreenData(
+    override suspend fun getHomeScreenData(
         authData: AuthData,
     ): LiveData<ResultSupreme<List<FusedHome>>> {
 
@@ -225,7 +218,7 @@ class FusedAPIImpl @Inject constructor(
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
-    suspend fun getCategoriesList(
+    override suspend fun getCategoriesList(
         type: CategoryType,
     ): Triple<List<FusedCategory>, String, ResultStatus> {
         val categoriesList = mutableListOf<FusedCategory>()
@@ -251,7 +244,7 @@ class FusedAPIImpl @Inject constructor(
      * a Boolean signifying if more search results are being loaded.
      * Observe this livedata to display new apps as they are fetched from the network.
      */
-    fun getSearchResults(
+    override fun getSearchResults(
         query: String,
         authData: AuthData
     ): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> {
@@ -274,7 +267,7 @@ class FusedAPIImpl @Inject constructor(
 
             if (preferenceManagerModule.isOpenSourceSelected()) {
                 fetchOpenSourceSearchResult(
-                    this@FusedAPIImpl,
+                    this@FusedApiImpl,
                     cleanApkResults,
                     query,
                     searchResult,
@@ -284,7 +277,7 @@ class FusedAPIImpl @Inject constructor(
 
             if (preferenceManagerModule.isPWASelected()) {
                 fetchPWASearchResult(
-                    this@FusedAPIImpl,
+                    this@FusedApiImpl,
                     query,
                     searchResult,
                     packageSpecificResults
@@ -304,7 +297,7 @@ class FusedAPIImpl @Inject constructor(
     }
 
     private suspend fun fetchPWASearchResult(
-        fusedAPIImpl: FusedAPIImpl,
+        fusedAPIImpl: FusedApiImpl,
         query: String,
         searchResult: MutableList<FusedApp>,
         packageSpecificResults: ArrayList<FusedApp>
@@ -358,7 +351,7 @@ class FusedAPIImpl @Inject constructor(
     }
 
     private suspend fun fetchOpenSourceSearchResult(
-        fusedAPIImpl: FusedAPIImpl,
+        fusedAPIImpl: FusedApiImpl,
         cleanApkResults: MutableList<FusedApp>,
         query: String,
         searchResult: MutableList<FusedApp>,
@@ -490,11 +483,11 @@ class FusedAPIImpl @Inject constructor(
         return ResultSupreme.create(status, fusedApp)
     }
 
-    suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
+    override suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
         return gplayRepository.getSearchSuggestions(query)
     }
 
-    suspend fun getOnDemandModule(
+    override suspend fun getOnDemandModule(
         packageName: String,
         moduleName: String,
         versionCode: Int,
@@ -514,7 +507,7 @@ class FusedAPIImpl @Inject constructor(
         return null
     }
 
-    suspend fun updateFusedDownloadWithDownloadingInfo(
+    override suspend fun updateFusedDownloadWithDownloadingInfo(
         origin: Origin,
         fusedDownload: FusedDownload
     ) {
@@ -545,10 +538,10 @@ class FusedAPIImpl @Inject constructor(
         fusedDownload.downloadURLList = list
     }
 
-    suspend fun getOSSDownloadInfo(id: String, version: String?) =
+    override suspend fun getOSSDownloadInfo(id: String, version: String?) =
         (cleanApkAppsRepository as CleanApkDownloadInfoFetcher).getDownloadInfo(id, version)
 
-    suspend fun getPWAApps(category: String): ResultSupreme<List<FusedApp>> {
+    override suspend fun getPWAApps(category: String): ResultSupreme<List<FusedApp>> {
         val list = mutableListOf<FusedApp>()
         val status = runCodeBlockWithTimeout({
             val response = getPWAAppsResponse(category)
@@ -562,7 +555,7 @@ class FusedAPIImpl @Inject constructor(
         return ResultSupreme.create(status, list)
     }
 
-    suspend fun getOpenSourceApps(category: String): ResultSupreme<List<FusedApp>> {
+    override suspend fun getOpenSourceApps(category: String): ResultSupreme<List<FusedApp>> {
         val list = mutableListOf<FusedApp>()
         val status = runCodeBlockWithTimeout({
             val response = getOpenSourceAppsResponse(category)
@@ -576,7 +569,7 @@ class FusedAPIImpl @Inject constructor(
         return ResultSupreme.create(status, list)
     }
 
-    suspend fun getNextStreamBundle(
+    override suspend fun getNextStreamBundle(
         homeUrl: String,
         currentStreamBundle: StreamBundle,
     ): ResultSupreme<StreamBundle> {
@@ -588,9 +581,9 @@ class FusedAPIImpl @Inject constructor(
         return ResultSupreme.create(status, streamBundle)
     }
 
-    suspend fun getAdjustedFirstCluster(
+    override suspend fun getAdjustedFirstCluster(
         streamBundle: StreamBundle,
-        pointer: Int = 0,
+        pointer: Int,
     ): ResultSupreme<StreamCluster> {
         var streamCluster = StreamCluster()
         val status = runCodeBlockWithTimeout({
@@ -600,7 +593,7 @@ class FusedAPIImpl @Inject constructor(
         return ResultSupreme.create(status, streamCluster)
     }
 
-    suspend fun getNextStreamCluster(
+    override suspend fun getNextStreamCluster(
         currentStreamCluster: StreamCluster,
     ): ResultSupreme<StreamCluster> {
         var streamCluster = StreamCluster()
@@ -611,7 +604,7 @@ class FusedAPIImpl @Inject constructor(
         return ResultSupreme.create(status, streamCluster)
     }
 
-    suspend fun getPlayStoreApps(
+    override suspend fun getPlayStoreApps(
         browseUrl: String,
     ): ResultSupreme<List<FusedApp>> {
         val list = mutableListOf<FusedApp>()
@@ -631,7 +624,7 @@ class FusedAPIImpl @Inject constructor(
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5509
      */
-    suspend fun getCleanapkAppDetails(packageName: String): Pair<FusedApp, ResultStatus> {
+    override suspend fun getCleanapkAppDetails(packageName: String): Pair<FusedApp, ResultStatus> {
         var fusedApp = FusedApp()
         val status = runCodeBlockWithTimeout({
             val result = cleanApkAppsRepository.getSearchResult(
@@ -649,7 +642,7 @@ class FusedAPIImpl @Inject constructor(
         return Pair(fusedApp, status)
     }
 
-    suspend fun getApplicationDetails(
+    override suspend fun getApplicationDetails(
         packageNameList: List<String>,
         authData: AuthData,
         origin: Origin
@@ -762,7 +755,7 @@ class FusedAPIImpl @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5174
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
      */
-    suspend fun filterRestrictedGPlayApps(
+    override suspend fun filterRestrictedGPlayApps(
         authData: AuthData,
         appList: List<App>,
     ): ResultSupreme<List<FusedApp>> {
@@ -787,7 +780,7 @@ class FusedAPIImpl @Inject constructor(
      * Get different filter levels.
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5720
      */
-    suspend fun getAppFilterLevel(fusedApp: FusedApp, authData: AuthData?): FilterLevel {
+    override suspend fun getAppFilterLevel(fusedApp: FusedApp, authData: AuthData?): FilterLevel {
         if (fusedApp.package_name.isBlank()) {
             return FilterLevel.UNKNOWN
         }
@@ -839,7 +832,7 @@ class FusedAPIImpl @Inject constructor(
     /*
      * Similar to above method but uses Aurora OSS data class "App".
      */
-    suspend fun getAppFilterLevel(app: App, authData: AuthData): FilterLevel {
+    override suspend fun getAppFilterLevel(app: App, authData: AuthData): FilterLevel {
         return getAppFilterLevel(app.transformToFusedApp(), authData)
     }
 
@@ -850,7 +843,7 @@ class FusedAPIImpl @Inject constructor(
         this.filterLevel = getAppFilterLevel(this, authData)
     }
 
-    suspend fun getApplicationDetails(
+    override suspend fun getApplicationDetails(
         id: String,
         packageName: String,
         authData: AuthData,
@@ -1345,7 +1338,7 @@ class FusedAPIImpl @Inject constructor(
      *
      * Recommended to use this instead of [PkgManagerModule.getPackageStatus].
      */
-    fun getFusedAppInstallationStatus(fusedApp: FusedApp): Status {
+    override fun getFusedAppInstallationStatus(fusedApp: FusedApp): Status {
         return if (fusedApp.is_pwa) {
             pwaManagerModule.getPwaStatus(fusedApp)
         } else {
@@ -1382,7 +1375,7 @@ class FusedAPIImpl @Inject constructor(
     /**
      * @return true, if any change is found, otherwise false
      */
-    fun isHomeDataUpdated(
+    override fun isHomeDataUpdated(
         newHomeData: List<FusedHome>,
         oldHomeData: List<FusedHome>
     ): Boolean {
@@ -1421,7 +1414,7 @@ class FusedAPIImpl @Inject constructor(
     /**
      * @return returns true if there is changes in data, otherwise false
      */
-    fun isAnyFusedAppUpdated(
+    override fun isAnyFusedAppUpdated(
         newFusedApps: List<FusedApp>,
         oldFusedApps: List<FusedApp>
     ): Boolean {
@@ -1439,7 +1432,7 @@ class FusedAPIImpl @Inject constructor(
         return false
     }
 
-    fun isAnyAppInstallStatusChanged(currentList: List<FusedApp>): Boolean {
+    override fun isAnyAppInstallStatusChanged(currentList: List<FusedApp>): Boolean {
         currentList.forEach {
             if (it.status == Status.INSTALLATION_ISSUE) {
                 return@forEach
@@ -1453,5 +1446,5 @@ class FusedAPIImpl @Inject constructor(
         return false
     }
 
-    fun isOpenSourceSelected() = preferenceManagerModule.isOpenSourceSelected()
+    override fun isOpenSourceSelected() = preferenceManagerModule.isOpenSourceSelected()
 }

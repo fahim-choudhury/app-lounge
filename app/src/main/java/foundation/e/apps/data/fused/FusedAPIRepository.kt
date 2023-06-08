@@ -38,7 +38,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPIImpl) {
+class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi) {
 
     var streamBundle = StreamBundle()
         private set
@@ -82,8 +82,8 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedAPII
         return fusedAPIImpl.getHomeScreenData(authData)
     }
 
-    fun isFusedHomesEmpty(fusedHomes: List<FusedHome>): Boolean {
-        return fusedAPIImpl.isFusedHomesEmpty(fusedHomes)
+    fun isHomesEmpty(fusedHomes: List<FusedHome>): Boolean {
+        return fusedAPIImpl.isHomesEmpty(fusedHomes)
     }
 
     fun getApplicationCategoryPreference(): List<String> {
