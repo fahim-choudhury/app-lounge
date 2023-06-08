@@ -106,7 +106,7 @@ class FusedApiImpl @Inject constructor(
      * If any list is not empty, send false.
      * Else (if all lists are empty) send true.
      */
-    override fun isFusedHomesEmpty(fusedHomes: List<FusedHome>): Boolean {
+    override fun isHomesEmpty(fusedHomes: List<FusedHome>): Boolean {
         fusedHomes.forEach {
             if (it.list.isNotEmpty()) return false
         }

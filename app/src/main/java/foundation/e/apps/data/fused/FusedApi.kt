@@ -31,7 +31,7 @@ interface FusedApi {
      * If any list is not empty, send false.
      * Else (if all lists are empty) send true.
      */
-    fun isFusedHomesEmpty(fusedHomes: List<FusedHome>): Boolean
+    fun isHomesEmpty(fusedHomes: List<FusedHome>): Boolean
     fun getApplicationCategoryPreference(): List<String>
 
     suspend fun getHomeScreenData(
