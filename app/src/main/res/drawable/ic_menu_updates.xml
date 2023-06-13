@@ -1,6 +1,7 @@
 <!--
   ~ Apps  Quickly and easily install Android apps onto your device!
   ~ Copyright (C) 2021  E FOUNDATION
+  ~ Copyright (C) 2023  MURENA SAS
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -17,28 +18,25 @@
   -->
 
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="25dp"
-    android:height="25dp"
-    android:viewportWidth="25"
-    android:viewportHeight="25"
+    android:width="24dp"
+    android:height="24dp"
     android:tint="?android:attr/colorAccent"
-    >
-  <path
-      android:pathData="M7.899,10.1943C8.1911,9.9006 8.6659,9.8994 8.9596,10.1915L12.5436,13.7568L16.1075,10.1929C16.4004,9.9 16.8752,9.9 17.1681,10.1929C17.461,10.4858 17.461,10.9607 17.1681,11.2536L13.0753,15.3464C12.7829,15.6388 12.3091,15.6394 12.016,15.3478L7.9017,11.2549C7.6081,10.9628 7.6068,10.4879 7.899,10.1943Z"
-      android:strokeAlpha="0.8"
-      android:fillColor="@android:color/white"
-      android:fillType="evenOdd"
-      android:fillAlpha="0.8"/>
-  <path
-      android:pathData="M12.5449,1.8947C12.9591,1.8947 13.2949,2.2305 13.2949,2.6447V14.8161C13.2949,15.2303 12.9591,15.5661 12.5449,15.5661C12.1307,15.5661 11.7949,15.2303 11.7949,14.8161V2.6447C11.7949,2.2305 12.1307,1.8947 12.5449,1.8947Z"
-      android:strokeAlpha="0.8"
-      android:fillColor="@android:color/white"
-      android:fillType="evenOdd"
-      android:fillAlpha="0.8"/>
-  <path
-      android:pathData="M3.6523,5.6018C3.6523,5.1876 3.9881,4.8518 4.4023,4.8518H6.3523C6.7666,4.8518 7.1023,5.1876 7.1023,5.6018C7.1023,6.016 6.7666,6.3518 6.3523,6.3518H5.1523V21.1376H19.9381V6.3518H18.6523C18.2381,6.3518 17.9023,6.016 17.9023,5.6018C17.9023,5.1876 18.2381,4.8518 18.6523,4.8518H20.6881C21.1023,4.8518 21.4381,5.1876 21.4381,5.6018V21.8876C21.4381,22.3018 21.1023,22.6376 20.6881,22.6376H4.4023C3.9881,22.6376 3.6523,22.3018 3.6523,21.8876V5.6018Z"
-      android:strokeAlpha="0.8"
-      android:fillColor="@android:color/white"
-      android:fillType="evenOdd"
-      android:fillAlpha="0.8"/>
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group>
+        <clip-path android:pathData="M0,-0.436h24v24h-24z" />
+        <path
+            android:fillColor="@android:color/white"
+            android:fillType="evenOdd"
+            android:pathData="M7.365,9.492C7.657,9.198 8.132,9.197 8.425,9.489L12.009,13.054L15.573,9.491C15.866,9.198 16.341,9.198 16.634,9.491C16.927,9.783 16.927,10.258 16.634,10.551L12.541,14.644C12.249,14.936 11.775,14.937 11.482,14.645L7.368,10.553C7.074,10.26 7.073,9.786 7.365,9.492Z" />
+        <path
+            android:fillColor="@android:color/white"
+            android:fillType="evenOdd"
+            android:pathData="M12.011,1.192C12.425,1.192 12.761,1.528 12.761,1.942V14.114C12.761,14.528 12.425,14.864 12.011,14.864C11.597,14.864 11.261,14.528 11.261,14.114V1.942C11.261,1.528 11.597,1.192 12.011,1.192Z" />
+
+        <path
+            android:fillColor="@android:color/white"
+            android:fillType="evenOdd"
+            android:pathData="M3.118,4.899C3.118,4.485 3.454,4.149 3.868,4.149H5.818C6.232,4.149 6.568,4.485 6.568,4.899C6.568,5.314 6.232,5.649 5.818,5.649H4.618V20.435H19.404V5.649H18.118C17.704,5.649 17.368,5.314 17.368,4.899C17.368,4.485 17.704,4.149 18.118,4.149H20.154C20.568,4.149 20.904,4.485 20.904,4.899V21.185C20.904,21.599 20.568,21.935 20.154,21.935H3.868C3.454,21.935 3.118,21.599 3.118,21.185V4.899Z" />
+    </group>
 </vector>
