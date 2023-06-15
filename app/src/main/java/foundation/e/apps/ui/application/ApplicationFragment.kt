@@ -521,7 +521,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             enableInstallButton(R.string.retry)
             setOnClickListener {
                 applicationIcon?.let {
-                    mainActivityViewModel.getApplication(fusedApp, it)
+                    mainActivityViewModel.getApplication(fusedApp)
                 }
             }
         }
@@ -669,11 +669,11 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 message = getString(R.string.may_not_work_warning_message),
                 positiveButtonText = getString(R.string.install_anyway),
                 positiveButtonAction = {
-                    mainActivityViewModel.getApplication(fusedApp, it)
+                    mainActivityViewModel.getApplication(fusedApp)
                 }
             ).show(childFragmentManager, "ApplicationFragment")
         } else {
-            mainActivityViewModel.getApplication(fusedApp, it)
+            mainActivityViewModel.getApplication(fusedApp)
         }
     }
 
@@ -697,7 +697,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                     return@setOnClickListener
                 }
                 applicationIcon?.let {
-                    mainActivityViewModel.getApplication(fusedApp, it)
+                    mainActivityViewModel.getApplication(fusedApp)
                 }
             }
         }

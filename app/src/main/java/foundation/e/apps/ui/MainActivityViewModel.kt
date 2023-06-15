@@ -196,7 +196,7 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun getApplication(app: FusedApp, imageView: ImageView?) {
+    fun getApplication(app: FusedApp) {
         if (shouldShowPaidAppsSnackBar(app)) {
             return
         }
@@ -204,7 +204,6 @@ class MainActivityViewModel @Inject constructor(
         viewModelScope.launch {
             val fusedDownload: FusedDownload
             try {
-                val appIcon = imageView?.let { getImageBase64(it) } ?: ""
                 fusedDownload = FusedDownload(
                     app._id,
                     app.origin,
@@ -215,7 +214,7 @@ class MainActivityViewModel @Inject constructor(
                     mutableMapOf(),
                     app.status,
                     app.type,
-                    appIcon,
+                    app.icon_image_path,
                     app.latest_version_code,
                     app.offer_type,
                     app.isFree,
@@ -224,7 +223,7 @@ class MainActivityViewModel @Inject constructor(
                 updateFusedDownloadWithAppDownloadLink(app, fusedDownload)
             } catch (e: Exception) {
                 if (e is ApiException.AppNotPurchased) {
-                    handleAppNotPurchased(imageView, app)
+                    handleAppNotPurchased(app)
                     return@launch
                 }
                 _errorMessage.value = e
@@ -239,10 +238,8 @@ class MainActivityViewModel @Inject constructor(
     }
 
     private fun handleAppNotPurchased(
-        imageView: ImageView?,
         app: FusedApp
     ) {
-        val appIcon = imageView?.let { getImageBase64(it) } ?: ""
         val fusedDownload = FusedDownload(
             app._id,
             app.origin,
@@ -253,7 +250,7 @@ class MainActivityViewModel @Inject constructor(
             mutableMapOf(),
             app.status,
             app.type,
-            appIcon,
+            app.icon_image_path,
             app.latest_version_code,
             app.offer_type,
             app.isFree,

@@ -228,8 +228,6 @@ class UpdatesWorker @AssistedInject constructor(
                 return@forEach
             }
 
-            val iconBase64 = getIconImageToBase64(fusedApp)
-
             val fusedDownload = FusedDownload(
                 fusedApp._id,
                 fusedApp.origin,
@@ -240,7 +238,7 @@ class UpdatesWorker @AssistedInject constructor(
                 mutableMapOf(),
                 fusedApp.status,
                 fusedApp.type,
-                iconBase64,
+                fusedApp.icon_image_path,
                 fusedApp.latest_version_code,
                 fusedApp.offer_type,
                 fusedApp.isFree,

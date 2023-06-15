@@ -18,7 +18,7 @@ data class FusedDownload(
     var downloadIdMap: MutableMap<Long, Boolean> = mutableMapOf(),
     val orgStatus: Status = Status.UNAVAILABLE,
     val type: Type = Type.NATIVE,
-    val iconByteArray: String = String(),
+    val iconImagePath: String = String(),
     val versionCode: Int = 1,
     val offerType: Int = -1,
     val isFree: Boolean = true,

@@ -338,7 +338,7 @@ class ApplicationListFragment :
     }
 
     override fun getApplication(app: FusedApp, appIcon: ImageView?) {
-        mainActivityViewModel.getApplication(app, appIcon)
+        mainActivityViewModel.getApplication(app)
     }
 
     override fun cancelDownload(app: FusedApp) {
