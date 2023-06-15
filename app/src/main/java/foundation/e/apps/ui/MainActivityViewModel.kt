@@ -323,6 +323,7 @@ class MainActivityViewModel @Inject constructor(
                     app.origin,
                     fusedDownload
                 )
+
             }
         }
     }

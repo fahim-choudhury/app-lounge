@@ -17,6 +17,7 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.utils.CommonUtilsFunctions
 import kotlinx.coroutines.delay
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -100,7 +101,8 @@ class PWAManagerModule @Inject constructor(
         fusedDownloadRepository.updateDownload(fusedDownload)
 
         // Get bitmap and byteArray for icon
-        val iconByteArray = Base64.decode(fusedDownload.iconByteArray, Base64.DEFAULT)
+        val base64AppIcon = CommonUtilsFunctions.getIconImageToBase64(fusedDownload.getAppIconUrl())
+        val iconByteArray = Base64.decode(base64AppIcon, Base64.DEFAULT)
         val iconBitmap = BitmapFactory.decodeByteArray(iconByteArray, 0, iconByteArray.size)
 
         val values = ContentValues()
