@@ -3,11 +3,8 @@ package foundation.e.apps.install.updates
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.util.Base64
 import androidx.hilt.work.HiltWorker
 import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
@@ -20,8 +17,6 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
-import foundation.e.apps.data.cleanapk.CleanApkRetrofit
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.enums.User
@@ -39,8 +34,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.io.ByteArrayOutputStream
-import java.net.URL
 
 @HiltWorker
 class UpdatesWorker @AssistedInject constructor(
