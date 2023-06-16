@@ -1,6 +1,7 @@
 package foundation.e.apps.data.fusedDownload.models
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.aurora.gplayapi.data.models.File
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
@@ -27,12 +28,15 @@ data class FusedDownload(
     var files: List<File> = mutableListOf(),
     var signature: String = String()
 ) {
-    fun isAppInstalling() = listOf<Status>(
+    @Ignore
+    private val installingStatusList = listOf(
         Status.AWAITING,
         Status.DOWNLOADING,
         Status.DOWNLOADED,
         Status.INSTALLING
-    ).contains(status)
+    )
+
+    fun isAppInstalling() = installingStatusList.contains(status)
 
     fun isAwaiting() = status == Status.AWAITING
 
