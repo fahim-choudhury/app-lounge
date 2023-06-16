@@ -25,13 +25,9 @@ import android.graphics.BitmapFactory
 import android.os.Build
 import android.util.Base64
 import foundation.e.apps.BuildConfig
-import foundation.e.apps.data.cleanapk.CleanApkRetrofit
-import foundation.e.apps.data.enums.Origin
-import foundation.e.apps.data.fused.data.FusedApp
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.net.URL
 
 object CommonUtilsFunctions {
@@ -81,9 +77,6 @@ object CommonUtilsFunctions {
             val byteArrayOS = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOS)
             Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT)
-        } catch (e: IOException) {
-            Timber.e(e)
-            null
         } catch (e: Exception) {
             Timber.e(e)
             null

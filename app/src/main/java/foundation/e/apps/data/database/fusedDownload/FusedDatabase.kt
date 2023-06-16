@@ -2,13 +2,9 @@ package foundation.e.apps.data.database.fusedDownload
 
 import android.content.Context
 import androidx.room.Database
-import androidx.room.DeleteColumn
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import androidx.room.migration.AutoMigrationSpec
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import foundation.e.apps.data.database.AppDatabase
 import foundation.e.apps.data.fusedDownload.FusedDownloadDAO
 import foundation.e.apps.data.fusedDownload.models.FusedDownload

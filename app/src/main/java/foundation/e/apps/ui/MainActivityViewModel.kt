@@ -328,13 +328,6 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    private fun getImageBase64(imageView: ImageView): String {
-        val byteArrayOS = ByteArrayOutputStream()
-        val bitmap = imageView.drawable.toBitmap()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOS)
-        return Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT)
-    }
-
     fun setupConnectivityManager(context: Context) {
         connectivityManager =
             context.getSystemService(ConnectivityManager::class.java) as ConnectivityManager
