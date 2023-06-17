@@ -42,14 +42,6 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
     private val trackerDao: TrackerDao
 ) : IAppPrivacyInfoRepository {
     companion object {
-        private const val MAX_TRACKER_SCORE = 9
-        private const val MIN_TRACKER_SCORE = 0
-        private const val MAX_PERMISSION_SCORE = 10
-        private const val MIN_PERMISSION_SCORE = 0
-        private const val THRESHOLD_OF_NON_ZERO_TRACKER_SCORE = 5
-        private const val THRESHOLD_OF_NON_ZERO_PERMISSION_SCORE = 9
-        private const val FACTOR_OF_PERMISSION_SCORE = 0.2
-        private const val DIVIDER_OF_PERMISSION_SCORE = 2.0
         private const val DATE_FORMAT = "ddMMyyyy"
         private const val SOURCE_FDROID = "fdroid"
         private const val SOURCE_GOOGLE = "google"
@@ -191,30 +183,5 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
         return trackers.filter {
             latestTrackerData.trackers.contains(it.id)
         }.map { it.name }
-    }
-
-    override fun calculatePrivacyScore(fusedApp: FusedApp): Int {
-        if (fusedApp.permsFromExodus == LIST_OF_NULL) {
-            return -1
-        }
-
-        val calculateTrackersScore = calculateTrackersScore(fusedApp.trackers.size)
-        val calculatePermissionsScore = calculatePermissionsScore(
-            countAndroidPermissions(fusedApp)
-        )
-        return calculateTrackersScore + calculatePermissionsScore
-    }
-
-    private fun countAndroidPermissions(fusedApp: FusedApp) =
-        fusedApp.permsFromExodus.filter { it.contains("android.permission") }.size
-
-    private fun calculateTrackersScore(numberOfTrackers: Int): Int {
-        return if (numberOfTrackers > THRESHOLD_OF_NON_ZERO_TRACKER_SCORE) MIN_TRACKER_SCORE else MAX_TRACKER_SCORE - numberOfTrackers
-    }
-
-    private fun calculatePermissionsScore(numberOfPermission: Int): Int {
-        return if (numberOfPermission > THRESHOLD_OF_NON_ZERO_PERMISSION_SCORE) MIN_PERMISSION_SCORE else round(
-            FACTOR_OF_PERMISSION_SCORE * ceil((MAX_PERMISSION_SCORE - numberOfPermission) / DIVIDER_OF_PERMISSION_SCORE)
-        ).toInt()
     }
 }

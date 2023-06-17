@@ -6,5 +6,4 @@ import foundation.e.apps.data.fused.data.FusedApp
 
 interface IAppPrivacyInfoRepository {
     suspend fun getAppPrivacyInfo(fusedApp: FusedApp, appHandle: String): Result<AppPrivacyInfo>
-    fun calculatePrivacyScore(fusedApp: FusedApp): Int
 }
