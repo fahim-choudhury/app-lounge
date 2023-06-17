@@ -22,7 +22,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.exodus.repositories.AppPrivacyInfoRepositoryImpl
 import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -52,7 +51,8 @@ class AppPrivacyInfoRepositoryImplTest {
     fun setup() {
         fakeExodusTrackerApi = FakeExoudsTrackerApi()
         fakeTrackerDao = FakeTrackerDao()
-        appPrivacyInfoRepository = AppPrivacyInfoRepositoryImpl(fakeExodusTrackerApi, fakeTrackerDao)
+        appPrivacyInfoRepository =
+            AppPrivacyInfoRepositoryImpl(fakeExodusTrackerApi, fakeTrackerDao)
     }
 
     @Test
@@ -97,55 +97,5 @@ class AppPrivacyInfoRepositoryImplTest {
         fakeTrackerDao.trackers.clear()
         val result = appPrivacyInfoRepository.getAppPrivacyInfo(fusedApp, fusedApp.package_name)
         assertEquals("getAppPrivacyInfo", 2, result.data?.trackerList?.size)
-    }
-
-    @Test
-    fun calculatePrivacyScoreWhenNoTrackers() {
-        val fusedApp = FusedApp(
-            _id = "113",
-            status = Status.UNAVAILABLE,
-            name = "Demo Three",
-            package_name = "a.b.c",
-            latest_version_code = 123,
-            is_pwa = true,
-            permsFromExodus = listOf(),
-            perms = listOf(),
-            trackers = listOf()
-        )
-        val privacyScore = appPrivacyInfoRepository.calculatePrivacyScore(fusedApp)
-        assertEquals("getAppPrivacyInfo", 10, privacyScore)
-    }
-
-    @Test
-    fun calculatePrivacyScoreWhenPermsAreNotAvailable() {
-        val fusedApp = FusedApp(
-            _id = "113",
-            status = Status.UNAVAILABLE,
-            name = "Demo Three",
-            package_name = "a.b.c",
-            latest_version_code = 123,
-            is_pwa = true,
-            perms = listOf(),
-            trackers = listOf()
-        )
-        val privacyScore = appPrivacyInfoRepository.calculatePrivacyScore(fusedApp)
-        assertEquals("getAppPrivacyInfo", -1, privacyScore)
-    }
-
-    @Test
-    fun calculatePrivacyScoreWhenTrackersAreNotAvailable() {
-        val fusedApp = FusedApp(
-            _id = "113",
-            status = Status.UNAVAILABLE,
-            name = "Demo Three",
-            package_name = "a.b.c",
-            latest_version_code = 123,
-            is_pwa = true,
-            permsFromExodus = listOf(),
-            perms = listOf(),
-            trackers = LIST_OF_NULL
-        )
-        val privacyScore = appPrivacyInfoRepository.calculatePrivacyScore(fusedApp)
-        assertEquals("getAppPrivacyInfo", 9, privacyScore)
     }
 }

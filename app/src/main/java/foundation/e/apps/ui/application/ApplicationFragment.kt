@@ -125,7 +125,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     companion object {
         private const val PRIVACY_SCORE_SOURCE_CODE_URL =
-            "https://gitlab.e.foundation/e/os/apps/-/blob/main/app/src/main/java/foundation/e/apps/data/exodus/repositories/AppPrivacyInfoRepositoryImpl.kt#L196"
+            "https://gitlab.e.foundation/e/os/apps/-/blob/main/app/src/main/java/foundation/e/apps/data/exodus/repositories/PrivacyScoreRepositoryImpl.kt#L31"
         private const val EXODUS_URL = "https://exodus-privacy.eu.org"
         private const val EXODUS_REPORT_URL = "https://reports.exodus-privacy.eu.org/"
         private const val PRIVACY_GUIDELINE_URL = "https://doc.e.foundation/privacy_score"
