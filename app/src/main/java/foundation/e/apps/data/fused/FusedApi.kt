@@ -82,9 +82,9 @@ interface FusedApi {
 
     suspend fun getOSSDownloadInfo(id: String, version: String?): Response<Download>
 
-    suspend fun getPWAApps(category: String): ResultSupreme<List<FusedApp>>
+    suspend fun getPWAApps(category: String): ResultSupreme<Pair<List<FusedApp>, String>>
 
-    suspend fun getOpenSourceApps(category: String): ResultSupreme<List<FusedApp>>
+    suspend fun getOpenSourceApps(category: String): ResultSupreme<Pair<List<FusedApp>, String>>
 
     suspend fun getNextStreamBundle(
         homeUrl: String,
@@ -178,4 +178,6 @@ interface FusedApi {
 
     fun isAnyAppInstallStatusChanged(currentList: List<FusedApp>): Boolean
     fun isOpenSourceSelected(): Boolean
+
+    suspend fun getAppsByCategory(authData: AuthData, category: String, nextPageUrl: String?): ResultSupreme<Pair<List<FusedApp>, String>>
 }

@@ -233,7 +233,7 @@ class ApplicationListFragment :
          * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/478
          */
         showLoadingUI()
-        viewModel.loadData(args.category, args.browseUrl, args.source, authObjectList) {
+        viewModel.loadData(args.category, args.source, authObjectList) {
             clearAndRestartGPlayLogin()
             true
         }
@@ -249,7 +249,7 @@ class ApplicationListFragment :
                     if (!recyclerView.canScrollVertically(1)) {
                         viewModel.loadMore(
                             authObjectList.find { it is AuthObject.GPlayAuth },
-                            args.browseUrl
+                            args.category
                         )
                     }
                 }
@@ -266,7 +266,7 @@ class ApplicationListFragment :
                     onPlaceHolderShow = {
                         viewModel.loadMore(
                             authObjectList.find { it is AuthObject.GPlayAuth },
-                            args.browseUrl
+                            args.category
                         )
                     }
                 }

@@ -522,6 +522,7 @@ class FusedApiImpl @Inject constructor(
                 downloadInfo?.download_data?.download_link?.let { list.add(it) }
                 fusedDownload.signature = downloadInfo?.download_data?.signature ?: ""
             }
+
             Origin.GPLAY -> {
                 val downloadList =
                     gplayRepository.getDownloadInfo(
@@ -532,6 +533,7 @@ class FusedApiImpl @Inject constructor(
                 fusedDownload.files = downloadList
                 list.addAll(downloadList.map { it.url })
             }
+
             Origin.GITLAB -> {
             }
         }
@@ -541,7 +543,7 @@ class FusedApiImpl @Inject constructor(
     override suspend fun getOSSDownloadInfo(id: String, version: String?) =
         (cleanApkAppsRepository as CleanApkDownloadInfoFetcher).getDownloadInfo(id, version)
 
-    override suspend fun getPWAApps(category: String): ResultSupreme<List<FusedApp>> {
+    override suspend fun getPWAApps(category: String): ResultSupreme<Pair<List<FusedApp>,String>> {
         val list = mutableListOf<FusedApp>()
         val status = runCodeBlockWithTimeout({
             val response = getPWAAppsResponse(category)
@@ -552,10 +554,10 @@ class FusedApiImpl @Inject constructor(
                 list.add(it)
             }
         })
-        return ResultSupreme.create(status, list)
+        return ResultSupreme.create(status, Pair(list, ""))
     }
 
-    override suspend fun getOpenSourceApps(category: String): ResultSupreme<List<FusedApp>> {
+    override suspend fun getOpenSourceApps(category: String): ResultSupreme<Pair<List<FusedApp>, String>> {
         val list = mutableListOf<FusedApp>()
         val status = runCodeBlockWithTimeout({
             val response = getOpenSourceAppsResponse(category)
@@ -566,7 +568,7 @@ class FusedApiImpl @Inject constructor(
                 list.add(it)
             }
         })
-        return ResultSupreme.create(status, list)
+        return ResultSupreme.create(status, Pair(list, ""))
     }
 
     override suspend fun getNextStreamBundle(
@@ -1026,7 +1028,7 @@ class FusedApiImpl @Inject constructor(
 
     private fun getCategoryIconName(category: FusedCategory): String {
         var categoryTitle = if (category.tag.getOperationalTag()
-            .contentEquals(AppTag.GPlay().getOperationalTag())
+                .contentEquals(AppTag.GPlay().getOperationalTag())
         ) category.id else category.title
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
@@ -1045,6 +1047,7 @@ class FusedApiImpl @Inject constructor(
             CategoryType.APPLICATION -> {
                 getAppsCategoriesAsFusedCategory(categories, tag)
             }
+
             CategoryType.GAMES -> {
                 getGamesCategoriesAsFusedCategory(categories, tag)
             }
@@ -1210,6 +1213,7 @@ class FusedApiImpl @Inject constructor(
                         list.add(FusedHome(value, home.top_updated_apps))
                     }
                 }
+
                 "top_updated_games" -> {
                     if (home.top_updated_games.isNotEmpty()) {
                         home.top_updated_games.forEach {
@@ -1220,6 +1224,7 @@ class FusedApiImpl @Inject constructor(
                         list.add(FusedHome(value, home.top_updated_games))
                     }
                 }
+
                 "popular_apps" -> {
                     if (home.popular_apps.isNotEmpty()) {
                         home.popular_apps.forEach {
@@ -1230,6 +1235,7 @@ class FusedApiImpl @Inject constructor(
                         list.add(FusedHome(value, home.popular_apps))
                     }
                 }
+
                 "popular_games" -> {
                     if (home.popular_games.isNotEmpty()) {
                         home.popular_games.forEach {
@@ -1240,6 +1246,7 @@ class FusedApiImpl @Inject constructor(
                         list.add(FusedHome(value, home.popular_games))
                     }
                 }
+
                 "popular_apps_in_last_24_hours" -> {
                     if (home.popular_apps_in_last_24_hours.isNotEmpty()) {
                         home.popular_apps_in_last_24_hours.forEach {
@@ -1250,6 +1257,7 @@ class FusedApiImpl @Inject constructor(
                         list.add(FusedHome(value, home.popular_apps_in_last_24_hours))
                     }
                 }
+
                 "popular_games_in_last_24_hours" -> {
                     if (home.popular_games_in_last_24_hours.isNotEmpty()) {
                         home.popular_games_in_last_24_hours.forEach {
@@ -1260,6 +1268,7 @@ class FusedApiImpl @Inject constructor(
                         list.add(FusedHome(value, home.popular_games_in_last_24_hours))
                     }
                 }
+
                 "discover" -> {
                     if (home.discover.isNotEmpty()) {
                         home.discover.forEach {
@@ -1447,4 +1456,23 @@ class FusedApiImpl @Inject constructor(
     }
 
     override fun isOpenSourceSelected() = preferenceManagerModule.isOpenSourceSelected()
+    override suspend fun getAppsByCategory(
+        authData: AuthData,
+        category: String,
+        pageUrl: String?
+    ): ResultSupreme<Pair<List<FusedApp>, String>> {
+        var fusedAppList: List<FusedApp> = mutableListOf()
+        var nextPageUrl = ""
+
+        val status = runCodeBlockWithTimeout({
+            val streamCluster = gplayRepository.getAppsByCategory(category, pageUrl) as StreamCluster
+            val filteredAppList = filterRestrictedGPlayApps(authData, streamCluster.clusterAppList)
+            filteredAppList.data?.let {
+                fusedAppList = it
+            }
+            nextPageUrl = streamCluster.clusterNextPageUrl
+        })
+
+        return ResultSupreme.create(status, Pair(fusedAppList, nextPageUrl))
+    }
 }

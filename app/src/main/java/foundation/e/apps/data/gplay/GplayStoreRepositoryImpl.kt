@@ -29,10 +29,12 @@ import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.AppDetailsHelper
 import com.aurora.gplayapi.helpers.CategoryHelper
+import com.aurora.gplayapi.helpers.Chart
 import com.aurora.gplayapi.helpers.ExpandedBrowseHelper
 import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.aurora.gplayapi.helpers.SearchHelper
 import com.aurora.gplayapi.helpers.StreamHelper
+import com.aurora.gplayapi.helpers.SubCategoryHelper
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
@@ -46,6 +48,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 class GplayStoreRepositoryImpl @Inject constructor(
@@ -71,12 +74,12 @@ class GplayStoreRepositoryImpl @Inject constructor(
     }
 
     private fun createTopChartElements() = mutableMapOf(
-        context.getString(R.string.topselling_free_apps) to mapOf(TopChartsHelper.Chart.TOP_SELLING_FREE to TopChartsHelper.Type.APPLICATION),
-        context.getString(R.string.topselling_free_games) to mapOf(TopChartsHelper.Chart.TOP_SELLING_FREE to TopChartsHelper.Type.GAME),
-        context.getString(R.string.topgrossing_apps) to mapOf(TopChartsHelper.Chart.TOP_GROSSING to TopChartsHelper.Type.APPLICATION),
-        context.getString(R.string.topgrossing_games) to mapOf(TopChartsHelper.Chart.TOP_GROSSING to TopChartsHelper.Type.GAME),
-        context.getString(R.string.movers_shakers_apps) to mapOf(TopChartsHelper.Chart.MOVERS_SHAKERS to TopChartsHelper.Type.APPLICATION),
-        context.getString(R.string.movers_shakers_games) to mapOf(TopChartsHelper.Chart.MOVERS_SHAKERS to TopChartsHelper.Type.GAME),
+        context.getString(R.string.topselling_free_apps) to mapOf(Chart.TOP_SELLING_FREE to TopChartsHelper.Type.APPLICATION),
+        context.getString(R.string.topselling_free_games) to mapOf(Chart.TOP_SELLING_FREE to TopChartsHelper.Type.GAME),
+        context.getString(R.string.topgrossing_apps) to mapOf(Chart.TOP_GROSSING to TopChartsHelper.Type.APPLICATION),
+        context.getString(R.string.topgrossing_games) to mapOf(Chart.TOP_GROSSING to TopChartsHelper.Type.GAME),
+        context.getString(R.string.movers_shakers_apps) to mapOf(Chart.MOVERS_SHAKERS to TopChartsHelper.Type.APPLICATION),
+        context.getString(R.string.movers_shakers_games) to mapOf(Chart.MOVERS_SHAKERS to TopChartsHelper.Type.GAME),
     )
 
     override suspend fun getSearchResult(
@@ -158,28 +161,17 @@ class GplayStoreRepositoryImpl @Inject constructor(
         return searchData.filter { it.suggestedQuery.isNotBlank() }
     }
 
-    override suspend fun getAppsByCategory(category: String, paginationParameter: Any?): Any {
-        if (paginationParameter != null && paginationParameter is StreamCluster) {
-            return getNextStreamCluster(authData, paginationParameter)
+    override suspend fun getAppsByCategory(category: String, paginationParameter: Any?): StreamCluster {
+        val subCategoryHelper =
+            SubCategoryHelper(authData).using(gPlayHttpClient)
+
+        paginationParameter?.let {
+            if (it is String && it.isNotEmpty()) {
+                return subCategoryHelper.next(it)
+            }
         }
 
-        if (paginationParameter != null && paginationParameter is StreamBundle) {
-            return getNextStreamBundle(
-                authData,
-                category,
-                paginationParameter
-            )
-        }
-
-        if (paginationParameter != null && paginationParameter is Pair<*, *>) {
-            return getAdjustedFirstCluster(
-                authData,
-                paginationParameter.first as StreamBundle,
-                paginationParameter.second as Int
-            )
-        }
-
-        return getGplayApps(category)
+        return subCategoryHelper.getSubCategoryApps(category.uppercase(), paginationParameter?.toString())
     }
 
     override suspend fun getCategories(type: CategoryType?): List<Category> {
@@ -459,13 +451,15 @@ class GplayStoreRepositoryImpl @Inject constructor(
 
     private suspend fun getTopApps(
         type: TopChartsHelper.Type,
-        chart: TopChartsHelper.Chart,
+        chart: Chart,
         authData: AuthData
     ): List<App> {
         val topApps = mutableListOf<App>()
         withContext(Dispatchers.IO) {
             val topChartsHelper = TopChartsHelper(authData).using(gPlayHttpClient)
-            topApps.addAll(topChartsHelper.getCluster(type, chart).clusterAppList)
+            val cluster = topChartsHelper.getCluster(type, chart)
+            Timber.d("Next cluster url: ${cluster.clusterNextPageUrl}")
+            topApps.addAll(cluster.clusterAppList)
         }
         return topApps
     }
