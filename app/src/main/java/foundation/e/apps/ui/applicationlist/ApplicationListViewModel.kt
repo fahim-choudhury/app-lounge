@@ -55,6 +55,11 @@ class ApplicationListViewModel @Inject constructor(
     ) {
         super.onLoadData(authObjectList, { successAuthList, _ ->
 
+            if (appListLiveData.value?.data?.isNotEmpty() == true) {
+                appListLiveData.postValue(appListLiveData.value)
+                return@onLoadData
+            }
+
             successAuthList.find { it is AuthObject.GPlayAuth }?.run {
                 getList(category, result.data!! as AuthData, source)
                 return@onLoadData
@@ -78,7 +83,7 @@ class ApplicationListViewModel @Inject constructor(
             }
 
             result.data?.let {
-                appListLiveData.postValue(ResultSupreme.create(ResultStatus.OK,it.first))
+                appListLiveData.postValue(ResultSupreme.create(ResultStatus.OK, it.first))
                 updateNextPageUrl(it.second)
             }
 
@@ -137,16 +142,7 @@ class ApplicationListViewModel @Inject constructor(
                 val appList = currentAppList?.plus(it.first)
                 val resultSupreme = ResultSupreme.create(ResultStatus.OK, appList)
                 appListLiveData.postValue(resultSupreme)
-                /*
-             * Check if a placeholder app is to be added at the end.
-             * If yes then post the updated result.
-             * We post this separately as it helps clear any previous placeholder app
-             * and ensures only a single placeholder app is present at the end of the
-             * list, and none at the middle of the list.
-             */
-                if (result.isSuccess() && it.second.isNotEmpty()) {
-                    appListLiveData.postValue(resultSupreme)
-                }
+
                 updateNextPageUrl(it.second)
             }
         }

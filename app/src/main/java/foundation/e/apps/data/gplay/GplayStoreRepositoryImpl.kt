@@ -28,13 +28,13 @@ import com.aurora.gplayapi.data.models.SearchBundle
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.AppDetailsHelper
+import com.aurora.gplayapi.helpers.CategoryAppsHelper
 import com.aurora.gplayapi.helpers.CategoryHelper
 import com.aurora.gplayapi.helpers.Chart
 import com.aurora.gplayapi.helpers.ExpandedBrowseHelper
 import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.aurora.gplayapi.helpers.SearchHelper
 import com.aurora.gplayapi.helpers.StreamHelper
-import com.aurora.gplayapi.helpers.SubCategoryHelper
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
@@ -163,7 +163,7 @@ class GplayStoreRepositoryImpl @Inject constructor(
 
     override suspend fun getAppsByCategory(category: String, paginationParameter: Any?): StreamCluster {
         val subCategoryHelper =
-            SubCategoryHelper(authData).using(gPlayHttpClient)
+            CategoryAppsHelper(authData).using(gPlayHttpClient)
 
         paginationParameter?.let {
             if (it is String && it.isNotEmpty()) {
@@ -171,7 +171,7 @@ class GplayStoreRepositoryImpl @Inject constructor(
             }
         }
 
-        return subCategoryHelper.getSubCategoryApps(category.uppercase(), paginationParameter?.toString())
+        return subCategoryHelper.getCategoryAppsList(category.uppercase())
     }
 
     override suspend fun getCategories(type: CategoryType?): List<Category> {
