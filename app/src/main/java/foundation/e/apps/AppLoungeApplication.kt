@@ -78,7 +78,7 @@ class AppLoungeApplication : Application(), Configuration.Provider {
             Telemetry.init(BuildConfig.SENTRY_DSN, this)
             plant(object : Timber.Tree() {
                 override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-                    if (priority < Log.WARN) {
+                    if (priority <= Log.WARN) {
                         return
                     }
                     Log.println(priority, tag, message)
