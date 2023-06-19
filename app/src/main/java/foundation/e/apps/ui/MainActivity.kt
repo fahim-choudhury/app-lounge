@@ -53,7 +53,7 @@ import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.purchase.AppPurchaseFragmentDirections
 import foundation.e.apps.ui.settings.SettingsFragment
 import foundation.e.apps.ui.setup.signin.SignInViewModel
-import foundation.e.apps.utils.CommonUtilsFunctions
+import foundation.e.apps.utils.SystemInfoProvider
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.flow.collectLatest
@@ -134,7 +134,7 @@ class MainActivity : AppCompatActivity() {
                     val email = otherPayload.toString()
                     viewModel.uploadFaultyTokenToEcloud(
                         email,
-                        CommonUtilsFunctions.getAppBuildInfo()
+                        SystemInfoProvider.getAppBuildInfo()
                     )
                 }
             }

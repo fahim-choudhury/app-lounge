@@ -18,33 +18,13 @@
 package foundation.e.apps.utils
 
 import android.annotation.SuppressLint
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Build
-import android.util.Base64
 import foundation.e.apps.BuildConfig
 import org.json.JSONObject
-import timber.log.Timber
-import java.io.ByteArrayOutputStream
-import java.net.URL
 
-object CommonUtilsFunctions {
+object SystemInfoProvider {
 
-    /**
-     * Copy anything to system clipboard.
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5653
-     */
-    fun copyTextToClipboard(
-        clipboard: ClipboardManager,
-        label: String,
-        text: String,
-    ) {
-        // https://developer.android.com/guide/topics/text/copy-paste#Copying
-        val clip = ClipData.newPlainText(label, text)
-        clipboard.setPrimaryClip(clip)
-    }
+    const val KEY_LINEAGE_VERSION = "ro.lineage.version"
 
     @SuppressLint("PrivateApi")
     fun getSystemProperty(key: String?): String? {
@@ -64,22 +44,9 @@ object CommonUtilsFunctions {
             put("version", BuildConfig.VERSION_NAME)
             put("device", Build.DEVICE)
             put("api", Build.VERSION.SDK_INT)
-            put("os_version", getSystemProperty("ro.lineage.version"))
+            put("os_version", getSystemProperty(KEY_LINEAGE_VERSION))
             put("build_id", BuildConfig.BUILD_ID)
         }
         return descriptionJson.toString()
-    }
-
-    fun getIconImageToBase64(url: String): String? {
-        return try {
-            val stream = URL(url).openStream()
-            val bitmap = BitmapFactory.decodeStream(stream)
-            val byteArrayOS = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOS)
-            Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT)
-        } catch (e: Exception) {
-            Timber.e(e)
-            null
-        }
     }
 }

@@ -22,7 +22,7 @@ package foundation.e.apps.data.gplay.utils
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.network.IHttpClient
 import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.utils.CommonUtilsFunctions
+import foundation.e.apps.utils.SystemInfoProvider
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.MainScope
@@ -88,7 +88,7 @@ class GPlayHttpClient @Inject constructor(
     override fun postAuth(url: String, body: ByteArray): PlayResponse {
         val requestBody = body.toRequestBody("application/json".toMediaType(), 0, body.size)
         val headers = mapOf(
-            "User-Agent" to CommonUtilsFunctions.getAppBuildInfo()
+            "User-Agent" to SystemInfoProvider.getAppBuildInfo()
         )
         val request = Request.Builder()
             .headers(headers.toHeaders())
