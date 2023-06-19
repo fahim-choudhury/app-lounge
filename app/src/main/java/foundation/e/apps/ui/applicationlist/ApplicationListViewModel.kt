@@ -132,7 +132,9 @@ class ApplicationListViewModel @Inject constructor(
             isLoading = false
 
             result.data?.let {
-                val appList = appListLiveData.value?.data?.plus(it.first)
+                val currentAppList = appListLiveData.value?.data?.toMutableList()
+                currentAppList?.removeIf { item -> item.isPlaceHolder }
+                val appList = currentAppList?.plus(it.first)
                 val resultSupreme = ResultSupreme.create(ResultStatus.OK, appList)
                 appListLiveData.postValue(resultSupreme)
                 /*

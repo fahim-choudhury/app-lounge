@@ -1461,16 +1461,19 @@ class FusedApiImpl @Inject constructor(
         category: String,
         pageUrl: String?
     ): ResultSupreme<Pair<List<FusedApp>, String>> {
-        var fusedAppList: List<FusedApp> = mutableListOf()
+        var fusedAppList: MutableList<FusedApp> = mutableListOf()
         var nextPageUrl = ""
 
         val status = runCodeBlockWithTimeout({
             val streamCluster = gplayRepository.getAppsByCategory(category, pageUrl) as StreamCluster
             val filteredAppList = filterRestrictedGPlayApps(authData, streamCluster.clusterAppList)
             filteredAppList.data?.let {
-                fusedAppList = it
+                fusedAppList = it.toMutableList()
             }
             nextPageUrl = streamCluster.clusterNextPageUrl
+            if (!nextPageUrl.isNullOrEmpty()) {
+                fusedAppList.add(FusedApp(isPlaceHolder = true))
+            }
         })
 
         return ResultSupreme.create(status, Pair(fusedAppList, nextPageUrl))
