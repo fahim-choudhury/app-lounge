@@ -21,9 +21,7 @@ package foundation.e.apps.install.pkg
 import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageInstaller
-import android.os.Build
 import android.os.IBinder
-import androidx.annotation.RequiresApi
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
@@ -55,7 +53,6 @@ class InstallerService : Service() {
         const val INSTALL_FAILED_UPDATE_INCOMPATIBLE = "INSTALL_FAILED_UPDATE_INCOMPATIBLE"
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -69)
         var packageName = intent.getStringExtra(PackageInstaller.EXTRA_PACKAGE_NAME)

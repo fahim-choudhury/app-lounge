@@ -361,7 +361,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                     )
                     viewHolder?.let {
                         (viewHolder as ApplicationListRVAdapter.ViewHolder).binding.installButton.text =
-                            "$progress%"
+                            String.format("%d%%", progress)
                     }
                 }
             }

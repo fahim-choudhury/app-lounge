@@ -252,7 +252,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
             )
             childViewHolder?.let {
                 (childViewHolder as HomeChildRVAdapter.ViewHolder).binding.installButton.text =
-                    "$progress%"
+                    String.format("%d%%", progress)
             }
         }
     }

@@ -69,6 +69,7 @@
             android:textAllCaps="false"
             android:textColor="#626262"
             android:textSize="15sp"
+            android:textIsSelectable="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"

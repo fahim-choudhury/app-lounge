@@ -48,6 +48,10 @@ class LocaleChangedBroadcastReceiver : BroadcastReceiver() {
     private val TAG = LocaleChangedBroadcastReceiver::class.java.simpleName
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action != Intent.ACTION_LOCALE_CHANGED) {
+            // security measure so that only the android system can call the receiver
+            return
+        }
         GlobalScope.launch {
             try {
                 val authDataJson = dataStoreModule.getAuthDataSync()

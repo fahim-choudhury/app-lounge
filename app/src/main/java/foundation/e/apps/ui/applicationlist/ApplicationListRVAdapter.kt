@@ -17,7 +17,6 @@
 
 package foundation.e.apps.ui.applicationlist
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -173,7 +172,7 @@ class ApplicationListRVAdapter(
                     placeholder(shimmerDrawable)
                 }
             }
-            else -> Log.wtf(TAG, "${searchApp.package_name} is from an unknown origin")
+            else -> Timber.wtf("${searchApp.package_name} is from an unknown origin")
         }
     }
 

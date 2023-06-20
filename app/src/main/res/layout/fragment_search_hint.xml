@@ -11,6 +11,7 @@
         android:layout_width="96dp"
         android:layout_height="96dp"
         android:src="@drawable/ic_menu_search"
+        android:importantForAccessibility="no"
         app:tint="@color/colorAccent" />
 
     <com.google.android.material.textview.MaterialTextView

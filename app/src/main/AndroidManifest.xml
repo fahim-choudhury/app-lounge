@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
     <uses-permission
@@ -67,13 +68,16 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".install.updates.UpdatesBroadcastReceiver">
+        <receiver android:name=".install.updates.UpdatesBroadcastReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
+        <!-- TODO: ExportedReceiver, suppressing because changes are needed in other apps -->
         <receiver android:name=".install.receiver.PWAPlayerStatusReceiver"
+            tools:ignore="ExportedReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="foundation.e.pwaplayer.PWA_ADDED" />
@@ -86,7 +90,8 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".ui.setup.signin.LocaleChangedBroadcastReceiver">
+        <receiver android:name=".ui.setup.signin.LocaleChangedBroadcastReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.LOCALE_CHANGED"/>
             </intent-filter>
@@ -100,8 +105,10 @@
 
         <service android:name=".install.pkg.PackageInstallerService" />
 
+        <!-- TODO: ExportedService, suppressing because changes are needed in other apps -->
         <service
             android:name=".install.splitinstall.SplitInstallService"
+            tools:ignore="ExportedService"
             android:exported="true" />
     </application>
 
