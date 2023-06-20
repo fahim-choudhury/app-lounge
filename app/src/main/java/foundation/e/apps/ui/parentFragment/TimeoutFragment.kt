@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022  MURENA SAS
+ * Copyright (C) 2019-2023  MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,10 @@
 
 package foundation.e.apps.ui.parentFragment
 
+import android.content.Intent
+import android.graphics.Paint
+import android.net.Uri
+import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
@@ -220,6 +224,17 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
         }
     }
 
+     private fun openTroubleshootingPage() {
+        val troubleshootUrl = getString(R.string.troubleshootURL)
+        val openUrlIntent = Intent(Intent.ACTION_VIEW)
+        openUrlIntent.data = Uri.parse(troubleshootUrl)
+        startActivity(openUrlIntent)
+    }
+
+    private fun setTextviewUnderlined(textView: TextView) {
+        textView.paintFlags = textView.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+    }
+
     /**
      * Call to trigger [onTimeout].
      * Can be called from anywhere in the fragment.
@@ -234,6 +249,10 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
             moreInfo.setOnClickListener {
                 logDisplay.isVisible = true
                 moreInfo.isVisible = false
+            }
+            setTextviewUnderlined(troubleshootingLink)
+            troubleshootingLink.setOnClickListener {
+                openTroubleshootingPage()
             }
 
             val logToDisplay = exception.message ?: ""
@@ -280,6 +299,10 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
             moreInfo.setOnClickListener {
                 logDisplay.isVisible = true
                 moreInfo.isVisible = false
+            }
+            setTextviewUnderlined(troubleshootingLink)
+            troubleshootingLink.setOnClickListener {
+                openTroubleshootingPage()
             }
 
             val logToDisplay = exception.message ?: ""
@@ -336,6 +359,11 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
                 logDisplay.isVisible = true
                 moreInfo.isVisible = false
             }
+            setTextviewUnderlined(troubleshootingLink)
+            troubleshootingLink.setOnClickListener {
+                openTroubleshootingPage()
+            }
+
             val logToDisplay = exception.message ?: ""
             if (logToDisplay.isNotBlank()) {
                 logDisplay.text = logToDisplay
