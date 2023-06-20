@@ -211,10 +211,11 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      * Show a dialog, dismiss previously shown dialog in [lastDialog].
      */
     private fun showAndSetDialog(alertDialogBuilder: AlertDialog.Builder) {
+        if (lastDialog?.isShowing == true) {
+            lastDialog?.dismiss()
+        }
+        if (mainActivityViewModel.internetConnection.value != true) return
         alertDialogBuilder.create().run {
-            if (lastDialog?.isShowing == true) {
-                lastDialog?.dismiss()
-            }
             this.show()
             lastDialog = this
         }
