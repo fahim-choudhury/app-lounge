@@ -33,8 +33,6 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.ceil
-import kotlin.math.round
 
 @Singleton
 class AppPrivacyInfoRepositoryImpl @Inject constructor(

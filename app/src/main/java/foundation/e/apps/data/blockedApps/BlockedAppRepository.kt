@@ -23,11 +23,11 @@ import foundation.e.apps.data.fusedDownload.FileManager
 import foundation.e.lib.telemetry.Telemetry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
-import timber.log.Timber
 
 @Singleton
 class BlockedAppRepository @Inject constructor(

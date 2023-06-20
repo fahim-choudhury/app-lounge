@@ -225,7 +225,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
         }
     }
 
-     private fun openTroubleshootingPage() {
+    private fun openTroubleshootingPage() {
         val troubleshootUrl = getString(R.string.troubleshootURL)
         val openUrlIntent = Intent(Intent.ACTION_VIEW)
         openUrlIntent.data = Uri.parse(troubleshootUrl)
