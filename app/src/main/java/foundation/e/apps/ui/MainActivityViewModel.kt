@@ -389,7 +389,8 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    private fun ProducerScope<Boolean>.sendInternetStatus(connectivityManager: ConnectivityManager) {
+    // protected to avoid SyntheticAccessor
+    protected fun ProducerScope<Boolean>.sendInternetStatus(connectivityManager: ConnectivityManager) {
 
         val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
 

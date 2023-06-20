@@ -318,7 +318,7 @@ class SearchFragment :
                     )
                     viewHolder?.let {
                         (viewHolder as ApplicationListRVAdapter.ViewHolder).binding.installButton.text =
-                            "$progress%"
+                            String.format("%d%%", progress)
                     }
                 }
             }

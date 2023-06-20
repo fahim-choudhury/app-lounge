@@ -742,7 +742,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         val progressPercentage =
             ((progressResult.second / progressResult.first.toDouble()) * 100f).toInt()
         binding.downloadInclude.appInstallPB.progress = progressPercentage
-        binding.downloadInclude.percentage.text = "$progressPercentage%"
+        binding.downloadInclude.percentage.text = String.format("%d%%", progressPercentage)
         binding.downloadInclude.downloadedSize.text = downloadedSize
     }
 

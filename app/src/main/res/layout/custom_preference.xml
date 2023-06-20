@@ -83,6 +83,7 @@
                 android:layout_marginStart="18dp"
                 android:textColor="?android:textColorPrimary"
                 android:textSize="15sp"
+                android:textIsSelectable="false"
                 app:layout_constraintStart_toEndOf="@id/avatar"
                 app:layout_constraintTop_toTopOf="@id/avatar"
                 app:layout_constraintBottom_toTopOf="@id/email"
@@ -96,6 +97,7 @@
                 android:layout_marginTop="5dp"
                 android:textColor="?android:textColorSecondary"
                 android:textSize="13sp"
+                android:textIsSelectable="false"
                 app:layout_constraintBottom_toBottomOf="@id/avatar"
                 app:layout_constraintStart_toEndOf="@id/avatar"
                 app:layout_constraintTop_toBottomOf="@id/accountType" />

@@ -93,6 +93,7 @@
         android:layout_height="wrap_content"
         android:src="@drawable/ic_star"
         android:layout_marginBottom="1dp"
+        android:contentDescription="@string/rating"
         app:layout_constraintBottom_toBottomOf="@+id/app_icon_card"
         app:layout_constraintLeft_toLeftOf="@+id/app_author"/>
 
@@ -167,6 +168,7 @@
         <ImageView
             android:layout_width="14dp"
             android:layout_height="14dp"
+            android:contentDescription="@string/privacy_score"
             android:src="@drawable/ic_lock" />
 
         <TextView
@@ -199,7 +201,7 @@
         android:paddingTop="2dp"
         android:paddingEnd="6dp"
         android:paddingBottom="2dp"
-        android:text="Open Source"
+        android:text="@string/open_source"
         android:textAllCaps="false"
         android:textColor="#626262"
         android:textSize="13sp"
