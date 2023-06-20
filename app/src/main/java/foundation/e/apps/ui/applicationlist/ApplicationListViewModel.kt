@@ -33,7 +33,6 @@ import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -78,7 +77,12 @@ class ApplicationListViewModel @Inject constructor(
         }
         viewModelScope.launch(Dispatchers.IO) {
             isLoading = true
-            val result = fusedAPIRepository.getAppsListBasedOnCategory(authData, category, nextPageUrl, source).apply {
+            val result = fusedAPIRepository.getAppsListBasedOnCategory(
+                authData,
+                category,
+                nextPageUrl,
+                source
+            ).apply {
                 isLoading = false
             }
 
@@ -88,25 +92,30 @@ class ApplicationListViewModel @Inject constructor(
             }
 
             if (!result.isSuccess()) {
-                val exception =
-                    if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
-                        GPlayException(
-                            result.isTimeout(),
-                            result.message.ifBlank { "Data load error" }
-                        )
-                    else CleanApkException(
-                        result.isTimeout(),
-                        result.message.ifBlank { "Data load error" }
-                    )
-
+                val exception = getException(authData, result)
                 exceptionsList.add(exception)
                 exceptionsLiveData.postValue(exceptionsList)
             }
         }
     }
 
+    private fun getException(
+        authData: AuthData,
+        result: ResultSupreme<Pair<List<FusedApp>, String>>
+    ) = if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank()) {
+        GPlayException(
+            result.isTimeout(),
+            result.message.ifBlank { "Data load error" }
+        )
+    } else {
+        CleanApkException(
+            result.isTimeout(),
+            result.message.ifBlank { "Data load error" }
+        )
+    }
+
     private fun updateNextPageUrl(nextPageUrl: String?) {
-            this.nextPageUrl = nextPageUrl
+        this.nextPageUrl = nextPageUrl
     }
 
     /**
@@ -120,8 +129,7 @@ class ApplicationListViewModel @Inject constructor(
     }
 
     fun loadMore(gPlayAuth: AuthObject?, category: String) {
-        viewModelScope.launch (Dispatchers.IO) {
-            Timber.d("Browser url: $category")
+        viewModelScope.launch(Dispatchers.IO) {
             val authData: AuthData? = when {
                 gPlayAuth !is AuthObject.GPlayAuth -> null
                 !gPlayAuth.result.isSuccess() -> null
@@ -133,19 +141,29 @@ class ApplicationListViewModel @Inject constructor(
             }
 
             isLoading = true
-            val result = fusedAPIRepository.getAppsListBasedOnCategory(authData, category, nextPageUrl, Source.GPLAY.toString())
+            val result = fusedAPIRepository.getAppsListBasedOnCategory(
+                authData,
+                category,
+                nextPageUrl,
+                Source.GPLAY.toString()
+            )
             isLoading = false
 
             result.data?.let {
-                val currentAppList = appListLiveData.value?.data?.toMutableList()
-                currentAppList?.removeIf { item -> item.isPlaceHolder }
-                val appList = currentAppList?.plus(it.first)
+                val appList = appendAppList(it)
                 val resultSupreme = ResultSupreme.create(ResultStatus.OK, appList)
                 appListLiveData.postValue(resultSupreme)
 
                 updateNextPageUrl(it.second)
             }
         }
+    }
+
+    private fun appendAppList(it: Pair<List<FusedApp>, String>): List<FusedApp>? {
+        val currentAppList = appListLiveData.value?.data?.toMutableList()
+        currentAppList?.removeIf { item -> item.isPlaceHolder }
+        val appList = currentAppList?.plus(it.first)
+        return appList
     }
 
     /**
@@ -158,5 +176,4 @@ class ApplicationListViewModel @Inject constructor(
 
     fun hasAnyAppInstallStatusChanged(currentList: List<FusedApp>) =
         fusedAPIRepository.isAnyAppInstallStatusChanged(currentList)
-
 }

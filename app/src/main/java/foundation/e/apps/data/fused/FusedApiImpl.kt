@@ -29,7 +29,6 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Artwork
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
-import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
@@ -543,7 +542,7 @@ class FusedApiImpl @Inject constructor(
     override suspend fun getOSSDownloadInfo(id: String, version: String?) =
         (cleanApkAppsRepository as CleanApkDownloadInfoFetcher).getDownloadInfo(id, version)
 
-    override suspend fun getPWAApps(category: String): ResultSupreme<Pair<List<FusedApp>,String>> {
+    override suspend fun getPWAApps(category: String): ResultSupreme<Pair<List<FusedApp>, String>> {
         val list = mutableListOf<FusedApp>()
         val status = runCodeBlockWithTimeout({
             val response = getPWAAppsResponse(category)
@@ -569,55 +568,6 @@ class FusedApiImpl @Inject constructor(
             }
         })
         return ResultSupreme.create(status, Pair(list, ""))
-    }
-
-    override suspend fun getNextStreamBundle(
-        homeUrl: String,
-        currentStreamBundle: StreamBundle,
-    ): ResultSupreme<StreamBundle> {
-        var streamBundle = StreamBundle()
-        val status = runCodeBlockWithTimeout({
-            streamBundle =
-                gplayRepository.getAppsByCategory(homeUrl, currentStreamBundle) as StreamBundle
-        })
-        return ResultSupreme.create(status, streamBundle)
-    }
-
-    override suspend fun getAdjustedFirstCluster(
-        streamBundle: StreamBundle,
-        pointer: Int,
-    ): ResultSupreme<StreamCluster> {
-        var streamCluster = StreamCluster()
-        val status = runCodeBlockWithTimeout({
-            streamCluster =
-                gplayRepository.getAppsByCategory("", Pair(streamBundle, pointer)) as StreamCluster
-        })
-        return ResultSupreme.create(status, streamCluster)
-    }
-
-    override suspend fun getNextStreamCluster(
-        currentStreamCluster: StreamCluster,
-    ): ResultSupreme<StreamCluster> {
-        var streamCluster = StreamCluster()
-        val status = runCodeBlockWithTimeout({
-            streamCluster =
-                gplayRepository.getAppsByCategory("", currentStreamCluster) as StreamCluster
-        })
-        return ResultSupreme.create(status, streamCluster)
-    }
-
-    override suspend fun getPlayStoreApps(
-        browseUrl: String,
-    ): ResultSupreme<List<FusedApp>> {
-        val list = mutableListOf<FusedApp>()
-        val status = runCodeBlockWithTimeout({
-            list.addAll(
-                (gplayRepository.getAppsByCategory(browseUrl) as List<App>).map { app ->
-                    app.transformToFusedApp()
-                }
-            )
-        })
-        return ResultSupreme.create(status, list)
     }
 
     /*
@@ -1028,7 +978,7 @@ class FusedApiImpl @Inject constructor(
 
     private fun getCategoryIconName(category: FusedCategory): String {
         var categoryTitle = if (category.tag.getOperationalTag()
-                .contentEquals(AppTag.GPlay().getOperationalTag())
+            .contentEquals(AppTag.GPlay().getOperationalTag())
         ) category.id else category.title
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
@@ -1456,7 +1406,7 @@ class FusedApiImpl @Inject constructor(
     }
 
     override fun isOpenSourceSelected() = preferenceManagerModule.isOpenSourceSelected()
-    override suspend fun getAppsByCategory(
+    override suspend fun getGplayAppsByCategory(
         authData: AuthData,
         category: String,
         pageUrl: String?
@@ -1470,6 +1420,7 @@ class FusedApiImpl @Inject constructor(
             filteredAppList.data?.let {
                 fusedAppList = it.toMutableList()
             }
+
             nextPageUrl = streamCluster.clusterNextPageUrl
             if (!nextPageUrl.isNullOrEmpty()) {
                 fusedAppList.add(FusedApp(isPlaceHolder = true))

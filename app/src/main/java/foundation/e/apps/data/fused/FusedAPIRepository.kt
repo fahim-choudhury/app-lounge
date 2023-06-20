@@ -20,10 +20,7 @@ package foundation.e.apps.data.fused
 
 import androidx.lifecycle.LiveData
 import com.aurora.gplayapi.SearchSuggestEntry
-import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.StreamBundle
-import com.aurora.gplayapi.data.models.StreamCluster
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
@@ -120,13 +117,13 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi)
     suspend fun getAppsListBasedOnCategory(
         authData: AuthData,
         category: String,
-        browseUrl: String?,
+        pageUrl: String?,
         source: String
     ): ResultSupreme<Pair<List<FusedApp>, String>> {
         return when (source) {
             "Open Source" -> fusedAPIImpl.getOpenSourceApps(category)
             "PWA" -> fusedAPIImpl.getPWAApps(category)
-            else -> fusedAPIImpl.getAppsByCategory(authData, category, browseUrl)
+            else -> fusedAPIImpl.getGplayAppsByCategory(authData, category, pageUrl)
         }
     }
 
@@ -147,7 +144,5 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi)
     fun isAnyAppInstallStatusChanged(currentList: List<FusedApp>) =
         fusedAPIImpl.isAnyAppInstallStatusChanged(currentList)
 
-
     fun isOpenSourceSelected() = fusedAPIImpl.isOpenSourceSelected()
-
 }

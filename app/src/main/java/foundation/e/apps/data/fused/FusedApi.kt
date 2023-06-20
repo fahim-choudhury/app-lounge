@@ -4,8 +4,6 @@ import androidx.lifecycle.LiveData
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.StreamBundle
-import com.aurora.gplayapi.data.models.StreamCluster
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.cleanapk.data.download.Download
 import foundation.e.apps.data.enums.FilterLevel
@@ -86,24 +84,6 @@ interface FusedApi {
 
     suspend fun getOpenSourceApps(category: String): ResultSupreme<Pair<List<FusedApp>, String>>
 
-    suspend fun getNextStreamBundle(
-        homeUrl: String,
-        currentStreamBundle: StreamBundle,
-    ): ResultSupreme<StreamBundle>
-
-    suspend fun getAdjustedFirstCluster(
-        streamBundle: StreamBundle,
-        pointer: Int = 0,
-    ): ResultSupreme<StreamCluster>
-
-    suspend fun getNextStreamCluster(
-        currentStreamCluster: StreamCluster,
-    ): ResultSupreme<StreamCluster>
-
-    suspend fun getPlayStoreApps(
-        browseUrl: String,
-    ): ResultSupreme<List<FusedApp>>
-
     /*
         * Function to search cleanapk using package name.
         * Will be used to handle f-droid deeplink.
@@ -179,5 +159,5 @@ interface FusedApi {
     fun isAnyAppInstallStatusChanged(currentList: List<FusedApp>): Boolean
     fun isOpenSourceSelected(): Boolean
 
-    suspend fun getAppsByCategory(authData: AuthData, category: String, nextPageUrl: String?): ResultSupreme<Pair<List<FusedApp>, String>>
+    suspend fun getGplayAppsByCategory(authData: AuthData, category: String, pageUrl: String?): ResultSupreme<Pair<List<FusedApp>, String>>
 }
