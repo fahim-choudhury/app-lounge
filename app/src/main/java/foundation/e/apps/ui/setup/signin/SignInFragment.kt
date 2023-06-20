@@ -10,6 +10,7 @@ import foundation.e.apps.R
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.databinding.FragmentSignInBinding
 import foundation.e.apps.di.CommonUtilsModule.safeNavigate
+import foundation.e.apps.utils.showGoogleSignInAlertDialog
 
 @AndroidEntryPoint
 class SignInFragment : Fragment(R.layout.fragment_sign_in) {
@@ -25,8 +26,10 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
         _binding = FragmentSignInBinding.bind(view)
 
         binding.googleBT.setOnClickListener {
-            view.findNavController()
-                .safeNavigate(R.id.signInFragment, R.id.action_signInFragment_to_googleSignInFragment)
+            context?.showGoogleSignInAlertDialog(
+                { navigateToGoogleSignInFragment() },
+                { }
+            )
         }
 
         binding.anonymousBT.setOnClickListener {
@@ -47,5 +50,10 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun navigateToGoogleSignInFragment() {
+        view?.findNavController()
+            ?.safeNavigate(R.id.signInFragment, R.id.action_signInFragment_to_googleSignInFragment)
     }
 }

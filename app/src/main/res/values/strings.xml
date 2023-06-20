@@ -222,4 +222,7 @@
     <string name="daily">Daily</string>
     <string name="weekly">Weekly</string>
     <string name="monthly">Monthly</string>
+
+    <string name="google_login_alert_message">We recommend using a dedicated Google account to:\n\n\t\u2022 mitigate micro-targeting\n\t\u2022 limit impact in case this account is restricted by Google</string>
+    <string name="proceed_to_google_login">Proceed to Google login</string>
 </resources>
