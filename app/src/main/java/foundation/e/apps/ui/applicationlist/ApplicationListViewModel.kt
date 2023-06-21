@@ -23,6 +23,7 @@ import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
+import foundation.e.apps.data.enums.AppTag
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.fused.FusedAPIRepository
@@ -75,13 +76,14 @@ class ApplicationListViewModel @Inject constructor(
         if (isLoading) {
             return
         }
+
         viewModelScope.launch(Dispatchers.IO) {
             isLoading = true
             val result = fusedAPIRepository.getAppsListBasedOnCategory(
                 authData,
                 category,
                 nextPageUrl,
-                source
+                Source.fromString(source)
             ).apply {
                 isLoading = false
             }
@@ -145,7 +147,7 @@ class ApplicationListViewModel @Inject constructor(
                 authData,
                 category,
                 nextPageUrl,
-                Source.GPLAY.toString()
+                Source.GPLAY
             )
             isLoading = false
 

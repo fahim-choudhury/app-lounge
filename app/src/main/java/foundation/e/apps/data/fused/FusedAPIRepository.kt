@@ -22,9 +22,11 @@ import androidx.lifecycle.LiveData
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.ResultSupreme
+import foundation.e.apps.data.enums.AppTag
 import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fused.data.FusedCategory
@@ -118,11 +120,11 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi)
         authData: AuthData,
         category: String,
         pageUrl: String?,
-        source: String
+        source: Source
     ): ResultSupreme<Pair<List<FusedApp>, String>> {
         return when (source) {
-            "Open Source" -> fusedAPIImpl.getOpenSourceApps(category)
-            "PWA" -> fusedAPIImpl.getPWAApps(category)
+            Source.OPEN -> fusedAPIImpl.getOpenSourceApps(category)
+            Source.PWA -> fusedAPIImpl.getPWAApps(category)
             else -> fusedAPIImpl.getGplayAppsByCategory(authData, category, pageUrl)
         }
     }
