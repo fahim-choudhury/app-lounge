@@ -4,8 +4,6 @@ import androidx.lifecycle.LiveData
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.StreamBundle
-import com.aurora.gplayapi.data.models.StreamCluster
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.cleanapk.data.download.Download
 import foundation.e.apps.data.enums.FilterLevel
@@ -82,27 +80,9 @@ interface FusedApi {
 
     suspend fun getOSSDownloadInfo(id: String, version: String?): Response<Download>
 
-    suspend fun getPWAApps(category: String): ResultSupreme<List<FusedApp>>
+    suspend fun getPWAApps(category: String): ResultSupreme<Pair<List<FusedApp>, String>>
 
-    suspend fun getOpenSourceApps(category: String): ResultSupreme<List<FusedApp>>
-
-    suspend fun getNextStreamBundle(
-        homeUrl: String,
-        currentStreamBundle: StreamBundle,
-    ): ResultSupreme<StreamBundle>
-
-    suspend fun getAdjustedFirstCluster(
-        streamBundle: StreamBundle,
-        pointer: Int = 0,
-    ): ResultSupreme<StreamCluster>
-
-    suspend fun getNextStreamCluster(
-        currentStreamCluster: StreamCluster,
-    ): ResultSupreme<StreamCluster>
-
-    suspend fun getPlayStoreApps(
-        browseUrl: String,
-    ): ResultSupreme<List<FusedApp>>
+    suspend fun getOpenSourceApps(category: String): ResultSupreme<Pair<List<FusedApp>, String>>
 
     /*
         * Function to search cleanapk using package name.
@@ -178,4 +158,6 @@ interface FusedApi {
 
     fun isAnyAppInstallStatusChanged(currentList: List<FusedApp>): Boolean
     fun isOpenSourceSelected(): Boolean
+
+    suspend fun getGplayAppsByCategory(authData: AuthData, category: String, pageUrl: String?): ResultSupreme<Pair<List<FusedApp>, String>>
 }

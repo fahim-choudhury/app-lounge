@@ -10,9 +10,10 @@ import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.gplay.GPlayAPIRepository
+import foundation.e.apps.data.gplay.GplayStoreRepository
 import foundation.e.apps.data.preference.DataStoreModule
 import javax.inject.Inject
+import javax.inject.Named
 
 /**
  *
@@ -20,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AppInfoFetchViewModel @Inject constructor(
     private val fdroidRepository: FdroidRepository,
-    private val gPlayAPIRepository: GPlayAPIRepository,
+    @Named("gplayRepository") private val gplayRepository: GplayStoreRepository,
     private val faultyAppRepository: FaultyAppRepository,
     private val dataStoreModule: DataStoreModule,
     private val blockedAppRepository: BlockedAppRepository,
@@ -36,11 +37,10 @@ class AppInfoFetchViewModel @Inject constructor(
         return liveData {
             val authData = gson.fromJson(dataStoreModule.getAuthDataSync(), AuthData::class.java)
             try {
-                gPlayAPIRepository.getDownloadInfo(
+                gplayRepository.getDownloadInfo(
                     app.package_name,
                     app.latest_version_code,
                     app.offer_type,
-                    authData
                 )
                 app.isPurchased = true
                 emit(true)
