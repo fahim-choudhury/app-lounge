@@ -7,6 +7,8 @@ ext {
     android_compile_sdk_version = 33
     android_target_sdk_version = 33
     core_version = '1.10.1'
+    gson_version = '2.9.0'
+    kotlin_reflection = '1.8.10'
 }
 
 android {
@@ -39,10 +41,10 @@ android {
 dependencies {
 
     implementation "androidx.core:core-ktx:$core_version"
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation "com.google.code.gson:gson:$gson_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_reflection"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.8.10"
 }

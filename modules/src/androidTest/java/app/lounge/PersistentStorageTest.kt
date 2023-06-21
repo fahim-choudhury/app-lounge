@@ -5,6 +5,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import app.lounge.storage.cache.PersistedConfiguration
 import app.lounge.storage.cache.PersistenceKey
 import app.lounge.storage.cache.configurations
+import com.google.gson.Gson
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -58,12 +59,26 @@ class PersistentStorageTest {
             testConfiguration.evaluateValue(classifier = returnType, key = persistentKey)
         }
     }
+
+    @Test
+    fun testSetStringJsonReturnSerializedObject() {
+        testConfiguration.authData = sampleTokensJson
+        val result: String = testConfiguration.callMethod("authData") as String
+
+        val expectedTokens = Tokens(
+            aasToken = "ya29.a0AWY7Cknq6ueSCNVN6F7jB",
+            ac2dmToken = "ABFEt1X6tnDsra6QUsjVsjIWz0T5F",
+            authToken = "gXKyx_qC5EO64ECheZFonpJOtxbY")
+
+        Assert.assertEquals(
+            "Tokens should match with $expectedTokens",
+            expectedTokens,
+            result.toTokens()
+        )
+    }
 }
 
 // Utils function for `Persistence` Testcase only
-private val testIntValue : Int = (1..10).random()
-private const val testStringValue: String = "quick brown fox jump over the lazy dog"
-private const val testBooleanValue: Boolean = true
 
 private inline fun <reified T> T.callMethod(name: String, vararg args: Any?): Any? =
     T::class
@@ -87,3 +102,15 @@ private fun PersistedConfiguration.evaluateValue(classifier: KClassifier?, key: 
             "Expected to be `$testBooleanValue`", this.callMethod(key.name) as Boolean)
     }
 }
+
+// region test sample data for shared preference verification
+private val testIntValue : Int = (1..10).random()
+private const val testStringValue: String = "quick brown fox jump over the lazy dog"
+private const val testBooleanValue: Boolean = true
+
+private const val sampleTokensJson = "{\"aasToken\": \"ya29.a0AWY7Cknq6ueSCNVN6F7jB\"," +
+        "\"ac2dmToken\": \"ABFEt1X6tnDsra6QUsjVsjIWz0T5F\"," +
+        "\"authToken\": \"gXKyx_qC5EO64ECheZFonpJOtxbY\"}"
+data class Tokens(val aasToken: String, val ac2dmToken: String, val authToken: String)
+fun String.toTokens() = Gson().fromJson(this, Tokens::class.java)
+// endregion
