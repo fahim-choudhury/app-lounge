@@ -12,7 +12,7 @@ val Context.configurations: PersistedConfiguration get() = PersistedConfiguratio
 
 // region - Persistence Configuration
 
-enum class PersistenceKey {
+internal enum class PersistenceKey {
     updateInstallAuto,
     updateCheckIntervals,
     updateAppsFromOtherStores,
