@@ -63,7 +63,7 @@ class InstallAppWorker @AssistedInject constructor(
         appInstallProcessor.processInstall(fusedDownloadId, isPackageUpdate) { title ->
             setForeground(
                 createForegroundInfo(
-                    "Installing $title"
+                    "${context.getString(R.string.installing)} $title"
                 )
             )
         }

@@ -3,11 +3,8 @@ package foundation.e.apps.install.updates
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.util.Base64
 import androidx.hilt.work.HiltWorker
 import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
@@ -20,8 +17,6 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
-import foundation.e.apps.data.cleanapk.CleanApkRetrofit
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.enums.User
@@ -39,8 +34,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.io.ByteArrayOutputStream
-import java.net.URL
 
 @HiltWorker
 class UpdatesWorker @AssistedInject constructor(
@@ -228,8 +221,6 @@ class UpdatesWorker @AssistedInject constructor(
                 return@forEach
             }
 
-            val iconBase64 = getIconImageToBase64(fusedApp)
-
             val fusedDownload = FusedDownload(
                 fusedApp._id,
                 fusedApp.origin,
@@ -240,7 +231,7 @@ class UpdatesWorker @AssistedInject constructor(
                 mutableMapOf(),
                 fusedApp.status,
                 fusedApp.type,
-                iconBase64,
+                fusedApp.icon_image_path,
                 fusedApp.latest_version_code,
                 fusedApp.offer_type,
                 fusedApp.isFree,
@@ -314,16 +305,6 @@ class UpdatesWorker @AssistedInject constructor(
                 fusedDownload
             )
         }
-    }
-
-    private fun getIconImageToBase64(fusedApp: FusedApp): String {
-        val url =
-            if (fusedApp.origin == Origin.CLEANAPK) "${CleanApkRetrofit.ASSET_URL}${fusedApp.icon_image_path}" else fusedApp.icon_image_path
-        val stream = URL(url).openStream()
-        val bitmap = BitmapFactory.decodeStream(stream)
-        val byteArrayOS = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOS)
-        return Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT)
     }
 
     /*

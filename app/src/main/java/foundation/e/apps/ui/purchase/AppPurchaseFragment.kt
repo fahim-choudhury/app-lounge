@@ -1,5 +1,6 @@
 package foundation.e.apps.ui.purchase
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -48,6 +49,7 @@ class AppPurchaseFragment : Fragment() {
         setupWebView(url)
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView(url: String) {
         val cookieManager = CookieManager.getInstance()
         cookieManager.removeAllCookies(null)
@@ -73,7 +75,7 @@ class AppPurchaseFragment : Fragment() {
                 allowContentAccess = true
                 databaseEnabled = true
                 domStorageEnabled = true
-                javaScriptEnabled = true
+                javaScriptEnabled = true // Google Play page is tested to not work otherwise
                 cacheMode = WebSettings.LOAD_DEFAULT
             }
             loadUrl(url)

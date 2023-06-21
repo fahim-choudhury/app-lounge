@@ -11,7 +11,7 @@ plugins {
 
 def versionMajor = 2
 def versionMinor = 5
-def versionPatch = 3
+def versionPatch = 4
 
 def getGitHash = { ->
     def stdOut = new ByteArrayOutputStream()
@@ -150,7 +150,7 @@ dependencies {
     // TODO: Add splitinstall-lib to a repo https://gitlab.e.foundation/e/os/backlog/-/issues/628
     api files('libs/splitinstall-lib.jar')
 
-    implementation 'foundation.e.lib:telemetry:0.0.8-alpha'
+    implementation 'foundation.e.lib:telemetry:0.0.9-alpha'
     implementation 'foundation.e:gplayapi:3.0.1-1'
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'

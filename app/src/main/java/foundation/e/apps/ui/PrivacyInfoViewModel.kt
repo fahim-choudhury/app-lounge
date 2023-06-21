@@ -7,12 +7,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.Result
 import foundation.e.apps.data.exodus.models.AppPrivacyInfo
 import foundation.e.apps.data.exodus.repositories.IAppPrivacyInfoRepository
+import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepository
 import foundation.e.apps.data.fused.data.FusedApp
 import javax.inject.Inject
 
 @HiltViewModel
 class PrivacyInfoViewModel @Inject constructor(
     private val privacyInfoRepository: IAppPrivacyInfoRepository,
+    private val privacyScoreRepository: PrivacyScoreRepository,
 ) : ViewModel() {
 
     fun getAppPrivacyInfoLiveData(fusedApp: FusedApp): LiveData<Result<AppPrivacyInfo>> {
@@ -48,7 +50,7 @@ class PrivacyInfoViewModel @Inject constructor(
 
     fun getPrivacyScore(fusedApp: FusedApp?): Int {
         fusedApp?.let {
-            return privacyInfoRepository.calculatePrivacyScore(it)
+            return privacyScoreRepository.calculatePrivacyScore(it)
         }
         return -1
     }

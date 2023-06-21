@@ -18,27 +18,13 @@
 package foundation.e.apps.utils
 
 import android.annotation.SuppressLint
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.os.Build
 import foundation.e.apps.BuildConfig
 import org.json.JSONObject
 
-object CommonUtilsFunctions {
+object SystemInfoProvider {
 
-    /**
-     * Copy anything to system clipboard.
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5653
-     */
-    fun copyTextToClipboard(
-        clipboard: ClipboardManager,
-        label: String,
-        text: String,
-    ) {
-        // https://developer.android.com/guide/topics/text/copy-paste#Copying
-        val clip = ClipData.newPlainText(label, text)
-        clipboard.setPrimaryClip(clip)
-    }
+    const val KEY_LINEAGE_VERSION = "ro.lineage.version"
 
     @SuppressLint("PrivateApi")
     fun getSystemProperty(key: String?): String? {
@@ -58,7 +44,7 @@ object CommonUtilsFunctions {
             put("version", BuildConfig.VERSION_NAME)
             put("device", Build.DEVICE)
             put("api", Build.VERSION.SDK_INT)
-            put("os_version", getSystemProperty("ro.lineage.version"))
+            put("os_version", getSystemProperty(KEY_LINEAGE_VERSION))
             put("build_id", BuildConfig.BUILD_ID)
         }
         return descriptionJson.toString()

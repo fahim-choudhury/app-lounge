@@ -6,6 +6,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import foundation.e.apps.data.exodus.repositories.AppPrivacyInfoRepositoryImpl
 import foundation.e.apps.data.exodus.repositories.IAppPrivacyInfoRepository
+import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepository
+import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepositoryImpl
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.fdroid.IFdroidRepository
 import foundation.e.apps.data.fused.FusedApi
@@ -32,4 +34,8 @@ interface RepositoryModule {
     @Singleton
     @Binds
     fun getFusedApi(fusedApiImpl: FusedApiImpl): FusedApi
+
+    @Singleton
+    @Binds
+    fun getPrivacyScoreRepository(privacyScoreRepositoryImpl: PrivacyScoreRepositoryImpl): PrivacyScoreRepository
 }

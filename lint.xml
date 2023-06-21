@@ -5,12 +5,45 @@
     <issue id="Typos" severity="ignore" />
     <issue id="StopShip" severity="ignore" />
 
+    <!--For overriding preference screen default checkbox view-->
+    <issue id="PrivateResource" severity="ignore" />
+
+    <!--Translation related-->
+    <issue id="UnusedQuantity" severity="ignore" />
+    <issue id="TypographyDashes" severity="ignore" />
+    <issue id="TypographyEllipsis" severity="ignore" />
+    <issue id="DuplicateStrings" severity="ignore" />
+    <issue id="TypographyQuotes" severity="ignore" />
+
+    <!--TODO: check with design team if we want to adhere to monet based launcher icon-->
+    <issue id="MonochromeLauncherIcon" severity="ignore" />
+
+    <!--False detection-->
+    <issue id="UnusedIds" severity="ignore" />
+
+    <!--Unavoidable places like shimmers-->
+    <issue id="UseCompoundDrawables">
+        <ignore path="res/layout/shimmer_placeholder_application_list.xml"/>
+    </issue>
+
+    <!--Ignore bouncy castle library-->
+    <issue id="InvalidPackage">
+        <ignore path="**/bcprov-jdk15*.jar"/>
+    </issue>
+
     <!-- WARNINGS -->
     <issue id="MissingTranslation" severity="warning" />
-    <issue id="SdCardPath" severity="warning" />
     <issue id="VectorRaster" severity="warning" />
 
-    <!-- Others are considered as warnings -->
-    <issue id="all" severity="warning" />
+    <!--Related to drawables from figma-->
+    <issue id="VectorPath" severity="warning" />
+
+    <!-- It is not recommended to be always on the bleeding edge of dependencies-->
+    <issue id="GradleDependency" severity="warning" />
+
+    <!-- Updating targetSdk requires further testing and is not the scope of this issue -->
+    <issue id="ExpiredTargetSdkVersion" severity="warning" />
+
+    <issue id="all" severity="error"/>
 </lint>
 

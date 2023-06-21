@@ -56,7 +56,8 @@ class ApplicationListFragment :
     TimeoutFragment(R.layout.fragment_application_list),
     FusedAPIInterface {
 
-    private val args: ApplicationListFragmentArgs by navArgs()
+    // protected to avoid SyntheticAccessor
+    protected val args: ApplicationListFragmentArgs by navArgs()
 
     @Inject
     lateinit var pkgManagerModule: PkgManagerModule
@@ -64,7 +65,8 @@ class ApplicationListFragment :
     @Inject
     lateinit var pwaManagerModule: PWAManagerModule
 
-    private val viewModel: ApplicationListViewModel by viewModels()
+    // protected to avoid SyntheticAccessor
+    protected val viewModel: ApplicationListViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
     override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
@@ -325,7 +327,7 @@ class ApplicationListFragment :
                     )
                     viewHolder?.let {
                         (viewHolder as ApplicationListRVAdapter.ViewHolder).binding.installButton.text =
-                            "$progress%"
+                            String.format("%d%%", progress)
                     }
                 }
             }
@@ -338,7 +340,7 @@ class ApplicationListFragment :
     }
 
     override fun getApplication(app: FusedApp, appIcon: ImageView?) {
-        mainActivityViewModel.getApplication(app, appIcon)
+        mainActivityViewModel.getApplication(app)
     }
 
     override fun cancelDownload(app: FusedApp) {

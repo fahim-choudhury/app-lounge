@@ -1,6 +1,7 @@
 <!--
   ~ Apps  Quickly and easily install Android apps onto your device!
   ~ Copyright (C) 2021  E FOUNDATION
+  ~ Copyright (C) 2023  MURENA SAS
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -17,12 +18,18 @@
   -->
 
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="23.35dp"
+    android:width="24dp"
     android:height="24dp"
-    android:tint="?android:attr/colorControlNormal"
-    android:viewportWidth="36"
-    android:viewportHeight="37">
-  <path
-      android:pathData="M32.6345,30.7645L25.575,23.7046C25.4044,23.5906 25.2276,23.4709 25.0514,23.4709H24.2932C26.0989,21.3734 27.2669,18.5699 27.2669,15.5387C27.2669,8.8843 21.7858,3.4025 15.132,3.4025C8.4256,3.4025 3.0012,8.8843 3.0012,15.5387C3.0012,22.2457 8.4256,27.6763 15.132,27.6763C18.1686,27.6763 20.9093,26.5648 23.0679,24.7589V25.516C23.0679,25.6865 23.1253,25.8637 23.2382,26.0404L30.2974,33.0989C30.5938,33.3907 31.062,33.3907 31.2955,33.0989L32.6341,31.754C32.9306,31.5209 32.9306,31.054 32.6341,30.7637L32.6345,30.7645ZM15.132,24.8728C9.941,24.8728 5.7984,20.7303 5.7984,15.5387C5.7984,10.4058 9.941,6.2004 15.132,6.2004C20.2644,6.2004 24.4693,10.4058 24.4693,15.5387C24.4693,20.7303 20.2644,24.8728 15.132,24.8728Z"
-      android:fillColor="@android:color/white"/>
+    android:tint="?android:attr/colorAccent"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group>
+        <clip-path android:pathData="M0,-0.436h24v24h-24z" />
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M8.239,14.832C4.361,14.832 1.211,11.682 1.211,7.803C1.211,3.924 4.361,0.774 8.239,0.774C12.118,0.774 15.268,3.924 15.268,7.803C15.268,11.682 12.118,14.832 8.239,14.832ZM8.239,2.274C5.196,2.274 2.711,4.76 2.711,7.803C2.711,10.867 5.196,13.332 8.239,13.332C11.282,13.332 13.768,10.867 13.768,7.803C13.768,4.76 11.282,2.274 8.239,2.274Z" />
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M20.175,20.51C19.982,20.51 19.789,20.446 19.639,20.296L12.225,12.839C11.925,12.539 11.925,12.067 12.225,11.789C12.525,11.489 12.996,11.489 13.275,11.789L20.711,19.224C21.011,19.524 21.011,19.996 20.711,20.274C20.561,20.424 20.368,20.51 20.175,20.51Z" />
+    </group>
 </vector>
