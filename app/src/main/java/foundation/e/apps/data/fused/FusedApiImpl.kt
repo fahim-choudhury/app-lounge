@@ -21,8 +21,8 @@ package foundation.e.apps.data.fused
 import android.content.Context
 import android.text.format.Formatter
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
+import androidx.lifecycle.map
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
@@ -62,6 +62,7 @@ import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.fused.utils.CategoryUtils
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.gplay.GplayStoreRepository
+import foundation.e.apps.data.gplay.utils.runFlowWithTimeout
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
@@ -79,7 +80,7 @@ import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
 
-typealias GplaySearchResultFlow = Flow<ResultSupreme<Pair<List<FusedApp>, Boolean>>>
+typealias GplaySearchResultLiveData = LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>>
 typealias FusedHomeDeferred = Deferred<ResultSupreme<List<FusedHome>>>
 
 @Singleton
@@ -254,8 +255,9 @@ class FusedApiImpl @Inject constructor(
          */
         return liveData {
             val packageSpecificResults = ArrayList<FusedApp>()
+
             fetchPackageSpecificResult(authData, query, packageSpecificResults).let {
-                if (it.data?.second == true) { // if there are no data to load
+                if (it.data?.second != true) { // if there are no data to load
                     emit(it)
                     return@liveData
                 }
@@ -289,7 +291,7 @@ class FusedApiImpl @Inject constructor(
                         query,
                         searchResult,
                         packageSpecificResults
-                    ).asLiveData()
+                    )
                 )
             }
         }
@@ -333,20 +335,32 @@ class FusedApiImpl @Inject constructor(
         query: String,
         searchResult: MutableList<FusedApp>,
         packageSpecificResults: ArrayList<FusedApp>
-    ): GplaySearchResultFlow = getGplaySearchResult(query).map {
-        if (it.first.isNotEmpty()) {
-            searchResult.addAll(it.first)
+    ): GplaySearchResultLiveData {
+        return runFlowWithTimeout({
+            getGplaySearchResult(query)
+        }, {
+            it.second
+        }, {
+            Pair(listOf(), false)   // empty data for timeout
         }
-        ResultSupreme.Success(
-            Pair(
-                filterWithKeywordSearch(
-                    searchResult,
-                    packageSpecificResults,
-                    query
-                ),
-                it.second
-            )
-        )
+        ).map {
+            if (it.isSuccess()) {
+                searchResult.addAll(it.data!!.first)
+                ResultSupreme.Success(
+                    Pair(
+                        filterWithKeywordSearch(
+                            searchResult,
+                            packageSpecificResults,
+                            query
+                        ),
+                        it.data!!.second
+                    )
+                )
+            } else {
+                it
+            }
+
+        }
     }
 
     private suspend fun fetchOpenSourceSearchResult(
@@ -409,9 +423,9 @@ class FusedApiImpl @Inject constructor(
          * Also send true in the pair to signal more results being loaded.
          */
         if (status != ResultStatus.OK) {
-            return ResultSupreme.create(status, Pair(packageSpecificResults, true))
+            return ResultSupreme.create(status, Pair(packageSpecificResults, false))
         }
-        return ResultSupreme.create(status, Pair(packageSpecificResults, false))
+        return ResultSupreme.create(status, Pair(packageSpecificResults, true))
     }
 
     /*

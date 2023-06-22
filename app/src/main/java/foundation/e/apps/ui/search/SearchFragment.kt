@@ -118,7 +118,10 @@ class SearchFragment :
 
         authObjects.observe(viewLifecycleOwner) {
             val currentQuery = searchView?.query?.toString() ?: ""
-            if (it == null || (currentQuery.isNotEmpty() && lastSearch == currentQuery)) return@observe
+            if (it == null || shouldIgnore(it, currentQuery)) {
+                return@observe
+            }
+
             loadDataWhenNetworkAvailable(it)
         }
 
@@ -126,6 +129,12 @@ class SearchFragment :
             handleExceptionsCommon(it)
         }
     }
+
+    private fun shouldIgnore(
+        authObjectList: List<AuthObject>?,
+        currentQuery: String
+    ) = currentQuery.isNotEmpty() && searchViewModel.isAuthObjectListSame(authObjectList) &&
+        lastSearch == currentQuery
 
     private fun observeSearchResult(listAdapter: ApplicationListRVAdapter?) {
         searchViewModel.searchResult.observe(viewLifecycleOwner) {
@@ -427,10 +436,11 @@ class SearchFragment :
     }
 
     private fun showKeyboard() {
-        val inputMethodManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val inputMethodManager =
+            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         searchView?.javaClass?.getDeclaredField("mSearchSrcTextView")?.runCatching {
             isAccessible = true
-            get(searchView)as EditText
+            get(searchView) as EditText
         }?.onSuccess {
             inputMethodManager.showSoftInput(it, InputMethodManager.SHOW_FORCED)
         }
