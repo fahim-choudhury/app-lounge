@@ -213,18 +213,18 @@ class LoginSourceGPlay @Inject constructor(
     }
 
     override suspend fun validateAuthData(): ResultSupreme<AuthData?> {
-        val savedAuth = getSavedAuthData()
-        if (!isAuthDataValid(savedAuth)) {
-            Timber.i("Validating AuthData...")
-            val authData = generateAuthData()
-            authData.data?.let {
-                saveAuthData(it)
-                return authData
-            }
-            return ResultSupreme.create(ResultStatus.UNKNOWN)
+        val authObject = getAuthObject()
+        val authData = authObject.result.data
+
+        Timber.i("Validating AuthData...")
+        if (isAuthDataValid(authData)) {
+            return ResultSupreme.Success(authData)
         }
 
-        return ResultSupreme.create(ResultStatus.OK, savedAuth)
+        clearSavedAuth()
+
+        val newAuthObjectResult = getAuthObject().result
+        return ResultSupreme.replicate(newAuthObjectResult, newAuthObjectResult.data)
     }
 
     private suspend fun isAuthDataValid(savedAuth: AuthData?) =
