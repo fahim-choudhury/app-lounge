@@ -160,4 +160,15 @@
     <string name="login">S\'identifier</string>
     <string name="login_to_see_gplay_apps">Vous devez vous connecter pour voir les application répandues.</string>
     <string name="pwa_and_open_source_apps">les applications PWA et Open Source</string>
+    <string name="downloading">Téléchargement…</string>
+    <string name="additional_file_for">Fichier supplémentaire pour %s</string>
+    <string name="preference_update_apps_from_other_stores_title">Mettre à jour les applications installées par d\'autres magasins</string>
+    <string name="preference_update_apps_from_other_stores_description">Mettre à jour les applications installées par d\'autres magasins.
+\nDes tentatives de mises à jour seront faites depuis les applications répandues et les applications open source pour les applications concernées.</string>
+    <string name="proceed_to_google_login">Continuer vers la connexion Google</string>
+    <string name="having_troubles">Des difficultés \?</string>
+    <string name="google_login_alert_message">Nous vous recommandons d\'utiliser un compte dédié afin de :
+\n
+\n\t• limiter le micro-ciblage
+\n\t• limiter les impacts au cas où ce compte serait restreint par Google</string>
 </resources>
