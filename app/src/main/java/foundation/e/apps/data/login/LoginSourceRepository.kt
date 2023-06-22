@@ -40,10 +40,13 @@ class LoginSourceRepository @Inject constructor(
             if (source::class.java.simpleName in clearAuthTypes) {
                 source.clearSavedAuth()
             }
-            if (source is LoginSourceGPlay) {
-                gplayAuth = source.getAuthObject().result.data
+
+            source.getAuthObject().run {
+                if (source is LoginSourceGPlay) {
+                    gplayAuth = this.result.data as AuthData?
+                }
+                authObjectsLocal.add(this)
             }
-            authObjectsLocal.add(source.getAuthObject())
         }
 
         return authObjectsLocal
