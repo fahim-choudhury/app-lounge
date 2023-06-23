@@ -33,46 +33,13 @@ class IntegrityBinder(
         const val INTEGRITY_ERROR_NETWORK_ERROR = -3
     }
 
-    override fun checkIntegrity(packageName: String, nonce: String, callback: IAppLoungeIntegrityServiceCallback) {
-        requestDroidGuardToken(packageName, nonce, callback)
-    }
-
-    private fun requestDroidGuardToken(packageName: String, nonce: String, callback: IAppLoungeIntegrityServiceCallback) {
-        val integrityPackage = IntegrityPackage.newBuilder().setPackageName(packageName)
-        val versionCode = PackageVersionCode.newBuilder().setVersion(10)
-        val timestamp = System.currentTimeMillis().asProtoTimestamp()
-
-        val data = DroidGuardIntegrityRequest.newBuilder()
-            .setPackage(integrityPackage)
-            .setVersion(versionCode)
-            .setNonce(nonce)
-            .setTimestamp(timestamp)
-            .build()
-
-        val client = DroidGuard.getClient(context)
-        val request = DroidGuardResultsRequest()
-        request.bundle.putString("thirdPartyCallerAppPackageName", packageName)
-        //request.bundle.putBoolean("apsh", false)
-
-        val map = buildDroidGuardData(data)
-
-        client.getResults(
-            "pia_attest",
-            map,
-            request
-        ).addOnSuccessListener {
-            onDroidGuardSuccess(packageName, nonce, it, callback)
-        }.addOnFailureListener {
-            Timber.e("Droid guard error")
-        }
-    }
-
-    private fun onDroidGuardSuccess(
+    override fun checkIntegrity(
         packageName: String,
         nonce: String,
         droidGuardToken: String,
         callback: IAppLoungeIntegrityServiceCallback
     ) {
+        Timber.tag(TAG).i("checkIntegrity")
         lifecycleCoroutineScope.launch {
             gPlayAPIRepository.checkIntegrity(
                 authData,
@@ -87,20 +54,5 @@ class IntegrityBinder(
                 }
             }
         }
-    }
-
-    private fun buildDroidGuardData(request: DroidGuardIntegrityRequest): Map<String, String> {
-        val digest = MessageDigest.getInstance("SHA-256")
-
-        return mapOf(
-            "pkg_key" to request.`package`.packageName,
-            "vc_key" to request.version.version.toString(),
-            "nonce_sha256_key" to request.nonce
-                .let { Base64.decode(it, BASE64_ENCODING_FLAGS) }
-                .let { digest.digest(it) }
-                .let { Base64.encodeToString(it, BASE64_ENCODING_FLAGS or Base64.NO_PADDING) },
-            "tm_s_key" to request.timestamp.seconds.toString(),
-            "binding_key" to Base64.encodeToString(request.toByteArray(), BASE64_ENCODING_FLAGS)
-        )
     }
 }
