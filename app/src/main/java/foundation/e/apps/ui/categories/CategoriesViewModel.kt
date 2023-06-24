@@ -85,7 +85,4 @@ class CategoriesViewModel @Inject constructor(
         }
     }
 
-    fun isCategoriesEmpty(): Boolean {
-        return categoriesList.value?.first?.isEmpty() ?: true
-    }
 }

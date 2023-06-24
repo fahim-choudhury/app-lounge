@@ -9,7 +9,6 @@ import java.io.InputStream
 import java.io.OutputStream
 
 object FileManager {
-    private const val TAG = "FileManager"
 
     fun moveFile(inputPath: String, inputFile: String, outputPath: String) {
         var inputStream: InputStream? = null

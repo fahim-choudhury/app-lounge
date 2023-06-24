@@ -72,10 +72,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
     @Inject
     lateinit var clipboardManager: ClipboardManager
 
-    companion object {
-        private const val TAG = "SettingsFragment"
-    }
-
     private val user by lazy {
         mainActivityViewModel.getUser()
     }
@@ -242,15 +238,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     fun isAnyAppSourceSelected() =
         showAllApplications?.isChecked == true || showFOSSApplications?.isChecked == true || showPWAApplications?.isChecked == true
-
-    private fun backToMainActivity() {
-        Intent(context, MainActivity::class.java).also {
-            activity?.finish()
-            activity?.overridePendingTransition(0, 0)
-            startActivity(it)
-            activity?.overridePendingTransition(0, 0)
-        }
-    }
 
     private fun disableDependentCheckbox(
         checkBox: CheckBoxPreference?,

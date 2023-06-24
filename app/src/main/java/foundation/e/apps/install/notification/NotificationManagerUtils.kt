@@ -30,30 +30,4 @@ class NotificationManagerUtils @Inject constructor(
     private val preferenceManagerModule: PreferenceManagerModule
 ) {
 
-    fun showDownloadNotification(title: String): NotificationCompat.Builder {
-        return NotificationCompat.Builder(context, NotificationManagerModule.DOWNLOADS)
-            .setSmallIcon(R.drawable.app_lounge_notification_icon)
-            .setContentTitle(title)
-            .setProgress(0, 0, true)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-    }
-
-    fun showUpdateNotification(updateSize: Int): NotificationCompat.Builder {
-        val contentText = if (preferenceManagerModule.autoUpdatePreferred()) {
-            context.getString(R.string.auto_updates_notification)
-        } else {
-            context.getString(R.string.manual_updates_notification)
-        }
-        return NotificationCompat.Builder(context, NotificationManagerModule.UPDATES)
-            .setSmallIcon(R.drawable.app_lounge_notification_icon)
-            .setContentTitle(
-                context.resources.getQuantityString(
-                    R.plurals.updates_notification_title,
-                    updateSize,
-                    updateSize
-                )
-            )
-            .setContentText(contentText)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-    }
 }

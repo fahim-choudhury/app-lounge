@@ -213,46 +213,6 @@ class LoginSourceGPlay @Inject constructor(
         }
     }
 
-    /**
-     * Check if a given [AuthData] from Google login or Anonymous login is valid or not.
-     * If valid, return the AuthData wrapped in [ResultSupreme], else return null,
-     * with error message.
-     */
-    private suspend fun validateAuthData(
-        authData: AuthData,
-    ): ResultSupreme<AuthData?> {
-
-        val formattedAuthData = formatAuthData(authData)
-        formattedAuthData.locale = locale
-
-        val validityResponse = loginApiRepository.login(formattedAuthData)
-
-        /*
-         * Send the email as payload. This is sent to ecloud in case of failure.
-         * See MainActivityViewModel.uploadFaultyTokenToEcloud.
-         */
-        validityResponse.otherPayload = formattedAuthData.email
-
-        val playResponse = validityResponse.data
-        return if (validityResponse.isSuccess() && playResponse?.code == 200 && playResponse.isSuccessful) {
-            ResultSupreme.Success(formattedAuthData)
-        } else {
-            val message =
-                "Validating AuthData failed.\n" +
-                    "Network code: ${playResponse?.code}\n" +
-                    "Success: ${playResponse?.isSuccessful}" +
-                    playResponse?.errorString?.run {
-                        if (isNotBlank()) "\nError message: $this"
-                        else ""
-                    }
-
-            ResultSupreme.Error(
-                message,
-                GPlayValidationException(message, user, playResponse?.code ?: -1)
-            )
-        }
-    }
-
     override suspend fun validateAuthData(): ResultSupreme<AuthData?> {
         val savedAuth = getSavedAuthData()
         if (!isAuthDataValid(savedAuth)) {

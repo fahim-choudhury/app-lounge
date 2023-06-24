@@ -75,14 +75,6 @@ class FusedManagerRepository @Inject constructor(
         return fusedManagerImpl.getDownloadLiveList()
     }
 
-    fun getDownloadListFlow(): Flow<List<FusedDownload>> {
-        return fusedManagerImpl.getDownloadLiveList().asFlow()
-    }
-
-    suspend fun installApp(fusedDownload: FusedDownload) {
-        return fusedManagerImpl.installApp(fusedDownload)
-    }
-
     suspend fun getFusedDownload(downloadId: Long = 0, packageName: String = ""): FusedDownload {
         return fusedManagerImpl.getFusedDownload(downloadId, packageName)
     }

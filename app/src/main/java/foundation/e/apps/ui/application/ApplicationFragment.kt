@@ -830,15 +830,6 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         applicationIcon = null
     }
 
-    private fun shareApp(name: String, shareUrl: String): Intent {
-        val shareIntent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, getString(R.string.share_intent, name, shareUrl))
-            type = "text/plain"
-        }
-        return shareIntent
-    }
-
     private fun getPrivacyDrawable(privacyRating: String): Drawable? {
         val rating = privacyRating.toInt()
 

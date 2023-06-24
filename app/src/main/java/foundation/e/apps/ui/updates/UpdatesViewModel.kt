@@ -117,10 +117,6 @@ class UpdatesViewModel @Inject constructor(
         return false
     }
 
-    fun getApplicationCategoryPreference(): List<String> {
-        return updatesManagerRepository.getApplicationCategoryPreference()
-    }
-
     fun hasAnyUpdatableApp(): Boolean {
         return updatesList.value?.first?.any { it.status == Status.UPDATABLE || it.status == Status.INSTALLATION_ISSUE } == true
     }

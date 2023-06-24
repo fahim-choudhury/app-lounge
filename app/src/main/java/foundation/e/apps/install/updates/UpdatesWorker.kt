@@ -44,7 +44,6 @@ class UpdatesWorker @AssistedInject constructor(
     private val fusedManagerRepository: FusedManagerRepository,
     private val dataStoreManager: DataStoreManager,
     private val loginSourceRepository: LoginSourceRepository,
-    private val gson: Gson,
 ) : CoroutineWorker(context, params) {
 
     companion object {
@@ -204,12 +203,6 @@ class UpdatesWorker @AssistedInject constructor(
                 isConnectedToUnmeteredNetwork
             )
         }
-    }
-
-    private fun getAuthData(): AuthData? {
-        val authDataJson = dataStoreManager.getAuthDataJson()
-        return if (authDataJson.isBlank()) return null
-        else gson.fromJson(authDataJson, AuthData::class.java)
     }
 
     private suspend fun startUpdateProcess(

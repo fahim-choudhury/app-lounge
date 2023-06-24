@@ -38,8 +38,6 @@ class PackageInstallerService : Service() {
     @Inject
     lateinit var fusedManagerRepository: FusedManagerRepository
 
-    private val TAG = PackageInstallerService::class.java.simpleName
-
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -69)
         val packageName = intent.getStringExtra(PackageInstaller.EXTRA_PACKAGE_NAME)

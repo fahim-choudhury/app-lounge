@@ -65,8 +65,6 @@ class ApplicationListRVAdapter(
     private var paidAppHandler: ((FusedApp) -> Unit)? = null
 ) : ListAdapter<FusedApp, ApplicationListRVAdapter.ViewHolder>(ApplicationDiffUtil()) {
 
-    private val TAG = ApplicationListRVAdapter::class.java.simpleName
-
     private var optionalCategory = ""
 
     private val shimmer = Shimmer.ColorHighlightBuilder()
@@ -335,22 +333,6 @@ class ApplicationListRVAdapter(
             view.context.getText(R.string.update)
         else
             view.context.getString(R.string.retry)
-
-    private fun MaterialButton.getStrokeColor(
-        isEnabled: Boolean,
-        view: View
-    ) = if (isEnabled) {
-        ContextCompat.getColorStateList(view.context, R.color.colorAccent)
-    } else {
-        ContextCompat.getColorStateList(view.context, R.color.light_grey)
-    }
-
-    private fun MaterialButton.setButtonTextColor(isEnabled: Boolean) =
-        if (isEnabled) {
-            setTextColor(context.getColor(R.color.colorAccent))
-        } else {
-            setTextColor(context.getColor(R.color.light_grey))
-        }
 
     private fun ApplicationListItemBinding.handleBlocked(view: View) {
         installButton.apply {

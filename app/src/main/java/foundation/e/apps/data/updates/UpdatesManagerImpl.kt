@@ -54,8 +54,6 @@ class UpdatesManagerImpl @Inject constructor(
         const val PACKAGE_NAME_ANDROID_VENDING = "com.android.vending"
     }
 
-    private val TAG = UpdatesManagerImpl::class.java.simpleName
-
     private val userApplications: List<ApplicationInfo>
         get() = pkgManagerModule.getAllUserApps()
 

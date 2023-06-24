@@ -104,18 +104,6 @@ class InstallerService : Service() {
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    private fun updateDownloadStatus(pkgName: String) {
-        if (pkgName.isEmpty()) {
-            Timber.d("updateDownloadStatus: package name should not be empty!")
-        }
-        GlobalScope.launch {
-            val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)
-            pkgManagerModule.setFakeStoreAsInstallerIfNeeded(fusedDownload)
-            fusedManagerRepository.updateDownloadStatus(fusedDownload, Status.INSTALLED)
-        }
-    }
-
-    @OptIn(DelicateCoroutinesApi::class)
     private fun updateInstallationIssue(pkgName: String) {
         if (pkgName.isEmpty()) {
             Timber.d("updateDownloadStatus: package name should not be empty!")

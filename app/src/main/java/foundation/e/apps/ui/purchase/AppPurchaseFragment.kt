@@ -23,10 +23,6 @@ import foundation.e.apps.ui.MainActivityViewModel
 class AppPurchaseFragment : Fragment() {
     private lateinit var binding: FragmentAppPurchaseBinding
 
-    companion object {
-        private const val TAG = "AppPurchaseFragment"
-    }
-
     private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
 
     private var isAppPurchased = false

@@ -25,9 +25,6 @@ import foundation.e.apps.data.preference.PreferenceManagerModule
 import timber.log.Timber
 
 class UpdatesBroadcastReceiver : BroadcastReceiver() {
-    companion object {
-        private const val TAG = "UpdatesManager"
-    }
 
     override fun onReceive(context: Context, intent: Intent) {
         Timber.d("onReceive: ${intent.action}")

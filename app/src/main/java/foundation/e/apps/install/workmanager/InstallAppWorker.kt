@@ -41,7 +41,6 @@ class InstallAppWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, params) {
 
     companion object {
-        private const val TAG = "InstallWorker"
         const val INPUT_DATA_FUSED_DOWNLOAD = "input_data_fused_download"
         const val IS_UPDATE_WORK = "is_update_work"
 
