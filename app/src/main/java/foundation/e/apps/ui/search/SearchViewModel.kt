@@ -123,5 +123,4 @@ class SearchViewModel @Inject constructor(
         newFusedApps: List<FusedApp>,
         oldFusedApps: List<FusedApp>
     ) = fusedAPIRepository.isAnyFusedAppUpdated(newFusedApps, oldFusedApps)
-
 }

@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.asFlow
 import foundation.e.apps.OpenForTesting
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FdroidRepository
@@ -12,7 +11,6 @@ import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.workmanager.InstallWorkManager
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 

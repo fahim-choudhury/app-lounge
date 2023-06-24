@@ -18,7 +18,6 @@
 
 package foundation.e.apps.ui.application
 
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle

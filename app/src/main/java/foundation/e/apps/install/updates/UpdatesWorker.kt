@@ -12,7 +12,6 @@ import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.aurora.gplayapi.data.models.AuthData
-import com.google.gson.Gson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import foundation.e.apps.R

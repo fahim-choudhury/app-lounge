@@ -28,7 +28,6 @@ import foundation.e.apps.data.login.api.GPlayApiFactory
 import foundation.e.apps.data.login.api.GPlayLoginInterface
 import foundation.e.apps.data.login.api.GoogleLoginApi
 import foundation.e.apps.data.login.api.LoginApiRepository
-import foundation.e.apps.data.login.exceptions.GPlayValidationException
 import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject

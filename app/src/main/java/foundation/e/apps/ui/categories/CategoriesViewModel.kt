@@ -84,5 +84,4 @@ class CategoriesViewModel @Inject constructor(
             }
         }
     }
-
 }

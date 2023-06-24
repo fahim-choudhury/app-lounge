@@ -23,7 +23,6 @@ import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.os.IBinder
 import dagger.hilt.android.AndroidEntryPoint
-import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fused.UpdatesDao
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository

@@ -116,8 +116,6 @@
     <string name="update_error">Ошибка обновления!</string>
     <string name="error_signature_mismatch">Обновление не может быть применено из-за несоответствия подписи между обновлением %1$s и версией, установленной на вашем телефоне. Чтобы исправить это, вы можете удалить %1$s, а затем снова установить его из App Lounge. <br/><br/> Примечание: это сообщение больше не появится.</string>
     <string name="all_apps_updated">Все приложения обновлены</string>
-    <string name="manual_updates_notification">Обновления приложений не будут устанавливаться автоматически</string>
-    <string name="auto_updates_notification">Обновления приложений будут устанавливаться автоматически</string>
     <string name="update_all">Обновить все</string>
     <string name="gplay_data_for_oss">Невозможно показать приложение Google Play, когда разрешены только Open Source приложения.</string>
     <string name="duplicate_app_from_sources">Некоторые проприетарные приложения могут также иметь Open Source версию. Когда это происходит, App Lounge показывает только Open Source версию, чтобы избежать дублирования.</string>
@@ -153,8 +151,6 @@
     <string name="cancel">Отмена</string>
     <string name="installing">Установка</string>
     <string name="install">Установить</string>
-    <string name="share_intent">Проверьте \"<xliff:g id="rating">%1$s</xliff:g>\"
-\n<xliff:g id="rating">%2$s</xliff:g></string>
     <string name="description">Описание</string>
     <string name="logged_out">Вышел из системы</string>
     <string name="login">Войти</string>

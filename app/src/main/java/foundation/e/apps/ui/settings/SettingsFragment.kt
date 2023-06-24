@@ -20,7 +20,6 @@ package foundation.e.apps.ui.settings
 
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -44,7 +43,6 @@ import foundation.e.apps.data.fused.UpdatesDao
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.databinding.CustomPreferenceBinding
 import foundation.e.apps.install.updates.UpdatesWorkManager
-import foundation.e.apps.ui.MainActivity
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.utils.SystemInfoProvider
 import timber.log.Timber
