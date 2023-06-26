@@ -158,4 +158,7 @@
     <string name="additional_file_for">Zusätzliche Dateien für %s</string>
     <string name="downloading">Herunterladen …</string>
     <string name="preference_update_apps_from_other_stores_title">Apps aktualisieren, die von anderen App-Stores aus installiert wurden</string>
+    <string name="preference_update_apps_from_other_stores_description">Aktualisiere Apps, die von anderen Stores installiert wurden.
+\nSolche App</string>
+    <string name="having_troubles">Ein Problem\?</string>
 </resources>
