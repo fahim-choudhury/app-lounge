@@ -80,7 +80,6 @@ class MainActivityViewModel @Inject constructor(
 
     // Downloads
     val downloadList = fusedManagerRepository.getDownloadLiveList()
-    var installInProgress = false
     private val _errorMessage = MutableLiveData<Exception>()
     val errorMessage: LiveData<Exception> = _errorMessage
 
@@ -119,12 +118,6 @@ class MainActivityViewModel @Inject constructor(
     /*
      * Download and cancellation functions
      */
-
-    fun downloadApp(fusedDownload: FusedDownload) {
-        viewModelScope.launch {
-            fusedManagerRepository.downloadApp(fusedDownload)
-        }
-    }
 
     /*
      * Check and display a snack bar if app is paid and user is logged in in anonymous mode.

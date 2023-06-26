@@ -52,7 +52,7 @@ class LoginApiRepository constructor(
      * else blank for Anonymous login.
      */
     suspend fun fetchAuthData(email: String, aasToken: String, locale: Locale): ResultSupreme<AuthData?> {
-        val result = runCodeBlockWithTimeout({
+        val result = runCodeWithTimeout({
             gPlayLoginInterface.fetchAuthData(email, aasToken)
         })
         return result.apply {
@@ -76,7 +76,7 @@ class LoginApiRepository constructor(
      */
     suspend fun login(authData: AuthData): ResultSupreme<PlayResponse> {
         var response = PlayResponse()
-        val result = runCodeBlockWithTimeout({
+        val result = runCodeWithTimeout({
             response = gPlayLoginInterface.login(authData)
             if (response.code != 200) {
                 throw Exception("Validation network code: ${response.code}")
@@ -110,7 +110,7 @@ class LoginApiRepository constructor(
         email: String,
         oauthToken: String
     ): ResultSupreme<String?> {
-        val result = runCodeBlockWithTimeout({
+        val result = runCodeWithTimeout({
             var aasToken = ""
             val response = googleLoginApi.getAC2DMResponse(email, oauthToken)
             var error = response.errorString
@@ -142,7 +142,7 @@ class LoginApiRepository constructor(
     /**
      * Utility method to run a specified code block in a fixed amount of time.
      */
-    private suspend fun <T> runCodeBlockWithTimeout(
+    private suspend fun <T> runCodeWithTimeout(
         block: suspend () -> T,
         timeoutBlock: (() -> T?)? = null,
         exceptionBlock: ((e: Exception) -> T?)? = null,

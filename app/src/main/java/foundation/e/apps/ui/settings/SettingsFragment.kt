@@ -20,7 +20,6 @@ package foundation.e.apps.ui.settings
 
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -44,7 +43,6 @@ import foundation.e.apps.data.fused.UpdatesDao
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.databinding.CustomPreferenceBinding
 import foundation.e.apps.install.updates.UpdatesWorkManager
-import foundation.e.apps.ui.MainActivity
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.utils.SystemInfoProvider
 import timber.log.Timber
@@ -71,10 +69,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     @Inject
     lateinit var clipboardManager: ClipboardManager
-
-    companion object {
-        private const val TAG = "SettingsFragment"
-    }
 
     private val user by lazy {
         mainActivityViewModel.getUser()
@@ -242,15 +236,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     fun isAnyAppSourceSelected() =
         showAllApplications?.isChecked == true || showFOSSApplications?.isChecked == true || showPWAApplications?.isChecked == true
-
-    private fun backToMainActivity() {
-        Intent(context, MainActivity::class.java).also {
-            activity?.finish()
-            activity?.overridePendingTransition(0, 0)
-            startActivity(it)
-            activity?.overridePendingTransition(0, 0)
-        }
-    }
 
     private fun disableDependentCheckbox(
         checkBox: CheckBoxPreference?,

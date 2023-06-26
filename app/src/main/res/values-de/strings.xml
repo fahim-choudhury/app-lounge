@@ -53,8 +53,6 @@
     <string name="message_app_available_later">Diese App wird bald verfügbar sein!</string>
     <string name="unknown_error">Unbekannter Fehler!</string>
     <string name="update_all">Alle aktualisieren</string>
-    <string name="auto_updates_notification">App-Aktualisierungen werden automatisch installiert</string>
-    <string name="manual_updates_notification">App-Aktualisierungen werden nicht automatisch installiert</string>
     <string name="discover">Entdecke</string>
     <string name="top_updated_apps">Top quelloffene aktualisierte Apps</string>
     <string name="top_updated_games">Top quelloffene aktualisierte Spiele</string>
@@ -80,8 +78,6 @@
     <string name="sign_in_desc">Melde dich bei der App Lounge mit einem Google-Konto an, oder wähle den anonymen Modus aus, um dich geheim anzumelden.</string>
     <string name="preference_update_interval_title">Überprüfungsintervall für Aktualisierungen</string>
     <string name="preference_update_install_automatically_description">Das Herunterladen und Installieren von App-Aktualisierungen im Hintergrund ausführen</string>
-    <string name="share_intent">Siehe auch \"<xliff:g id="rating">%1$s</xliff:g>\"
-\n<xliff:g id="rating">%2$s</xliff:g></string>
     <string name="privacy_score">Datenschutz-Bewertung</string>
     <string name="privacy_analyses">Datenschutz-Analysen</string>
     <string name="trackers_title">Tracker (Verfolger)</string>

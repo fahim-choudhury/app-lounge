@@ -169,12 +169,6 @@ class ApplicationListFragment :
         }
     }
 
-    private fun isFusedAppsUpdated(it: ResultSupreme<List<FusedApp>>) =
-        listAdapter.currentList.isEmpty() || it.data != null && viewModel.isAnyAppUpdated(
-            it.data!!,
-            listAdapter.currentList
-        )
-
     private fun initAppListAdapter(
         currentDestinationId: Int
     ): ApplicationListRVAdapter {

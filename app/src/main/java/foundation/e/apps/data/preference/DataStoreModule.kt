@@ -114,12 +114,6 @@ class DataStoreModule @Inject constructor(
         }
     }
 
-    suspend fun saveUserTypeSync(user: User) {
-        context.dataStore.edit {
-            it[USERTYPE] = user.name
-        }
-    }
-
     fun getAuthDataSync(): String {
         return runBlocking {
             authData.first()
@@ -137,10 +131,6 @@ class DataStoreModule @Inject constructor(
         return runBlocking {
             emailData.first()
         }
-    }
-
-    suspend fun getAASToken(): String {
-        return aasToken.first()
     }
 
     fun getUserType(): User {

@@ -59,8 +59,6 @@
     <string name="message_app_available_later">Questa App sarà disponibile prossimamente!</string>
     <string name="unknown_error">Errore sconosciuto!</string>
     <string name="update_all">Aggiorna tutto</string>
-    <string name="auto_updates_notification">Gli aggiornamenti App verranno installati automaticamente</string>
-    <string name="manual_updates_notification">Gli aggiornamenti App non verranno installati automaticamente</string>
     <string name="discover">Scopri</string>
     <string name="popular_apps_in_last_24_hours">App Open Source più richieste nelle ultime 24 ore</string>
     <string name="popular_games_in_last_24_hours">Giochi Open Source più richiesti nelle ultime 24 ore</string>
@@ -82,8 +80,6 @@
     <string name="install_blocked_google">Le App a pagamento non sono ancora supportate da App Lounge. Un pò di pazienza e lo saranno.</string>
     <string name="no_internet_message">Non riesco a connettermi! Verifica la connessione internet e ritenta</string>
     <string name="preference_update_notify_available_description">Mostra una notifica quando sono disponibili aggiornamenti App</string>
-    <string name="share_intent">Verifica \"<xliff:g id="rating">%1$s</xliff:g>\"
-\n<xliff:g id="rating">%2$s</xliff:g></string>
     <string name="install">Installa</string>
     <string name="cancel">Annulla</string>
     <string name="app_icon">Icona App</string>

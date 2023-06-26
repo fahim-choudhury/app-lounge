@@ -23,7 +23,6 @@ import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.os.IBinder
 import dagger.hilt.android.AndroidEntryPoint
-import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fused.UpdatesDao
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
@@ -101,18 +100,6 @@ class InstallerService : Service() {
 
     override fun onBind(intent: Intent): IBinder? {
         return null
-    }
-
-    @OptIn(DelicateCoroutinesApi::class)
-    private fun updateDownloadStatus(pkgName: String) {
-        if (pkgName.isEmpty()) {
-            Timber.d("updateDownloadStatus: package name should not be empty!")
-        }
-        GlobalScope.launch {
-            val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)
-            pkgManagerModule.setFakeStoreAsInstallerIfNeeded(fusedDownload)
-            fusedManagerRepository.updateDownloadStatus(fusedDownload, Status.INSTALLED)
-        }
     }
 
     @OptIn(DelicateCoroutinesApi::class)

@@ -41,7 +41,6 @@ class DownloadManagerUtils @Inject constructor(
     private val fusedManagerRepository: FusedManagerRepository,
     private val downloadManager: DownloadManager
 ) {
-    private val TAG = DownloadManagerUtils::class.java.simpleName
     private val mutex = Mutex()
 
     @DelicateCoroutinesApi

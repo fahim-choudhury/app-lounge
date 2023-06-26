@@ -18,7 +18,6 @@
 
 package foundation.e.apps.ui.application
 
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -828,15 +827,6 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         _binding?.recyclerView?.adapter = null
         _binding = null
         applicationIcon = null
-    }
-
-    private fun shareApp(name: String, shareUrl: String): Intent {
-        val shareIntent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, getString(R.string.share_intent, name, shareUrl))
-            type = "text/plain"
-        }
-        return shareIntent
     }
 
     private fun getPrivacyDrawable(privacyRating: String): Drawable? {

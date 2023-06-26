@@ -52,8 +52,6 @@
     <string name="message_app_available_later">Cette application sera disponible plus tard !</string>
     <string name="unknown_error">Erreur inconnue !</string>
     <string name="update_all">Tout mettre à jour</string>
-    <string name="auto_updates_notification">Les mises à jour d\'application seront installées automatiquement</string>
-    <string name="manual_updates_notification">Les mises à jour d\'application ne seront pas installées automatiquement</string>
     <string name="discover">Découvrir</string>
     <string name="top_updated_apps">Top des apps Open Source mises à jour</string>
     <string name="top_updated_games">Top des jeux Open Source mis à jour</string>
@@ -92,8 +90,6 @@
     <string name="automatically_install_updates_notification_text">Les mises à jour d\'application seront installées automatiquement</string>
     <string name="updates_notification_unmetered_network_warning">En attente d\'un réseau illimité</string>
     <string name="privacy_computed_using_text">Calculé à partir des &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; analyses d\'Exodus Privacy</string>
-    <string name="share_intent">Terminer \"<xliff:g id="rating">%1$s</xliff:g>\"
-\n<xliff:g id="rating">%2$s</xliff:g></string>
     <string name="category_icon">Icône de catégorie</string>
     <string name="sign_in_desc">Connectez-vous à App Lounge en utilisant votre compte Google ou sélectionnez le mode Anonyme pour protéger votre vie privée.</string>
     <string name="topgrossing_apps">Apps les mieux classées</string>

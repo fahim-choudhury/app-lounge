@@ -50,9 +50,6 @@ object CommonUtilsModule {
 
     val LIST_OF_NULL = listOf("null")
 
-    // Issue: https://gitlab.e.foundation/e/backlog/-/issues/5709
-    const val NETWORK_CODE_SUCCESS = 200
-
     /**
      * Check supported ABIs by device
      * @return An ordered list of ABIs supported by this device

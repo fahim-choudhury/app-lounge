@@ -12,7 +12,6 @@ import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.aurora.gplayapi.data.models.AuthData
-import com.google.gson.Gson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import foundation.e.apps.R
@@ -44,7 +43,6 @@ class UpdatesWorker @AssistedInject constructor(
     private val fusedManagerRepository: FusedManagerRepository,
     private val dataStoreManager: DataStoreManager,
     private val loginSourceRepository: LoginSourceRepository,
-    private val gson: Gson,
 ) : CoroutineWorker(context, params) {
 
     companion object {
@@ -204,12 +202,6 @@ class UpdatesWorker @AssistedInject constructor(
                 isConnectedToUnmeteredNetwork
             )
         }
-    }
-
-    private fun getAuthData(): AuthData? {
-        val authDataJson = dataStoreManager.getAuthDataJson()
-        return if (authDataJson.isBlank()) return null
-        else gson.fromJson(authDataJson, AuthData::class.java)
     }
 
     private suspend fun startUpdateProcess(

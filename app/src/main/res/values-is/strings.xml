@@ -91,8 +91,6 @@
     <string name="os_version">Útgáfa /e/ OS</string>
     <string name="select_one_source_of_applications">Veldu a.m.k. ein upptök forrita.</string>
     <string name="login_to_see_gplay_apps">Þú verður að skrá þig inn til að sjá algeng forrit.</string>
-    <string name="share_intent">Skoðaðu \"<xliff:g id="rating">%1$s</xliff:g>\"
-\n<xliff:g id="rating">%2$s</xliff:g></string>
     <string name="timeout_desc_cleanapk">Einhver vandamál í netkerfinu koma í veg fyrir að hægt sé að sækja öll forrit.</string>
     <string name="data_load_error">Villa kom upp við að hlaða inn forritum.</string>
     <string name="pwa">PWA-vefforrit</string>
@@ -100,7 +98,6 @@
         <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> uppfærsla forrits er tiltæk</item>
         <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> uppfærslur forrita eru tiltækar</item>
     </plurals>
-    <string name="auto_updates_notification">Uppfærslur forrita verða sjálfkrafa settar inn</string>
     <string name="sign_in_desc">Skráðu þig inn með Google-aðgangnum þínum, eða veldu nafnleysisham til að skrá þig inn í kyrrþey.</string>
     <string name="pwa_and_open_source_apps">PWA-vefforrit og opinn hugbúnaður</string>
     <string name="rating_description">Stig af 5 mögulegum. Reiknað út frá þeim einkunnum sem notendur hafa gefið forritinu.</string>
@@ -108,7 +105,6 @@
     <string name="app_not_found">Forritið þitt fannst ekki.</string>
     <string name="why_open_source_version">Af hverju sé ég opnu hugbúnaðarútgáfuna\?</string>
     <string name="open_source_apps">Forrit með opinn grunnkóða</string>
-    <string name="manual_updates_notification">Uppfærslur forrita verða ekki settar sjálfkrafa inn</string>
     <string name="all_apps_updated">Öll forrit eru af nýjustu útgáfu</string>
     <string name="discover_pwa">Kynntu þér PWA-vefforrit</string>
     <string name="popular_apps">Vinsæl PWA-vefforrit</string>

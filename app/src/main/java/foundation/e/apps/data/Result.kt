@@ -35,12 +35,4 @@ data class Result<T>(val status: Status, val data: T?, val message: String?) {
     }
 
     fun isSuccess() = status == Status.SUCCESS
-
-    fun handleResult(handler: () -> Unit, defaultErrorData: T?): T? {
-        if (isSuccess()) {
-            handler()
-            return data ?: defaultErrorData
-        }
-        return defaultErrorData
-    }
 }

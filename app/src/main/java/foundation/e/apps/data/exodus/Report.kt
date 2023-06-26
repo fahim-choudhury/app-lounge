@@ -2,12 +2,6 @@ package foundation.e.apps.data.exodus
 
 import com.squareup.moshi.Json
 
-data class TrackerInfo(
-    val name: String,
-    val creator: String,
-    val reports: List<Report>
-)
-
 data class Report(
     val report: Long = -1L,
     @Json(name = "updated") val updatedAt: String,
