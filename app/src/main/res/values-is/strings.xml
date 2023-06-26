@@ -79,7 +79,7 @@
     <string name="anonymous_login_failed">Nafnlaus innskráning mistókst!</string>
     <string name="dialog_title_paid_app">Kaupa <b>%1$s</b></string>
     <string name="dialog_confirm">STAÐFESTA</string>
-    <string name="dialog_cancel">HÆTTA VIÐ</string>
+    <string name="dialog_cancel">\@android:string/cancel</string>
     <string name="purchase_complete">Kaupum er lokið!</string>
     <string name="purchase_error">Villa í innkaupum!</string>
     <string name="unsupported_app_title">Óstutt forrit!</string>
@@ -160,4 +160,6 @@
     <string name="unsupported_app_unreleased">Forritið %s er ekki stutt í augnablikinu. Það gæti verið raunin ef forritið sé ekki enn komið í almenna dreifingu, eða vegna einhverrar villu.</string>
     <string name="error_signature_mismatch">Uppfærsluna er ekki hægt að virkja þar sem ósamræmi er í undirritunum uppfærslunnar fyrir %1$s og útgáfunnar sem uppsett er á símanum. Til að laga þetta geturðu tekið út %1$s og síðan sett það aftur upp í App Lounge. <br/><br/> Athugaðu: Þessi skilaboð munu ekki birtast aftur.</string>
     <string name="may_not_work_warning_message">Þvingun uppsetningar mun gerir þér kleift að sækja og setja hana upp, en tryggir ekki endilega að hún muni virka rétt.<br/><br/>Tilraunir til að setja upp óstuddan hugbúnað geta valdi hruni eða hægt á kerfinu.<br/><br/>Við erum að vinna í að bæta samhæfni við þetta forrit.</string>
+    <string name="having_troubles">Einhver vandamál\?</string>
+    <string name="proceed_to_google_login">Halda áfram yfir í Google-innskráningu</string>
 </resources>
