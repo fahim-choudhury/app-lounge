@@ -35,6 +35,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import foundation.e.apps.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -74,16 +75,18 @@ object CommonUtilsModule {
     }
 
     /**
-     * Path to application's external cache directory
+     * Path to application's external cache directory.
+     * ExternalCacheDir is required because we use downloadManager to download & save file.
+     * DownloadManager doesn't have access to cacheDir (which is app private).
      * @param context [Context]
-     * @return absolute path to cache directory or empty string if not available
+     * @return absolute path to cache directory or hardcoded string (/storage/emulated/0/Android/data/<application id>/cache) if not available
      */
     @Singleton
     @Provides
     @Named("cacheDir")
     fun provideCacheDir(@ApplicationContext context: Context): String {
         return context.externalCacheDir?.absolutePath.let {
-            if (it.isNullOrBlank()) "" else it
+            if (it.isNullOrBlank()) "/storage/emulated/0/Android/data/${BuildConfig.APPLICATION_ID}/cache" else it
         }
     }
 
