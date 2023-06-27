@@ -37,6 +37,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.BuildConfig
+import foundation.e.apps.MainActivity
 import foundation.e.apps.R
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.fused.UpdatesDao
