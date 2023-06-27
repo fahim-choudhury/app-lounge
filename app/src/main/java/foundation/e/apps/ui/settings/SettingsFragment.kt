@@ -38,13 +38,13 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.BuildConfig
+import foundation.e.apps.MainActivity
 import foundation.e.apps.R
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.fused.UpdatesDao
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.databinding.CustomPreferenceBinding
 import foundation.e.apps.install.updates.UpdatesWorkManager
-import foundation.e.apps.ui.MainActivity
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.utils.SystemInfoProvider
 import timber.log.Timber

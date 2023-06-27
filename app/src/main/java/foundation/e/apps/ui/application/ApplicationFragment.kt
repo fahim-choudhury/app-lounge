@@ -44,6 +44,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textview.MaterialTextView
 import dagger.hilt.android.AndroidEntryPoint
+import foundation.e.apps.MainActivity
 import foundation.e.apps.R
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.enums.Origin
@@ -60,7 +61,6 @@ import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.ui.AppInfoFetchViewModel
-import foundation.e.apps.ui.MainActivity
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.PrivacyInfoViewModel
 import foundation.e.apps.ui.application.model.ApplicationScreenshotsRVAdapter
