@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.ui
+package foundation.e.apps
 
 import android.app.usage.StorageStatsManager
 import android.os.Build
@@ -42,7 +42,6 @@ import com.aurora.gplayapi.exceptions.ApiException
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import foundation.e.apps.R
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.AuthObject
@@ -51,6 +50,7 @@ import foundation.e.apps.data.login.exceptions.GPlayValidationException
 import foundation.e.apps.databinding.ActivityMainBinding
 import foundation.e.apps.install.updates.UpdatesNotifier
 import foundation.e.apps.install.workmanager.InstallWorkManager
+import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.purchase.AppPurchaseFragmentDirections
 import foundation.e.apps.ui.settings.SettingsFragment
