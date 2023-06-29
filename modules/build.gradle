@@ -9,6 +9,7 @@ ext {
     core_version = '1.10.1'
     gson_version = '2.9.0'
     kotlin_reflection = '1.8.10'
+    retrofit_version = '2.9.0'
 }
 
 android {
@@ -43,6 +44,12 @@ dependencies {
     implementation "androidx.core:core-ktx:$core_version"
     implementation "com.google.code.gson:gson:$gson_version"
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_reflection"
+
+    // region Retrofit
+    implementation("com.squareup.retrofit2:retrofit:$retrofit_version")
+    implementation("com.squareup.retrofit2:converter-gson:$retrofit_version")
+    implementation("com.squareup.retrofit2:converter-scalars:$retrofit_version")
+    // endregion
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
