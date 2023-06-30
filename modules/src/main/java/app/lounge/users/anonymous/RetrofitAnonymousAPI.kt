@@ -1,10 +1,7 @@
 package app.lounge.users.anonymous
 
 import app.lounge.networking.RetrofitFetching
-import app.lounge.networking.RetrofitRawResultProcessing
-import app.lounge.networking.RetrofitResult
 import app.lounge.networking.appLounge
-import app.lounge.networking.fetch
 import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -40,19 +37,4 @@ internal class RetrofitAnonymousAPI(
         )*/
     }
 
-
-    /*private val cardTerminalResultProcessing = RetrofitRawResultProcessing<
-            CardTerminalRetrofitCallRequestResponse,
-            CardTerminalRetrofitCallFailure,
-            CardTerminalRetrofitCallResponse>(
-        errorFromNetworkFailure = { CardTerminalRetrofitCallFailure.Network(it) },
-        onResponse = { _, response ->
-            RetrofitResult.Success(CardTerminalRetrofitCallResponse(""))
-        }
-    )*/
-
 }
-
-internal typealias CardTerminalRetrofitCallResponse = String
-internal typealias CardTerminalRetrofitCallRequestResponse = String
-internal typealias CardTerminalRetrofitCallFailure = String
