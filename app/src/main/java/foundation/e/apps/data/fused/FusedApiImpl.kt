@@ -483,7 +483,12 @@ class FusedApiImpl @Inject constructor(
     }
 
     override suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
-        return gplayRepository.getSearchSuggestions(query)
+        var searchSuggesions = listOf<SearchSuggestEntry>()
+        runCodeBlockWithTimeout ({
+            searchSuggesions = gplayRepository.getSearchSuggestions(query)
+        })
+
+        return searchSuggesions
     }
 
     override suspend fun getOnDemandModule(
