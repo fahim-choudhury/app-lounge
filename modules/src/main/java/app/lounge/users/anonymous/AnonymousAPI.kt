@@ -1,12 +1,15 @@
 package app.lounge.users.anonymous
 
 import app.lounge.BuildConfig
+import app.lounge.networking.FetchError
+import com.google.gson.Gson
+import java.util.Properties
 
 interface AnonymousAPI {
 
     companion object {
-        private const val tokenBaseURL: String = "https://eu.gtoken.ecloud.global"
-        private const val loginBaseURL: String = "GooglePlayApi.URL_SYNC"
+        const val tokenBaseURL: String = "https://eu.gtoken.ecloud.global"
+        const val loginBaseURL: String = "GooglePlayApi.URL_SYNC"
 
         fun create(baseURL: String = tokenBaseURL) : AnonymousAPI {
             return RetrofitAnonymousAPI(
@@ -17,17 +20,22 @@ interface AnonymousAPI {
         }
     }
 
-    fun performLogin(
-        success : () -> Unit,
-        failure : () -> Unit
+    fun requestAuthData(
+        anonymousAuthDataRequestBody: AnonymousAuthDataRequestBody,
+        success : (LoginResponse) -> Unit,
+        failure : (FetchError) -> Unit
     )
 
     object Header {
-        val authData: Map<String, String> get() {
-            return mapOf(
-                Pair("User-Agent", BuildConfig.BUILD_TYPE), // CommonUtilsFunctions.getAppBuildInfo()
-            )
+        val authData: (() -> String) -> Map<String, String> = {
+            mapOf(Pair("User-Agent", it.invoke()))
         }
     }
 
 }
+
+/** AnonymousAuthDataRequestBody */
+data class AnonymousAuthDataRequestBody(
+    val properties: Properties,
+    val userAgent: String
+)

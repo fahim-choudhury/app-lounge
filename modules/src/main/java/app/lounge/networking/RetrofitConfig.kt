@@ -1,7 +1,9 @@
 package app.lounge.networking
 
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 /**
@@ -19,11 +21,20 @@ internal fun Retrofit.Builder.appLounge(
     callTimeoutInSeconds: Long,
 ) : Retrofit {
     return this.baseUrl(baseURL)
+        .addConverterFactory(GsonConverterFactory.create())
         .client(
             OkHttpClient.Builder()
+                .addNetworkInterceptor(interceptor)
                 .callTimeout(callTimeoutInSeconds, TimeUnit.SECONDS)
                 .followRedirects(shouldFollowRedirects)
                 .build()
         )
         .build()
+}
+
+private val interceptor = run {
+    val httpLoggingInterceptor = HttpLoggingInterceptor()
+    httpLoggingInterceptor.apply {
+        httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+    }
 }

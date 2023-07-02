@@ -1,5 +1,7 @@
 package app.lounge.users.anonymous
 
+import app.lounge.networking.FetchError
+
 /**
  * Implement API related to Anonymous login flow only.
  * 1. Login api for Anonymous users.
@@ -23,11 +25,13 @@ interface Anonymous {
     }
 
     // pass input from this function
-    fun login(
-        success : () -> Unit,
-        failure : () -> Unit
+    fun requestAuthData(
+        anonymousAuthDataRequestBody: AnonymousAuthDataRequestBody,
+        success : (LoginResponse) -> Unit,
+        failure : (FetchError) -> Unit
     ) {
-        api.performLogin(
+        api.requestAuthData(
+            anonymousAuthDataRequestBody = anonymousAuthDataRequestBody,
             success = success,
             failure = failure
         )
