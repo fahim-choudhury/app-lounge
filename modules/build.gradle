@@ -11,6 +11,8 @@ ext {
     kotlin_reflection = '1.8.10'
     retrofit_version = '2.9.0'
     retrofit_interceptor_version = '5.0.0-alpha.2'
+    google_play_api = '3.0.1'
+    protobuf_java = '3.19.3'
 }
 
 android {
@@ -32,11 +34,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_18
+        targetCompatibility JavaVersion.VERSION_18
     }
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = '18'
     }
 }
 
@@ -51,6 +53,11 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:$retrofit_version")
     implementation("com.squareup.retrofit2:converter-scalars:$retrofit_version")
     implementation("com.squareup.okhttp3:logging-interceptor:$retrofit_interceptor_version")
+    // endregion
+
+    // region Google Play API
+    implementation("foundation.e:gplayapi:$google_play_api")
+    implementation("com.google.protobuf:protobuf-java:$protobuf_java")
     // endregion
 
     testImplementation 'junit:junit:4.13.2'
