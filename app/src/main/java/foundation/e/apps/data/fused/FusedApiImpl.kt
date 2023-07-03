@@ -484,7 +484,7 @@ class FusedApiImpl @Inject constructor(
 
     override suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
         var searchSuggesions = listOf<SearchSuggestEntry>()
-        runCodeBlockWithTimeout ({
+        runCodeWithTimeout ({
             searchSuggesions = gplayRepository.getSearchSuggestions(query)
         })
 
