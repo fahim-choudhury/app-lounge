@@ -76,7 +76,6 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi)
     }
 
     suspend fun updateFusedDownloadWithDownloadingInfo(
-        authData: AuthData,
         origin: Origin,
         fusedDownload: FusedDownload
     ) {

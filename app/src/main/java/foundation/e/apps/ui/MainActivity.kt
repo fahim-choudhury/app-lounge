@@ -18,12 +18,8 @@
 
 package foundation.e.apps.ui
 
-import android.app.usage.StorageStatsManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.os.StatFs
-import android.os.storage.StorageManager
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -43,14 +39,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
-import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.data.login.exceptions.GPlayValidationException
 import foundation.e.apps.databinding.ActivityMainBinding
 import foundation.e.apps.install.updates.UpdatesNotifier
-import foundation.e.apps.install.workmanager.InstallWorkManager
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.purchase.AppPurchaseFragmentDirections
 import foundation.e.apps.ui.settings.SettingsFragment
@@ -62,9 +56,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import java.io.File
-import java.util.UUID
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -173,19 +164,8 @@ class MainActivity : AppCompatActivity() {
             viewModel.createNotificationChannels()
         }
 
-        // Observe and handle downloads
-        viewModel.downloadList.observe(this) { list ->
-            list.forEach {
-                if (it.status == Status.QUEUED) {
-                    handleFusedDownloadQueued(it, viewModel)
-                }
-            }
-        }
-
         viewModel.purchaseAppLiveData.observe(this) {
-            val action =
-                AppPurchaseFragmentDirections.actionGlobalAppPurchaseFragment(it.packageName)
-            findNavController(R.id.fragment).navigate(action)
+            goToAppPurchaseFragment(it)
         }
 
         viewModel.errorMessage.observe(this) {
@@ -230,7 +210,51 @@ class MainActivity : AppCompatActivity() {
                 launch {
                     observeSignatureMissMatchError()
                 }
+
+                launch {
+                    observerErrorEvent()
+                }
+
+                launch {
+                    observeAppPurchaseFragment()
+                }
+
+                launch {
+                    observeNoInternetEvent()
+                }
             }
+        }
+    }
+
+    private suspend fun observeNoInternetEvent() {
+        EventBus.events.filter { appEvent ->
+            appEvent is AppEvent.NoInternetEvent
+        }.collectLatest {
+            if (!(it.data as Boolean)) {
+                showNoInternet()
+            }
+        }
+    }
+
+    private suspend fun observeAppPurchaseFragment() {
+        EventBus.events.filter { appEvent ->
+            appEvent is AppEvent.AppPurchaseEvent
+        }.collectLatest {
+            goToAppPurchaseFragment(it.data as FusedDownload)
+        }
+    }
+
+    private fun goToAppPurchaseFragment(it: FusedDownload) {
+        val action =
+            AppPurchaseFragmentDirections.actionGlobalAppPurchaseFragment(it.packageName)
+        findNavController(R.id.fragment).navigate(action)
+    }
+
+    private suspend fun observerErrorEvent() {
+        EventBus.events.filter { appEvent ->
+            appEvent is AppEvent.ErrorMessageEvent
+        }.collectLatest {
+            showSnackbarMessage(getString(it.data as Int))
         }
     }
 
@@ -284,35 +308,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleFusedDownloadQueued(
-        it: FusedDownload,
-        viewModel: MainActivityViewModel
-    ) {
-        lifecycleScope.launch {
-            if (!isStorageAvailable(it)) {
-                showSnackbarMessage(getString(R.string.not_enough_storage))
-                viewModel.updateUnAvailable(it)
-                return@launch
-            }
-            if (viewModel.internetConnection.value == false) {
-                showNoInternet()
-                viewModel.updateUnAvailable(it)
-                return@launch
-            }
-            viewModel.updateAwaiting(it)
-            InstallWorkManager.enqueueWork(it)
-            Timber.d("===> onCreate: AWAITING ${it.name}")
-        }
-    }
-
     private fun startInstallationOfPurchasedApp(
         viewModel: MainActivityViewModel,
-        it: String
+        packageName: String
     ) {
         lifecycleScope.launch {
-            val fusedDownload = viewModel.updateAwaitingForPurchasedApp(it)
+            val fusedDownload = viewModel.updateAwaitingForPurchasedApp(packageName)
             if (fusedDownload != null) {
-                InstallWorkManager.enqueueWork(fusedDownload)
                 ApplicationDialogFragment(
                     title = getString(R.string.purchase_complete),
                     message = getString(R.string.download_automatically_message),
@@ -335,39 +337,5 @@ class MainActivity : AppCompatActivity() {
     private fun showNoInternet() {
         binding.noInternet.visibility = View.VISIBLE
         binding.fragment.visibility = View.GONE
-    }
-
-    // TODO: move storage availability code to FileManager Class
-    private fun isStorageAvailable(fusedDownload: FusedDownload): Boolean {
-        val availableSpace = calculateAvailableDiskSpace()
-        return availableSpace > fusedDownload.appSize + (500 * (1000 * 1000))
-    }
-
-    private fun calculateAvailableDiskSpace(): Long {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val storageManager = getSystemService(STORAGE_SERVICE) as StorageManager
-            val statsManager = getSystemService(STORAGE_STATS_SERVICE) as StorageStatsManager
-            val uuid = storageManager.primaryStorageVolume.uuid
-            try {
-                if (uuid != null) {
-                    statsManager.getFreeBytes(UUID.fromString(uuid))
-                } else {
-                    statsManager.getFreeBytes(StorageManager.UUID_DEFAULT)
-                }
-            } catch (e: Exception) {
-                Timber.e("calculateAvailableDiskSpace: ${e.stackTraceToString()}")
-                getAvailableInternalMemorySize()
-            }
-        } else {
-            getAvailableInternalMemorySize()
-        }
-    }
-
-    private fun getAvailableInternalMemorySize(): Long {
-        val path: File = Environment.getDataDirectory()
-        val stat = StatFs(path.path)
-        val blockSize = stat.blockSizeLong
-        val availableBlocks = stat.availableBlocksLong
-        return availableBlocks * blockSize
     }
 }

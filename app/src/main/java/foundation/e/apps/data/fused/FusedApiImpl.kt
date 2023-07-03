@@ -532,9 +532,6 @@ class FusedApiImpl @Inject constructor(
                 fusedDownload.files = downloadList
                 list.addAll(downloadList.map { it.url })
             }
-
-            Origin.GITLAB -> {
-            }
         }
         fusedDownload.downloadURLList = list
     }
