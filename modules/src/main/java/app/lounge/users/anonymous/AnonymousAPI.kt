@@ -1,8 +1,6 @@
 package app.lounge.users.anonymous
 
-import app.lounge.BuildConfig
 import app.lounge.networking.FetchError
-import com.google.gson.Gson
 import java.util.Properties
 
 interface AnonymousAPI {
@@ -22,7 +20,7 @@ interface AnonymousAPI {
 
     fun requestAuthData(
         anonymousAuthDataRequestBody: AnonymousAuthDataRequestBody,
-        success : (LoginResponse) -> Unit,
+        success : (AuthDataResponse) -> Unit,
         failure : (FetchError) -> Unit
     )
 

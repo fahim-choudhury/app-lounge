@@ -16,7 +16,7 @@ interface Anonymous {
     companion object {
 
         fun anonymousRequestFor(
-            api: AnonymousAPI = AnonymousAPI.create()
+            api: AnonymousAPI
         ) : Anonymous {
             return object : Anonymous {
                 override val api: AnonymousAPI = api
@@ -27,7 +27,7 @@ interface Anonymous {
     // pass input from this function
     fun requestAuthData(
         anonymousAuthDataRequestBody: AnonymousAuthDataRequestBody,
-        success : (LoginResponse) -> Unit,
+        success : (AuthDataResponse) -> Unit,
         failure : (FetchError) -> Unit
     ) {
         api.requestAuthData(

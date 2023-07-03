@@ -5,6 +5,7 @@ import app.lounge.networking.FetchError
 import app.lounge.networking.RetrofitFetching
 import app.lounge.networking.appLounge
 import app.lounge.networking.fetch
+import com.aurora.gplayapi.data.models.AuthData
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -33,12 +34,12 @@ internal class RetrofitAnonymousAPI(
             @Url url: String = "https://eu.gtoken.ecloud.global",
             @HeaderMap headers: Map<String, String>,
             @Body requestBody: RequestBody
-        ): Call<LoginResponse>
+        ): Call<AuthDataResponse>
     }
 
     override fun requestAuthData(
         anonymousAuthDataRequestBody: AnonymousAuthDataRequestBody,
-        success: (LoginResponse) -> Unit,
+        success: (AuthDataResponse) -> Unit,
         failure: (FetchError) -> Unit
     ) {
         val requestBody = RequestBody.create(
@@ -60,4 +61,4 @@ internal class RetrofitAnonymousAPI(
 
 }
 
-typealias LoginResponse = String
+typealias AuthDataResponse = AuthData
