@@ -34,7 +34,7 @@ import foundation.e.apps.OpenForTesting
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
-import foundation.e.apps.data.fused.FusedAPIImpl
+import foundation.e.apps.data.fused.FusedApi
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import kotlinx.coroutines.DelicateCoroutinesApi
 import timber.log.Timber
@@ -51,7 +51,6 @@ class PkgManagerModule @Inject constructor(
         const val ERROR_PACKAGE_INSTALL = "ERROR_PACKAGE_INSTALL"
         const val PACKAGE_NAME = "packageName"
         const val FAKE_STORE_PACKAGE_NAME = "com.android.vending"
-        private const val TAG = "PkgManagerModule"
     }
     private val packageManager = context.packageManager
 
@@ -88,7 +87,7 @@ class PkgManagerModule @Inject constructor(
      * This method should be only used for native apps!
      * If you are using for any FusedApp, please consider that it can be a PWA!
      *
-     * Recommended to use: [FusedAPIImpl.getFusedAppInstallationStatus].
+     * Recommended to use: [FusedApi.getFusedAppInstallationStatus].
      */
     fun getPackageStatus(packageName: String, versionCode: Int): Status {
         return if (isInstalled(packageName)) {
@@ -239,11 +238,6 @@ class PkgManagerModule @Inject constructor(
         filter.addAction(Intent.ACTION_PACKAGE_ADDED)
         filter.addAction(ERROR_PACKAGE_INSTALL)
         return filter
-    }
-
-    fun getLongVersionCode(versionCode: String): Long {
-        val version = versionCode.split(" ")[0]
-        return version.replace("[.]".toRegex(), "").toLong()
     }
 
     fun getAllUserApps(): List<ApplicationInfo> {

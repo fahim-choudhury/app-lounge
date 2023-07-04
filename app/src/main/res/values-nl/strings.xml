@@ -36,8 +36,6 @@
     <string name="discover">Ontdek</string>
     <string name="update_error">Update Fout!</string>
     <string name="all_apps_updated">Alle apps zijn up-to-date</string>
-    <string name="manual_updates_notification">App updates zullen niet automatisch geïnstalleerd worden</string>
-    <string name="auto_updates_notification">App updates zullen automatisch geïnstalleerd worden</string>
     <plurals name="updates_notification_title">
         <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> app update is beschikbaar</item>
         <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> app updates zijn beschikbaar</item>
@@ -77,8 +75,6 @@
     <string name="installing">Installeren</string>
     <string name="install">Installeren</string>
     <string name="ok">OK</string>
-    <string name="share_intent">Zie ook \"<xliff:g id="rating">%1$s</xliff:g>\"
-\n<xliff:g id="rating">%2$s</xliff:g></string>
     <string name="description">Beschrijving</string>
     <string name="logout">Uitloggen</string>
     <string name="user_anonymous">Anoniem</string>

@@ -7,7 +7,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Base64
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
@@ -18,6 +17,10 @@ import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import kotlinx.coroutines.delay
+import timber.log.Timber
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,7 +28,7 @@ import javax.inject.Singleton
 @OpenForTesting
 class PWAManagerModule @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val fusedDownloadRepository: FusedDownloadRepository
+    private val fusedDownloadRepository: FusedDownloadRepository,
 ) {
 
     companion object {
@@ -100,9 +103,15 @@ class PWAManagerModule @Inject constructor(
         fusedDownloadRepository.updateDownload(fusedDownload)
 
         // Get bitmap and byteArray for icon
-        val iconByteArray = Base64.decode(fusedDownload.iconByteArray, Base64.DEFAULT)
-        val iconBitmap = BitmapFactory.decodeByteArray(iconByteArray, 0, iconByteArray.size)
+        val iconBitmap = getIconImageBitmap(fusedDownload.getAppIconUrl())
 
+        if (iconBitmap == null) {
+            fusedDownload.status = Status.INSTALLATION_ISSUE
+            fusedDownloadRepository.updateDownload(fusedDownload)
+            return
+        }
+
+        val iconByteArray = iconBitmap.toByteArray()
         val values = ContentValues()
         values.apply {
             put(URL, fusedDownload.downloadURLList[0])
@@ -117,7 +126,27 @@ class PWAManagerModule @Inject constructor(
         }
     }
 
-    private suspend fun publishShortcut(fusedDownload: FusedDownload, bitmap: Bitmap, databaseID: Long) {
+    fun getIconImageBitmap(url: String): Bitmap? {
+        return try {
+            val stream = URL(url).openStream()
+            BitmapFactory.decodeStream(stream)
+        } catch (e: IOException) {
+            Timber.e(e)
+            null
+        }
+    }
+
+    fun Bitmap.toByteArray(): ByteArray {
+        val byteArrayOS = ByteArrayOutputStream()
+        this.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOS)
+        return byteArrayOS.toByteArray()
+    }
+
+    private suspend fun publishShortcut(
+        fusedDownload: FusedDownload,
+        bitmap: Bitmap,
+        databaseID: Long
+    ) {
         // Update status
         fusedDownload.status = Status.INSTALLING
         fusedDownloadRepository.updateDownload(fusedDownload)

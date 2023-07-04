@@ -93,16 +93,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getApplicationCategoryPreference(): List<String> {
-        return fusedAPIRepository.getApplicationCategoryPreference()
-    }
-
-    fun isFusedHomesEmpty(): Boolean {
-        return homeScreenData.value?.data?.let {
-            fusedAPIRepository.isFusedHomesEmpty(it)
-        } ?: true
-    }
-
     fun isHomeDataUpdated(
         newHomeData: List<FusedHome>,
         oldHomeData: List<FusedHome>

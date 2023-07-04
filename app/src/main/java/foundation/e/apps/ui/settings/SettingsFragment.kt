@@ -1,6 +1,6 @@
 /*
  * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2022  E FOUNDATION
+ * Copyright (C) 2022-2023  E FOUNDATION
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
 
 package foundation.e.apps.ui.settings
 
+import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -43,9 +43,8 @@ import foundation.e.apps.data.fused.UpdatesDao
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.databinding.CustomPreferenceBinding
 import foundation.e.apps.install.updates.UpdatesWorkManager
-import foundation.e.apps.ui.MainActivity
 import foundation.e.apps.ui.MainActivityViewModel
-import foundation.e.apps.utils.CommonUtilsFunctions
+import foundation.e.apps.utils.SystemInfoProvider
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -70,10 +69,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     @Inject
     lateinit var clipboardManager: ClipboardManager
-
-    companion object {
-        private const val TAG = "SettingsFragment"
-    }
 
     private val user by lazy {
         mainActivityViewModel.getUser()
@@ -109,14 +104,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
             summary = BuildConfig.VERSION_NAME
             setOnLongClickListener {
 
-                val osVersion = CommonUtilsFunctions.getSystemProperty("ro.lineage.version")
+                val osVersion = SystemInfoProvider.getSystemProperty(SystemInfoProvider.KEY_LINEAGE_VERSION)
                 val appVersionLabel = getString(R.string.app_version_label)
                 var contents = "$appVersionLabel: $summary"
                 if (!osVersion.isNullOrBlank()) {
                     contents += "\n${context.getString(R.string.os_version)}: $osVersion"
                 }
 
-                CommonUtilsFunctions.copyTextToClipboard(
+                copyTextToClipboard(
                     clipboardManager,
                     appVersionLabel,
                     contents
@@ -242,15 +237,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
     fun isAnyAppSourceSelected() =
         showAllApplications?.isChecked == true || showFOSSApplications?.isChecked == true || showPWAApplications?.isChecked == true
 
-    private fun backToMainActivity() {
-        Intent(context, MainActivity::class.java).also {
-            activity?.finish()
-            activity?.overridePendingTransition(0, 0)
-            startActivity(it)
-            activity?.overridePendingTransition(0, 0)
-        }
-    }
-
     private fun disableDependentCheckbox(
         checkBox: CheckBoxPreference?,
         parentCheckBox: CheckBoxPreference?
@@ -277,6 +263,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 parentCheckBoxPreferenceChangeListener?.onPreferenceChange(preference, newValue)
                     ?: true
             }
+    }
+
+    private fun copyTextToClipboard(
+        clipboard: ClipboardManager,
+        label: String,
+        text: String,
+    ) {
+        val clip = ClipData.newPlainText(label, text)
+        clipboard.setPrimaryClip(clip)
     }
 
     override fun onDestroyView() {

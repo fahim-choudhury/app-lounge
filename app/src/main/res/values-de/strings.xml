@@ -31,7 +31,7 @@
     <string name="user_anonymous">Anonym</string>
     <string name="logout">Abmelden</string>
     <string name="description">Beschreibung</string>
-    <string name="ok">OK</string>
+    <string name="ok">ok</string>
     <string name="install">Installieren</string>
     <string name="cancel">Abbrechen</string>
     <string name="app_icon">App-Symbol</string>
@@ -53,8 +53,6 @@
     <string name="message_app_available_later">Diese App wird bald verfügbar sein!</string>
     <string name="unknown_error">Unbekannter Fehler!</string>
     <string name="update_all">Alle aktualisieren</string>
-    <string name="auto_updates_notification">App-Aktualisierungen werden automatisch installiert</string>
-    <string name="manual_updates_notification">App-Aktualisierungen werden nicht automatisch installiert</string>
     <string name="discover">Entdecke</string>
     <string name="top_updated_apps">Top quelloffene aktualisierte Apps</string>
     <string name="top_updated_games">Top quelloffene aktualisierte Spiele</string>
@@ -80,8 +78,6 @@
     <string name="sign_in_desc">Melde dich bei der App Lounge mit einem Google-Konto an, oder wähle den anonymen Modus aus, um dich geheim anzumelden.</string>
     <string name="preference_update_interval_title">Überprüfungsintervall für Aktualisierungen</string>
     <string name="preference_update_install_automatically_description">Das Herunterladen und Installieren von App-Aktualisierungen im Hintergrund ausführen</string>
-    <string name="share_intent">Siehe auch \"<xliff:g id="rating">%1$s</xliff:g>\"
-\n<xliff:g id="rating">%2$s</xliff:g></string>
     <string name="privacy_score">Datenschutz-Bewertung</string>
     <string name="privacy_analyses">Datenschutz-Analysen</string>
     <string name="trackers_title">Tracker (Verfolger)</string>
@@ -101,7 +97,7 @@
     <string name="dialog_title_paid_app"><b>%1$s</b> kaufen</string>
     <string name="dialog_paidapp_message">Wenn du auf die Bestätigung tippst, wirst du zur Google Play Seite weitergeleitet, um den Bezahlvorgang für die App im Browser abzuschließen. Tippe zur Bestätigung des Kaufes von %1$s für %2$s.</string>
     <string name="dialog_confirm">BESTÄTIGUNG</string>
-    <string name="dialog_cancel">ABBRECHEN</string>
+    <string name="dialog_cancel">\@android:string/cancel</string>
     <string name="privacy_description">Die Datenschutz-Bewertung wird automatisch berechnet aus den Berechtigungen und den Trackern, die in den Anwendungen aufgespürt werden. Es gibt einen Überblick darüber, wie sehr die App Benutzer ausspioniert. &lt;br /&gt;&lt;br /&gt;Die Quelle für den Berechnungsalgorithmus kann &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;hier gefunden werden&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Die Tracker-Aufspürung wird durchgeführt mit &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Privacy Werkzeuge&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Bewertung von 1-10.&lt;br /&gt;&lt;br /&gt;Wenn du mehr erfahren willst, wie die Datenschutzbewertung berechnet wird, und wie du dich vor dem Ausspionieren schützen kannst, &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;besuche dieses Seite&lt;/a&gt;.</string>
     <string name="not_enough_storage">Es ist nicht genügend Speicher vorhanden, um diese App herunterzuladen!</string>
     <string name="paid_app_anonymous_message">Bezahl-Apps können nicht im anonymen Modus installiert werden. Bitte melde dich mit deinem Google-Konto an.</string>
@@ -162,4 +158,7 @@
     <string name="additional_file_for">Zusätzliche Dateien für %s</string>
     <string name="downloading">Herunterladen …</string>
     <string name="preference_update_apps_from_other_stores_title">Apps aktualisieren, die von anderen App-Stores aus installiert wurden</string>
+    <string name="preference_update_apps_from_other_stores_description">Aktualisiere Apps, die von anderen Stores installiert wurden.
+\nSolche App</string>
+    <string name="having_troubles">Ein Problem\?</string>
 </resources>

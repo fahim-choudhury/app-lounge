@@ -20,5 +20,15 @@ package foundation.e.apps.data.enums
 enum class Source {
     GPLAY,
     OPEN,
-    PWA,
+    PWA;
+
+    companion object {
+        fun fromString(source: String): Source {
+            return when (source) {
+                "Open Source" -> OPEN
+                "PWA" -> PWA
+                else -> GPLAY
+            }
+        }
+    }
 }

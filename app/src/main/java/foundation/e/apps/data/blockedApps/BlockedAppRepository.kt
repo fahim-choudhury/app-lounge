@@ -20,8 +20,10 @@ package foundation.e.apps.data.blockedApps
 import com.google.gson.Gson
 import foundation.e.apps.data.DownloadManager
 import foundation.e.apps.data.fusedDownload.FileManager
+import foundation.e.lib.telemetry.Telemetry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Named
@@ -60,11 +62,19 @@ class BlockedAppRepository @Inject constructor(
 
     private fun parseBlockedAppDataFromFile() {
         coroutineScope.launch {
-            val outputPath = "$cacheDir/warning_list/"
-            FileManager.moveFile("$cacheDir/", WARNING_LIST_FILE_NAME, outputPath)
-            val downloadedFile = File(outputPath + WARNING_LIST_FILE_NAME)
-            val blockedAppInfoJson = String(downloadedFile.inputStream().readBytes())
-            blockedAppInfoList = gson.fromJson(blockedAppInfoJson, AppWarningInfo::class.java)
+            blockedAppInfoList = try {
+                val outputPath = "$cacheDir/warning_list/"
+                FileManager.moveFile("$cacheDir/", WARNING_LIST_FILE_NAME, outputPath)
+                val downloadedFile = File(outputPath + WARNING_LIST_FILE_NAME)
+                Timber.i("Blocked list file exists: ${downloadedFile.exists()}")
+                val blockedAppInfoJson = String(downloadedFile.inputStream().readBytes())
+                Timber.i("Blocked list file contents: $blockedAppInfoJson")
+                gson.fromJson(blockedAppInfoJson, AppWarningInfo::class.java)
+            } catch (exception: Exception) {
+                exception.printStackTrace()
+                Telemetry.reportException(exception)
+                AppWarningInfo(listOf())
+            }
         }
     }
 }

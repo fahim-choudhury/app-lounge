@@ -318,7 +318,7 @@ class SearchFragment :
                     )
                     viewHolder?.let {
                         (viewHolder as ApplicationListRVAdapter.ViewHolder).binding.installButton.text =
-                            "$progress%"
+                            String.format("%d%%", progress)
                     }
                 }
             }
@@ -447,7 +447,7 @@ class SearchFragment :
     }
 
     override fun getApplication(app: FusedApp, appIcon: ImageView?) {
-        mainActivityViewModel.getApplication(app, appIcon)
+        mainActivityViewModel.getApplication(app)
     }
 
     override fun cancelDownload(app: FusedApp) {

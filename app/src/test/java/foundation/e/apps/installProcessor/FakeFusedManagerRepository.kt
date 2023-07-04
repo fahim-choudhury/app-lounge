@@ -37,6 +37,11 @@ class FakeFusedManagerRepository(
     var forceCrash = false
 
     override suspend fun downloadApp(fusedDownload: FusedDownload) {
+        if (forceCrash) {
+            System.out.println("Throwing test exception")
+            throw Exception("test exception!")
+        }
+
         fusedDownload.status = Status.DOWNLOADING
         fusedDownload.downloadIdMap = mutableMapOf(Pair(341, false), Pair(342, false))
         fusedDownloadDAO.updateDownload(fusedDownload)
@@ -53,6 +58,7 @@ class FakeFusedManagerRepository(
         fusedDownload.downloadIdMap.replaceAll { _, _ -> true }
         fusedDownload.status = Status.DOWNLOADED
         fusedDownloadDAO.updateDownload(fusedDownload)
+        updateDownloadStatus(fusedDownload, Status.INSTALLING)
     }
 
     override suspend fun updateDownloadStatus(fusedDownload: FusedDownload, status: Status) {
@@ -61,10 +67,6 @@ class FakeFusedManagerRepository(
                 handleStatusInstalling(fusedDownload)
             }
             Status.INSTALLED -> {
-                if (forceCrash) {
-                    throw RuntimeException()
-                }
-
                 fusedDownloadDAO.deleteDownload(fusedDownload)
             }
             else -> {
@@ -99,5 +101,9 @@ class FakeFusedManagerRepository(
 
     override fun getFusedDownloadPackageStatus(fusedDownload: FusedDownload): Status {
         return installationStatus
+    }
+
+    override suspend fun cancelDownload(fusedDownload: FusedDownload) {
+        fusedDownloadDAO.deleteDownload(fusedDownload)
     }
 }

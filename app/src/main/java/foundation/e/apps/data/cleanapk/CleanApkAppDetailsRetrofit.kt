@@ -27,11 +27,6 @@ import retrofit2.http.Query
 
 interface CleanApkAppDetailsRetrofit {
 
-    companion object {
-        // API endpoints
-        const val BASE_URL = "https://api.cleanapk.org/v2/"
-    }
-
     @GET("apps?action=app_detail")
     suspend fun getAppOrPWADetailsByID(
         @Query("id") id: String,

@@ -79,7 +79,7 @@
     <string name="anonymous_login_failed">Nafnlaus innskráning mistókst!</string>
     <string name="dialog_title_paid_app">Kaupa <b>%1$s</b></string>
     <string name="dialog_confirm">STAÐFESTA</string>
-    <string name="dialog_cancel">HÆTTA VIÐ</string>
+    <string name="dialog_cancel">\@android:string/cancel</string>
     <string name="purchase_complete">Kaupum er lokið!</string>
     <string name="purchase_error">Villa í innkaupum!</string>
     <string name="unsupported_app_title">Óstutt forrit!</string>
@@ -91,8 +91,6 @@
     <string name="os_version">Útgáfa /e/ OS</string>
     <string name="select_one_source_of_applications">Veldu a.m.k. ein upptök forrita.</string>
     <string name="login_to_see_gplay_apps">Þú verður að skrá þig inn til að sjá algeng forrit.</string>
-    <string name="share_intent">Skoðaðu \"<xliff:g id="rating">%1$s</xliff:g>\"
-\n<xliff:g id="rating">%2$s</xliff:g></string>
     <string name="timeout_desc_cleanapk">Einhver vandamál í netkerfinu koma í veg fyrir að hægt sé að sækja öll forrit.</string>
     <string name="data_load_error">Villa kom upp við að hlaða inn forritum.</string>
     <string name="pwa">PWA-vefforrit</string>
@@ -100,7 +98,6 @@
         <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> uppfærsla forrits er tiltæk</item>
         <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> uppfærslur forrita eru tiltækar</item>
     </plurals>
-    <string name="auto_updates_notification">Uppfærslur forrita verða sjálfkrafa settar inn</string>
     <string name="sign_in_desc">Skráðu þig inn með Google-aðgangnum þínum, eða veldu nafnleysisham til að skrá þig inn í kyrrþey.</string>
     <string name="pwa_and_open_source_apps">PWA-vefforrit og opinn hugbúnaður</string>
     <string name="rating_description">Stig af 5 mögulegum. Reiknað út frá þeim einkunnum sem notendur hafa gefið forritinu.</string>
@@ -108,7 +105,6 @@
     <string name="app_not_found">Forritið þitt fannst ekki.</string>
     <string name="why_open_source_version">Af hverju sé ég opnu hugbúnaðarútgáfuna\?</string>
     <string name="open_source_apps">Forrit með opinn grunnkóða</string>
-    <string name="manual_updates_notification">Uppfærslur forrita verða ekki settar sjálfkrafa inn</string>
     <string name="all_apps_updated">Öll forrit eru af nýjustu útgáfu</string>
     <string name="discover_pwa">Kynntu þér PWA-vefforrit</string>
     <string name="popular_apps">Vinsæl PWA-vefforrit</string>
@@ -164,4 +160,10 @@
     <string name="unsupported_app_unreleased">Forritið %s er ekki stutt í augnablikinu. Það gæti verið raunin ef forritið sé ekki enn komið í almenna dreifingu, eða vegna einhverrar villu.</string>
     <string name="error_signature_mismatch">Uppfærsluna er ekki hægt að virkja þar sem ósamræmi er í undirritunum uppfærslunnar fyrir %1$s og útgáfunnar sem uppsett er á símanum. Til að laga þetta geturðu tekið út %1$s og síðan sett það aftur upp í App Lounge. <br/><br/> Athugaðu: Þessi skilaboð munu ekki birtast aftur.</string>
     <string name="may_not_work_warning_message">Þvingun uppsetningar mun gerir þér kleift að sækja og setja hana upp, en tryggir ekki endilega að hún muni virka rétt.<br/><br/>Tilraunir til að setja upp óstuddan hugbúnað geta valdi hruni eða hægt á kerfinu.<br/><br/>Við erum að vinna í að bæta samhæfni við þetta forrit.</string>
+    <string name="having_troubles">Einhver vandamál\?</string>
+    <string name="proceed_to_google_login">Halda áfram yfir í Google-innskráningu</string>
+    <string name="google_login_alert_message">Við mælum með því að notaður sé sértakur Google-reikningur til að:
+\n
+\n\t• minnka líkur á sérsniðnu snuðri (micro-targeting)
+\n\t• minnka áhrifin sem takmörkun reikningsins af hálfu Google myndi hafa</string>
 </resources>

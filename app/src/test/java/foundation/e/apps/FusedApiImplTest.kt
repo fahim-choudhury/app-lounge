@@ -20,31 +20,32 @@ package foundation.e.apps
 import android.content.Context
 import android.text.format.Formatter
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
-import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.search.Search
-import foundation.e.apps.data.cleanapk.repositories.CleanAPKRepository
+import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FdroidWebInterface
-import foundation.e.apps.data.fused.FusedAPIImpl
+import foundation.e.apps.data.fused.FusedApiImpl
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fused.data.FusedHome
-import foundation.e.apps.data.gplay.GPlayAPIRepository
+import foundation.e.apps.data.fused.utils.CategoryType
+import foundation.e.apps.data.gplay.GplayStoreRepository
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.util.MainCoroutineRule
 import foundation.e.apps.util.getOrAwaitValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -73,7 +74,7 @@ class FusedApiImplTest {
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
-    private lateinit var fusedAPIImpl: FusedAPIImpl
+    private lateinit var fusedAPIImpl: FusedApiImpl
 
     @Mock
     private lateinit var pwaManagerModule: PWAManagerModule
@@ -85,10 +86,13 @@ class FusedApiImplTest {
     private lateinit var context: Context
 
     @Mock
-    private lateinit var cleanApkRepository: CleanAPKRepository
+    private lateinit var cleanApkAppsRepository: CleanApkRepository
 
     @Mock
-    private lateinit var gPlayAPIRepository: GPlayAPIRepository
+    private lateinit var cleanApkPWARepository: CleanApkRepository
+
+    @Mock
+    private lateinit var gPlayAPIRepository: GplayStoreRepository
 
     @Mock
     private lateinit var fdroidWebInterface: FdroidWebInterface
@@ -106,13 +110,14 @@ class FusedApiImplTest {
         MockitoAnnotations.openMocks(this)
         formatterMocked = Mockito.mockStatic(Formatter::class.java)
         preferenceManagerModule = FakePreferenceModule(context)
-        fusedAPIImpl = FusedAPIImpl(
-            cleanApkRepository,
-            gPlayAPIRepository,
+        fusedAPIImpl = FusedApiImpl(
             pkgManagerModule,
             pwaManagerModule,
             preferenceManagerModule,
             fdroidWebInterface,
+            gPlayAPIRepository,
+            cleanApkAppsRepository,
+            cleanApkPWARepository,
             context
         )
     }
@@ -543,7 +548,7 @@ class FusedApiImplTest {
                 price = ""
             )
 
-            Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name, AUTH_DATA))
+            Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name))
                 .thenReturn(App(fusedApp.package_name))
 
             Mockito.`when`(
@@ -551,7 +556,6 @@ class FusedApiImplTest {
                     fusedApp.package_name,
                     fusedApp.latest_version_code,
                     fusedApp.offer_type,
-                    AUTH_DATA
                 )
             ).thenReturn(listOf())
 
@@ -572,12 +576,12 @@ class FusedApiImplTest {
             price = ""
         )
 
-        Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name, AUTH_DATA))
+        Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name))
             .thenThrow(RuntimeException())
 
         Mockito.`when`(
             gPlayAPIRepository.getDownloadInfo(
-                fusedApp.package_name, fusedApp.latest_version_code, fusedApp.offer_type, AUTH_DATA
+                fusedApp.package_name, fusedApp.latest_version_code, fusedApp.offer_type
             )
         ).thenReturn(listOf())
 
@@ -598,12 +602,12 @@ class FusedApiImplTest {
             price = ""
         )
 
-        Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name, AUTH_DATA))
+        Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name))
             .thenReturn(App(fusedApp.package_name))
 
         Mockito.`when`(
             gPlayAPIRepository.getDownloadInfo(
-                fusedApp.package_name, fusedApp.latest_version_code, fusedApp.offer_type, AUTH_DATA
+                fusedApp.package_name, fusedApp.latest_version_code, fusedApp.offer_type
             )
         ).thenThrow(RuntimeException())
 
@@ -621,15 +625,13 @@ class FusedApiImplTest {
         preferenceManagerModule.isGplaySelectedFake = false
 
         Mockito.`when`(
-            cleanApkRepository.getCategoriesList(
-                eq(CleanApkRetrofit.APP_TYPE_PWA), eq(CleanApkRetrofit.APP_SOURCE_ANY)
-            )
+            cleanApkPWARepository.getCategories()
         ).thenReturn(response)
 
         Mockito.`when`(context.getString(eq(R.string.pwa))).thenReturn("PWA")
 
         val categoryListResponse =
-            fusedAPIImpl.getCategoriesList(Category.Type.APPLICATION, AUTH_DATA)
+            fusedAPIImpl.getCategoriesList(CategoryType.APPLICATION)
 
         assertEquals("getCategory", 3, categoryListResponse.first.size)
     }
@@ -645,14 +647,12 @@ class FusedApiImplTest {
         preferenceManagerModule.isGplaySelectedFake = false
 
         Mockito.`when`(
-            cleanApkRepository.getCategoriesList(
-                eq(CleanApkRetrofit.APP_TYPE_ANY), eq(CleanApkRetrofit.APP_SOURCE_FOSS)
-            )
+            cleanApkAppsRepository.getCategories()
         ).thenReturn(response)
         Mockito.`when`(context.getString(eq(R.string.open_source))).thenReturn("Open source")
 
         val categoryListResponse =
-            fusedAPIImpl.getCategoriesList(Category.Type.APPLICATION, AUTH_DATA)
+            fusedAPIImpl.getCategoriesList(CategoryType.APPLICATION)
 
         assertEquals("getCategory", 3, categoryListResponse.first.size)
     }
@@ -666,11 +666,11 @@ class FusedApiImplTest {
         preferenceManagerModule.isGplaySelectedFake = true
 
         Mockito.`when`(
-            gPlayAPIRepository.getCategoriesList(Category.Type.APPLICATION, AUTH_DATA)
+            gPlayAPIRepository.getCategories(CategoryType.APPLICATION)
         ).thenReturn(categories)
 
         val categoryListResponse =
-            fusedAPIImpl.getCategoriesList(Category.Type.APPLICATION, AUTH_DATA)
+            fusedAPIImpl.getCategoriesList(CategoryType.APPLICATION)
 
         assertEquals("getCategory", 4, categoryListResponse.first.size)
     }
@@ -682,11 +682,11 @@ class FusedApiImplTest {
         preferenceManagerModule.isGplaySelectedFake = true
 
         Mockito.`when`(
-            gPlayAPIRepository.getCategoriesList(Category.Type.APPLICATION, AUTH_DATA)
+            gPlayAPIRepository.getCategories(CategoryType.APPLICATION)
         ).thenThrow(RuntimeException())
 
         val categoryListResponse =
-            fusedAPIImpl.getCategoriesList(Category.Type.APPLICATION, AUTH_DATA)
+            fusedAPIImpl.getCategoriesList(CategoryType.APPLICATION)
 
         assertEquals("getCategory", 0, categoryListResponse.first.size)
         assertEquals("getCategory", ResultStatus.UNKNOWN, categoryListResponse.third)
@@ -704,19 +704,15 @@ class FusedApiImplTest {
         val pwaResponse = Response.success(pwaCategories)
 
         Mockito.`when`(
-            cleanApkRepository.getCategoriesList(
-                eq(CleanApkRetrofit.APP_TYPE_ANY), eq(CleanApkRetrofit.APP_SOURCE_FOSS)
-            )
+            cleanApkAppsRepository.getCategories()
         ).thenReturn(openSourceResponse)
 
         Mockito.`when`(
-            cleanApkRepository.getCategoriesList(
-                eq(CleanApkRetrofit.APP_TYPE_PWA), eq(CleanApkRetrofit.APP_SOURCE_ANY)
-            )
+            cleanApkPWARepository.getCategories()
         ).thenReturn(pwaResponse)
 
         Mockito.`when`(
-            gPlayAPIRepository.getCategoriesList(Category.Type.APPLICATION, AUTH_DATA)
+            gPlayAPIRepository.getCategories(CategoryType.APPLICATION)
         ).thenReturn(gplayCategories)
 
         Mockito.`when`(context.getString(eq(R.string.open_source))).thenReturn("Open source")
@@ -727,7 +723,7 @@ class FusedApiImplTest {
         preferenceManagerModule.isGplaySelectedFake = true
 
         val categoryListResponse =
-            fusedAPIImpl.getCategoriesList(Category.Type.APPLICATION, AUTH_DATA)
+            fusedAPIImpl.getCategoriesList(CategoryType.APPLICATION)
 
         assertEquals("getCategory", 11, categoryListResponse.first.size)
     }
@@ -758,21 +754,21 @@ class FusedApiImplTest {
             )
         )
 
-        val searchResult = Search(apps = appList, numberOfResults = 1, success = true)
+        val searchResult = Search(apps = appList, numberOfResults = 3, success = true)
         val packageNameSearchResponse = Response.success(searchResult)
         val gplayPackageResult = App("com.search.package")
 
         preferenceManagerModule.isPWASelectedFake = true
         preferenceManagerModule.isOpenSourceelectedFake = true
         preferenceManagerModule.isGplaySelectedFake = true
-        val gplayLivedata: LiveData<Pair<List<FusedApp>, Boolean>> = MutableLiveData(
+        val gplayFlow: Flow<Pair<List<App>, Boolean>> = flowOf(
             Pair(
-                listOf(FusedApp("a.b.c"), FusedApp("c.d.e"), FusedApp("d.e.f"), FusedApp("d.e.g")), false
+                listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), false
             )
         )
 
         setupMockingSearchApp(
-            packageNameSearchResponse, AUTH_DATA, gplayPackageResult, gplayLivedata
+            packageNameSearchResponse, gplayPackageResult, gplayFlow
         )
 
         val searchResultLiveData =
@@ -784,52 +780,43 @@ class FusedApiImplTest {
 
     private suspend fun setupMockingSearchApp(
         packageNameSearchResponse: Response<Search>?,
-        authData: AuthData,
         gplayPackageResult: App,
-        gplayLivedata: LiveData<Pair<List<FusedApp>, Boolean>>?,
+        gplayLivedata: Flow<Pair<List<App>, Boolean>>,
         willThrowException: Boolean = false
     ) {
         Mockito.`when`(pwaManagerModule.getPwaStatus(any())).thenReturn(Status.UNAVAILABLE)
         Mockito.`when`(pkgManagerModule.getPackageStatus(any(), any()))
             .thenReturn(Status.UNAVAILABLE)
         Mockito.`when`(
-            cleanApkRepository.searchApps(
-                keyword = "com.search.package", by = "package_name"
+            cleanApkAppsRepository.getSearchResult(
+                query = "com.search.package", searchBy = "package_name"
             )
         ).thenReturn(packageNameSearchResponse)
         formatterMocked.`when`<String> { Formatter.formatFileSize(any(), any()) }.thenReturn("15MB")
 
         if (willThrowException) {
-            Mockito.`when`(gPlayAPIRepository.getAppDetails("com.search.package", authData))
+            Mockito.`when`(gPlayAPIRepository.getAppDetails("com.search.package"))
                 .thenThrow(RuntimeException())
         } else {
-            Mockito.`when`(gPlayAPIRepository.getAppDetails(eq("com.search.package"), eq(authData)))
+            Mockito.`when`(gPlayAPIRepository.getAppDetails(eq("com.search.package")))
                 .thenReturn(gplayPackageResult)
         }
 
-        Mockito.`when`(cleanApkRepository.searchApps(keyword = "com.search.package"))
+        Mockito.`when`(cleanApkAppsRepository.getSearchResult(query = "com.search.package"))
+            .thenReturn(packageNameSearchResponse)
+
+        Mockito.`when`(cleanApkPWARepository.getSearchResult(query = "com.search.package"))
             .thenReturn(packageNameSearchResponse)
 
         Mockito.`when`(
-            cleanApkRepository.searchApps(
-                keyword = "com.search.package",
-                type = CleanApkRetrofit.APP_TYPE_PWA,
-                source = CleanApkRetrofit.APP_SOURCE_ANY
+            cleanApkAppsRepository.getSearchResult(
+                query = "com.search.package"
             )
         ).thenReturn(packageNameSearchResponse)
 
-        suspend fun replaceWithFDroid(gPlayApp: App): FusedApp {
-            return FusedApp(gPlayApp.id.toString(), gPlayApp.packageName)
-        }
+        Mockito.`when`(fdroidWebInterface.getFdroidApp(any())).thenReturn(Response.error(404, "".toResponseBody(null)))
 
-        Mockito.`when`(
-            gPlayAPIRepository.getSearchResults(
-                eq("com.search.package"),
-                eq(authData),
-                eq(::replaceWithFDroid)
-            )
-        )
-            .thenReturn(gplayLivedata)
+        Mockito.`when`(gPlayAPIRepository.getSearchResult(eq("com.search.package"),)).thenReturn(gplayLivedata)
     }
 
     @Test
@@ -862,11 +849,14 @@ class FusedApiImplTest {
         val packageNameSearchResponse = Response.success(searchResult)
         val gplayPackageResult = App("com.search.package")
 
-        val gplayLivedata =
-            MutableLiveData(Pair(listOf(FusedApp("a.b.c"), FusedApp("c.d.e"), FusedApp("d.e.f")), false))
+        val gplayFlow: Flow<Pair<List<App>, Boolean>> = flowOf(
+            Pair(
+                listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), false
+            )
+        )
 
         setupMockingSearchApp(
-            packageNameSearchResponse, AUTH_DATA, gplayPackageResult, gplayLivedata, true
+            packageNameSearchResponse, gplayPackageResult, gplayFlow, true
         )
 
         preferenceManagerModule.isPWASelectedFake = false
@@ -877,6 +867,6 @@ class FusedApiImplTest {
             fusedAPIImpl.getSearchResults("com.search.package", AUTH_DATA).getOrAwaitValue()
 
         val size = searchResultLiveData.data?.first?.size ?: -2
-        assertEquals("getSearchResult", 3, size)
+        assertEquals("getSearchResult", 4, size)
     }
 }

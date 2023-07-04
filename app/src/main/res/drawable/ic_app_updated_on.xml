@@ -1,0 +1,26 @@
+<!--
+  ~ Copyright (C) 2019-2023  MURENA SAS
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:fillColor="@color/colorAccent"
+      android:pathData="M10.477,6.014C12.174,6.014 13.627,7.036 14.235,8.488C14.59,8.189 15.05,8.009 15.554,8.009C16.675,8.009 17.585,8.902 17.585,10.004C17.585,10.373 17.482,10.718 17.305,11.014C17.398,11.005 17.491,11.001 17.585,11.001C19.267,11.001 20.631,12.341 20.631,13.994C20.631,15.646 19.267,16.986 17.585,16.986H6.923C4.96,16.986 3.369,15.423 3.369,13.495C3.369,11.736 4.693,10.281 6.416,10.039C6.416,10.027 6.415,10.016 6.415,10.004C6.415,7.8 8.234,6.014 10.477,6.014ZM10.477,4.517C7.793,4.517 5.543,6.379 5.011,8.875C3.112,9.634 1.846,11.451 1.846,13.495C1.846,16.25 4.119,18.483 6.923,18.483H17.585C20.109,18.483 22.154,16.472 22.154,13.994C22.154,12.067 20.91,10.384 19.099,9.758C18.972,7.95 17.44,6.512 15.554,6.512C15.314,6.512 15.076,6.536 14.844,6.583C13.832,5.336 12.257,4.517 10.477,4.517ZM11.746,16.612V10.769L13.477,12.507C13.625,12.656 13.868,12.657 14.018,12.51L14.554,11.984C14.703,11.837 14.703,11.601 14.554,11.455L11.254,8.213C11.105,8.067 10.864,8.067 10.715,8.213L7.415,11.455C7.267,11.601 7.267,11.837 7.415,11.984L7.951,12.51C8.101,12.657 8.344,12.656 8.492,12.507L10.223,10.769V15.116C10.223,15.323 10.394,15.49 10.604,15.49H11.365C11.576,15.49 11.746,15.323 11.746,15.116V16.612Z" />
+</vector>

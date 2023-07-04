@@ -17,7 +17,6 @@
 
 package foundation.e.apps.ui.applicationlist
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -65,8 +64,6 @@ class ApplicationListRVAdapter(
     private var lifecycleOwner: LifecycleOwner?,
     private var paidAppHandler: ((FusedApp) -> Unit)? = null
 ) : ListAdapter<FusedApp, ApplicationListRVAdapter.ViewHolder>(ApplicationDiffUtil()) {
-
-    private val TAG = ApplicationListRVAdapter::class.java.simpleName
 
     private var optionalCategory = ""
 
@@ -173,7 +170,7 @@ class ApplicationListRVAdapter(
                     placeholder(shimmerDrawable)
                 }
             }
-            else -> Log.wtf(TAG, "${searchApp.package_name} is from an unknown origin")
+            else -> Timber.wtf("${searchApp.package_name} is from an unknown origin")
         }
     }
 
@@ -187,6 +184,8 @@ class ApplicationListRVAdapter(
     private fun ApplicationListItemBinding.updateRating(searchApp: FusedApp) {
         if (searchApp.ratings.usageQualityScore != -1.0) {
             appRating.text = searchApp.ratings.usageQualityScore.toString()
+        } else {
+            appRating.text = root.context.getString(R.string.not_available)
         }
     }
 
@@ -334,22 +333,6 @@ class ApplicationListRVAdapter(
             view.context.getText(R.string.update)
         else
             view.context.getString(R.string.retry)
-
-    private fun MaterialButton.getStrokeColor(
-        isEnabled: Boolean,
-        view: View
-    ) = if (isEnabled) {
-        ContextCompat.getColorStateList(view.context, R.color.colorAccent)
-    } else {
-        ContextCompat.getColorStateList(view.context, R.color.light_grey)
-    }
-
-    private fun MaterialButton.setButtonTextColor(isEnabled: Boolean) =
-        if (isEnabled) {
-            setTextColor(context.getColor(R.color.colorAccent))
-        } else {
-            setTextColor(context.getColor(R.color.light_grey))
-        }
 
     private fun ApplicationListItemBinding.handleBlocked(view: View) {
         installButton.apply {

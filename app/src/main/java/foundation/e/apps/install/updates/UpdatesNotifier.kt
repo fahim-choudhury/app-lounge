@@ -17,13 +17,16 @@
 
 package foundation.e.apps.install.updates
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import foundation.e.apps.R
@@ -100,7 +103,7 @@ object UpdatesNotifier {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra(UPDATES_NOTIFICATION_CLICK_EXTRA, true)
         }
-        return PendingIntent.getActivity(context, 0, intent, 0)
+        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
 
     private fun createNotificationChannel(context: Context) {
@@ -126,6 +129,11 @@ object UpdatesNotifier {
     ) {
         with(NotificationManagerCompat.from(context)) {
             createNotificationChannel(context)
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                return
+            }
             notify(
                 UPDATES_NOTIFICATION_ID,
                 getNotification(
@@ -146,6 +154,11 @@ object UpdatesNotifier {
     ) {
         with(NotificationManagerCompat.from(context)) {
             createNotificationChannel(context)
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                return
+            }
             notify(
                 UPDATES_NOTIFICATION_ID,
                 getNotification(

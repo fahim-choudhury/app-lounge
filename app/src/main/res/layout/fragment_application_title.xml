@@ -112,6 +112,7 @@
             android:textColor="#626262"
             android:textSize="14sp"
             android:layout_marginEnd="20dp"
+            android:textIsSelectable="false"
             tools:text="Racing" />
 
     </LinearLayout>

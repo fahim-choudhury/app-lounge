@@ -3,11 +3,8 @@ package foundation.e.apps.install.updates
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.util.Base64
 import androidx.hilt.work.HiltWorker
 import androidx.preference.PreferenceManager
 import androidx.work.CoroutineWorker
@@ -15,13 +12,10 @@ import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.aurora.gplayapi.data.models.AuthData
-import com.google.gson.Gson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
-import foundation.e.apps.data.cleanapk.CleanApkRetrofit
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.enums.User
@@ -39,8 +33,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.io.ByteArrayOutputStream
-import java.net.URL
 
 @HiltWorker
 class UpdatesWorker @AssistedInject constructor(
@@ -51,7 +43,6 @@ class UpdatesWorker @AssistedInject constructor(
     private val fusedManagerRepository: FusedManagerRepository,
     private val dataStoreManager: DataStoreManager,
     private val loginSourceRepository: LoginSourceRepository,
-    private val gson: Gson,
 ) : CoroutineWorker(context, params) {
 
     companion object {
@@ -213,12 +204,6 @@ class UpdatesWorker @AssistedInject constructor(
         }
     }
 
-    private fun getAuthData(): AuthData? {
-        val authDataJson = dataStoreManager.getAuthDataJson()
-        return if (authDataJson.isBlank()) return null
-        else gson.fromJson(authDataJson, AuthData::class.java)
-    }
-
     private suspend fun startUpdateProcess(
         appsNeededToUpdate: List<FusedApp>,
         authData: AuthData
@@ -227,8 +212,6 @@ class UpdatesWorker @AssistedInject constructor(
             if (!fusedApp.isFree && authData.isAnonymous) {
                 return@forEach
             }
-
-            val iconBase64 = getIconImageToBase64(fusedApp)
 
             val fusedDownload = FusedDownload(
                 fusedApp._id,
@@ -240,7 +223,7 @@ class UpdatesWorker @AssistedInject constructor(
                 mutableMapOf(),
                 fusedApp.status,
                 fusedApp.type,
-                iconBase64,
+                fusedApp.icon_image_path,
                 fusedApp.latest_version_code,
                 fusedApp.offer_type,
                 fusedApp.isFree,
@@ -314,16 +297,6 @@ class UpdatesWorker @AssistedInject constructor(
                 fusedDownload
             )
         }
-    }
-
-    private fun getIconImageToBase64(fusedApp: FusedApp): String {
-        val url =
-            if (fusedApp.origin == Origin.CLEANAPK) "${CleanApkRetrofit.ASSET_URL}${fusedApp.icon_image_path}" else fusedApp.icon_image_path
-        val stream = URL(url).openStream()
-        val bitmap = BitmapFactory.decodeStream(stream)
-        val byteArrayOS = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOS)
-        return Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT)
     }
 
     /*
