@@ -95,13 +95,18 @@ class UpdatesManagerImpl @Inject constructor(
             gPlayInstalledApps.isNotEmpty()
         ) {
 
-            status = getUpdatesFromApi({
+            val gplayStatus = getUpdatesFromApi({
                 fusedAPIRepository.getApplicationDetails(
                     gPlayInstalledApps,
                     authData,
                     Origin.GPLAY
                 )
             }, updateList)
+
+            /**
+             If any one of the sources is successful, status should be [ResultStatus.OK]
+             **/
+            status = if (status == ResultStatus.OK) status else gplayStatus
         }
 
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
