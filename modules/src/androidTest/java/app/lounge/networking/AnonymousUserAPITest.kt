@@ -3,7 +3,9 @@ package app.lounge.networking
 import app.lounge.users.anonymous.Anonymous
 import app.lounge.users.anonymous.AnonymousAPI
 import app.lounge.users.anonymous.AnonymousAuthDataRequestBody
+import app.lounge.users.anonymous.AnonymousLoginRequestBody
 import app.lounge.users.anonymous.AuthDataResponse
+import org.junit.Assert
 import org.junit.Test
 import java.util.Properties
 
@@ -13,27 +15,49 @@ class AnonymousUserAPITest {
         api = AnonymousAPI.create(AnonymousAPI.tokenBaseURL)
     )
 
-//    private val testAnonymousAPIForLogin = Anonymous.anonymousRequestFor(
-//        api = AnonymousAPI.create(AnonymousAPI.loginBaseURL)
-//    )
+    private val testAnonymousAPIForLogin = Anonymous.anonymousRequestFor(
+        api = AnonymousAPI.create(AnonymousAPI.loginBaseURL)
+    )
 
     private val requestBodyData = AnonymousAuthDataRequestBody(
         properties = testSystemProperties,
         userAgent = testUserAgent
     )
 
+
+    companion object {
+        lateinit var receivedData: AuthDataResponse
+    }
+
     @Test
-    fun testOnSuccessReturnsAuthData() {
-        var receivedData: AuthDataResponse?
-        testAnonymousAPIForToken.requestAuthData(
-            anonymousAuthDataRequestBody = requestBodyData,
-            success = { response ->
-                receivedData = response
-                assert(receivedData is AuthDataResponse) { "Assert!! Success must return data" }
-            },
-            failure =  {}
-        )
-        Thread.sleep(3000)
+    fun test1OnSuccessReturnsAuthData() {
+        await {
+            testAnonymousAPIForToken.requestAuthData(
+                anonymousAuthDataRequestBody = requestBodyData,
+                success = { response ->
+                    receivedData = response
+                    assert(receivedData is AuthDataResponse) { "Assert!! Success must return data" }
+                },
+                failure =  {}
+            )
+        }
+    }
+
+    @Test
+    fun test2OnSuccessReturnsLoginData(){
+        await {
+            testAnonymousAPIForLogin.requestLogin(
+                anonymousLoginRequestBody = AnonymousLoginRequestBody(
+                    authDataResponse = receivedData
+                ),
+                success = { response ->
+                    Assert.assertEquals("Hello", response.toString())
+                },
+                failure = {
+                    Assert.assertEquals("Hello", it.toString())
+                }
+            )
+        }
     }
 
 }
@@ -79,6 +103,11 @@ private val testSystemProperties = Properties().apply {
     setProperty("TimeZone", "UTC-10")
     setProperty("CellOperator", "310")
     setProperty("SimOperator", "38")
+}
+
+fun await(callback: () -> Unit) {
+    callback.invoke()
+    Thread.sleep(3000)
 }
 
 // endregion

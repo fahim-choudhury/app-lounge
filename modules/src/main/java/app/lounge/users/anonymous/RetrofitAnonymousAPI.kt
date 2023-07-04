@@ -5,9 +5,10 @@ import app.lounge.networking.FetchError
 import app.lounge.networking.RetrofitFetching
 import app.lounge.networking.appLounge
 import app.lounge.networking.fetch
-import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.providers.HeaderProvider
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.http.Body
@@ -31,10 +32,16 @@ internal class RetrofitAnonymousAPI(
 
         @POST
         fun authDataRequest(
-            @Url url: String = "https://eu.gtoken.ecloud.global",
+            @Url url: String = AnonymousAPI.tokenBaseURL,
             @HeaderMap headers: Map<String, String>,
             @Body requestBody: RequestBody
         ): Call<AuthDataResponse>
+
+        @POST
+        fun loginUser(
+            @Url url: String = AnonymousAPI.loginBaseURL,
+            @HeaderMap headers: Map<String, String>
+        ): Call<LoginResponse>
     }
 
     override fun requestAuthData(
@@ -42,10 +49,14 @@ internal class RetrofitAnonymousAPI(
         success: (AuthDataResponse) -> Unit,
         failure: (FetchError) -> Unit
     ) {
-        val requestBody = RequestBody.create(
-            "application/json".toMediaTypeOrNull(),
-            anonymousAuthDataRequestBody.properties.toByteArray()
-        )
+        val requestBody: RequestBody =
+            anonymousAuthDataRequestBody.properties.toByteArray().let { result ->
+                result.toRequestBody(
+                    contentType = "application/json".toMediaTypeOrNull(),
+                    offset = 0,
+                    byteCount = result.size
+                )
+        }
 
         fetch(
             endpoint = anonymousUserEndPoint.authDataRequest(
@@ -59,6 +70,17 @@ internal class RetrofitAnonymousAPI(
         )
     }
 
+    override fun performUserLogin(
+        anonymousLoginRequestBody: AnonymousLoginRequestBody,
+        success: (LoginResponse) -> Unit,
+        failure: (FetchError) -> Unit
+    ) {
+        fetch(
+            endpoint = anonymousUserEndPoint.loginUser(
+                headers = anonymousLoginRequestBody.header
+            ),
+            success = success,
+            failure = failure
+        )
+    }
 }
-
-typealias AuthDataResponse = AuthData

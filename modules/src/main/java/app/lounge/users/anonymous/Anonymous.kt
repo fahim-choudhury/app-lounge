@@ -1,6 +1,8 @@
 package app.lounge.users.anonymous
 
 import app.lounge.networking.FetchError
+import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.models.PlayResponse
 
 /**
  * Implement API related to Anonymous login flow only.
@@ -36,4 +38,19 @@ interface Anonymous {
             failure = failure
         )
     }
+
+    fun requestLogin(
+        anonymousLoginRequestBody: AnonymousLoginRequestBody,
+        success : (LoginResponse) -> Unit,
+        failure : (FetchError) -> Unit
+    ) {
+        api.performUserLogin(
+            anonymousLoginRequestBody = anonymousLoginRequestBody,
+            success = success,
+            failure = failure
+        )
+    }
 }
+
+typealias AuthDataResponse = AuthData
+typealias LoginResponse = PlayResponse
