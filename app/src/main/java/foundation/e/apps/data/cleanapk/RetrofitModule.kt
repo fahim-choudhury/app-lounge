@@ -19,7 +19,6 @@
 package foundation.e.apps.data.cleanapk
 
 import android.os.Build
-import android.util.Log
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.google.gson.Gson
@@ -46,6 +45,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.jackson.JacksonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
+import timber.log.Timber
 import java.net.ConnectException
 import java.util.Locale
 import javax.inject.Named
@@ -193,7 +193,7 @@ object RetrofitModule {
         e: Exception,
         chain: Interceptor.Chain
     ): Response {
-        Log.e("Retrofit", "buildErrorResponse: ${e.localizedMessage}")
+        Timber.e("buildErrorResponse: ${e.localizedMessage}")
         return Response.Builder()
             .code(999)
             .message(e.localizedMessage ?: "Unknown error")

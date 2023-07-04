@@ -1,6 +1,7 @@
 <!--
   ~ Apps  Quickly and easily install Android apps onto your device!
-  ~ Copyright (C) 2021  E FOUNDATION
+  ~ Copyright (C) 2023 MURENA SAS
+  ~ Copyright (C) 2021 E FOUNDATION
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -82,7 +83,6 @@
 
     <!-- Application -->
     <string name="description">Description</string>
-    <string name="share_intent">Check out \"<xliff:g id="rating">%1$s</xliff:g>\"\n<xliff:g id="rating">%2$s</xliff:g></string>
     <string name="ok">OK</string>
     <string name="install">Install</string>
     <string name="installing">Installing</string>
@@ -125,7 +125,8 @@
     <string name="duplicate_app_from_sources">Some proprietary apps may also have an Open Source version. Whenever this happens App Lounge shows the Open Source version only, in order to avoid duplicates.</string>
     <string name="downloading">Downloading…</string>
     <string name="additional_file_for">Additional file for %s</string>
-
+    <string name="having_troubles">Having troubles?</string>
+    <string name="troubleshootURL" translatable="false">https://doc.e.foundation/support-topics/app_lounge_troubleshooting</string>
 
     <!-- Updates Fragment -->
     <string name="update_all">Update All</string>
@@ -133,8 +134,6 @@
         <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> app update is available</item>
         <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> app updates are available</item>
     </plurals>
-    <string name="auto_updates_notification">App updates will be installed automatically</string>
-    <string name="manual_updates_notification">App updates will not be installed automatically</string>
     <string name="all_apps_updated" weblate_ctx="updates">All apps are up-to-date</string>
     <string name="error_signature_mismatch">The update cannot be applied because there is a signature mismatch between the update of %1$s and the version you\'ve installed on your phone. To remedy this you can uninstall %1$s and then install it again from App Lounge. &lt;br /&gt;&lt;br /&gt; Note: This message won\'t appear again.</string>
     <string name="update_error">Update Error!</string>
@@ -206,7 +205,7 @@
     <string name="dialog_title_paid_app"><![CDATA[Purchase <b>%1$s</b>]]></string>
     <string name="dialog_paidapp_message">When clicked confirm, it will take you to Google Play page for the app to complete the purchase using your browser. Click confirm to purchase %1$s for %2$s.</string>
     <string name="dialog_confirm">CONFIRM</string>
-    <string name="dialog_cancel">CANCEL</string>
+    <string name="dialog_cancel">@android:string/cancel</string>
     <string name="paid_app_anonymous_message">Paid apps cannot be installed in anonymous mode. Please log into your Google account to install paid apps.</string>
     <string name="purchase_complete">Purchase complete!</string>
     <string name="download_automatically_message">Your app will automatically be downloaded in this device</string>
@@ -222,4 +221,7 @@
     <string name="daily">Daily</string>
     <string name="weekly">Weekly</string>
     <string name="monthly">Monthly</string>
+
+    <string name="google_login_alert_message">We recommend using a dedicated Google account to:\n\n\t\u2022 mitigate micro-targeting\n\t\u2022 limit impact in case this account is restricted by Google</string>
+    <string name="proceed_to_google_login">Proceed to Google login</string>
 </resources>

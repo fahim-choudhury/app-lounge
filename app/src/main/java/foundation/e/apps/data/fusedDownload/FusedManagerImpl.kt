@@ -58,8 +58,6 @@ class FusedManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : IFusedManager {
 
-    private val TAG = FusedManagerImpl::class.java.simpleName
-
     private val mutex = Mutex()
 
     @RequiresApi(Build.VERSION_CODES.O)

@@ -18,7 +18,6 @@
 package foundation.e.apps.install.updates
 
 import android.content.Context
-import android.util.Log
 import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -27,6 +26,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 object UpdatesWorkManager {
@@ -72,11 +72,11 @@ object UpdatesWorkManager {
         interval: Long,
         existingPeriodicWorkPolicy: ExistingPeriodicWorkPolicy
     ) {
-        Log.i(TAG, "UpdatesWorker interval: $interval hours")
+        Timber.i("UpdatesWorker interval: $interval hours")
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             UPDATES_WORK_NAME,
             existingPeriodicWorkPolicy, buildPeriodicWorkRequest(interval)
         )
-        Log.i(TAG, "UpdatesWorker started")
+        Timber.i("UpdatesWorker started")
     }
 }

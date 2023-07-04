@@ -20,6 +20,7 @@ package foundation.e.apps.data
 import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.OpenForTesting
 import foundation.e.apps.R
@@ -47,9 +48,8 @@ class DownloadManager @Inject constructor(
 ) {
     private val downloadsMaps = HashMap<Long, Boolean>()
 
-    companion object {
-        const val EXTERNAL_STORAGE_TEMP_CACHE_DIR = "/sdcard/Download/AppLounge/SplitInstallApks"
-    }
+    private val SDCARD_PATH = Environment.getExternalStorageDirectory().absolutePath
+    val EXTERNAL_STORAGE_TEMP_CACHE_DIR = "$SDCARD_PATH/Download/AppLounge/SplitInstallApks"
 
     fun downloadFileInCache(
         url: String,

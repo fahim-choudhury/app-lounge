@@ -20,17 +20,13 @@ package foundation.e.apps.ui
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
-import android.util.Base64
-import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
-import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -60,7 +56,6 @@ import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -85,7 +80,6 @@ class MainActivityViewModel @Inject constructor(
 
     // Downloads
     val downloadList = fusedManagerRepository.getDownloadLiveList()
-    var installInProgress = false
     private val _errorMessage = MutableLiveData<Exception>()
     val errorMessage: LiveData<Exception> = _errorMessage
 
@@ -124,12 +118,6 @@ class MainActivityViewModel @Inject constructor(
     /*
      * Download and cancellation functions
      */
-
-    fun downloadApp(fusedDownload: FusedDownload) {
-        viewModelScope.launch {
-            fusedManagerRepository.downloadApp(fusedDownload)
-        }
-    }
 
     /*
      * Check and display a snack bar if app is paid and user is logged in in anonymous mode.
@@ -196,7 +184,7 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun getApplication(app: FusedApp, imageView: ImageView?) {
+    fun getApplication(app: FusedApp) {
         if (shouldShowPaidAppsSnackBar(app)) {
             return
         }
@@ -204,7 +192,6 @@ class MainActivityViewModel @Inject constructor(
         viewModelScope.launch {
             val fusedDownload: FusedDownload
             try {
-                val appIcon = imageView?.let { getImageBase64(it) } ?: ""
                 fusedDownload = FusedDownload(
                     app._id,
                     app.origin,
@@ -215,7 +202,7 @@ class MainActivityViewModel @Inject constructor(
                     mutableMapOf(),
                     app.status,
                     app.type,
-                    appIcon,
+                    app.icon_image_path,
                     app.latest_version_code,
                     app.offer_type,
                     app.isFree,
@@ -224,7 +211,7 @@ class MainActivityViewModel @Inject constructor(
                 updateFusedDownloadWithAppDownloadLink(app, fusedDownload)
             } catch (e: Exception) {
                 if (e is ApiException.AppNotPurchased) {
-                    handleAppNotPurchased(imageView, app)
+                    handleAppNotPurchased(app)
                     return@launch
                 }
                 _errorMessage.value = e
@@ -239,10 +226,8 @@ class MainActivityViewModel @Inject constructor(
     }
 
     private fun handleAppNotPurchased(
-        imageView: ImageView?,
         app: FusedApp
     ) {
-        val appIcon = imageView?.let { getImageBase64(it) } ?: ""
         val fusedDownload = FusedDownload(
             app._id,
             app.origin,
@@ -253,7 +238,7 @@ class MainActivityViewModel @Inject constructor(
             mutableMapOf(),
             app.status,
             app.type,
-            appIcon,
+            app.icon_image_path,
             app.latest_version_code,
             app.offer_type,
             app.isFree,
@@ -330,13 +315,6 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    private fun getImageBase64(imageView: ImageView): String {
-        val byteArrayOS = ByteArrayOutputStream()
-        val bitmap = imageView.drawable.toBitmap()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOS)
-        return Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT)
-    }
-
     fun setupConnectivityManager(context: Context) {
         connectivityManager =
             context.getSystemService(ConnectivityManager::class.java) as ConnectivityManager
@@ -389,7 +367,8 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    private fun ProducerScope<Boolean>.sendInternetStatus(connectivityManager: ConnectivityManager) {
+    // protected to avoid SyntheticAccessor
+    protected fun ProducerScope<Boolean>.sendInternetStatus(connectivityManager: ConnectivityManager) {
 
         val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
 

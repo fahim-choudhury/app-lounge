@@ -252,7 +252,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
             )
             childViewHolder?.let {
                 (childViewHolder as HomeChildRVAdapter.ViewHolder).binding.installButton.text =
-                    "$progress%"
+                    String.format("%d%%", progress)
             }
         }
     }
@@ -285,7 +285,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
     }
 
     override fun getApplication(app: FusedApp, appIcon: ImageView?) {
-        mainActivityViewModel.getApplication(app, appIcon)
+        mainActivityViewModel.getApplication(app)
     }
 
     override fun cancelDownload(app: FusedApp) {

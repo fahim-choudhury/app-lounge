@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="auto_updates_notification">Sovelluspäivitykset asennetaan automaattisesti</string>
     <plurals name="updates_notification_title">
         <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> sovelluspäivitys saatavilla</item>
         <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> sovelluspäivitystä saatavilla</item>
@@ -34,8 +33,6 @@
     <string name="cancel">Peruuta</string>
     <string name="install">Asenna</string>
     <string name="ok">OK</string>
-    <string name="share_intent">Katso myös \"<xliff:g id="rating">%1$s</xliff:g>\"
-\n<xliff:g id="rating">%2$s</xliff:g></string>
     <string name="description">Kuvaus</string>
     <string name="logout">Kirjaudu ulos</string>
     <string name="user_anonymous">Anonyymi</string>
@@ -105,7 +102,6 @@
     <string name="top_updated_apps">Avoimen lähdekoodin päivitettyjen sovellusten Top lista</string>
     <string name="discover">Tutustu</string>
     <string name="all_apps_updated">Kaikki sovellukset ovat ajan tasalla</string>
-    <string name="manual_updates_notification">Sovelluspäivityksiä ei asenneta automaattisesti</string>
     <string name="installing">Asennetaan</string>
     <string name="monthly">Kuukaisittain</string>
     <string name="weekly">Viikottain</string>

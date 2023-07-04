@@ -32,8 +32,6 @@ class CategoriesFragment : Fragment(R.layout.fragment_categories) {
     private var _binding: FragmentCategoriesBinding? = null
     private val binding get() = _binding!!
 
-    private val TAG = CategoriesFragment::class.java.simpleName
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentCategoriesBinding.bind(view)

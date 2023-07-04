@@ -47,8 +47,6 @@
     <string name="message_update_failed">Із-за тимчасової помилки, Ваші додатки не можуть бути оновлені. Будь-ласка, спробуйте пізніше.</string>
     <string name="update_error">Помилка оновлення!</string>
     <string name="all_apps_updated">Всі додатки мають останню версію</string>
-    <string name="manual_updates_notification">Оновлення додатків не встановлюватимуться автоматично</string>
-    <string name="auto_updates_notification">Оновлення додатків будуть встановлені автоматично</string>
     <string name="update_all">Оновити все</string>
     <string name="show_more">Показати більше</string>
     <string name="something_went_wrong">Щось пішло не так!</string>
@@ -76,8 +74,6 @@
     <string name="installing">Встановлення</string>
     <string name="install">Встановити</string>
     <string name="ok">ОК</string>
-    <string name="share_intent">Перевірте \"<xliff:g id="rating">%1$s</xliff:g>\"
-\n<xliff:g id="rating">%2$s</xliff:g></string>
     <string name="description">Опис</string>
     <string name="logout">Вийти</string>
     <string name="user_anonymous">Анонімно</string>

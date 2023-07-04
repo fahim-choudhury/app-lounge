@@ -24,6 +24,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -83,6 +84,7 @@
                 android:layout_marginStart="18dp"
                 android:textColor="?android:textColorPrimary"
                 android:textSize="15sp"
+                android:textIsSelectable="false"
                 app:layout_constraintStart_toEndOf="@id/avatar"
                 app:layout_constraintTop_toTopOf="@id/avatar"
                 app:layout_constraintBottom_toTopOf="@id/email"
@@ -96,6 +98,7 @@
                 android:layout_marginTop="5dp"
                 android:textColor="?android:textColorSecondary"
                 android:textSize="13sp"
+                android:textIsSelectable="false"
                 app:layout_constraintBottom_toBottomOf="@id/avatar"
                 app:layout_constraintStart_toEndOf="@id/avatar"
                 app:layout_constraintTop_toBottomOf="@id/accountType" />
@@ -120,7 +123,5 @@
         android:id="@android:id/list_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
     </FrameLayout>
-
 </LinearLayout>

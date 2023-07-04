@@ -56,7 +56,8 @@ class ApplicationListFragment :
     TimeoutFragment(R.layout.fragment_application_list),
     FusedAPIInterface {
 
-    private val args: ApplicationListFragmentArgs by navArgs()
+    // protected to avoid SyntheticAccessor
+    protected val args: ApplicationListFragmentArgs by navArgs()
 
     @Inject
     lateinit var pkgManagerModule: PkgManagerModule
@@ -64,7 +65,8 @@ class ApplicationListFragment :
     @Inject
     lateinit var pwaManagerModule: PWAManagerModule
 
-    private val viewModel: ApplicationListViewModel by viewModels()
+    // protected to avoid SyntheticAccessor
+    protected val viewModel: ApplicationListViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
     override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
@@ -167,12 +169,6 @@ class ApplicationListFragment :
         }
     }
 
-    private fun isFusedAppsUpdated(it: ResultSupreme<List<FusedApp>>) =
-        listAdapter.currentList.isEmpty() || it.data != null && viewModel.isAnyAppUpdated(
-            it.data!!,
-            listAdapter.currentList
-        )
-
     private fun initAppListAdapter(
         currentDestinationId: Int
     ): ApplicationListRVAdapter {
@@ -233,7 +229,7 @@ class ApplicationListFragment :
          * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/478
          */
         showLoadingUI()
-        viewModel.loadData(args.category, args.browseUrl, args.source, authObjectList) {
+        viewModel.loadData(args.category, args.source, authObjectList) {
             clearAndRestartGPlayLogin()
             true
         }
@@ -249,7 +245,7 @@ class ApplicationListFragment :
                     if (!recyclerView.canScrollVertically(1)) {
                         viewModel.loadMore(
                             authObjectList.find { it is AuthObject.GPlayAuth },
-                            args.browseUrl
+                            args.category
                         )
                     }
                 }
@@ -266,7 +262,7 @@ class ApplicationListFragment :
                     onPlaceHolderShow = {
                         viewModel.loadMore(
                             authObjectList.find { it is AuthObject.GPlayAuth },
-                            args.browseUrl
+                            args.category
                         )
                     }
                 }
@@ -325,7 +321,7 @@ class ApplicationListFragment :
                     )
                     viewHolder?.let {
                         (viewHolder as ApplicationListRVAdapter.ViewHolder).binding.installButton.text =
-                            "$progress%"
+                            String.format("%d%%", progress)
                     }
                 }
             }
@@ -338,7 +334,7 @@ class ApplicationListFragment :
     }
 
     override fun getApplication(app: FusedApp, appIcon: ImageView?) {
-        mainActivityViewModel.getApplication(app, appIcon)
+        mainActivityViewModel.getApplication(app)
     }
 
     override fun cancelDownload(app: FusedApp) {
