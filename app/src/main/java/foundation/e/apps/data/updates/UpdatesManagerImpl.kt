@@ -29,11 +29,13 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
-import foundation.e.apps.data.fused.FusedAPIImpl.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.fused.FusedAPIRepository
+import foundation.e.apps.data.fused.FusedApi.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -52,8 +54,6 @@ class UpdatesManagerImpl @Inject constructor(
         const val PACKAGE_NAME_ANDROID_VENDING = "com.android.vending"
     }
 
-    private val TAG = UpdatesManagerImpl::class.java.simpleName
-
     private val userApplications: List<ApplicationInfo>
         get() = pkgManagerModule.getAllUserApps()
 
@@ -65,16 +65,18 @@ class UpdatesManagerImpl @Inject constructor(
         val gPlayInstalledApps = getGPlayInstalledApps().toMutableList()
 
         if (preferenceManagerModule.shouldUpdateAppsFromOtherStores()) {
-            val otherStoresInstalledApps = getAppsFromOtherStores().toMutableList()
+            withContext(Dispatchers.IO) {
+                val otherStoresInstalledApps = getAppsFromOtherStores().toMutableList()
 
-            // This list is based on app signatures
-            val updatableFDroidApps =
-                findPackagesMatchingFDroidSignatures(otherStoresInstalledApps)
+                // This list is based on app signatures
+                val updatableFDroidApps =
+                    findPackagesMatchingFDroidSignatures(otherStoresInstalledApps)
 
-            openSourceInstalledApps.addAll(updatableFDroidApps)
+                openSourceInstalledApps.addAll(updatableFDroidApps)
 
-            otherStoresInstalledApps.removeAll(updatableFDroidApps)
-            gPlayInstalledApps.addAll(otherStoresInstalledApps)
+                otherStoresInstalledApps.removeAll(updatableFDroidApps)
+                gPlayInstalledApps.addAll(otherStoresInstalledApps)
+            }
         }
 
         // Get open source app updates

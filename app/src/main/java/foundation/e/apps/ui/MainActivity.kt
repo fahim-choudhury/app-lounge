@@ -26,9 +26,11 @@ import android.os.StatFs
 import android.os.storage.StorageManager
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
@@ -53,7 +55,7 @@ import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.purchase.AppPurchaseFragmentDirections
 import foundation.e.apps.ui.settings.SettingsFragment
 import foundation.e.apps.ui.setup.signin.SignInViewModel
-import foundation.e.apps.utils.CommonUtilsFunctions
+import foundation.e.apps.utils.SystemInfoProvider
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.flow.collectLatest
@@ -124,6 +126,7 @@ class MainActivity : AppCompatActivity() {
                     navController.popBackStack()
                     navController.navigate(R.id.signInFragment)
                 }
+
                 else -> {}
             }
 
@@ -134,7 +137,7 @@ class MainActivity : AppCompatActivity() {
                     val email = otherPayload.toString()
                     viewModel.uploadFaultyTokenToEcloud(
                         email,
-                        CommonUtilsFunctions.getAppBuildInfo()
+                        SystemInfoProvider.getAppBuildInfo()
                     )
                 }
             }
@@ -154,6 +157,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.signInFragment -> {
                     bottomNavigationView.visibility = View.GONE
                 }
+
                 else -> {
                     bottomNavigationView.visibility = View.VISIBLE
                 }
@@ -217,19 +221,29 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.updateAppWarningList()
 
-        lifecycleScope.launchWhenResumed {
-            observeInvalidAuth()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    observeInvalidAuth()
+                }
 
-            EventBus.events.filter { appEvent ->
-                appEvent is AppEvent.SignatureMissMatchError
-            }.collectLatest {
-                val appName = viewModel.getAppNameByPackageName(it.data.toString())
-                ApplicationDialogFragment(
-                    title = getString(R.string.update_error),
-                    message = getString(R.string.error_signature_mismatch, appName),
-                    positiveButtonText = getString(R.string.ok)
-                ).show(supportFragmentManager, TAG)
+                launch {
+                    observeSignatureMissMatchError()
+                }
             }
+        }
+    }
+
+    private suspend fun observeSignatureMissMatchError() {
+        EventBus.events.filter { appEvent ->
+            appEvent is AppEvent.SignatureMissMatchError
+        }.collectLatest {
+            val appName = viewModel.getAppNameByPackageName(it.data.toString())
+            ApplicationDialogFragment(
+                title = getString(R.string.update_error),
+                message = getString(R.string.error_signature_mismatch, appName),
+                positiveButtonText = getString(R.string.ok)
+            ).show(supportFragmentManager, TAG)
         }
     }
 

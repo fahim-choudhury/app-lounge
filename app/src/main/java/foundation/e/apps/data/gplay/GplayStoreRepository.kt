@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.Flow
 interface GplayStoreRepository : BaseStoreRepository {
     suspend fun getSearchResult(query: String): Flow<Pair<List<App>, Boolean>>
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry>
-    suspend fun getAppsByCategory(category: String, paginationParameter: Any? = null): Any
+    suspend fun getAppsByCategory(category: String, pageUrl: String? = null): Any
     suspend fun getCategories(type: CategoryType? = null): List<Category>
     suspend fun getAppsDetails(packageNamesOrIds: List<String>): List<App>
     suspend fun getDownloadInfo(

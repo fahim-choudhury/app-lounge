@@ -25,7 +25,7 @@ interface FusedDownloadDAO {
     suspend fun getDownloadById(id: String): FusedDownload?
 
     @Query("SELECT * FROM fuseddownload where id = :id")
-    fun getDownloadFlowById(id: String): LiveData<FusedDownload>
+    fun getDownloadFlowById(id: String): LiveData<FusedDownload?>
 
     @Update
     suspend fun updateDownload(fusedDownload: FusedDownload)

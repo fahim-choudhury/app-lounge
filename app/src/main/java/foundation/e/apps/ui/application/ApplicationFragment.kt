@@ -18,7 +18,6 @@
 
 package foundation.e.apps.ui.application
 
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -125,7 +124,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     companion object {
         private const val PRIVACY_SCORE_SOURCE_CODE_URL =
-            "https://gitlab.e.foundation/e/os/apps/-/blob/main/app/src/main/java/foundation/e/apps/api/exodus/repositories/AppPrivacyInfoRepositoryImpl.kt#L136"
+            "https://gitlab.e.foundation/e/os/apps/-/blob/main/app/src/main/java/foundation/e/apps/data/exodus/repositories/PrivacyScoreRepositoryImpl.kt"
         private const val EXODUS_URL = "https://exodus-privacy.eu.org"
         private const val EXODUS_REPORT_URL = "https://reports.exodus-privacy.eu.org/"
         private const val PRIVACY_GUIDELINE_URL = "https://doc.e.foundation/privacy_score"
@@ -521,7 +520,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             enableInstallButton(R.string.retry)
             setOnClickListener {
                 applicationIcon?.let {
-                    mainActivityViewModel.getApplication(fusedApp, it)
+                    mainActivityViewModel.getApplication(fusedApp)
                 }
             }
         }
@@ -669,11 +668,11 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 message = getString(R.string.may_not_work_warning_message),
                 positiveButtonText = getString(R.string.install_anyway),
                 positiveButtonAction = {
-                    mainActivityViewModel.getApplication(fusedApp, it)
+                    mainActivityViewModel.getApplication(fusedApp)
                 }
             ).show(childFragmentManager, "ApplicationFragment")
         } else {
-            mainActivityViewModel.getApplication(fusedApp, it)
+            mainActivityViewModel.getApplication(fusedApp)
         }
     }
 
@@ -697,7 +696,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                     return@setOnClickListener
                 }
                 applicationIcon?.let {
-                    mainActivityViewModel.getApplication(fusedApp, it)
+                    mainActivityViewModel.getApplication(fusedApp)
                 }
             }
         }
@@ -742,7 +741,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         val progressPercentage =
             ((progressResult.second / progressResult.first.toDouble()) * 100f).toInt()
         binding.downloadInclude.appInstallPB.progress = progressPercentage
-        binding.downloadInclude.percentage.text = "$progressPercentage%"
+        binding.downloadInclude.percentage.text = String.format("%d%%", progressPercentage)
         binding.downloadInclude.downloadedSize.text = downloadedSize
     }
 
@@ -828,15 +827,6 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         _binding?.recyclerView?.adapter = null
         _binding = null
         applicationIcon = null
-    }
-
-    private fun shareApp(name: String, shareUrl: String): Intent {
-        val shareIntent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, getString(R.string.share_intent, name, shareUrl))
-            type = "text/plain"
-        }
-        return shareIntent
     }
 
     private fun getPrivacyDrawable(privacyRating: String): Drawable? {

@@ -50,128 +50,118 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <RelativeLayout
+        <LinearLayout
+            android:id="@+id/applicationLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/applicationLayout"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/snackbarLayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/snackbarLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:visibility="gone"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginTop="20dp"
-                    app:cardElevation="8dp">
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@android:color/black">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginRight="10dp"
-                            android:gravity="center_vertical"
-                            android:textColor="@android:color/white"
-                            app:drawableLeftCompat="@drawable/ic_warning_white"
-                            android:drawablePadding="15dp"
-                            android:text="@string/this_app_may_not_work_properly" />
-                    </RelativeLayout>
-
-                </androidx.cardview.widget.CardView>
+                android:layout_height="40dp"
+                android:visibility="gone"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="20dp"
+                app:cardElevation="8dp">
 
                 <RelativeLayout
-                    android:id="@+id/duplicate_app_cardview"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:visibility="gone"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginTop="20dp"
-                    app:cardElevation="8dp">
+                    android:layout_height="match_parent"
+                    android:background="@android:color/black">
 
-                    <RelativeLayout
+                    <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@color/colorBackground">
-
-                        <TextView
-                            android:id="@+id/snackbarText"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginRight="10dp"
-                            android:gravity="center"
-                            app:drawableEndCompat="@drawable/ic_warning_black"
-                            android:drawablePadding="15dp"
-                            android:textColor="?android:textColorPrimary"
-                            android:text="@string/why_open_source_version" />
-                    </RelativeLayout>
-
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:gravity="center_vertical"
+                        android:textColor="@android:color/white"
+                        app:drawableLeftCompat="@drawable/ic_warning_white"
+                        android:drawablePadding="15dp"
+                        android:text="@string/this_app_may_not_work_properly" />
                 </RelativeLayout>
 
-                <include
-                    android:id="@+id/titleInclude"
-                    layout="@layout/fragment_application_title" />
+            </androidx.cardview.widget.CardView>
 
-                <include
-                    android:id="@+id/downloadInclude"
-                    layout="@layout/fragment_application_download" />
+            <RelativeLayout
+                android:id="@+id/duplicate_app_cardview"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:visibility="gone"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="20dp"
+                android:background="@color/colorBackground"
+                app:cardElevation="8dp">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerView"
+                <TextView
+                    android:id="@+id/snackbarText"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="10dp" />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/appDescription"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginEnd="20dp"
-                    android:ellipsize="end"
-                    android:maxLines="4"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:gravity="center"
+                    app:drawableEndCompat="@drawable/ic_warning_black"
+                    android:drawablePadding="15dp"
                     android:textColor="?android:textColorPrimary"
-                    android:textSize="15sp" />
+                    android:text="@string/why_open_source_version" />
 
-                <Button
-                    android:id="@+id/appDescriptionMore"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:layout_marginEnd="20dp"
-                    android:text="@string/more"
-                    android:textAllCaps="false"
-                    android:textColor="@color/colorAccent" />
+            </RelativeLayout>
 
-                <include
-                    android:id="@+id/ratingsInclude"
-                    layout="@layout/fragment_application_ratings" />
+            <include
+                android:id="@+id/titleInclude"
+                layout="@layout/fragment_application_title" />
 
-                <include
-                    android:id="@+id/privacyInclude"
-                    layout="@layout/fragment_application_privacy" />
+            <include
+                android:id="@+id/downloadInclude"
+                layout="@layout/fragment_application_download" />
 
-                <include
-                    android:id="@+id/infoInclude"
-                    layout="@layout/fragment_application_information" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp" />
 
-            </LinearLayout>
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/appDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:ellipsize="end"
+                android:maxLines="4"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="15sp" />
 
-        </RelativeLayout>
+            <Button
+                android:id="@+id/appDescriptionMore"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="20dp"
+                android:text="@string/more"
+                android:textAllCaps="false"
+                android:textColor="@color/colorAccent" />
+
+            <include
+                android:id="@+id/ratingsInclude"
+                layout="@layout/fragment_application_ratings" />
+
+            <include
+                android:id="@+id/privacyInclude"
+                layout="@layout/fragment_application_privacy" />
+
+            <include
+                android:id="@+id/infoInclude"
+                layout="@layout/fragment_application_information" />
+
+        </LinearLayout>
+
     </androidx.core.widget.NestedScrollView>
 
 </LinearLayout>

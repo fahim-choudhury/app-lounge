@@ -361,7 +361,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
                     )
                     viewHolder?.let {
                         (viewHolder as ApplicationListRVAdapter.ViewHolder).binding.installButton.text =
-                            "$progress%"
+                            String.format("%d%%", progress)
                     }
                 }
             }
@@ -376,7 +376,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
     }
 
     override fun getApplication(app: FusedApp, appIcon: ImageView?) {
-        mainActivityViewModel.getApplication(app, appIcon)
+        mainActivityViewModel.getApplication(app)
     }
 
     override fun cancelDownload(app: FusedApp) {

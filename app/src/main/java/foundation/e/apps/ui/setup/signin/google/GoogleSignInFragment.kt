@@ -41,7 +41,8 @@ class GoogleSignInFragment : Fragment(R.layout.fragment_google_signin) {
     private var _binding: FragmentGoogleSigninBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: LoginViewModel by lazy {
+    // protected to avoid SyntheticAccessor
+    protected val viewModel: LoginViewModel by lazy {
         ViewModelProvider(requireActivity())[LoginViewModel::class.java]
     }
 

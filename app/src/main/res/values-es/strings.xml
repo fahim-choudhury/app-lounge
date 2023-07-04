@@ -57,8 +57,6 @@
     <string name="message_app_available_later">¡Esta aplicación estará disponible pronto!</string>
     <string name="unknown_error">¡Error desconocido!</string>
     <string name="update_all">Actualizar todas</string>
-    <string name="auto_updates_notification">Actualizaciones serán instaladas automáticamente</string>
-    <string name="manual_updates_notification">Actualizaciones no se instalarán automáticamente</string>
     <string name="discover">Explorar</string>
     <string name="top_updated_apps">Aplicaciones de código abierto más actualizadas</string>
     <string name="top_updated_games">Juegos de código abierto más actualizados</string>
@@ -83,8 +81,6 @@
     <string name="apps">Aplicaciones</string>
     <string name="sign_in_desc">Acceder con cuenta de Google o con modo anónimo para acceder de forma privada.</string>
     <string name="preference_update_notify_available_description">Mostrar una notificación cuando hayan actualizaciones disponibles</string>
-    <string name="share_intent">Comprobar \"<xliff:g id="rating">%1$s</xliff:g>\"
-\n<xliff:g id="rating">%2$s</xliff:g></string>
     <string name="preference_update_wifi_only_description">Actualizar las aplicaciones automáticamente solo en redes sin datos móviles como el WI-FI</string>
     <string name="update">Actualizar</string>
     <string name="rating_description">Puntuación sobre 5. Calculada usando las valoraciones de los usuarios de la aplicación.</string>
