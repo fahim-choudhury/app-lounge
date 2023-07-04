@@ -64,8 +64,8 @@ class ApplicationDialogFragment() : DialogFragment() {
         val positiveButtonText =
             positiveButtonText?.ifEmpty { getString(R.string.ok) }
         val materialAlertDialogBuilder = MaterialAlertDialogBuilder(requireContext())
-            .setTitle(Html.fromHtml(title, Html.FROM_HTML_MODE_COMPACT))
-            .setMessage(Html.fromHtml(message, Html.FROM_HTML_MODE_COMPACT))
+            .setTitle(Html.fromHtml(title ?: "", Html.FROM_HTML_MODE_COMPACT))
+            .setMessage(Html.fromHtml(message ?: "", Html.FROM_HTML_MODE_COMPACT))
             .setPositiveButton(positiveButtonText) { _, _ ->
                 positiveButtonAction?.invoke()
                 this.dismiss()
