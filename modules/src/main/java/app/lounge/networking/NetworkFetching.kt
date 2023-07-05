@@ -8,7 +8,7 @@ import java.net.UnknownHostException
 
 
 //region Retrofit Asynchronous Networking
-interface RetrofitFetching {
+interface NetworkFetching {
     val executor: Executor get() = callEnqueue
 
     val checkNetwork: (() -> Boolean)? get() = null
@@ -61,8 +61,8 @@ interface RetrofitFetching {
  * @param success Success callback with the response `R`
  * @param failure Failure callback with an error case from `AnyFetchError` subtypes
  */
-inline fun <reified R> RetrofitFetching.fetch(
-    usingExecutor: RetrofitFetching.Executor = executor,
+inline fun <reified R> NetworkFetching.fetch(
+    usingExecutor: NetworkFetching.Executor = executor,
     endpoint: Call<R>,
     noinline success: (R) -> Unit,
     noinline failure: (FetchError) -> Unit
@@ -84,10 +84,10 @@ inline fun <reified R> RetrofitFetching.fetch(
  * @param success Success callback with the response `R`
  * @param failure Failure callback with an error case from given error subtype `E`
  */
-fun <R, E> RetrofitFetching.fetch(
-    usingExecutor: RetrofitFetching.Executor = executor,
+fun <R, E> NetworkFetching.fetch(
+    usingExecutor: NetworkFetching.Executor = executor,
     endpoint: Call<R>,
-    resultProcessing: RetrofitFetching.ResultProcessing<R, E>,
+    resultProcessing: NetworkFetching.ResultProcessing<R, E>,
     success: (R) -> Unit,
     failure: (E) -> Unit
 ) {
@@ -107,9 +107,9 @@ sealed class RetrofitResult<R, E> {
 }
 
 private fun <R, E> fetch(
-    usingExecutor: RetrofitFetching.Executor,
+    usingExecutor: NetworkFetching.Executor,
     endpoint: Call<R>,
-    resultProcessing: RetrofitFetching.ResultProcessing<R, E>,
+    resultProcessing: NetworkFetching.ResultProcessing<R, E>,
     callback: (RetrofitResult<R, E>) -> Unit,
 ) {
     usingExecutor.fetchAndCallback(endpoint, object : Callback<R> {
@@ -132,7 +132,7 @@ open class RetrofitResultProcessing<R, E>(
     override val tryCastResponseBody: (Any?) -> R?,
     override val errorFromNetworkFailure: (AnyFetchError) -> E,
     hasNetwork: (() -> Boolean)? = null,
-) : RetrofitFetching.ResultProcessing<R, E> {
+) : NetworkFetching.ResultProcessing<R, E> {
 
     companion object {
         inline operator fun <reified R, E> invoke(
