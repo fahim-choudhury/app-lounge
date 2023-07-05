@@ -2,7 +2,7 @@ package app.lounge.users.anonymous
 
 import app.lounge.extension.toByteArray
 import app.lounge.networking.FetchError
-import app.lounge.networking.RetrofitFetching
+import app.lounge.networking.NetworkFetching
 import app.lounge.networking.appLounge
 import app.lounge.networking.fetch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -18,7 +18,7 @@ internal class RetrofitAnonymousAPI(
     baseURL: String,
     anonymousUserEndpointFollowsRedirects: Boolean,
     callTimeoutInSeconds: Long,
-): AnonymousAPI, RetrofitFetching {
+): AnonymousAPI, NetworkFetching {
 
     private val anonymousUserEndPoint: AnonymousUserEndPointEndpoint = Retrofit.Builder().appLounge(
         baseURL = baseURL,
@@ -30,7 +30,7 @@ internal class RetrofitAnonymousAPI(
 
         @POST
         fun authDataRequest(
-            @Url url: String = "https://eu.gtoken.ecloud.global",
+            @Url url: String = AnonymousAPI.tokenBaseURL,
             @HeaderMap headers: Map<String, String>,
             @Body requestBody: RequestBody
         ): Call<LoginResponse>
