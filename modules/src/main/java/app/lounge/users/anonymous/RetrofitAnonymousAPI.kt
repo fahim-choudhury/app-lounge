@@ -5,18 +5,14 @@ import app.lounge.networking.FetchError
 import app.lounge.networking.RetrofitFetching
 import app.lounge.networking.appLounge
 import app.lounge.networking.fetch
-import com.aurora.gplayapi.data.providers.HeaderProvider
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.http.Body
 import retrofit2.http.HeaderMap
-import retrofit2.http.Headers
 import retrofit2.http.POST
-import retrofit2.http.Url
 
 internal class RetrofitAnonymousAPI(
     baseURL: String,
@@ -41,7 +37,7 @@ internal class RetrofitAnonymousAPI(
         @POST(AnonymousAPI.Path.sync)
         fun loginUser(
             @HeaderMap headers: Map<String, String>
-        ): Call<LoginResponse>
+        ): Call<AuthDataValidationResponse>
     }
 
     override fun requestAuthData(
@@ -70,14 +66,14 @@ internal class RetrofitAnonymousAPI(
         )
     }
 
-    override fun performUserLogin(
-        anonymousLoginRequestBody: AnonymousLoginRequestBody,
-        success: (LoginResponse) -> Unit,
+    override fun requestAuthDataValidation(
+        anonymousAuthDataValidationRequestBody: AnonymousAuthDataValidationRequestBody,
+        success: (AuthDataValidationResponse) -> Unit,
         failure: (FetchError) -> Unit
     ) {
         fetch(
             endpoint = anonymousUserEndPoint.loginUser(
-                headers = anonymousLoginRequestBody.header
+                headers = anonymousAuthDataValidationRequestBody.header
             ),
             success = success,
             failure = failure

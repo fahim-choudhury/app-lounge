@@ -3,7 +3,7 @@ package app.lounge.networking
 import app.lounge.users.anonymous.Anonymous
 import app.lounge.users.anonymous.AnonymousAPI
 import app.lounge.users.anonymous.AnonymousAuthDataRequestBody
-import app.lounge.users.anonymous.AnonymousLoginRequestBody
+import app.lounge.users.anonymous.AnonymousAuthDataValidationRequestBody
 import app.lounge.users.anonymous.AuthDataResponse
 import org.junit.Assert
 import org.junit.Test
@@ -53,8 +53,8 @@ class AnonymousUserAPITest {
             receivedData?.let { authData ->
                 authData.dfeCookie = "null"
 
-                testAnonymousAPIForLogin.requestLogin(
-                    anonymousLoginRequestBody = AnonymousLoginRequestBody(
+                testAnonymousAPIForLogin.requestAuthDataValidation(
+                    anonymousAuthDataValidationRequestBody = AnonymousAuthDataValidationRequestBody(
                         authDataResponse = authData
                     ),
                     success = { response ->
@@ -76,8 +76,8 @@ class AnonymousUserAPITest {
         await {
             receivedData?.let { authData ->
                 authData.dfeCookie = "null"
-                testAnonymousAPIForLoginTimeout.requestLogin(
-                    anonymousLoginRequestBody = AnonymousLoginRequestBody(
+                testAnonymousAPIForLoginTimeout.requestAuthDataValidation(
+                    anonymousAuthDataValidationRequestBody = AnonymousAuthDataValidationRequestBody(
                         authDataResponse = authData
                     ),
                     success = {},

@@ -39,13 +39,13 @@ interface Anonymous {
         )
     }
 
-    fun requestLogin(
-        anonymousLoginRequestBody: AnonymousLoginRequestBody,
-        success : (LoginResponse) -> Unit,
+    fun requestAuthDataValidation(
+        anonymousAuthDataValidationRequestBody: AnonymousAuthDataValidationRequestBody,
+        success : (AuthDataValidationResponse) -> Unit,
         failure : (FetchError) -> Unit
     ) {
-        api.performUserLogin(
-            anonymousLoginRequestBody = anonymousLoginRequestBody,
+        api.requestAuthDataValidation(
+            anonymousAuthDataValidationRequestBody = anonymousAuthDataValidationRequestBody,
             success = success,
             failure = failure
         )
@@ -53,4 +53,4 @@ interface Anonymous {
 }
 
 typealias AuthDataResponse = AuthData
-typealias LoginResponse = ResponseBody
+typealias AuthDataValidationResponse = ResponseBody

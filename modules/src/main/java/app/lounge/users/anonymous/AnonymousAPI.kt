@@ -26,9 +26,9 @@ interface AnonymousAPI {
         failure : (FetchError) -> Unit
     )
 
-    fun performUserLogin(
-        anonymousLoginRequestBody: AnonymousLoginRequestBody,
-        success : (LoginResponse) -> Unit,
+    fun requestAuthDataValidation(
+        anonymousAuthDataValidationRequestBody: AnonymousAuthDataValidationRequestBody,
+        success : (AuthDataValidationResponse) -> Unit,
         failure : (FetchError) -> Unit
     )
 
@@ -52,7 +52,7 @@ data class AnonymousAuthDataRequestBody(
 )
 
 /** AnonymousLoginRequestBody */
-data class AnonymousLoginRequestBody(
+data class AnonymousAuthDataValidationRequestBody(
     val authDataResponse: AuthDataResponse,
 ) {
     val header = HeaderProvider.getDefaultHeaders(authDataResponse)
