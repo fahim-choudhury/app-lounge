@@ -9,13 +9,13 @@ interface AnonymousAPI {
 
     companion object {
         const val tokenBaseURL: String = "https://eu.gtoken.ecloud.global"
-        const val loginBaseURL: String = GooglePlayApi.URL_SYNC+"/"
+        const val loginBaseURL: String = GooglePlayApi.URL_BASE
 
-        fun create(baseURL: String = tokenBaseURL) : AnonymousAPI {
+        fun create(baseURL: String = tokenBaseURL, callTimeoutInSeconds: Long = 10) : AnonymousAPI {
             return RetrofitAnonymousAPI(
                 baseURL = baseURL,
                 anonymousUserEndpointFollowsRedirects = true,
-                callTimeoutInSeconds = 30
+                callTimeoutInSeconds = callTimeoutInSeconds
             )
         }
     }
@@ -38,6 +38,11 @@ interface AnonymousAPI {
         }
     }
 
+    object Path {
+        const val authData = "/"
+        const val sync = "/fdfe/apps/contentSync"
+    }
+
 }
 
 /** AnonymousAuthDataRequestBody */
@@ -50,5 +55,5 @@ data class AnonymousAuthDataRequestBody(
 data class AnonymousLoginRequestBody(
     val authDataResponse: AuthDataResponse,
 ) {
-    val header = HeaderProvider.getAuthHeaders(authDataResponse)
+    val header = HeaderProvider.getDefaultHeaders(authDataResponse)
 }

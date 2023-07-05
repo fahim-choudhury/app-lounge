@@ -26,6 +26,8 @@ internal fun Retrofit.Builder.appLounge(
             OkHttpClient.Builder()
                 .addNetworkInterceptor(interceptor)
                 .callTimeout(callTimeoutInSeconds, TimeUnit.SECONDS)
+                .connectTimeout(callTimeoutInSeconds, TimeUnit.SECONDS)
+                .readTimeout(callTimeoutInSeconds, TimeUnit.SECONDS)
                 .followRedirects(shouldFollowRedirects)
                 .build()
         )

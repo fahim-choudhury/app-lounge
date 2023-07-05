@@ -9,10 +9,12 @@ import com.aurora.gplayapi.data.providers.HeaderProvider
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.http.Body
 import retrofit2.http.HeaderMap
+import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Url
 
@@ -30,16 +32,14 @@ internal class RetrofitAnonymousAPI(
 
     interface AnonymousUserEndPointEndpoint {
 
-        @POST
+        @POST(AnonymousAPI.Path.authData)
         fun authDataRequest(
-            @Url url: String = AnonymousAPI.tokenBaseURL,
             @HeaderMap headers: Map<String, String>,
             @Body requestBody: RequestBody
         ): Call<AuthDataResponse>
 
-        @POST
+        @POST(AnonymousAPI.Path.sync)
         fun loginUser(
-            @Url url: String = AnonymousAPI.loginBaseURL,
             @HeaderMap headers: Map<String, String>
         ): Call<LoginResponse>
     }

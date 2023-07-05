@@ -2,7 +2,7 @@ package app.lounge.users.anonymous
 
 import app.lounge.networking.FetchError
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.PlayResponse
+import okhttp3.ResponseBody
 
 /**
  * Implement API related to Anonymous login flow only.
@@ -53,4 +53,4 @@ interface Anonymous {
 }
 
 typealias AuthDataResponse = AuthData
-typealias LoginResponse = PlayResponse
+typealias LoginResponse = ResponseBody

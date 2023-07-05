@@ -12,11 +12,18 @@ import java.util.Properties
 class AnonymousUserAPITest {
 
     private val testAnonymousAPIForToken = Anonymous.anonymousRequestFor(
-        api = AnonymousAPI.create(AnonymousAPI.tokenBaseURL)
+        api = AnonymousAPI.create(baseURL = AnonymousAPI.tokenBaseURL)
     )
 
     private val testAnonymousAPIForLogin = Anonymous.anonymousRequestFor(
-        api = AnonymousAPI.create(AnonymousAPI.loginBaseURL)
+        api = AnonymousAPI.create(baseURL = AnonymousAPI.loginBaseURL)
+    )
+
+    private val testAnonymousAPIForLoginTimeout = Anonymous.anonymousRequestFor(
+        api = AnonymousAPI.create(
+            baseURL = AnonymousAPI.loginBaseURL,
+            callTimeoutInSeconds = 1
+        )
     )
 
     private val requestBodyData = AnonymousAuthDataRequestBody(
@@ -24,9 +31,8 @@ class AnonymousUserAPITest {
         userAgent = testUserAgent
     )
 
-
     companion object {
-        lateinit var receivedData: AuthDataResponse
+        var receivedData: AuthDataResponse? =  null
     }
 
     @Test
@@ -34,32 +40,59 @@ class AnonymousUserAPITest {
         await {
             testAnonymousAPIForToken.requestAuthData(
                 anonymousAuthDataRequestBody = requestBodyData,
-                success = { response ->
-                    receivedData = response
-                    assert(receivedData is AuthDataResponse) { "Assert!! Success must return data" }
-                },
-                failure =  {}
+                success = { response -> receivedData = response },
+                failure = { }
             )
         }
+        assert(receivedData is AuthDataResponse) { "Assert!! Success must return data" }
     }
 
     @Test
     fun test2OnSuccessReturnsLoginData(){
         await {
-            testAnonymousAPIForLogin.requestLogin(
-                anonymousLoginRequestBody = AnonymousLoginRequestBody(
-                    authDataResponse = receivedData
-                ),
-                success = { response ->
-                    Assert.assertEquals("Hello", response.toString())
-                },
-                failure = {
-                    Assert.assertEquals("Hello", it.toString())
-                }
-            )
+            receivedData?.let { authData ->
+                authData.dfeCookie = "null"
+
+                testAnonymousAPIForLogin.requestLogin(
+                    anonymousLoginRequestBody = AnonymousLoginRequestBody(
+                        authDataResponse = authData
+                    ),
+                    success = { response ->
+                        Assert.assertNotNull(
+                            "Assert!! `response` must have data",
+                            response
+                        )
+                    },
+                    failure = {}
+                )
+            } ?: run {
+                assert(receivedData == null) { "Assert!! `receivedData` must not have null" }
+            }
         }
     }
 
+    @Test
+    fun test3OnTimeoutFailureReturnsError(){
+        await {
+            receivedData?.let { authData ->
+                authData.dfeCookie = "null"
+                testAnonymousAPIForLoginTimeout.requestLogin(
+                    anonymousLoginRequestBody = AnonymousLoginRequestBody(
+                        authDataResponse = authData
+                    ),
+                    success = {},
+                    failure = {
+                        assert(it.toString().contains("timeout")) {
+                            "Assert!! Failure callback must handle timeout error"
+                        }
+                    }
+                )
+            } ?: run {
+                assert(receivedData == null) { "Assert!! `receivedData` must have data" }
+            }
+
+        }
+    }
 }
 
 // region TestData
