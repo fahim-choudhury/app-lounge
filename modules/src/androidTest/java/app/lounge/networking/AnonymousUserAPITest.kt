@@ -5,7 +5,7 @@ import app.lounge.users.anonymous.AnonymousAPI
 import app.lounge.users.anonymous.AnonymousAuthDataRequestBody
 import app.lounge.users.anonymous.AnonymousAuthDataValidationRequestBody
 import app.lounge.users.anonymous.AuthDataResponse
-import org.junit.Assert
+import app.lounge.users.anonymous.AuthDataValidationResponse
 import org.junit.Test
 import java.util.Properties
 
@@ -32,7 +32,7 @@ class AnonymousUserAPITest {
     )
 
     companion object {
-        var receivedData: AuthDataResponse? =  null
+        var authData: AuthDataResponse? =  null
     }
 
     @Test
@@ -40,58 +40,51 @@ class AnonymousUserAPITest {
         await {
             testAnonymousAPIForToken.requestAuthData(
                 anonymousAuthDataRequestBody = requestBodyData,
-                success = { response -> receivedData = response },
+                success = { response -> authData = response },
                 failure = { }
             )
         }
-        assert(receivedData is AuthDataResponse) { "Assert!! Success must return data" }
+        assert(authData is AuthDataResponse) { "Assert!! Success must return data" }
     }
 
     @Test
     fun test2OnSuccessReturnsLoginData(){
+        var response: AuthDataValidationResponse? = null
         await {
-            receivedData?.let { authData ->
+            authData?.let { authData ->
                 authData.dfeCookie = "null"
 
                 testAnonymousAPIForLogin.requestAuthDataValidation(
                     anonymousAuthDataValidationRequestBody = AnonymousAuthDataValidationRequestBody(
                         authDataResponse = authData
                     ),
-                    success = { response ->
-                        Assert.assertNotNull(
-                            "Assert!! `response` must have data",
-                            response
-                        )
-                    },
+                    success = { result -> response = result },
                     failure = {}
                 )
-            } ?: run {
-                assert(receivedData == null) { "Assert!! `receivedData` must not have null" }
             }
         }
+        assert(authData is AuthDataResponse) { "Assert!! AuthData must be present" }
+        assert(response is AuthDataValidationResponse) { "Assert!! `response` must have data" }
     }
 
     @Test
     fun test3OnTimeoutFailureReturnsError(){
+        var failure: FetchError? = null
         await {
-            receivedData?.let { authData ->
+            authData?.let { authData ->
                 authData.dfeCookie = "null"
                 testAnonymousAPIForLoginTimeout.requestAuthDataValidation(
                     anonymousAuthDataValidationRequestBody = AnonymousAuthDataValidationRequestBody(
                         authDataResponse = authData
                     ),
                     success = {},
-                    failure = {
-                        assert(it.toString().contains("timeout")) {
-                            "Assert!! Failure callback must handle timeout error"
-                        }
-                    }
+                    failure = { error -> failure = error }
                 )
-            } ?: run {
-                assert(receivedData == null) { "Assert!! `receivedData` must have data" }
             }
-
         }
+        assert(authData is AuthDataResponse) { "Assert!! AuthData must be present" }
+        failure?.description?.contains("timeout")
+            ?.let { assert(it) { "Assert!! Timeout Failure callback must call" } }
     }
 }
 

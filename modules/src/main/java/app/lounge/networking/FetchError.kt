@@ -1,28 +1,25 @@
 package app.lounge.networking
 
 
-//region Generic Network Error Types
-
 sealed interface FetchError {
-    data class Network(val underlyingError: AnyFetchError) : FetchError
-}
-
-/** Supertype for network error types. */
-sealed interface AnyFetchError {
 
     var description: String
 
-    enum class BadRequest(override var description: String) : AnyFetchError {
+    enum class BadRequest(override var description: String) : FetchError {
         Encode("FIXME: Error encoding request! $dumpKeyWord"),
         Decode("FIXME: Error decoding request! $dumpKeyWord"),
     }
 
-    enum class NotFound(override var description: String) : AnyFetchError {
+    enum class NotFound(override var description: String) : FetchError {
         MissingData("No data found! $dumpKeyWord"),
         MissingNetwork("No network! $dumpKeyWord")
     }
 
-    data class BadStatusCode (val statusCode: Int, val rawResponse: Any) : AnyFetchError {
+    enum class InterruptedIO(override var description: String) : FetchError {
+        Timeout("Timeout Error! $dumpKeyWord")
+    }
+
+    data class BadStatusCode (val statusCode: Int, val rawResponse: Any) : FetchError {
         override var description: String =
             "Bad status code: $statusCode. Raw response: $rawResponse"
     }
@@ -34,17 +31,15 @@ sealed interface AnyFetchError {
      */
     data class Unknown(
         override var description: String = "Unknown Error! $dumpKeyWord"
-    ) : AnyFetchError
+    ) : FetchError
 
     companion object {
         const val dumpKeyWord: String = "dump:-"
 
-        fun make(error: AnyFetchError, addingDump: String) : AnyFetchError {
+        fun make(error: FetchError, addingDump: String = "") : FetchError {
             error.description = error.description + addingDump
             return error
         }
     }
 
 }
-
-//endregion

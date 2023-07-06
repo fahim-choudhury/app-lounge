@@ -3,6 +3,7 @@ package app.lounge.networking
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.InterruptedIOException
 import java.lang.IllegalStateException
 import java.net.UnknownHostException
 
@@ -35,7 +36,7 @@ interface NetworkFetching {
         val errorFromFailureResponse: (call: Call<*>, t: Throwable) -> E
 
         /** Return error object `E` that contains/represents the given `AnyFetchError` */
-        val errorFromNetworkFailure: (AnyFetchError) -> E
+        val errorFromNetworkFailure: (FetchError) -> E
 
     }
 
@@ -68,7 +69,7 @@ inline fun <reified R> NetworkFetching.fetch(
     noinline failure: (FetchError) -> Unit
 ) {
     val resultProcessing = RetrofitResultProcessing<R, FetchError>(
-        errorFromNetworkFailure = { FetchError.Network(it) },
+        errorFromNetworkFailure = { FetchError.make(it) },
         hasNetwork = checkNetwork
     )
     fetch(usingExecutor, endpoint, resultProcessing, success, failure)
@@ -130,13 +131,13 @@ private fun <R, E> fetch(
 /** Returns result processing object for given response type `R` and error type `E` */
 open class RetrofitResultProcessing<R, E>(
     override val tryCastResponseBody: (Any?) -> R?,
-    override val errorFromNetworkFailure: (AnyFetchError) -> E,
+    override val errorFromNetworkFailure: (FetchError) -> E,
     hasNetwork: (() -> Boolean)? = null,
 ) : NetworkFetching.ResultProcessing<R, E> {
 
     companion object {
         inline operator fun <reified R, E> invoke(
-            noinline errorFromNetworkFailure: (AnyFetchError) -> E,
+            noinline errorFromNetworkFailure: (FetchError) -> E,
             noinline hasNetwork: (() -> Boolean)? = null
         ) : RetrofitResultProcessing<R, E> {
             return RetrofitResultProcessing<R, E>(
@@ -150,15 +151,16 @@ open class RetrofitResultProcessing<R, E>(
     }
 
     override var errorFromFailureResponse: (call: Call<*>, t: Throwable) -> E = { call, t ->
-        val error: AnyFetchError = when(t) {
+        val error: FetchError = when(t) {
             is UnknownHostException -> errorForUnknownHostException
             is IllegalStateException -> errorForIllegalStateException
+            is InterruptedIOException -> errorForInterruptedIOException
 
             //TODO: Check other cases
-            else -> AnyFetchError.Unknown()
+            else -> FetchError.Unknown()
         }
         errorFromNetworkFailure(
-            AnyFetchError.make(error = error, addingDump = "(Throwable): $t\n(Call): $call")
+            FetchError.make(error = error, addingDump = "(Throwable): $t\n(Call): $call")
         )
     }
 
@@ -169,30 +171,32 @@ open class RetrofitResultProcessing<R, E>(
                 RetrofitResult.Success(body)
             } ?: RetrofitResult.Failure(
                 errorFromNetworkFailure(
-                    AnyFetchError.make(
-                        error = AnyFetchError.NotFound.MissingData,
+                    FetchError.make(
+                        error = FetchError.NotFound.MissingData,
                         addingDump = "(Response): $response\n(Call): $call"
                     )
                 )
             )
         } else {
             RetrofitResult.Failure(
-                errorFromNetworkFailure(AnyFetchError.BadStatusCode(response.code(), response))
+                errorFromNetworkFailure(FetchError.BadStatusCode(response.code(), response))
             )
         }
     }
 
     //region Exception to AnyFetchError mapping
 
-    var errorForUnknownHostException: AnyFetchError = if (hasNetwork != null) {
-        if (hasNetwork()) AnyFetchError.BadRequest.Encode
-        else AnyFetchError.NotFound.MissingNetwork
+    var errorForUnknownHostException: FetchError = if (hasNetwork != null) {
+        if (hasNetwork()) FetchError.BadRequest.Encode
+        else FetchError.NotFound.MissingNetwork
     } else {
         // Cannot distinguish the error case from `MissingNetwork` and `Encode` error.
-        AnyFetchError.Unknown()
+        FetchError.Unknown()
     }
 
-    var errorForIllegalStateException: AnyFetchError = AnyFetchError.BadRequest.Decode
+    var errorForIllegalStateException: FetchError = FetchError.BadRequest.Decode
+
+    var errorForInterruptedIOException: FetchError = FetchError.InterruptedIO.Timeout
 
     //endregion
 
