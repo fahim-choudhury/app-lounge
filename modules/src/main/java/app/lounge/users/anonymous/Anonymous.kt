@@ -4,13 +4,6 @@ import app.lounge.networking.FetchError
 import com.aurora.gplayapi.data.models.AuthData
 import okhttp3.ResponseBody
 
-/**
- * Implement API related to Anonymous login flow only.
- * 1. Login api for Anonymous users.
- * 2. Parsing Anonymous user data. For now use typealias object, later we will refactor with generic type
- * 3. Add unit test cases for the api functions.
- * */
-
 interface Anonymous {
 
     val api: AnonymousAPI

@@ -95,8 +95,6 @@ class AnonymousUserAPITest {
     }
 }
 
-// region TestData
-
 private const val testUserAgent: String = "{\"package\":\"foundation.e.apps.debug\",\"version\":\"2.5.5.debug\",\"device\":\"coral\",\"api\":32,\"os_version\":\"1.11-s-20230511288805-dev-coral\",\"build_id\":\"319e25cd.20230630224839\"}"
 
 private val testSystemProperties = Properties().apply {
@@ -142,5 +140,3 @@ fun await(callback: () -> Unit) {
     callback.invoke()
     Thread.sleep(3000)
 }
-
-// endregion
