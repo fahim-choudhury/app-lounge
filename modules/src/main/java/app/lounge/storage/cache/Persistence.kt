@@ -47,7 +47,7 @@ class PersistedConfiguration(context: Context) {
 
 //region - Persistence (in shared preferences)
 
-private class PersistedItem<T>(
+internal  class PersistedItem<T>(
     context: Context,
     val key: PersistenceKey,
     var defaultValue: T
@@ -91,7 +91,7 @@ private class PersistedItem<T>(
 }
 
 
-private fun <T> Context.persisted(key: PersistenceKey, defaultValue: T) : PersistedItem<T> {
+internal fun <T> Context.persisted(key: PersistenceKey, defaultValue: T) : PersistedItem<T> {
     return PersistedItem(context = this, key = key, defaultValue = defaultValue)
 }
 
