@@ -4,13 +4,7 @@ import android.content.Context
 import kotlin.reflect.KProperty
 
 
-//region Setter Accessors (primarily used for setting)
-
-val Context.configurations: PersistedConfiguration get() = PersistedConfiguration(context = this)
-
-//endregion
-
-// region - Persistence Configuration
+val Context.configurations: PersistentConfiguration get() = PersistentConfiguration(context = this)
 
 internal enum class PersistenceKey {
     updateInstallAuto,
@@ -28,26 +22,22 @@ internal enum class PersistenceKey {
     tosversion
 }
 
-class PersistedConfiguration(context: Context) {
-    var updateInstallAuto by context.persisted(PersistenceKey.updateInstallAuto, false)
-    var updateCheckIntervals by context.persisted(PersistenceKey.updateCheckIntervals, 24)
-    var updateAppsFromOtherStores by context.persisted(PersistenceKey.updateAppsFromOtherStores, false)
-    var showAllApplications by context.persisted(PersistenceKey.showAllApplications, true)
-    var showPWAApplications by context.persisted(PersistenceKey.showPWAApplications, true)
-    var showFOSSApplications by context.persisted(PersistenceKey.showFOSSApplications, true)
-    var authData by context.persisted(PersistenceKey.authData, "")
-    var email by context.persisted(PersistenceKey.email, "")
-    var oauthtoken by context.persisted(PersistenceKey.oauthtoken, "")
-    var userType by context.persisted(PersistenceKey.userType, "")
-    var tocStatus by context.persisted(PersistenceKey.tocStatus, false)
-    var tosversion by context.persisted(PersistenceKey.tosversion, "")
+class PersistentConfiguration(context: Context) {
+    var updateInstallAuto by context.persistent(PersistenceKey.updateInstallAuto, false)
+    var updateCheckIntervals by context.persistent(PersistenceKey.updateCheckIntervals, 24)
+    var updateAppsFromOtherStores by context.persistent(PersistenceKey.updateAppsFromOtherStores, false)
+    var showAllApplications by context.persistent(PersistenceKey.showAllApplications, true)
+    var showPWAApplications by context.persistent(PersistenceKey.showPWAApplications, true)
+    var showFOSSApplications by context.persistent(PersistenceKey.showFOSSApplications, true)
+    var authData by context.persistent(PersistenceKey.authData, "")
+    var email by context.persistent(PersistenceKey.email, "")
+    var oauthtoken by context.persistent(PersistenceKey.oauthtoken, "")
+    var userType by context.persistent(PersistenceKey.userType, "")
+    var tocStatus by context.persistent(PersistenceKey.tocStatus, false)
+    var tosversion by context.persistent(PersistenceKey.tosversion, "")
 }
 
-// endregion
-
-//region - Persistence (in shared preferences)
-
-internal  class PersistedItem<T>(
+internal  class PersistentItem<T>(
     context: Context,
     val key: PersistenceKey,
     var defaultValue: T
@@ -90,9 +80,6 @@ internal  class PersistedItem<T>(
     }
 }
 
-
-internal fun <T> Context.persisted(key: PersistenceKey, defaultValue: T) : PersistedItem<T> {
-    return PersistedItem(context = this, key = key, defaultValue = defaultValue)
+internal fun <T> Context.persistent(key: PersistenceKey, defaultValue: T) : PersistentItem<T> {
+    return PersistentItem(context = this, key = key, defaultValue = defaultValue)
 }
-
-//endregion
