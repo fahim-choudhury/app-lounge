@@ -2,7 +2,7 @@ package app.lounge
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import app.lounge.storage.cache.PersistedConfiguration
+import app.lounge.storage.cache.PersistentConfiguration
 import app.lounge.storage.cache.PersistenceKey
 import app.lounge.storage.cache.configurations
 import com.google.gson.Gson
@@ -15,7 +15,7 @@ import kotlin.reflect.KClassifier
 @RunWith(AndroidJUnit4::class)
 class PersistentStorageTest {
 
-    private lateinit var testConfiguration: PersistedConfiguration
+    private lateinit var testConfiguration: PersistentConfiguration
 
     @Before
     fun setupPersistentConfiguration(){
@@ -92,7 +92,7 @@ private inline fun <reified T : Any> T.getPropertyReturnType(name: String): KCla
         .firstOrNull { it.name == name }
         ?.returnType
         ?.classifier
-private fun PersistedConfiguration.evaluateValue(classifier: KClassifier?, key: PersistenceKey) {
+private fun PersistentConfiguration.evaluateValue(classifier: KClassifier?, key: PersistenceKey) {
     when(classifier){
         Int::class -> Assert.assertEquals(
             "Expected to be `$testIntValue`", testIntValue, this.callMethod(key.name) as Int)
