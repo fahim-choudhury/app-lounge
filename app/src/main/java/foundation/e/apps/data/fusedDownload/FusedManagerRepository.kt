@@ -41,13 +41,20 @@ class FusedManagerRepository @Inject constructor(
         }
 
         // We don't want to add any thing, if it already exists without INSTALLATION_ISSUE
-        if (existingFusedDownload != null && existingFusedDownload.status != Status.INSTALLATION_ISSUE) {
+        if (existingFusedDownload != null && !isStatusEligibleToInstall(existingFusedDownload)) {
             return false
         }
 
         fusedManagerImpl.addDownload(fusedDownload)
         return true
     }
+
+    private fun isStatusEligibleToInstall(existingFusedDownload: FusedDownload) =
+        listOf(
+            Status.UNAVAILABLE,
+            Status.INSTALLATION_ISSUE,
+            Status.PURCHASE_NEEDED
+        ).contains(existingFusedDownload.status)
 
     private fun isInstallWorkRunning(
         existingFusedDownload: FusedDownload?,
@@ -59,10 +66,6 @@ class FusedManagerRepository @Inject constructor(
 
     suspend fun addFusedDownloadPurchaseNeeded(fusedDownload: FusedDownload) {
         fusedManagerImpl.insertFusedDownloadPurchaseNeeded(fusedDownload)
-    }
-
-    suspend fun clearInstallationIssue(fusedDownload: FusedDownload) {
-        return fusedManagerImpl.clearInstallationIssue(fusedDownload)
     }
 
     suspend fun getDownloadList(): List<FusedDownload> {
