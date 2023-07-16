@@ -37,8 +37,10 @@ lint:
   stage: build
   script:
     - ./gradlew lintRelease
+    - echo "lint fininshed"
 
 dummy:
+  stage: test
   script:
     - echo "dummy job running $CI_COMMIT_REF_NAME! $CI_COMMIT_BRANCH"
 
