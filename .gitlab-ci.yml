@@ -39,8 +39,6 @@ lint:
     - ./gradlew lintRelease
 
 dummy:
-  only:
-    - /^.*555.*$/
   script:
     - echo "dummy job running $CI_COMMIT_REF_NAME! $CI_COMMIT_BRANCH"
 
