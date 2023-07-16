@@ -16,6 +16,13 @@ before_script:
 
 # Debug build related jobs
 
+dummy:
+  stage: test
+  only:
+    - /^.*ci_playground.*$/
+  script:
+    - echo "dummy job running $CI_COMMIT_REF_NAME! $CI_COMMIT_BRANCH"
+
 test:
   stage: test
   rules:
@@ -38,13 +45,6 @@ lint:
   script:
     - ./gradlew lintRelease
     - echo "lint fininshed"
-
-dummy:
-  stage: test
-  only:
-    - /^.*ci_playground.*$/
-  script:
-    - echo "dummy job running $CI_COMMIT_REF_NAME! $CI_COMMIT_BRANCH"
 
 after_script:
   - echo "after script is executed"
