@@ -3,13 +3,6 @@ image: registry.gitlab.e.foundation/e/os/docker-android-apps-cicd:55-workshop-au
 variables:
   SENTRY_DSN: $SENTRY_DSN
 
-workflow:
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
-      when: never
-    - if: $CI_COMMIT_BRANCH
-
 before_script:
   - export GRADLE_USER_HOME=$(pwd)/.gradle
   - chmod +x ./gradlew
@@ -23,7 +16,7 @@ test:
       when: always
   script:
     - echo "Test run Started!"
-    - ./gradlew test --stacktrace -PtestAccountName="$testAccountName" -PtestAccountPwd="$testAccountPwd" -PtestServerUrl="$testServerUrl"
+    - ./gradlew test
     - echo "Test running ended!"
   artifacts:
     when: always
