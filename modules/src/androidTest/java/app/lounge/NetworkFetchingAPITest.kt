@@ -6,7 +6,7 @@ import app.lounge.model.AuthDataResponse
 import app.lounge.model.AuthDataValidationResponse
 import app.lounge.networking.NetworkFetching
 import app.lounge.networking.NetworkFetchingRetrofitAPI
-import app.lounge.networking.NetworkFetchingRetrofitImpl
+import app.lounge.networking.LoginDataSource
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import org.junit.Test
@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit
 
 class NetworkFetchingAPITest {
 
-    private val networkFetchingToken: NetworkFetching = NetworkFetchingRetrofitImpl(
+    private val networkFetchingToken: NetworkFetching = LoginDataSource(
         Retrofit.Builder()
             .baseUrl(NetworkFetchingRetrofitAPI.tokenBaseURL)
             .addConverterFactory(GsonConverterFactory.create())
@@ -30,7 +30,7 @@ class NetworkFetchingAPITest {
             .build()
     )
 
-    private val networkFetchingGoogle: NetworkFetching = NetworkFetchingRetrofitImpl(
+    private val networkFetchingGoogle: NetworkFetching = LoginDataSource(
         Retrofit.Builder()
             .baseUrl(NetworkFetchingRetrofitAPI.googlePlayBaseURL)
             .addConverterFactory(GsonConverterFactory.create())
@@ -42,7 +42,7 @@ class NetworkFetchingAPITest {
             .build()
     )
 
-    private val networkFetchingTimeoutGoogle: NetworkFetching = NetworkFetchingRetrofitImpl(
+    private val networkFetchingTimeoutGoogle: NetworkFetching = LoginDataSource(
         Retrofit.Builder()
             .baseUrl(NetworkFetchingRetrofitAPI.googlePlayBaseURL)
             .addConverterFactory(GsonConverterFactory.create())

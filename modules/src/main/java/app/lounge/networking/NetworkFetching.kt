@@ -8,10 +8,10 @@ import app.lounge.model.AuthDataValidationResponse
 interface NetworkFetching {
     suspend  fun requestAuthData(
         anonymousAuthDataRequestBody: AnonymousAuthDataRequestBody
-    ) : AuthDataResponse
+    ) : NetworkResult<AuthDataResponse>
 
     suspend fun requestAuthDataValidation(
         anonymousAuthDataValidationRequestBody: AnonymousAuthDataValidationRequestBody
-    ) : AuthDataValidationResponse
+    ) : NetworkResult<AuthDataValidationResponse>
 }
 
