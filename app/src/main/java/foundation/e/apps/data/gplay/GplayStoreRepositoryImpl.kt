@@ -52,11 +52,10 @@ class GplayStoreRepositoryImpl @Inject constructor(
     private val loginSourceRepository: LoginSourceRepository
 ) : GplayStoreRepository {
 
-    private val authData by lazy { loginSourceRepository.gplayAuth!! }
-
     override suspend fun getHomeScreenData(): Any {
         val homeScreenData = mutableMapOf<String, List<App>>()
         val homeElements = createTopChartElements()
+        val authData = loginSourceRepository.gplayAuth ?: return homeScreenData
 
         homeElements.forEach {
             val chart = it.value.keys.iterator().next()
@@ -81,10 +80,13 @@ class GplayStoreRepositoryImpl @Inject constructor(
         query: String,
     ): Flow<Pair<List<App>, Boolean>> {
         return flow {
+
             /*
              * Variable names and logic made same as that of Aurora store.
              * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
              */
+            var authData = loginSourceRepository.gplayAuth ?: return@flow
+
             val searchHelper =
                 SearchHelper(authData).using(gPlayHttpClient)
             val searchBundle = searchHelper.searchResults(query)
@@ -148,6 +150,8 @@ class GplayStoreRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
+        val authData = loginSourceRepository.gplayAuth ?: return listOf()
+
         val searchData = mutableListOf<SearchSuggestEntry>()
         withContext(Dispatchers.IO) {
             val searchHelper = SearchHelper(authData).using(gPlayHttpClient)
@@ -157,6 +161,8 @@ class GplayStoreRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getAppsByCategory(category: String, pageUrl: String?): StreamCluster {
+        val authData = loginSourceRepository.gplayAuth ?: return StreamCluster()
+
         val subCategoryHelper =
             CategoryAppsHelper(authData).using(gPlayHttpClient)
 
@@ -173,6 +179,8 @@ class GplayStoreRepositoryImpl @Inject constructor(
             return categoryList
         }
 
+        val authData = loginSourceRepository.gplayAuth ?: return categoryList
+
         withContext(Dispatchers.IO) {
             val categoryHelper = CategoryHelper(authData).using(gPlayHttpClient)
             categoryList.addAll(categoryHelper.getAllCategoriesList(getCategoryType(type)))
@@ -182,6 +190,8 @@ class GplayStoreRepositoryImpl @Inject constructor(
 
     override suspend fun getAppDetails(packageNameOrId: String): App? {
         var appDetails: App?
+        val authData = loginSourceRepository.gplayAuth ?: return null
+
         withContext(Dispatchers.IO) {
             val appDetailsHelper = AppDetailsHelper(authData).using(gPlayHttpClient)
             appDetails = appDetailsHelper.getAppByPackageName(packageNameOrId)
@@ -191,6 +201,8 @@ class GplayStoreRepositoryImpl @Inject constructor(
 
     override suspend fun getAppsDetails(packageNamesOrIds: List<String>): List<App> {
         val appDetailsList = mutableListOf<App>()
+        val authData = loginSourceRepository.gplayAuth ?: return appDetailsList
+
         withContext(Dispatchers.IO) {
             val appDetailsHelper = AppDetailsHelper(authData).using(gPlayHttpClient)
             appDetailsList.addAll(appDetailsHelper.getAppByPackageName(packageNamesOrIds))
@@ -267,6 +279,8 @@ class GplayStoreRepositoryImpl @Inject constructor(
         offerType: Int
     ): List<File> {
         val downloadData = mutableListOf<File>()
+        val authData = loginSourceRepository.gplayAuth ?: return downloadData
+
         withContext(Dispatchers.IO) {
             val version = versionCode?.let { it as Int } ?: -1
             val purchaseHelper = PurchaseHelper(authData).using(gPlayHttpClient)
@@ -282,6 +296,8 @@ class GplayStoreRepositoryImpl @Inject constructor(
         offerType: Int
     ): List<File> {
         val downloadData = mutableListOf<File>()
+        val authData = loginSourceRepository.gplayAuth ?: return downloadData
+
         withContext(Dispatchers.IO) {
             val purchaseHelper = PurchaseHelper(authData).using(gPlayHttpClient)
             downloadData.addAll(
