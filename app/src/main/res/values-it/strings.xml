@@ -104,7 +104,6 @@
     <string name="download_automatically_message">L\'app verrà scaricata automaticamente su questo dispositivo</string>
     <string name="purchase_complete">Acquisto completato!</string>
     <string name="paid_app_anonymous_message">Le app a pagamento non possono essere installate in modalità anonima. Per installarle, accedi al tuo account Google.</string>
-    <string name="dialog_cancel">ANNULLA</string>
     <string name="dialog_confirm">CONFERMA</string>
     <string name="dialog_paidapp_message">Facendo click su conferma, si accede alla pagina Google Play della app per completare l\'acquisto con il browser. Fai click su conferma per acquistare %1$s per %2$s.</string>
     <string name="dialog_title_paid_app">Acquista <b>%1$s</b></string>
@@ -161,4 +160,10 @@
     <string name="preference_update_apps_from_other_stores_title">Aggiorna le app installate da altri store</string>
     <string name="preference_update_apps_from_other_stores_description">Aggiorna le app installate da altri app store.
 \nTali app proveremo ad aggiornarle dalla categoria app comuni e open source.</string>
+    <string name="having_troubles">Problemi\?</string>
+    <string name="proceed_to_google_login">Prosegui con l\'accesso a Google</string>
+    <string name="google_login_alert_message">Consigliamo di utilizzare un account Google dedicato al fine di:
+\n
+\n\t• ridurre il micro-targeting
+\n\t• limitare l\'impatto nel caso in cui l\'account venga bloccato da Google</string>
 </resources>

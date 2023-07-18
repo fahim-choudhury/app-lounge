@@ -1,0 +1,50 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+
+ext {
+    android_compile_sdk_version = 33
+    android_target_sdk_version = 33
+    core_version = '1.10.1'
+    gson_version = '2.9.0'
+    kotlin_reflection = '1.8.10'
+}
+
+android {
+    namespace 'app.lounge'
+    compileSdk android_compile_sdk_version
+
+    defaultConfig {
+        minSdk 24
+        targetSdk android_target_sdk_version
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+}
+
+dependencies {
+
+    implementation "androidx.core:core-ktx:$core_version"
+    implementation "com.google.code.gson:gson:$gson_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_reflection"
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}

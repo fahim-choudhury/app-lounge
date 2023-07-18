@@ -162,4 +162,8 @@
     <string name="may_not_work_warning_message">Þvingun uppsetningar mun gerir þér kleift að sækja og setja hana upp, en tryggir ekki endilega að hún muni virka rétt.<br/><br/>Tilraunir til að setja upp óstuddan hugbúnað geta valdi hruni eða hægt á kerfinu.<br/><br/>Við erum að vinna í að bæta samhæfni við þetta forrit.</string>
     <string name="having_troubles">Einhver vandamál\?</string>
     <string name="proceed_to_google_login">Halda áfram yfir í Google-innskráningu</string>
+    <string name="google_login_alert_message">Við mælum með því að notaður sé sértakur Google-reikningur til að:
+\n
+\n\t• minnka líkur á sérsniðnu snuðri (micro-targeting)
+\n\t• minnka áhrifin sem takmörkun reikningsins af hálfu Google myndi hafa</string>
 </resources>
