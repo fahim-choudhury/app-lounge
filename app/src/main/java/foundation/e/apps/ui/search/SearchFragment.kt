@@ -133,12 +133,8 @@ class SearchFragment :
     private fun shouldIgnore(
         authObjectList: List<AuthObject>?,
         currentQuery: String
-    ) =
-        (
-            currentQuery.isNotEmpty() && searchViewModel.isAuthObjectListSame(
-                authObjectList
-            ) && lastSearch == currentQuery
-            )
+    ) = currentQuery.isNotEmpty() && searchViewModel.isAuthObjectListSame(authObjectList) &&
+        lastSearch == currentQuery
 
     private fun observeSearchResult(listAdapter: ApplicationListRVAdapter?) {
         searchViewModel.searchResult.observe(viewLifecycleOwner) {
