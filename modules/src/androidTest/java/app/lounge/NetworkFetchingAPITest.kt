@@ -18,47 +18,6 @@ import java.util.concurrent.TimeUnit
 
 class NetworkFetchingAPITest {
 
-    private val networkFetchingToken: NetworkFetching = NetworkFetchingRetrofitImpl(
-        Retrofit.Builder()
-            .baseUrl(NetworkFetchingRetrofitAPI.tokenBaseURL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(
-                OkHttpClient.Builder()
-                    .callTimeout(10, TimeUnit.SECONDS)
-                    .build()
-            )
-            .build()
-    )
-
-    private val networkFetchingGoogle: NetworkFetching = NetworkFetchingRetrofitImpl(
-        Retrofit.Builder()
-            .baseUrl(NetworkFetchingRetrofitAPI.googlePlayBaseURL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(
-                OkHttpClient.Builder()
-                    .callTimeout(10, TimeUnit.SECONDS)
-                    .build()
-            )
-            .build()
-    )
-
-    private val networkFetchingTimeoutGoogle: NetworkFetching = NetworkFetchingRetrofitImpl(
-        Retrofit.Builder()
-            .baseUrl(NetworkFetchingRetrofitAPI.googlePlayBaseURL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(
-                OkHttpClient.Builder()
-                    .callTimeout(10, TimeUnit.MILLISECONDS)
-                    .build()
-            )
-            .build()
-    )
-
-    private val requestBodyData = AnonymousAuthDataRequestBody(
-        properties = testSystemProperties,
-        userAgent = testUserAgent
-    )
-
     companion object {
         var authData: AuthDataResponse? =  null
     }
@@ -77,7 +36,7 @@ class NetworkFetchingAPITest {
         authData?.let { authData ->
             authData.dfeCookie = "null"
 
-            result = networkFetchingGoogle.requestAuthDataValidation(
+            result = networkFetchingToken.requestAuthDataValidation(
                 anonymousAuthDataValidationRequestBody = AnonymousAuthDataValidationRequestBody(
                     authDataResponse = authData
                 )
@@ -105,6 +64,39 @@ class NetworkFetchingAPITest {
         assert(authData is AuthDataResponse) { "Assert!! AuthData must be present" }
         assert(failure is InterruptedIOException) { "Assert!! Timeout Failure callback must call" }
     }
+
+    private fun retrofitTestConfig(
+        baseUrl: String,
+        timeoutInMillisecond: Long = 10000L
+    ): Retrofit = Retrofit.Builder()
+        .baseUrl(baseUrl)
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(
+            OkHttpClient.Builder()
+                .callTimeout(timeoutInMillisecond, TimeUnit.MILLISECONDS)
+                .build()
+        )
+        .build()
+
+    private val eCloudTest = retrofitTestConfig(NetworkFetchingRetrofitAPI.tokenBaseURL)
+    private val googleTest = retrofitTestConfig(NetworkFetchingRetrofitAPI.googlePlayBaseURL)
+    private val googleTestTimeout = retrofitTestConfig(
+        NetworkFetchingRetrofitAPI.googlePlayBaseURL, 50L)
+
+    private val networkFetchingToken: NetworkFetching = NetworkFetchingRetrofitImpl(
+        eCloud = eCloudTest,
+        google = googleTest
+    )
+
+    private val networkFetchingTimeoutGoogle: NetworkFetching = NetworkFetchingRetrofitImpl(
+        eCloud = eCloudTest,
+        google = googleTestTimeout
+    )
+
+    private val requestBodyData = AnonymousAuthDataRequestBody(
+        properties = testSystemProperties,
+        userAgent = testUserAgent
+    )
 }
 
 private const val testUserAgent: String = "{\"package\":\"foundation.e.apps.debug\",\"version\":\"2.5.5.debug\",\"device\":\"coral\",\"api\":32,\"os_version\":\"1.11-s-20230511288805-dev-coral\",\"build_id\":\"319e25cd.20230630224839\"}"

@@ -51,10 +51,15 @@ interface NetworkFetchingRetrofitAPI {
 
 @Singleton
 class NetworkFetchingRetrofitImpl @Inject constructor(
-    retrofit: Retrofit
+    val eCloud: Retrofit,
+    val google: Retrofit,
 ) : NetworkFetching  {
 
-    private val networkFetchingRetrofitAPI = retrofit.create(
+    private val eCloudNetworkFetchingRetrofitAPI = eCloud.create(
+        NetworkFetchingRetrofitAPI::class.java
+    )
+
+    private val googleNetworkFetchingRetrofitAPI = google.create(
         NetworkFetchingRetrofitAPI::class.java
     )
 
@@ -69,7 +74,7 @@ class NetworkFetchingRetrofitImpl @Inject constructor(
                     byteCount = result.size
                 )
             }
-        return networkFetchingRetrofitAPI.authDataRequest(
+        return eCloudNetworkFetchingRetrofitAPI.authDataRequest(
             requestBody = requestBody,
             headers = NetworkFetchingRetrofitAPI.Header.authData {
                 anonymousAuthDataRequestBody.userAgent
@@ -80,9 +85,8 @@ class NetworkFetchingRetrofitImpl @Inject constructor(
     override suspend fun requestAuthDataValidation(
         anonymousAuthDataValidationRequestBody: AnonymousAuthDataValidationRequestBody
     ): AuthDataValidationResponse {
-        return networkFetchingRetrofitAPI.validateAuthentication(
+        return googleNetworkFetchingRetrofitAPI.validateAuthentication(
             headers = anonymousAuthDataValidationRequestBody.header
         )
     }
-
 }
