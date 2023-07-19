@@ -336,12 +336,13 @@ class FusedApiImpl @Inject constructor(
         searchResult: MutableList<FusedApp>,
         packageSpecificResults: ArrayList<FusedApp>
     ): GplaySearchResultLiveData {
-        return runFlowWithTimeout({
-            getGplaySearchResult(query)
-        }, {
+        return runFlowWithTimeout(
+            {
+                getGplaySearchResult(query)
+            }, {
             it.second
         }, {
-            Pair(listOf(), false)   // empty data for timeout
+            Pair(listOf(), false) // empty data for timeout
         }
         ).map {
             if (it.isSuccess()) {
@@ -359,7 +360,6 @@ class FusedApiImpl @Inject constructor(
             } else {
                 it
             }
-
         }
     }
 
