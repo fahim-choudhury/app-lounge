@@ -61,7 +61,6 @@ suspend fun <T> runFlowWithTimeout(
                     cancel()
                 }
 
-
             try {
                 withContext(Dispatchers.IO) {
                     timer.start()
@@ -88,13 +87,12 @@ suspend fun <T> runFlowWithTimeout(
             }
         }
     }
-
 }
 
 private class Timer(
     private val scope: CoroutineScope,
     private val onTimeout: suspend () -> Unit,
-): CountDownTimer(Constants.timeoutDurationInMillis, 1000) {
+) : CountDownTimer(Constants.timeoutDurationInMillis, 1000) {
 
     override fun onTick(millisUntilFinished: Long) {}
 
