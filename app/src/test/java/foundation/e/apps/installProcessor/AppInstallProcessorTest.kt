@@ -18,7 +18,6 @@
 
 package foundation.e.apps.installProcessor
 
-import android.app.DownloadManager.Query
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.AuthData
