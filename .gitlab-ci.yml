@@ -23,13 +23,11 @@ dummy:
     - echo "dummy job running $CI_COMMIT_REF_NAME! $CI_COMMIT_BRANCH"
 
 dummy_job:
-  stage: build
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ "/^.*dummy_job.*$/"'
       when: always
   script:
     - echo "second dummy job running $CI_COMMIT_MESSAGE"
-    - echo "commit message changed $CI_COMMIT_MESSAGE"
 
 
 test:
