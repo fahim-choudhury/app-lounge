@@ -22,6 +22,12 @@ dummy:
   script:
     - echo "dummy job running $CI_COMMIT_REF_NAME! $CI_COMMIT_BRANCH"
 
+lint:
+  stage: build
+  script:
+    - ./gradlew lintRelease
+    - echo "lint fininshed"
+
 dummy_job:
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ "/^.*dummy_job.*$/"'
@@ -46,12 +52,6 @@ test:
       - app/build/reports/tests/*
     reports:
       junit: app/build/test-results/*/TEST-*.xml
-
-lint:
-  stage: build
-  script:
-    - ./gradlew lintRelease
-    - echo "lint fininshed"
 
 after_script:
   - echo "after script is executed"
