@@ -40,7 +40,7 @@ import foundation.e.apps.BuildConfig
 import foundation.e.apps.R
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.fused.UpdatesDao
-import foundation.e.apps.data.login.LoginViewModel
+import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.databinding.CustomPreferenceBinding
 import foundation.e.apps.install.updates.UpdatesWorkManager
 import foundation.e.apps.ui.MainActivityViewModel
