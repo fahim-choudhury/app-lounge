@@ -18,7 +18,7 @@ cache:
 dummy:
   stage: test
   only:
-    - /^.*ci_playground.*$/
+    - /^.*playground.*$/
   script:
     - echo "dummy job running $CI_COMMIT_REF_NAME! $CI_COMMIT_BRANCH"
 
