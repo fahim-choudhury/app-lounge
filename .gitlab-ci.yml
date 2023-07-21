@@ -25,7 +25,6 @@ dummy:
 dummy_job:
   stage: testJob
   only:
-    variables:
       - $CI_COMMIT_MESSAGE = /^.*dummy.*$/
   script:
     - echo "second dummy job running $CI_COMMIT_MESSAGE"
