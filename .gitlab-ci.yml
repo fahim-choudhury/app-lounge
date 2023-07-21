@@ -22,6 +22,14 @@ dummy:
   script:
     - echo "dummy job running $CI_COMMIT_REF_NAME! $CI_COMMIT_BRANCH"
 
+dummy_job:
+  stage: testJob
+  only:
+    variables:
+      - $CI_COMMIT_MESSAGE = /^.*dummy.*$/
+  script:
+    - echo "second dummy job running $CI_COMMIT_MESSAGE"
+
 test:
   stage: test
   rules:
