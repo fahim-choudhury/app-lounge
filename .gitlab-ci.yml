@@ -24,8 +24,8 @@ dummy:
 
 dummy_job:
   stage: build
-  only:
-      - $CI_COMMIT_MESSAGE = /^.*dummy.*$/
+  rules:
+      - if: $CI_COMMIT_MESSAGE == /^.*dummy.*$/
   script:
     - echo "second dummy job running $CI_COMMIT_MESSAGE"
 
