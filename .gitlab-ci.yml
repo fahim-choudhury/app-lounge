@@ -24,13 +24,15 @@ dummy:
 
 dummy_job:
   stage: build
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /^.*dummy_job.*$/
   script:
     - echo "second dummy job running $CI_COMMIT_MESSAGE"
 
 test:
   stage: test
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE = "merge_request_event"'
       when: always
   script:
     - echo "Test run Started!"
