@@ -30,7 +30,6 @@ dummy_job:
   script:
     - echo "second dummy job running $CI_COMMIT_MESSAGE"
 
-
 test:
   stage: test
   rules:
