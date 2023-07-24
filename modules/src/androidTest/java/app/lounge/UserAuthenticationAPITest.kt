@@ -4,9 +4,10 @@ import app.lounge.model.AnonymousAuthDataRequestBody
 import app.lounge.model.AnonymousAuthDataValidationRequestBody
 import app.lounge.model.AuthDataResponse
 import app.lounge.model.AuthDataValidationResponse
-import app.lounge.networking.NetworkFetching
-import app.lounge.networking.NetworkFetchingRetrofitAPI
-import app.lounge.networking.NetworkFetchingRetrofitImpl
+import app.lounge.networking.NetworkResult
+import app.lounge.networking.UserAuthentication
+import app.lounge.networking.UserAuthenticationRetrofitAPI
+import app.lounge.networking.UserAuthenticationRetrofitImpl
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import org.junit.Test
@@ -16,11 +17,11 @@ import java.io.InterruptedIOException
 import java.util.Properties
 import java.util.concurrent.TimeUnit
 
-class NetworkFetchingAPITest {
+class UserAuthenticationAPITest {
 
-    private val networkFetchingToken: NetworkFetching = NetworkFetchingRetrofitImpl(
+    private val userAuthenticationToken: UserAuthentication = UserAuthenticationRetrofitImpl(
         Retrofit.Builder()
-            .baseUrl(NetworkFetchingRetrofitAPI.tokenBaseURL)
+            .baseUrl(UserAuthenticationRetrofitAPI.tokenBaseURL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(
                 OkHttpClient.Builder()
@@ -30,9 +31,9 @@ class NetworkFetchingAPITest {
             .build()
     )
 
-    private val networkFetchingGoogle: NetworkFetching = NetworkFetchingRetrofitImpl(
+    private val userAuthenticationGoogle: UserAuthentication = UserAuthenticationRetrofitImpl(
         Retrofit.Builder()
-            .baseUrl(NetworkFetchingRetrofitAPI.googlePlayBaseURL)
+            .baseUrl(UserAuthenticationRetrofitAPI.googlePlayBaseURL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(
                 OkHttpClient.Builder()
@@ -42,9 +43,9 @@ class NetworkFetchingAPITest {
             .build()
     )
 
-    private val networkFetchingTimeoutGoogle: NetworkFetching = NetworkFetchingRetrofitImpl(
+    private val userAuthenticationTimeoutGoogle: UserAuthentication = UserAuthenticationRetrofitImpl(
         Retrofit.Builder()
-            .baseUrl(NetworkFetchingRetrofitAPI.googlePlayBaseURL)
+            .baseUrl(UserAuthenticationRetrofitAPI.googlePlayBaseURL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(
                 OkHttpClient.Builder()
@@ -65,9 +66,14 @@ class NetworkFetchingAPITest {
 
     @Test
     fun test1OnSuccessReturnsAuthData() = runBlocking {
-        authData = networkFetchingToken.requestAuthData(
+        val response = userAuthenticationToken.requestAuthData(
             anonymousAuthDataRequestBody = requestBodyData,
         )
+        when(response){
+            is NetworkResult.Success -> authData = response.data
+            else -> {}
+        }
+
         assert(authData is AuthDataResponse) { "Assert!! Success must return data" }
     }
 
@@ -77,11 +83,15 @@ class NetworkFetchingAPITest {
         authData?.let { authData ->
             authData.dfeCookie = "null"
 
-            result = networkFetchingGoogle.requestAuthDataValidation(
+            val response = userAuthenticationGoogle.requestAuthDataValidation(
                 anonymousAuthDataValidationRequestBody = AnonymousAuthDataValidationRequestBody(
                     authDataResponse = authData
                 )
             )
+            when(response){
+                is NetworkResult.Success -> result = response.data
+                else -> {}
+            }
         }
 
         assert(authData is AuthDataResponse) { "Assert!! AuthData must be present" }
@@ -90,16 +100,21 @@ class NetworkFetchingAPITest {
 
     @Test
     fun test3OnTimeoutFailureReturnsError(): Unit = runBlocking {
-        var failure: Exception = Exception("No Error")
+        var failure: Throwable = Exception("No Error")
         authData?.let { authData ->
             authData.dfeCookie = "null"
 
             try {
-                networkFetchingTimeoutGoogle.requestAuthDataValidation(
+                val response = userAuthenticationTimeoutGoogle.requestAuthDataValidation(
                     anonymousAuthDataValidationRequestBody = AnonymousAuthDataValidationRequestBody(
                         authDataResponse = authData
                     )
                 )
+
+                when(response){
+                    is NetworkResult.Error -> failure = response.exception
+                    else -> {}
+                }
             } catch (e: InterruptedIOException) { failure = e }
         }
         assert(authData is AuthDataResponse) { "Assert!! AuthData must be present" }

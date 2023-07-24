@@ -9,6 +9,7 @@ import com.aurora.gplayapi.GooglePlayApi
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.http.Body
 import retrofit2.http.HeaderMap
@@ -16,7 +17,7 @@ import retrofit2.http.POST
 import javax.inject.Inject
 import javax.inject.Singleton
 
-interface NetworkFetchingRetrofitAPI {
+interface UserAuthenticationRetrofitAPI {
 
     companion object {
         const val tokenBaseURL: String = "https://eu.gtoken.ecloud.global"
@@ -27,12 +28,12 @@ interface NetworkFetchingRetrofitAPI {
     suspend fun authDataRequest(
         @HeaderMap headers: Map<String, String>,
         @Body requestBody: RequestBody
-    ): AuthDataResponse
+    ): Response<AuthDataResponse>
 
     @POST(Path.sync)
     suspend fun validateAuthentication(
         @HeaderMap headers: Map<String, String>
-    ): AuthDataValidationResponse
+    ): Response<AuthDataValidationResponse>
 
 
 
@@ -50,17 +51,17 @@ interface NetworkFetchingRetrofitAPI {
 }
 
 @Singleton
-class NetworkFetchingRetrofitImpl @Inject constructor(
+class UserAuthenticationRetrofitImpl @Inject constructor(
     retrofit: Retrofit
-) : NetworkFetching  {
+) : UserAuthentication  {
 
-    private val networkFetchingRetrofitAPI = retrofit.create(
-        NetworkFetchingRetrofitAPI::class.java
+    private val userAuthenticationRetrofitAPI = retrofit.create(
+        UserAuthenticationRetrofitAPI::class.java
     )
 
     override suspend fun requestAuthData(
         anonymousAuthDataRequestBody: AnonymousAuthDataRequestBody
-    ): AuthDataResponse {
+    ): NetworkResult<AuthDataResponse> {
         val requestBody: RequestBody =
             anonymousAuthDataRequestBody.properties.toByteArray().let { result ->
                 result.toRequestBody(
@@ -69,20 +70,24 @@ class NetworkFetchingRetrofitImpl @Inject constructor(
                     byteCount = result.size
                 )
             }
-        return networkFetchingRetrofitAPI.authDataRequest(
-            requestBody = requestBody,
-            headers = NetworkFetchingRetrofitAPI.Header.authData {
-                anonymousAuthDataRequestBody.userAgent
-            }
-        )
+        return fetch {
+            userAuthenticationRetrofitAPI.authDataRequest(
+                requestBody = requestBody,
+                headers = UserAuthenticationRetrofitAPI.Header.authData {
+                    anonymousAuthDataRequestBody.userAgent
+                }
+            )
+        }
     }
 
     override suspend fun requestAuthDataValidation(
         anonymousAuthDataValidationRequestBody: AnonymousAuthDataValidationRequestBody
-    ): AuthDataValidationResponse {
-        return networkFetchingRetrofitAPI.validateAuthentication(
-            headers = anonymousAuthDataValidationRequestBody.header
-        )
+    ): NetworkResult<AuthDataValidationResponse> {
+        return fetch {
+            userAuthenticationRetrofitAPI.validateAuthentication(
+                headers = anonymousAuthDataValidationRequestBody.header
+            )
+        }
     }
 
 }

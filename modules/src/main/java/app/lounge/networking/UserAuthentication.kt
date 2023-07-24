@@ -5,13 +5,13 @@ import app.lounge.model.AnonymousAuthDataValidationRequestBody
 import app.lounge.model.AuthDataResponse
 import app.lounge.model.AuthDataValidationResponse
 
-interface NetworkFetching {
+interface UserAuthentication {
     suspend  fun requestAuthData(
         anonymousAuthDataRequestBody: AnonymousAuthDataRequestBody
-    ) : AuthDataResponse
+    ) : NetworkResult<AuthDataResponse>
 
     suspend fun requestAuthDataValidation(
         anonymousAuthDataValidationRequestBody: AnonymousAuthDataValidationRequestBody
-    ) : AuthDataValidationResponse
+    ) : NetworkResult<AuthDataValidationResponse>
 }
 
