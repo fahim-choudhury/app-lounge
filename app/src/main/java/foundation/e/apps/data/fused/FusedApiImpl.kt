@@ -337,30 +337,36 @@ class FusedApiImpl @Inject constructor(
         packageSpecificResults: ArrayList<FusedApp>
     ): GplaySearchResultLiveData {
         return runFlowWithTimeout(
-            {
-                getGplaySearchResult(query)
-            }, {
-            it.second
-        }, {
-            Pair(listOf(), false) // empty data for timeout
-        }
+            { getGplaySearchResult(query) },
+            { it.second },              // End condition of flow - provided by Gplay lib.
+            { Pair(listOf(), false) }   // empty data for timeout
         ).map {
-            if (it.isSuccess()) {
-                searchResult.addAll(it.data!!.first)
-                ResultSupreme.Success(
-                    Pair(
-                        filterWithKeywordSearch(
-                            searchResult,
-                            packageSpecificResults,
-                            query
-                        ),
-                        it.data!!.second
-                    )
-                )
-            } else {
-                it
-            }
+            filterAndAccumulateSearch(it, searchResult, packageSpecificResults, query)
         }
+    }
+
+    private fun filterAndAccumulateSearch(
+        result: ResultSupreme<Pair<List<FusedApp>, Boolean>>,
+        searchResult: MutableList<FusedApp>,
+        packageSpecificResults: List<FusedApp>,
+        query: String,
+    ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
+        if (!result.isSuccess()) {
+            return result
+        }
+
+        val searchResultList = result.data!!.first
+        val moreLoading = result.data!!.second
+
+        searchResult.addAll(searchResultList)
+
+        val filteredApps = filterWithKeywordSearch(
+            searchResult,
+            packageSpecificResults,
+            query
+        )
+
+        return ResultSupreme.Success(Pair(filteredApps, moreLoading))
     }
 
     private suspend fun fetchOpenSourceSearchResult(
