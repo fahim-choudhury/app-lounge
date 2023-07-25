@@ -11,7 +11,7 @@ plugins {
 
 def versionMajor = 2
 def versionMinor = 5
-def versionPatch = 7
+def versionPatch = 8
 
 def getGitHash = { ->
     def stdOut = new ByteArrayOutputStream()
