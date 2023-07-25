@@ -130,4 +130,8 @@ class SearchViewModel @Inject constructor(
     fun isAuthObjectListSame(authObjectList: List<AuthObject>?): Boolean {
         return lastAuthObjects == authObjectList
     }
+
+    fun isSearchResultAvailable(): Boolean {
+        return searchResult.value?.data?.first?.isNotEmpty() == true
+    }
 }
