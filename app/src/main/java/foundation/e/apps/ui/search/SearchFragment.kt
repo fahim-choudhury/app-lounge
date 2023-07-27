@@ -119,8 +119,12 @@ class SearchFragment :
         authObjects.observe(viewLifecycleOwner) {
             val currentQuery = searchView?.query?.toString() ?: ""
             if (it == null || shouldIgnore(it, currentQuery)) {
+                showData()
                 return@observe
             }
+
+            val applicationListRVAdapter = recyclerView?.adapter as ApplicationListRVAdapter
+            applicationListRVAdapter.setData(mutableListOf())
 
             loadDataWhenNetworkAvailable(it)
         }
@@ -177,21 +181,25 @@ class SearchFragment :
      */
     private fun updateSearchResult(
         listAdapter: ApplicationListRVAdapter?,
-        appList: List<FusedApp>?,
+        appList: List<FusedApp>,
         hasMore: Boolean,
     ): Boolean {
         binding.loadingProgressBar.isVisible = hasMore
 
         val currentList = listAdapter?.currentList ?: listOf()
-        if (appList != null && !searchViewModel.isAnyAppUpdated(appList, currentList)) {
+        if (!searchViewModel.isAnyAppUpdated(appList, currentList)) {
             return false
         }
 
+        showData()
+        listAdapter?.setData(appList)
+        return true
+    }
+
+    private fun showData() {
         stopLoadingUI()
         noAppsFoundLayout?.visibility = View.GONE
         searchHintLayout?.visibility = View.GONE
-        listAdapter?.setData(appList!!)
-        return true
     }
 
     private fun setupSearchResult(view: View): ApplicationListRVAdapter? {
@@ -373,6 +381,7 @@ class SearchFragment :
             if (text.isNotEmpty()) {
                 hideKeyboard(activity as Activity)
             }
+
             view?.requestFocus()
             searchHintLayout?.visibility = View.GONE
             shimmerLayout?.visibility = View.VISIBLE
@@ -381,8 +390,6 @@ class SearchFragment :
              * Set the search text and call for network result.
              */
             searchText = text
-            val applicationListRVAdapter = recyclerView?.adapter as ApplicationListRVAdapter
-            applicationListRVAdapter.setData(mutableListOf())
             repostAuthObjects()
         }
         return false
