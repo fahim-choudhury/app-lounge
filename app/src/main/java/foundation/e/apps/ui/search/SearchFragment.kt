@@ -181,18 +181,18 @@ class SearchFragment :
      */
     private fun updateSearchResult(
         listAdapter: ApplicationListRVAdapter?,
-        appList: List<FusedApp>?,
+        appList: List<FusedApp>,
         hasMore: Boolean,
     ): Boolean {
         binding.loadingProgressBar.isVisible = hasMore
 
         val currentList = listAdapter?.currentList ?: listOf()
-        if (appList != null && !searchViewModel.isAnyAppUpdated(appList, currentList)) {
+        if (!searchViewModel.isAnyAppUpdated(appList, currentList)) {
             return false
         }
 
         showData()
-        listAdapter?.setData(appList!!)
+        listAdapter?.setData(appList)
         return true
     }
 
