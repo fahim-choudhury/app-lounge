@@ -21,13 +21,10 @@ package app.lounge.networking
 
 import app.lounge.extension.toByteArray
 import app.lounge.model.AnonymousAuthDataRequestBody
-import app.lounge.model.AnonymousAuthDataValidationRequestBody
-import com.aurora.gplayapi.GooglePlayApi
 import com.aurora.gplayapi.data.models.AuthData
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.http.Body
@@ -40,7 +37,6 @@ interface AnonymousUserRetrofitAPI {
 
     companion object {
         const val tokenBaseURL: String = "https://eu.gtoken.ecloud.global"
-        const val googlePlayBaseURL: String = GooglePlayApi.URL_BASE
     }
 
     @POST(Path.authData)
@@ -48,13 +44,6 @@ interface AnonymousUserRetrofitAPI {
         @HeaderMap headers: Map<String, String>,
         @Body requestBody: RequestBody
     ): Response<AuthData>
-
-    @POST(Path.sync)
-    suspend fun validateAuthentication(
-        @HeaderMap headers: Map<String, String>
-    ): Response<ResponseBody>
-
-
 
     object Header {
         val authData: (() -> String) -> Map<String, String> = {
@@ -64,25 +53,18 @@ interface AnonymousUserRetrofitAPI {
 
     private object Path {
         const val authData = "/"
-        const val sync = "/fdfe/apps/contentSync"
     }
 
 }
 
 @Singleton
-class AnonymousAnonymousUserRetrofitImpl @Inject constructor(
-    val eCloud: Retrofit,
-    val google: Retrofit
+class AnonymousUserRetrofitImpl @Inject constructor(
+    val eCloud: Retrofit
 ) : AnonymousUser  {
 
-    private val eCloudNetworkFetchingRetrofitAPI = eCloud.create(
+    private val eCloudRetrofitAPI = eCloud.create(
         AnonymousUserRetrofitAPI::class.java
     )
-
-    private val googleNetworkFetchingRetrofitAPI = google.create(
-        AnonymousUserRetrofitAPI::class.java
-    )
-
 
     override suspend fun requestAuthData(
         anonymousAuthDataRequestBody: AnonymousAuthDataRequestBody
@@ -96,21 +78,11 @@ class AnonymousAnonymousUserRetrofitImpl @Inject constructor(
                 )
             }
         return fetch {
-            eCloudNetworkFetchingRetrofitAPI.authDataRequest(
+            eCloudRetrofitAPI.authDataRequest(
                 requestBody = requestBody,
                 headers = AnonymousUserRetrofitAPI.Header.authData {
                     anonymousAuthDataRequestBody.userAgent
                 }
-            )
-        }
-    }
-
-    override suspend fun requestAuthDataValidation(
-        anonymousAuthDataValidationRequestBody: AnonymousAuthDataValidationRequestBody
-    ): NetworkResult<ResponseBody> {
-        return fetch {
-            googleNetworkFetchingRetrofitAPI.validateAuthentication(
-                headers = anonymousAuthDataValidationRequestBody.header
             )
         }
     }

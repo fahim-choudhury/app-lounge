@@ -21,7 +21,7 @@ package app.lounge.di
 
 import app.lounge.networking.AnonymousUser
 import app.lounge.networking.AnonymousUserRetrofitAPI
-import app.lounge.networking.AnonymousAnonymousUserRetrofitImpl
+import app.lounge.networking.AnonymousUserRetrofitImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -65,18 +65,6 @@ internal object NetworkModule {
 
     @Provides
     @Singleton
-    @Named("GoogleRetrofit")
-    internal fun provideGoogleRetrofit(
-        okHttpClient: OkHttpClient
-    ): Retrofit {
-        return retrofit(
-            okHttpClient = okHttpClient,
-            baseUrl = AnonymousUserRetrofitAPI.googlePlayBaseURL
-        )
-    }
-
-    @Provides
-    @Singleton
     @Named("privateOkHttpClient")
     internal fun providesOkHttpClient(
         httpLogger: HttpLoggingInterceptor
@@ -101,12 +89,10 @@ internal object NetworkModule {
     @Provides
     @Singleton
     fun provideNetworkFetching(
-        @Named("ECloudRetrofit") ecloud: Retrofit,
-        @Named("GoogleRetrofit") google: Retrofit,
+        @Named("ECloudRetrofit") ecloud: Retrofit
     ) : AnonymousUser {
-        return AnonymousAnonymousUserRetrofitImpl(
-            eCloud = ecloud,
-            google = google
+        return AnonymousUserRetrofitImpl(
+            eCloud = ecloud
         )
     }
 

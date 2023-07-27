@@ -20,17 +20,11 @@
 package app.lounge.networking
 
 import app.lounge.model.AnonymousAuthDataRequestBody
-import app.lounge.model.AnonymousAuthDataValidationRequestBody
 import com.aurora.gplayapi.data.models.AuthData
-import okhttp3.ResponseBody
 
 interface AnonymousUser {
     suspend  fun requestAuthData(
         anonymousAuthDataRequestBody: AnonymousAuthDataRequestBody
     ) : NetworkResult<AuthData>
-
-    suspend fun requestAuthDataValidation(
-        anonymousAuthDataValidationRequestBody: AnonymousAuthDataValidationRequestBody
-    ) : NetworkResult<ResponseBody>
 }
 

@@ -18,8 +18,6 @@
 
 package app.lounge.model
 
-import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.providers.HeaderProvider
 import java.util.Properties
 
 
@@ -28,10 +26,3 @@ data class AnonymousAuthDataRequestBody(
     val properties: Properties,
     val userAgent: String
 )
-
-/** AnonymousLoginRequestBody */
-data class AnonymousAuthDataValidationRequestBody(
-    val authDataResponse: AuthData,
-) {
-    val header = HeaderProvider.getDefaultHeaders(authDataResponse)
-}
