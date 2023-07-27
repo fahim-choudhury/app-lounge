@@ -17,9 +17,10 @@
  */
 
 
-package app.lounge.networking
+package app.lounge.login.anonymous
 
 import app.lounge.model.AnonymousAuthDataRequestBody
+import app.lounge.networking.NetworkResult
 import com.aurora.gplayapi.data.models.AuthData
 
 interface AnonymousUser {

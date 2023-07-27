@@ -19,9 +19,9 @@
 
 package app.lounge.di
 
-import app.lounge.networking.AnonymousUser
-import app.lounge.networking.AnonymousUserRetrofitAPI
-import app.lounge.networking.AnonymousUserRetrofitImpl
+import app.lounge.login.anonymous.AnonymousUser
+import app.lounge.login.anonymous.AnonymousUserRetrofitAPI
+import app.lounge.login.anonymous.AnonymousUserRetrofitImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

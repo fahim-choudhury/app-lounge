@@ -1,9 +1,9 @@
 package app.lounge
 
 import app.lounge.model.AnonymousAuthDataRequestBody
-import app.lounge.networking.AnonymousUser
-import app.lounge.networking.AnonymousUserRetrofitAPI
-import app.lounge.networking.AnonymousUserRetrofitImpl
+import app.lounge.login.anonymous.AnonymousUser
+import app.lounge.login.anonymous.AnonymousUserRetrofitAPI
+import app.lounge.login.anonymous.AnonymousUserRetrofitImpl
 import app.lounge.networking.NetworkResult
 import com.aurora.gplayapi.data.models.AuthData
 import kotlinx.coroutines.runBlocking

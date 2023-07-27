@@ -17,10 +17,12 @@
  */
 
 
-package app.lounge.networking
+package app.lounge.login.anonymous
 
 import app.lounge.extension.toByteArray
 import app.lounge.model.AnonymousAuthDataRequestBody
+import app.lounge.networking.NetworkResult
+import app.lounge.networking.fetch
 import com.aurora.gplayapi.data.models.AuthData
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
@@ -60,7 +62,7 @@ interface AnonymousUserRetrofitAPI {
 @Singleton
 class AnonymousUserRetrofitImpl @Inject constructor(
     val eCloud: Retrofit
-) : AnonymousUser  {
+) : AnonymousUser {
 
     private val eCloudRetrofitAPI = eCloud.create(
         AnonymousUserRetrofitAPI::class.java
