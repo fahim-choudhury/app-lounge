@@ -1,6 +1,5 @@
 package app.lounge.di
 
-import app.lounge.networking.UserAuthenticationRetrofitAPI
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,7 +22,7 @@ internal object NetworkModule {
     @Singleton
     internal fun providesRetrofit(
         okHttpClient: OkHttpClient,
-        baseUrl: String = UserAuthenticationRetrofitAPI.tokenBaseURL
+        baseUrl: String
     ) : Retrofit {
         return Retrofit.Builder()
             .baseUrl(baseUrl)
