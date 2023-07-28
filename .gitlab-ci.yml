@@ -46,7 +46,7 @@ test:
   stage: test
   allow_failure: false
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "push"'
       when: always
   script:
     - echo "Test run Started!"
