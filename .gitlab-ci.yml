@@ -3,6 +3,9 @@ image: registry.gitlab.e.foundation/e/os/docker-android-apps-cicd:55-workshop-au
 variables:
   SENTRY_DSN: $SENTRY_DSN
 
+stages:
+  - customStage
+
 before_script:
   - export GRADLE_USER_HOME=$(pwd)/.gradle
   - chmod +x ./gradlew
@@ -29,6 +32,7 @@ lint:
     - echo "lint fininshed"
 
 dummy_job:
+  stage: customStage
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ "/^.*dummy_job.*$/"'
       when: always
