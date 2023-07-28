@@ -88,7 +88,7 @@ internal object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideNetworkFetching(
+    fun provideAnonymousUser(
         @Named("ECloudRetrofit") ecloud: Retrofit
     ) : AnonymousUser {
         return AnonymousUserRetrofitImpl(
