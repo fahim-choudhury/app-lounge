@@ -39,11 +39,12 @@ dummy_job:
     - if: '$CI_COMMIT_MESSAGE =~ "/^.*dummy_job.*$/"'
       when: always
   script:
-    - echo "second dummy job running $CI_COMMIT_MESSAGE"
+    - echo "second dummy job running $CI_COMMIT_MESSAGE $CI_PIPELINE_SOURCE"
 
 
 test:
   stage: test
+  allow_failure: false
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: always
