@@ -4,7 +4,9 @@ variables:
   SENTRY_DSN: $SENTRY_DSN
 
 stages:
-  - customStage
+  - build
+  - test
+  - mycustomstage
 
 before_script:
   - export GRADLE_USER_HOME=$(pwd)/.gradle
@@ -32,7 +34,7 @@ lint:
     - echo "lint fininshed"
 
 dummy_job:
-  stage: customStage
+  stage: mycustomstage
   rules:
     - if: '$CI_COMMIT_MESSAGE =~ "/^.*dummy_job.*$/"'
       when: always
