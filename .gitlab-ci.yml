@@ -39,7 +39,7 @@ dummy_job:
     - if: '$CI_COMMIT_MESSAGE =~ "/^.*dummy_job.*$/"'
       when: always
   script:
-    - echo "second dummy job running $CI_COMMIT_MESSAGE $CI_PIPELINE_SOURCE"
+    - echo "second dummy job running $CI_COMMIT_MESSAGE $CI_COMMIT_BRANCH $CI_PIPELINE_SOURCE"
 
 
 test:
