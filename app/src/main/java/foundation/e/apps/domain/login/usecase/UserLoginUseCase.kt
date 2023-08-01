@@ -4,8 +4,8 @@ import app.lounge.model.AnonymousAuthDataRequestBody
 import app.lounge.model.AuthDataResponse
 import foundation.e.apps.domain.login.repository.LoginRepository
 import foundation.e.apps.utils.Resource
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.single
 import retrofit2.HttpException
 import java.io.IOException
 import java.util.Properties
@@ -15,10 +15,10 @@ class UserLoginUseCase @Inject constructor(
     private val loginRepository: LoginRepository,
 ) {
 
-    operator fun invoke(
+    suspend operator fun invoke(
         properties: Properties,
         userAgent: String
-    ): Flow<Resource<AuthDataResponse>> = flow {
+    ): Resource<AuthDataResponse> = flow {
         try {
             emit(Resource.Loading())
             val userResponse: AuthDataResponse = loginRepository.anonymousUser(
@@ -33,5 +33,5 @@ class UserLoginUseCase @Inject constructor(
         } catch(e: IOException) {
             emit(Resource.Error("Couldn't reach server. Check your internet connection."))
         }
-    }
+    }.single()
 }

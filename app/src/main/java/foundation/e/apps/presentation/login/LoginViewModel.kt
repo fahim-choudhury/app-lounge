@@ -29,8 +29,6 @@ import foundation.e.apps.domain.login.usecase.UserLoginUseCase
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import foundation.e.apps.utils.Resource
 import foundation.e.apps.utils.SystemInfoProvider
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Properties
 import javax.inject.Inject
@@ -151,23 +149,25 @@ class LoginViewModel @Inject constructor(
         properties: Properties,
         userAgent: String = SystemInfoProvider.getAppBuildInfo()
     ) {
-        userLoginUseCase(
-            properties = properties,
-            userAgent = userAgent
-        ).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    _loginState.value = LoginState(isLoggedIn = true)
-                }
-                is Resource.Error -> {
-                    _loginState.value = LoginState(
-                        error = result.message ?: "An unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    _loginState.value = LoginState(isLoading = true)
+        viewModelScope.launch {
+            userLoginUseCase(
+                properties = properties,
+                userAgent = userAgent
+            ).also { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        _loginState.value = LoginState(isLoggedIn = true)
+                    }
+                    is Resource.Error -> {
+                        _loginState.value = LoginState(
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        _loginState.value = LoginState(isLoading = true)
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+        }
     }
 }
