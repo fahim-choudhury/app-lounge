@@ -1,7 +1,7 @@
 package foundation.e.apps.domain.login.usecase
 
 import app.lounge.model.AnonymousAuthDataRequestBody
-import app.lounge.model.AuthDataResponse
+import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.domain.login.repository.LoginRepository
 import foundation.e.apps.utils.Resource
 import kotlinx.coroutines.flow.flow
@@ -18,20 +18,18 @@ class UserLoginUseCase @Inject constructor(
     suspend operator fun invoke(
         properties: Properties,
         userAgent: String
-    ): Resource<AuthDataResponse> = flow {
+    ): Resource<AuthData> = flow {
         try {
             emit(Resource.Loading())
-            val userResponse: AuthDataResponse = loginRepository.anonymousUser(
+            val userResponse = loginRepository.anonymousUser(
                 authDataRequestBody = AnonymousAuthDataRequestBody(
                     properties = properties,
                     userAgent = userAgent
                 )
             )
             emit(Resource.Success(userResponse))
-        } catch(e: HttpException) {
-            emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
-        } catch(e: IOException) {
-            emit(Resource.Error("Couldn't reach server. Check your internet connection."))
+        } catch(e: Exception) {
+            emit(Resource.Error(e.localizedMessage))
         }
     }.single()
 }

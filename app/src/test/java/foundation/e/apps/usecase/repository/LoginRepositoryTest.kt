@@ -2,11 +2,6 @@ package foundation.e.apps.usecase.repository
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import app.lounge.model.AuthDataResponse
-import app.lounge.networking.NetworkFetching
-import foundation.e.apps.testAnonymousRequestBodyData
-import foundation.e.apps.domain.login.repository.LoginRepositoryImpl
-import foundation.e.apps.testAnonymousResponseData
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Before
@@ -17,11 +12,18 @@ import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import org.robolectric.RobolectricTestRunner
 
+import foundation.e.apps.domain.login.repository.LoginRepositoryImpl
+import foundation.e.apps.testAnonymousRequestBodyData
+import foundation.e.apps.testAnonymousResponseData
+
+import app.lounge.login.anonymous.AnonymousUser
+import app.lounge.networking.NetworkResult
+
 @RunWith(RobolectricTestRunner::class)
 class LoginRepositoryTest {
 
     @Mock
-    lateinit var networkAPI:  NetworkFetching
+    lateinit var anonymousUser:  AnonymousUser
 
     private lateinit var instrumentationContext: Context
 
@@ -34,11 +36,11 @@ class LoginRepositoryTest {
 
     @Test
     fun testRequestAuthData() = runTest {
-        Mockito.`when`(networkAPI.requestAuthData(testAnonymousRequestBodyData))
-            .thenReturn(testAnonymousResponseData)
+        Mockito.`when`(anonymousUser.requestAuthData(testAnonymousRequestBodyData))
+            .thenReturn(NetworkResult.Success(testAnonymousResponseData))
 
-        val loginRepository = LoginRepositoryImpl(networkAPI, instrumentationContext)
-        val result: AuthDataResponse = loginRepository.anonymousUser(testAnonymousRequestBodyData)
+        val loginRepository = LoginRepositoryImpl(anonymousUser, instrumentationContext)
+        val result = loginRepository.anonymousUser(testAnonymousRequestBodyData)
         Assert.assertNotNull(result)
         Assert.assertEquals("eOS@murena.io", result.email)
     }
