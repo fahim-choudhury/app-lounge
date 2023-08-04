@@ -19,6 +19,7 @@
 package foundation.e.apps.ui.home.model
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -77,6 +78,21 @@ class HomeParentRVAdapter(
             setRecycledViewPool(viewPool)
         }
         observeAppInstall(fusedHome, homeChildRVAdapter)
+
+        handleChildShimmerView(fusedHome, holder)
+    }
+
+    private fun handleChildShimmerView(fusedHome: FusedHome, holder: ViewHolder) {
+        if (fusedHome.list.isEmpty()) {
+            holder.binding.shimmerLayout.visibility = View.VISIBLE
+            holder.binding.shimmerLayout.startShimmer()
+            holder.binding.childRV.visibility = View.GONE
+            return
+        }
+
+        holder.binding.shimmerLayout.visibility = View.GONE
+        holder.binding.shimmerLayout.stopShimmer()
+        holder.binding.childRV.visibility = View.VISIBLE
     }
 
     private fun observeAppInstall(
