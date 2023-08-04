@@ -185,6 +185,10 @@ class GPlayHttpClient @Inject constructor(
 
             Timber.d("$TAG: Url: ${response.request.url}\nStatus: $code")
 
+            if (code != 200) {
+                throw GplayException(code, response.message)
+            }
+
             if (code == 401) {
                 MainScope().launch {
                     EventBus.invokeEvent(
@@ -203,3 +207,5 @@ class GPlayHttpClient @Inject constructor(
         }
     }
 }
+
+class GplayException (val errorCode: Int, message: String) : Exception(message)
