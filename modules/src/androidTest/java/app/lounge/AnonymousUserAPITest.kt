@@ -1,69 +1,38 @@
 package app.lounge
 
 import app.lounge.model.AnonymousAuthDataRequestBody
-import app.lounge.model.AnonymousAuthDataValidationRequestBody
-import app.lounge.model.AuthDataResponse
-import app.lounge.model.AuthDataValidationResponse
-import app.lounge.networking.NetworkFetching
-import app.lounge.networking.NetworkFetchingRetrofitAPI
-import app.lounge.networking.NetworkFetchingRetrofitImpl
+import app.lounge.login.anonymous.AnonymousUser
+import app.lounge.login.anonymous.AnonymousUserRetrofitAPI
+import app.lounge.login.anonymous.AnonymousUserRetrofitImpl
+import app.lounge.networking.NetworkResult
+import com.aurora.gplayapi.data.models.AuthData
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import org.junit.Test
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.InterruptedIOException
 import java.util.Properties
 import java.util.concurrent.TimeUnit
 
-class NetworkFetchingAPITest {
+class AnonymousUserAPITest {
 
     companion object {
-        var authData: AuthDataResponse? =  null
+        var authData: AuthData? =  null
     }
 
     @Test
-    fun test1OnSuccessReturnsAuthData() = runBlocking {
-        authData = networkFetchingToken.requestAuthData(
+    fun testOnSuccessReturnsAuthData() = runBlocking {
+        val response = anonymousUser.requestAuthData(
             anonymousAuthDataRequestBody = requestBodyData,
         )
-        assert(authData is AuthDataResponse) { "Assert!! Success must return data" }
-    }
-
-    @Test
-    fun test2OnSuccessReturnsLoginData() = runBlocking {
-        var result: AuthDataValidationResponse? = null
-        authData?.let { authData ->
-            authData.dfeCookie = "null"
-
-            result = networkFetchingToken.requestAuthDataValidation(
-                anonymousAuthDataValidationRequestBody = AnonymousAuthDataValidationRequestBody(
-                    authDataResponse = authData
-                )
-            )
+        when(response){
+            is NetworkResult.Success -> authData = response.data
+            else -> {}
         }
 
-        assert(authData is AuthDataResponse) { "Assert!! AuthData must be present" }
-        assert(result is AuthDataValidationResponse) { "Assert!! `response` must have data" }
+        assert(authData is AuthData) { "Assert!! Success must return data" }
     }
 
-    @Test
-    fun test3OnTimeoutFailureReturnsError(): Unit = runBlocking {
-        var failure: Exception = Exception("No Error")
-        authData?.let { authData ->
-            authData.dfeCookie = "null"
-
-            try {
-                networkFetchingTimeoutGoogle.requestAuthDataValidation(
-                    anonymousAuthDataValidationRequestBody = AnonymousAuthDataValidationRequestBody(
-                        authDataResponse = authData
-                    )
-                )
-            } catch (e: InterruptedIOException) { failure = e }
-        }
-        assert(authData is AuthDataResponse) { "Assert!! AuthData must be present" }
-        assert(failure is InterruptedIOException) { "Assert!! Timeout Failure callback must call" }
-    }
 
     private fun retrofitTestConfig(
         baseUrl: String,
@@ -78,20 +47,9 @@ class NetworkFetchingAPITest {
         )
         .build()
 
-    private val eCloudTest = retrofitTestConfig(NetworkFetchingRetrofitAPI.tokenBaseURL)
-    private val googleTest = retrofitTestConfig(NetworkFetchingRetrofitAPI.googlePlayBaseURL)
-    private val googleTestTimeout = retrofitTestConfig(
-        NetworkFetchingRetrofitAPI.googlePlayBaseURL, 50L)
+    private val eCloudTest = retrofitTestConfig(AnonymousUserRetrofitAPI.tokenBaseURL)
 
-    private val networkFetchingToken: NetworkFetching = NetworkFetchingRetrofitImpl(
-        eCloud = eCloudTest,
-        google = googleTest
-    )
-
-    private val networkFetchingTimeoutGoogle: NetworkFetching = NetworkFetchingRetrofitImpl(
-        eCloud = eCloudTest,
-        google = googleTestTimeout
-    )
+    private val anonymousUser: AnonymousUser = AnonymousUserRetrofitImpl(eCloud = eCloudTest)
 
     private val requestBodyData = AnonymousAuthDataRequestBody(
         properties = testSystemProperties,
@@ -139,3 +97,4 @@ val testSystemProperties = Properties().apply {
     setProperty("CellOperator", "310")
     setProperty("SimOperator", "38")
 }
+

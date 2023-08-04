@@ -1,8 +1,27 @@
+/*
+ * Copyright MURENA SAS 2023
+ * Apps  Quickly and easily install Android apps onto your device!
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+
 package app.lounge.di
 
-import app.lounge.networking.NetworkFetching
-import app.lounge.networking.NetworkFetchingRetrofitAPI
-import app.lounge.networking.NetworkFetchingRetrofitImpl
+import app.lounge.login.anonymous.AnonymousUser
+import app.lounge.login.anonymous.AnonymousUserRetrofitAPI
+import app.lounge.login.anonymous.AnonymousUserRetrofitImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -40,19 +59,7 @@ internal object NetworkModule {
     ): Retrofit {
         return retrofit(
             okHttpClient = okHttpClient,
-            baseUrl = NetworkFetchingRetrofitAPI.tokenBaseURL
-        )
-    }
-
-    @Provides
-    @Singleton
-    @Named("GoogleRetrofit")
-    internal fun provideGoogleRetrofit(
-        okHttpClient: OkHttpClient
-    ): Retrofit {
-        return retrofit(
-            okHttpClient = okHttpClient,
-            baseUrl = NetworkFetchingRetrofitAPI.googlePlayBaseURL
+            baseUrl = AnonymousUserRetrofitAPI.tokenBaseURL
         )
     }
 
@@ -81,13 +88,11 @@ internal object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideNetworkFetching(
-        @Named("ECloudRetrofit") ecloud: Retrofit,
-        @Named("GoogleRetrofit") google: Retrofit,
-    ) : NetworkFetching {
-        return NetworkFetchingRetrofitImpl(
-            eCloud = ecloud,
-            google = google
+    fun provideAnonymousUser(
+        @Named("ECloudRetrofit") ecloud: Retrofit
+    ) : AnonymousUser {
+        return AnonymousUserRetrofitImpl(
+            eCloud = ecloud
         )
     }
 

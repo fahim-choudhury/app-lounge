@@ -17,13 +17,15 @@
  */
 
 
-package app.lounge.extension
+package app.lounge.login.anonymous
 
-import com.google.gson.Gson
-import java.util.Properties
+import app.lounge.model.AnonymousAuthDataRequestBody
+import app.lounge.networking.NetworkResult
+import com.aurora.gplayapi.data.models.AuthData
 
-/**
- * Convert Properties parameter to byte array
- * @return Byte Array of Properties
- * */
-fun Properties.toByteArray() = Gson().toJson(this).toByteArray()
+interface AnonymousUser {
+    suspend  fun requestAuthData(
+        anonymousAuthDataRequestBody: AnonymousAuthDataRequestBody
+    ) : NetworkResult<AuthData>
+}
+
