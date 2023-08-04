@@ -54,6 +54,14 @@ class HomeParentRVAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val fusedHome = getItem(position)
+
+        holder.binding.titleTV.text = fusedHome.title
+        handleChildShimmerView(fusedHome, holder)
+
+        if (fusedHome.list.isEmpty()) {
+            return
+        }
+
         val homeChildRVAdapter =
             HomeChildRVAdapter(
                 fusedAPIInterface,
@@ -62,9 +70,8 @@ class HomeParentRVAdapter(
                 lifecycleOwner,
                 paidAppHandler
             )
-        homeChildRVAdapter.setData(fusedHome.list)
 
-        holder.binding.titleTV.text = fusedHome.title
+        homeChildRVAdapter.setData(fusedHome.list)
 
         holder.binding.childRV.apply {
             recycledViewPool.setMaxRecycledViews(0, 0)
@@ -77,9 +84,8 @@ class HomeParentRVAdapter(
                 )
             setRecycledViewPool(viewPool)
         }
-        observeAppInstall(fusedHome, homeChildRVAdapter)
 
-        handleChildShimmerView(fusedHome, holder)
+        observeAppInstall(fusedHome, homeChildRVAdapter)
     }
 
     private fun handleChildShimmerView(fusedHome: FusedHome, holder: ViewHolder) {
