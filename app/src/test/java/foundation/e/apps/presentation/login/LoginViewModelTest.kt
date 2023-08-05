@@ -45,7 +45,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testAnonymousUserLoginStateForSuccess() = runTest{
+    fun testOnSuccessReturnLogInStateTrue() = runTest{
         Mockito.`when`(mockUserLoginUseCase.invoke(
             properties = testAnonymousRequestBodyData.properties,
             userAgent = testAnonymousRequestBodyData.userAgent
@@ -63,7 +63,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testAnonymousUserLoginStateForFailure() = runTest{
+    fun testOnFailureReturnLogInStateFalseWithError() = runTest{
         Mockito.`when`(mockUserLoginUseCase.invoke(
             properties = testAnonymousRequestBodyData.properties,
             userAgent = testAnonymousRequestBodyData.userAgent
@@ -82,7 +82,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testAnonymousUserLoginStateForLoading() = runTest{
+    fun testOnLoadingReturnLogInStateFalse() = runTest{
         Mockito.`when`(mockUserLoginUseCase.invoke(
             properties = testAnonymousRequestBodyData.properties,
             userAgent = testAnonymousRequestBodyData.userAgent

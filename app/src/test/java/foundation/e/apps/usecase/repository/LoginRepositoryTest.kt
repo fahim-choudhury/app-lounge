@@ -18,6 +18,8 @@ import foundation.e.apps.testAnonymousResponseData
 
 import app.lounge.login.anonymous.AnonymousUser
 import app.lounge.networking.NetworkResult
+import foundation.e.apps.loginFailureMessage
+import foundation.e.apps.testFailureException
 
 @RunWith(RobolectricTestRunner::class)
 class LoginRepositoryTest {
@@ -35,13 +37,32 @@ class LoginRepositoryTest {
     }
 
     @Test
-    fun testRequestAuthData() = runTest {
+    fun testOnSuccessReturnAuthData() = runTest {
         Mockito.`when`(anonymousUser.requestAuthData(testAnonymousRequestBodyData))
             .thenReturn(NetworkResult.Success(testAnonymousResponseData))
 
-        val loginRepository = LoginRepositoryImpl(anonymousUser, instrumentationContext)
-        val result = loginRepository.anonymousUser(testAnonymousRequestBodyData)
+        val result = LoginRepositoryImpl(anonymousUser, instrumentationContext)
+            .run {
+                anonymousUser(testAnonymousRequestBodyData)
+            }
+
         Assert.assertNotNull(result)
         Assert.assertEquals("eOS@murena.io", result.email)
+    }
+
+    @Test
+    fun testOnFailureReturnErrorWithException() = runTest {
+        Mockito.`when`(anonymousUser.requestAuthData(testAnonymousRequestBodyData))
+            .thenReturn(NetworkResult.Error(
+                exception = testFailureException,
+                code = 1,
+                errorMessage = loginFailureMessage
+            ))
+        runCatching {
+            LoginRepositoryImpl(anonymousUser, instrumentationContext)
+                .run { anonymousUser(testAnonymousRequestBodyData) }
+        }.onFailure { error ->
+            Assert.assertEquals(testFailureException.message, error.message)
+        }
     }
 }

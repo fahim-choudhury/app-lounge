@@ -13,3 +13,5 @@ val testAnonymousRequestBodyData = AnonymousAuthDataRequestBody(
 val testAnonymousResponseData = AuthData("eOS@murena.io", "")
 
 const val loginFailureMessage = "Fail to login"
+
+val testFailureException: Exception = Exception(loginFailureMessage)
