@@ -16,13 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package foundation.e.apps
 
 import app.lounge.model.AnonymousAuthDataRequestBody
 import com.aurora.gplayapi.data.models.AuthData
 import java.util.Properties
-
 
 val testAnonymousRequestBodyData = AnonymousAuthDataRequestBody(
     properties = Properties(),
