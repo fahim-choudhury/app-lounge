@@ -140,10 +140,8 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-
     private val _loginState: MutableLiveData<LoginState> = MutableLiveData()
     val loginState: LiveData<LoginState> = _loginState
-
 
     fun authenticateAnonymousUser(
         properties: Properties,
