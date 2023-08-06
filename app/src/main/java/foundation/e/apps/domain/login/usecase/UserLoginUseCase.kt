@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package foundation.e.apps.domain.login.usecase
 
 import app.lounge.model.AnonymousAuthDataRequestBody
@@ -25,8 +24,6 @@ import foundation.e.apps.domain.login.repository.LoginRepository
 import foundation.e.apps.utils.Resource
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.single
-import retrofit2.HttpException
-import java.io.IOException
 import java.util.Properties
 import javax.inject.Inject
 
@@ -47,7 +44,7 @@ class UserLoginUseCase @Inject constructor(
                 )
             )
             emit(Resource.Success(userResponse))
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             emit(Resource.Error(e.localizedMessage))
         }
     }.single()

@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package foundation.e.apps.domain.login.repository
 
 import android.content.Context
@@ -31,14 +30,14 @@ import javax.inject.Inject
 class LoginRepositoryImpl @Inject constructor(
     private val networkFetching: AnonymousUser,
     @ApplicationContext val applicationContext: Context
-): LoginRepository {
+) : LoginRepository {
 
     override suspend fun anonymousUser(authDataRequestBody: AnonymousAuthDataRequestBody): AuthData {
         val result = networkFetching.requestAuthData(
             anonymousAuthDataRequestBody = authDataRequestBody
         )
 
-        when(result) {
+        when (result) {
             is NetworkResult.Error ->
                 throw Exception(result.errorMessage, result.exception)
             is NetworkResult.Success -> {
@@ -47,5 +46,4 @@ class LoginRepositoryImpl @Inject constructor(
             }
         }
     }
-
 }

@@ -45,5 +45,4 @@ object LoginModule {
     ): UserLoginUseCase {
         return UserLoginUseCase(loginRepositoryImpl)
     }
-
 }
