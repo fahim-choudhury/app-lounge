@@ -44,7 +44,6 @@
     <string name="menu_search">Поиск</string>
     <string name="menu_categories">Категории</string>
     <string name="menu_home">Главная</string>
-    <string name="app_name">App Lounge</string>
     <plurals name="updates_notification_title">
         <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> обновление для приложения доступно</item>
         <item quantity="few"><xliff:g id="version_code">%1$d</xliff:g> обновления для приложения доступно</item>
@@ -64,7 +63,6 @@
     <string name="download_automatically_message">Ваше приложение будет автоматически загружено на это устройство</string>
     <string name="purchase_complete">Покупка совершена!</string>
     <string name="paid_app_anonymous_message">Платные приложения не могут быть установлены в анонимном режиме. Для установки платных приложений войдите в свой аккаунт Google.</string>
-    <string name="dialog_cancel">ОТМЕНА</string>
     <string name="dialog_confirm">ПОДТВЕРДИТЬ</string>
     <string name="dialog_paidapp_message">После нажатия кнопки подтверждения вы перейдете на страницу приложения в Google Play, чтобы завершить покупку через браузер. Нажмите подтвердить, чтобы приобрести %1$s для %2$s.</string>
     <string name="dialog_title_paid_app">Покупка <b>%1$s</b></string>

@@ -69,7 +69,6 @@
     <string name="no_permission_found">Aucune permission d\'exécution Android trouvée !</string>
     <string name="no_tracker_found">Aucun pisteur trouvé !</string>
     <string name="no_internet_message">Connexion impossible ! Merci de vérifier votre connexion internet puis réessayer</string>
-    <string name="app_name">App Lounge</string>
     <string name="menu_home">Accueil</string>
     <string name="no_apps_found">Aucune application trouvée…</string>
     <string name="sign_in_google">Connexion Google</string>
@@ -105,7 +104,6 @@
     <string name="download_automatically_message">Votre application sera automatiquement téléchargée sur cet appareil</string>
     <string name="purchase_complete">Achat finalisé !</string>
     <string name="paid_app_anonymous_message">Les applications payantes ne peuvent pas être installées en mode anonyme. Veuillez vous connecter à votre compte Google pour installer les applications payantes.</string>
-    <string name="dialog_cancel">ANNULER</string>
     <string name="dialog_confirm">CONFIRMER</string>
     <string name="dialog_paidapp_message">Quand vous aurez cliqué sur confirmer, vous serez conduit à la page Google Play de l\'application pour terminer l\'achat depuis votre navigateur. Cliquez sur confirmer pour acheter %1$s pour %2$s.</string>
     <string name="dialog_title_paid_app">Achetez <b>%1$s</b></string>
