@@ -76,7 +76,6 @@
     <string name="no_tracker_found">¡No se encontraron rastreadores!</string>
     <string name="no_internet_message">¡No se pudo conectar! Compruebe su conexión a internet e inténtelo de nuevo</string>
     <string name="updates_notification_unmetered_network_warning">Esperando una red sin datos móviles</string>
-    <string name="app_name">App Lounge</string>
     <string name="menu_home">Inicio</string>
     <string name="apps">Aplicaciones</string>
     <string name="sign_in_desc">Acceder con cuenta de Google o con modo anónimo para acceder de forma privada.</string>
@@ -107,7 +106,6 @@
     <string name="download_automatically_message">Su aplicación se descargará automáticamente en este dispositivo</string>
     <string name="purchase_complete">¡Compra completa!</string>
     <string name="paid_app_anonymous_message">Las aplicaciones de pago no se pueden instalar en modo anónimo. Inicia sesión en tu cuenta de Google para instalar aplicaciones de pago.</string>
-    <string name="dialog_cancel">CANCELAR</string>
     <string name="dialog_confirm">CONFIRMAR</string>
     <string name="dialog_paidapp_message">Al hacer clic en confirmar, se le llevará a la página de Google Play para completar la compra de la aplicaicón a través de su navegador. Haga clic en confirmar para comprar %1$s por %2$s.</string>
     <string name="dialog_title_paid_app">Comprar <b>%1$s</b></string>

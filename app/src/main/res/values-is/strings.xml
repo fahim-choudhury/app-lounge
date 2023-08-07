@@ -3,7 +3,6 @@
     <string name="rating">Einkunn</string>
     <string name="preference_update_install_automatically_title">Setja uppfærslur upp sjálfkrafa</string>
     <string name="unknown_error">Óþekkt villa!</string>
-    <string name="app_name">App Lounge</string>
     <string name="menu_home">Heim</string>
     <string name="menu_categories">Flokkar</string>
     <string name="menu_search">Leita</string>
@@ -79,7 +78,6 @@
     <string name="anonymous_login_failed">Nafnlaus innskráning mistókst!</string>
     <string name="dialog_title_paid_app">Kaupa <b>%1$s</b></string>
     <string name="dialog_confirm">STAÐFESTA</string>
-    <string name="dialog_cancel">\@android:string/cancel</string>
     <string name="purchase_complete">Kaupum er lokið!</string>
     <string name="purchase_error">Villa í innkaupum!</string>
     <string name="unsupported_app_title">Óstutt forrit!</string>

@@ -72,9 +72,7 @@
     <string name="menu_updates">Päivitykset</string>
     <string name="menu_search">Hae</string>
     <string name="menu_home">Aloitus</string>
-    <string name="app_name">App Lounge</string>
     <string name="paid_app_anonymous_message">Maksullisia sovelluksia ei voi asentaa anonyymissä tilassa. Kirjaudu Google-tilillesi asentaaksesi maksullisia sovelluksia.</string>
-    <string name="dialog_cancel">PERUUTA</string>
     <string name="dialog_confirm">VAHVISTA</string>
     <string name="dialog_paidapp_message">Kun klikkaat vahvista, pääset sovelluksen Google Play -sivulle ja voit suorittaa oston loppuun selaimellasi. Klikkaa vahvista ostaaksesi %1$s hintaan %2$s.</string>
     <string name="dialog_title_paid_app">Osta <b>%1$s</b></string>

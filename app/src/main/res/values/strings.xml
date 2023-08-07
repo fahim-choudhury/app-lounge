@@ -18,7 +18,7 @@
   -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">App Lounge</string>
+    <string name="app_name" translatable="false">App Lounge</string>
 
     <!-- Bottom Navigation Bar -->
     <string name="menu_home" weblate_ctx="home">Home</string>
@@ -205,7 +205,7 @@
     <string name="dialog_title_paid_app"><![CDATA[Purchase <b>%1$s</b>]]></string>
     <string name="dialog_paidapp_message">When clicked confirm, it will take you to Google Play page for the app to complete the purchase using your browser. Click confirm to purchase %1$s for %2$s.</string>
     <string name="dialog_confirm">CONFIRM</string>
-    <string name="dialog_cancel">@android:string/cancel</string>
+    <string name="dialog_cancel" translatable="false">@android:string/cancel</string>
     <string name="paid_app_anonymous_message">Paid apps cannot be installed in anonymous mode. Please log into your Google account to install paid apps.</string>
     <string name="purchase_complete">Purchase complete!</string>
     <string name="download_automatically_message">Your app will automatically be downloaded in this device</string>
