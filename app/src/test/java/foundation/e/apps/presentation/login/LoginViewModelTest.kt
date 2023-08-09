@@ -18,6 +18,7 @@
 
 package foundation.e.apps.presentation.login
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import foundation.e.apps.data.login.LoginSourceRepository
 import foundation.e.apps.domain.login.usecase.UserLoginUseCase
 import foundation.e.apps.loginFailureMessage
@@ -34,6 +35,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
@@ -43,6 +45,9 @@ import org.mockito.MockitoAnnotations
 class LoginViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
+
+    @get:Rule
+    val rule = InstantTaskExecutorRule()
 
     @Mock
     lateinit var mockUserLoginUseCase: UserLoginUseCase
