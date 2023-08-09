@@ -28,12 +28,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class LoginRepositoryImpl @Inject constructor(
-    private val networkFetching: AnonymousUser,
+    private val anonymousUser: AnonymousUser,
     @ApplicationContext val applicationContext: Context
 ) : LoginRepository {
 
     override suspend fun anonymousUser(authDataRequestBody: AnonymousAuthDataRequestBody): AuthData {
-        val result = networkFetching.requestAuthData(
+        val result = anonymousUser.requestAuthData(
             anonymousAuthDataRequestBody = authDataRequestBody
         )
 
