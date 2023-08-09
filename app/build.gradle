@@ -147,6 +147,8 @@ allOpen {
 
 dependencies {
 
+    implementation project(':modules')
+
     // TODO: Add splitinstall-lib to a repo https://gitlab.e.foundation/e/os/backlog/-/issues/628
     api files('libs/splitinstall-lib.jar')
 
@@ -250,4 +252,8 @@ dependencies {
 
     // elib
     implementation 'foundation.e:elib:0.0.1-alpha11'
+
+    testImplementation 'org.mockito:mockito-core:5.0.0'
+    testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
+    testImplementation 'org.robolectric:robolectric:4.9'
 }
