@@ -26,3 +26,9 @@ data class AnonymousAuthDataRequestBody(
     val properties: Properties,
     val userAgent: String
 )
+
+data class GoogleAuthDataRequestBody(
+    val email: String,
+    val token: String,
+    val properties: Properties
+)

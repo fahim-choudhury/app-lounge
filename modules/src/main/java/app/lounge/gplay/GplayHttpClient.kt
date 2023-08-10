@@ -5,8 +5,10 @@ import com.aurora.gplayapi.network.IHttpClient
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import timber.log.Timber
 import java.net.SocketTimeoutException
@@ -58,7 +60,17 @@ class GplayHttpClient @Inject constructor(@Named("privateOkHttpClient") val okHt
     }
 
     override fun post(url: String, headers: Map<String, String>, body: ByteArray): PlayResponse {
-        TODO("Not yet implemented")
+        val requestBody = body.toRequestBody(
+            "application/x-protobuf".toMediaType(),
+            0,
+            body.size
+        )
+        val request = Request.Builder()
+            .url(url)
+            .headers(headers.toHeaders())
+            .method(POST, requestBody)
+            .build()
+        return processRequest(request)
     }
 
     override fun post(
@@ -66,7 +78,12 @@ class GplayHttpClient @Inject constructor(@Named("privateOkHttpClient") val okHt
         headers: Map<String, String>,
         params: Map<String, String>
     ): PlayResponse {
-        TODO("Not yet implemented")
+        val request = Request.Builder()
+            .url(buildUrlWithQueryParameters(url, params))
+            .headers(headers.toHeaders())
+            .method(POST, "".toRequestBody(null))
+            .build()
+        return processRequest(request)
     }
 
     override fun postAuth(url: String, body: ByteArray): PlayResponse {
@@ -91,6 +108,7 @@ class GplayHttpClient @Inject constructor(@Named("privateOkHttpClient") val okHt
                 is SocketTimeoutException -> handleExceptionOnGooglePlayRequest(e)
                 else -> handleExceptionOnGooglePlayRequest(e)
             }
+            throw e
         }
     }
 
@@ -108,8 +126,8 @@ class GplayHttpClient @Inject constructor(@Named("privateOkHttpClient") val okHt
 
             Timber.d("Url: ${response.request.url}\nStatus: $code")
 
-            if (code == 401) {
-                // TODO Handle the case of Unauthorized user
+            if (code != 200) {
+                throw GplayException(code, response.message)
             }
 
             if (response.body != null) {
@@ -122,3 +140,4 @@ class GplayHttpClient @Inject constructor(@Named("privateOkHttpClient") val okHt
         }
     }
 }
+
