@@ -18,8 +18,23 @@
 
 package foundation.e.apps.utils
 
-sealed class Resource<T>(val data: T? = null, val message: String? = null) {
-    class Success<T>(data: T) : Resource<T>(data)
-    class Error<T>(message: String, data: T? = null) : Resource<T>(data, message)
-    class Loading<T>(data: T? = null) : Resource<T>(data)
+/**
+ * Class represents the different states of a resource for user case layer
+ */
+sealed class Resource<out T> {
+    /**
+     * Represents a successful state of the resource with data.
+     * @param data The data associated with the resource.
+     */
+    class Success<out T>(val data: T) : Resource<T>()
+    /**
+     * Represents an error state of the resource with an error message.
+     * @param message The error message associated with the resource.
+     */
+    class Error(message: String) : Resource<Nothing>()
+
+    /**
+     * Represents a loading state of the resource.
+     */
+    object Loading : Resource<Nothing>()
 }

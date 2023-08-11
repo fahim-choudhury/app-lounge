@@ -31,12 +31,12 @@ class UserLoginUseCase @Inject constructor(
     private val loginRepository: LoginRepository,
 ) {
 
-    suspend operator fun invoke(
+    suspend fun anonymousUser(
         properties: Properties,
         userAgent: String
     ): Resource<AuthData> = flow {
         try {
-            emit(Resource.Loading())
+            emit(Resource.Loading)
             val userResponse = loginRepository.anonymousUser(
                 authDataRequestBody = AnonymousAuthDataRequestBody(
                     properties = properties,
