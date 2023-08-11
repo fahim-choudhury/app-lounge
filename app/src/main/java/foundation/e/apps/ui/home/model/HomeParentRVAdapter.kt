@@ -19,6 +19,7 @@
 package foundation.e.apps.ui.home.model
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -53,6 +54,14 @@ class HomeParentRVAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val fusedHome = getItem(position)
+
+        holder.binding.titleTV.text = fusedHome.title
+        handleChildShimmerView(fusedHome, holder)
+
+        if (fusedHome.list.isEmpty()) {
+            return
+        }
+
         val homeChildRVAdapter =
             HomeChildRVAdapter(
                 fusedAPIInterface,
@@ -61,9 +70,8 @@ class HomeParentRVAdapter(
                 lifecycleOwner,
                 paidAppHandler
             )
-        homeChildRVAdapter.setData(fusedHome.list)
 
-        holder.binding.titleTV.text = fusedHome.title
+        homeChildRVAdapter.setData(fusedHome.list)
 
         holder.binding.childRV.apply {
             recycledViewPool.setMaxRecycledViews(0, 0)
@@ -76,7 +84,21 @@ class HomeParentRVAdapter(
                 )
             setRecycledViewPool(viewPool)
         }
+
         observeAppInstall(fusedHome, homeChildRVAdapter)
+    }
+
+    private fun handleChildShimmerView(fusedHome: FusedHome, holder: ViewHolder) {
+        if (fusedHome.list.isEmpty()) {
+            holder.binding.shimmerLayout.visibility = View.VISIBLE
+            holder.binding.shimmerLayout.startShimmer()
+            holder.binding.childRV.visibility = View.GONE
+            return
+        }
+
+        holder.binding.shimmerLayout.visibility = View.GONE
+        holder.binding.shimmerLayout.stopShimmer()
+        holder.binding.childRV.visibility = View.VISIBLE
     }
 
     private fun observeAppInstall(

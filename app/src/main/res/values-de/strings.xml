@@ -90,14 +90,12 @@
     </plurals>
     <string name="automatically_install_updates_notification_text">App-Aktualisierungen werden automatisch installiert</string>
     <string name="preference_update_wifi_only_description">Aktualisierungen von Apps nur in unlimitierten Netzwerken wie WLAN</string>
-    <string name="app_name">App Lounge</string>
     <string name="privacy_computed_using_text">Berechnet aus &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus Datenschutz-Analyse</string>
     <string name="all_apps_updated">Alle Apps sind aktuell</string>
     <string name="or">Oder nur anzeigen</string>
     <string name="dialog_title_paid_app"><b>%1$s</b> kaufen</string>
     <string name="dialog_paidapp_message">Wenn du auf die Bestätigung tippst, wirst du zur Google Play Seite weitergeleitet, um den Bezahlvorgang für die App im Browser abzuschließen. Tippe zur Bestätigung des Kaufes von %1$s für %2$s.</string>
     <string name="dialog_confirm">BESTÄTIGUNG</string>
-    <string name="dialog_cancel">\@android:string/cancel</string>
     <string name="privacy_description">Die Datenschutz-Bewertung wird automatisch berechnet aus den Berechtigungen und den Trackern, die in den Anwendungen aufgespürt werden. Es gibt einen Überblick darüber, wie sehr die App Benutzer ausspioniert. &lt;br /&gt;&lt;br /&gt;Die Quelle für den Berechnungsalgorithmus kann &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;hier gefunden werden&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Die Tracker-Aufspürung wird durchgeführt mit &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Privacy Werkzeuge&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Bewertung von 1-10.&lt;br /&gt;&lt;br /&gt;Wenn du mehr erfahren willst, wie die Datenschutzbewertung berechnet wird, und wie du dich vor dem Ausspionieren schützen kannst, &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;besuche dieses Seite&lt;/a&gt;.</string>
     <string name="not_enough_storage">Es ist nicht genügend Speicher vorhanden, um diese App herunterzuladen!</string>
     <string name="paid_app_anonymous_message">Bezahl-Apps können nicht im anonymen Modus installiert werden. Bitte melde dich mit deinem Google-Konto an.</string>

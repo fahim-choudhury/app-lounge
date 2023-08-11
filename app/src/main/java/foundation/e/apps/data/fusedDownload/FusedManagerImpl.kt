@@ -85,11 +85,6 @@ class FusedManagerImpl @Inject constructor(
         return fusedDownloadRepository.getDownloadLiveList()
     }
 
-    override suspend fun clearInstallationIssue(fusedDownload: FusedDownload) {
-        flushOldDownload(fusedDownload.packageName)
-        fusedDownloadRepository.deleteDownload(fusedDownload)
-    }
-
     @OptIn(DelicateCoroutinesApi::class)
     override suspend fun updateDownloadStatus(fusedDownload: FusedDownload, status: Status) {
         if (status == Status.INSTALLED) {
@@ -258,9 +253,9 @@ class FusedManagerImpl @Inject constructor(
         "$cacheDir/${fusedDownload.packageName}/${fusedDownload.packageName}_1.apk"
 
     override suspend fun installationIssue(fusedDownload: FusedDownload) {
-        flushOldDownload(fusedDownload.packageName)
         fusedDownload.status = Status.INSTALLATION_ISSUE
         fusedDownloadRepository.updateDownload(fusedDownload)
+        flushOldDownload(fusedDownload.packageName)
     }
 
     override suspend fun updateAwaiting(fusedDownload: FusedDownload) {

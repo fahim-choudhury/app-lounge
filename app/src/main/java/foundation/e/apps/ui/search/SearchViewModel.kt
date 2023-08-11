@@ -47,6 +47,8 @@ class SearchViewModel @Inject constructor(
     private var searchResultLiveData: LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
         MutableLiveData()
 
+    private var lastAuthObjects: List<AuthObject>? = null
+
     fun getSearchSuggestions(query: String, gPlayAuth: AuthObject.GPlayAuth) {
         viewModelScope.launch(Dispatchers.IO) {
             if (gPlayAuth.result.isSuccess())
@@ -68,6 +70,7 @@ class SearchViewModel @Inject constructor(
 
         if (query.isBlank()) return
 
+        this.lastAuthObjects = authObjectList
         super.onLoadData(authObjectList, { successAuthList, _ ->
 
             successAuthList.find { it is AuthObject.GPlayAuth }?.run {
@@ -123,4 +126,8 @@ class SearchViewModel @Inject constructor(
         newFusedApps: List<FusedApp>,
         oldFusedApps: List<FusedApp>
     ) = fusedAPIRepository.isAnyFusedAppUpdated(newFusedApps, oldFusedApps)
+
+    fun isAuthObjectListSame(authObjectList: List<AuthObject>?): Boolean {
+        return lastAuthObjects == authObjectList
+    }
 }

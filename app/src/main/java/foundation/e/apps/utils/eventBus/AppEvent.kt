@@ -22,10 +22,14 @@ package foundation.e.apps.utils.eventBus
 
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.fusedDownload.models.FusedDownload
 
 sealed class AppEvent(val data: Any) {
     class SignatureMissMatchError(packageName: String) : AppEvent(packageName)
     class UpdateEvent(result: ResultSupreme.WorkError<ResultStatus>) : AppEvent(result)
 
     class InvalidAuthEvent(authName: String) : AppEvent(authName)
+    class ErrorMessageEvent(stringResourceId: Int) : AppEvent(stringResourceId)
+    class AppPurchaseEvent(fusedDownload: FusedDownload) : AppEvent(fusedDownload)
+    class NoInternetEvent(isInternetAvailable: Boolean) : AppEvent(isInternetAvailable)
 }

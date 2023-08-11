@@ -17,16 +17,14 @@ import dagger.assisted.AssistedInject
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
-import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.LoginSourceRepository
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.data.updates.UpdatesManagerRepository
-import foundation.e.apps.install.workmanager.InstallWorkManager
+import foundation.e.apps.install.workmanager.AppInstallProcessor
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +41,7 @@ class UpdatesWorker @AssistedInject constructor(
     private val fusedManagerRepository: FusedManagerRepository,
     private val dataStoreManager: DataStoreManager,
     private val loginSourceRepository: LoginSourceRepository,
+    private val appInstallProcessor: AppInstallProcessor
 ) : CoroutineWorker(context, params) {
 
     companion object {
@@ -213,47 +212,7 @@ class UpdatesWorker @AssistedInject constructor(
                 return@forEach
             }
 
-            val fusedDownload = FusedDownload(
-                fusedApp._id,
-                fusedApp.origin,
-                fusedApp.status,
-                fusedApp.name,
-                fusedApp.package_name,
-                mutableListOf(),
-                mutableMapOf(),
-                fusedApp.status,
-                fusedApp.type,
-                fusedApp.icon_image_path,
-                fusedApp.latest_version_code,
-                fusedApp.offer_type,
-                fusedApp.isFree,
-                fusedApp.originalSize
-            )
-
-            try {
-                updateFusedDownloadWithAppDownloadLink(fusedApp, authData, fusedDownload)
-            } catch (e: Exception) {
-                Timber.e(e)
-                EventBus.invokeEvent(
-                    AppEvent.UpdateEvent(
-                        ResultSupreme.WorkError(
-                            ResultStatus.UNKNOWN,
-                            fusedDownload
-                        )
-                    )
-                )
-                return@forEach
-            }
-
-            val isSuccess = fusedManagerRepository.addDownload(fusedDownload)
-            if (!isSuccess) {
-                Timber.i("Update adding ABORTED! status: $isSuccess")
-                return@forEach
-            }
-
-            fusedManagerRepository.updateAwaiting(fusedDownload)
-            InstallWorkManager.enqueueWork(fusedDownload, true)
-            Timber.i("startUpdateProcess: Enqueued for update: ${fusedDownload.name} ${fusedDownload.id} ${fusedDownload.status}")
+            appInstallProcessor.initAppInstall(fusedApp, true)
         }
     }
 
@@ -279,24 +238,6 @@ class UpdatesWorker @AssistedInject constructor(
             ),
             false
         )
-    }
-
-    private suspend fun updateFusedDownloadWithAppDownloadLink(
-        app: FusedApp,
-        authData: AuthData,
-        fusedDownload: FusedDownload
-    ) {
-        val downloadList = mutableListOf<String>()
-        if (app.type == Type.PWA) {
-            downloadList.add(app.url)
-            fusedDownload.downloadURLList = downloadList
-        } else {
-            fusedAPIRepository.updateFusedDownloadWithDownloadingInfo(
-                authData,
-                app.origin,
-                fusedDownload
-            )
-        }
     }
 
     /*
