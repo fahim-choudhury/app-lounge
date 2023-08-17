@@ -71,7 +71,7 @@ class AppLoungeApplication : Application(), Configuration.Provider {
             }
         }
 
-        if (BuildConfig.DEBUG) {
+        if (false) {
             plant(Timber.DebugTree())
         } else {
             // Allow enabling telemetry only for release builds.

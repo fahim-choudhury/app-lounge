@@ -11,6 +11,9 @@ import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.databinding.FragmentSignInBinding
 import foundation.e.apps.di.CommonUtilsModule.safeNavigate
 import foundation.e.apps.utils.showGoogleSignInAlertDialog
+import foundation.e.lib.telemetry.Telemetry
+import timber.log.Timber
+import java.lang.Exception
 
 @AndroidEntryPoint
 class SignInFragment : Fragment(R.layout.fragment_sign_in) {
@@ -24,7 +27,9 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentSignInBinding.bind(view)
-
+        Timber.e("Reporting sentry logs...")
+        Telemetry.reportMessage("As AS aS")
+        Telemetry.reportException(Exception("Huge Exception!"))
         binding.googleBT.setOnClickListener {
             context?.showGoogleSignInAlertDialog(
                 { navigateToGoogleSignInFragment() },
