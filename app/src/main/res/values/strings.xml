@@ -181,7 +181,7 @@
 
     <!-- No Internet Fragment -->
     <string name="no_internet_message">Can\'t connect! Please check your internet connection and try again</string>
-    
+
     <!--Timeout-->
     <string name="timeout_title">Timeout fetching applications!</string>
     <string name="timeout_desc_gplay">Some network issue is preventing fetching all applications.
@@ -224,4 +224,7 @@
 
     <string name="google_login_alert_message">We recommend using a dedicated Google account to:\n\n\t\u2022 mitigate micro-targeting\n\t\u2022 limit impact in case this account is restricted by Google</string>
     <string name="proceed_to_google_login">Proceed to Google login</string>
+
+    <string name="request_exodus_report">Request Exodus report</string>
+    <string name="request_exodus_report_confirm_dialog">Clicking on \"<xliff:g id="ok">%1$s</xliff:g>\" will open a tab in your browser with the app\'s package name prefilled.&lt;br /&gt;&lt;br /&gt;Click on \"Perform analysis\" to start the analysis by Exodus.&lt;br /&gt;&lt;br /&gt;When the button \"See the report\" is displayed (it can take a while depending on the app) you can close the tab and go back to the app description in <xliff:g id="app_name">%2$s</xliff:g> where you should see the Privacy Score. Sometimes Exodus can fail to analyze the app.&lt;br /&gt;&lt;br /&gt;NB: it can take up to 10 min for the score to be displayed in the app description.</string>
 </resources>
