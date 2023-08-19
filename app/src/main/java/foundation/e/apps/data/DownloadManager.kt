@@ -24,6 +24,7 @@ import android.os.Environment
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.OpenForTesting
 import foundation.e.apps.R
+import foundation.e.lib.telemetry.Telemetry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -167,19 +168,42 @@ class DownloadManager @Inject constructor(
     }
 
     private fun getDownloadStatus(downloadId: Long): Int {
+        var status: Int = -1
+        var reason: Int = -1
         try {
             downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
                 .use { cursor ->
                     if (cursor.moveToFirst()) {
-                        val status =
+                        status =
                             cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+                        reason =
+                            cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON))
                         Timber.d("Download Status: downloadId: $downloadId $status")
-                        return status
                     }
                 }
         } catch (e: Exception) {
             Timber.e(e)
         }
-        return DownloadManager.STATUS_FAILED
+
+        if (status != DownloadManager.STATUS_SUCCESSFUL) {
+            Timber.e("Download Issue: $downloadId status: $status reason: $reason")
+        }
+        return status
+    }
+
+    fun getDownloadReason(downloadId: Long): Int {
+        var reason = -1
+        try {
+            downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
+                .use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        reason =
+                            cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON))
+                    }
+                }
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
+        return reason
     }
 }

@@ -28,6 +28,7 @@ import foundation.e.apps.data.fused.UpdatesDao
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
+import foundation.e.lib.telemetry.Telemetry
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.MainScope
@@ -77,6 +78,7 @@ class InstallerService : Service() {
             return
         }
 
+        Telemetry.reportMessage("App install is failed for: $packageName status: $status extra: $extra")
         updateInstallationIssue(packageName ?: "")
         if (status == PackageInstaller.STATUS_FAILURE_CONFLICT && extra?.contains(
                 INSTALL_FAILED_UPDATE_INCOMPATIBLE

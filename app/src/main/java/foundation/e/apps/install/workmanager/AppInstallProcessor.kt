@@ -41,6 +41,7 @@ import foundation.e.apps.install.updates.UpdatesNotifier
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.getFormattedString
+import foundation.e.lib.telemetry.Telemetry
 import kotlinx.coroutines.flow.transformWhile
 import timber.log.Timber
 import java.text.NumberFormat
@@ -139,6 +140,8 @@ class AppInstallProcessor @Inject constructor(
             InstallWorkManager.enqueueWork(fusedDownload, isAnUpdate)
         } catch (e: Exception) {
             Timber.e(e)
+            Telemetry.reportMessage("Enqueuing App install work is failed for ${fusedDownload.packageName} exception: ${e.localizedMessage}")
+            fusedManagerRepository.installationIssue(fusedDownload)
         }
     }
 
@@ -152,6 +155,7 @@ class AppInstallProcessor @Inject constructor(
             return false
         } catch (e: Exception) {
             Timber.e(e)
+            Telemetry.reportMessage("Updating download Urls failed for ${fusedDownload.packageName} exception: ${e.localizedMessage}")
             EventBus.invokeEvent(
                 AppEvent.UpdateEvent(
                     ResultSupreme.WorkError(
@@ -216,7 +220,7 @@ class AppInstallProcessor @Inject constructor(
             fusedDownload?.let {
 
                 this.isItUpdateWork = isItUpdateWork &&
-                    fusedManagerRepository.isFusedDownloadInstalled(fusedDownload)
+                        fusedManagerRepository.isFusedDownloadInstalled(fusedDownload)
 
                 if (!fusedDownload.isAppInstalling()) {
                     Timber.d("!!! returned")
@@ -240,6 +244,7 @@ class AppInstallProcessor @Inject constructor(
             }
         } catch (e: Exception) {
             Timber.e("doWork: Failed: ${e.stackTraceToString()}")
+            Telemetry.reportMessage("Install worker is failed for ${fusedDownload?.packageName} exception: ${e.localizedMessage}")
             fusedDownload?.let {
                 fusedManagerRepository.cancelDownload(fusedDownload)
             }
@@ -251,10 +256,10 @@ class AppInstallProcessor @Inject constructor(
 
     private fun areFilesDownloadedButNotInstalled(fusedDownload: FusedDownload) =
         fusedDownload.areFilesDownloaded() && (
-            !fusedManagerRepository.isFusedDownloadInstalled(
-                fusedDownload
-            ) || fusedDownload.status == Status.INSTALLING
-            )
+                !fusedManagerRepository.isFusedDownloadInstalled(
+                    fusedDownload
+                ) || fusedDownload.status == Status.INSTALLING
+                )
 
     private suspend fun checkUpdateWork(
         fusedDownload: FusedDownload?
@@ -348,7 +353,10 @@ class AppInstallProcessor @Inject constructor(
         try {
             handleFusedDownloadStatus(download)
         } catch (e: Exception) {
-            Timber.e(TAG, "observeDownload: ", e)
+            val message =
+                "Handling install status is failed for ${download.packageName} exception: ${e.localizedMessage}"
+            Timber.e(e, message)
+            Telemetry.reportMessage(message)
             fusedManagerRepository.installationIssue(download)
             finishInstallation(download)
         }

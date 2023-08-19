@@ -25,6 +25,7 @@ import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.lib.telemetry.Telemetry
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -65,6 +66,13 @@ class DownloadManagerUtils @Inject constructor(
 
                     if (downloadManager.hasDownloadFailed(downloadId)) {
                         handleDownloadFailed(fusedDownload)
+                        Telemetry.reportMessage(
+                            "Download failed for ${fusedDownload.packageName}, reason: ${
+                                downloadManager.getDownloadReason(
+                                    downloadId
+                                )
+                            }"
+                        )
                         return@launch
                     }
 
@@ -86,7 +94,7 @@ class DownloadManagerUtils @Inject constructor(
     private suspend fun handleDownloadFailed(fusedDownload: FusedDownload) {
         fusedManagerRepository.installationIssue(fusedDownload)
         fusedManagerRepository.cancelDownload(fusedDownload)
-        Timber.i("===> Download failed: ${fusedDownload.name} ${fusedDownload.status}")
+        Timber.w("===> Download failed: ${fusedDownload.name} ${fusedDownload.status}")
     }
 
     private suspend fun validateDownload(
@@ -94,16 +102,16 @@ class DownloadManagerUtils @Inject constructor(
         fusedDownload: FusedDownload,
         downloadId: Long
     ) = downloadManager.isDownloadSuccessful(downloadId) &&
-        areAllFilesDownloaded(
-            numberOfDownloadedItems,
-            fusedDownload
-        ) && checkCleanApkSignatureOK(fusedDownload)
+            areAllFilesDownloaded(
+                numberOfDownloadedItems,
+                fusedDownload
+            ) && checkCleanApkSignatureOK(fusedDownload)
 
     private fun areAllFilesDownloaded(
         numberOfDownloadedItems: Int,
         fusedDownload: FusedDownload
     ) = numberOfDownloadedItems == fusedDownload.downloadIdMap.size &&
-        numberOfDownloadedItems == fusedDownload.downloadURLList.size
+            numberOfDownloadedItems == fusedDownload.downloadURLList.size
 
     private suspend fun updateDownloadIdMap(
         fusedDownload: FusedDownload,

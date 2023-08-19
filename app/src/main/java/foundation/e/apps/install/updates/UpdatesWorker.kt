@@ -27,6 +27,7 @@ import foundation.e.apps.data.updates.UpdatesManagerRepository
 import foundation.e.apps.install.workmanager.AppInstallProcessor
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
+import foundation.e.lib.telemetry.Telemetry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -126,6 +127,7 @@ class UpdatesWorker @AssistedInject constructor(
              * If user in UNAVAILABLE, don't do anything.
              */
             Timber.w("User is not available! User is required during update!")
+            Telemetry.reportMessage("Update is aborted for unavailable user!")
             return
         }
         Timber.i("Updates found: ${appsNeededToUpdate.size}; $resultStatus")
@@ -168,6 +170,9 @@ class UpdatesWorker @AssistedInject constructor(
             delay(DELAY_FOR_RETRY)
             checkForUpdates()
         } else {
+            val message = "Update is aborted after trying for $MAX_RETRY_COUNT times!"
+            Timber.w(message)
+            Telemetry.reportMessage(message)
             EventBus.invokeEvent(AppEvent.UpdateEvent(ResultSupreme.WorkError(ResultStatus.UNKNOWN)))
         }
     }
