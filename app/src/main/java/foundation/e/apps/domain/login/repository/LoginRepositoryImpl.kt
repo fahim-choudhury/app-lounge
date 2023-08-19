@@ -25,16 +25,24 @@ import app.lounge.networking.NetworkResult
 import app.lounge.storage.cache.configurations
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.utils.SystemInfoProvider
+import java.util.Properties
 import javax.inject.Inject
 
 class LoginRepositoryImpl @Inject constructor(
+    @ApplicationContext val applicationContext: Context,
+    private val properties: Properties,
     private val anonymousUser: AnonymousUser,
-    @ApplicationContext val applicationContext: Context
 ) : LoginRepository {
 
-    override suspend fun anonymousUser(authDataRequestBody: AnonymousAuthDataRequestBody): AuthData {
+    private val userAgent: String by lazy { SystemInfoProvider.getAppBuildInfo() }
+
+    override suspend fun anonymousUser(): AuthData {
         val result = anonymousUser.requestAuthData(
-            anonymousAuthDataRequestBody = authDataRequestBody
+            anonymousAuthDataRequestBody = AnonymousAuthDataRequestBody(
+                properties = properties,
+                userAgent = userAgent
+            )
         )
 
         when (result) {

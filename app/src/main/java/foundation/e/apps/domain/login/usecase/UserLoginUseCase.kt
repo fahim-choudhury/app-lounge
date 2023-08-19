@@ -18,31 +18,21 @@
 
 package foundation.e.apps.domain.login.usecase
 
-import app.lounge.model.AnonymousAuthDataRequestBody
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.domain.login.repository.LoginRepository
 import foundation.e.apps.utils.Resource
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.single
-import java.util.Properties
 import javax.inject.Inject
 
 class UserLoginUseCase @Inject constructor(
     private val loginRepository: LoginRepository,
 ) {
 
-    suspend fun anonymousUser(
-        properties: Properties,
-        userAgent: String
-    ): Resource<AuthData> = flow {
+    suspend fun anonymousUser(): Resource<AuthData> = flow {
         try {
             emit(Resource.Loading)
-            val userResponse = loginRepository.anonymousUser(
-                authDataRequestBody = AnonymousAuthDataRequestBody(
-                    properties = properties,
-                    userAgent = userAgent
-                )
-            )
+            val userResponse = loginRepository.anonymousUser()
             emit(Resource.Success(userResponse))
         } catch (e: Exception) {
             emit(Resource.Error(e.localizedMessage))

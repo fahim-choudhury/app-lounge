@@ -20,15 +20,16 @@ package foundation.e.apps
 
 import app.lounge.model.AnonymousAuthDataRequestBody
 import com.aurora.gplayapi.data.models.AuthData
+import foundation.e.apps.utils.SystemInfoProvider
 import java.util.Properties
 
-val testAnonymousRequestBodyData = AnonymousAuthDataRequestBody(
+const val testEmailAddress: String = "eOS@murena.io"
+const val loginFailureMessage = "Fail to login"
+val testFailureException: Exception = Exception(loginFailureMessage)
+
+val testAnonymousRequestData = AnonymousAuthDataRequestBody(
     properties = Properties(),
-    userAgent = "testUserAgent"
+    userAgent = SystemInfoProvider.getAppBuildInfo()
 )
 
-val testAnonymousResponseData = AuthData("eOS@murena.io", "")
-
-const val loginFailureMessage = "Fail to login"
-
-val testFailureException: Exception = Exception(loginFailureMessage)
+val testAnonymousResponseData = AuthData(testEmailAddress, "")

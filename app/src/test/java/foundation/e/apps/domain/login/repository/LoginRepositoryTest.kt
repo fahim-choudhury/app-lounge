@@ -23,8 +23,9 @@ import androidx.test.core.app.ApplicationProvider
 import app.lounge.login.anonymous.AnonymousUser
 import app.lounge.networking.NetworkResult
 import foundation.e.apps.loginFailureMessage
-import foundation.e.apps.testAnonymousRequestBodyData
+import foundation.e.apps.testAnonymousRequestData
 import foundation.e.apps.testAnonymousResponseData
+import foundation.e.apps.testEmailAddress
 import foundation.e.apps.testFailureException
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -42,41 +43,41 @@ class LoginRepositoryTest {
     @Mock
     lateinit var anonymousUser: AnonymousUser
 
-    private lateinit var instrumentationContext: Context
+    private lateinit var context: Context
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        instrumentationContext = ApplicationProvider.getApplicationContext<Context>()
+        context = ApplicationProvider.getApplicationContext()
     }
 
     @Test
     fun testOnSuccessReturnAuthData() = runTest {
-        Mockito.`when`(anonymousUser.requestAuthData(testAnonymousRequestBodyData))
-            .thenReturn(NetworkResult.Success(testAnonymousResponseData))
+        Mockito.`when`(
+            anonymousUser.requestAuthData(testAnonymousRequestData)
+        ).thenReturn(NetworkResult.Success(testAnonymousResponseData))
 
-        val result = LoginRepositoryImpl(anonymousUser, instrumentationContext)
-            .run {
-                anonymousUser(testAnonymousRequestBodyData)
-            }
+        val result = LoginRepositoryImpl(context, testAnonymousRequestData.properties, anonymousUser)
+            .anonymousUser()
 
         Assert.assertNotNull(result)
-        Assert.assertEquals("eOS@murena.io", result.email)
+        Assert.assertEquals(testEmailAddress, result.email)
     }
 
     @Test
     fun testOnFailureReturnErrorWithException() = runTest {
-        Mockito.`when`(anonymousUser.requestAuthData(testAnonymousRequestBodyData))
-            .thenReturn(
-                NetworkResult.Error(
-                    exception = testFailureException,
-                    code = 1,
-                    errorMessage = loginFailureMessage
-                )
+        Mockito.`when`(
+            anonymousUser.requestAuthData(testAnonymousRequestData)
+        ).thenReturn(
+            NetworkResult.Error(
+                exception = testFailureException,
+                code = 1,
+                errorMessage = loginFailureMessage
             )
+        )
         runCatching {
-            LoginRepositoryImpl(anonymousUser, instrumentationContext)
-                .run { anonymousUser(testAnonymousRequestBodyData) }
+            LoginRepositoryImpl(context, testAnonymousRequestData.properties, anonymousUser)
+                .run { anonymousUser() }
         }.onFailure { error ->
             Assert.assertEquals(testFailureException.message, error.message)
         }
