@@ -44,6 +44,7 @@ import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 class GplayStoreRepositoryImpl @Inject constructor(
@@ -76,52 +77,81 @@ class GplayStoreRepositoryImpl @Inject constructor(
         context.getString(R.string.movers_shakers_games) to mapOf(Chart.MOVERS_SHAKERS to TopChartsHelper.Type.GAME),
     )
 
+//    override suspend fun getSearchResult(
+//        query: String,
+//    ): Flow<Pair<List<App>, Boolean>> {
+//        return flow {
+//
+//            /*
+//             * Variable names and logic made same as that of Aurora store.
+//             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
+//             */
+//            var authData = loginSourceRepository.gplayAuth ?: return@flow
+//
+//            val searchHelper =
+//                SearchHelper(authData).using(gPlayHttpClient)
+//            val searchBundle = searchHelper.searchResults(query)
+//
+//            val initialReplacedList = mutableListOf<App>()
+//            val INITIAL_LIMIT = 4
+//
+//            emitReplacedList(
+//                this@flow,
+//                initialReplacedList,
+//                INITIAL_LIMIT,
+//                searchBundle,
+//                true,
+//            )
+//
+//            var nextSubBundleSet: MutableSet<SearchBundle.SubBundle>
+//            do {
+//                nextSubBundleSet = fetchNextSubBundle(
+//                    searchBundle,
+//                    searchHelper,
+//                    this@flow,
+//                    initialReplacedList,
+//                    INITIAL_LIMIT
+//                )
+//            } while (nextSubBundleSet.isNotEmpty())
+//
+//            /*
+//             * If initialReplacedList size is less than INITIAL_LIMIT,
+//             * it means the results were very less and nothing has been emitted so far.
+//             * Hence emit the list.
+//             */
+//            if (initialReplacedList.size < INITIAL_LIMIT) {
+//                emitInMain(this@flow, initialReplacedList, false)
+//            }
+//        }.flowOn(Dispatchers.IO)
+//    }
+
     override suspend fun getSearchResult(
         query: String,
+        subBundle: MutableSet<SearchBundle.SubBundle>?
     ): Flow<Pair<List<App>, Boolean>> {
         return flow {
-
-            /*
-             * Variable names and logic made same as that of Aurora store.
-             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
-             */
             var authData = loginSourceRepository.gplayAuth ?: return@flow
-
             val searchHelper =
                 SearchHelper(authData).using(gPlayHttpClient)
-            val searchBundle = searchHelper.searchResults(query)
+            Timber.d("Fetching search result for $query, subBundle: $subBundle")
 
-            val initialReplacedList = mutableListOf<App>()
-            val INITIAL_LIMIT = 4
-
-            emitReplacedList(
-                this@flow,
-                initialReplacedList,
-                INITIAL_LIMIT,
-                searchBundle,
-                true,
-            )
-
-            var nextSubBundleSet: MutableSet<SearchBundle.SubBundle>
-            do {
-                nextSubBundleSet = fetchNextSubBundle(
-                    searchBundle,
-                    searchHelper,
-                    this@flow,
-                    initialReplacedList,
-                    INITIAL_LIMIT
-                )
-            } while (nextSubBundleSet.isNotEmpty())
-
-            /*
-             * If initialReplacedList size is less than INITIAL_LIMIT,
-             * it means the results were very less and nothing has been emitted so far.
-             * Hence emit the list.
-             */
-            if (initialReplacedList.size < INITIAL_LIMIT) {
-                emitInMain(this@flow, initialReplacedList, false)
+            subBundle?.let { 
+                val searchResult = searchHelper.next(it)
+                emitSearchResult(searchResult)
+                return@let
             }
-        }.flowOn(Dispatchers.IO)
+
+            val searchResult = searchHelper.searchResults(query)
+            emitSearchResult(searchResult)
+        }
+    }
+
+    private suspend fun FlowCollector<Pair<List<App>, Boolean>>.emitSearchResult(
+        searchBundle: SearchBundle
+    ) {
+        val apps = searchBundle.appList
+        Timber.d("Search result is found: ${apps.size}")
+        emit(Pair(apps, searchBundle.subBundles.isNotEmpty()))
     }
 
     private suspend fun fetchNextSubBundle(

@@ -1118,7 +1118,7 @@ class FusedApiImpl @Inject constructor(
     private suspend fun getGplaySearchResult(
         query: String,
     ): Flow<Pair<List<FusedApp>, Boolean>> {
-        val searchResults = gplayRepository.getSearchResult(query)
+        val searchResults = gplayRepository.getSearchResult(query, null)
         return searchResults.map {
             val fusedAppList = it.first.map { app -> replaceWithFDroid(app) }
             Pair(
