@@ -16,21 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package foundation.e.apps
 
 import app.lounge.model.AnonymousAuthDataRequestBody
 import com.aurora.gplayapi.data.models.AuthData
+import foundation.e.apps.utils.SystemInfoProvider
 import java.util.Properties
 
+const val testEmailAddress: String = "eOS@murena.io"
+const val loginFailureMessage = "Fail to login"
+val testFailureException: Exception = Exception(loginFailureMessage)
 
-val testAnonymousRequestBodyData = AnonymousAuthDataRequestBody(
+val testAnonymousRequestData = AnonymousAuthDataRequestBody(
     properties = Properties(),
-    userAgent = "testUserAgent"
+    userAgent = SystemInfoProvider.getAppBuildInfo()
 )
 
-val testAnonymousResponseData = AuthData("eOS@murena.io", "")
-
-const val loginFailureMessage = "Fail to login"
-
-val testFailureException: Exception = Exception(loginFailureMessage)
+val testAnonymousResponseData = AuthData(testEmailAddress, "")

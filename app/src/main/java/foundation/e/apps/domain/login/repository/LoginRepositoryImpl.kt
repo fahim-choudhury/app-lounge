@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package foundation.e.apps.domain.login.repository
 
 import android.content.Context
@@ -26,19 +25,27 @@ import app.lounge.networking.NetworkResult
 import app.lounge.storage.cache.configurations
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.utils.SystemInfoProvider
+import java.util.Properties
 import javax.inject.Inject
 
 class LoginRepositoryImpl @Inject constructor(
-    private val networkFetching: AnonymousUser,
-    @ApplicationContext val applicationContext: Context
-): LoginRepository {
+    @ApplicationContext val applicationContext: Context,
+    private val properties: Properties,
+    private val anonymousUser: AnonymousUser,
+) : LoginRepository {
 
-    override suspend fun anonymousUser(authDataRequestBody: AnonymousAuthDataRequestBody): AuthData {
-        val result = networkFetching.requestAuthData(
-            anonymousAuthDataRequestBody = authDataRequestBody
+    private val userAgent: String by lazy { SystemInfoProvider.getAppBuildInfo() }
+
+    override suspend fun anonymousUser(): AuthData {
+        val result = anonymousUser.requestAuthData(
+            anonymousAuthDataRequestBody = AnonymousAuthDataRequestBody(
+                properties = properties,
+                userAgent = userAgent
+            )
         )
 
-        when(result) {
+        when (result) {
             is NetworkResult.Error ->
                 throw Exception(result.errorMessage, result.exception)
             is NetworkResult.Success -> {
@@ -47,5 +54,4 @@ class LoginRepositoryImpl @Inject constructor(
             }
         }
     }
-
 }
