@@ -16,11 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package foundation.e.apps.presentation.login
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import foundation.e.apps.testAnonymousRequestBodyData
 import foundation.e.apps.data.login.LoginSourceRepository
 import foundation.e.apps.domain.login.usecase.UserLoginUseCase
 import foundation.e.apps.loginFailureMessage
@@ -29,6 +27,7 @@ import foundation.e.apps.util.getOrAwaitValue
 import foundation.e.apps.utils.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -42,14 +41,13 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 
-
 @OptIn(ExperimentalCoroutinesApi::class)
 class LoginViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
 
     @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
+    val rule = InstantTaskExecutorRule()
 
     @Mock
     lateinit var mockUserLoginUseCase: UserLoginUseCase
@@ -64,17 +62,12 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testOnSuccessReturnLogInStateTrue() = runTest{
-        Mockito.`when`(mockUserLoginUseCase.invoke(
-            properties = testAnonymousRequestBodyData.properties,
-            userAgent = testAnonymousRequestBodyData.userAgent
-        )).thenReturn(Resource.Success(testAnonymousResponseData))
+    fun testOnSuccessReturnLogInStateTrue() = runTest {
+        Mockito.`when`(mockUserLoginUseCase.anonymousUser())
+            .thenReturn(flowOf(Resource.Success(testAnonymousResponseData)))
 
         val loginViewModel = LoginViewModel(loginRepository, mockUserLoginUseCase)
-        loginViewModel.authenticateAnonymousUser(
-            properties = testAnonymousRequestBodyData.properties,
-            userAgent = testAnonymousRequestBodyData.userAgent
-        )
+        loginViewModel.authenticateAnonymousUser()
         testDispatcher.scheduler.advanceUntilIdle()
         val result = loginViewModel.loginState.getOrAwaitValue()
         Assert.assertEquals(true, result.isLoggedIn)
@@ -82,17 +75,12 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testOnFailureReturnLogInStateFalseWithError() = runTest{
-        Mockito.`when`(mockUserLoginUseCase.invoke(
-            properties = testAnonymousRequestBodyData.properties,
-            userAgent = testAnonymousRequestBodyData.userAgent
-        )).thenReturn(Resource.Error(loginFailureMessage))
+    fun testOnFailureReturnLogInStateFalseWithError() = runTest {
+        Mockito.`when`(mockUserLoginUseCase.anonymousUser())
+            .thenReturn(flowOf(Resource.Error(loginFailureMessage, null)))
 
         val loginViewModel = LoginViewModel(loginRepository, mockUserLoginUseCase)
-        loginViewModel.authenticateAnonymousUser(
-            properties = testAnonymousRequestBodyData.properties,
-            userAgent = testAnonymousRequestBodyData.userAgent
-        )
+        loginViewModel.authenticateAnonymousUser()
         testDispatcher.scheduler.advanceUntilIdle()
         val result = loginViewModel.loginState.getOrAwaitValue()
         Assert.assertEquals(false, result.isLoggedIn)
@@ -101,17 +89,12 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testOnLoadingReturnLogInStateFalse() = runTest{
-        Mockito.`when`(mockUserLoginUseCase.invoke(
-            properties = testAnonymousRequestBodyData.properties,
-            userAgent = testAnonymousRequestBodyData.userAgent
-        )).thenReturn(Resource.Loading())
+    fun testOnLoadingReturnLogInStateFalse() = runTest {
+        Mockito.`when`(mockUserLoginUseCase.anonymousUser())
+            .thenReturn(flowOf(Resource.Loading(null)))
 
         val loginViewModel = LoginViewModel(loginRepository, mockUserLoginUseCase)
-        loginViewModel.authenticateAnonymousUser(
-            properties = testAnonymousRequestBodyData.properties,
-            userAgent = testAnonymousRequestBodyData.userAgent
-        )
+        loginViewModel.authenticateAnonymousUser()
         testDispatcher.scheduler.advanceUntilIdle()
         val result = loginViewModel.loginState.getOrAwaitValue()
         Assert.assertEquals(true, result.isLoading)
@@ -122,6 +105,4 @@ class LoginViewModelTest {
     fun tearDown() {
         Dispatchers.resetMain()
     }
-
 }
-

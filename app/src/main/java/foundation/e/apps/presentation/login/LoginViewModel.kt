@@ -29,6 +29,8 @@ import foundation.e.apps.domain.login.usecase.UserLoginUseCase
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import foundation.e.apps.utils.Resource
 import foundation.e.apps.utils.SystemInfoProvider
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Properties
 import javax.inject.Inject
@@ -145,15 +147,9 @@ class LoginViewModel @Inject constructor(
     val loginState: LiveData<LoginState> = _loginState
 
 
-    fun authenticateAnonymousUser(
-        properties: Properties,
-        userAgent: String = SystemInfoProvider.getAppBuildInfo()
-    ) {
+    fun authenticateAnonymousUser() {
         viewModelScope.launch {
-            userLoginUseCase(
-                properties = properties,
-                userAgent = userAgent
-            ).also { result ->
+            userLoginUseCase.anonymousUser().onEach {result ->
                 when (result) {
                     is Resource.Success -> {
                         _loginState.value = LoginState(isLoggedIn = true)
@@ -167,7 +163,7 @@ class LoginViewModel @Inject constructor(
                         _loginState.value = LoginState(isLoading = true)
                     }
                 }
-            }
+            }.collect()
         }
     }
 }
