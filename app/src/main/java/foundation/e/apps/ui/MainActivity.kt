@@ -46,15 +46,14 @@ import foundation.e.apps.R
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.data.login.exceptions.GPlayValidationException
 import foundation.e.apps.databinding.ActivityMainBinding
 import foundation.e.apps.install.updates.UpdatesNotifier
 import foundation.e.apps.install.workmanager.InstallWorkManager
+import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.purchase.AppPurchaseFragmentDirections
 import foundation.e.apps.ui.settings.SettingsFragment
-import foundation.e.apps.ui.setup.signin.SignInViewModel
 import foundation.e.apps.utils.SystemInfoProvider
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus

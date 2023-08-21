@@ -28,11 +28,9 @@ import foundation.e.apps.data.login.LoginSourceRepository
 import foundation.e.apps.domain.login.usecase.UserLoginUseCase
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import foundation.e.apps.utils.Resource
-import foundation.e.apps.utils.SystemInfoProvider
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.util.Properties
 import javax.inject.Inject
 
 /**
@@ -142,14 +140,12 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-
     private val _loginState: MutableLiveData<LoginState> = MutableLiveData()
     val loginState: LiveData<LoginState> = _loginState
 
-
     fun authenticateAnonymousUser() {
         viewModelScope.launch {
-            userLoginUseCase.anonymousUser().onEach {result ->
+            userLoginUseCase.anonymousUser().onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         _loginState.value = LoginState(isLoggedIn = true)
