@@ -28,7 +28,7 @@ import foundation.e.apps.data.fused.utils.CategoryType
 import kotlinx.coroutines.flow.Flow
 
 interface GplayStoreRepository : BaseStoreRepository {
-    suspend fun getSearchResult(query: String, subBundle: MutableSet<SearchBundle.SubBundle>?): Flow<Pair<List<App>, Boolean>>
+    suspend fun getSearchResult(query: String, subBundle: MutableSet<SearchBundle.SubBundle>?): Pair<List<App>, MutableSet<SearchBundle.SubBundle>>
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry>
     suspend fun getAppsByCategory(category: String, pageUrl: String? = null): Any
     suspend fun getCategories(type: CategoryType? = null): List<Category>

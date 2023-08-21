@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.models.SearchBundle
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.cleanapk.data.download.Download
 import foundation.e.apps.data.enums.FilterLevel
@@ -63,6 +64,11 @@ interface FusedApi {
         query: String,
         authData: AuthData
     ): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>>
+
+    suspend fun getGplaySearchResult(
+        query: String,
+        nextPageSubBundle: Set<SearchBundle.SubBundle>?
+    ): Pair<List<FusedApp>, Set<SearchBundle.SubBundle>>
 
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry>
 

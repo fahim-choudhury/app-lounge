@@ -21,6 +21,7 @@ package foundation.e.apps.data.fused
 import android.content.Context
 import android.text.format.Formatter
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import com.aurora.gplayapi.Constants
@@ -29,6 +30,7 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Artwork
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
+import com.aurora.gplayapi.data.models.SearchBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
@@ -80,7 +82,7 @@ import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
 
-typealias GplaySearchResultLiveData = LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>>
+typealias GplaySearchResultFlow = Flow<ResultSupreme<Pair<List<FusedApp>, Boolean>>>
 typealias FusedHomeDeferred = Deferred<ResultSupreme<List<FusedHome>>>
 
 @Singleton
@@ -285,15 +287,15 @@ class FusedApiImpl @Inject constructor(
                 ).let { emit(it) }
             }
 
-            if (preferenceManagerModule.isGplaySelected()) {
-                emitSource(
-                    fetchGplaySearchResults(
-                        query,
-                        searchResult,
-                        packageSpecificResults
-                    )
-                )
-            }
+//            if (preferenceManagerModule.isGplaySelected()) {
+//                emitSource(
+//                    fetchGplaySearchResults(
+//                        query,
+//                        searchResult,
+//                        packageSpecificResults
+//                    ).asLiveData()
+//                )
+//            }
         }
     }
 
@@ -331,37 +333,25 @@ class FusedApiImpl @Inject constructor(
         )
     }
 
-    private suspend fun fetchGplaySearchResults(
-        query: String,
-        searchResult: MutableList<FusedApp>,
-        packageSpecificResults: ArrayList<FusedApp>
-    ): GplaySearchResultLiveData {
-        return runFlowWithTimeout(
-            {
-                getGplaySearchResult(query)
-            }, {
-            it.second
-        }, {
-            Pair(listOf(), false) // empty data for timeout
-        }
-        ).map {
-            if (it.isSuccess()) {
-                searchResult.addAll(it.data!!.first)
-                ResultSupreme.Success(
-                    Pair(
-                        filterWithKeywordSearch(
-                            searchResult,
-                            packageSpecificResults,
-                            query
-                        ),
-                        it.data!!.second
-                    )
-                )
-            } else {
-                it
-            }
-        }
-    }
+//    private suspend fun fetchGplaySearchResults(
+//        query: String,
+//        searchResult: MutableList<FusedApp>,
+//        packageSpecificResults: ArrayList<FusedApp>
+//    ): GplaySearchResultFlow = getGplaySearchResult(query).map {
+//        if (it.first.isNotEmpty()) {
+//            searchResult.addAll(it.first)
+//        }
+//        ResultSupreme.Success(
+//            Pair(
+//                filterWithKeywordSearch(
+//                    searchResult,
+//                    packageSpecificResults,
+//                    query
+//                ),
+//                it.second
+//            )
+//        )
+//    }
 
     private suspend fun fetchOpenSourceSearchResult(
         fusedAPIImpl: FusedApiImpl,
@@ -994,7 +984,7 @@ class FusedApiImpl @Inject constructor(
 
     private fun getCategoryIconName(category: FusedCategory): String {
         var categoryTitle = if (category.tag.getOperationalTag()
-            .contentEquals(AppTag.GPlay().getOperationalTag())
+                .contentEquals(AppTag.GPlay().getOperationalTag())
         ) category.id else category.title
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
@@ -1115,17 +1105,25 @@ class FusedApiImpl @Inject constructor(
         return list
     }
 
-    private suspend fun getGplaySearchResult(
+    override suspend fun getGplaySearchResult(
         query: String,
-    ): Flow<Pair<List<FusedApp>, Boolean>> {
-        val searchResults = gplayRepository.getSearchResult(query, null)
-        return searchResults.map {
-            val fusedAppList = it.first.map { app -> replaceWithFDroid(app) }
-            Pair(
-                fusedAppList,
-                it.second
-            )
+        nextPageSubBundle: Set<SearchBundle.SubBundle>?
+    ): Pair<List<FusedApp>, Set<SearchBundle.SubBundle>> {
+        val searchResults =
+            gplayRepository.getSearchResult(query, nextPageSubBundle?.toMutableSet())
+        if (!preferenceManagerModule.isGplaySelected()) {
+            return Pair(emptyList(), emptySet())
         }
+
+        val fusedAppList = searchResults.first.map { app -> replaceWithFDroid(app) }.toMutableList()
+        if (searchResults.second.isNotEmpty()) {
+            fusedAppList.add(FusedApp(isPlaceHolder = true))
+        }
+
+        return Pair(
+            fusedAppList,
+            searchResults.second
+        )
     }
 
     /*
@@ -1431,7 +1429,8 @@ class FusedApiImpl @Inject constructor(
         var nextPageUrl = ""
 
         val status = runCodeWithTimeout({
-            val streamCluster = gplayRepository.getAppsByCategory(category, pageUrl) as StreamCluster
+            val streamCluster =
+                gplayRepository.getAppsByCategory(category, pageUrl) as StreamCluster
             val filteredAppList = filterRestrictedGPlayApps(authData, streamCluster.clusterAppList)
             filteredAppList.data?.let {
                 fusedAppList = it.toMutableList()

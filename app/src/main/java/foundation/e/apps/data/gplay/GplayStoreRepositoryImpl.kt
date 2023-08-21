@@ -128,30 +128,29 @@ class GplayStoreRepositoryImpl @Inject constructor(
     override suspend fun getSearchResult(
         query: String,
         subBundle: MutableSet<SearchBundle.SubBundle>?
-    ): Flow<Pair<List<App>, Boolean>> {
-        return flow {
-            var authData = loginSourceRepository.gplayAuth ?: return@flow
+    ): Pair<List<App>, MutableSet<SearchBundle.SubBundle>> {
+            var authData = loginSourceRepository.gplayAuth ?: return Pair(emptyList(), mutableSetOf())
             val searchHelper =
                 SearchHelper(authData).using(gPlayHttpClient)
             Timber.d("Fetching search result for $query, subBundle: $subBundle")
 
             subBundle?.let { 
                 val searchResult = searchHelper.next(it)
-                emitSearchResult(searchResult)
-                return@let
+                Timber.d("fetching next page search data...")
+                return emitSearchResult(searchResult)
             }
 
             val searchResult = searchHelper.searchResults(query)
-            emitSearchResult(searchResult)
-        }
+            return emitSearchResult(searchResult)
+
     }
 
-    private suspend fun FlowCollector<Pair<List<App>, Boolean>>.emitSearchResult(
+    private fun emitSearchResult(
         searchBundle: SearchBundle
-    ) {
+    ): Pair<MutableList<App>, MutableSet<SearchBundle.SubBundle>> {
         val apps = searchBundle.appList
         Timber.d("Search result is found: ${apps.size}")
-        emit(Pair(apps, searchBundle.subBundles.isNotEmpty()))
+        return Pair(apps, searchBundle.subBundles)
     }
 
     private suspend fun fetchNextSubBundle(

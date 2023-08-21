@@ -21,6 +21,7 @@ package foundation.e.apps.data.fused
 import androidx.lifecycle.LiveData
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.models.SearchBundle
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
@@ -112,6 +113,13 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi)
         authData: AuthData
     ): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> {
         return fusedAPIImpl.getSearchResults(query, authData)
+    }
+
+    suspend fun getGplaySearchResults(
+        query: String,
+        nextPageSubBundle: Set<SearchBundle.SubBundle>?
+    ): Pair<List<FusedApp>, Set<SearchBundle.SubBundle>> {
+        return fusedAPIImpl.getGplaySearchResult(query, nextPageSubBundle)
     }
 
     suspend fun getAppsListBasedOnCategory(
