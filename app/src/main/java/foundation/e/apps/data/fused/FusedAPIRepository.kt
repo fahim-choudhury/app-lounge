@@ -108,10 +108,10 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi)
         return fusedAPIImpl.getSearchSuggestions(query)
     }
 
-    fun getSearchResults(
+    suspend fun getSearchResults(
         query: String,
         authData: AuthData
-    ): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> {
+    ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
         return fusedAPIImpl.getSearchResults(query, authData)
     }
 

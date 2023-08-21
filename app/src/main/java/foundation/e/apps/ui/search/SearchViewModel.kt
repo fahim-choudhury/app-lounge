@@ -98,38 +98,32 @@ class SearchViewModel @Inject constructor(
      * without having to wait for all of the apps.
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
      */
-    fun getSearchResults(query: String, authData: AuthData, lifecycleOwner: LifecycleOwner) {
-        viewModelScope.launch(Dispatchers.Main) {
-            searchResultLiveData.removeObservers(lifecycleOwner)
-            searchResultLiveData = fusedAPIRepository.getSearchResults(query, authData)
+    private fun getSearchResults(query: String, authData: AuthData, lifecycleOwner: LifecycleOwner) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val searchResultSupreme = fusedAPIRepository.getSearchResults(query, authData)
 
-            searchResultLiveData.observe(lifecycleOwner) {
-                searchResult.postValue(it)
+            searchResult.postValue(searchResultSupreme)
 
-                    if (!it.isSuccess()) {
-                    val exception =
-                        if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank()) {
-                            GPlayException(
-                                it.isTimeout(),
-                                it.message.ifBlank { "Data load error" }
-                            )
-                        } else {
-                            CleanApkException(
-                                it.isTimeout(),
-                                it.message.ifBlank { "Data load error" }
-                            )
-                        }
+            if (!searchResultSupreme.isSuccess()) {
+                val exception =
+                    if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank()) {
+                        GPlayException(
+                            searchResultSupreme.isTimeout(),
+                            searchResultSupreme.message.ifBlank { "Data load error" }
+                        )
+                    } else {
+                        CleanApkException(
+                            searchResultSupreme.isTimeout(),
+                            searchResultSupreme.message.ifBlank { "Data load error" }
+                        )
+                    }
 
-                    exceptionsList.add(exception)
-                    exceptionsLiveData.postValue(exceptionsList)
-                }
+                exceptionsList.add(exception)
+                exceptionsLiveData.postValue(exceptionsList)
             }
 
-            withContext(Dispatchers.IO) {
-                nextSubBundle = null
-                fetchGplayData(query)
-            }
-
+            nextSubBundle = null
+            fetchGplayData(query)
         }
     }
 
@@ -150,10 +144,15 @@ class SearchViewModel @Inject constructor(
         val searchResult = searchResult.value
         val currentAppList = searchResult?.data?.first?.toMutableList() ?: mutableListOf()
         currentAppList.removeIf { item -> item.isPlaceHolder }
-        currentAppList.plus(gplaySearchResult.first)
+        currentAppList.addAll(gplaySearchResult.first)
 
         val finalResult = if (searchResult is ResultSupreme.Success) {
-            ResultSupreme.Success(Pair(currentAppList.toList(), gplaySearchResult.second.isNotEmpty()))
+            ResultSupreme.Success(
+                Pair(
+                    currentAppList.toList(),
+                    gplaySearchResult.second.isNotEmpty()
+                )
+            )
         } else {
             ResultSupreme.Error()
         }

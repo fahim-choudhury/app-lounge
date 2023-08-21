@@ -60,10 +60,10 @@ interface FusedApi {
      * a Boolean signifying if more search results are being loaded.
      * Observe this livedata to display new apps as they are fetched from the network.
      */
-    fun getSearchResults(
+    suspend fun getSearchResults(
         query: String,
         authData: AuthData
-    ): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>>
+    ): ResultSupreme<Pair<List<FusedApp>, Boolean>>
 
     suspend fun getGplaySearchResult(
         query: String,
