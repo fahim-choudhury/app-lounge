@@ -33,10 +33,7 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
         }
 
         binding.anonymousBT.setOnClickListener {
-            viewModel.initialAnonymousLogin {
-                view.findNavController()
-                    .safeNavigate(R.id.signInFragment, R.id.action_signInFragment_to_homeFragment)
-            }
+            viewModel.authenticateAnonymousUser()
         }
 
         binding.noGoogleBT.setOnClickListener {
@@ -44,6 +41,15 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
                 view.findNavController()
                     .safeNavigate(R.id.signInFragment, R.id.action_signInFragment_to_homeFragment)
             }
+        }
+
+        viewModel.loginState.observe(this.viewLifecycleOwner) {
+            if (it.isLoggedIn)
+                view.findNavController()
+                    .safeNavigate(
+                        R.id.signInFragment,
+                        R.id.action_signInFragment_to_homeFragment
+                    )
         }
     }
 
