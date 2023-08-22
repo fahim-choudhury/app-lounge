@@ -41,6 +41,7 @@ import foundation.e.apps.install.updates.UpdatesNotifier
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.getFormattedString
+import foundation.e.apps.utils.isNetworkAvailable
 import kotlinx.coroutines.flow.transformWhile
 import timber.log.Timber
 import java.text.NumberFormat
@@ -122,7 +123,7 @@ class AppInstallProcessor @Inject constructor(
                 return
             }
 
-            if (!isNetworkAvailable()) {
+            if (!context.isNetworkAvailable()) {
                 fusedManagerRepository.installationIssue(fusedDownload)
                 EventBus.invokeEvent(AppEvent.NoInternetEvent(false))
                 return
@@ -183,22 +184,6 @@ class AppInstallProcessor @Inject constructor(
         val path = Environment.getDataDirectory().absolutePath
         val statFs = StatFs(path)
         return statFs.availableBytes
-    }
-
-    private fun isNetworkAvailable(): Boolean {
-        val connectivityManager =
-            context.getSystemService(ConnectivityManager::class.java)
-        val capabilities =
-            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-                ?: return false
-
-        if (capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-        ) {
-            return true
-        }
-
-        return false
     }
 
     suspend fun processInstall(

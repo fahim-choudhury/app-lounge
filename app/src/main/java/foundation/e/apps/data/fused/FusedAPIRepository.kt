@@ -118,7 +118,7 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi)
     suspend fun getGplaySearchResults(
         query: String,
         nextPageSubBundle: Set<SearchBundle.SubBundle>?
-    ): Pair<List<FusedApp>, Set<SearchBundle.SubBundle>> {
+    ): GplaySearchResult {
         return fusedAPIImpl.getGplaySearchResult(query, nextPageSubBundle)
     }
 

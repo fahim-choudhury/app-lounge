@@ -59,6 +59,7 @@ import foundation.e.apps.ui.PrivacyInfoViewModel
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.applicationlist.ApplicationListRVAdapter
 import foundation.e.apps.ui.parentFragment.TimeoutFragment
+import foundation.e.apps.utils.isNetworkAvailable
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -137,6 +138,9 @@ class SearchFragment :
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
                 if (!recyclerView.canScrollVertically(1)) {
+                    if (!requireContext().isNetworkAvailable()) {
+                        return
+                    }
                     searchViewModel.loadMore(searchText)
                 }
             }

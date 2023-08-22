@@ -18,6 +18,8 @@ import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import retrofit2.Response
 
+typealias GplaySearchResult = ResultSupreme<Pair<List<FusedApp>, Set<SearchBundle.SubBundle>>>
+
 interface FusedApi {
     companion object {
         const val APP_TYPE_ANY = "any"
@@ -68,7 +70,7 @@ interface FusedApi {
     suspend fun getGplaySearchResult(
         query: String,
         nextPageSubBundle: Set<SearchBundle.SubBundle>?
-    ): Pair<List<FusedApp>, Set<SearchBundle.SubBundle>>
+    ): GplaySearchResult
 
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry>
 
