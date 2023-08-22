@@ -770,7 +770,7 @@ class FusedApiImplTest {
         )
 
         val searchResultLiveData =
-            fusedAPIImpl.getSearchResults("com.search.package", AUTH_DATA)
+            fusedAPIImpl.getCleanApkSearchResults("com.search.package", AUTH_DATA)
 
         val size = searchResultLiveData.data?.first?.size ?: -2
         assertEquals("getSearchResult", 8, size)
@@ -863,7 +863,7 @@ class FusedApiImplTest {
         preferenceManagerModule.isGplaySelectedFake = true
 
         val searchResultLiveData =
-            fusedAPIImpl.getSearchResults("com.search.package", AUTH_DATA)
+            fusedAPIImpl.getCleanApkSearchResults("com.search.package", AUTH_DATA)
 
         val size = searchResultLiveData.data?.first?.size ?: -2
         assertEquals("getSearchResult", 4, size)

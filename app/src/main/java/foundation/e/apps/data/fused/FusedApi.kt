@@ -58,11 +58,10 @@ interface FusedApi {
      * Fetches search results from cleanAPK and GPlay servers and returns them
      * @param query Query
      * @param authData [AuthData]
-     * @return A livedata Pair of list of non-nullable [FusedApp] and
-     * a Boolean signifying if more search results are being loaded.
-     * Observe this livedata to display new apps as they are fetched from the network.
+     * @return ResultSupreme which contains a Pair<List<FusedApp>, Boolean> where List<FusedApp>
+     *     is the app list and [Boolean] indicates more data to load or not.
      */
-    suspend fun getSearchResults(
+    suspend fun getCleanApkSearchResults(
         query: String,
         authData: AuthData
     ): ResultSupreme<Pair<List<FusedApp>, Boolean>>

@@ -80,6 +80,7 @@ class GplayStoreRepositoryImpl @Inject constructor(
         var authData = loginSourceRepository.gplayAuth ?: return Pair(emptyList(), mutableSetOf())
         val searchHelper =
             SearchHelper(authData).using(gPlayHttpClient)
+
         Timber.d("Fetching search result for $query, subBundle: $subBundle")
 
         subBundle?.let {

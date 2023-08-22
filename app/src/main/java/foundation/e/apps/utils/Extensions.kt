@@ -29,6 +29,7 @@ fun Context.showGoogleSignInAlertDialog(
 fun Context.isNetworkAvailable(): Boolean {
     val connectivityManager =
         this.getSystemService(ConnectivityManager::class.java)
+
     val capabilities =
         connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
             ?: return false

@@ -100,7 +100,7 @@ class FusedApiImpl @Inject constructor(
         private const val CATEGORY_TITLE_REPLACEABLE_CONJUNCTION = "&"
         private const val CATEGORY_OPEN_GAMES_ID = "game_open_games"
         private const val CATEGORY_OPEN_GAMES_TITLE = "Open games"
-        private const val ERROR_GPLAY_SEARCH = "Gplay search is failed!"
+        private const val ERROR_GPLAY_SEARCH = "Gplay search has failed!"
         private const val ERROR_GPLAY_SOURCE_NOT_SELECTED = "Gplay apps are not selected!"
     }
 
@@ -247,7 +247,7 @@ class FusedApiImpl @Inject constructor(
      * a Boolean signifying if more search results are being loaded.
      * Observe this livedata to display new apps as they are fetched from the network.
      */
-    override suspend fun getSearchResults(
+    override suspend fun getCleanApkSearchResults(
         query: String,
         authData: AuthData
     ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
@@ -1086,19 +1086,25 @@ class FusedApiImpl @Inject constructor(
 
             val fusedAppList =
                 searchResults.first.map { app -> replaceWithFDroid(app) }.toMutableList()
+
             if (searchResults.second.isNotEmpty()) {
                 fusedAppList.add(FusedApp(isPlaceHolder = true))
             }
 
             return ResultSupreme.Success(Pair(fusedAppList.toList(), searchResults.second.toSet()))
         } catch (e: GplayHttpRequestException) {
-            val message = e.localizedMessage?.ifBlank { ERROR_GPLAY_SEARCH } ?: ERROR_GPLAY_SEARCH
+            val message = (
+                e.localizedMessage?.ifBlank { ERROR_GPLAY_SEARCH }
+                    ?: ERROR_GPLAY_SEARCH
+                ) + "Status: ${e.status}"
+
             val exception = GPlayException(e.status == 408, message)
             return ResultSupreme.Error(message, exception)
         } catch (e: Exception) {
             val exception =
                 GPlayException(e is SocketTimeoutException, e.localizedMessage)
-            return ResultSupreme.Error(e.localizedMessage, exception)
+
+            return ResultSupreme.Error(e.localizedMessage ?: "", exception)
         }
     }
 
@@ -1407,6 +1413,7 @@ class FusedApiImpl @Inject constructor(
         val status = runCodeWithTimeout({
             val streamCluster =
                 gplayRepository.getAppsByCategory(category, pageUrl) as StreamCluster
+
             val filteredAppList = filterRestrictedGPlayApps(authData, streamCluster.clusterAppList)
             filteredAppList.data?.let {
                 fusedAppList = it.toMutableList()

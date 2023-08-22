@@ -109,7 +109,7 @@ class SearchViewModel @Inject constructor(
         lifecycleOwner: LifecycleOwner
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val searchResultSupreme = fusedAPIRepository.getSearchResults(query, authData)
+            val searchResultSupreme = fusedAPIRepository.getCleanApkSearchResults(query, authData)
 
             searchResult.postValue(searchResultSupreme)
 
@@ -137,7 +137,7 @@ class SearchViewModel @Inject constructor(
 
     fun loadMore(query: String) {
         if (isLoading) {
-            Timber.d("Serach result is loading....")
+            Timber.d("Search result is loading....")
             return
         }
 

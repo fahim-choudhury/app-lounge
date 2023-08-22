@@ -54,6 +54,7 @@ class GPlayHttpClient @Inject constructor(
     companion object {
         private const val TAG = "GPlayHttpClient"
         private const val HTTP_TIMEOUT_IN_SECOND = 10L
+        private const val SEARCH = "search"
     }
 
     private val okHttpClient = OkHttpClient().newBuilder()
@@ -161,7 +162,7 @@ class GPlayHttpClient @Inject constructor(
             // TODO: exception will be thrown for all apis when all gplay api implementation
             // will handle the exceptions. this will be done in following issue.
             // Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/1483
-            if (request.url.toString().contains("search")) {
+            if (request.url.toString().contains(SEARCH)) {
                 throw e
             }
 
@@ -198,7 +199,7 @@ class GPlayHttpClient @Inject constructor(
             // TODO: exception will be thrown for all apis when all gplay api implementation
             // will handle the exceptions. this will be done in following issue.
             // Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/1483
-            if (response.request.url.toString().contains("search") && code != 200) {
+            if (response.request.url.toString().contains(SEARCH) && code != 200) {
                 throw GplayHttpRequestException(code, response.message)
             }
 

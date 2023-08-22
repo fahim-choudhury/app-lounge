@@ -108,11 +108,11 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi)
         return fusedAPIImpl.getSearchSuggestions(query)
     }
 
-    suspend fun getSearchResults(
+    suspend fun getCleanApkSearchResults(
         query: String,
         authData: AuthData
     ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
-        return fusedAPIImpl.getSearchResults(query, authData)
+        return fusedAPIImpl.getCleanApkSearchResults(query, authData)
     }
 
     suspend fun getGplaySearchResults(
