@@ -24,6 +24,7 @@ import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
+import com.aurora.gplayapi.data.models.SearchBundle
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.search.Search
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
@@ -40,10 +41,7 @@ import foundation.e.apps.data.gplay.GplayStoreRepository
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.util.MainCoroutineRule
-import foundation.e.apps.util.getOrAwaitValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
@@ -763,10 +761,8 @@ class FusedApiImplTest {
         preferenceManagerModule.isPWASelectedFake = true
         preferenceManagerModule.isOpenSourceelectedFake = true
         preferenceManagerModule.isGplaySelectedFake = true
-        val gplayFlow: Flow<Pair<List<App>, Boolean>> = flowOf(
-            Pair(
-                listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), false
-            )
+        val gplayFlow: Pair<List<App>, MutableSet<SearchBundle.SubBundle>> = Pair(
+            listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), mutableSetOf()
         )
 
         setupMockingSearchApp(
@@ -774,7 +770,7 @@ class FusedApiImplTest {
         )
 
         val searchResultLiveData =
-            fusedAPIImpl.getSearchResults("com.search.package", AUTH_DATA).getOrAwaitValue()
+            fusedAPIImpl.getSearchResults("com.search.package", AUTH_DATA)
 
         val size = searchResultLiveData.data?.first?.size ?: -2
         assertEquals("getSearchResult", 8, size)
@@ -783,7 +779,7 @@ class FusedApiImplTest {
     private suspend fun setupMockingSearchApp(
         packageNameSearchResponse: Response<Search>?,
         gplayPackageResult: App,
-        gplayLivedata: Flow<Pair<List<App>, Boolean>>,
+        gplayLivedata: Pair<List<App>, MutableSet<SearchBundle.SubBundle>>,
         willThrowException: Boolean = false
     ) {
         Mockito.`when`(pwaManagerModule.getPwaStatus(any())).thenReturn(Status.UNAVAILABLE)
@@ -816,9 +812,11 @@ class FusedApiImplTest {
             )
         ).thenReturn(packageNameSearchResponse)
 
-        Mockito.`when`(fdroidWebInterface.getFdroidApp(any())).thenReturn(Response.error(404, "".toResponseBody(null)))
+        Mockito.`when`(fdroidWebInterface.getFdroidApp(any()))
+            .thenReturn(Response.error(404, "".toResponseBody(null)))
 
-        Mockito.`when`(gPlayAPIRepository.getSearchResult(eq("com.search.package"),)).thenReturn(gplayLivedata)
+        Mockito.`when`(gPlayAPIRepository.getSearchResult(eq("com.search.package"), null))
+            .thenReturn(gplayLivedata)
     }
 
     @Ignore("Dependencies are not mockable")
@@ -852,10 +850,8 @@ class FusedApiImplTest {
         val packageNameSearchResponse = Response.success(searchResult)
         val gplayPackageResult = App("com.search.package")
 
-        val gplayFlow: Flow<Pair<List<App>, Boolean>> = flowOf(
-            Pair(
-                listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), false
-            )
+        val gplayFlow: Pair<List<App>, MutableSet<SearchBundle.SubBundle>> = Pair(
+            listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), mutableSetOf()
         )
 
         setupMockingSearchApp(
@@ -867,7 +863,7 @@ class FusedApiImplTest {
         preferenceManagerModule.isGplaySelectedFake = true
 
         val searchResultLiveData =
-            fusedAPIImpl.getSearchResults("com.search.package", AUTH_DATA).getOrAwaitValue()
+            fusedAPIImpl.getSearchResults("com.search.package", AUTH_DATA)
 
         val size = searchResultLiveData.data?.first?.size ?: -2
         assertEquals("getSearchResult", 4, size)
