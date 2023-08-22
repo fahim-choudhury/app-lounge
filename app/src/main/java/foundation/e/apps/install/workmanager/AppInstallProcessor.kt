@@ -137,7 +137,8 @@ class AppInstallProcessor @Inject constructor(
             fusedManagerRepository.updateAwaiting(fusedDownload)
             InstallWorkManager.enqueueWork(fusedDownload, isAnUpdate)
         } catch (e: Exception) {
-            Timber.e(e)
+            Timber.e("Enqueuing App install work is failed for ${fusedDownload.packageName} exception: ${e.localizedMessage}", e)
+            fusedManagerRepository.installationIssue(fusedDownload)
         }
     }
 
@@ -150,7 +151,7 @@ class AppInstallProcessor @Inject constructor(
             EventBus.invokeEvent(AppEvent.AppPurchaseEvent(fusedDownload))
             return false
         } catch (e: Exception) {
-            Timber.e(e)
+            Timber.e("Updating download Urls failed for ${fusedDownload.packageName} exception: ${e.localizedMessage}", e)
             EventBus.invokeEvent(
                 AppEvent.UpdateEvent(
                     ResultSupreme.WorkError(
@@ -222,7 +223,7 @@ class AppInstallProcessor @Inject constructor(
                 startAppInstallationProcess(it)
             }
         } catch (e: Exception) {
-            Timber.e("doWork: Failed: ${e.stackTraceToString()}")
+            Timber.e("Install worker is failed for ${fusedDownload?.packageName} exception: ${e.localizedMessage}", e)
             fusedDownload?.let {
                 fusedManagerRepository.cancelDownload(fusedDownload)
             }
@@ -331,7 +332,9 @@ class AppInstallProcessor @Inject constructor(
         try {
             handleFusedDownloadStatus(download)
         } catch (e: Exception) {
-            Timber.e(TAG, "observeDownload: ", e)
+            val message =
+                "Handling install status is failed for ${download.packageName} exception: ${e.localizedMessage}"
+            Timber.e(message, e)
             fusedManagerRepository.installationIssue(download)
             finishInstallation(download)
         }

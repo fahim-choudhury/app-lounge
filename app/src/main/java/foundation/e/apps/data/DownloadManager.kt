@@ -167,19 +167,42 @@ class DownloadManager @Inject constructor(
     }
 
     private fun getDownloadStatus(downloadId: Long): Int {
+        var status = -1
+        var reason = -1
         try {
             downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
                 .use { cursor ->
                     if (cursor.moveToFirst()) {
-                        val status =
+                        status =
                             cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+                        reason =
+                            cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON))
                         Timber.d("Download Status: downloadId: $downloadId $status")
-                        return status
                     }
                 }
         } catch (e: Exception) {
             Timber.e(e)
         }
-        return DownloadManager.STATUS_FAILED
+
+        if (status != DownloadManager.STATUS_SUCCESSFUL) {
+            Timber.e("Download Issue: $downloadId status: $status reason: $reason")
+        }
+        return status
+    }
+
+    fun getDownloadFailureReason(downloadId: Long): Int {
+        var reason = -1
+        try {
+            downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
+                .use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        reason =
+                            cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON))
+                    }
+                }
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
+        return reason
     }
 }
