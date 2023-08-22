@@ -7,9 +7,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
-import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.databinding.FragmentSignInBinding
 import foundation.e.apps.di.CommonUtilsModule.safeNavigate
+import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.utils.showGoogleSignInAlertDialog
 
 @AndroidEntryPoint

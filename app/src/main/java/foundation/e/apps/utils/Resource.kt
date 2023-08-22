@@ -21,20 +21,20 @@ package foundation.e.apps.utils
 /**
  * Class represents the different states of a resource for user case layer
  */
-sealed class Resource<out T> {
+sealed class Resource<T>(val data: T? = null, val message: String? = null) {
     /**
      * Represents a successful state of the resource with data.
      * @param data The data associated with the resource.
      */
-    class Success<out T>(val data: T) : Resource<T>()
+    class Success<T>(data: T) : Resource<T>(data)
     /**
      * Represents an error state of the resource with an error message.
      * @param message The error message associated with the resource.
      */
-    class Error(message: String) : Resource<Nothing>()
+    class Error<T>(message: String, data: T? = null) : Resource<T>(data, message)
 
     /**
      * Represents a loading state of the resource.
      */
-    object Loading : Resource<Nothing>()
+    class Loading<T>(data: T? = null) : Resource<T>(data)
 }

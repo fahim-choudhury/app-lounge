@@ -16,26 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.domain.login.usecase
+package foundation.e.apps.presentation.login
 
-import com.aurora.gplayapi.data.models.AuthData
-import foundation.e.apps.domain.login.repository.LoginRepository
-import foundation.e.apps.utils.Resource
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import javax.inject.Inject
-
-class UserLoginUseCase @Inject constructor(
-    private val loginRepository: LoginRepository,
-) {
-
-    fun anonymousUser(): Flow<Resource<AuthData>> = flow {
-        try {
-            emit(Resource.Loading())
-            val userResponse = loginRepository.anonymousUser()
-            emit(Resource.Success(userResponse))
-        } catch (e: Exception) {
-            emit(Resource.Error(e.localizedMessage))
-        }
-    }
-}
+data class LoginState(
+    val isLoading: Boolean = false,
+    val isLoggedIn: Boolean = false,
+    val error: String = ""
+)
