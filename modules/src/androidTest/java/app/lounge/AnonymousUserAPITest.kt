@@ -75,9 +75,9 @@ class AnonymousUserAPITest {
     )
 }
 
-private const val testUserAgent: String = "{\"package\":\"foundation.e.apps.debug\",\"version\":\"2.5.5.debug\",\"device\":\"coral\",\"api\":32,\"os_version\":\"1.11-s-20230511288805-dev-coral\",\"build_id\":\"319e25cd.20230630224839\"}"
+const val testUserAgent: String = "{\"package\":\"foundation.e.apps.debug\",\"version\":\"2.5.5.debug\",\"device\":\"coral\",\"api\":32,\"os_version\":\"1.11-s-20230511288805-dev-coral\",\"build_id\":\"319e25cd.20230630224839\"}"
 
-private val testSystemProperties = Properties().apply {
+val testSystemProperties = Properties().apply {
     setProperty("UserReadableName", "coral-default")
     setProperty("Build.HARDWARE", "coral")
     setProperty("Build.RADIO", "g8150-00123-220402-B-8399852")
