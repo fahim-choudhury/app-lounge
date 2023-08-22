@@ -21,7 +21,6 @@ package foundation.e.apps.data.fused
 import android.content.Context
 import android.text.format.Formatter
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import com.aurora.gplayapi.Constants
@@ -65,19 +64,15 @@ import foundation.e.apps.data.fused.utils.CategoryUtils
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.gplay.GplayStoreRepository
 import foundation.e.apps.data.gplay.utils.GplayHttpRequestException
-import foundation.e.apps.data.gplay.utils.runFlowWithTimeout
 import foundation.e.apps.data.login.exceptions.GPlayException
-import foundation.e.apps.data.login.exceptions.UnknownSourceException
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.ui.home.model.HomeChildFusedAppDiffUtil
-import foundation.e.apps.ui.search.SearchViewModel
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeout
 import retrofit2.Response
@@ -290,15 +285,6 @@ class FusedApiImpl @Inject constructor(
             )
         }
 
-//            if (preferenceManagerModule.isGplaySelected()) {
-//                emitSource(
-//                    fetchGplaySearchResults(
-//                        query,
-//                        searchResult,
-//                        packageSpecificResults
-//                    ).asLiveData()
-//                )
-//            }
         return finalSearchResult
     }
 
@@ -334,26 +320,6 @@ class FusedApiImpl @Inject constructor(
             )
         )
     }
-
-//    private suspend fun fetchGplaySearchResults(
-//        query: String,
-//        searchResult: MutableList<FusedApp>,
-//        packageSpecificResults: ArrayList<FusedApp>
-//    ): GplaySearchResultFlow = getGplaySearchResult(query).map {
-//        if (it.first.isNotEmpty()) {
-//            searchResult.addAll(it.first)
-//        }
-//        ResultSupreme.Success(
-//            Pair(
-//                filterWithKeywordSearch(
-//                    searchResult,
-//                    packageSpecificResults,
-//                    query
-//                ),
-//                it.second
-//            )
-//        )
-//    }
 
     private suspend fun fetchOpenSourceSearchResult(
         cleanApkResults: MutableList<FusedApp>,
@@ -985,7 +951,7 @@ class FusedApiImpl @Inject constructor(
 
     private fun getCategoryIconName(category: FusedCategory): String {
         var categoryTitle = if (category.tag.getOperationalTag()
-                .contentEquals(AppTag.GPlay().getOperationalTag())
+            .contentEquals(AppTag.GPlay().getOperationalTag())
         ) category.id else category.title
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {

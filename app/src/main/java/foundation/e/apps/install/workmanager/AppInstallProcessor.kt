@@ -19,8 +19,6 @@
 package foundation.e.apps.install.workmanager
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Environment
 import android.os.StatFs
 import com.aurora.gplayapi.exceptions.ApiException

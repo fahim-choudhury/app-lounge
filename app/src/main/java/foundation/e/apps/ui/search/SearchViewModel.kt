@@ -28,6 +28,7 @@ import com.aurora.gplayapi.data.models.SearchBundle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.fused.FusedAPIRepository
+import foundation.e.apps.data.fused.GplaySearchResult
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
@@ -155,16 +156,21 @@ class SearchViewModel @Inject constructor(
 
         nextSubBundle = gplaySearchResult.data?.second
 
+        val currentAppList = updateCurrentAppList(gplaySearchResult)
+        val finalResult = ResultSupreme.Success(
+            Pair(currentAppList.toList(), nextSubBundle?.isNotEmpty() ?: false)
+        )
+
+        this@SearchViewModel.searchResult.postValue(finalResult)
+        isLoading = false
+    }
+
+    private fun updateCurrentAppList(gplaySearchResult: GplaySearchResult): MutableList<FusedApp> {
         val currentSearchResult = searchResult.value?.data
         val currentAppList = currentSearchResult?.first?.toMutableList() ?: mutableListOf()
         currentAppList.removeIf { item -> item.isPlaceHolder }
         currentAppList.addAll(gplaySearchResult.data?.first ?: emptyList())
-
-        val finalResult = ResultSupreme.Success(
-            Pair(currentAppList.toList(), nextSubBundle?.isNotEmpty() ?: false)
-        )
-        this@SearchViewModel.searchResult.postValue(finalResult)
-        isLoading = false
+        return currentAppList
     }
 
     private fun handleException(exception: Exception) {
