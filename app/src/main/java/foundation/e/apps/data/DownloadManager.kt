@@ -167,8 +167,8 @@ class DownloadManager @Inject constructor(
     }
 
     private fun getDownloadStatus(downloadId: Long): Int {
-        var status: Int = -1
-        var reason: Int = -1
+        var status = -1
+        var reason = -1
         try {
             downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
                 .use { cursor ->
@@ -190,7 +190,7 @@ class DownloadManager @Inject constructor(
         return status
     }
 
-    fun getDownloadReason(downloadId: Long): Int {
+    fun getDownloadFailureReason(downloadId: Long): Int {
         var reason = -1
         try {
             downloadManager.query(downloadManagerQuery.setFilterById(downloadId))

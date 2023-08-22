@@ -20,7 +20,6 @@ package foundation.e.apps.data.blockedApps
 import com.google.gson.Gson
 import foundation.e.apps.data.DownloadManager
 import foundation.e.apps.data.fusedDownload.FileManager
-import foundation.e.lib.telemetry.Telemetry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -71,8 +70,7 @@ class BlockedAppRepository @Inject constructor(
                 Timber.i("Blocked list file contents: $blockedAppInfoJson")
                 gson.fromJson(blockedAppInfoJson, AppWarningInfo::class.java)
             } catch (exception: Exception) {
-                exception.printStackTrace()
-                Telemetry.reportException(exception)
+                Timber.e(exception.localizedMessage ?: "", exception)
                 AppWarningInfo(listOf())
             }
         }

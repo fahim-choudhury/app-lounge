@@ -25,7 +25,6 @@ import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.lib.telemetry.Telemetry
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -66,9 +65,9 @@ class DownloadManagerUtils @Inject constructor(
 
                     if (downloadManager.hasDownloadFailed(downloadId)) {
                         handleDownloadFailed(fusedDownload)
-                        Telemetry.reportMessage(
+                        Timber.e(
                             "Download failed for ${fusedDownload.packageName}, " +
-                                "reason: ${downloadManager.getDownloadReason(downloadId)}"
+                                "reason: ${downloadManager.getDownloadFailureReason(downloadId)}"
                         )
                         return@launch
                     }

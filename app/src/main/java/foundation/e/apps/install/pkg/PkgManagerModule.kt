@@ -36,7 +36,6 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.fused.FusedApi
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.lib.telemetry.Telemetry
 import kotlinx.coroutines.DelicateCoroutinesApi
 import timber.log.Timber
 import java.io.File
@@ -190,8 +189,7 @@ class PkgManagerModule @Inject constructor(
             )
             session.commit(servicePendingIntent.intentSender)
         } catch (e: Exception) {
-            Timber.e("$packageName: \n${e.stackTraceToString()}")
-            Telemetry.reportMessage("Initiating Install Failed for $packageName exception: ${e.localizedMessage}")
+            Timber.e("Initiating Install Failed for $packageName exception: ${e.localizedMessage}", e)
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 sessionId,
