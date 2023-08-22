@@ -19,6 +19,9 @@
 
 package app.lounge.di
 
+import app.lounge.login.anonymous.AnonymousUser
+import app.lounge.login.anonymous.AnonymousUserRetrofitAPI
+import app.lounge.login.anonymous.AnonymousUserRetrofitImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -35,11 +38,9 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 internal object NetworkModule {
 
-    private const val HTTP_TIMEOUT = 10L
+    private const val HTTP_TIMEOUT_IN_SECOND = 10L
 
-    @Provides
-    @Singleton
-    internal fun providesRetrofit(
+    private fun retrofit(
         okHttpClient: OkHttpClient,
         baseUrl: String
     ) : Retrofit {
@@ -52,13 +53,25 @@ internal object NetworkModule {
 
     @Provides
     @Singleton
+    @Named("ECloudRetrofit")
+    internal fun provideECloudRetrofit(
+        okHttpClient: OkHttpClient
+    ): Retrofit {
+        return retrofit(
+            okHttpClient = okHttpClient,
+            baseUrl = AnonymousUserRetrofitAPI.tokenBaseURL
+        )
+    }
+
+    @Provides
+    @Singleton
     @Named("privateOkHttpClient")
     internal fun providesOkHttpClient(
         httpLogger: HttpLoggingInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addNetworkInterceptor(httpLogger)
-            .callTimeout(HTTP_TIMEOUT, TimeUnit.SECONDS)
+            .callTimeout(HTTP_TIMEOUT_IN_SECOND, TimeUnit.SECONDS)
             .build()
     }
 
@@ -71,6 +84,16 @@ internal object NetworkModule {
                 httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
             }
         }
+    }
+
+    @Provides
+    @Singleton
+    fun provideAnonymousUser(
+        @Named("ECloudRetrofit") ecloud: Retrofit
+    ) : AnonymousUser {
+        return AnonymousUserRetrofitImpl(
+            eCloud = ecloud
+        )
     }
 
 }
