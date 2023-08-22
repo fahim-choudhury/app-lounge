@@ -157,6 +157,12 @@
     <string name="downloading">Herunterladen …</string>
     <string name="preference_update_apps_from_other_stores_title">Apps aktualisieren, die von anderen App-Stores aus installiert wurden</string>
     <string name="preference_update_apps_from_other_stores_description">Aktualisiere Apps, die von anderen Stores installiert wurden.
-\nSolche App</string>
+\nEs wird versucht, diese Apps aus den Kategorien „Häufig benutzt“ und „Quelloffen“ zu aktualisieren.</string>
     <string name="having_troubles">Ein Problem\?</string>
+    <string name="request_exodus_report">Einen Exodus-Report anfordern</string>
+    <string name="proceed_to_google_login">Weiter zur Google-Anmeldung</string>
+    <string name="google_login_alert_message">Wir empfehlen, ein spezielles Google-Konto zu benutzen, um:
+\n
+\n\t• Micro-Targeting abzuschwächen
+\n\t• die Auswirkungen zu begrenzen, falls dieses Konto von Google eingeschränkt wird</string>
 </resources>
