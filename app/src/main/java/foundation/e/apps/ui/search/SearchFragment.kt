@@ -59,6 +59,7 @@ import foundation.e.apps.ui.PrivacyInfoViewModel
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.applicationlist.ApplicationListRVAdapter
 import foundation.e.apps.ui.parentFragment.TimeoutFragment
+import foundation.e.apps.utils.isNetworkAvailable
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -75,7 +76,7 @@ class SearchFragment :
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
 
-    private val searchViewModel: SearchViewModel by viewModels()
+    protected val searchViewModel: SearchViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
     override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
@@ -132,6 +133,18 @@ class SearchFragment :
         searchViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
             handleExceptionsCommon(it)
         }
+
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (!recyclerView.canScrollVertically(1)) {
+                    if (!requireContext().isNetworkAvailable()) {
+                        return
+                    }
+                    searchViewModel.loadMore(searchText)
+                }
+            }
+        })
     }
 
     private fun shouldIgnore(

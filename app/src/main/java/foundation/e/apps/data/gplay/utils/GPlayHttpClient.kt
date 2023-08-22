@@ -41,6 +41,7 @@ import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class GPlayHttpClient @Inject constructor(
@@ -52,10 +53,13 @@ class GPlayHttpClient @Inject constructor(
 
     companion object {
         private const val TAG = "GPlayHttpClient"
+        private const val HTTP_TIMEOUT_IN_SECOND = 10L
+        private const val SEARCH = "search"
     }
 
     private val okHttpClient = OkHttpClient().newBuilder()
         .retryOnConnectionFailure(false)
+        .callTimeout(HTTP_TIMEOUT_IN_SECOND, TimeUnit.SECONDS)
         .followRedirects(true)
         .followSslRedirects(true)
         .cache(cache)
@@ -155,6 +159,13 @@ class GPlayHttpClient @Inject constructor(
             val call = okHttpClient.newCall(request)
             buildPlayResponse(call.execute())
         } catch (e: Exception) {
+            // TODO: exception will be thrown for all apis when all gplay api implementation
+            // will handle the exceptions. this will be done in following issue.
+            // Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/1483
+            if (request.url.toString().contains(SEARCH)) {
+                throw e
+            }
+
             when (e) {
                 is UnknownHostException,
                 is SocketTimeoutException -> handleExceptionOnGooglePlayRequest(e)
@@ -185,6 +196,13 @@ class GPlayHttpClient @Inject constructor(
 
             Timber.d("$TAG: Url: ${response.request.url}\nStatus: $code")
 
+            // TODO: exception will be thrown for all apis when all gplay api implementation
+            // will handle the exceptions. this will be done in following issue.
+            // Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/1483
+            if (response.request.url.toString().contains(SEARCH) && code != 200) {
+                throw GplayHttpRequestException(code, response.message)
+            }
+
             if (code == 401) {
                 MainScope().launch {
                     EventBus.invokeEvent(
@@ -203,3 +221,5 @@ class GPlayHttpClient @Inject constructor(
         }
     }
 }
+
+class GplayHttpRequestException(val status: Int, message: String) : Exception(message)

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.models.SearchBundle
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.cleanapk.data.download.Download
 import foundation.e.apps.data.enums.FilterLevel
@@ -16,6 +17,8 @@ import foundation.e.apps.data.fused.data.FusedHome
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import retrofit2.Response
+
+typealias GplaySearchResult = ResultSupreme<Pair<List<FusedApp>, Set<SearchBundle.SubBundle>>>
 
 interface FusedApi {
     companion object {
@@ -55,14 +58,18 @@ interface FusedApi {
      * Fetches search results from cleanAPK and GPlay servers and returns them
      * @param query Query
      * @param authData [AuthData]
-     * @return A livedata Pair of list of non-nullable [FusedApp] and
-     * a Boolean signifying if more search results are being loaded.
-     * Observe this livedata to display new apps as they are fetched from the network.
+     * @return ResultSupreme which contains a Pair<List<FusedApp>, Boolean> where List<FusedApp>
+     *     is the app list and [Boolean] indicates more data to load or not.
      */
-    fun getSearchResults(
+    suspend fun getCleanApkSearchResults(
         query: String,
         authData: AuthData
-    ): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>>
+    ): ResultSupreme<Pair<List<FusedApp>, Boolean>>
+
+    suspend fun getGplaySearchResult(
+        query: String,
+        nextPageSubBundle: Set<SearchBundle.SubBundle>?
+    ): GplaySearchResult
 
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry>
 

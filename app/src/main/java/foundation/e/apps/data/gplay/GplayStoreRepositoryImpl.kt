@@ -39,11 +39,8 @@ import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.gplay.utils.GPlayHttpClient
 import foundation.e.apps.data.login.LoginSourceRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 class GplayStoreRepositoryImpl @Inject constructor(
@@ -78,75 +75,30 @@ class GplayStoreRepositoryImpl @Inject constructor(
 
     override suspend fun getSearchResult(
         query: String,
-    ): Flow<Pair<List<App>, Boolean>> {
-        return flow {
+        subBundle: MutableSet<SearchBundle.SubBundle>?
+    ): Pair<List<App>, MutableSet<SearchBundle.SubBundle>> {
+        var authData = loginSourceRepository.gplayAuth ?: return Pair(emptyList(), mutableSetOf())
+        val searchHelper =
+            SearchHelper(authData).using(gPlayHttpClient)
 
-            /*
-             * Variable names and logic made same as that of Aurora store.
-             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
-             */
-            var authData = loginSourceRepository.gplayAuth ?: return@flow
+        Timber.d("Fetching search result for $query, subBundle: $subBundle")
 
-            val searchHelper =
-                SearchHelper(authData).using(gPlayHttpClient)
-            val searchBundle = searchHelper.searchResults(query)
+        subBundle?.let {
+            val searchResult = searchHelper.next(it)
+            Timber.d("fetching next page search data...")
+            return getSearchResultPair(searchResult)
+        }
 
-            val initialReplacedList = mutableListOf<App>()
-            val INITIAL_LIMIT = 4
-
-            emitReplacedList(
-                this@flow,
-                initialReplacedList,
-                INITIAL_LIMIT,
-                searchBundle,
-                true,
-            )
-
-            var nextSubBundleSet: MutableSet<SearchBundle.SubBundle>
-            do {
-                nextSubBundleSet = fetchNextSubBundle(
-                    searchBundle,
-                    searchHelper,
-                    this@flow,
-                    initialReplacedList,
-                    INITIAL_LIMIT
-                )
-            } while (nextSubBundleSet.isNotEmpty())
-
-            /*
-             * If initialReplacedList size is less than INITIAL_LIMIT,
-             * it means the results were very less and nothing has been emitted so far.
-             * Hence emit the list.
-             */
-            if (initialReplacedList.size < INITIAL_LIMIT) {
-                emitInMain(this@flow, initialReplacedList, false)
-            }
-        }.flowOn(Dispatchers.IO)
+        val searchResult = searchHelper.searchResults(query)
+        return getSearchResultPair(searchResult)
     }
 
-    private suspend fun fetchNextSubBundle(
-        searchBundle: SearchBundle,
-        searchHelper: SearchHelper,
-        scope: FlowCollector<Pair<List<App>, Boolean>>,
-        accumulationList: MutableList<App>,
-        accumulationLimit: Int,
-    ): MutableSet<SearchBundle.SubBundle> {
-        val nextSubBundleSet = searchBundle.subBundles
-        val newSearchBundle = searchHelper.next(nextSubBundleSet)
-        if (newSearchBundle.appList.isNotEmpty()) {
-            searchBundle.apply {
-                subBundles.clear()
-                subBundles.addAll(newSearchBundle.subBundles)
-                emitReplacedList(
-                    scope,
-                    accumulationList,
-                    accumulationLimit,
-                    newSearchBundle,
-                    nextSubBundleSet.isNotEmpty(),
-                )
-            }
-        }
-        return nextSubBundleSet
+    private fun getSearchResultPair(
+        searchBundle: SearchBundle
+    ): Pair<MutableList<App>, MutableSet<SearchBundle.SubBundle>> {
+        val apps = searchBundle.appList
+        Timber.d("Search result is found: ${apps.size}")
+        return Pair(apps, searchBundle.subBundles)
     }
 
     override suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
@@ -212,52 +164,6 @@ class GplayStoreRepositoryImpl @Inject constructor(
 
     private fun getCategoryType(type: CategoryType): Category.Type {
         return if (type == CategoryType.APPLICATION) Category.Type.APPLICATION else Category.Type.GAME
-    }
-
-    private suspend fun emitReplacedList(
-        scope: FlowCollector<Pair<List<App>, Boolean>>,
-        accumulationList: MutableList<App>,
-        accumulationLimit: Int,
-        searchBundle: SearchBundle,
-        moreToEmit: Boolean,
-    ) {
-        searchBundle.appList.forEach {
-            when {
-                accumulationList.size < accumulationLimit - 1 -> {
-                    /*
-                     * If initial limit is 4, add apps to list (without emitting)
-                     * till 2 apps.
-                     */
-                    accumulationList.add(it)
-                }
-
-                accumulationList.size == accumulationLimit - 1 -> {
-                    /*
-                     * If initial limit is 4, and we have reached till 3 apps,
-                     * add the 4th app and emit the list.
-                     */
-                    accumulationList.add(it)
-                    scope.emit(Pair(accumulationList, moreToEmit))
-                    emitInMain(scope, accumulationList, moreToEmit)
-                }
-
-                accumulationList.size == accumulationLimit -> {
-                    /*
-                     * If initial limit is 4, and we have emitted 4 apps,
-                     * for all rest of the apps, emit each app one by one.
-                     */
-                    emitInMain(scope, listOf(it), moreToEmit)
-                }
-            }
-        }
-    }
-
-    private suspend fun emitInMain(
-        scope: FlowCollector<Pair<List<App>, Boolean>>,
-        it: List<App>,
-        moreToEmit: Boolean
-    ) {
-        scope.emit(Pair(it, moreToEmit))
     }
 
     private suspend fun getTopApps(
