@@ -15,15 +15,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.login
+package foundation.e.apps.presentation.login
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.enums.User
+import foundation.e.apps.data.login.AuthObject
+import foundation.e.apps.data.login.LoginSourceRepository
+import foundation.e.apps.domain.login.usecase.UserLoginUseCase
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
+import foundation.e.apps.utils.Resource
+import foundation.e.apps.utils.SystemInfoProvider
 import kotlinx.coroutines.launch
+import java.util.Properties
 import javax.inject.Inject
 
 /**
@@ -33,6 +40,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginSourceRepository: LoginSourceRepository,
+    private val userLoginUseCase: UserLoginUseCase
 ) : ViewModel() {
 
     /**
@@ -129,6 +137,35 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             loginSourceRepository.logout()
             authObjects.postValue(listOf())
+        }
+    }
+
+    private val _loginState: MutableLiveData<LoginState> = MutableLiveData()
+    val loginState: LiveData<LoginState> = _loginState
+
+    fun authenticateAnonymousUser(
+        properties: Properties,
+        userAgent: String = SystemInfoProvider.getAppBuildInfo()
+    ) {
+        viewModelScope.launch {
+            userLoginUseCase(
+                properties = properties,
+                userAgent = userAgent
+            ).also { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        _loginState.value = LoginState(isLoggedIn = true)
+                    }
+                    is Resource.Error -> {
+                        _loginState.value = LoginState(
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+                    is Resource.Loading -> {
+                        _loginState.value = LoginState(isLoading = true)
+                    }
+                }
+            }
         }
     }
 }

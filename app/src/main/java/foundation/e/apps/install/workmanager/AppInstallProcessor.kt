@@ -19,16 +19,27 @@
 package foundation.e.apps.install.workmanager
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Environment
+import android.os.StatFs
+import com.aurora.gplayapi.exceptions.ApiException
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
+import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
+import foundation.e.apps.data.enums.Type
+import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.UpdatesDao
+import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.install.updates.UpdatesNotifier
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.getFormattedString
 import kotlinx.coroutines.flow.transformWhile
 import timber.log.Timber
@@ -40,6 +51,7 @@ class AppInstallProcessor @Inject constructor(
     @ApplicationContext private val context: Context,
     private val fusedDownloadRepository: FusedDownloadRepository,
     private val fusedManagerRepository: FusedManagerRepository,
+    private val fusedAPIRepository: FusedAPIRepository,
     private val dataStoreManager: DataStoreManager
 ) {
 
@@ -48,6 +60,145 @@ class AppInstallProcessor @Inject constructor(
     companion object {
         private const val TAG = "AppInstallProcessor"
         private const val DATE_FORMAT = "dd/MM/yyyy-HH:mm"
+    }
+
+    /**
+     * creates [FusedDownload] from [FusedApp] and enqueues into WorkManager to run install process.
+     * @param fusedApp represents the app info which will be installed
+     * @param isAnUpdate indicates the app is requested for update or not
+     *
+     */
+    suspend fun initAppInstall(
+        fusedApp: FusedApp,
+        isAnUpdate: Boolean = false
+    ) {
+        val fusedDownload = FusedDownload(
+            fusedApp._id,
+            fusedApp.origin,
+            fusedApp.status,
+            fusedApp.name,
+            fusedApp.package_name,
+            mutableListOf(),
+            mutableMapOf(),
+            fusedApp.status,
+            fusedApp.type,
+            fusedApp.icon_image_path,
+            fusedApp.latest_version_code,
+            fusedApp.offer_type,
+            fusedApp.isFree,
+            fusedApp.originalSize
+        )
+
+        if (fusedDownload.type == Type.PWA) {
+            fusedDownload.downloadURLList = mutableListOf(fusedApp.url)
+        }
+
+        enqueueFusedDownload(fusedDownload, isAnUpdate)
+    }
+
+    /**
+     * Enqueues [FusedDownload] into WorkManager to run app install process. Before enqueuing,
+     * It validates some corner cases
+     * @param fusedDownload represents the app downloading and installing related info, example- Installing Status,
+     * Url of the APK,OBB files are needed to be downloaded and installed etc.
+     * @param isAnUpdate indicates the app is requested for update or not
+     */
+    suspend fun enqueueFusedDownload(
+        fusedDownload: FusedDownload,
+        isAnUpdate: Boolean = false
+    ) {
+        try {
+            val authData = dataStoreManager.getAuthData()
+            if (!fusedDownload.isFree && authData.isAnonymous) {
+                EventBus.invokeEvent(AppEvent.ErrorMessageEvent(R.string.paid_app_anonymous_message))
+                return
+            }
+
+            if (fusedDownload.type != Type.PWA && !updateDownloadUrls(fusedDownload)) return
+
+            val downloadAdded = fusedManagerRepository.addDownload(fusedDownload)
+            if (!downloadAdded) {
+                Timber.i("Update adding ABORTED! status: $downloadAdded")
+                return
+            }
+
+            if (!isNetworkAvailable()) {
+                fusedManagerRepository.installationIssue(fusedDownload)
+                EventBus.invokeEvent(AppEvent.NoInternetEvent(false))
+                return
+            }
+
+            if (!isStorageAvailable(fusedDownload)) {
+                Timber.d("Storage is not available for: ${fusedDownload.name} size: ${fusedDownload.appSize}")
+                fusedManagerRepository.installationIssue(fusedDownload)
+                EventBus.invokeEvent(AppEvent.ErrorMessageEvent(R.string.not_enough_storage))
+                return
+            }
+
+            fusedManagerRepository.updateAwaiting(fusedDownload)
+            InstallWorkManager.enqueueWork(fusedDownload, isAnUpdate)
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
+    }
+
+    // returns TRUE if updating urls is successful, otherwise false.
+    private suspend fun updateDownloadUrls(fusedDownload: FusedDownload): Boolean {
+        try {
+            updateFusedDownloadWithAppDownloadLink(fusedDownload)
+        } catch (e: ApiException.AppNotPurchased) {
+            fusedManagerRepository.addFusedDownloadPurchaseNeeded(fusedDownload)
+            EventBus.invokeEvent(AppEvent.AppPurchaseEvent(fusedDownload))
+            return false
+        } catch (e: Exception) {
+            Timber.e(e)
+            EventBus.invokeEvent(
+                AppEvent.UpdateEvent(
+                    ResultSupreme.WorkError(
+                        ResultStatus.UNKNOWN,
+                        fusedDownload
+                    )
+                )
+            )
+            return false
+        }
+        return true
+    }
+
+    private suspend fun updateFusedDownloadWithAppDownloadLink(
+        fusedDownload: FusedDownload
+    ) {
+        fusedAPIRepository.updateFusedDownloadWithDownloadingInfo(
+            fusedDownload.origin,
+            fusedDownload
+        )
+    }
+
+    private fun isStorageAvailable(fusedDownload: FusedDownload): Boolean {
+        val availableSpace = calculateAvailableDiskSpace()
+        return availableSpace > fusedDownload.appSize + (500 * (1000 * 1000))
+    }
+
+    private fun calculateAvailableDiskSpace(): Long {
+        val path = Environment.getDataDirectory().absolutePath
+        val statFs = StatFs(path)
+        return statFs.availableBytes
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager =
+            context.getSystemService(ConnectivityManager::class.java)
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+                ?: return false
+
+        if (capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        ) {
+            return true
+        }
+
+        return false
     }
 
     suspend fun processInstall(
@@ -207,16 +358,20 @@ class AppInstallProcessor @Inject constructor(
         when (fusedDownload.status) {
             Status.AWAITING, Status.DOWNLOADING -> {
             }
+
             Status.DOWNLOADED -> {
                 fusedManagerRepository.updateDownloadStatus(fusedDownload, Status.INSTALLING)
             }
+
             Status.INSTALLING -> {
                 Timber.i("===> doWork: Installing ${fusedDownload.name} ${fusedDownload.status}")
             }
+
             Status.INSTALLED, Status.INSTALLATION_ISSUE -> {
                 Timber.i("===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}")
                 finishInstallation(fusedDownload)
             }
+
             else -> {
                 Timber.wtf(
                     TAG,

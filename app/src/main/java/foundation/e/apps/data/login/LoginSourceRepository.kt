@@ -67,6 +67,8 @@ class LoginSourceRepository @Inject constructor(
 
     suspend fun getValidatedAuthData(): ResultSupreme<AuthData?> {
         val authDataValidator = (sources.find { it is AuthDataValidator } as AuthDataValidator)
-        return authDataValidator.validateAuthData()
+        val validateAuthData = authDataValidator.validateAuthData()
+        this.gplayAuth = validateAuthData.data
+        return validateAuthData
     }
 }

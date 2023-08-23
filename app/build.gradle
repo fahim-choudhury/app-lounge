@@ -11,7 +11,7 @@ plugins {
 
 def versionMajor = 2
 def versionMinor = 5
-def versionPatch = 5
+def versionPatch = 8
 
 def getGitHash = { ->
     def stdOut = new ByteArrayOutputStream()
@@ -133,6 +133,12 @@ android {
     kotlin.sourceSets.all {
         languageSettings.optIn("kotlin.RequiresOptIn")
     }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 kapt {
@@ -146,7 +152,9 @@ allOpen {
 }
 
 dependencies {
-    implementation project(":modules")
+
+    implementation project(':modules')
+
     // TODO: Add splitinstall-lib to a repo https://gitlab.e.foundation/e/os/backlog/-/issues/628
     api files('libs/splitinstall-lib.jar')
 
@@ -162,6 +170,7 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
     implementation 'androidx.core:core-google-shortcuts:1.0.0'
+    implementation 'androidx.test.ext:junit-ktx:1.1.5'
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
     testImplementation "com.google.truth:truth:1.1.3"
     testImplementation 'junit:junit:4.13.2'
@@ -250,4 +259,8 @@ dependencies {
 
     // elib
     implementation 'foundation.e:elib:0.0.1-alpha11'
+
+    testImplementation 'org.mockito:mockito-core:5.0.0'
+    testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
+    testImplementation 'org.robolectric:robolectric:4.9'
 }

@@ -22,7 +22,6 @@ import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FdroidRepository
-import foundation.e.apps.data.fusedDownload.FusedDownloadDAO
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.install.workmanager.InstallWorkManager
@@ -52,7 +51,7 @@ class FusedManagerRepositoryTest {
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
-    private lateinit var fusedDownloadDAO: FusedDownloadDAO
+    private lateinit var fusedDownloadDAO: FakeFusedDownloadDAO
     private lateinit var fakeFusedManager: FakeFusedManager
 
     @Mock
@@ -88,15 +87,24 @@ class FusedManagerRepositoryTest {
     }
 
     @Test
-    fun `addDownload when work is already available`() = runTest {
+    fun `addDownload when work and FusedDownload Both are available`() = runTest {
         val fusedDownload = initTest(true)
+        fusedDownloadDAO.fusedDownloadList.add(fusedDownload)
 
         val isSuccessful = fusedManagerRepository.addDownload(fusedDownload)
         assertFalse("addDownload", isSuccessful)
     }
 
     @Test
-    fun `addDownload when fusedDownload already exists`() = runTest {
+    fun `addDownload when only work exists`() = runTest {
+        val fusedDownload = initTest(true)
+
+        val isSuccessful = fusedManagerRepository.addDownload(fusedDownload)
+        assertTrue("addDownload", isSuccessful)
+    }
+
+    @Test
+    fun `addDownload when on FusedDownload exists`() = runTest {
         val fusedDownload = initTest()
         fusedDownloadDAO.addDownload(fusedDownload)
 

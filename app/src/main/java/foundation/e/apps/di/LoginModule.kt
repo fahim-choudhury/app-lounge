@@ -24,6 +24,8 @@ import dagger.hilt.components.SingletonComponent
 import foundation.e.apps.data.login.LoginSourceCleanApk
 import foundation.e.apps.data.login.LoginSourceGPlay
 import foundation.e.apps.data.login.LoginSourceInterface
+import foundation.e.apps.domain.login.repository.LoginRepositoryImpl
+import foundation.e.apps.domain.login.usecase.UserLoginUseCase
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -35,5 +37,12 @@ object LoginModule {
         cleanApk: LoginSourceCleanApk,
     ): List<LoginSourceInterface> {
         return listOf(gPlay, cleanApk)
+    }
+
+    @Provides
+    fun provideLoginUserCase(
+        loginRepositoryImpl: LoginRepositoryImpl
+    ): UserLoginUseCase {
+        return UserLoginUseCase(loginRepositoryImpl)
     }
 }

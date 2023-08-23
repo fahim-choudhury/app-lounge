@@ -118,7 +118,14 @@ class SearchFragment :
 
         authObjects.observe(viewLifecycleOwner) {
             val currentQuery = searchView?.query?.toString() ?: ""
-            if (it == null || (currentQuery.isNotEmpty() && lastSearch == currentQuery)) return@observe
+            if (it == null || shouldIgnore(it, currentQuery)) {
+                showData()
+                return@observe
+            }
+
+            val applicationListRVAdapter = recyclerView?.adapter as ApplicationListRVAdapter
+            applicationListRVAdapter.setData(mutableListOf())
+
             loadDataWhenNetworkAvailable(it)
         }
 
@@ -126,6 +133,12 @@ class SearchFragment :
             handleExceptionsCommon(it)
         }
     }
+
+    private fun shouldIgnore(
+        authObjectList: List<AuthObject>?,
+        currentQuery: String
+    ) = currentQuery.isNotEmpty() && searchViewModel.isAuthObjectListSame(authObjectList) &&
+        lastSearch == currentQuery
 
     private fun observeSearchResult(listAdapter: ApplicationListRVAdapter?) {
         searchViewModel.searchResult.observe(viewLifecycleOwner) {
@@ -168,21 +181,25 @@ class SearchFragment :
      */
     private fun updateSearchResult(
         listAdapter: ApplicationListRVAdapter?,
-        appList: List<FusedApp>?,
+        appList: List<FusedApp>,
         hasMore: Boolean,
     ): Boolean {
         binding.loadingProgressBar.isVisible = hasMore
 
         val currentList = listAdapter?.currentList ?: listOf()
-        if (appList != null && !searchViewModel.isAnyAppUpdated(appList, currentList)) {
+        if (!searchViewModel.isAnyAppUpdated(appList, currentList)) {
             return false
         }
 
+        showData()
+        listAdapter?.setData(appList)
+        return true
+    }
+
+    private fun showData() {
         stopLoadingUI()
         noAppsFoundLayout?.visibility = View.GONE
         searchHintLayout?.visibility = View.GONE
-        listAdapter?.setData(appList!!)
-        return true
     }
 
     private fun setupSearchResult(view: View): ApplicationListRVAdapter? {
@@ -364,6 +381,7 @@ class SearchFragment :
             if (text.isNotEmpty()) {
                 hideKeyboard(activity as Activity)
             }
+
             view?.requestFocus()
             searchHintLayout?.visibility = View.GONE
             shimmerLayout?.visibility = View.VISIBLE
@@ -372,8 +390,6 @@ class SearchFragment :
              * Set the search text and call for network result.
              */
             searchText = text
-            val applicationListRVAdapter = recyclerView?.adapter as ApplicationListRVAdapter
-            applicationListRVAdapter.setData(mutableListOf())
             repostAuthObjects()
         }
         return false
@@ -427,10 +443,11 @@ class SearchFragment :
     }
 
     private fun showKeyboard() {
-        val inputMethodManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val inputMethodManager =
+            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         searchView?.javaClass?.getDeclaredField("mSearchSrcTextView")?.runCatching {
             isAccessible = true
-            get(searchView)as EditText
+            get(searchView) as EditText
         }?.onSuccess {
             inputMethodManager.showSoftInput(it, InputMethodManager.SHOW_FORCED)
         }

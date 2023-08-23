@@ -1,3 +1,21 @@
+/*
+ * Copyright MURENA SAS 2023
+ * Apps  Quickly and easily install Android apps onto your device!
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package app.lounge
 
 import app.lounge.model.AnonymousAuthDataRequestBody
@@ -27,7 +45,7 @@ class AnonymousUserAPITest {
         )
         when(response){
             is NetworkResult.Success -> authData = response.data
-            else -> {}
+            is NetworkResult.Error -> { }
         }
 
         assert(authData is AuthData) { "Assert!! Success must return data" }
@@ -57,9 +75,9 @@ class AnonymousUserAPITest {
     )
 }
 
-private const val testUserAgent: String = "{\"package\":\"foundation.e.apps.debug\",\"version\":\"2.5.5.debug\",\"device\":\"coral\",\"api\":32,\"os_version\":\"1.11-s-20230511288805-dev-coral\",\"build_id\":\"319e25cd.20230630224839\"}"
+const val testUserAgent: String = "{\"package\":\"foundation.e.apps.debug\",\"version\":\"2.5.5.debug\",\"device\":\"coral\",\"api\":32,\"os_version\":\"1.11-s-20230511288805-dev-coral\",\"build_id\":\"319e25cd.20230630224839\"}"
 
-private val testSystemProperties = Properties().apply {
+val testSystemProperties = Properties().apply {
     setProperty("UserReadableName", "coral-default")
     setProperty("Build.HARDWARE", "coral")
     setProperty("Build.RADIO", "g8150-00123-220402-B-8399852")
