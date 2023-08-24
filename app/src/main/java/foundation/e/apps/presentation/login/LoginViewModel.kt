@@ -17,18 +17,25 @@
 
 package foundation.e.apps.presentation.login
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.lounge.storage.cache.configurations
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.LoginSourceRepository
+import foundation.e.apps.domain.login.usecase.BaseUseCase
+import foundation.e.apps.domain.login.usecase.GplayLoginUseCase
+import foundation.e.apps.domain.login.usecase.LoginUseCase
 import foundation.e.apps.domain.login.usecase.UserLoginUseCase
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import foundation.e.apps.utils.Resource
 import foundation.e.apps.utils.SystemInfoProvider
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Properties
 import javax.inject.Inject
@@ -40,7 +47,9 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginSourceRepository: LoginSourceRepository,
-    private val userLoginUseCase: UserLoginUseCase
+    private val userLoginUseCase: UserLoginUseCase,
+    private val gplayLoginUseCase: GplayLoginUseCase,
+    private val loginUseCase: LoginUseCase
 ) : ViewModel() {
 
     /**
@@ -58,10 +67,18 @@ class LoginViewModel @Inject constructor(
     /**
      * Main point of starting of entire authentication process.
      */
-    fun startLoginFlow(clearList: List<String> = listOf()) {
+    fun startLoginFlow(
+        clearList: List<String> = listOf(),
+        user: User? = null,
+        email: String = "",
+        oauthToken: String = ""
+    ) {
         viewModelScope.launch {
-            val authObjectsLocal = loginSourceRepository.getAuthObjects(clearList)
-            authObjects.postValue(authObjectsLocal)
+            val authObject = loginUseCase.getAuthObject(user, email, oauthToken)
+//            val authObjectsLocal = loginSourceRepository.getAuthObjects(clearList)
+            authObject?.data?.let {
+                authObjects.postValue(listOf(it))
+            }
         }
     }
 
@@ -145,7 +162,7 @@ class LoginViewModel @Inject constructor(
 
     fun authenticateAnonymousUser(
         properties: Properties,
-        userAgent: String = SystemInfoProvider.getAppBuildInfo()
+        userAgent: String = SystemInfoProvider.getAppBuildInfo(),
     ) {
         viewModelScope.launch {
             userLoginUseCase(
@@ -156,16 +173,56 @@ class LoginViewModel @Inject constructor(
                     is Resource.Success -> {
                         _loginState.value = LoginState(isLoggedIn = true)
                     }
+
                     is Resource.Error -> {
                         _loginState.value = LoginState(
                             error = result.message ?: "An unexpected error occured"
                         )
                     }
+
                     is Resource.Loading -> {
                         _loginState.value = LoginState(isLoading = true)
                     }
                 }
             }
+        }
+    }
+
+    fun authenticateGoogleUser(email: String, oauthToken: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            gplayLoginUseCase(email, oauthToken).also { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        _loginState.value = LoginState(isLoggedIn = true)
+                    }
+
+                    is Resource.Error -> {
+                        _loginState.value = LoginState(
+                            error = result.message ?: "An unexpected error occured"
+                        )
+                    }
+
+                    is Resource.Loading -> {
+                        _loginState.value = LoginState(isLoading = true)
+                    }
+                }
+            }
+        }
+    }
+}
+
+class LoginFactory @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val userLoginUseCase: UserLoginUseCase,
+    private val gplayLoginUseCase: GplayLoginUseCase
+) {
+    suspend fun getLoginUseCase(user: User?): BaseUseCase? {
+        val currentUser = user ?: User.valueOf(context.configurations.userType)
+
+        return when (currentUser) {
+            User.ANONYMOUS -> userLoginUseCase
+            User.GOOGLE -> gplayLoginUseCase
+            else -> null
         }
     }
 }

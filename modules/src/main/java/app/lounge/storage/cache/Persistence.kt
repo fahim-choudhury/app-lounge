@@ -19,7 +19,8 @@ internal enum class PersistenceKey {
     oauthtoken,
     userType,
     tocStatus,
-    tosversion
+    tosversion,
+    aastoken
 }
 
 class PersistentConfiguration(context: Context) {
@@ -35,6 +36,7 @@ class PersistentConfiguration(context: Context) {
     var userType by context.persistent(PersistenceKey.userType, "")
     var tocStatus by context.persistent(PersistenceKey.tocStatus, false)
     var tosversion by context.persistent(PersistenceKey.tosversion, "")
+    var aasToken by context.persistent(PersistenceKey.aastoken, "")
 }
 
 internal  class PersistentItem<T>(

@@ -1,4 +1,4 @@
-package foundation.e.apps.domain.login
+package foundation.e.apps.domain.login.repository
 
 import java.util.StringTokenizer
 

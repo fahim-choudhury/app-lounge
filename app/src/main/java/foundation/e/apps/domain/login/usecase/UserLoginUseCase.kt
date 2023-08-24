@@ -20,6 +20,9 @@ package foundation.e.apps.domain.login.usecase
 
 import app.lounge.model.AnonymousAuthDataRequestBody
 import com.aurora.gplayapi.data.models.AuthData
+import foundation.e.apps.data.ResultSupreme
+import foundation.e.apps.data.enums.User
+import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.domain.login.repository.LoginRepository
 import foundation.e.apps.utils.Resource
 import kotlinx.coroutines.flow.flow
@@ -29,12 +32,12 @@ import javax.inject.Inject
 
 class UserLoginUseCase @Inject constructor(
     private val loginRepository: LoginRepository,
-) {
+): BaseUseCase() {
 
     suspend operator fun invoke(
         properties: Properties,
         userAgent: String
-    ): Resource<AuthData> = flow {
+    ): Resource<AuthObject> = flow {
         try {
             emit(Resource.Loading())
             val userResponse = loginRepository.anonymousUser(
@@ -43,7 +46,8 @@ class UserLoginUseCase @Inject constructor(
                     userAgent = userAgent
                 )
             )
-            emit(Resource.Success(userResponse))
+            val authObject = AuthObject.GPlayAuth(ResultSupreme.Success(userResponse), User.ANONYMOUS) as AuthObject
+            emit(Resource.Success(authObject))
         } catch (e: Exception) {
             emit(Resource.Error(e.localizedMessage))
         }

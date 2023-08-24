@@ -19,9 +19,13 @@
 
 package app.lounge.di
 
+import app.lounge.gplay.GplayHttpClient
 import app.lounge.login.anonymous.AnonymousUser
 import app.lounge.login.anonymous.AnonymousUserRetrofitAPI
 import app.lounge.login.anonymous.AnonymousUserRetrofitImpl
+import app.lounge.login.google.AuthTokenFetchApi
+import app.lounge.login.google.GoogleLoginApi
+import app.lounge.login.google.GoogleLoginApiImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -43,7 +47,7 @@ internal object NetworkModule {
     private fun retrofit(
         okHttpClient: OkHttpClient,
         baseUrl: String
-    ) : Retrofit {
+    ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
@@ -77,7 +81,7 @@ internal object NetworkModule {
 
     @Provides
     @Singleton
-    internal fun providesHttpLogger() : HttpLoggingInterceptor {
+    internal fun providesHttpLogger(): HttpLoggingInterceptor {
         return run {
             val httpLoggingInterceptor = HttpLoggingInterceptor()
             httpLoggingInterceptor.apply {
@@ -88,12 +92,33 @@ internal object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideGplayHttpClient(@Named("privateOkHttpClient") okHttpClient: OkHttpClient): GplayHttpClient {
+        return GplayHttpClient(okHttpClient)
+    }
+
+    @Provides
+    @Singleton
     fun provideAnonymousUser(
         @Named("ECloudRetrofit") ecloud: Retrofit
-    ) : AnonymousUser {
+    ): AnonymousUser {
         return AnonymousUserRetrofitImpl(
             eCloud = ecloud
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthTokenFetchApi(gplayHttpClient: GplayHttpClient): AuthTokenFetchApi {
+        return AuthTokenFetchApi(gplayHttpClient)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGoogleLoginApi(
+        gplayHttpClient: GplayHttpClient,
+        authTokenFetchApi: AuthTokenFetchApi
+    ): GoogleLoginApi {
+        return GoogleLoginApiImpl(gplayHttpClient, authTokenFetchApi)
     }
 
 }
