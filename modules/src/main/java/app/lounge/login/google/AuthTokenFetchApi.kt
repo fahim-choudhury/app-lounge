@@ -2,6 +2,7 @@ package app.lounge.login.google
 
 import app.lounge.gplay.GplayHttpClient
 import com.aurora.gplayapi.data.models.PlayResponse
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.Locale
 import javax.inject.Inject
 
@@ -41,6 +42,6 @@ class AuthTokenFetchApi @Inject constructor(private val gplayHttpClient: GplayHt
          * Returning PlayResponse instead of map so that we can get the network response code.
          * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5709
          */
-        return gplayHttpClient.post(TOKEN_AUTH_URL, header, body.toByteArray())
+        return gplayHttpClient.post(TOKEN_AUTH_URL, header, body.toRequestBody())
     }
 }

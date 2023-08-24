@@ -74,11 +74,12 @@ class LoginViewModel @Inject constructor(
         oauthToken: String = ""
     ) {
         viewModelScope.launch {
-            val authObject = loginUseCase.getAuthObject(user, email, oauthToken)
-//            val authObjectsLocal = loginSourceRepository.getAuthObjects(clearList)
-            authObject?.data?.let {
-                authObjects.postValue(listOf(it))
+            val authObjectList = mutableListOf<AuthObject>()
+            loginUseCase.getAuthObject(user, email, oauthToken)?.data?.let {
+                authObjectList.add(it)
             }
+//            val authObjectsLocal = loginSourceRepository.getAuthObjects(clearList)
+            authObjects.postValue(authObjectList)
         }
     }
 
@@ -103,10 +104,10 @@ class LoginViewModel @Inject constructor(
      */
     fun initialGoogleLogin(email: String, oauthToken: String, onUserSaved: () -> Unit) {
         viewModelScope.launch {
-            loginSourceRepository.saveGoogleLogin(email, oauthToken)
-            loginSourceRepository.saveUserType(User.GOOGLE)
+//            loginSourceRepository.saveGoogleLogin(email, oauthToken)
+//            loginSourceRepository.saveUserType(User.GOOGLE)
             onUserSaved()
-            startLoginFlow()
+            startLoginFlow(email = email, oauthToken = oauthToken)
         }
     }
 

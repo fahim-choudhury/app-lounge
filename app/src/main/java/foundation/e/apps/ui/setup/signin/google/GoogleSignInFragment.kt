@@ -29,8 +29,10 @@ import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import app.lounge.storage.cache.configurations
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
+import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.gplay.utils.AC2DMUtil
 import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.databinding.FragmentGoogleSigninBinding
@@ -80,6 +82,10 @@ class GoogleSignInFragment : Fragment(R.layout.fragment_google_signin) {
                     ) {
                         val email = it.replace("\"".toRegex(), "")
                         viewModel.initialGoogleLogin(email, oauthToken) {
+                            requireContext().configurations.email = email
+                            requireContext().configurations.oauthtoken = oauthToken
+                            requireContext().configurations.userType = User.GOOGLE.name
+
                             view.findNavController()
                                 .safeNavigate(
                                     R.id.googleSignInFragment,

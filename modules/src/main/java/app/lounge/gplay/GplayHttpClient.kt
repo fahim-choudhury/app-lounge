@@ -8,9 +8,11 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import timber.log.Timber
+import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.inject.Inject
@@ -86,6 +88,16 @@ class GplayHttpClient @Inject constructor(@Named("privateOkHttpClient") val okHt
         return processRequest(request)
     }
 
+    @Throws(IOException::class)
+    fun post(url: String, headers: Map<String, String>, requestBody: RequestBody): PlayResponse {
+        val request = Request.Builder()
+            .url(url)
+            .headers(headers.toHeaders())
+            .method(POST, requestBody)
+            .build()
+        return processRequest(request)
+    }
+
     override fun postAuth(url: String, body: ByteArray): PlayResponse {
         TODO("Not yet implemented")
     }
@@ -103,11 +115,6 @@ class GplayHttpClient @Inject constructor(@Named("privateOkHttpClient") val okHt
             val call = okHttpClient.newCall(request)
             buildPlayResponse(call.execute())
         } catch (e: Exception) {
-            when (e) {
-                is UnknownHostException,
-                is SocketTimeoutException -> handleExceptionOnGooglePlayRequest(e)
-                else -> handleExceptionOnGooglePlayRequest(e)
-            }
             throw e
         }
     }
