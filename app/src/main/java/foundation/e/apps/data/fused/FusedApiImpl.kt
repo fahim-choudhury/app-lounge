@@ -259,11 +259,7 @@ class FusedApiImpl @Inject constructor(
         val packageSpecificResults = ArrayList<FusedApp>()
         var finalSearchResult: ResultSupreme<Pair<List<FusedApp>, Boolean>> = ResultSupreme.Error()
 
-        fetchPackageSpecificResult(authData, query, packageSpecificResults).let {
-            if (it.data?.second != true) { // if there are no data to load
-                return it
-            }
-        }
+        fetchPackageSpecificResult(authData, query, packageSpecificResults)
 
         val searchResult = mutableListOf<FusedApp>()
         val cleanApkResults = mutableListOf<FusedApp>()
@@ -375,6 +371,10 @@ class FusedApiImpl @Inject constructor(
             gplayPackageResult?.let { packageSpecificResults.add(it) }
         }
 
+        if (preferenceManagerModule.isGplaySelected()) {
+            packageSpecificResults.add(FusedApp(isPlaceHolder = true))
+        }
+
         /*
          * If there was a timeout, return it and don't try to fetch anything else.
          * Also send true in the pair to signal more results being loaded.
@@ -400,7 +400,14 @@ class FusedApiImpl @Inject constructor(
     ): List<FusedApp> {
         val filteredResults = list.distinctBy { it.package_name }
             .filter { packageSpecificResults.isEmpty() || it.package_name != query }
-        return packageSpecificResults + filteredResults
+
+        val finalList = (packageSpecificResults + filteredResults).toMutableList()
+        finalList.removeIf { it.isPlaceHolder }
+        if (preferenceManagerModule.isGplaySelected()) {
+            finalList.add(FusedApp(isPlaceHolder = true))
+        }
+
+        return finalList
     }
 
     private suspend fun getCleanApkPackageResult(

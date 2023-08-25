@@ -35,10 +35,12 @@ import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.data.login.exceptions.UnknownSourceException
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.coroutines.coroutineContext
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -154,7 +156,15 @@ class SearchViewModel @Inject constructor(
             handleException(gplaySearchResult.exception ?: UnknownSourceException())
         }
 
+        val isFirstFetch = nextSubBundle == null
         nextSubBundle = gplaySearchResult.data?.second
+
+        // if first page has less data, then fetch next page data without waiting for users' scroll
+        if (isFirstFetch && gplaySearchResult.data?.first?.size!! < 4) {
+            CoroutineScope(coroutineContext).launch {
+                fetchGplayData(query)
+            }
+        }
 
         val currentAppList = updateCurrentAppList(gplaySearchResult)
         val finalResult = ResultSupreme.Success(
@@ -165,12 +175,12 @@ class SearchViewModel @Inject constructor(
         isLoading = false
     }
 
-    private fun updateCurrentAppList(gplaySearchResult: GplaySearchResult): MutableList<FusedApp> {
+    private fun updateCurrentAppList(gplaySearchResult: GplaySearchResult): List<FusedApp> {
         val currentSearchResult = searchResult.value?.data
         val currentAppList = currentSearchResult?.first?.toMutableList() ?: mutableListOf()
         currentAppList.removeIf { item -> item.isPlaceHolder }
         currentAppList.addAll(gplaySearchResult.data?.first ?: emptyList())
-        return currentAppList
+        return currentAppList.distinctBy { it.package_name }
     }
 
     private fun handleException(exception: Exception) {

@@ -193,15 +193,7 @@ class GPlayHttpClient @Inject constructor(
         return PlayResponse().apply {
             isSuccessful = response.isSuccessful
             code = response.code
-
             Timber.d("$TAG: Url: ${response.request.url}\nStatus: $code")
-
-            // TODO: exception will be thrown for all apis when all gplay api implementation
-            // will handle the exceptions. this will be done in following issue.
-            // Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/1483
-            if (response.request.url.toString().contains(SEARCH) && code != 200) {
-                throw GplayHttpRequestException(code, response.message)
-            }
 
             if (code == 401) {
                 MainScope().launch {
@@ -209,6 +201,13 @@ class GPlayHttpClient @Inject constructor(
                         AppEvent.InvalidAuthEvent(AuthObject.GPlayAuth::class.java.simpleName)
                     )
                 }
+            }
+
+            // TODO: exception will be thrown for all apis when all gplay api implementation
+            // will handle the exceptions. this will be done in following issue.
+            // Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/1483
+            if (response.request.url.toString().contains(SEARCH) && code != 200) {
+                throw GplayHttpRequestException(code, response.message)
             }
 
             if (response.body != null) {
