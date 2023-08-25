@@ -82,9 +82,6 @@ class GoogleSignInFragment : Fragment(R.layout.fragment_google_signin) {
                     ) {
                         val email = it.replace("\"".toRegex(), "")
                         viewModel.initialGoogleLogin(email, oauthToken) {
-                            requireContext().configurations.email = email
-                            requireContext().configurations.oauthtoken = oauthToken
-                            requireContext().configurations.userType = User.GOOGLE.name
 
                             view.findNavController()
                                 .safeNavigate(

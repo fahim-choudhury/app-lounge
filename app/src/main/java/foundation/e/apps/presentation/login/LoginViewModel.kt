@@ -36,6 +36,7 @@ import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import foundation.e.apps.utils.Resource
 import foundation.e.apps.utils.SystemInfoProvider
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Properties
 import javax.inject.Inject
@@ -75,11 +76,27 @@ class LoginViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             val authObjectList = mutableListOf<AuthObject>()
-            loginUseCase.getAuthObject(user, email, oauthToken)?.data?.let {
-                authObjectList.add(it)
+            loginUseCase.getAuthObject(user, email, oauthToken).onEach { resutl ->
+                when (resutl) {
+                    is Resource.Success -> {
+                        _loginState.value = LoginState(isLoggedIn = true)
+                        resutl.data?.let {
+                            authObjectList.add(it)
+                            authObjects.postValue(authObjectList)
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        _loginState.value = LoginState(
+                            error = resutl.message ?: "An unexpected error occured"
+                        )
+                    }
+
+                    is Resource.Loading -> {
+                        _loginState.value = LoginState(isLoading = true)
+                    }
+                }
             }
-//            val authObjectsLocal = loginSourceRepository.getAuthObjects(clearList)
-            authObjects.postValue(authObjectList)
         }
     }
 
@@ -104,10 +121,8 @@ class LoginViewModel @Inject constructor(
      */
     fun initialGoogleLogin(email: String, oauthToken: String, onUserSaved: () -> Unit) {
         viewModelScope.launch {
-//            loginSourceRepository.saveGoogleLogin(email, oauthToken)
-//            loginSourceRepository.saveUserType(User.GOOGLE)
-            onUserSaved()
             startLoginFlow(email = email, oauthToken = oauthToken)
+            onUserSaved()
         }
     }
 
@@ -191,7 +206,7 @@ class LoginViewModel @Inject constructor(
 
     fun authenticateGoogleUser(email: String, oauthToken: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            gplayLoginUseCase(email, oauthToken).also { result ->
+            gplayLoginUseCase(email, oauthToken).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         _loginState.value = LoginState(isLoggedIn = true)
@@ -208,22 +223,6 @@ class LoginViewModel @Inject constructor(
                     }
                 }
             }
-        }
-    }
-}
-
-class LoginFactory @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val userLoginUseCase: UserLoginUseCase,
-    private val gplayLoginUseCase: GplayLoginUseCase
-) {
-    suspend fun getLoginUseCase(user: User?): BaseUseCase? {
-        val currentUser = user ?: User.valueOf(context.configurations.userType)
-
-        return when (currentUser) {
-            User.ANONYMOUS -> userLoginUseCase
-            User.GOOGLE -> gplayLoginUseCase
-            else -> null
         }
     }
 }

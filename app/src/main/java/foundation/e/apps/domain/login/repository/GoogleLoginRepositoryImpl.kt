@@ -8,6 +8,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.helpers.AuthHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.data.enums.User
 import timber.log.Timber
 import java.lang.Exception
 import java.util.Properties
@@ -20,8 +21,13 @@ class GoogleLoginRepositoryImpl @Inject constructor(
 ) : GoogleLoginRepository {
 
     override suspend fun getGoogleLoginAuthData(email: String, oauthToken: String?): AuthData? {
-        val aasToken = context.configurations.aasToken
+        context.configurations.email = email
+        context.configurations.userType = User.GOOGLE.name
+        oauthToken?.let {
+            context.configurations.oauthtoken = oauthToken
+        }
 
+        val aasToken = context.configurations.aasToken
         if (oauthToken.isNullOrEmpty() && aasToken.isNotEmpty()) {
             return AuthHelper.build(email, aasToken, properties)
         }
