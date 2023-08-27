@@ -23,6 +23,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.lounge.storage.cache.configurations
+import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.enums.User
@@ -36,8 +37,10 @@ import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import foundation.e.apps.utils.Resource
 import foundation.e.apps.utils.SystemInfoProvider
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Properties
 import javax.inject.Inject
 
@@ -76,27 +79,30 @@ class LoginViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             val authObjectList = mutableListOf<AuthObject>()
-            loginUseCase.getAuthObject(user, email, oauthToken).onEach { resutl ->
-                when (resutl) {
+            loginUseCase.getAuthObject(user, email, oauthToken).onEach { result ->
+                when (result) {
                     is Resource.Success -> {
                         _loginState.value = LoginState(isLoggedIn = true)
-                        resutl.data?.let {
+                        result.data?.let {
                             authObjectList.add(it)
-                            authObjects.postValue(authObjectList)
                         }
+                        authObjects.postValue(authObjectList)
                     }
 
                     is Resource.Error -> {
+                        Timber.d("AuthObject Error: ${result.message}")
+
                         _loginState.value = LoginState(
-                            error = resutl.message ?: "An unexpected error occured"
+                            error = result.message ?: "An unexpected error occurred!"
                         )
+                        authObjects.postValue(authObjectList)
                     }
 
                     is Resource.Loading -> {
                         _loginState.value = LoginState(isLoading = true)
                     }
                 }
-            }
+            }.collect()
         }
     }
 
@@ -109,7 +115,7 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             loginSourceRepository.saveUserType(User.ANONYMOUS)
             onUserSaved()
-            startLoginFlow()
+            startLoginFlow(user = User.ANONYMOUS)
         }
     }
 
@@ -121,7 +127,7 @@ class LoginViewModel @Inject constructor(
      */
     fun initialGoogleLogin(email: String, oauthToken: String, onUserSaved: () -> Unit) {
         viewModelScope.launch {
-            startLoginFlow(email = email, oauthToken = oauthToken)
+            startLoginFlow(user = User.GOOGLE, email = email, oauthToken = oauthToken)
             onUserSaved()
         }
     }

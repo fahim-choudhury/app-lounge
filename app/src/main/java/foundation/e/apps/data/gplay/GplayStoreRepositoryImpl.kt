@@ -19,6 +19,7 @@
 package foundation.e.apps.data.gplay
 
 import android.content.Context
+import app.lounge.storage.cache.configurations
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
@@ -33,6 +34,7 @@ import com.aurora.gplayapi.helpers.Chart
 import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.aurora.gplayapi.helpers.SearchHelper
 import com.aurora.gplayapi.helpers.TopChartsHelper
+import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.fused.utils.CategoryType
@@ -55,7 +57,7 @@ class GplayStoreRepositoryImpl @Inject constructor(
     override suspend fun getHomeScreenData(): Any {
         val homeScreenData = mutableMapOf<String, List<App>>()
         val homeElements = createTopChartElements()
-        val authData = loginSourceRepository.gplayAuth ?: return homeScreenData
+        val authData = getAuthData()//loginSourceRepository.gplayAuth ?: return homeScreenData
 
         homeElements.forEach {
             val chart = it.value.keys.iterator().next()
@@ -310,5 +312,9 @@ class GplayStoreRepositoryImpl @Inject constructor(
             )
         }
         return downloadData
+    }
+
+    private fun getAuthData(): AuthData {
+        return Gson().fromJson(context.configurations.authData, AuthData::class.java)
     }
 }

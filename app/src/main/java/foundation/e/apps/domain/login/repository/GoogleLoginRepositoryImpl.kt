@@ -28,7 +28,7 @@ class GoogleLoginRepositoryImpl @Inject constructor(
         }
 
         val aasToken = context.configurations.aasToken
-        if (oauthToken.isNullOrEmpty() && aasToken.isNotEmpty()) {
+        if (aasToken.isNotEmpty()) {
             return AuthHelper.build(email, aasToken, properties)
         }
 
@@ -56,7 +56,6 @@ class GoogleLoginRepositoryImpl @Inject constructor(
                 AuthTokenPlayResponseParser.parseResponse(String(result.data.responseBytes))
 
             val token = parsedResult["Token"] ?: ""
-            Timber.d("Parsed token: $token")
             context.configurations.aasToken = token
             return AuthHelper.build(email, token, properties)
         }

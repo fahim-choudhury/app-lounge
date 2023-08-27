@@ -24,7 +24,9 @@ import app.lounge.model.AnonymousAuthDataRequestBody
 import app.lounge.networking.NetworkResult
 import app.lounge.storage.cache.configurations
 import com.aurora.gplayapi.data.models.AuthData
+import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.data.enums.User
 import javax.inject.Inject
 
 class LoginRepositoryImpl @Inject constructor(
@@ -41,7 +43,8 @@ class LoginRepositoryImpl @Inject constructor(
             is NetworkResult.Error ->
                 throw Exception(result.errorMessage, result.exception)
             is NetworkResult.Success -> {
-                applicationContext.configurations.authData = result.data.toString()
+                applicationContext.configurations.userType = User.ANONYMOUS.toString()
+                applicationContext.configurations.authData = Gson().toJson(result.data)
                 return result.data
             }
         }
