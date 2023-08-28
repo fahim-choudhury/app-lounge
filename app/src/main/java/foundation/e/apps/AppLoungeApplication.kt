@@ -19,7 +19,9 @@
 package foundation.e.apps
 
 import android.app.Application
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -56,13 +58,14 @@ class AppLoungeApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var preferenceManagerModule: PreferenceManagerModule
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate() {
         super.onCreate()
 
         InstallWorkManager.context = this
         // Register broadcast receiver for package manager
         val pkgManagerBR = object : PkgManagerBR() {}
-        registerReceiver(pkgManagerBR, pkgManagerModule.getFilter())
+        registerReceiver(pkgManagerBR, pkgManagerModule.getFilter(), RECEIVER_EXPORTED)
 
         val currentVersion = dataStoreModule.getTOSVersion()
         if (!currentVersion.contentEquals(TOS_VERSION)) {
