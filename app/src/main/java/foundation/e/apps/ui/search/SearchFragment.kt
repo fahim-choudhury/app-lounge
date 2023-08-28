@@ -30,7 +30,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.isVisible
 import androidx.cursoradapter.widget.CursorAdapter
 import androidx.cursoradapter.widget.SimpleCursorAdapter
 import androidx.fragment.app.activityViewModels
@@ -195,10 +194,7 @@ class SearchFragment :
     private fun updateSearchResult(
         listAdapter: ApplicationListRVAdapter?,
         appList: List<FusedApp>,
-        hasMore: Boolean,
     ): Boolean {
-        binding.loadingProgressBar.isVisible = hasMore
-
         val currentList = listAdapter?.currentList ?: listOf()
         if (!searchViewModel.isAnyAppUpdated(appList, currentList)) {
             return false
@@ -289,9 +285,8 @@ class SearchFragment :
         val searchList =
             searchViewModel.searchResult.value?.data?.first?.toMutableList() ?: emptyList()
 
-        val hasMoreDataToLoad = searchViewModel.searchResult.value?.data?.second == true
         mainActivityViewModel.updateStatusOfFusedApps(searchList, fusedDownloadList)
-        updateSearchResult(applicationListRVAdapter, searchList, hasMoreDataToLoad)
+        updateSearchResult(applicationListRVAdapter, searchList)
     }
 
     override fun onTimeout(
