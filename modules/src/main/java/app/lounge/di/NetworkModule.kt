@@ -22,6 +22,7 @@ package app.lounge.di
 import app.lounge.login.anonymous.AnonymousUser
 import app.lounge.login.anonymous.AnonymousUserRetrofitAPI
 import app.lounge.login.anonymous.AnonymousUserRetrofitImpl
+import app.lounge.networking.GplayHttpClient
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -94,6 +95,12 @@ internal object NetworkModule {
         return AnonymousUserRetrofitImpl(
             eCloud = ecloud
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideGplayHttpClient(@Named("privateOkHttpClient")okHttpClient: OkHttpClient): GplayHttpClient {
+        return GplayHttpClient(okHttpClient)
     }
 
 }

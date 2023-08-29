@@ -1,4 +1,4 @@
-package app.lounge.gplay
+package app.lounge.networking
 
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.network.IHttpClient
