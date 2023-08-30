@@ -20,6 +20,8 @@ package foundation.e.apps.data
 import foundation.e.apps.data.enums.ResultStatus
 import java.util.concurrent.TimeoutException
 
+private const val UNKNOWN_ERROR = "Unknown error!"
+
 /**
  * Another implementation of Result class.
  * This removes the use of [ResultStatus] class for different status.
@@ -52,10 +54,12 @@ sealed class ResultSupreme<T> {
      * Example can be an empty list.
      * @param exception Optional exception from try-catch block.
      */
-    class Timeout<T>(data: T, exception: Exception = TimeoutException()) :
+    class Timeout<T>(data: T? = null, exception: Exception = TimeoutException()) :
         ResultSupreme<T>() {
         init {
-            setData(data)
+            data?.let {
+                setData(it)
+            }
             this.exception = exception
         }
     }
@@ -117,6 +121,16 @@ sealed class ResultSupreme<T> {
 
     fun setData(data: T) {
         this.data = data
+    }
+
+    fun getResultStatus(): ResultStatus {
+        return when(this) {
+            is Success -> ResultStatus.OK
+            is Timeout -> ResultStatus.TIMEOUT
+            else -> ResultStatus.UNKNOWN.apply {
+                message = this@ResultSupreme.exception?.localizedMessage?: UNKNOWN_ERROR
+            }
+        }
     }
 
     companion object {

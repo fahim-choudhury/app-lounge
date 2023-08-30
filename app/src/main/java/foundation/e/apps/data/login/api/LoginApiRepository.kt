@@ -144,7 +144,6 @@ class LoginApiRepository constructor(
      */
     private suspend fun <T> runCodeWithTimeout(
         block: suspend () -> T,
-        timeoutBlock: (() -> T?)? = null,
         exceptionBlock: ((e: Exception) -> T?)? = null,
     ): ResultSupreme<T?> {
         return try {
@@ -152,9 +151,7 @@ class LoginApiRepository constructor(
                 return@withTimeout ResultSupreme.Success(block())
             }
         } catch (e: TimeoutCancellationException) {
-            ResultSupreme.Timeout(timeoutBlock?.invoke()).apply {
-                message = e.message ?: ""
-            }
+            ResultSupreme.Timeout(exception = e)
         } catch (e: Exception) {
             e.printStackTrace()
             ResultSupreme.Error(exceptionBlock?.invoke(e), message = e.message ?: "")
