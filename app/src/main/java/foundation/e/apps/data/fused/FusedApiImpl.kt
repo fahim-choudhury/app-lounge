@@ -693,7 +693,7 @@ class FusedApiImpl @Inject constructor(
         appList: List<App>,
     ): ResultSupreme<List<FusedApp>> {
         val filteredFusedApps = mutableListOf<FusedApp>()
-        val status = runCodeWithTimeout({
+        return handleResultFromAppSources {
             appList.forEach {
                 val filter = getAppFilterLevel(it, authData)
                 if (filter.isUnFiltered()) {
@@ -704,9 +704,8 @@ class FusedApiImpl @Inject constructor(
                     )
                 }
             }
-        })
-
-        return ResultSupreme.create(status, filteredFusedApps)
+            filteredFusedApps
+        }
     }
 
     /**
@@ -785,7 +784,7 @@ class FusedApiImpl @Inject constructor(
 
         var response: FusedApp? = null
 
-        val status = runCodeWithTimeout({
+        val result = handleResultFromAppSources {
             response = if (origin == Origin.CLEANAPK) {
                 (cleanApkAppsRepository.getAppDetails(id) as Response<Application>).body()?.app
             } else {
@@ -798,9 +797,10 @@ class FusedApiImpl @Inject constructor(
                 it.updateSource()
                 it.updateFilterLevel(authData)
             }
-        })
+            response
+        }
 
-        return Pair(response ?: FusedApp(), status)
+        return Pair(result.data ?: FusedApp(), result.getResultStatus())
     }
 
     /*
@@ -838,9 +838,9 @@ class FusedApiImpl @Inject constructor(
             val gplayCategoryResult = fetchGplayCategories(
                 type,
             )
-            categoriesList.addAll(gplayCategoryResult.second)
-            apiStatus = gplayCategoryResult.first
-            errorApplicationCategory = gplayCategoryResult.third
+            categoriesList.addAll(gplayCategoryResult.data ?: listOf())
+            apiStatus = gplayCategoryResult.getResultStatus()
+            errorApplicationCategory = APP_TYPE_ANY
         }
 
         return Pair(apiStatus, errorApplicationCategory)
@@ -848,25 +848,18 @@ class FusedApiImpl @Inject constructor(
 
     private suspend fun fetchGplayCategories(
         type: CategoryType,
-    ): Triple<ResultStatus, List<FusedCategory>, String> {
-        var errorApplicationCategory = ""
-        var apiStatus = ResultStatus.OK
+    ): ResultSupreme<List<FusedCategory>> {
         val categoryList = mutableListOf<FusedCategory>()
-        runCodeWithTimeout({
+
+        return handleResultFromAppSources {
             val playResponse = gplayRepository.getCategories(type).map { app ->
                 val category = app.transformToFusedCategory()
                 updateCategoryDrawable(category)
                 category
             }
             categoryList.addAll(playResponse)
-        }, {
-            errorApplicationCategory = APP_TYPE_ANY
-            apiStatus = ResultStatus.TIMEOUT
-        }, {
-            errorApplicationCategory = APP_TYPE_ANY
-            apiStatus = ResultStatus.UNKNOWN
-        })
-        return Triple(apiStatus, categoryList, errorApplicationCategory)
+            categoryList
+        }
     }
 
     private suspend fun fetchPWACategories(
@@ -1130,6 +1123,7 @@ class FusedApiImpl @Inject constructor(
             is SocketTimeoutException -> "Timeout"
             else -> "Unknown"
         }
+
         return (e.localizedMessage?.ifBlank { ERROR_GPLAY_API }
             ?: ERROR_GPLAY_API) + "Status: $status"
     }
@@ -1436,7 +1430,7 @@ class FusedApiImpl @Inject constructor(
         var fusedAppList: MutableList<FusedApp> = mutableListOf()
         var nextPageUrl = ""
 
-        val status = runCodeWithTimeout({
+        return handleResultFromAppSources {
             val streamCluster =
                 gplayRepository.getAppsByCategory(category, pageUrl) as StreamCluster
 
@@ -1449,8 +1443,7 @@ class FusedApiImpl @Inject constructor(
             if (!nextPageUrl.isNullOrEmpty()) {
                 fusedAppList.add(FusedApp(isPlaceHolder = true))
             }
-        })
-
-        return ResultSupreme.create(status, Pair(fusedAppList, nextPageUrl))
+            Pair(fusedAppList, nextPageUrl)
+        }
     }
 }
