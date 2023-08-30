@@ -22,7 +22,6 @@ import android.content.Context
 import android.text.format.Formatter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
-import androidx.lifecycle.map
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
@@ -73,7 +72,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeout
 import retrofit2.Response
 import timber.log.Timber
@@ -100,7 +98,7 @@ class FusedApiImpl @Inject constructor(
         private const val CATEGORY_TITLE_REPLACEABLE_CONJUNCTION = "&"
         private const val CATEGORY_OPEN_GAMES_ID = "game_open_games"
         private const val CATEGORY_OPEN_GAMES_TITLE = "Open games"
-        private const val ERROR_GPLAY_SEARCH = "Gplay search has failed!"
+        private const val ERROR_GPLAY_API = "Gplay api has faced error!"
         private const val ERROR_GPLAY_SOURCE_NOT_SELECTED = "Gplay apps are not selected!"
     }
 
@@ -167,29 +165,32 @@ class FusedApiImpl @Inject constructor(
         authData: AuthData,
     ): ResultSupreme<List<FusedHome>> {
 
-        val apiStatus = when (source) {
-            Source.GPLAY -> runCodeWithTimeout({
+        val result = when (source) {
+            Source.GPLAY -> handleResultFromAppSources<List<FusedHome>> {
                 priorList.addAll(fetchGPlayHome(authData))
-            })
+                priorList
+            }
 
-            Source.OPEN -> runCodeWithTimeout({
+            Source.OPEN -> handleResultFromAppSources {
                 val response =
                     (cleanApkAppsRepository.getHomeScreenData() as Response<HomeScreen>).body()
                 response?.home?.let {
                     priorList.addAll(generateCleanAPKHome(it, APP_TYPE_OPEN))
                 }
-            })
+                priorList
+            }
 
-            Source.PWA -> runCodeWithTimeout({
+            Source.PWA -> handleResultFromAppSources {
                 val response =
                     (cleanApkPWARepository.getHomeScreenData() as Response<HomeScreen>).body()
                 response?.home?.let {
                     priorList.addAll(generateCleanAPKHome(it, APP_TYPE_PWA))
                 }
-            })
+                priorList
+            }
         }
 
-        setHomeErrorMessage(apiStatus, source)
+        setHomeErrorMessage(result.getResultStatus(), source)
         priorList.sortByDescending {
             when (it.source) {
                 APP_TYPE_OPEN -> 2
@@ -197,7 +198,7 @@ class FusedApiImpl @Inject constructor(
                 else -> 3
             }
         }
-        return ResultSupreme.create(apiStatus, priorList)
+        return ResultSupreme.create(result.getResultStatus(), priorList)
     }
 
     private fun setHomeErrorMessage(apiStatus: ResultStatus, source: Source) {
@@ -322,16 +323,17 @@ class FusedApiImpl @Inject constructor(
         searchResult: MutableList<FusedApp>,
         packageSpecificResults: ArrayList<FusedApp>
     ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
-        val status = runCodeWithTimeout({
+        val result = handleResultFromAppSources {
             cleanApkResults.addAll(getCleanAPKSearchResults(query))
-        })
+            cleanApkResults
+        }
 
         if (cleanApkResults.isNotEmpty()) {
             searchResult.addAll(cleanApkResults)
         }
 
         return ResultSupreme.create(
-            status,
+            result.getResultStatus(),
             Pair(
                 filterWithKeywordSearch(
                     searchResult,
@@ -957,7 +959,7 @@ class FusedApiImpl @Inject constructor(
 
     private fun getCategoryIconName(category: FusedCategory): String {
         var categoryTitle = if (category.tag.getOperationalTag()
-            .contentEquals(AppTag.GPlay().getOperationalTag())
+                .contentEquals(AppTag.GPlay().getOperationalTag())
         ) category.id else category.title
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
@@ -1082,12 +1084,12 @@ class FusedApiImpl @Inject constructor(
         query: String,
         nextPageSubBundle: Set<SearchBundle.SubBundle>?
     ): GplaySearchResult {
-        try {
+        return handleResultFromAppSources {
             val searchResults =
                 gplayRepository.getSearchResult(query, nextPageSubBundle?.toMutableSet())
 
             if (!preferenceManagerModule.isGplaySelected()) {
-                return ResultSupreme.Error(ERROR_GPLAY_SOURCE_NOT_SELECTED)
+                return@handleResultFromAppSources Pair(listOf<FusedApp>(), setOf<SearchBundle.SubBundle>())
             }
 
             val fusedAppList =
@@ -1097,21 +1099,39 @@ class FusedApiImpl @Inject constructor(
                 fusedAppList.add(FusedApp(isPlaceHolder = true))
             }
 
-            return ResultSupreme.Success(Pair(fusedAppList.toList(), searchResults.second.toSet()))
-        } catch (e: GplayHttpRequestException) {
-            val message = (
-                e.localizedMessage?.ifBlank { ERROR_GPLAY_SEARCH }
-                    ?: ERROR_GPLAY_SEARCH
-                ) + "Status: ${e.status}"
-
-            val exception = GPlayException(e.status == 408, message)
-            return ResultSupreme.Error(message, exception)
-        } catch (e: Exception) {
-            val exception =
-                GPlayException(e is SocketTimeoutException, e.localizedMessage)
-
-            return ResultSupreme.Error(e.localizedMessage ?: "", exception)
+            return@handleResultFromAppSources Pair(fusedAppList.toList(), searchResults.second.toSet())
         }
+    }
+
+    private suspend fun <T> handleResultFromAppSources(call: suspend () -> T): ResultSupreme<T> {
+        return try {
+            ResultSupreme.Success(call())
+        } catch (e: SocketTimeoutException) {
+            val message = extractErrorMessage(e)
+            val exception = GPlayException(true, message)
+            val resultTimeout = ResultSupreme.Timeout<T>(exception = exception)
+            resultTimeout.message = message
+
+            resultTimeout
+        } catch (e: GplayHttpRequestException) {
+            val message = extractErrorMessage(e)
+            val exception = GPlayException(e.status == 408, message)
+
+            ResultSupreme.Error(message, exception)
+        } catch (e: Exception) {
+            val message = extractErrorMessage(e)
+            ResultSupreme.Error(message, e)
+        }
+    }
+
+    private fun extractErrorMessage(e: Exception): String {
+        val status = when (e) {
+            is GplayHttpRequestException -> e.status.toString()
+            is SocketTimeoutException -> "Timeout"
+            else -> "Unknown"
+        }
+        return (e.localizedMessage?.ifBlank { ERROR_GPLAY_API }
+            ?: ERROR_GPLAY_API) + "Status: $status"
     }
 
     /*
