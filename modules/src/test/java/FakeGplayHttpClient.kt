@@ -1,9 +1,10 @@
-package app.lounge
-
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.network.IHttpClient
 
 class FakeGplayHttpClient : IHttpClient {
+
+    var shouldThrowException = false
+
     override fun get(url: String, headers: Map<String, String>): PlayResponse {
         TODO("Not yet implemented")
     }
@@ -25,7 +26,10 @@ class FakeGplayHttpClient : IHttpClient {
     }
 
     override fun post(url: String, headers: Map<String, String>, body: ByteArray): PlayResponse {
-        TODO("Not yet implemented")
+        if (shouldThrowException) {
+            throw RuntimeException()
+        }
+        return PlayResponse()
     }
 
     override fun post(
