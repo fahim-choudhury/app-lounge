@@ -33,8 +33,6 @@ interface IFusedManager {
     suspend fun getDownloadList(): List<FusedDownload>
     fun getDownloadLiveList(): LiveData<List<FusedDownload>>
 
-    suspend fun clearInstallationIssue(fusedDownload: FusedDownload)
-
     suspend fun updateDownloadStatus(fusedDownload: FusedDownload, status: Status)
 
     suspend fun downloadApp(fusedDownload: FusedDownload)

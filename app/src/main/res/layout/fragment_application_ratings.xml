@@ -62,10 +62,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawablePadding="5sp"
+                android:drawableTint="@color/colorAccent"
                 android:text="@string/rating"
                 android:textColor="?android:textColorPrimary"
                 android:textSize="15sp"
-                android:drawableTint="@color/colorAccent"
                 app:drawableStartCompat="@drawable/ic_star" />
         </LinearLayout>
 
@@ -85,6 +85,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="25dp"
                 android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@+id/appPrivacyScore"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/appPrivacyScore" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/requestExodusReport"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:background="@drawable/bg_button_rounded"
+                android:gravity="center"
+                android:padding="4dp"
+                android:text="@string/request_exodus_report"
+                android:textColor="@color/colorAccent"
+                android:textSize="20sp"
+                android:visibility="invisible"
+                app:autoSizeTextType="uniform"
                 app:layout_constraintBottom_toBottomOf="@+id/appPrivacyScore"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

@@ -24,17 +24,23 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.models.SearchBundle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.fused.FusedAPIRepository
+import foundation.e.apps.data.fused.GplaySearchResult
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
+import foundation.e.apps.data.login.exceptions.UnknownSourceException
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
+import kotlin.coroutines.coroutineContext
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -42,10 +48,20 @@ class SearchViewModel @Inject constructor(
 ) : LoadingViewModel() {
 
     val searchSuggest: MutableLiveData<List<SearchSuggestEntry>?> = MutableLiveData()
+
     val searchResult: MutableLiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
         MutableLiveData()
     private var searchResultLiveData: LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
         MutableLiveData()
+    private var lastAuthObjects: List<AuthObject>? = null
+
+    private var nextSubBundle: Set<SearchBundle.SubBundle>? = null
+
+    private var isLoading: Boolean = false
+
+    companion object {
+        private const val DATA_LOAD_ERROR = "Data load error"
+    }
 
     fun getSearchSuggestions(query: String, gPlayAuth: AuthObject.GPlayAuth) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -68,6 +84,7 @@ class SearchViewModel @Inject constructor(
 
         if (query.isBlank()) return
 
+        this.lastAuthObjects = authObjectList
         super.onLoadData(authObjectList, { successAuthList, _ ->
 
             successAuthList.find { it is AuthObject.GPlayAuth }?.run {
@@ -88,32 +105,87 @@ class SearchViewModel @Inject constructor(
      * without having to wait for all of the apps.
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
      */
-    fun getSearchResults(query: String, authData: AuthData, lifecycleOwner: LifecycleOwner) {
-        viewModelScope.launch(Dispatchers.Main) {
-            searchResultLiveData.removeObservers(lifecycleOwner)
-            searchResultLiveData = fusedAPIRepository.getSearchResults(query, authData)
-            searchResultLiveData.observe(lifecycleOwner) {
-                searchResult.postValue(it)
+    private fun getSearchResults(
+        query: String,
+        authData: AuthData,
+        lifecycleOwner: LifecycleOwner
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val searchResultSupreme = fusedAPIRepository.getCleanApkSearchResults(query, authData)
 
-                if (!it.isSuccess()) {
-                    val exception =
-                        if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank()) {
-                            GPlayException(
-                                it.isTimeout(),
-                                it.message.ifBlank { "Data load error" }
-                            )
-                        } else {
-                            CleanApkException(
-                                it.isTimeout(),
-                                it.message.ifBlank { "Data load error" }
-                            )
-                        }
+            searchResult.postValue(searchResultSupreme)
 
-                    exceptionsList.add(exception)
-                    exceptionsLiveData.postValue(exceptionsList)
-                }
+            if (!searchResultSupreme.isSuccess()) {
+                val exception =
+                    if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank()) {
+                        GPlayException(
+                            searchResultSupreme.isTimeout(),
+                            searchResultSupreme.message.ifBlank { DATA_LOAD_ERROR }
+                        )
+                    } else {
+                        CleanApkException(
+                            searchResultSupreme.isTimeout(),
+                            searchResultSupreme.message.ifBlank { DATA_LOAD_ERROR }
+                        )
+                    }
+
+                handleException(exception)
+            }
+
+            nextSubBundle = null
+            fetchGplayData(query)
+        }
+    }
+
+    fun loadMore(query: String) {
+        if (isLoading) {
+            Timber.d("Search result is loading....")
+            return
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            fetchGplayData(query)
+        }
+    }
+
+    private suspend fun fetchGplayData(query: String) {
+        isLoading = true
+        val gplaySearchResult = fusedAPIRepository.getGplaySearchResults(query, nextSubBundle)
+
+        if (!gplaySearchResult.isSuccess()) {
+            handleException(gplaySearchResult.exception ?: UnknownSourceException())
+        }
+
+        val isFirstFetch = nextSubBundle == null
+        nextSubBundle = gplaySearchResult.data?.second
+
+        // if first page has less data, then fetch next page data without waiting for users' scroll
+        if (isFirstFetch && gplaySearchResult.data?.first?.size!! < 4) {
+            CoroutineScope(coroutineContext).launch {
+                fetchGplayData(query)
             }
         }
+
+        val currentAppList = updateCurrentAppList(gplaySearchResult)
+        val finalResult = ResultSupreme.Success(
+            Pair(currentAppList.toList(), nextSubBundle?.isNotEmpty() ?: false)
+        )
+
+        this@SearchViewModel.searchResult.postValue(finalResult)
+        isLoading = false
+    }
+
+    private fun updateCurrentAppList(gplaySearchResult: GplaySearchResult): List<FusedApp> {
+        val currentSearchResult = searchResult.value?.data
+        val currentAppList = currentSearchResult?.first?.toMutableList() ?: mutableListOf()
+        currentAppList.removeIf { item -> item.isPlaceHolder }
+        currentAppList.addAll(gplaySearchResult.data?.first ?: emptyList())
+        return currentAppList.distinctBy { it.package_name }
+    }
+
+    private fun handleException(exception: Exception) {
+        exceptionsList.add(exception)
+        exceptionsLiveData.postValue(exceptionsList)
     }
 
     /**
@@ -123,4 +195,8 @@ class SearchViewModel @Inject constructor(
         newFusedApps: List<FusedApp>,
         oldFusedApps: List<FusedApp>
     ) = fusedAPIRepository.isAnyFusedAppUpdated(newFusedApps, oldFusedApps)
+
+    fun isAuthObjectListSame(authObjectList: List<AuthObject>?): Boolean {
+        return lastAuthObjects == authObjectList
+    }
 }

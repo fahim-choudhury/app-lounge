@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">App Lounge</string>
     <string name="monthly">Månedlig</string>
     <string name="weekly">Ukentlig</string>
     <string name="daily">Daglig</string>
@@ -11,7 +10,6 @@
     <string name="unsupported_app_title">Applikasjon støttes ikke!</string>
     <string name="download_automatically_message">Applikasjonen din vil bli lastet ned automatisk på denne enheten</string>
     <string name="purchase_complete">Kjøp fullført!</string>
-    <string name="dialog_cancel">AVBRYT</string>
     <string name="dialog_title_paid_app">Kjøp <b>%1$s</b></string>
     <string name="anonymous_login_failed_desc">Dette kan være fordi symbol ikke kunne genereres/verifiseres eller av andre grunner.
 \n

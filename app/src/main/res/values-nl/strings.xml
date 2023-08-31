@@ -10,7 +10,6 @@
     <string name="download_automatically_message">Je app zal automatisch op dit toestel gedownload worden</string>
     <string name="purchase_complete">Aankoop voltooid!</string>
     <string name="paid_app_anonymous_message">Betalende apps kunnen niet geïnstalleerd worden in anonieme modus. Log alstublieft in met je Google account om betalende apps te installeren.</string>
-    <string name="dialog_cancel">ANNULEREN</string>
     <string name="dialog_confirm">BEVESTIGEN</string>
     <string name="dialog_title_paid_app"><b>%1$s</b> kopen</string>
     <string name="anonymous_login_failed">Anoniem inloggen mislukt!</string>
@@ -118,7 +117,6 @@
     <string name="menu_search">Zoeken</string>
     <string name="menu_categories">Categorieën</string>
     <string name="menu_home">Home</string>
-    <string name="app_name">App Lounge</string>
     <string name="topgrossing_games">Top Lucratieve Games</string>
     <string name="topgrossing_apps">Top Lucratieve Apps</string>
     <string name="may_not_work_warning_message">De installatie afdwingen maakt het mogelijk om het te downloaden en installeren, maar het is niet gegarandeerd dat het zal werken.<br/><br/>Het installeren van niet ondersteunde apps kan je systeem vertragen of doen crashen.<br/><br/>We werken eraan om de compatibiliteit met deze applicatie te verbeteren in de nabije toekomst.</string>

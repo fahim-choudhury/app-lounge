@@ -24,6 +24,7 @@ class FakePreferenceModule(context: Context) : PreferenceManagerModule(context) 
     var isPWASelectedFake = false
     var isOpenSourceelectedFake = false
     var isGplaySelectedFake = false
+    var shouldUpdateFromOtherStores = true
 
     override fun isPWASelected(): Boolean {
         return isPWASelectedFake
@@ -43,5 +44,9 @@ class FakePreferenceModule(context: Context) : PreferenceManagerModule(context) 
             isPWASelectedFake -> "pwa"
             else -> "any"
         }
+    }
+
+    override fun shouldUpdateAppsFromOtherStores(): Boolean {
+        return shouldUpdateFromOtherStores
     }
 }

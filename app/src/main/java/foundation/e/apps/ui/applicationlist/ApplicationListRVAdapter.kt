@@ -115,6 +115,12 @@ class ApplicationListRVAdapter(
             onPlaceHolderShow?.invoke()
             // Do not process anything else for this entry
             return
+        } else {
+            val progressBar = holder.binding.placeholderProgressBar
+            holder.binding.root.children.forEach {
+                it.visibility = if (it != progressBar) View.VISIBLE
+                else View.INVISIBLE
+            }
         }
 
         holder.binding.apply {

@@ -47,10 +47,6 @@ class FakeFusedManager(private val fusedDownloadDAO: FusedDownloadDAO) : IFusedM
         TODO("Not yet implemented")
     }
 
-    override suspend fun clearInstallationIssue(fusedDownload: FusedDownload) {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun updateDownloadStatus(fusedDownload: FusedDownload, status: Status) {
         TODO("Not yet implemented")
     }
