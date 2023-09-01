@@ -34,14 +34,10 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.exceptions.ApiException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.R
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.ecloud.EcloudRepository
-import foundation.e.apps.data.enums.Origin
-import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
 import foundation.e.apps.data.enums.isUnFiltered
@@ -52,6 +48,7 @@ import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.preference.DataStoreModule
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.install.workmanager.AppInstallProcessor
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
@@ -67,6 +64,7 @@ class MainActivityViewModel @Inject constructor(
     private val pwaManagerModule: PWAManagerModule,
     private val ecloudRepository: EcloudRepository,
     private val blockedAppRepository: BlockedAppRepository,
+    private val appInstallProcessor: AppInstallProcessor
 ) : ViewModel() {
 
     val tocStatus: LiveData<Boolean> = dataStoreModule.tocStatus.asLiveData()
@@ -185,98 +183,16 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun getApplication(app: FusedApp) {
-        if (shouldShowPaidAppsSnackBar(app)) {
-            return
-        }
-
         viewModelScope.launch {
-            val fusedDownload: FusedDownload
-            try {
-                fusedDownload = FusedDownload(
-                    app._id,
-                    app.origin,
-                    app.status,
-                    app.name,
-                    app.package_name,
-                    mutableListOf(),
-                    mutableMapOf(),
-                    app.status,
-                    app.type,
-                    app.icon_image_path,
-                    app.latest_version_code,
-                    app.offer_type,
-                    app.isFree,
-                    app.originalSize
-                )
-                updateFusedDownloadWithAppDownloadLink(app, fusedDownload)
-            } catch (e: Exception) {
-                if (e is ApiException.AppNotPurchased) {
-                    handleAppNotPurchased(app)
-                    return@launch
-                }
-                _errorMessage.value = e
-                return@launch
-            }
-
-            if (fusedDownload.status == Status.INSTALLATION_ISSUE) {
-                fusedManagerRepository.clearInstallationIssue(fusedDownload)
-            }
-            fusedManagerRepository.addDownload(fusedDownload)
+            appInstallProcessor.initAppInstall(app)
         }
-    }
-
-    private fun handleAppNotPurchased(
-        app: FusedApp
-    ) {
-        val fusedDownload = FusedDownload(
-            app._id,
-            app.origin,
-            Status.PURCHASE_NEEDED,
-            app.name,
-            app.package_name,
-            mutableListOf(),
-            mutableMapOf(),
-            app.status,
-            app.type,
-            app.icon_image_path,
-            app.latest_version_code,
-            app.offer_type,
-            app.isFree,
-            app.originalSize
-        )
-        viewModelScope.launch {
-            fusedManagerRepository.addFusedDownloadPurchaseNeeded(fusedDownload)
-            _purchaseAppLiveData.postValue(fusedDownload)
-        }
-    }
-
-    suspend fun updateAwaiting(fusedDownload: FusedDownload) {
-        fusedManagerRepository.updateAwaiting(fusedDownload)
-    }
-
-    suspend fun updateUnAvailable(fusedDownload: FusedDownload) {
-        fusedManagerRepository.updateUnavailable(fusedDownload)
     }
 
     suspend fun updateAwaitingForPurchasedApp(packageName: String): FusedDownload? {
         val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = packageName)
         gPlayAuthData.let {
             if (!it.isAnonymous) {
-                try {
-                    fusedAPIRepository.updateFusedDownloadWithDownloadingInfo(
-                        it,
-                        Origin.GPLAY,
-                        fusedDownload
-                    )
-                } catch (e: ApiException.AppNotPurchased) {
-                    e.printStackTrace()
-                    return null
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    _errorMessage.value = e
-                    return null
-                }
-                updateAwaiting(fusedDownload)
+                appInstallProcessor.enqueueFusedDownload(fusedDownload)
                 return fusedDownload
             }
         }
@@ -293,25 +209,6 @@ class MainActivityViewModel @Inject constructor(
             val fusedDownload =
                 fusedManagerRepository.getFusedDownload(packageName = app.package_name)
             fusedManagerRepository.cancelDownload(fusedDownload)
-        }
-    }
-
-    private suspend fun updateFusedDownloadWithAppDownloadLink(
-        app: FusedApp,
-        fusedDownload: FusedDownload
-    ) {
-        val downloadList = mutableListOf<String>()
-        gPlayAuthData.let {
-            if (app.type == Type.PWA) {
-                downloadList.add(app.url)
-                fusedDownload.downloadURLList = downloadList
-            } else {
-                fusedAPIRepository.updateFusedDownloadWithDownloadingInfo(
-                    it,
-                    app.origin,
-                    fusedDownload
-                )
-            }
         }
     }
 
@@ -370,7 +267,8 @@ class MainActivityViewModel @Inject constructor(
     // protected to avoid SyntheticAccessor
     protected fun ProducerScope<Boolean>.sendInternetStatus(connectivityManager: ConnectivityManager) {
 
-        val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
 
         val hasInternet =
             capabilities != null &&

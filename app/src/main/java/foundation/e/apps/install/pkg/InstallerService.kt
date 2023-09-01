@@ -77,6 +77,7 @@ class InstallerService : Service() {
             return
         }
 
+        Timber.e("App install is failed for: $packageName status: $status extra: $extra")
         updateInstallationIssue(packageName ?: "")
         if (status == PackageInstaller.STATUS_FAILURE_CONFLICT && extra?.contains(
                 INSTALL_FAILED_UPDATE_INCOMPATIBLE

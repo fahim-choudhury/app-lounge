@@ -21,14 +21,15 @@ package foundation.e.apps.data.fused
 import android.content.Context
 import android.text.format.Formatter
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
+import androidx.lifecycle.map
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Artwork
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
+import com.aurora.gplayapi.data.models.SearchBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
@@ -62,6 +63,8 @@ import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.fused.utils.CategoryUtils
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.gplay.GplayStoreRepository
+import foundation.e.apps.data.gplay.utils.GplayHttpRequestException
+import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
@@ -70,16 +73,15 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeout
 import retrofit2.Response
 import timber.log.Timber
+import java.net.SocketTimeoutException
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
 
-typealias GplaySearchResultFlow = Flow<ResultSupreme<Pair<List<FusedApp>, Boolean>>>
 typealias FusedHomeDeferred = Deferred<ResultSupreme<List<FusedHome>>>
 
 @Singleton
@@ -98,6 +100,8 @@ class FusedApiImpl @Inject constructor(
         private const val CATEGORY_TITLE_REPLACEABLE_CONJUNCTION = "&"
         private const val CATEGORY_OPEN_GAMES_ID = "game_open_games"
         private const val CATEGORY_OPEN_GAMES_TITLE = "Open games"
+        private const val ERROR_GPLAY_SEARCH = "Gplay search has failed!"
+        private const val ERROR_GPLAY_SOURCE_NOT_SELECTED = "Gplay apps are not selected!"
     }
 
     /**
@@ -243,66 +247,50 @@ class FusedApiImpl @Inject constructor(
      * a Boolean signifying if more search results are being loaded.
      * Observe this livedata to display new apps as they are fetched from the network.
      */
-    override fun getSearchResults(
+    override suspend fun getCleanApkSearchResults(
         query: String,
         authData: AuthData
-    ): LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> {
+    ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
         /*
          * Returning livedata to improve performance, so that we do not have to wait forever
          * for all results to be fetched from network before showing them.
          * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
          */
-        return liveData {
-            val packageSpecificResults = ArrayList<FusedApp>()
-            fetchPackageSpecificResult(authData, query, packageSpecificResults).let {
-                if (it.data?.second == true) { // if there are no data to load
-                    emit(it)
-                    return@liveData
-                }
-            }
+        val packageSpecificResults = ArrayList<FusedApp>()
+        var finalSearchResult: ResultSupreme<Pair<List<FusedApp>, Boolean>> = ResultSupreme.Error()
 
-            val searchResult = mutableListOf<FusedApp>()
-            val cleanApkResults = mutableListOf<FusedApp>()
+        fetchPackageSpecificResult(authData, query, packageSpecificResults)
 
-            if (preferenceManagerModule.isOpenSourceSelected()) {
-                fetchOpenSourceSearchResult(
-                    this@FusedApiImpl,
-                    cleanApkResults,
-                    query,
-                    searchResult,
-                    packageSpecificResults
-                ).let { emit(it) }
-            }
+        val searchResult = mutableListOf<FusedApp>()
+        val cleanApkResults = mutableListOf<FusedApp>()
 
-            if (preferenceManagerModule.isPWASelected()) {
-                fetchPWASearchResult(
-                    this@FusedApiImpl,
-                    query,
-                    searchResult,
-                    packageSpecificResults
-                ).let { emit(it) }
-            }
-
-            if (preferenceManagerModule.isGplaySelected()) {
-                emitSource(
-                    fetchGplaySearchResults(
-                        query,
-                        searchResult,
-                        packageSpecificResults
-                    ).asLiveData()
-                )
-            }
+        if (preferenceManagerModule.isOpenSourceSelected()) {
+            finalSearchResult = fetchOpenSourceSearchResult(
+                cleanApkResults,
+                query,
+                searchResult,
+                packageSpecificResults
+            )
         }
+
+        if (preferenceManagerModule.isPWASelected()) {
+            finalSearchResult = fetchPWASearchResult(
+                query,
+                searchResult,
+                packageSpecificResults
+            )
+        }
+
+        return finalSearchResult
     }
 
     private suspend fun fetchPWASearchResult(
-        fusedAPIImpl: FusedApiImpl,
         query: String,
         searchResult: MutableList<FusedApp>,
         packageSpecificResults: ArrayList<FusedApp>
     ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
         val pwaApps: MutableList<FusedApp> = mutableListOf()
-        val status = fusedAPIImpl.runCodeWithTimeout({
+        val status = runCodeWithTimeout({
             val apps =
                 cleanApkPWARepository.getSearchResult(query).body()?.apps
             apps?.apply {
@@ -329,34 +317,13 @@ class FusedApiImpl @Inject constructor(
         )
     }
 
-    private suspend fun fetchGplaySearchResults(
-        query: String,
-        searchResult: MutableList<FusedApp>,
-        packageSpecificResults: ArrayList<FusedApp>
-    ): GplaySearchResultFlow = getGplaySearchResult(query).map {
-        if (it.first.isNotEmpty()) {
-            searchResult.addAll(it.first)
-        }
-        ResultSupreme.Success(
-            Pair(
-                filterWithKeywordSearch(
-                    searchResult,
-                    packageSpecificResults,
-                    query
-                ),
-                it.second
-            )
-        )
-    }
-
     private suspend fun fetchOpenSourceSearchResult(
-        fusedAPIImpl: FusedApiImpl,
         cleanApkResults: MutableList<FusedApp>,
         query: String,
         searchResult: MutableList<FusedApp>,
         packageSpecificResults: ArrayList<FusedApp>
     ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
-        val status = fusedAPIImpl.runCodeWithTimeout({
+        val status = runCodeWithTimeout({
             cleanApkResults.addAll(getCleanAPKSearchResults(query))
         })
 
@@ -404,14 +371,18 @@ class FusedApiImpl @Inject constructor(
             gplayPackageResult?.let { packageSpecificResults.add(it) }
         }
 
+        if (preferenceManagerModule.isGplaySelected()) {
+            packageSpecificResults.add(FusedApp(isPlaceHolder = true))
+        }
+
         /*
          * If there was a timeout, return it and don't try to fetch anything else.
          * Also send true in the pair to signal more results being loaded.
          */
         if (status != ResultStatus.OK) {
-            return ResultSupreme.create(status, Pair(packageSpecificResults, true))
+            return ResultSupreme.create(status, Pair(packageSpecificResults, false))
         }
-        return ResultSupreme.create(status, Pair(packageSpecificResults, false))
+        return ResultSupreme.create(status, Pair(packageSpecificResults, true))
     }
 
     /*
@@ -429,7 +400,14 @@ class FusedApiImpl @Inject constructor(
     ): List<FusedApp> {
         val filteredResults = list.distinctBy { it.package_name }
             .filter { packageSpecificResults.isEmpty() || it.package_name != query }
-        return packageSpecificResults + filteredResults
+
+        val finalList = (packageSpecificResults + filteredResults).toMutableList()
+        finalList.removeIf { it.isPlaceHolder }
+        if (preferenceManagerModule.isGplaySelected()) {
+            finalList.add(FusedApp(isPlaceHolder = true))
+        }
+
+        return finalList
     }
 
     private suspend fun getCleanApkPackageResult(
@@ -536,9 +514,6 @@ class FusedApiImpl @Inject constructor(
                     )
                 fusedDownload.files = downloadList
                 list.addAll(downloadList.map { it.url })
-            }
-
-            Origin.GITLAB -> {
             }
         }
         fusedDownload.downloadURLList = list
@@ -1104,16 +1079,39 @@ class FusedApiImpl @Inject constructor(
         return list
     }
 
-    private suspend fun getGplaySearchResult(
+    override suspend fun getGplaySearchResult(
         query: String,
-    ): Flow<Pair<List<FusedApp>, Boolean>> {
-        val searchResults = gplayRepository.getSearchResult(query)
-        return searchResults.map {
-            val fusedAppList = it.first.map { app -> replaceWithFDroid(app) }
-            Pair(
-                fusedAppList,
-                it.second
-            )
+        nextPageSubBundle: Set<SearchBundle.SubBundle>?
+    ): GplaySearchResult {
+        try {
+            val searchResults =
+                gplayRepository.getSearchResult(query, nextPageSubBundle?.toMutableSet())
+
+            if (!preferenceManagerModule.isGplaySelected()) {
+                return ResultSupreme.Error(ERROR_GPLAY_SOURCE_NOT_SELECTED)
+            }
+
+            val fusedAppList =
+                searchResults.first.map { app -> replaceWithFDroid(app) }.toMutableList()
+
+            if (searchResults.second.isNotEmpty()) {
+                fusedAppList.add(FusedApp(isPlaceHolder = true))
+            }
+
+            return ResultSupreme.Success(Pair(fusedAppList.toList(), searchResults.second.toSet()))
+        } catch (e: GplayHttpRequestException) {
+            val message = (
+                e.localizedMessage?.ifBlank { ERROR_GPLAY_SEARCH }
+                    ?: ERROR_GPLAY_SEARCH
+                ) + "Status: ${e.status}"
+
+            val exception = GPlayException(e.status == 408, message)
+            return ResultSupreme.Error(message, exception)
+        } catch (e: Exception) {
+            val exception =
+                GPlayException(e is SocketTimeoutException, e.localizedMessage)
+
+            return ResultSupreme.Error(e.localizedMessage ?: "", exception)
         }
     }
 
@@ -1420,7 +1418,9 @@ class FusedApiImpl @Inject constructor(
         var nextPageUrl = ""
 
         val status = runCodeWithTimeout({
-            val streamCluster = gplayRepository.getAppsByCategory(category, pageUrl) as StreamCluster
+            val streamCluster =
+                gplayRepository.getAppsByCategory(category, pageUrl) as StreamCluster
+
             val filteredAppList = filterRestrictedGPlayApps(authData, streamCluster.clusterAppList)
             filteredAppList.data?.let {
                 fusedAppList = it.toMutableList()

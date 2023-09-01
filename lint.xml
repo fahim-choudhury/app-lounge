@@ -21,6 +21,9 @@
     <!--False detection-->
     <issue id="UnusedIds" severity="ignore" />
 
+    <!--Ignore Ksp for now -->
+    <issue id="KaptUsageInsteadOfKsp" severity="ignore" />
+
     <!--Unavoidable places like shimmers-->
     <issue id="UseCompoundDrawables">
         <ignore path="res/layout/shimmer_placeholder_application_list.xml"/>

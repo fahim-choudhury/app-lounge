@@ -189,7 +189,7 @@ class PkgManagerModule @Inject constructor(
             )
             session.commit(servicePendingIntent.intentSender)
         } catch (e: Exception) {
-            Timber.e("$packageName: \n${e.stackTraceToString()}")
+            Timber.e("Initiating Install Failed for $packageName exception: ${e.localizedMessage}", e)
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 sessionId,

@@ -39,11 +39,8 @@ import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.gplay.utils.GPlayHttpClient
 import foundation.e.apps.data.login.LoginSourceRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 class GplayStoreRepositoryImpl @Inject constructor(
@@ -52,11 +49,10 @@ class GplayStoreRepositoryImpl @Inject constructor(
     private val loginSourceRepository: LoginSourceRepository
 ) : GplayStoreRepository {
 
-    private val authData by lazy { loginSourceRepository.gplayAuth!! }
-
     override suspend fun getHomeScreenData(): Any {
         val homeScreenData = mutableMapOf<String, List<App>>()
         val homeElements = createTopChartElements()
+        val authData = loginSourceRepository.gplayAuth ?: return homeScreenData
 
         homeElements.forEach {
             val chart = it.value.keys.iterator().next()
@@ -79,75 +75,35 @@ class GplayStoreRepositoryImpl @Inject constructor(
 
     override suspend fun getSearchResult(
         query: String,
-    ): Flow<Pair<List<App>, Boolean>> {
-        return flow {
-            /*
-             * Variable names and logic made same as that of Aurora store.
-             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
-             */
-            val searchHelper =
-                SearchHelper(authData).using(gPlayHttpClient)
-            val searchBundle = searchHelper.searchResults(query)
+        subBundle: MutableSet<SearchBundle.SubBundle>?
+    ): Pair<List<App>, MutableSet<SearchBundle.SubBundle>> {
+        var authData = loginSourceRepository.gplayAuth ?: return Pair(emptyList(), mutableSetOf())
+        val searchHelper =
+            SearchHelper(authData).using(gPlayHttpClient)
 
-            val initialReplacedList = mutableListOf<App>()
-            val INITIAL_LIMIT = 4
+        Timber.d("Fetching search result for $query, subBundle: $subBundle")
 
-            emitReplacedList(
-                this@flow,
-                initialReplacedList,
-                INITIAL_LIMIT,
-                searchBundle,
-                true,
-            )
+        subBundle?.let {
+            val searchResult = searchHelper.next(it)
+            Timber.d("fetching next page search data...")
+            return getSearchResultPair(searchResult)
+        }
 
-            var nextSubBundleSet: MutableSet<SearchBundle.SubBundle>
-            do {
-                nextSubBundleSet = fetchNextSubBundle(
-                    searchBundle,
-                    searchHelper,
-                    this@flow,
-                    initialReplacedList,
-                    INITIAL_LIMIT
-                )
-            } while (nextSubBundleSet.isNotEmpty())
-
-            /*
-             * If initialReplacedList size is less than INITIAL_LIMIT,
-             * it means the results were very less and nothing has been emitted so far.
-             * Hence emit the list.
-             */
-            if (initialReplacedList.size < INITIAL_LIMIT) {
-                emitInMain(this@flow, initialReplacedList, false)
-            }
-        }.flowOn(Dispatchers.IO)
+        val searchResult = searchHelper.searchResults(query)
+        return getSearchResultPair(searchResult)
     }
 
-    private suspend fun fetchNextSubBundle(
-        searchBundle: SearchBundle,
-        searchHelper: SearchHelper,
-        scope: FlowCollector<Pair<List<App>, Boolean>>,
-        accumulationList: MutableList<App>,
-        accumulationLimit: Int,
-    ): MutableSet<SearchBundle.SubBundle> {
-        val nextSubBundleSet = searchBundle.subBundles
-        val newSearchBundle = searchHelper.next(nextSubBundleSet)
-        if (newSearchBundle.appList.isNotEmpty()) {
-            searchBundle.apply {
-                subBundles.clear()
-                subBundles.addAll(newSearchBundle.subBundles)
-                emitReplacedList(
-                    scope,
-                    accumulationList,
-                    accumulationLimit,
-                    newSearchBundle,
-                    nextSubBundleSet.isNotEmpty(),
-                )
-            }
-        }
-        return nextSubBundleSet
+    private fun getSearchResultPair(
+        searchBundle: SearchBundle
+    ): Pair<MutableList<App>, MutableSet<SearchBundle.SubBundle>> {
+        val apps = searchBundle.appList
+        Timber.d("Search result is found: ${apps.size}")
+        return Pair(apps, searchBundle.subBundles)
     }
 
     override suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
+        val authData = loginSourceRepository.gplayAuth ?: return listOf()
+
         val searchData = mutableListOf<SearchSuggestEntry>()
         withContext(Dispatchers.IO) {
             val searchHelper = SearchHelper(authData).using(gPlayHttpClient)
@@ -157,6 +113,8 @@ class GplayStoreRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getAppsByCategory(category: String, pageUrl: String?): StreamCluster {
+        val authData = loginSourceRepository.gplayAuth ?: return StreamCluster()
+
         val subCategoryHelper =
             CategoryAppsHelper(authData).using(gPlayHttpClient)
 
@@ -173,6 +131,8 @@ class GplayStoreRepositoryImpl @Inject constructor(
             return categoryList
         }
 
+        val authData = loginSourceRepository.gplayAuth ?: return categoryList
+
         withContext(Dispatchers.IO) {
             val categoryHelper = CategoryHelper(authData).using(gPlayHttpClient)
             categoryList.addAll(categoryHelper.getAllCategoriesList(getCategoryType(type)))
@@ -182,6 +142,8 @@ class GplayStoreRepositoryImpl @Inject constructor(
 
     override suspend fun getAppDetails(packageNameOrId: String): App? {
         var appDetails: App?
+        val authData = loginSourceRepository.gplayAuth ?: return null
+
         withContext(Dispatchers.IO) {
             val appDetailsHelper = AppDetailsHelper(authData).using(gPlayHttpClient)
             appDetails = appDetailsHelper.getAppByPackageName(packageNameOrId)
@@ -191,6 +153,8 @@ class GplayStoreRepositoryImpl @Inject constructor(
 
     override suspend fun getAppsDetails(packageNamesOrIds: List<String>): List<App> {
         val appDetailsList = mutableListOf<App>()
+        val authData = loginSourceRepository.gplayAuth ?: return appDetailsList
+
         withContext(Dispatchers.IO) {
             val appDetailsHelper = AppDetailsHelper(authData).using(gPlayHttpClient)
             appDetailsList.addAll(appDetailsHelper.getAppByPackageName(packageNamesOrIds))
@@ -200,52 +164,6 @@ class GplayStoreRepositoryImpl @Inject constructor(
 
     private fun getCategoryType(type: CategoryType): Category.Type {
         return if (type == CategoryType.APPLICATION) Category.Type.APPLICATION else Category.Type.GAME
-    }
-
-    private suspend fun emitReplacedList(
-        scope: FlowCollector<Pair<List<App>, Boolean>>,
-        accumulationList: MutableList<App>,
-        accumulationLimit: Int,
-        searchBundle: SearchBundle,
-        moreToEmit: Boolean,
-    ) {
-        searchBundle.appList.forEach {
-            when {
-                accumulationList.size < accumulationLimit - 1 -> {
-                    /*
-                     * If initial limit is 4, add apps to list (without emitting)
-                     * till 2 apps.
-                     */
-                    accumulationList.add(it)
-                }
-
-                accumulationList.size == accumulationLimit - 1 -> {
-                    /*
-                     * If initial limit is 4, and we have reached till 3 apps,
-                     * add the 4th app and emit the list.
-                     */
-                    accumulationList.add(it)
-                    scope.emit(Pair(accumulationList, moreToEmit))
-                    emitInMain(scope, accumulationList, moreToEmit)
-                }
-
-                accumulationList.size == accumulationLimit -> {
-                    /*
-                     * If initial limit is 4, and we have emitted 4 apps,
-                     * for all rest of the apps, emit each app one by one.
-                     */
-                    emitInMain(scope, listOf(it), moreToEmit)
-                }
-            }
-        }
-    }
-
-    private suspend fun emitInMain(
-        scope: FlowCollector<Pair<List<App>, Boolean>>,
-        it: List<App>,
-        moreToEmit: Boolean
-    ) {
-        scope.emit(Pair(it, moreToEmit))
     }
 
     private suspend fun getTopApps(
@@ -267,6 +185,8 @@ class GplayStoreRepositoryImpl @Inject constructor(
         offerType: Int
     ): List<File> {
         val downloadData = mutableListOf<File>()
+        val authData = loginSourceRepository.gplayAuth ?: return downloadData
+
         withContext(Dispatchers.IO) {
             val version = versionCode?.let { it as Int } ?: -1
             val purchaseHelper = PurchaseHelper(authData).using(gPlayHttpClient)
@@ -282,6 +202,8 @@ class GplayStoreRepositoryImpl @Inject constructor(
         offerType: Int
     ): List<File> {
         val downloadData = mutableListOf<File>()
+        val authData = loginSourceRepository.gplayAuth ?: return downloadData
+
         withContext(Dispatchers.IO) {
             val purchaseHelper = PurchaseHelper(authData).using(gPlayHttpClient)
             downloadData.addAll(

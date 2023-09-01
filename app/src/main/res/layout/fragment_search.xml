@@ -95,13 +95,4 @@
 
     </com.facebook.shimmer.ShimmerFrameLayout>
 
-    <ProgressBar
-        android:id="@+id/loadingProgressBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:visibility="gone"
-        />
-
 </LinearLayout>

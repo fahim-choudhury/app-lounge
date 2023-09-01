@@ -18,8 +18,10 @@
 
 package foundation.e.apps.ui.application
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.text.Html
 import android.text.format.Formatter
@@ -43,6 +45,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textview.MaterialTextView
 import dagger.hilt.android.AndroidEntryPoint
+import foundation.e.apps.MainActivity
 import foundation.e.apps.R
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.enums.Origin
@@ -59,7 +62,6 @@ import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.ui.AppInfoFetchViewModel
-import foundation.e.apps.ui.MainActivity
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.PrivacyInfoViewModel
 import foundation.e.apps.ui.application.model.ApplicationScreenshotsRVAdapter
@@ -122,12 +124,16 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private var applicationIcon: ImageView? = null
 
+    private var shouldReloadPrivacyInfo = false
+
     companion object {
         private const val PRIVACY_SCORE_SOURCE_CODE_URL =
             "https://gitlab.e.foundation/e/os/apps/-/blob/main/app/src/main/java/foundation/e/apps/data/exodus/repositories/PrivacyScoreRepositoryImpl.kt"
         private const val EXODUS_URL = "https://exodus-privacy.eu.org"
         private const val EXODUS_REPORT_URL = "https://reports.exodus-privacy.eu.org/"
         private const val PRIVACY_GUIDELINE_URL = "https://doc.e.foundation/privacy_score"
+        private const val REQUEST_EXODUS_REPORT_URL =
+            "https://reports.exodus-privacy.eu.org/en/analysis/submit#"
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -333,19 +339,54 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             }
 
             appPrivacyScoreLayout.setOnClickListener {
+                if (privacyInfoViewModel.shouldRequestExodusReport(applicationViewModel.getFusedApp())) {
+                    showRequestExodusReportDialog()
+                    return@setOnClickListener
+                }
 
-                ApplicationDialogFragment(
-                    R.drawable.ic_lock,
-                    getString(R.string.privacy_score),
-                    getString(
-                        R.string.privacy_description,
-                        PRIVACY_SCORE_SOURCE_CODE_URL,
-                        generateExodusUrl(),
-                        PRIVACY_GUIDELINE_URL
-                    )
-                ).show(childFragmentManager, TAG)
+                showPrivacyScoreCalculationLoginDialog()
             }
         }
+    }
+
+    private fun showRequestExodusReportDialog() {
+        ApplicationDialogFragment(
+            R.drawable.ic_lock,
+            getString(R.string.request_exodus_report),
+            getRequestExodusReportDialogDetailsText(),
+            getString(R.string.ok),
+            {
+                shouldReloadPrivacyInfo = true
+                openRequestExodusReportUrl()
+            },
+            getString(R.string.cancel)
+        ).show(childFragmentManager, TAG)
+    }
+
+    private fun getRequestExodusReportDialogDetailsText() = getString(
+        R.string.request_exodus_report_confirm_dialog,
+        getString(R.string.ok),
+        getString(R.string.app_name)
+    )
+
+    private fun openRequestExodusReportUrl() {
+        val openUrlIntent = Intent(Intent.ACTION_VIEW)
+        openUrlIntent.data =
+            Uri.parse("${REQUEST_EXODUS_REPORT_URL}${applicationViewModel.getFusedApp()?.package_name}")
+        startActivity(openUrlIntent)
+    }
+
+    private fun showPrivacyScoreCalculationLoginDialog() {
+        ApplicationDialogFragment(
+            R.drawable.ic_lock,
+            getString(R.string.privacy_score),
+            getString(
+                R.string.privacy_description,
+                PRIVACY_SCORE_SOURCE_CODE_URL,
+                generateExodusUrl(),
+                PRIVACY_GUIDELINE_URL
+            )
+        ).show(childFragmentManager, TAG)
     }
 
     private fun updateAppTitlePanel(it: FusedApp) {
@@ -465,6 +506,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                         downloadPB,
                         appSize
                     )
+
                     Status.UPDATABLE -> handleUpdatable(
                         installButton,
                         view,
@@ -472,29 +514,34 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                         downloadPB,
                         appSize
                     )
+
                     Status.UNAVAILABLE -> handleUnavaiable(
                         installButton,
                         fusedApp,
                         downloadPB,
                         appSize
                     )
+
                     Status.QUEUED, Status.AWAITING, Status.DOWNLOADED -> handleQueued(
                         installButton,
                         fusedApp,
                         downloadPB,
                         appSize
                     )
+
                     Status.DOWNLOADING -> handleDownloading(
                         installButton,
                         fusedApp,
                         downloadPB,
                         appSize
                     )
+
                     Status.INSTALLING -> handleInstalling(
                         installButton,
                         downloadPB,
                         appSize
                     )
+
                     Status.BLOCKED -> handleBlocked(installButton, view)
                     Status.INSTALLATION_ISSUE -> handleInstallingIssue(
                         installButton,
@@ -502,6 +549,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                         downloadPB,
                         appSize
                     )
+
                     else -> {
                         Timber.d("Unknown status: $status")
                     }
@@ -537,6 +585,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 User.ANONYMOUS,
                 User.NO_GOOGLE,
                 User.UNAVAILABLE -> getString(R.string.install_blocked_anonymous)
+
                 User.GOOGLE -> getString(R.string.install_blocked_google)
             }
             if (errorMsg.isNotBlank()) {
@@ -605,6 +654,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             text = when {
                 mainActivityViewModel.checkUnsupportedApplication(fusedApp) ->
                     getString(R.string.not_available)
+
                 fusedApp.isFree -> getString(R.string.install)
                 else -> fusedApp.price
             }
@@ -773,9 +823,10 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun fetchAppTracker(fusedApp: FusedApp) {
-        privacyInfoViewModel.getAppPrivacyInfoLiveData(fusedApp).observe(viewLifecycleOwner) {
-            updatePrivacyScore()
-        }
+        privacyInfoViewModel.getSingularAppPrivacyInfoLiveData(fusedApp)
+            .observe(viewLifecycleOwner) {
+                updatePrivacyScore()
+            }
     }
 
     override fun showLoadingUI() {
@@ -814,12 +865,37 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             loadingBar.isVisible = !visible
         }
         binding.ratingsInclude.loadingBar.isVisible = !visible
-        binding.ratingsInclude.appPrivacyScore.visibility = visibility
+
+        togglePrivacyScoreVisibility(visible)
+    }
+
+    private fun togglePrivacyScoreVisibility(visible: Boolean) {
+        var isRequestReportVisible = false
+        var privacyScoreVisibility = if (visible) View.VISIBLE else View.INVISIBLE
+
+        if (visible) {
+            isRequestReportVisible =
+                privacyInfoViewModel.shouldRequestExodusReport(applicationViewModel.getFusedApp())
+            privacyScoreVisibility = if (isRequestReportVisible) View.INVISIBLE else View.VISIBLE
+        }
+
+        binding.ratingsInclude.appPrivacyScore.visibility = privacyScoreVisibility
+        binding.ratingsInclude.requestExodusReport.isVisible = isRequestReportVisible
     }
 
     override fun onResume() {
         super.onResume()
         observeDownloadList()
+        reloadPrivacyInfo()
+    }
+
+    private fun reloadPrivacyInfo() {
+        if (shouldReloadPrivacyInfo) {
+            togglePrivacyInfoVisibility(false)
+            privacyInfoViewModel.refreshAppPrivacyInfo(applicationViewModel.getFusedApp())
+        }
+
+        shouldReloadPrivacyInfo = false
     }
 
     override fun onDestroyView() {

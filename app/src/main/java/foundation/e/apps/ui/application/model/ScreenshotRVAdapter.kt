@@ -66,9 +66,8 @@ class ScreenshotRVAdapter(private val list: List<String>, private val origin: Or
                     placeholder(circularProgressDrawable)
                 }
             }
-            Origin.GITLAB -> {
-                TODO("YET TO BE IMPLEMENTED")
-            }
+
+            else -> {}
         }
     }
 
