@@ -42,6 +42,7 @@ import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.data.login.exceptions.GPlayValidationException
+import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.databinding.ActivityMainBinding
 import foundation.e.apps.install.updates.UpdatesNotifier
 import foundation.e.apps.ui.MainActivityViewModel
@@ -52,6 +53,7 @@ import foundation.e.apps.ui.setup.signin.SignInViewModel
 import foundation.e.apps.utils.SystemInfoProvider
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
+import javax.inject.Inject
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -64,6 +66,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val TAG = MainActivity::class.java.simpleName
     private lateinit var viewModel: MainActivityViewModel
+
+    private var isShowingDialog = false
+
+    @Inject
+    lateinit var preferenceManagerModule: PreferenceManagerModule
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -208,6 +215,10 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 launch {
+                    observeTooManyRequests()
+                }
+
+                launch {
                     observeSignatureMissMatchError()
                 }
 
@@ -281,6 +292,32 @@ class MainActivity : AppCompatActivity() {
             if (data.isNotBlank()) {
                 loginViewModel.markInvalidAuthObject(data)
             }
+        }
+    }
+
+    private suspend fun observeTooManyRequests() {
+        EventBus.events.filter { appEvent ->
+            appEvent is AppEvent.TooManyRequests
+        }.collectLatest {
+            if (isShowingDialog) return@collectLatest
+            ApplicationDialogFragment(
+                title = getString(R.string.too_many_requests),
+                message = getString(R.string.too_many_requests_desc),
+                positiveButtonText = getString(R.string.ok),
+                positiveButtonAction = {
+                    preferenceManagerModule.disableGplay()
+                    loginViewModel.startLoginFlow()
+                },
+                cancelButtonText = getString(R.string.logout),
+                cancelButtonAction = {
+                    loginViewModel.logout()
+                },
+                cancellable = false,
+                onDismissListener = {
+                    isShowingDialog = false
+                },
+            ).show(supportFragmentManager, TAG)
+            isShowingDialog = true
         }
     }
 

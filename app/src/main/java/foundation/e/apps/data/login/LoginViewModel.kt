@@ -25,6 +25,7 @@ import foundation.e.apps.data.enums.User
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import okhttp3.Cache
 
 /**
  * ViewModel to handle all login related operations.
@@ -33,6 +34,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginSourceRepository: LoginSourceRepository,
+    private val cache: Cache,
 ) : ViewModel() {
 
     /**
@@ -127,6 +129,7 @@ class LoginViewModel @Inject constructor(
      */
     fun logout() {
         viewModelScope.launch {
+            cache.evictAll()
             loginSourceRepository.logout()
             authObjects.postValue(listOf())
         }

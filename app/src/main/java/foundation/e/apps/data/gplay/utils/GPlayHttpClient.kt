@@ -195,10 +195,16 @@ class GPlayHttpClient @Inject constructor(
             code = response.code
             Timber.d("$TAG: Url: ${response.request.url}\nStatus: $code")
 
-            if (code == 401) {
-                MainScope().launch {
+            when (code) {
+                401 -> MainScope().launch {
                     EventBus.invokeEvent(
                         AppEvent.InvalidAuthEvent(AuthObject.GPlayAuth::class.java.simpleName)
+                    )
+                }
+
+                429 -> MainScope().launch {
+                    EventBus.invokeEvent(
+                        AppEvent.TooManyRequests()
                     )
                 }
             }
