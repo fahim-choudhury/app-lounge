@@ -60,7 +60,7 @@ abstract class LoadingViewModel : ViewModel() {
             it is GPlayValidationException
         }?.run {
             if (!autoRetried && retryBlock(failedAuthList)) {
-                autoRetried = true
+                autoRetried = false
                 exceptionsList.clear()
                 return
             }

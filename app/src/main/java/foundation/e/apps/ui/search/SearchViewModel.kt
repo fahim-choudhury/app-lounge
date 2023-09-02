@@ -42,6 +42,7 @@ import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
+
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val fusedAPIRepository: FusedAPIRepository,
@@ -61,6 +62,7 @@ class SearchViewModel @Inject constructor(
 
     companion object {
         private const val DATA_LOAD_ERROR = "Data load error"
+        private const val MIN_SEARCH_ITEM_PER_PAGE = 8
     }
 
     fun getSearchSuggestions(query: String, gPlayAuth: AuthObject.GPlayAuth) {
@@ -160,7 +162,7 @@ class SearchViewModel @Inject constructor(
         nextSubBundle = gplaySearchResult.data?.second
 
         // if first page has less data, then fetch next page data without waiting for users' scroll
-        if (isFirstFetch && gplaySearchResult.data?.first?.size!! < 4) {
+        if (isFirstFetch && (gplaySearchResult.data?.first?.size ?: 0) < MIN_SEARCH_ITEM_PER_PAGE) {
             CoroutineScope(coroutineContext).launch {
                 fetchGplayData(query)
             }

@@ -67,8 +67,6 @@ class MainActivity : AppCompatActivity() {
     private val TAG = MainActivity::class.java.simpleName
     private lateinit var viewModel: MainActivityViewModel
 
-    private var isShowingDialog = false
-
     @Inject
     lateinit var preferenceManagerModule: PreferenceManagerModule
 
@@ -137,6 +135,12 @@ class MainActivity : AppCompatActivity() {
                         email,
                         SystemInfoProvider.getAppBuildInfo()
                     )
+                } else if (exception != null) {
+                    ApplicationDialogFragment(
+                        title = getString(R.string.sign_in_failed_title),
+                        message = getString(R.string.sign_in_failed_desc),
+                        positiveButtonText = getString(R.string.ok)
+                    ).show(supportFragmentManager, TAG)
                 }
             }
         }
@@ -288,36 +292,26 @@ class MainActivity : AppCompatActivity() {
         }.distinctUntilChanged { old, new ->
             ((old.data is String) && (new.data is String) && old.data == new.data)
         }.collectLatest {
-            val data = it.data as String
-            if (data.isNotBlank()) {
-                loginViewModel.markInvalidAuthObject(data)
-            }
+            validatedAuthObject(it)
+        }
+    }
+
+    private fun validatedAuthObject(appEvent: AppEvent) {
+        val data = appEvent.data as String
+        if (data.isNotBlank()) {
+            loginViewModel.markInvalidAuthObject(data)
         }
     }
 
     private suspend fun observeTooManyRequests() {
         EventBus.events.filter { appEvent ->
             appEvent is AppEvent.TooManyRequests
-        }.collectLatest {
-            if (isShowingDialog) return@collectLatest
-            ApplicationDialogFragment(
-                title = getString(R.string.too_many_requests),
-                message = getString(R.string.too_many_requests_desc),
-                positiveButtonText = getString(R.string.ok),
-                positiveButtonAction = {
-                    preferenceManagerModule.disableGplay()
-                    loginViewModel.startLoginFlow()
-                },
-                cancelButtonText = getString(R.string.logout),
-                cancelButtonAction = {
-                    loginViewModel.logout()
-                },
-                cancellable = false,
-                onDismissListener = {
-                    isShowingDialog = false
-                },
-            ).show(supportFragmentManager, TAG)
-            isShowingDialog = true
+        }.collectLatest { appEvent ->
+            binding.sessionErrorLayout.visibility = View.VISIBLE
+            binding.retrySessionButton.setOnClickListener {
+                binding.sessionErrorLayout.visibility = View.GONE
+                validatedAuthObject(appEvent = appEvent)
+            }
         }
     }
 

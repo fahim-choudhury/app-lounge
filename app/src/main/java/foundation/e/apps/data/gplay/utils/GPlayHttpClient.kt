@@ -155,9 +155,11 @@ class GPlayHttpClient @Inject constructor(
     }
 
     private fun processRequest(request: Request): PlayResponse {
+        var response: Response? = null
         return try {
             val call = okHttpClient.newCall(request)
-            buildPlayResponse(call.execute())
+            response = call.execute()
+            buildPlayResponse(response)
         } catch (e: Exception) {
             // TODO: exception will be thrown for all apis when all gplay api implementation
             // will handle the exceptions. this will be done in following issue.
@@ -171,6 +173,8 @@ class GPlayHttpClient @Inject constructor(
                 is SocketTimeoutException -> handleExceptionOnGooglePlayRequest(e)
                 else -> handleExceptionOnGooglePlayRequest(e)
             }
+        } finally {
+            response?.close()
         }
     }
 
@@ -204,7 +208,7 @@ class GPlayHttpClient @Inject constructor(
 
                 429 -> MainScope().launch {
                     EventBus.invokeEvent(
-                        AppEvent.TooManyRequests()
+                        AppEvent.TooManyRequests(AuthObject.GPlayAuth::class.java.simpleName)
                     )
                 }
             }
