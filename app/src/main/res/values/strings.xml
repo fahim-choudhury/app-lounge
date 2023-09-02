@@ -192,7 +192,6 @@
     <string name="more_info"><u>More info</u></string>
 
     <!--Too many request-->
-    <string name="too_many_requests">Too many requests</string>
     <string name="too_many_requests_desc">The anonymous account you\'re currently using is unavailable. Refresh the session to get another one.</string>
 
     <!--Data load error-->

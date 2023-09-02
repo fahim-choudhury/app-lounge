@@ -58,6 +58,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -136,6 +137,7 @@ class MainActivity : AppCompatActivity() {
                         SystemInfoProvider.getAppBuildInfo()
                     )
                 } else if (exception != null) {
+                    Timber.e(exception, "Login failed! message: ${exception?.localizedMessage}")
                     ApplicationDialogFragment(
                         title = getString(R.string.sign_in_failed_title),
                         message = getString(R.string.sign_in_failed_desc),
