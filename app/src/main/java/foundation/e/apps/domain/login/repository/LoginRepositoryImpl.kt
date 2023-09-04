@@ -27,6 +27,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.utils.SystemInfoProvider
+import foundation.e.apps.utils.toJsonString
 import java.util.Properties
 import javax.inject.Inject
 
@@ -50,9 +51,10 @@ class LoginRepositoryImpl @Inject constructor(
             is NetworkResult.Error ->
                 throw Exception(result.errorMessage, result.exception)
             is NetworkResult.Success -> {
-                applicationContext.configurations.authData = result.data.toString()
+                val authData = result.data
+                applicationContext.configurations.authData = authData.toJsonString()
                 applicationContext.configurations.userType = User.ANONYMOUS.name
-                return result.data
+                return authData
             }
         }
     }

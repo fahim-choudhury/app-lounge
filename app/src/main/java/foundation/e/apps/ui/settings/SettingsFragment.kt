@@ -24,7 +24,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.core.view.isVisible
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.preference.CheckBoxPreference
@@ -43,7 +42,7 @@ import foundation.e.apps.data.fused.UpdatesDao
 import foundation.e.apps.databinding.CustomPreferenceBinding
 import foundation.e.apps.install.updates.UpdatesWorkManager
 import foundation.e.apps.presentation.login.LoginViewModel
-import foundation.e.apps.ui.MainActivityViewModel
+import foundation.e.apps.presentation.settings.SettingsViewModel
 import foundation.e.apps.utils.SystemInfoProvider
 import timber.log.Timber
 import javax.inject.Inject
@@ -53,13 +52,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private var _binding: CustomPreferenceBinding? = null
     private val binding get() = _binding!!
-    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
     private var showAllApplications: CheckBoxPreference? = null
     private var showFOSSApplications: CheckBoxPreference? = null
     private var showPWAApplications: CheckBoxPreference? = null
 
     val loginViewModel: LoginViewModel by lazy {
         ViewModelProvider(requireActivity())[LoginViewModel::class.java]
+    }
+
+    val settingsViewModel: SettingsViewModel by lazy {
+        ViewModelProvider(requireActivity())[SettingsViewModel::class.java]
     }
 
     private var sourcesChangedFlag = false
@@ -69,10 +71,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     @Inject
     lateinit var clipboardManager: ClipboardManager
-
-    private val user by lazy {
-        mainActivityViewModel.getUser()
-    }
 
     private val allSourceCheckboxes by lazy {
         listOf(showAllApplications, showFOSSApplications, showPWAApplications)
@@ -164,25 +162,34 @@ class SettingsFragment : PreferenceFragmentCompat() {
         // This is useful if a user from older App Lounge updates to this version
         disableDependentCheckbox(onlyUnmeteredNetwork, autoInstallUpdate)
 
-        mainActivityViewModel.gPlayAuthData.let { authData ->
-            mainActivityViewModel.getUser().name.let { user ->
-                when (user) {
-                    User.ANONYMOUS.name -> {
-                        binding.accountType.setText(R.string.user_anonymous)
-                        binding.email.isVisible = false
-                    }
-                    User.GOOGLE.name -> {
-                        if (!authData.isAnonymous) {
-                            binding.accountType.text = authData.userProfile?.name
-                            binding.email.text = mainActivityViewModel.getUserEmail()
-                            binding.avatar.load(authData.userProfile?.artwork?.url)
-                        }
-                    }
-                    User.NO_GOOGLE.name -> {
-                        binding.accountType.setText(R.string.logged_out)
-                        binding.email.isVisible = false
+        loginViewModel.loginState.observe(viewLifecycleOwner) {
+            val user = it.user
+            val authData = it.authData
+            when (user) {
+                User.GOOGLE -> {
+                    if (!authData!!.isAnonymous) {
+                        binding.accountType.text = authData.userProfile?.name
+                        binding.email.text = authData.email
+                        binding.avatar.load(authData.userProfile?.artwork?.url)
                     }
                 }
+                User.NO_GOOGLE -> {
+                    binding.accountType.setText(R.string.logged_out)
+                    binding.email.isVisible = false
+                    setCheckboxForNoGoogle()
+                }
+                else -> {}
+            }
+        }
+
+        settingsViewModel.getCurrentUser()
+        settingsViewModel.currentUserState.observe(viewLifecycleOwner)  {
+            when(it.user) {
+                User.ANONYMOUS -> {
+                    binding.accountType.setText(R.string.user_anonymous)
+                    binding.email.isVisible = false
+                }
+                else -> {}
             }
         }
 
@@ -193,40 +200,40 @@ class SettingsFragment : PreferenceFragmentCompat() {
         binding.logout.setOnClickListener {
             loginViewModel.logout()
         }
+    }
 
-        if (user == User.NO_GOOGLE) {
-            /*
-             * For No-Google mode, do not allow the user to click
-             * on the option to show GPlay apps.
-             * Instead show a message and prompt them to login.
-             */
-            showAllApplications?.apply {
-                setOnPreferenceChangeListener { _, _ ->
-                    Snackbar.make(
-                        binding.root,
-                        R.string.login_to_see_gplay_apps,
-                        Snackbar.LENGTH_SHORT
-                    ).setAction(R.string.login) {
-                        /*
-                         * The login and logout logic is the same,
-                         * it clears all login data (authdata, user selection)
-                         * and restarts the login flow.
-                         * Hence it's the same as logout.
-                         */
-                        binding.logout.performClick()
-                    }.show()
-                    this.isChecked = false
-                    return@setOnPreferenceChangeListener false
-                }
+    private fun setCheckboxForNoGoogle() {
+        /*
+         * For No-Google mode, do not allow the user to click
+         * on the option to show GPlay apps.
+         * Instead show a message and prompt them to login.
+         */
+        showAllApplications?.apply {
+            setOnPreferenceChangeListener { _, _ ->
+                Snackbar.make(
+                    binding.root,
+                    R.string.login_to_see_gplay_apps,
+                    Snackbar.LENGTH_SHORT
+                ).setAction(R.string.login) {
+                    /*
+                     * The login and logout logic is the same,
+                     * it clears all login data (authdata, user selection)
+                     * and restarts the login flow.
+                     * Hence it's the same as logout.
+                     */
+                    binding.logout.performClick()
+                }.show()
+                this.isChecked = false
+                return@setOnPreferenceChangeListener false
             }
+        }
 
-            /*
-             * For no-google mode, just show a "Login" instead of "Logout".
-             * The background logic is the same.
-             */
-            binding.logout.apply {
-                setText(R.string.login)
-            }
+        /*
+         * For no-google mode, just show a "Login" instead of "Logout".
+         * The background logic is the same.
+         */
+        binding.logout.apply {
+            setText(R.string.login)
         }
     }
 
@@ -277,7 +284,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onDestroyView() {
         if (sourcesChangedFlag) {
             UpdatesDao.addItemsForUpdate(emptyList())
-            loginViewModel.startLoginFlow()
+            loginViewModel.checkLogin()
         }
         super.onDestroyView()
         _binding = null

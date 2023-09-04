@@ -19,23 +19,65 @@
 package foundation.e.apps.domain.login.usecase
 
 import com.aurora.gplayapi.data.models.AuthData
+import foundation.e.apps.domain.common.repository.CommonRepository
 import foundation.e.apps.domain.login.repository.LoginRepository
 import foundation.e.apps.utils.Resource
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 class UserLoginUseCase @Inject constructor(
     private val loginRepository: LoginRepository,
+    private val commonRepository: CommonRepository
 ) {
 
     fun anonymousUser(): Flow<Resource<AuthData>> = flow {
         try {
             emit(Resource.Loading())
-            val userResponse = loginRepository.anonymousUser()
-            emit(Resource.Success(userResponse))
+            emit(Resource.Success(loginRepository.anonymousUser()))
         } catch (e: Exception) {
             emit(Resource.Error(e.localizedMessage))
         }
+    }
+
+    fun retrieveCachedAuthData(): Flow<Resource<AuthData>> = flow {
+        try {
+            emit(Resource.Loading())
+            emit(Resource.Success(commonRepository.cacheAuthData()))
+        } catch (e: Exception) {
+            emit(Resource.Error(e.localizedMessage))
+        }
+    }
+
+    fun logoutUser() {
+        commonRepository.resetCachedData()
+    }
+
+    fun currentUser() =  commonRepository.currentUser()
+
+
+    fun performAnonymousUserAuthentication(): Flow<Resource<AuthData>> = flow {
+        anonymousUser().onEach {anonymousAuth ->
+            // TODO -> If we are not using auth data then
+            when(anonymousAuth ) {
+                is Resource.Error -> emit(Resource.Error(anonymousAuth.message ?: "An unexpected error occured"))
+                is Resource.Loading -> emit(Resource.Loading())
+                is Resource.Success -> {
+                    retrieveCachedAuthData().onEach {
+                        when(it) {
+                            is Resource.Error -> {
+                                emit(Resource.Error(anonymousAuth.message ?: "An unexpected error occured"))
+                            }
+                            is Resource.Loading -> emit(Resource.Loading())
+                            is Resource.Success -> {
+                                emit(Resource.Success(commonRepository.cacheAuthData()))
+                            }
+                        }
+                    }.collect()
+                }
+            }
+        }.collect()
     }
 }

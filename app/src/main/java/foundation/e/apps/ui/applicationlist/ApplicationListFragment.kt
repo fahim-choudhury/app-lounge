@@ -22,14 +22,17 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
@@ -42,6 +45,7 @@ import foundation.e.apps.databinding.FragmentApplicationListBinding
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.AppProgressViewModel
 import foundation.e.apps.ui.MainActivityViewModel
@@ -53,7 +57,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class ApplicationListFragment :
-    TimeoutFragment(R.layout.fragment_application_list),
+    Fragment(R.layout.fragment_application_list),
     FusedAPIInterface {
 
     // protected to avoid SyntheticAccessor
@@ -69,8 +73,13 @@ class ApplicationListFragment :
     protected val viewModel: ApplicationListViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
-    override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
+    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
     private val appProgressViewModel: AppProgressViewModel by viewModels()
+    private val loginViewModel: LoginViewModel by lazy {
+        ViewModelProvider(requireActivity())[LoginViewModel::class.java]
+    }
+
+    private var authData: AuthData? = null
 
     private var _binding: FragmentApplicationListBinding? = null
     private val binding get() = _binding!!
@@ -85,15 +94,12 @@ class ApplicationListFragment :
         setupRecyclerView(view)
         observeAppListLiveData()
 
-        setupListening()
-
-        authObjects.observe(viewLifecycleOwner) {
-            if (it == null) return@observe
-            loadDataWhenNetworkAvailable(it)
-        }
-
-        viewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
-            handleExceptionsCommon(it)
+        loginViewModel.loginState.observe(viewLifecycleOwner) {
+            if (it.isLoggedIn) {
+                // TODO : check for network and wait if network is unavailable
+                this.authData = it.authData
+                loadData()
+            }
         }
     }
 
@@ -149,7 +155,7 @@ class ApplicationListFragment :
                 listAdapter.currentList
             )
         ) {
-            repostAuthObjects()
+            loadData()
         }
     }
 
@@ -216,7 +222,7 @@ class ApplicationListFragment :
         currentList
     )
 
-    override fun loadData(authObjectList: List<AuthObject>) {
+    private fun loadData() {
 
         /*
          * If details are once loaded, do not load details again,
@@ -229,10 +235,7 @@ class ApplicationListFragment :
          * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/478
          */
         showLoadingUI()
-        viewModel.loadData(args.category, args.source, authObjectList) {
-            clearAndRestartGPlayLogin()
-            true
-        }
+        viewModel.loadData(args.category, args.source, authData)
 
         if (args.source != "Open Source" && args.source != "PWA") {
             /*
@@ -244,7 +247,7 @@ class ApplicationListFragment :
                     super.onScrollStateChanged(recyclerView, newState)
                     if (!recyclerView.canScrollVertically(1)) {
                         viewModel.loadMore(
-                            authObjectList.find { it is AuthObject.GPlayAuth },
+                            authData,
                             args.category
                         )
                     }
@@ -261,7 +264,7 @@ class ApplicationListFragment :
                 if (this is ApplicationListRVAdapter) {
                     onPlaceHolderShow = {
                         viewModel.loadMore(
-                            authObjectList.find { it is AuthObject.GPlayAuth },
+                            authData,
                             args.category
                         )
                     }
@@ -270,34 +273,13 @@ class ApplicationListFragment :
         }
     }
 
-    override fun onTimeout(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun onSignInError(
-        exception: GPlayLoginException,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun onDataLoadError(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun showLoadingUI() {
+    private fun showLoadingUI() {
         binding.shimmerLayout.startShimmer()
         binding.shimmerLayout.visibility = View.VISIBLE
         binding.recyclerView.visibility = View.GONE
     }
 
-    override fun stopLoadingUI() {
+    private fun stopLoadingUI() {
         binding.shimmerLayout.stopShimmer()
         binding.shimmerLayout.visibility = View.GONE
         binding.recyclerView.visibility = View.VISIBLE

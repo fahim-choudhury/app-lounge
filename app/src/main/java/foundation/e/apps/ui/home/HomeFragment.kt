@@ -22,12 +22,16 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
@@ -42,6 +46,8 @@ import foundation.e.apps.databinding.FragmentHomeBinding
 import foundation.e.apps.di.CommonUtilsModule.safeNavigate
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.pkg.PWAManagerModule
+import foundation.e.apps.presentation.login.LoginState
+import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.AppProgressViewModel
 import foundation.e.apps.ui.MainActivityViewModel
@@ -53,7 +59,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface {
+class HomeFragment : Fragment(R.layout.fragment_home), FusedAPIInterface {
 
     /*
      * Make adapter nullable to avoid memory leaks.
@@ -64,9 +70,15 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
     private val binding get() = _binding!!
 
     private val homeViewModel: HomeViewModel by viewModels()
-    override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
+    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
     private val appProgressViewModel: AppProgressViewModel by viewModels()
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
+
+    private val loginViewModel: LoginViewModel by lazy {
+        ViewModelProvider(requireActivity())[LoginViewModel::class.java]
+    }
+
+    private var authData: AuthData? = null
 
     @Inject
     lateinit var pwaManagerModule: PWAManagerModule
@@ -112,15 +124,13 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
     }
 
     private fun loadHomePageData() {
-        setupListening()
 
-        authObjects.observe(viewLifecycleOwner) {
-            if (it == null) return@observe
-            loadDataWhenNetworkAvailable(it)
-        }
-
-        homeViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
-            handleExceptionsCommon(it)
+        loginViewModel.loginState.observe(viewLifecycleOwner) {
+            if (it.isLoggedIn) {
+                // TODO : check for network and wait if network is unavailable
+                this.authData = it.authData
+                loadData()
+            }
         }
     }
 
@@ -146,61 +156,17 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
             homeParentRVAdapter?.currentList as List<FusedHome>
         )
 
-    override fun onTimeout(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog.apply {
-            if (exception is GPlayException) {
-                setMessage(R.string.timeout_desc_gplay)
-                setNegativeButton(R.string.open_settings) { _, _ ->
-                    openSettings()
-                }
-            } else {
-                setMessage(R.string.timeout_desc_cleanapk)
-            }
-            setCancelable(false)
-        }
+    fun loadData() {
+        homeViewModel.loadData(authData, viewLifecycleOwner)
     }
 
-    override fun onSignInError(
-        exception: GPlayLoginException,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog.apply {
-            setNegativeButton(R.string.open_settings) { _, _ ->
-                openSettings()
-            }
-        }
-    }
-
-    override fun onDataLoadError(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog.apply {
-            if (exception is GPlayException) {
-                setNegativeButton(R.string.open_settings) { _, _ ->
-                    openSettings()
-                }
-            }
-        }
-    }
-
-    override fun loadData(authObjectList: List<AuthObject>) {
-        homeViewModel.loadData(authObjectList, viewLifecycleOwner) { _ ->
-            clearAndRestartGPlayLogin()
-            true
-        }
-    }
-
-    override fun showLoadingUI() {
+    fun showLoadingUI() {
         binding.shimmerLayout.startShimmer()
         binding.shimmerLayout.visibility = View.VISIBLE
         binding.parentRV.visibility = View.GONE
     }
 
-    override fun stopLoadingUI() {
+    fun stopLoadingUI() {
         binding.shimmerLayout.stopShimmer()
         binding.shimmerLayout.visibility = View.GONE
         binding.parentRV.visibility = View.VISIBLE
@@ -265,7 +231,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         }
 
         if (homeViewModel.isAnyAppInstallStatusChanged(homeParentRVAdapter?.currentList)) {
-            repostAuthObjects()
+            loadData()
         }
     }
 
@@ -290,24 +256,5 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
 
     override fun cancelDownload(app: FusedApp) {
         mainActivityViewModel.cancelDownload(app)
-    }
-
-    private fun onTosAccepted(isTosAccepted: Boolean) {
-        if (isTosAccepted) {
-            /*
-             * "safeNavigate" is an extension function, to prevent calling this navigation multiple times.
-             * This is taken from:
-             * https://nezspencer.medium.com/navigation-components-a-fix-for-navigation-action-cannot-be-found-in-the-current-destination-95b63e16152e
-             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5166
-             * Also related: https://gitlab.e.foundation/ecorp/apps/apps/-/merge_requests/28
-             */
-            view?.findNavController()
-                ?.safeNavigate(R.id.homeFragment, R.id.action_homeFragment_to_signInFragment)
-        }
-    }
-
-    private fun openSettings() {
-        view?.findNavController()
-            ?.safeNavigate(R.id.homeFragment, R.id.action_homeFragment_to_SettingsFragment)
     }
 }

@@ -21,9 +21,10 @@ package foundation.e.apps.ui.updates
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -32,6 +33,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
@@ -49,13 +51,13 @@ import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.updates.UpdatesWorkManager
 import foundation.e.apps.install.workmanager.InstallWorkManager.INSTALL_WORK_NAME
+import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.AppProgressViewModel
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.PrivacyInfoViewModel
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.applicationlist.ApplicationListRVAdapter
-import foundation.e.apps.ui.parentFragment.TimeoutFragment
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.toast
@@ -66,7 +68,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInterface {
+class UpdatesFragment : Fragment(R.layout.fragment_updates), FusedAPIInterface {
 
     private var _binding: FragmentUpdatesBinding? = null
     private val binding get() = _binding!!
@@ -77,8 +79,14 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
     private val updatesViewModel: UpdatesViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
-    override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
+    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
     private val appProgressViewModel: AppProgressViewModel by viewModels()
+
+    private val loginViewModel: LoginViewModel by lazy {
+        ViewModelProvider(requireActivity())[LoginViewModel::class.java]
+    }
+
+    private var authData: AuthData? = null
 
     private var isDownloadObserverAdded = false
 
@@ -87,18 +95,13 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         _binding = FragmentUpdatesBinding.bind(view)
 
         binding.button.isEnabled = false
-        setupListening()
 
-        authObjects.observe(viewLifecycleOwner) {
-            if (it == null) return@observe
+        loginViewModel.loginState.observe(viewLifecycleOwner) {
+            if (!it.isLoggedIn) return@observe
             if (!updatesViewModel.updatesList.value?.first.isNullOrEmpty()) {
                 return@observe
             }
-            loadDataWhenNetworkAvailable(it)
-        }
-
-        updatesViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
-            handleExceptionsCommon(it)
+            loadData()
         }
 
         val recyclerView = binding.recyclerView
@@ -144,11 +147,6 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
             stopLoadingUI()
 
             Timber.d("===>> observeupdate list called")
-            if (it.second != ResultStatus.OK) {
-                val exception = GPlayException(it.second == ResultStatus.TIMEOUT)
-                val alertDialogBuilder = AlertDialog.Builder(requireContext())
-                onTimeout(exception, alertDialogBuilder)
-            }
         }
     }
 
@@ -175,15 +173,15 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
 
     private fun shouldUpdateButtonEnable(workInfoList: MutableList<WorkInfo>) =
         !updatesViewModel.updatesList.value?.first.isNullOrEmpty() &&
-            (
-                workInfoList.isNullOrEmpty() ||
-                    (
-                        !updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(
-                            workInfoList
-                        ) &&
-                            updatesViewModel.hasAnyUpdatableApp()
+                (
+                        workInfoList.isNullOrEmpty() ||
+                                (
+                                        !updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(
+                                            workInfoList
+                                        ) &&
+                                                updatesViewModel.hasAnyUpdatableApp()
+                                        )
                         )
-                )
 
     private fun handleUpdateEvent(appEvent: AppEvent) {
         val event = appEvent.data as ResultSupreme.WorkError<*>
@@ -227,52 +225,9 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         ).show(childFragmentManager, "UpdatesFragment")
     }
 
-    override fun onTimeout(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog.apply {
-            if (exception is GPlayException) {
-                setMessage(R.string.timeout_desc_gplay)
-                setNegativeButton(R.string.open_settings) { _, _ ->
-                    openSettings()
-                }
-            } else {
-                setMessage(R.string.timeout_desc_cleanapk)
-            }
-        }
-    }
-
-    override fun onSignInError(
-        exception: GPlayLoginException,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog.apply {
-            setNegativeButton(R.string.open_settings) { _, _ ->
-                openSettings()
-            }
-        }
-    }
-
-    override fun onDataLoadError(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog.apply {
-            if (exception is GPlayException) {
-                setNegativeButton(R.string.open_settings) { _, _ ->
-                    openSettings()
-                }
-            }
-        }
-    }
-
-    override fun loadData(authObjectList: List<AuthObject>) {
+    private fun loadData() {
         showLoadingUI()
-        updatesViewModel.loadData(authObjectList) {
-            clearAndRestartGPlayLogin()
-            true
-        }
+        updatesViewModel.loadData(authData)
         initUpdataAllButton()
     }
 
@@ -303,17 +258,17 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
             WorkInfo.State.SUCCEEDED
         )
         return !workInfoList.isNullOrEmpty() && errorStates.contains(workInfoList.last().state) &&
-            updatesViewModel.hasAnyUpdatableApp() && !updatesViewModel.hasAnyPendingAppsForUpdate()
+                updatesViewModel.hasAnyUpdatableApp() && !updatesViewModel.hasAnyPendingAppsForUpdate()
     }
 
-    override fun showLoadingUI() {
+    private fun showLoadingUI() {
         binding.button.isEnabled = false
         binding.noUpdates.visibility = View.GONE
         binding.progressBar.visibility = View.VISIBLE
         binding.recyclerView.visibility = View.INVISIBLE
     }
 
-    override fun stopLoadingUI() {
+    private fun stopLoadingUI() {
         binding.progressBar.visibility = View.GONE
 
         if ((binding.recyclerView.adapter?.itemCount ?: 0) > 0) {

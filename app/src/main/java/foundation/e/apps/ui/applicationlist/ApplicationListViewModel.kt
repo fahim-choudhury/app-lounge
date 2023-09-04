@@ -19,6 +19,7 @@
 package foundation.e.apps.ui.applicationlist
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,10 +28,6 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.exceptions.CleanApkException
-import foundation.e.apps.data.login.exceptions.GPlayException
-import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -38,7 +35,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ApplicationListViewModel @Inject constructor(
     private val fusedAPIRepository: FusedAPIRepository
-) : LoadingViewModel() {
+) : ViewModel() {
 
     val appListLiveData: MutableLiveData<ResultSupreme<List<FusedApp>>?> = MutableLiveData()
 
@@ -49,26 +46,9 @@ class ApplicationListViewModel @Inject constructor(
     fun loadData(
         category: String,
         source: String,
-        authObjectList: List<AuthObject>,
-        retryBlock: (failedObjects: List<AuthObject>) -> Boolean,
+        authData: AuthData?,
     ) {
-        super.onLoadData(authObjectList, { successAuthList, _ ->
-
-            if (appListLiveData.value?.data?.isNotEmpty() == true) {
-                appListLiveData.postValue(appListLiveData.value)
-                return@onLoadData
-            }
-
-            successAuthList.find { it is AuthObject.GPlayAuth }?.run {
-                getList(category, result.data!! as AuthData, source)
-                return@onLoadData
-            }
-
-            successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getList(category, AuthData("", ""), source)
-                return@onLoadData
-            }
-        }, retryBlock)
+        getList(category, authData ?: AuthData("", ""), source)
     }
 
     private fun getList(category: String, authData: AuthData, source: String) {
@@ -91,28 +71,7 @@ class ApplicationListViewModel @Inject constructor(
                 appListLiveData.postValue(ResultSupreme.create(ResultStatus.OK, it.first))
                 updateNextPageUrl(it.second)
             }
-
-            if (!result.isSuccess()) {
-                val exception = getException(authData, result)
-                exceptionsList.add(exception)
-                exceptionsLiveData.postValue(exceptionsList)
-            }
         }
-    }
-
-    private fun getException(
-        authData: AuthData,
-        result: ResultSupreme<Pair<List<FusedApp>, String>>
-    ) = if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank()) {
-        GPlayException(
-            result.isTimeout(),
-            result.message.ifBlank { "Data load error" }
-        )
-    } else {
-        CleanApkException(
-            result.isTimeout(),
-            result.message.ifBlank { "Data load error" }
-        )
     }
 
     private fun updateNextPageUrl(nextPageUrl: String?) {
@@ -129,13 +88,8 @@ class ApplicationListViewModel @Inject constructor(
         return fusedAPIRepository.isAnyFusedAppUpdated(newFusedApps, oldFusedApps)
     }
 
-    fun loadMore(gPlayAuth: AuthObject?, category: String) {
+    fun loadMore(authData: AuthData?, category: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val authData: AuthData? = when {
-                gPlayAuth !is AuthObject.GPlayAuth -> null
-                !gPlayAuth.result.isSuccess() -> null
-                else -> gPlayAuth.result.data!!
-            }
 
             if (isLoading || authData == null || nextPageUrl.isNullOrEmpty()) {
                 return@launch

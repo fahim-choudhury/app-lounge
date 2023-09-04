@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import androidx.appcompat.app.AlertDialog
+import com.aurora.gplayapi.data.models.AuthData
+import com.google.gson.Gson
 import foundation.e.apps.R
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -42,3 +44,7 @@ fun Context.isNetworkAvailable(): Boolean {
 
     return false
 }
+
+fun AuthData.toJsonString(): String = Gson().toJson(this)
+
+fun String.toAuthData(): AuthData = Gson().fromJson(this, AuthData::class.java)

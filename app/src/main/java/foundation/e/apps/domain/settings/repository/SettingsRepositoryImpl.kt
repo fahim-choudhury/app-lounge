@@ -16,12 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.domain.login.repository
+package foundation.e.apps.domain.settings.repository
 
-import com.aurora.gplayapi.data.models.AuthData
+import android.content.Context
+import app.lounge.storage.cache.configurations
+import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.data.enums.User
+import javax.inject.Inject
 
-interface LoginRepository {
-
-    suspend fun anonymousUser(): AuthData
+class SettingsRepositoryImpl @Inject constructor(
+    @ApplicationContext val applicationContext: Context
+) : SettingsRepository {
 
 }

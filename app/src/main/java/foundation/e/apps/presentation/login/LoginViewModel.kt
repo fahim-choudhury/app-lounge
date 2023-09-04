@@ -21,16 +21,21 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.User
+import foundation.e.apps.data.enums.User.NO_GOOGLE
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.LoginSourceRepository
 import foundation.e.apps.domain.login.usecase.UserLoginUseCase
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import foundation.e.apps.utils.Resource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -134,32 +139,82 @@ class LoginViewModel @Inject constructor(
      * Clears all saved data and logs out the user to the sign in screen.
      */
     fun logout() {
-        viewModelScope.launch {
-            loginSourceRepository.logout()
-            authObjects.postValue(listOf())
-        }
+        userLoginUseCase.logoutUser()
+        _loginState.value = LoginState()
     }
 
     private val _loginState: MutableLiveData<LoginState> = MutableLiveData()
     val loginState: LiveData<LoginState> = _loginState
 
     fun authenticateAnonymousUser() {
-        viewModelScope.launch {
-            userLoginUseCase.anonymousUser().onEach { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        _loginState.value = LoginState(isLoggedIn = true)
-                    }
-                    is Resource.Error -> {
-                        _loginState.value = LoginState(
-                            error = result.message ?: "An unexpected error occured"
-                        )
-                    }
-                    is Resource.Loading -> {
-                        _loginState.value = LoginState(isLoading = true)
+        viewModelScope.launch(Dispatchers.IO) {
+            userLoginUseCase.performAnonymousUserAuthentication().onEach {result ->
+                withContext(Dispatchers.Main) {
+                    when (result) {
+                        is Resource.Success -> {
+                            result.data?.let { updateSavedAuthData() }
+                        }
+
+                        is Resource.Error -> {
+                            _loginState.value = LoginState(
+                                error = result.message ?: "An unexpected error occured"
+                            )
+                        }
+
+                        is Resource.Loading -> {
+                            _loginState.value = LoginState(isLoading = true)
+                        }
                     }
                 }
             }.collect()
         }
     }
+
+    fun checkLogin() {
+        viewModelScope.launch {
+            val user = userLoginUseCase.currentUser()
+            if (user == NO_GOOGLE) {
+                _loginState.value =
+                    LoginState(isLoggedIn = true, authData = null, user = user)
+            } else {
+                updateSavedAuthData()
+            }
+        }
+    }
+
+    private suspend fun updateSavedAuthData() {
+        userLoginUseCase.retrieveCachedAuthData().onEach {
+            when(it) {
+                is Resource.Error -> {
+                    val error = it.message.let { message ->
+                        when (message) {
+                            null -> "An unexpected error occurred"
+                            else -> message
+                        }
+                    }
+                    _loginState.value = LoginState(error = error)
+                }
+                is Resource.Loading ->  _loginState.value = LoginState(isLoading = true)
+                is Resource.Success -> {
+                    // TODO
+                    it.data?.let { it1 -> updateAuthObjectForAnonymousUser(it1) }
+
+                    _loginState.value =
+                        LoginState(isLoggedIn = true, authData = it.data, user = User.ANONYMOUS)
+                }
+            }
+        }.collect()
+    }
+
+    fun updateAuthObjectForAnonymousUser(authData: AuthData) {
+        // TODO : Refine after Google User API is refactored.
+        loginSourceRepository.gplayAuth = authData
+
+        authObjects.postValue(
+            listOf(
+                AuthObject.GPlayAuth(ResultSupreme.Success(authData), User.ANONYMOUS)
+            )
+        )
+    }
+
 }

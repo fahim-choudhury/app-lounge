@@ -20,6 +20,7 @@ package foundation.e.apps.ui.home
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,68 +28,30 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fused.data.FusedHome
-import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.exceptions.CleanApkException
-import foundation.e.apps.data.login.exceptions.GPlayException
-import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val fusedAPIRepository: FusedAPIRepository,
-) : LoadingViewModel() {
+): ViewModel() {
 
-    /*
-     * Hold list of applications, as well as application source type.
-     * Source type may change from user selected preference in case of timeout.
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
-     */
     var homeScreenData: MutableLiveData<ResultSupreme<List<FusedHome>>> = MutableLiveData()
 
     fun loadData(
-        authObjectList: List<AuthObject>,
+        authData: AuthData?,
         lifecycleOwner: LifecycleOwner,
-        retryBlock: (failedObjects: List<AuthObject>) -> Boolean,
     ) {
-        super.onLoadData(authObjectList, { successAuthList, _ ->
-
-            successAuthList.find { it is AuthObject.GPlayAuth }?.run {
-                getHomeScreenData(result.data!! as AuthData, lifecycleOwner)
-                return@onLoadData
-            }
-
-            successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getHomeScreenData(AuthData("", ""), lifecycleOwner)
-                return@onLoadData
-            }
-        }, retryBlock)
+        getHomeScreenData(authData ?: AuthData("", ""), lifecycleOwner)
     }
 
-    fun getHomeScreenData(
+    private fun getHomeScreenData(
         authData: AuthData,
         lifecycleOwner: LifecycleOwner,
     ) {
         viewModelScope.launch {
             fusedAPIRepository.getHomeScreenData(authData).observe(lifecycleOwner) {
                 homeScreenData.postValue(it)
-
-                if (it.isSuccess()) return@observe
-
-                val exception =
-                    if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
-                        GPlayException(
-                            it.isTimeout(),
-                            it.message.ifBlank { "Data load error" }
-                        )
-                    else CleanApkException(
-                        it.isTimeout(),
-                        it.message.ifBlank { "Data load error" }
-                    )
-
-                exceptionsList.add(exception)
-                exceptionsLiveData.postValue(exceptionsList)
             }
         }
     }

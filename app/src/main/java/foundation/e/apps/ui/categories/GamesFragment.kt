@@ -21,8 +21,10 @@ package foundation.e.apps.ui.categories
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
@@ -30,31 +32,31 @@ import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentGamesBinding
+import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.categories.model.CategoriesRVAdapter
 import foundation.e.apps.ui.parentFragment.TimeoutFragment
 
 @AndroidEntryPoint
-class GamesFragment : TimeoutFragment(R.layout.fragment_games) {
+class GamesFragment : Fragment(R.layout.fragment_games) {
     private var _binding: FragmentGamesBinding? = null
     private val binding get() = _binding!!
 
     private val categoriesViewModel: CategoriesViewModel by viewModels()
-    override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
+
+    private val loginViewModel: LoginViewModel by lazy {
+        ViewModelProvider(requireActivity())[LoginViewModel::class.java]
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentGamesBinding.bind(view)
 
-        setupListening()
-
-        authObjects.observe(viewLifecycleOwner) {
-            if (it == null) return@observe
-            loadDataWhenNetworkAvailable(it)
-        }
-
-        categoriesViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
-            handleExceptionsCommon(it)
+        loginViewModel.loginState.observe(viewLifecycleOwner) {
+            if (it.isLoggedIn) {
+                // TODO : check for network and wait if network is unavailable
+                loadData()
+            }
         }
 
         val categoriesRVAdapter = CategoriesRVAdapter()
@@ -72,41 +74,18 @@ class GamesFragment : TimeoutFragment(R.layout.fragment_games) {
         }
     }
 
-    override fun loadData(authObjectList: List<AuthObject>) {
-        categoriesViewModel.loadData(CategoryType.GAMES, authObjectList) {
-            clearAndRestartGPlayLogin()
-            true
-        }
+    private fun loadData() {
+        showLoadingUI()
+        categoriesViewModel.loadData(CategoryType.GAMES)
     }
 
-    override fun onTimeout(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun onSignInError(
-        exception: GPlayLoginException,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun onDataLoadError(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun showLoadingUI() {
+    private fun showLoadingUI() {
         binding.shimmerLayout.startShimmer()
         binding.shimmerLayout.visibility = View.VISIBLE
         binding.recyclerView.visibility = View.GONE
     }
 
-    override fun stopLoadingUI() {
+    private fun stopLoadingUI() {
         binding.shimmerLayout.stopShimmer()
         binding.shimmerLayout.visibility = View.GONE
         binding.recyclerView.visibility = View.VISIBLE

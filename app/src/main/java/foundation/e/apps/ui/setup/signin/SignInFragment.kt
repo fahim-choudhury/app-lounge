@@ -11,6 +11,7 @@ import foundation.e.apps.databinding.FragmentSignInBinding
 import foundation.e.apps.di.CommonUtilsModule.safeNavigate
 import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.utils.showGoogleSignInAlertDialog
+import timber.log.Timber
 
 @AndroidEntryPoint
 class SignInFragment : Fragment(R.layout.fragment_sign_in) {
@@ -43,13 +44,19 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
             }
         }
 
-        viewModel.loginState.observe(this.viewLifecycleOwner) {
-            if (it.isLoggedIn)
-                view.findNavController()
-                    .safeNavigate(
-                        R.id.signInFragment,
-                        R.id.action_signInFragment_to_homeFragment
-                    )
+        viewModel.loginState.observe(this.viewLifecycleOwner) { loginState ->
+            if (loginState.isLoggedIn) {
+                loginState.authData?.let { data ->
+
+                    viewModel.updateAuthObjectForAnonymousUser(data)
+
+                    view.findNavController()
+                        .safeNavigate(
+                            R.id.signInFragment,
+                            R.id.action_signInFragment_to_homeFragment
+                        )
+                } ?: run { Timber.e("Auth Data is null") }
+            }
         }
     }
 

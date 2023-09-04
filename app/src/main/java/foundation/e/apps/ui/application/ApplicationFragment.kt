@@ -33,14 +33,17 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
+import com.aurora.gplayapi.data.models.AuthData
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textview.MaterialTextView
@@ -61,12 +64,12 @@ import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.PrivacyInfoViewModel
 import foundation.e.apps.ui.application.model.ApplicationScreenshotsRVAdapter
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
-import foundation.e.apps.ui.parentFragment.TimeoutFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -74,7 +77,7 @@ import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
+class ApplicationFragment : Fragment(R.layout.fragment_application) {
 
     private val args: ApplicationFragmentArgs by navArgs()
     private val TAG = ApplicationFragment::class.java.simpleName
@@ -120,7 +123,13 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     private val applicationViewModel: ApplicationViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
-    override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
+    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
+
+    private val loginViewModel: LoginViewModel by lazy {
+        ViewModelProvider(requireActivity())[LoginViewModel::class.java]
+    }
+
+    private var authData: AuthData? = null
 
     private var applicationIcon: ImageView? = null
 
@@ -140,15 +149,12 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentApplicationBinding.bind(view)
 
-        setupListening()
-
-        authObjects.observe(viewLifecycleOwner) {
-            if (it == null) return@observe
-            loadDataWhenNetworkAvailable(it)
-        }
-
-        applicationViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
-            handleExceptionsCommon(it)
+        loginViewModel.loginState.observe(viewLifecycleOwner) {
+            if (it.isLoggedIn) {
+                // TODO : check for network and wait if network is unavailable
+                this.authData = it.authData
+                loadData()
+            }
         }
 
         setupToolbar(view)
@@ -447,7 +453,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
     }
 
-    override fun loadData(authObjectList: List<AuthObject>) {
+    private fun loadData() {
         if (isDetailsLoaded) return
         /* Show the loading bar. */
         showLoadingUI()
@@ -459,32 +465,8 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             packageName,
             origin,
             isFdroidDeepLink,
-            authObjectList
-        ) {
-            clearAndRestartGPlayLogin()
-            true
-        }
-    }
-
-    override fun onTimeout(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun onSignInError(
-        exception: GPlayLoginException,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun onDataLoadError(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
+            authData
+        )
     }
 
     private fun observeDownloadStatus(view: View) {
@@ -829,12 +811,12 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             }
     }
 
-    override fun showLoadingUI() {
+    private fun showLoadingUI() {
         binding.applicationLayout.visibility = View.GONE
         binding.progressBar.visibility = View.VISIBLE
     }
 
-    override fun stopLoadingUI() {
+    private  fun stopLoadingUI() {
         binding.applicationLayout.visibility = View.VISIBLE
         binding.progressBar.visibility = View.GONE
     }

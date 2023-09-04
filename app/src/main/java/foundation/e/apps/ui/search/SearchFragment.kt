@@ -28,17 +28,20 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.cursoradapter.widget.CursorAdapter
 import androidx.cursoradapter.widget.SimpleCursorAdapter
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aurora.gplayapi.SearchSuggestEntry
+import com.aurora.gplayapi.data.models.AuthData
 import com.facebook.shimmer.ShimmerFrameLayout
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
@@ -46,25 +49,22 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fused.FusedAPIInterface
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentSearchBinding
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.pkg.PWAManagerModule
+import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.AppProgressViewModel
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.PrivacyInfoViewModel
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.applicationlist.ApplicationListRVAdapter
-import foundation.e.apps.ui.parentFragment.TimeoutFragment
-import foundation.e.apps.utils.isNetworkAvailable
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class SearchFragment :
-    TimeoutFragment(R.layout.fragment_search),
+    Fragment(R.layout.fragment_search),
     SearchView.OnQueryTextListener,
     SearchView.OnSuggestionListener,
     FusedAPIInterface {
@@ -75,11 +75,17 @@ class SearchFragment :
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
 
-    protected val searchViewModel: SearchViewModel by viewModels()
+    private val searchViewModel: SearchViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
-    override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
+    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
     private val appProgressViewModel: AppProgressViewModel by viewModels()
+
+    private val loginViewModel: LoginViewModel by lazy {
+        ViewModelProvider(requireActivity())[LoginViewModel::class.java]
+    }
+
+    private var authData: AuthData? = null
 
     private val SUGGESTION_KEY = "suggestion"
     private var lastSearch = ""
@@ -114,43 +120,14 @@ class SearchFragment :
 
         observeSearchResult(listAdapter)
 
-        setupListening()
-
-        authObjects.observe(viewLifecycleOwner) {
+        loginViewModel.loginState.observe(viewLifecycleOwner) {
             val currentQuery = searchView?.query?.toString() ?: ""
-            if (it == null || shouldIgnore(it, currentQuery)) {
-                showData()
-                return@observe
-            }
-
-            val applicationListRVAdapter = recyclerView?.adapter as ApplicationListRVAdapter
-            applicationListRVAdapter.setData(mutableListOf())
-
-            loadDataWhenNetworkAvailable(it)
+            if (!it.isLoggedIn || (currentQuery.isNotEmpty() && lastSearch == currentQuery)) return@observe
+            // TODO : check for network and wait if network is unavailable
+            this.authData = it.authData
+            loadData()
         }
-
-        searchViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
-            handleExceptionsCommon(it)
-        }
-
-        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                if (!recyclerView.canScrollVertically(1)) {
-                    if (!requireContext().isNetworkAvailable()) {
-                        return
-                    }
-                    searchViewModel.loadMore(searchText)
-                }
-            }
-        })
     }
-
-    private fun shouldIgnore(
-        authObjectList: List<AuthObject>?,
-        currentQuery: String
-    ) = currentQuery.isNotEmpty() && searchViewModel.isAuthObjectListSame(authObjectList) &&
-        lastSearch == currentQuery
 
     private fun observeSearchResult(listAdapter: ApplicationListRVAdapter?) {
         searchViewModel.searchResult.observe(viewLifecycleOwner) {
@@ -193,22 +170,19 @@ class SearchFragment :
      */
     private fun updateSearchResult(
         listAdapter: ApplicationListRVAdapter?,
-        appList: List<FusedApp>,
+        appList: List<FusedApp>?,
+        hasMore: Boolean,
     ): Boolean {
         val currentList = listAdapter?.currentList ?: listOf()
-        if (!searchViewModel.isAnyAppUpdated(appList, currentList)) {
+        if (appList != null && !searchViewModel.isAnyAppUpdated(appList, currentList)) {
             return false
         }
 
-        showData()
-        listAdapter?.setData(appList)
-        return true
-    }
-
-    private fun showData() {
         stopLoadingUI()
         noAppsFoundLayout?.visibility = View.GONE
         searchHintLayout?.visibility = View.GONE
+        listAdapter?.setData(appList!!)
+        return true
     }
 
     private fun setupSearchResult(view: View): ApplicationListRVAdapter? {
@@ -285,45 +259,22 @@ class SearchFragment :
         val searchList =
             searchViewModel.searchResult.value?.data?.first?.toMutableList() ?: emptyList()
 
+        val hasMoreDataToLoad = searchViewModel.searchResult.value?.data?.second == true
         mainActivityViewModel.updateStatusOfFusedApps(searchList, fusedDownloadList)
-        updateSearchResult(applicationListRVAdapter, searchList)
+        updateSearchResult(applicationListRVAdapter, searchList, hasMoreDataToLoad)
     }
 
-    override fun onTimeout(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun onDataLoadError(
-        exception: Exception,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun onSignInError(
-        exception: GPlayLoginException,
-        predefinedDialog: AlertDialog.Builder
-    ): AlertDialog.Builder? {
-        return predefinedDialog
-    }
-
-    override fun loadData(authObjectList: List<AuthObject>) {
+    private fun loadData() {
         showLoadingUI()
-        searchViewModel.loadData(searchText, viewLifecycleOwner, authObjectList) {
-            clearAndRestartGPlayLogin()
-            true
-        }
+        searchViewModel.loadData(searchText, viewLifecycleOwner, authData)
     }
 
-    override fun showLoadingUI() {
+    private fun showLoadingUI() {
         binding.shimmerLayout.startShimmer()
         binding.shimmerLayout.visibility = View.VISIBLE
     }
 
-    override fun stopLoadingUI() {
+    private fun stopLoadingUI() {
         binding.shimmerLayout.stopShimmer()
         binding.shimmerLayout.visibility = View.GONE
     }
@@ -389,7 +340,6 @@ class SearchFragment :
             if (text.isNotEmpty()) {
                 hideKeyboard(activity as Activity)
             }
-
             view?.requestFocus()
             searchHintLayout?.visibility = View.GONE
             shimmerLayout?.visibility = View.VISIBLE
@@ -398,16 +348,16 @@ class SearchFragment :
              * Set the search text and call for network result.
              */
             searchText = text
-            repostAuthObjects()
+            val applicationListRVAdapter = recyclerView?.adapter as ApplicationListRVAdapter
+            applicationListRVAdapter.setData(mutableListOf())
+            loadData()
         }
         return false
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
         newText?.let { text ->
-            authObjects.value?.find { it is AuthObject.GPlayAuth }?.run {
-                searchViewModel.getSearchSuggestions(text, this as AuthObject.GPlayAuth)
-            }
+            searchViewModel.getSearchSuggestions(text, authData)
         }
         return true
     }
@@ -451,11 +401,10 @@ class SearchFragment :
     }
 
     private fun showKeyboard() {
-        val inputMethodManager =
-            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val inputMethodManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         searchView?.javaClass?.getDeclaredField("mSearchSrcTextView")?.runCatching {
             isAccessible = true
-            get(searchView) as EditText
+            get(searchView)as EditText
         }?.onSuccess {
             inputMethodManager.showSoftInput(it, InputMethodManager.SHOW_FORCED)
         }

@@ -19,6 +19,7 @@
 package foundation.e.apps.ui.application
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.exceptions.ApiException
@@ -46,7 +47,7 @@ class ApplicationViewModel @Inject constructor(
     downloadProgressLD: DownloadProgressLD,
     private val fusedAPIRepository: FusedAPIRepository,
     private val fusedManagerRepository: FusedManagerRepository,
-) : LoadingViewModel() {
+) : ViewModel() {
 
     val fusedApp: MutableLiveData<Pair<FusedApp, ResultStatus>> = MutableLiveData()
     val appStatus: MutableLiveData<Status?> = MutableLiveData()
@@ -59,8 +60,7 @@ class ApplicationViewModel @Inject constructor(
         packageName: String,
         origin: Origin,
         isFdroidLink: Boolean,
-        authObjectList: List<AuthObject>,
-        retryBlock: (failedObjects: List<AuthObject>) -> Boolean,
+        authData: AuthData?,
     ) {
 
         if (isFdroidLink) {
@@ -68,32 +68,10 @@ class ApplicationViewModel @Inject constructor(
             return
         }
 
-        val gPlayObj = authObjectList.find { it is AuthObject.GPlayAuth }
-
-        /*
-         * If user is viewing only open source apps, auth object list will not have
-         * GPlayAuth, it will only have CleanApkAuth.
-         */
-        if (gPlayObj == null && origin == Origin.GPLAY) {
-            _errorMessageLiveData.postValue(R.string.gplay_data_for_oss)
-            return
-        }
-
-        super.onLoadData(authObjectList, { successAuthList, _ ->
-
-            successAuthList.find { it is AuthObject.GPlayAuth }?.run {
-                getApplicationDetails(id, packageName, result.data!! as AuthData, origin)
-                return@onLoadData
-            }
-
-            successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getApplicationDetails(id, packageName, AuthData("", ""), origin)
-                return@onLoadData
-            }
-        }, retryBlock)
+        getApplicationDetails(id, packageName, authData ?: AuthData("", ""), origin)
     }
 
-    fun getApplicationDetails(id: String, packageName: String, authData: AuthData, origin: Origin) {
+    private fun getApplicationDetails(id: String, packageName: String, authData: AuthData, origin: Origin) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val appData =
@@ -104,24 +82,6 @@ class ApplicationViewModel @Inject constructor(
                         origin
                     )
                 fusedApp.postValue(appData)
-
-                val status = appData.second
-
-                if (appData.second != ResultStatus.OK) {
-                    val exception =
-                        if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
-                            GPlayException(
-                                appData.second == ResultStatus.TIMEOUT,
-                                status.message.ifBlank { "Data load error" }
-                            )
-                        else CleanApkException(
-                            appData.second == ResultStatus.TIMEOUT,
-                            status.message.ifBlank { "Data load error" }
-                        )
-
-                    exceptionsList.add(exception)
-                    exceptionsLiveData.postValue(exceptionsList)
-                }
             } catch (e: ApiException.AppNotFound) {
                 _errorMessageLiveData.postValue(R.string.app_not_found)
             } catch (e: Exception) {
@@ -134,7 +94,7 @@ class ApplicationViewModel @Inject constructor(
      * Dedicated method to get app details from cleanapk using package name.
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5509
      */
-    fun getCleanapkAppDetails(packageName: String) {
+    private fun getCleanapkAppDetails(packageName: String) {
         viewModelScope.launch {
             try {
                 fusedAPIRepository.getCleanapkAppDetails(packageName).run {

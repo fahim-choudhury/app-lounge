@@ -19,6 +19,7 @@
 package foundation.e.apps.ui.categories
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,52 +37,21 @@ import javax.inject.Inject
 @HiltViewModel
 class CategoriesViewModel @Inject constructor(
     private val fusedAPIRepository: FusedAPIRepository
-) : LoadingViewModel() {
+) : ViewModel() {
 
     val categoriesList: MutableLiveData<Triple<List<FusedCategory>, String, ResultStatus>> =
         MutableLiveData()
 
     fun loadData(
         type: CategoryType,
-        authObjectList: List<AuthObject>,
-        retryBlock: (failedObjects: List<AuthObject>) -> Boolean,
     ) {
-        super.onLoadData(authObjectList, { successAuthList, _ ->
-
-            successAuthList.find { it is AuthObject.GPlayAuth }?.run {
-                getCategoriesList(type, result.data!! as AuthData)
-                return@onLoadData
-            }
-
-            successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getCategoriesList(type, AuthData("", ""))
-                return@onLoadData
-            }
-        }, retryBlock)
+        getCategoriesList(type)
     }
 
-    fun getCategoriesList(type: CategoryType, authData: AuthData) {
+    private fun getCategoriesList(type: CategoryType) {
         viewModelScope.launch {
             val categoriesData = fusedAPIRepository.getCategoriesList(type)
             categoriesList.postValue(categoriesData)
-
-            val status = categoriesData.third
-
-            if (status != ResultStatus.OK) {
-                val exception =
-                    if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
-                        GPlayException(
-                            categoriesData.third == ResultStatus.TIMEOUT,
-                            status.message.ifBlank { "Data load error" }
-                        )
-                    else CleanApkException(
-                        categoriesData.third == ResultStatus.TIMEOUT,
-                        status.message.ifBlank { "Data load error" }
-                    )
-
-                exceptionsList.add(exception)
-                exceptionsLiveData.postValue(exceptionsList)
-            }
         }
     }
 }

@@ -18,8 +18,13 @@
 
 package foundation.e.apps.presentation.login
 
+import com.aurora.gplayapi.data.models.AuthData
+import foundation.e.apps.data.enums.User
+
 data class LoginState(
     val isLoading: Boolean = false,
     val isLoggedIn: Boolean = false,
-    val error: String = ""
+    val error: String = "",
+    val authData: AuthData? = null,
+    val user: User = User.UNAVAILABLE,
 )

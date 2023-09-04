@@ -19,6 +19,7 @@
 package foundation.e.apps.ui.updates
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import com.aurora.gplayapi.data.models.AuthData
@@ -27,12 +28,8 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.exceptions.CleanApkException
-import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.data.updates.UpdatesManagerRepository
-import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -41,54 +38,22 @@ class UpdatesViewModel @Inject constructor(
     private val updatesManagerRepository: UpdatesManagerRepository,
     private val fusedAPIRepository: FusedAPIRepository,
     private val preferenceManagerModule: PreferenceManagerModule
-) : LoadingViewModel() {
+) : ViewModel() {
 
     val updatesList: MutableLiveData<Pair<List<FusedApp>, ResultStatus?>> = MutableLiveData()
 
     fun loadData(
-        authObjectList: List<AuthObject>,
-        retryBlock: (failedObjects: List<AuthObject>) -> Boolean,
+        authData: AuthData?,
     ) {
-        super.onLoadData(authObjectList, { successAuthList, _ ->
-
-            successAuthList.find { it is AuthObject.GPlayAuth }?.run {
-                getUpdates(result.data!! as AuthData)
-                return@onLoadData
-            }
-
-            successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getUpdates(AuthData("", ""))
-                return@onLoadData
-            }
-        }, retryBlock)
+        getUpdates(authData ?: AuthData("", ""))
     }
 
-    fun getUpdates(authData: AuthData?) {
+    private fun getUpdates(authData: AuthData?) {
         viewModelScope.launch {
             val updatesResult = if (authData != null)
                 updatesManagerRepository.getUpdates(authData)
             else updatesManagerRepository.getUpdatesOSS()
             updatesList.postValue(updatesResult)
-
-            val status = updatesResult.second
-
-            if (status != ResultStatus.OK) {
-                val exception =
-                    if (authData != null &&
-                        (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
-                    ) {
-                        GPlayException(
-                            updatesResult.second == ResultStatus.TIMEOUT,
-                            status.message.ifBlank { "Data load error" }
-                        )
-                    } else CleanApkException(
-                        updatesResult.second == ResultStatus.TIMEOUT,
-                        status.message.ifBlank { "Data load error" }
-                    )
-
-                exceptionsList.add(exception)
-                exceptionsLiveData.postValue(exceptionsList)
-            }
         }
     }
 

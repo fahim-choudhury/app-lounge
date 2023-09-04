@@ -16,12 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.domain.login.repository
+package foundation.e.apps.presentation.settings
 
-import com.aurora.gplayapi.data.models.AuthData
+import foundation.e.apps.data.enums.User
 
-interface LoginRepository {
-
-    suspend fun anonymousUser(): AuthData
-
-}
+data class CurrentUserState(
+    val error: String = "",
+    val user: User = User.UNAVAILABLE
+)

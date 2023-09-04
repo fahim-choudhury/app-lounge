@@ -24,7 +24,9 @@ import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.login.LoginSourceRepository
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.data.updates.UpdatesManagerRepository
+import foundation.e.apps.domain.updates.usecase.UpdatesUseCase
 import foundation.e.apps.install.workmanager.AppInstallProcessor
+import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Dispatchers
@@ -37,11 +39,8 @@ class UpdatesWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted private val params: WorkerParameters,
     private val updatesManagerRepository: UpdatesManagerRepository,
-    private val fusedAPIRepository: FusedAPIRepository,
-    private val fusedManagerRepository: FusedManagerRepository,
-    private val dataStoreManager: DataStoreManager,
-    private val loginSourceRepository: LoginSourceRepository,
-    private val appInstallProcessor: AppInstallProcessor
+    private val appInstallProcessor: AppInstallProcessor,
+    private val updatesUseCase: UpdatesUseCase
 ) : CoroutineWorker(context, params) {
 
     companion object {
@@ -56,6 +55,9 @@ class UpdatesWorker @AssistedInject constructor(
     private var onlyOnUnmeteredNetwork = false
     private var isAutoUpdate = true // indicates it is auto update or user initiated update
     private var retryCount = 0
+
+    private val authData : AuthData
+        get() = updatesUseCase.currentAuthData() ?: AuthData("", "")
 
     override suspend fun doWork(): Result {
         return try {
@@ -94,7 +96,7 @@ class UpdatesWorker @AssistedInject constructor(
     }
 
     private fun getUser(): User {
-        return dataStoreManager.getUserType()
+        return updatesUseCase.currentUser()
     }
 
     private suspend fun checkForUpdates() {
@@ -102,10 +104,9 @@ class UpdatesWorker @AssistedInject constructor(
         val isConnectedToUnmeteredNetwork = isConnectedToUnmeteredNetwork(applicationContext)
         val appsNeededToUpdate = mutableListOf<FusedApp>()
         val user = getUser()
-        val authData = loginSourceRepository.getValidatedAuthData().data
         val resultStatus: ResultStatus
 
-        if (user in listOf(User.ANONYMOUS, User.GOOGLE) && authData != null) {
+        if (user in listOf(User.ANONYMOUS, User.GOOGLE)) {
             /*
              * Signifies valid Google user and valid auth data to update
              * apps from Google Play store.

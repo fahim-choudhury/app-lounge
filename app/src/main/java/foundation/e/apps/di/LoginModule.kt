@@ -24,8 +24,13 @@ import dagger.hilt.components.SingletonComponent
 import foundation.e.apps.data.login.LoginSourceCleanApk
 import foundation.e.apps.data.login.LoginSourceGPlay
 import foundation.e.apps.data.login.LoginSourceInterface
+import foundation.e.apps.domain.common.repository.CommonRepositoryImpl
 import foundation.e.apps.domain.login.repository.LoginRepositoryImpl
 import foundation.e.apps.domain.login.usecase.UserLoginUseCase
+import foundation.e.apps.domain.main.usecase.MainActivityUserCase
+import foundation.e.apps.domain.settings.repository.SettingsRepositoryImpl
+import foundation.e.apps.domain.settings.usecase.SettingsUseCase
+import foundation.e.apps.domain.updates.usecase.UpdatesUseCase
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -41,8 +46,30 @@ object LoginModule {
 
     @Provides
     fun provideLoginUserCase(
-        loginRepositoryImpl: LoginRepositoryImpl
+        loginRepositoryImpl: LoginRepositoryImpl,
+        commonRepositoryImpl: CommonRepositoryImpl
     ): UserLoginUseCase {
-        return UserLoginUseCase(loginRepositoryImpl)
+        return UserLoginUseCase(loginRepositoryImpl, commonRepositoryImpl)
+    }
+
+    @Provides
+    fun provideSettingsUserCase(
+        commonRepositoryImpl: CommonRepositoryImpl
+    ): SettingsUseCase {
+        return SettingsUseCase(commonRepositoryImpl)
+    }
+
+    @Provides
+    fun provideMainActivityUseCase(
+        commonRepositoryImpl: CommonRepositoryImpl
+    ): MainActivityUserCase {
+        return MainActivityUserCase(commonRepositoryImpl)
+    }
+
+    @Provides
+    fun provideUpdatesUseCase(
+        commonRepositoryImpl: CommonRepositoryImpl
+    ): UpdatesUseCase {
+        return UpdatesUseCase(commonRepositoryImpl)
     }
 }

@@ -33,14 +33,11 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
-import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.exceptions.ApiException
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.exceptions.GPlayValidationException
 import foundation.e.apps.databinding.ActivityMainBinding
 import foundation.e.apps.install.updates.UpdatesNotifier
 import foundation.e.apps.presentation.login.LoginViewModel
@@ -49,7 +46,6 @@ import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.purchase.AppPurchaseFragmentDirections
 import foundation.e.apps.ui.settings.SettingsFragment
 import foundation.e.apps.ui.setup.signin.SignInViewModel
-import foundation.e.apps.utils.SystemInfoProvider
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.flow.collectLatest
@@ -94,7 +90,7 @@ class MainActivity : AppCompatActivity() {
             if (it != true) {
                 navController.navigate(R.id.TOSFragment, null, navOptions)
             } else {
-                loginViewModel.startLoginFlow()
+                loginViewModel.checkLogin()
             }
         }
 
@@ -108,28 +104,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        loginViewModel.authObjects.distinctUntilChanged().observe(this) {
+        loginViewModel.loginState.distinctUntilChanged().observe(this) {
             when {
-                it == null -> return@observe
-                it.isEmpty() -> {
-                    // No auth type defined means user has not logged in yet
-                    // Pop back stack to prevent showing TOSFragment on pressing back button.
-                    navController.popBackStack()
-                    navController.navigate(R.id.signInFragment)
+                it.isLoading -> {
+                    // TODO ?
                 }
-
-                else -> {}
-            }
-
-            it.find { it is AuthObject.GPlayAuth }?.result?.run {
-                if (isSuccess()) {
-                    viewModel.gPlayAuthData = data as AuthData
-                } else if (exception is GPlayValidationException) {
-                    val email = otherPayload.toString()
-                    viewModel.uploadFaultyTokenToEcloud(
-                        email,
-                        SystemInfoProvider.getAppBuildInfo()
-                    )
+                it.error.isNotBlank() -> {
+                    it.authData ?: run { showLoginScreen(navController) }
+                }
+                !it.isLoggedIn -> {
+                    showLoginScreen(navController)
                 }
             }
         }
@@ -337,5 +321,10 @@ class MainActivity : AppCompatActivity() {
     private fun showNoInternet() {
         binding.noInternet.visibility = View.VISIBLE
         binding.fragment.visibility = View.GONE
+    }
+
+    private fun showLoginScreen(navController: NavController) {
+        navController.popBackStack()
+        navController.navigate(R.id.signInFragment)
     }
 }

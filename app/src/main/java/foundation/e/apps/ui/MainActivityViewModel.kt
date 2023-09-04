@@ -46,6 +46,7 @@ import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.preference.DataStoreModule
+import foundation.e.apps.domain.main.usecase.MainActivityUserCase
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.install.workmanager.AppInstallProcessor
@@ -64,7 +65,8 @@ class MainActivityViewModel @Inject constructor(
     private val pwaManagerModule: PWAManagerModule,
     private val ecloudRepository: EcloudRepository,
     private val blockedAppRepository: BlockedAppRepository,
-    private val appInstallProcessor: AppInstallProcessor
+    private val appInstallProcessor: AppInstallProcessor,
+    private val mainActivityUserCase: MainActivityUserCase
 ) : ViewModel() {
 
     val tocStatus: LiveData<Boolean> = dataStoreModule.tocStatus.asLiveData()
@@ -74,7 +76,7 @@ class MainActivityViewModel @Inject constructor(
     val isAppPurchased: MutableLiveData<String> = MutableLiveData()
     val purchaseDeclined: MutableLiveData<String> = MutableLiveData()
 
-    var gPlayAuthData = AuthData("", "")
+    private val gPlayAuthData: AuthData by lazy { mainActivityUserCase.currentAuthData() }
 
     // Downloads
     val downloadList = fusedManagerRepository.getDownloadLiveList()
@@ -91,7 +93,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun getUser(): User {
-        return dataStoreModule.getUserType()
+        return mainActivityUserCase.currentUser()
     }
 
     fun getUserEmail(): String {
@@ -168,11 +170,10 @@ class MainActivityViewModel @Inject constructor(
      */
     fun verifyUiFilter(fusedApp: FusedApp, method: () -> Unit) {
         viewModelScope.launch {
-            val authData = gPlayAuthData
             if (fusedApp.filterLevel.isInitialized()) {
                 method()
             } else {
-                fusedAPIRepository.getAppFilterLevel(fusedApp, authData).run {
+                fusedAPIRepository.getAppFilterLevel(fusedApp, gPlayAuthData).run {
                     if (isInitialized()) {
                         fusedApp.filterLevel = this
                         method()
