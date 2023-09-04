@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class GPlayHttpClient @Inject constructor(
-    cache: Cache,
+    private  val cache: Cache,
 ) : IHttpClient {
 
     private val POST = "POST"
@@ -55,6 +55,9 @@ class GPlayHttpClient @Inject constructor(
         private const val TAG = "GPlayHttpClient"
         private const val HTTP_TIMEOUT_IN_SECOND = 10L
         private const val SEARCH = "search"
+        private const val SEARCH_SUGGEST = "searchSuggest"
+        private const val STATUS_CODE_UNAUTHORIZED = 401
+        private const val STATUS_CODE_TOO_MANY_REQUESTS = 429
     }
 
     private val okHttpClient = OkHttpClient().newBuilder()
@@ -200,15 +203,20 @@ class GPlayHttpClient @Inject constructor(
             Timber.d("$TAG: Url: ${response.request.url}\nStatus: $code")
 
             when (code) {
-                401 -> MainScope().launch {
+                STATUS_CODE_UNAUTHORIZED -> MainScope().launch {
                     EventBus.invokeEvent(
                         AppEvent.InvalidAuthEvent(AuthObject.GPlayAuth::class.java.simpleName)
                     )
                 }
 
-                429 -> MainScope().launch {
+                STATUS_CODE_TOO_MANY_REQUESTS -> MainScope().launch {
+                    cache.evictAll()
+                    if (response.request.url.toString().contains(SEARCH_SUGGEST)) {
+                        return@launch
+                    }
+
                     EventBus.invokeEvent(
-                        AppEvent.TooManyRequests(AuthObject.GPlayAuth::class.java.simpleName)
+                        AppEvent.TooManyRequests()
                     )
                 }
             }

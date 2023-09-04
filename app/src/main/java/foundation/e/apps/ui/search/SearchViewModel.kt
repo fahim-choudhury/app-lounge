@@ -52,8 +52,7 @@ class SearchViewModel @Inject constructor(
 
     val searchResult: MutableLiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
         MutableLiveData()
-    private var searchResultLiveData: LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
-        MutableLiveData()
+
     private var lastAuthObjects: List<AuthObject>? = null
 
     private var nextSubBundle: Set<SearchBundle.SubBundle>? = null
@@ -62,7 +61,6 @@ class SearchViewModel @Inject constructor(
 
     companion object {
         private const val DATA_LOAD_ERROR = "Data load error"
-        private const val MIN_SEARCH_ITEM_PER_PAGE = 8
     }
 
     fun getSearchSuggestions(query: String, gPlayAuth: AuthObject.GPlayAuth) {
@@ -161,8 +159,8 @@ class SearchViewModel @Inject constructor(
         val isFirstFetch = nextSubBundle == null
         nextSubBundle = gplaySearchResult.data?.second
 
-        // if first page has less data, then fetch next page data without waiting for users' scroll
-        if (isFirstFetch && (gplaySearchResult.data?.first?.size ?: 0) < MIN_SEARCH_ITEM_PER_PAGE) {
+        //first page has less data, then fetch next page data without waiting for users' scroll
+        if (isFirstFetch) {
             CoroutineScope(coroutineContext).launch {
                 fetchGplayData(query)
             }

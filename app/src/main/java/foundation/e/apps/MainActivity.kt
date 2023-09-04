@@ -40,6 +40,7 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.AuthObject
+import foundation.e.apps.data.login.LoginSourceGPlay
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.data.login.exceptions.GPlayValidationException
 import foundation.e.apps.data.preference.PreferenceManagerModule
@@ -308,11 +309,11 @@ class MainActivity : AppCompatActivity() {
     private suspend fun observeTooManyRequests() {
         EventBus.events.filter { appEvent ->
             appEvent is AppEvent.TooManyRequests
-        }.collectLatest { appEvent ->
+        }.collectLatest {
             binding.sessionErrorLayout.visibility = View.VISIBLE
             binding.retrySessionButton.setOnClickListener {
                 binding.sessionErrorLayout.visibility = View.GONE
-                validatedAuthObject(appEvent = appEvent)
+                loginViewModel.startLoginFlow(listOf(LoginSourceGPlay::class.java.simpleName))
             }
         }
     }

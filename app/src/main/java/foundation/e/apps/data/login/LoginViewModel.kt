@@ -17,12 +17,10 @@
 
 package foundation.e.apps.data.login
 
-import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
