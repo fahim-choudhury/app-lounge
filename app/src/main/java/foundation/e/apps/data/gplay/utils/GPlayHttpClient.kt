@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class GPlayHttpClient @Inject constructor(
-    cache: Cache,
+    private  val cache: Cache,
 ) : IHttpClient {
 
     private val POST = "POST"
@@ -55,6 +55,9 @@ class GPlayHttpClient @Inject constructor(
         private const val TAG = "GPlayHttpClient"
         private const val HTTP_TIMEOUT_IN_SECOND = 10L
         private const val SEARCH = "search"
+        private const val SEARCH_SUGGEST = "searchSuggest"
+        private const val STATUS_CODE_UNAUTHORIZED = 401
+        private const val STATUS_CODE_TOO_MANY_REQUESTS = 429
     }
 
     private val okHttpClient = OkHttpClient().newBuilder()
@@ -155,9 +158,11 @@ class GPlayHttpClient @Inject constructor(
     }
 
     private fun processRequest(request: Request): PlayResponse {
+        var response: Response? = null
         return try {
             val call = okHttpClient.newCall(request)
-            buildPlayResponse(call.execute())
+            response = call.execute()
+            buildPlayResponse(response)
         } catch (e: Exception) {
             // TODO: exception will be thrown for all apis when all gplay api implementation
             // will handle the exceptions. this will be done in following issue.
@@ -171,6 +176,8 @@ class GPlayHttpClient @Inject constructor(
                 is SocketTimeoutException -> handleExceptionOnGooglePlayRequest(e)
                 else -> handleExceptionOnGooglePlayRequest(e)
             }
+        } finally {
+            response?.close()
         }
     }
 
@@ -195,10 +202,21 @@ class GPlayHttpClient @Inject constructor(
             code = response.code
             Timber.d("$TAG: Url: ${response.request.url}\nStatus: $code")
 
-            if (code == 401) {
-                MainScope().launch {
+            when (code) {
+                STATUS_CODE_UNAUTHORIZED -> MainScope().launch {
                     EventBus.invokeEvent(
                         AppEvent.InvalidAuthEvent(AuthObject.GPlayAuth::class.java.simpleName)
+                    )
+                }
+
+                STATUS_CODE_TOO_MANY_REQUESTS -> MainScope().launch {
+                    cache.evictAll()
+                    if (response.request.url.toString().contains(SEARCH_SUGGEST)) {
+                        return@launch
+                    }
+
+                    EventBus.invokeEvent(
+                        AppEvent.TooManyRequests()
                     )
                 }
             }

@@ -42,6 +42,7 @@ import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
+
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val fusedAPIRepository: FusedAPIRepository,
@@ -51,8 +52,7 @@ class SearchViewModel @Inject constructor(
 
     val searchResult: MutableLiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
         MutableLiveData()
-    private var searchResultLiveData: LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
-        MutableLiveData()
+
     private var lastAuthObjects: List<AuthObject>? = null
 
     private var nextSubBundle: Set<SearchBundle.SubBundle>? = null
@@ -159,8 +159,8 @@ class SearchViewModel @Inject constructor(
         val isFirstFetch = nextSubBundle == null
         nextSubBundle = gplaySearchResult.data?.second
 
-        // if first page has less data, then fetch next page data without waiting for users' scroll
-        if (isFirstFetch && gplaySearchResult.data?.first?.size!! < 4) {
+        //first page has less data, then fetch next page data without waiting for users' scroll
+        if (isFirstFetch) {
             CoroutineScope(coroutineContext).launch {
                 fetchGplayData(query)
             }

@@ -32,4 +32,5 @@ sealed class AppEvent(val data: Any) {
     class ErrorMessageEvent(stringResourceId: Int) : AppEvent(stringResourceId)
     class AppPurchaseEvent(fusedDownload: FusedDownload) : AppEvent(fusedDownload)
     class NoInternetEvent(isInternetAvailable: Boolean) : AppEvent(isInternetAvailable)
+    class TooManyRequests : AppEvent(Unit)
 }
