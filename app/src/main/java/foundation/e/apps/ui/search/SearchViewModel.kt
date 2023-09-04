@@ -19,7 +19,6 @@
 package foundation.e.apps.ui.search
 
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -35,7 +34,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val fusedAPIRepository: FusedAPIRepository,
+    private val fusedAPIRepository: FusedAPIRepository
 ) : ViewModel() {
 
     val searchSuggest: MutableLiveData<List<SearchSuggestEntry>?> = MutableLiveData()
@@ -46,22 +45,22 @@ class SearchViewModel @Inject constructor(
 
     fun getSearchSuggestions(query: String, authData: AuthData?) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (query.isNotBlank() && authData != null)
+            if (query.isNotBlank() && authData != null) {
                 searchSuggest.postValue(
                     fusedAPIRepository.getSearchSuggestions(
                         query,
                         authData
                     )
                 )
+            }
         }
     }
 
     fun loadData(
         query: String,
         lifecycleOwner: LifecycleOwner,
-        authData: AuthData?,
+        authData: AuthData?
     ) {
-
         if (query.isBlank()) return
         getSearchResults(query, authData ?: AuthData("", ""), lifecycleOwner)
     }

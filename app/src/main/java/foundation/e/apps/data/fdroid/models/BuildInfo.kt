@@ -29,7 +29,7 @@ class BuildInfo() {
     @JsonCreator
     constructor(
         @JsonProperty("versionCode") versionCode: String?,
-        @JsonProperty("versionName") versionName: String?,
+        @JsonProperty("versionName") versionName: String?
     ) : this() {
         this.versionCode = versionCode ?: ""
         this.versionName = versionName ?: ""

@@ -44,7 +44,7 @@ class DownloadManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val downloadManager: DownloadManager,
     @Named("cacheDir") private val cacheDir: String,
-    private val downloadManagerQuery: DownloadManager.Query,
+    private val downloadManagerQuery: DownloadManager.Query
 ) {
     private val downloadsMaps = HashMap<Long, Boolean>()
 
@@ -73,7 +73,6 @@ class DownloadManager @Inject constructor(
         fileName: String,
         downloadCompleted: ((Boolean, String) -> Unit)?
     ): Long {
-
         val directoryFile = File("$EXTERNAL_STORAGE_TEMP_CACHE_DIR/$subDirectoryPath")
         if (!directoryFile.exists()) {
             directoryFile.mkdirs()

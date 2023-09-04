@@ -28,7 +28,6 @@ import foundation.e.apps.domain.common.repository.CommonRepositoryImpl
 import foundation.e.apps.domain.login.repository.LoginRepositoryImpl
 import foundation.e.apps.domain.login.usecase.UserLoginUseCase
 import foundation.e.apps.domain.main.usecase.MainActivityUserCase
-import foundation.e.apps.domain.settings.repository.SettingsRepositoryImpl
 import foundation.e.apps.domain.settings.usecase.SettingsUseCase
 import foundation.e.apps.domain.updates.usecase.UpdatesUseCase
 
@@ -39,7 +38,7 @@ object LoginModule {
     @Provides
     fun providesLoginSources(
         gPlay: LoginSourceGPlay,
-        cleanApk: LoginSourceCleanApk,
+        cleanApk: LoginSourceCleanApk
     ): List<LoginSourceInterface> {
         return listOf(gPlay, cleanApk)
     }

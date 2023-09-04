@@ -59,7 +59,7 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
         val appTrackerInfoResult = getResult {
             exodusTrackerApi.getTrackerInfoOfApp(
                 appHandle,
-                fusedApp.latest_version_code,
+                fusedApp.latest_version_code
             )
         }
 
@@ -94,7 +94,7 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
 
     private suspend fun handleAppPrivacyInfoResultSuccess(
         fusedApp: FusedApp,
-        appTrackerResult: Result<List<Report>>,
+        appTrackerResult: Result<List<Report>>
     ): Result<AppPrivacyInfo> {
         if (trackers.isEmpty()) {
             generateTrackerList()
@@ -129,7 +129,7 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
 
     private fun createAppPrivacyInfo(
         fusedApp: FusedApp,
-        appTrackerResult: Result<List<Report>>,
+        appTrackerResult: Result<List<Report>>
     ): Result<AppPrivacyInfo> {
         appTrackerResult.data?.let {
             return Result.success(getAppPrivacyInfo(fusedApp, it))
@@ -139,7 +139,7 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
 
     private fun getAppPrivacyInfo(
         fusedApp: FusedApp,
-        appTrackerData: List<Report>,
+        appTrackerData: List<Report>
     ): AppPrivacyInfo {
         /*
          * If the response is empty, that means there is no data on Exodus API about this app,

@@ -37,7 +37,7 @@ enum class FilterLevel {
     UI, // Show the app in lists, but show "N/A" in the install button.
     DATA, // Filter the app out from lists and search results, don't show the app at all.
     NONE, // No restrictions
-    UNKNOWN, // Not initialised yet
+    UNKNOWN // Not initialised yet
 }
 
 fun FilterLevel.isUnFiltered(): Boolean = this == FilterLevel.NONE

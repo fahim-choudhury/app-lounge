@@ -28,5 +28,5 @@ import foundation.e.apps.data.enums.User
 class GPlayValidationException(
     message: String,
     user: User,
-    val networkCode: Int,
+    val networkCode: Int
 ) : GPlayLoginException(false, message, user)

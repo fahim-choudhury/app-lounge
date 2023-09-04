@@ -36,7 +36,7 @@ interface FusedApi {
     fun getApplicationCategoryPreference(): List<String>
 
     suspend fun getHomeScreenData(
-        authData: AuthData,
+        authData: AuthData
     ): LiveData<ResultSupreme<List<FusedHome>>>
 
     /*
@@ -51,7 +51,7 @@ interface FusedApi {
         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
         */
     suspend fun getCategoriesList(
-        type: CategoryType,
+        type: CategoryType
     ): Triple<List<FusedCategory>, String, ResultStatus>
 
     /**
@@ -118,7 +118,7 @@ interface FusedApi {
      */
     suspend fun filterRestrictedGPlayApps(
         authData: AuthData,
-        appList: List<App>,
+        appList: List<App>
     ): ResultSupreme<List<FusedApp>>
 
     /**

@@ -109,8 +109,11 @@ class ApplicationListRVAdapter(
         if (searchApp.isPlaceHolder) {
             val progressBar = holder.binding.placeholderProgressBar
             holder.binding.root.children.forEach {
-                it.visibility = if (it != progressBar) View.INVISIBLE
-                else View.VISIBLE
+                it.visibility = if (it != progressBar) {
+                    View.INVISIBLE
+                } else {
+                    View.VISIBLE
+                }
             }
             onPlaceHolderShow?.invoke()
             // Do not process anything else for this entry
@@ -118,8 +121,11 @@ class ApplicationListRVAdapter(
         } else {
             val progressBar = holder.binding.placeholderProgressBar
             holder.binding.root.children.forEach {
-                it.visibility = if (it != progressBar) View.VISIBLE
-                else View.INVISIBLE
+                it.visibility = if (it != progressBar) {
+                    View.VISIBLE
+                } else {
+                    View.INVISIBLE
+                }
             }
         }
 
@@ -155,8 +161,9 @@ class ApplicationListRVAdapter(
         item.post {
             val maxAllowedWidth = item.measuredWidth / 2
             installButton.apply {
-                if (width > maxAllowedWidth)
+                if (width > maxAllowedWidth) {
                     width = maxAllowedWidth
+                }
             }
         }
     }
@@ -303,7 +310,7 @@ class ApplicationListRVAdapter(
 
     private fun ApplicationListItemBinding.handleInstallationIssue(
         view: View,
-        searchApp: FusedApp,
+        searchApp: FusedApp
     ) {
         progressBarInstall.visibility = View.GONE
         if (lifecycleOwner == null) {
@@ -335,10 +342,11 @@ class ApplicationListRVAdapter(
         faultyAppResult: Pair<Boolean, String>,
         view: View
     ) =
-        if (faultyAppResult.second.contentEquals(InstallerService.INSTALL_FAILED_UPDATE_INCOMPATIBLE))
+        if (faultyAppResult.second.contentEquals(InstallerService.INSTALL_FAILED_UPDATE_INCOMPATIBLE)) {
             view.context.getText(R.string.update)
-        else
+        } else {
             view.context.getString(R.string.retry)
+        }
 
     private fun ApplicationListItemBinding.handleBlocked(view: View) {
         installButton.apply {
@@ -421,7 +429,7 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.handleDownloading(
-        searchApp: FusedApp,
+        searchApp: FusedApp
     ) {
         installButton.apply {
             enableInstallButton()
@@ -436,7 +444,7 @@ class ApplicationListRVAdapter(
 
     private fun ApplicationListItemBinding.handleUnavailable(
         searchApp: FusedApp,
-        holder: ViewHolder,
+        holder: ViewHolder
     ) {
         installButton.apply {
             updateUIByPaymentType(searchApp, this, this@handleUnavailable, holder)
@@ -497,9 +505,11 @@ class ApplicationListRVAdapter(
     ) {
         installButton.apply {
             enableInstallButton(Status.UPDATABLE)
-            text = if (mainActivityViewModel.checkUnsupportedApplication(searchApp))
+            text = if (mainActivityViewModel.checkUnsupportedApplication(searchApp)) {
                 context.getString(R.string.not_available)
-            else context.getString(R.string.update)
+            } else {
+                context.getString(R.string.update)
+            }
             setOnClickListener {
                 if (mainActivityViewModel.checkUnsupportedApplication(searchApp, context)) {
                     return@setOnClickListener
@@ -511,7 +521,7 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.handleInstalled(
-        searchApp: FusedApp,
+        searchApp: FusedApp
     ) {
         installButton.apply {
             enableInstallButton(Status.INSTALLED)

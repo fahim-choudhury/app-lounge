@@ -35,7 +35,10 @@ sealed class AppTag(val displayTag: String) {
      * This method allows for all those check to work without modification.
      */
     fun getOperationalTag(): String {
-        return if (this is OpenSource) "Open Source"
-        else this::class.java.simpleName
+        return if (this is OpenSource) {
+            "Open Source"
+        } else {
+            this::class.java.simpleName
+        }
     }
 }

@@ -17,6 +17,6 @@ interface ExodusTrackerApi {
     @GET("search/{appHandle}/details")
     suspend fun getTrackerInfoOfApp(
         @Path("appHandle") appHandle: String,
-        @Query("v") versionCode: Int,
+        @Query("v") versionCode: Int
     ): Response<List<Report>>
 }

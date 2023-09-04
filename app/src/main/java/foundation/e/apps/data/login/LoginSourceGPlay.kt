@@ -43,7 +43,7 @@ import javax.inject.Singleton
 class LoginSourceGPlay @Inject constructor(
     @ApplicationContext private val context: Context,
     private val gson: Gson,
-    private val loginDataStore: LoginDataStore,
+    private val loginDataStore: LoginDataStore
 ) : LoginSourceInterface, AuthDataValidator {
 
     @Inject
@@ -81,8 +81,11 @@ class LoginSourceGPlay @Inject constructor(
             savedAuth ?: run {
                 // if no saved data, then generate new auth data.
                 generateAuthData().let {
-                    if (it.isSuccess()) it.data!!
-                    else return AuthObject.GPlayAuth(it, user)
+                    if (it.isSuccess()) {
+                        it.data!!
+                    } else {
+                        return AuthObject.GPlayAuth(it, user)
+                    }
                 }
             }
             )
@@ -112,12 +115,15 @@ class LoginSourceGPlay @Inject constructor(
      */
     private fun getSavedAuthData(): AuthData? {
         val authJson = loginDataStore.getAuthData()
-        return if (authJson.isBlank()) null
-        else try {
-            gson.fromJson(authJson, AuthData::class.java)
-        } catch (e: Exception) {
-            e.printStackTrace()
+        return if (authJson.isBlank()) {
             null
+        } else {
+            try {
+                gson.fromJson(authJson, AuthData::class.java)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
         }
     }
 
@@ -156,8 +162,11 @@ class LoginSourceGPlay @Inject constructor(
      */
     private suspend fun getAuthData(): ResultSupreme<AuthData?> {
         return loginApiRepository.fetchAuthData("", "", locale).run {
-            if (isSuccess()) ResultSupreme.Success(formatAuthData(this.data!!))
-            else this
+            if (isSuccess()) {
+                ResultSupreme.Success(formatAuthData(this.data!!))
+            } else {
+                this
+            }
         }
     }
 
@@ -167,9 +176,8 @@ class LoginSourceGPlay @Inject constructor(
     private suspend fun getAuthData(
         email: String,
         oauthToken: String,
-        aasToken: String,
+        aasToken: String
     ): ResultSupreme<AuthData?> {
-
         /*
          * If aasToken is not blank, means it was stored successfully from a previous Google login.
          * Use it to fetch auth data.
@@ -207,8 +215,11 @@ class LoginSourceGPlay @Inject constructor(
          */
         loginDataStore.saveAasToken(aasTokenFetched)
         return loginApiRepository.fetchAuthData(email, aasTokenFetched, locale).run {
-            if (isSuccess()) ResultSupreme.Success(formatAuthData(this.data!!))
-            else this
+            if (isSuccess()) {
+                ResultSupreme.Success(formatAuthData(this.data!!))
+            } else {
+                this
+            }
         }
     }
 

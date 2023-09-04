@@ -75,7 +75,8 @@ object UpdatesWorkManager {
         Timber.i("UpdatesWorker interval: $interval hours")
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             UPDATES_WORK_NAME,
-            existingPeriodicWorkPolicy, buildPeriodicWorkRequest(interval)
+            existingPeriodicWorkPolicy,
+            buildPeriodicWorkRequest(interval)
         )
         Timber.i("UpdatesWorker started")
     }

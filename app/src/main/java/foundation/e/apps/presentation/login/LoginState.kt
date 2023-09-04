@@ -26,5 +26,5 @@ data class LoginState(
     val isLoggedIn: Boolean = false,
     val error: String = "",
     val authData: AuthData? = null,
-    val user: User = User.UNAVAILABLE,
+    val user: User = User.UNAVAILABLE
 )

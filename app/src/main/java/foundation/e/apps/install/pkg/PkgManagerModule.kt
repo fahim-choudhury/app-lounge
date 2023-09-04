@@ -165,7 +165,6 @@ class PkgManagerModule @Inject constructor(
      */
     @OptIn(DelicateCoroutinesApi::class)
     fun installApplication(list: List<File>, packageName: String) {
-
         val sessionId = createInstallSession(packageName, SessionParams.MODE_FULL_INSTALL)
         val session = packageManager.packageInstaller.openSession(sessionId)
 
@@ -178,9 +177,11 @@ class PkgManagerModule @Inject constructor(
             val callBackIntent = Intent(context, InstallerService::class.java)
             callBackIntent.putExtra(PACKAGE_NAME, packageName)
 
-            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE else
+            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            } else {
                 PendingIntent.FLAG_UPDATE_CURRENT
+            }
             val servicePendingIntent = PendingIntent.getService(
                 context,
                 sessionId,
@@ -205,7 +206,6 @@ class PkgManagerModule @Inject constructor(
     }
 
     private fun createInstallSession(packageName: String, mode: Int): Int {
-
         val packageInstaller = packageManager.packageInstaller
         val params = SessionParams(mode).apply {
             setAppPackageName(packageName)
@@ -222,7 +222,6 @@ class PkgManagerModule @Inject constructor(
     }
 
     private fun syncFile(session: Session, file: File) {
-
         val inputStream = file.inputStream()
         val outputStream = session.openWrite(file.nameWithoutExtension, 0, -1)
         inputStream.copyTo(outputStream)

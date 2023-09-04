@@ -44,9 +44,8 @@ abstract class LoadingViewModel : ViewModel() {
     fun onLoadData(
         authObjectList: List<AuthObject>,
         loadingBlock: (successObjects: List<AuthObject>, failedObjects: List<AuthObject>) -> Unit,
-        retryBlock: (failedObjects: List<AuthObject>) -> Boolean,
+        retryBlock: (failedObjects: List<AuthObject>) -> Boolean
     ) {
-
         exceptionsList.clear()
 
         val successAuthList = authObjectList.filter { it.result.isSuccess() }

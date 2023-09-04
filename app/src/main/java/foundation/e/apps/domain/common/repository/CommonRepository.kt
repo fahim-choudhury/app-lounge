@@ -16,17 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package foundation.e.apps.domain.common.repository
 
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.enums.User
-
-
 interface CommonRepository {
-
     fun currentUser(): User
-
     fun cacheAuthData(): AuthData
     fun resetCachedData()
 }

@@ -40,7 +40,7 @@ class AppInfoFetchViewModel @Inject constructor(
                 gplayRepository.getDownloadInfo(
                     app.package_name,
                     app.latest_version_code,
-                    app.offer_type,
+                    app.offer_type
                 )
                 app.isPurchased = true
                 emit(true)

@@ -135,7 +135,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      */
     abstract fun onTimeout(
         exception: Exception,
-        predefinedDialog: AlertDialog.Builder,
+        predefinedDialog: AlertDialog.Builder
     ): AlertDialog.Builder?
 
     /**
@@ -159,7 +159,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      */
     abstract fun onSignInError(
         exception: GPlayLoginException,
-        predefinedDialog: AlertDialog.Builder,
+        predefinedDialog: AlertDialog.Builder
     ): AlertDialog.Builder?
 
     /**
@@ -178,7 +178,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      */
     abstract fun onDataLoadError(
         exception: Exception,
-        predefinedDialog: AlertDialog.Builder,
+        predefinedDialog: AlertDialog.Builder
     ): AlertDialog.Builder?
 
     /**
@@ -277,7 +277,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
 
         onTimeout(
             exception,
-            predefinedDialog,
+            predefinedDialog
         )?.run {
             stopLoadingUI()
             showAndSetDialog(this)
@@ -293,10 +293,8 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      * is shown to the user.
      */
     fun showSignInError(exception: GPlayLoginException) {
-
         val dialogView = DialogErrorLogBinding.inflate(requireActivity().layoutInflater)
         dialogView.apply {
-
             moreInfo.setOnClickListener {
                 logDisplay.isVisible = true
                 moreInfo.isVisible = false
@@ -338,7 +336,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
 
         onSignInError(
             exception,
-            predefinedDialog,
+            predefinedDialog
         )?.run {
             stopLoadingUI()
             showAndSetDialog(this)
@@ -353,7 +351,6 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      * is shown to the user.
      */
     fun showDataLoadError(exception: Exception) {
-
         val dialogView = DialogErrorLogBinding.inflate(requireActivity().layoutInflater)
         dialogView.apply {
             moreInfo.setOnClickListener {
@@ -386,7 +383,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
 
         onDataLoadError(
             exception,
-            predefinedDialog,
+            predefinedDialog
         )?.run {
             stopLoadingUI()
             showAndSetDialog(this)

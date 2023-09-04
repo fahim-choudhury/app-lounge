@@ -28,7 +28,6 @@ import android.text.format.Formatter
 import android.view.View
 import android.widget.ImageView
 import android.widget.RelativeLayout
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
@@ -57,8 +56,6 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
 import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentApplicationBinding
 import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.install.download.data.DownloadProgress
@@ -173,7 +170,7 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
     }
 
     private fun updateUi(
-        resultPair: Pair<FusedApp, ResultStatus>,
+        resultPair: Pair<FusedApp, ResultStatus>
     ) {
         if (resultPair.second != ResultStatus.OK) {
             return
@@ -300,7 +297,7 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
     }
 
     private fun updateAppInformation(
-        it: FusedApp,
+        it: FusedApp
     ) {
         binding.infoInclude.apply {
             appUpdatedOn.text = getString(
@@ -328,11 +325,15 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
                     applicationViewModel.handleRatingFormat(it.ratings.usageQualityScore)
                 appRating.text =
                     getString(
-                        R.string.rating_out_of, rating
+                        R.string.rating_out_of,
+                        rating
                     )
 
                 appRating.setCompoundDrawablesWithIntrinsicBounds(
-                    null, null, getRatingDrawable(rating), null
+                    null,
+                    null,
+                    getRatingDrawable(rating),
+                    null
                 )
                 appRating.compoundDrawablePadding = 15
             }
@@ -661,7 +662,7 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
                                 positiveButtonAction = {
                                     installApplication(fusedApp, it)
                                 },
-                                cancelButtonText = getString(R.string.dialog_cancel),
+                                cancelButtonText = getString(R.string.dialog_cancel)
                             ).show(childFragmentManager, "ApplicationFragment")
                         }
                     }
@@ -717,9 +718,11 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
     ) {
         installButton.apply {
             enableInstallButton(R.string.not_available)
-            text = if (mainActivityViewModel.checkUnsupportedApplication(fusedApp))
+            text = if (mainActivityViewModel.checkUnsupportedApplication(fusedApp)) {
                 getString(R.string.not_available)
-            else getString(R.string.update)
+            } else {
+                getString(R.string.update)
+            }
             setTextColor(Color.WHITE)
             backgroundTintList =
                 ContextCompat.getColorStateList(view.context, R.color.colorAccent)
@@ -761,7 +764,7 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
     }
 
     private suspend fun updateProgress(
-        downloadProgress: DownloadProgress,
+        downloadProgress: DownloadProgress
     ) {
         val progressResult = applicationViewModel.calculateProgress(downloadProgress)
         if (view == null || progressResult.first < 1) {
@@ -816,7 +819,7 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
         binding.progressBar.visibility = View.VISIBLE
     }
 
-    private  fun stopLoadingUI() {
+    private fun stopLoadingUI() {
         binding.applicationLayout.visibility = View.VISIBLE
         binding.progressBar.visibility = View.GONE
     }
@@ -832,7 +835,10 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
             )
 
             appPrivacyScore.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                null, null, getPrivacyDrawable(privacyScore.toString()), null
+                null,
+                null,
+                getPrivacyDrawable(privacyScore.toString()),
+                null
             )
             appPrivacyScore.compoundDrawablePadding = 15
         }

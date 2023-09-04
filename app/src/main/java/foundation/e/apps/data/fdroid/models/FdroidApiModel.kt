@@ -24,7 +24,7 @@ class FdroidApiModel() {
     @JsonCreator
     constructor(
         @JsonProperty("AuthorName") AuthorName: String?,
-        @JsonProperty("Builds") Builds: List<BuildInfo>?,
+        @JsonProperty("Builds") Builds: List<BuildInfo>?
     ) : this() {
         this.authorName = AuthorName ?: ""
         this.builds = Builds ?: emptyList()

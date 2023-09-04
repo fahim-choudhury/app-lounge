@@ -137,8 +137,11 @@ class DataStoreModule @Inject constructor(
         return runBlocking {
             userType.first().run {
                 val userStrings = User.values().map { it.name }
-                if (this !in userStrings) User.UNAVAILABLE
-                else User.valueOf(this)
+                if (this !in userStrings) {
+                    User.UNAVAILABLE
+                } else {
+                    User.valueOf(this)
+                }
             }
         }
     }

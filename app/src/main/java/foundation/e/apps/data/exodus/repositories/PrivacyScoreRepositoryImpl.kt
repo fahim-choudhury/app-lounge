@@ -48,9 +48,13 @@ class PrivacyScoreRepositoryImpl @Inject constructor() : PrivacyScoreRepository 
         fusedApp.permsFromExodus.filter { it.contains("android.permission") }.size
 
     private fun calculatePermissionsScore(numberOfPermission: Int): Int {
-        return if (numberOfPermission > THRESHOLD_OF_NON_ZERO_PERMISSION_SCORE) MIN_PERMISSION_SCORE else round(
-            FACTOR_OF_PERMISSION_SCORE * ceil((MAX_PERMISSION_SCORE - numberOfPermission) / DIVIDER_OF_PERMISSION_SCORE)
-        ).toInt()
+        return if (numberOfPermission > THRESHOLD_OF_NON_ZERO_PERMISSION_SCORE) {
+            MIN_PERMISSION_SCORE
+        } else {
+            round(
+                FACTOR_OF_PERMISSION_SCORE * ceil((MAX_PERMISSION_SCORE - numberOfPermission) / DIVIDER_OF_PERMISSION_SCORE)
+            ).toInt()
+        }
     }
 
     // please do not put in the top of the class, as it can break the privacy calculation source code link.

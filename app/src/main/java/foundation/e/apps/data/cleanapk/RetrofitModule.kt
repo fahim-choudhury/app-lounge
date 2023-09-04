@@ -121,7 +121,7 @@ object RetrofitModule {
     @Singleton
     @Provides
     fun provideFdroidWebApi(
-        okHttpClient: OkHttpClient,
+        okHttpClient: OkHttpClient
     ): FdroidWebInterface {
         return Retrofit.Builder()
             .baseUrl(FdroidWebInterface.BASE_URL)

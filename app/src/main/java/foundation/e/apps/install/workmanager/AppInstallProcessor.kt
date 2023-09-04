@@ -198,7 +198,6 @@ class AppInstallProcessor @Inject constructor(
             Timber.i(">>> dowork started for Fused download name " + fusedDownload?.name + " " + fusedDownloadId)
 
             fusedDownload?.let {
-
                 this.isItUpdateWork = isItUpdateWork &&
                     fusedManagerRepository.isFusedDownloadInstalled(fusedDownload)
 
@@ -281,9 +280,12 @@ class AppInstallProcessor @Inject constructor(
             .toString()
 
         UpdatesNotifier.showNotification(
-            context, context.getString(R.string.update),
+            context,
+            context.getString(R.string.update),
             context.getString(
-                R.string.message_last_update_triggered, numberOfUpdatedApps, date
+                R.string.message_last_update_triggered,
+                numberOfUpdatedApps,
+                date
             )
         )
     }

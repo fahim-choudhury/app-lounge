@@ -12,7 +12,7 @@ import javax.inject.Singleton
 @Singleton
 class FdroidRepository @Inject constructor(
     private val fdroidApi: FdroidApiInterface,
-    private val fdroidDao: FdroidDao,
+    private val fdroidDao: FdroidDao
 ) : IFdroidRepository {
 
     companion object {

@@ -28,7 +28,7 @@ import javax.inject.Singleton
 @OpenForTesting
 class PWAManagerModule @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val fusedDownloadRepository: FusedDownloadRepository,
+    private val fusedDownloadRepository: FusedDownloadRepository
 ) {
 
     companion object {
@@ -60,7 +60,10 @@ class PWAManagerModule @Inject constructor(
     fun getPwaStatus(fusedApp: FusedApp): Status {
         context.contentResolver.query(
             Uri.parse(PWA_PLAYER),
-            null, null, null, null
+            null,
+            null,
+            null,
+            null
         )?.let { cursor ->
             if (cursor.count > 0) {
                 if (cursor.moveToFirst()) {

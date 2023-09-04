@@ -39,7 +39,7 @@ import java.util.Locale
  */
 class LoginApiRepository constructor(
     private val gPlayLoginInterface: GPlayLoginInterface,
-    private val user: User,
+    private val user: User
 ) {
 
     /**
@@ -145,7 +145,7 @@ class LoginApiRepository constructor(
     private suspend fun <T> runCodeWithTimeout(
         block: suspend () -> T,
         timeoutBlock: (() -> T?)? = null,
-        exceptionBlock: ((e: Exception) -> T?)? = null,
+        exceptionBlock: ((e: Exception) -> T?)? = null
     ): ResultSupreme<T?> {
         return try {
             withTimeout(timeoutDurationInMillis) {

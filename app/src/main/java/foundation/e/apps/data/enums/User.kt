@@ -7,10 +7,13 @@ enum class User {
     UNAVAILABLE;
 
     companion object {
-        fun getUser(userString: String) : User {
+        fun getUser(userString: String): User {
             val userStrings = values().map { it.name }
-            return if (userString !in userStrings) UNAVAILABLE
-            else valueOf(userString)
+            return if (userString !in userStrings) {
+                UNAVAILABLE
+            } else {
+                valueOf(userString)
+            }
         }
     }
 }

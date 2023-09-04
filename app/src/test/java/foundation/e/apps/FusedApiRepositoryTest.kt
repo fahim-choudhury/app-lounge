@@ -29,6 +29,7 @@ import org.mockito.kotlin.any
 
 class FusedApiRepositoryTest {
     private lateinit var fusedApiRepository: FusedAPIRepository
+
     @Mock
     private lateinit var fusedAPIImpl: FusedApiImpl
 

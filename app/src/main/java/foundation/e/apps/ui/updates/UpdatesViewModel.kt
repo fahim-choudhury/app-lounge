@@ -43,16 +43,18 @@ class UpdatesViewModel @Inject constructor(
     val updatesList: MutableLiveData<Pair<List<FusedApp>, ResultStatus?>> = MutableLiveData()
 
     fun loadData(
-        authData: AuthData?,
+        authData: AuthData?
     ) {
         getUpdates(authData ?: AuthData("", ""))
     }
 
     private fun getUpdates(authData: AuthData?) {
         viewModelScope.launch {
-            val updatesResult = if (authData != null)
+            val updatesResult = if (authData != null) {
                 updatesManagerRepository.getUpdates(authData)
-            else updatesManagerRepository.getUpdatesOSS()
+            } else {
+                updatesManagerRepository.getUpdatesOSS()
+            }
             updatesList.postValue(updatesResult)
         }
     }

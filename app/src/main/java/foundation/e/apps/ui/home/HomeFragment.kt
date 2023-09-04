@@ -21,14 +21,11 @@ package foundation.e.apps.ui.home
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aurora.gplayapi.data.models.AuthData
@@ -39,14 +36,9 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fused.FusedAPIInterface
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fused.data.FusedHome
-import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.exceptions.GPlayException
-import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentHomeBinding
-import foundation.e.apps.di.CommonUtilsModule.safeNavigate
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.pkg.PWAManagerModule
-import foundation.e.apps.presentation.login.LoginState
 import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.AppProgressViewModel
@@ -54,7 +46,6 @@ import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.home.model.HomeChildRVAdapter
 import foundation.e.apps.ui.home.model.HomeParentRVAdapter
-import foundation.e.apps.ui.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -116,7 +107,9 @@ class HomeFragment : Fragment(R.layout.fragment_home), FusedAPIInterface {
 
     private fun initHomeParentRVAdapter() = HomeParentRVAdapter(
         this,
-        mainActivityViewModel, appInfoFetchViewModel, viewLifecycleOwner
+        mainActivityViewModel,
+        appInfoFetchViewModel,
+        viewLifecycleOwner
     ) { fusedApp ->
         if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(fusedApp)) {
             showPaidAppMessage(fusedApp)
@@ -124,7 +117,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), FusedAPIInterface {
     }
 
     private fun loadHomePageData() {
-
         loginViewModel.loginState.observe(viewLifecycleOwner) {
             if (it.isLoggedIn) {
                 // TODO : check for network and wait if network is unavailable
@@ -146,7 +138,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), FusedAPIInterface {
             positiveButtonAction = {
                 getApplication(fusedApp)
             },
-            cancelButtonText = getString(R.string.dialog_cancel),
+            cancelButtonText = getString(R.string.dialog_cancel)
         ).show(childFragmentManager, "HomeFragment")
     }
 

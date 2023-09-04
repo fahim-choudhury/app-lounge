@@ -34,7 +34,7 @@ import javax.inject.Inject
 class LoginRepositoryImpl @Inject constructor(
     @ApplicationContext val applicationContext: Context,
     private val properties: Properties,
-    private val anonymousUser: AnonymousUser,
+    private val anonymousUser: AnonymousUser
 ) : LoginRepository {
 
     private val userAgent: String by lazy { SystemInfoProvider.getAppBuildInfo() }

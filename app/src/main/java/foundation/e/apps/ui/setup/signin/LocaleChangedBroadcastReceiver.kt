@@ -40,8 +40,10 @@ class LocaleChangedBroadcastReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var dataStoreModule: DataStoreModule
+
     @Inject
     lateinit var gson: Gson
+
     @Inject
     lateinit var cache: Cache
 

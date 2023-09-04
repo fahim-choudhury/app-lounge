@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
-    private val dataStoreModule: DataStoreModule,
+    private val dataStoreModule: DataStoreModule
 ) : ViewModel() {
 
     val userType: LiveData<String> = dataStoreModule.userType.asLiveData()

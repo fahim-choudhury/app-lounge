@@ -28,7 +28,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class LoginSourceCleanApk @Inject constructor(
-    val loginDataStore: LoginDataStore,
+    val loginDataStore: LoginDataStore
 ) : LoginSourceInterface {
 
     private val user: User
@@ -47,7 +47,7 @@ class LoginSourceCleanApk @Inject constructor(
     override suspend fun getAuthObject(): AuthObject.CleanApk {
         return AuthObject.CleanApk(
             ResultSupreme.Success(Unit),
-            user,
+            user
         )
     }
 

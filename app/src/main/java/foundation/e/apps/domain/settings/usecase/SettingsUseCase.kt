@@ -20,16 +20,15 @@ package foundation.e.apps.domain.settings.usecase
 
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.domain.common.repository.CommonRepository
-import foundation.e.apps.domain.settings.repository.SettingsRepository
 import foundation.e.apps.utils.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class SettingsUseCase @Inject constructor(
-    private val commonRepository: CommonRepository,
+    private val commonRepository: CommonRepository
 ) {
-    fun currentUser() : Flow<Resource<User>> = flow {
+    fun currentUser(): Flow<Resource<User>> = flow {
         kotlin.runCatching {
             val currentUser = commonRepository.currentUser()
             emit(Resource.Success(currentUser))

@@ -72,7 +72,9 @@ class SplitInstallBinder(
             }
 
             downloadManager.downloadFileInExternalStorage(
-                url, packageName, "$packageName.split.$moduleName.apk"
+                url,
+                packageName,
+                "$packageName.split.$moduleName.apk"
             ) { success, path ->
                 if (success) {
                     Timber.i("Split module has been downloaded: $path")

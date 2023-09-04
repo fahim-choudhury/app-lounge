@@ -150,7 +150,7 @@ object UpdatesNotifier {
     fun showNotification(
         context: Context,
         title: String,
-        message: String,
+        message: String
     ) {
         with(NotificationManagerCompat.from(context)) {
             createNotificationChannel(context)

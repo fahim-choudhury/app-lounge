@@ -190,7 +190,7 @@ class HomeChildRVAdapter(
 
     private fun HomeChildListItemBinding.handleUnavailable(
         homeApp: FusedApp,
-        holder: ViewHolder,
+        holder: ViewHolder
     ) {
         installButton.apply {
             updateUIByPaymentType(homeApp, this, holder.binding)
@@ -214,9 +214,11 @@ class HomeChildRVAdapter(
     ) {
         installButton.apply {
             enableInstallButton(Status.UPDATABLE)
-            text = if (mainActivityViewModel.checkUnsupportedApplication(homeApp))
+            text = if (mainActivityViewModel.checkUnsupportedApplication(homeApp)) {
                 context.getString(R.string.not_available)
-            else context.getString(R.string.update)
+            } else {
+                context.getString(R.string.update)
+            }
             setOnClickListener {
                 if (mainActivityViewModel.checkUnsupportedApplication(homeApp, context)) {
                     return@setOnClickListener

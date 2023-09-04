@@ -43,8 +43,11 @@ class SplitInstallService : LifecycleService() {
     }
 
     @Inject lateinit var dataStoreModule: DataStoreModule
+
     @Inject lateinit var fusedAPIRepository: FusedAPIRepository
+
     @Inject lateinit var downloadManager: DownloadManager
+
     @Inject lateinit var gson: Gson
     private lateinit var binder: SplitInstallBinder
     private var authData: AuthData? = null

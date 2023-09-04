@@ -14,7 +14,6 @@ object FileManager {
         var inputStream: InputStream? = null
         var outputStream: OutputStream? = null
         try {
-
             // create output directory if it doesn't exist
             val dir = File(outputPath)
             if (!dir.exists()) {

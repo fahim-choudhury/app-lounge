@@ -30,7 +30,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class LoginCommon @Inject constructor(
-    private val loginDataStore: LoginDataStore,
+    private val loginDataStore: LoginDataStore
 ) {
     suspend fun saveUserType(user: User) {
         loginDataStore.saveUserType(user)

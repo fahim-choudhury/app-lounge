@@ -19,13 +19,9 @@
 package foundation.e.apps.domain.settings.repository
 
 import android.content.Context
-import app.lounge.storage.cache.configurations
 import dagger.hilt.android.qualifiers.ApplicationContext
-import foundation.e.apps.data.enums.User
 import javax.inject.Inject
 
 class SettingsRepositoryImpl @Inject constructor(
     @ApplicationContext val applicationContext: Context
-) : SettingsRepository {
-
-}
+) : SettingsRepository

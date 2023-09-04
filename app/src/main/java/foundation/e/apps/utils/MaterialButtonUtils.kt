@@ -42,11 +42,12 @@ private fun MaterialButton.toggleEnableMaterialButton(isEnabled: Boolean, status
 private fun MaterialButton.getBackgroundTintList(status: Status?) =
     if (status == Status.INSTALLED || status == Status.UPDATABLE) {
         ContextCompat.getColorStateList(this.context, R.color.colorAccent)
-    } else
+    } else {
         ContextCompat.getColorStateList(this.context, android.R.color.transparent)
+    }
 
 private fun MaterialButton.getStrokeColor(
-    isEnabled: Boolean,
+    isEnabled: Boolean
 ) = if (isEnabled) {
     ContextCompat.getColorStateList(this.context, R.color.colorAccent)
 } else {

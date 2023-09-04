@@ -17,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PrivacyInfoViewModel @Inject constructor(
     private val privacyInfoRepository: IAppPrivacyInfoRepository,
-    private val privacyScoreRepository: PrivacyScoreRepository,
+    private val privacyScoreRepository: PrivacyScoreRepository
 ) : ViewModel() {
 
     private val singularAppPrivacyInfoLiveData: MutableLiveData<Result<AppPrivacyInfo>> =
@@ -60,11 +60,13 @@ class PrivacyInfoViewModel @Inject constructor(
     }
 
     private fun handleAppPrivacyInfoResult(
-        appPrivacyPrivacyInfoResult: Result<AppPrivacyInfo>,
+        appPrivacyPrivacyInfoResult: Result<AppPrivacyInfo>
     ): Result<AppPrivacyInfo> {
         return if (!appPrivacyPrivacyInfoResult.isSuccess()) {
             Result.error("Tracker not found!")
-        } else appPrivacyPrivacyInfoResult
+        } else {
+            appPrivacyPrivacyInfoResult
+        }
     }
 
     fun getTrackerListText(fusedApp: FusedApp?): String {

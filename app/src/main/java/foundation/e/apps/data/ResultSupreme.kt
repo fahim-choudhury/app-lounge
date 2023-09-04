@@ -129,7 +129,7 @@ sealed class ResultSupreme<T> {
             status: ResultStatus,
             data: T? = null,
             message: String = "",
-            exception: Exception? = null,
+            exception: Exception? = null
         ): ResultSupreme<T> {
             val resultObject = when {
                 status == ResultStatus.OK && data != null -> Success<T>(data)
@@ -162,7 +162,7 @@ sealed class ResultSupreme<T> {
             result: ResultSupreme<*>,
             newData: T?,
             message: String? = null,
-            exception: Exception? = null,
+            exception: Exception? = null
         ): ResultSupreme<T> {
             val status = when (result) {
                 is Success -> ResultStatus.OK
@@ -170,7 +170,9 @@ sealed class ResultSupreme<T> {
                 is Error -> ResultStatus.UNKNOWN
             }
             return create(
-                status, newData, message ?: result.message,
+                status,
+                newData,
+                message ?: result.message,
                 exception ?: result.exception
             )
         }

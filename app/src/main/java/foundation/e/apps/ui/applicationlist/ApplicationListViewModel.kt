@@ -46,7 +46,7 @@ class ApplicationListViewModel @Inject constructor(
     fun loadData(
         category: String,
         source: String,
-        authData: AuthData?,
+        authData: AuthData?
     ) {
         getList(category, authData ?: AuthData("", ""), source)
     }
@@ -90,7 +90,6 @@ class ApplicationListViewModel @Inject constructor(
 
     fun loadMore(authData: AuthData?, category: String) {
         viewModelScope.launch(Dispatchers.IO) {
-
             if (isLoading || authData == null || nextPageUrl.isNullOrEmpty()) {
                 return@launch
             }

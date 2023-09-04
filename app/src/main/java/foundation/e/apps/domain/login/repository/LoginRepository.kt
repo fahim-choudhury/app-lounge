@@ -21,7 +21,5 @@ package foundation.e.apps.domain.login.repository
 import com.aurora.gplayapi.data.models.AuthData
 
 interface LoginRepository {
-
     suspend fun anonymousUser(): AuthData
-
 }

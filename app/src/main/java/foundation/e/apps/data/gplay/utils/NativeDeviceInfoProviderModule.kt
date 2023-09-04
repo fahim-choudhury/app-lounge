@@ -40,7 +40,7 @@ object NativeDeviceInfoProviderModule {
     @Singleton
     @Provides
     fun provideNativeDeviceProperties(
-        @ApplicationContext context: Context,
+        @ApplicationContext context: Context
     ): Properties {
         val properties = Properties().apply {
             // Build Props
@@ -48,10 +48,11 @@ object NativeDeviceInfoProviderModule {
             setProperty("Build.HARDWARE", Build.HARDWARE)
             setProperty(
                 "Build.RADIO",
-                if (Build.getRadioVersion() != null)
+                if (Build.getRadioVersion() != null) {
                     Build.getRadioVersion()
-                else
+                } else {
                     "unknown"
+                }
             )
             setProperty("Build.FINGERPRINT", Build.FINGERPRINT)
             setProperty("Build.BRAND", Build.BRAND)

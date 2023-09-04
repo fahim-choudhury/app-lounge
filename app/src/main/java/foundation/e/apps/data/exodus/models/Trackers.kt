@@ -16,5 +16,5 @@ data class Tracker(
     val creationDate: String?,
     val codeSignature: String?,
     val networkSignature: String?,
-    val website: String?,
+    val website: String?
 )

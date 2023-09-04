@@ -21,7 +21,6 @@ package foundation.e.apps.ui.applicationlist
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -39,8 +38,6 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fused.FusedAPIInterface
 import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentApplicationListBinding
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.pkg.PWAManagerModule
@@ -51,7 +48,6 @@ import foundation.e.apps.ui.AppProgressViewModel
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.PrivacyInfoViewModel
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
-import foundation.e.apps.ui.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -204,7 +200,7 @@ class ApplicationListFragment :
             positiveButtonAction = {
                 getApplication(fusedApp)
             },
-            cancelButtonText = getString(R.string.dialog_cancel),
+            cancelButtonText = getString(R.string.dialog_cancel)
         ).show(childFragmentManager, "HomeFragment")
     }
 
@@ -223,7 +219,6 @@ class ApplicationListFragment :
     )
 
     private fun loadData() {
-
         /*
          * If details are once loaded, do not load details again,
          * Only set the scroll listeners.

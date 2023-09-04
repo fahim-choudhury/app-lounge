@@ -241,7 +241,7 @@ class MainActivityViewModel @Inject constructor(
         .build()
 
     private fun getNetworkCallback(
-        callbackFlowScope: ProducerScope<Boolean>,
+        callbackFlowScope: ProducerScope<Boolean>
     ): ConnectivityManager.NetworkCallback {
         return object : ConnectivityManager.NetworkCallback() {
 
@@ -267,7 +267,6 @@ class MainActivityViewModel @Inject constructor(
 
     // protected to avoid SyntheticAccessor
     protected fun ProducerScope<Boolean>.sendInternetStatus(connectivityManager: ConnectivityManager) {
-
         val capabilities =
             connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
 

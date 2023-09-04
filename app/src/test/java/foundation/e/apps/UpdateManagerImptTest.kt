@@ -128,7 +128,7 @@ class UpdateManagerImptTest {
             package_name = "foundation.e.demotwo",
             origin = Origin.GPLAY,
             filterLevel = FilterLevel.NONE
-        ),
+        )
     )
 
     @Test

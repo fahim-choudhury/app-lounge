@@ -28,7 +28,7 @@ import kotlinx.coroutines.delay
 class FakeFusedManagerRepository(
     private val fusedDownloadDAO: FakeFusedDownloadDAO,
     fusedManager: IFusedManager,
-    fdroidRepository: FdroidRepository,
+    fdroidRepository: FdroidRepository
 ) : FusedManagerRepository(fusedManager, fdroidRepository) {
     var isAppInstalled = false
     var installationStatus = Status.INSTALLED

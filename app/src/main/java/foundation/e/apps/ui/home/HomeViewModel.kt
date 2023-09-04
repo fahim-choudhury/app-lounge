@@ -33,21 +33,21 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val fusedAPIRepository: FusedAPIRepository,
-): ViewModel() {
+    private val fusedAPIRepository: FusedAPIRepository
+) : ViewModel() {
 
     var homeScreenData: MutableLiveData<ResultSupreme<List<FusedHome>>> = MutableLiveData()
 
     fun loadData(
         authData: AuthData?,
-        lifecycleOwner: LifecycleOwner,
+        lifecycleOwner: LifecycleOwner
     ) {
         getHomeScreenData(authData ?: AuthData("", ""), lifecycleOwner)
     }
 
     private fun getHomeScreenData(
         authData: AuthData,
-        lifecycleOwner: LifecycleOwner,
+        lifecycleOwner: LifecycleOwner
     ) {
         viewModelScope.launch {
             fusedAPIRepository.getHomeScreenData(authData).observe(lifecycleOwner) {

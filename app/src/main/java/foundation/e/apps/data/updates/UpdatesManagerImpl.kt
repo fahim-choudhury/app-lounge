@@ -45,7 +45,7 @@ class UpdatesManagerImpl @Inject constructor(
     private val fusedAPIRepository: FusedAPIRepository,
     private val faultyAppRepository: FaultyAppRepository,
     private val preferenceManagerModule: PreferenceManagerModule,
-    private val fdroidRepository: FdroidRepository,
+    private val fdroidRepository: FdroidRepository
 ) {
 
     companion object {
@@ -94,7 +94,6 @@ class UpdatesManagerImpl @Inject constructor(
         if (getApplicationCategoryPreference().contains(APP_TYPE_ANY) &&
             gPlayInstalledApps.isNotEmpty()
         ) {
-
             val gplayStatus = getUpdatesFromApi({
                 fusedAPIRepository.getApplicationDetails(
                     gPlayInstalledApps,
@@ -153,7 +152,7 @@ class UpdatesManagerImpl @Inject constructor(
             pkgManagerModule.getInstallerName(it.packageName) in listOf(
                 context.packageName,
                 PACKAGE_NAME_F_DROID,
-                PACKAGE_NAME_F_DROID_PRIVILEGED,
+                PACKAGE_NAME_F_DROID_PRIVILEGED
             )
         }.map { it.packageName }
     }
@@ -167,7 +166,7 @@ class UpdatesManagerImpl @Inject constructor(
     private fun getGPlayInstalledApps(): List<String> {
         return userApplications.filter {
             pkgManagerModule.getInstallerName(it.packageName) in listOf(
-                PACKAGE_NAME_ANDROID_VENDING,
+                PACKAGE_NAME_ANDROID_VENDING
             )
         }.map { it.packageName }
     }
@@ -198,7 +197,7 @@ class UpdatesManagerImpl @Inject constructor(
      */
     private suspend fun getUpdatesFromApi(
         apiFunction: suspend () -> Pair<List<FusedApp>, ResultStatus>,
-        updateAccumulationList: MutableList<FusedApp>,
+        updateAccumulationList: MutableList<FusedApp>
     ): ResultStatus {
         val apiResult = apiFunction()
         val updatableApps = apiResult.first.filter {
@@ -262,7 +261,7 @@ class UpdatesManagerImpl @Inject constructor(
      * in [installedPackageNames], it will not be present in the list returned by this method.
      */
     private suspend fun findPackagesMatchingFDroidSignatures(
-        installedPackageNames: List<String>,
+        installedPackageNames: List<String>
     ): List<String> {
         val fDroidAppsAndSignatures = getFDroidAppsAndSignatures(installedPackageNames)
 

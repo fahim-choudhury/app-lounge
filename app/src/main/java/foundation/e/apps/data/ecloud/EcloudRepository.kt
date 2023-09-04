@@ -23,7 +23,7 @@ import javax.inject.Singleton
 
 @Singleton
 class EcloudRepository @Inject constructor(
-    private val ecloudApi: EcloudApiInterface,
+    private val ecloudApi: EcloudApiInterface
 ) {
     suspend fun uploadFaultyEmail(email: String, description: String) {
         try {

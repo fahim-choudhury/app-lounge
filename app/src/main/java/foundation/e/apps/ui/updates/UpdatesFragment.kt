@@ -42,9 +42,6 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fused.FusedAPIInterface
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.exceptions.GPlayException
-import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentUpdatesBinding
 import foundation.e.apps.di.CommonUtilsModule.safeNavigate
 import foundation.e.apps.install.download.data.DownloadProgress
@@ -112,7 +109,7 @@ class UpdatesFragment : Fragment(R.layout.fragment_updates), FusedAPIInterface {
                 appInfoFetchViewModel,
                 mainActivityViewModel,
                 it,
-                viewLifecycleOwner,
+                viewLifecycleOwner
             ) { fusedApp ->
                 if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(fusedApp)) {
                     showPurchasedAppMessage(fusedApp)
@@ -173,15 +170,15 @@ class UpdatesFragment : Fragment(R.layout.fragment_updates), FusedAPIInterface {
 
     private fun shouldUpdateButtonEnable(workInfoList: MutableList<WorkInfo>) =
         !updatesViewModel.updatesList.value?.first.isNullOrEmpty() &&
-                (
-                        workInfoList.isNullOrEmpty() ||
-                                (
-                                        !updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(
-                                            workInfoList
-                                        ) &&
-                                                updatesViewModel.hasAnyUpdatableApp()
-                                        )
+            (
+                workInfoList.isNullOrEmpty() ||
+                    (
+                        !updatesViewModel.checkWorkInfoListHasAnyUpdatableWork(
+                            workInfoList
+                        ) &&
+                            updatesViewModel.hasAnyUpdatableApp()
                         )
+                )
 
     private fun handleUpdateEvent(appEvent: AppEvent) {
         val event = appEvent.data as ResultSupreme.WorkError<*>
@@ -215,13 +212,15 @@ class UpdatesFragment : Fragment(R.layout.fragment_updates), FusedAPIInterface {
         ApplicationDialogFragment(
             title = getString(R.string.dialog_title_paid_app, fusedApp.name),
             message = getString(
-                R.string.dialog_paidapp_message, fusedApp.name, fusedApp.price
+                R.string.dialog_paidapp_message,
+                fusedApp.name,
+                fusedApp.price
             ),
             positiveButtonText = getString(R.string.dialog_confirm),
             positiveButtonAction = {
                 getApplication(fusedApp)
             },
-            cancelButtonText = getString(R.string.dialog_cancel),
+            cancelButtonText = getString(R.string.dialog_cancel)
         ).show(childFragmentManager, "UpdatesFragment")
     }
 
@@ -258,7 +257,7 @@ class UpdatesFragment : Fragment(R.layout.fragment_updates), FusedAPIInterface {
             WorkInfo.State.SUCCEEDED
         )
         return !workInfoList.isNullOrEmpty() && errorStates.contains(workInfoList.last().state) &&
-                updatesViewModel.hasAnyUpdatableApp() && !updatesViewModel.hasAnyPendingAppsForUpdate()
+            updatesViewModel.hasAnyUpdatableApp() && !updatesViewModel.hasAnyPendingAppsForUpdate()
     }
 
     private fun showLoadingUI() {

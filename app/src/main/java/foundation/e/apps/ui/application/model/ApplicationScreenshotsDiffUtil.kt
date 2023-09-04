@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.DiffUtil
 
 class ApplicationScreenshotsDiffUtil(
     private val oldList: List<String>,
-    private val newList: List<String>,
+    private val newList: List<String>
 ) : DiffUtil.Callback() {
     override fun getOldListSize(): Int {
         return oldList.size

@@ -18,15 +18,10 @@ import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.fusedDownload.FusedManagerRepository
-import foundation.e.apps.data.login.LoginSourceRepository
-import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.data.updates.UpdatesManagerRepository
 import foundation.e.apps.domain.updates.usecase.UpdatesUseCase
 import foundation.e.apps.install.workmanager.AppInstallProcessor
-import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Dispatchers
@@ -56,7 +51,7 @@ class UpdatesWorker @AssistedInject constructor(
     private var isAutoUpdate = true // indicates it is auto update or user initiated update
     private var retryCount = 0
 
-    private val authData : AuthData
+    private val authData: AuthData
         get() = updatesUseCase.currentAuthData() ?: AuthData("", "")
 
     override suspend fun doWork(): Result {
@@ -154,7 +149,7 @@ class UpdatesWorker @AssistedInject constructor(
                  * in appsNeededToUpdate list. Hence it is safe to proceed with
                  * blank AuthData.
                  */
-                authData ?: AuthData("", ""),
+                authData ?: AuthData("", "")
             )
         }
     }

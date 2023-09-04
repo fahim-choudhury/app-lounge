@@ -51,12 +51,12 @@ sealed class AuthObject {
                     exception = GPlayValidationException(
                         message,
                         this.user,
-                        401,
+                        401
                     )
                 ).apply {
                     otherPayload = this@GPlayAuth.result.otherPayload
                 },
-                this.user,
+                this.user
             )
         }
     }
@@ -68,10 +68,10 @@ sealed class AuthObject {
                     message = "Unauthorized",
                     exception = CleanApkException(
                         isTimeout = false,
-                        message = "Unauthorized",
+                        message = "Unauthorized"
                     )
                 ),
-                this.user,
+                this.user
             )
         }
     }

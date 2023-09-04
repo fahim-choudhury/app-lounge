@@ -46,24 +46,27 @@ class NativeGsfVersionProvider(context: Context) {
     }
 
     fun getGsfVersionCode(defaultIfNotFound: Boolean): Int {
-        return if (defaultIfNotFound && gsfVersionCode < GOOGLE_SERVICES_VERSION_CODE)
+        return if (defaultIfNotFound && gsfVersionCode < GOOGLE_SERVICES_VERSION_CODE) {
             GOOGLE_SERVICES_VERSION_CODE
-        else
+        } else {
             gsfVersionCode
+        }
     }
 
     fun getVendingVersionCode(defaultIfNotFound: Boolean): Int {
-        return if (defaultIfNotFound && vendingVersionCode < GOOGLE_VENDING_VERSION_CODE)
+        return if (defaultIfNotFound && vendingVersionCode < GOOGLE_VENDING_VERSION_CODE) {
             GOOGLE_VENDING_VERSION_CODE
-        else
+        } else {
             vendingVersionCode
+        }
     }
 
     fun getVendingVersionString(defaultIfNotFound: Boolean): String {
-        return if (defaultIfNotFound && vendingVersionCode < GOOGLE_VENDING_VERSION_CODE)
+        return if (defaultIfNotFound && vendingVersionCode < GOOGLE_VENDING_VERSION_CODE) {
             GOOGLE_VENDING_VERSION_STRING
-        else
+        } else {
             vendingVersionString
+        }
     }
 
     companion object {

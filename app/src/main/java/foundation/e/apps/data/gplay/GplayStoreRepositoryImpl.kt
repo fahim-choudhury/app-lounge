@@ -70,7 +70,7 @@ class GplayStoreRepositoryImpl @Inject constructor(
         context.getString(R.string.topgrossing_apps) to mapOf(Chart.TOP_GROSSING to TopChartsHelper.Type.APPLICATION),
         context.getString(R.string.topgrossing_games) to mapOf(Chart.TOP_GROSSING to TopChartsHelper.Type.GAME),
         context.getString(R.string.movers_shakers_apps) to mapOf(Chart.MOVERS_SHAKERS to TopChartsHelper.Type.APPLICATION),
-        context.getString(R.string.movers_shakers_games) to mapOf(Chart.MOVERS_SHAKERS to TopChartsHelper.Type.GAME),
+        context.getString(R.string.movers_shakers_games) to mapOf(Chart.MOVERS_SHAKERS to TopChartsHelper.Type.GAME)
     )
 
     override suspend fun getSearchResult(

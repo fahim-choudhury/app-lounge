@@ -34,8 +34,9 @@ class AC2DMTask @Inject constructor(
     }
 
     fun getAC2DMResponse(email: String?, oAuthToken: String?): PlayResponse {
-        if (email == null || oAuthToken == null)
+        if (email == null || oAuthToken == null) {
             return PlayResponse()
+        }
 
         val params: MutableMap<String, Any> = hashMapOf()
         params["lang"] = Locale.getDefault().toString().replace("_", "-")

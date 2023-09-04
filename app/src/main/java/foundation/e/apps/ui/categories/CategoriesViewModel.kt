@@ -21,16 +21,11 @@ package foundation.e.apps.ui.categories
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.data.FusedCategory
 import foundation.e.apps.data.fused.utils.CategoryType
-import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.exceptions.CleanApkException
-import foundation.e.apps.data.login.exceptions.GPlayException
-import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -43,7 +38,7 @@ class CategoriesViewModel @Inject constructor(
         MutableLiveData()
 
     fun loadData(
-        type: CategoryType,
+        type: CategoryType
     ) {
         getCategoriesList(type)
     }

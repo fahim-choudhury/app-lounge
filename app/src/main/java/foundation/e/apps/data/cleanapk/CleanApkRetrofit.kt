@@ -47,7 +47,7 @@ interface CleanApkRetrofit {
     @GET("apps?action=list_home")
     suspend fun getHomeScreenData(
         @Query("type") type: String = APP_TYPE_ANY,
-        @Query("source") source: String = APP_SOURCE_ANY,
+        @Query("source") source: String = APP_SOURCE_ANY
     ): Response<HomeScreen>
 
     // TODO: Reminder that this function is for search App and PWA both
@@ -65,7 +65,7 @@ interface CleanApkRetrofit {
         @Query("type") type: String = APP_TYPE_ANY,
         @Query("nres") nres: Int = 20,
         @Query("page") page: Int = 1,
-        @Query("by") by: String? = null,
+        @Query("by") by: String? = null
     ): Response<Search>
 
     @GET("apps?action=list_apps")
@@ -74,7 +74,7 @@ interface CleanApkRetrofit {
         @Query("source") source: String = APP_SOURCE_FOSS,
         @Query("type") type: String = APP_TYPE_ANY,
         @Query("nres") nres: Int = 20,
-        @Query("page") page: Int = 1,
+        @Query("page") page: Int = 1
     ): Response<Search>
 
     @GET("apps?action=download")
@@ -87,6 +87,6 @@ interface CleanApkRetrofit {
     @GET("apps?action=list_cat")
     suspend fun getCategoriesList(
         @Query("type") type: String = APP_TYPE_ANY,
-        @Query("source") source: String = APP_SOURCE_ANY,
+        @Query("source") source: String = APP_SOURCE_ANY
     ): Response<Categories>
 }

@@ -99,7 +99,7 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi)
     }
 
     suspend fun getCategoriesList(
-        type: CategoryType,
+        type: CategoryType
     ): Triple<List<FusedCategory>, String, ResultStatus> {
         return fusedAPIImpl.getCategoriesList(type)
     }

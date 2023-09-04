@@ -49,12 +49,10 @@ suspend fun <T> runFlowWithTimeout(
     block: suspend () -> Flow<T>,
     moreItemsToLoad: suspend (item: T) -> Boolean,
     timeoutBlock: () -> T,
-    exceptionBlock: ((e: Exception) -> T?)? = null,
+    exceptionBlock: ((e: Exception) -> T?)? = null
 ): LiveData<ResultSupreme<T>> {
-
     return liveData {
         withContext(Dispatchers.Main) {
-
             val timer =
                 Timer(this) {
                     emit(ResultSupreme.Timeout(timeoutBlock()))
@@ -91,7 +89,7 @@ suspend fun <T> runFlowWithTimeout(
 
 private class Timer(
     private val scope: CoroutineScope,
-    private val onTimeout: suspend () -> Unit,
+    private val onTimeout: suspend () -> Unit
 ) : CountDownTimer(Constants.timeoutDurationInMillis, 1000) {
 
     override fun onTick(millisUntilFinished: Long) {}

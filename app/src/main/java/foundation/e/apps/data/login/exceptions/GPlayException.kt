@@ -22,5 +22,5 @@ package foundation.e.apps.data.login.exceptions
  */
 open class GPlayException(
     val isTimeout: Boolean,
-    message: String? = null,
+    message: String? = null
 ) : LoginException(message)

@@ -30,7 +30,7 @@ import java.util.Properties
 class GoogleLoginApi(
     private val gPlayHttpClient: GPlayHttpClient,
     private val nativeDeviceProperty: Properties,
-    private val aC2DMTask: AC2DMTask,
+    private val aC2DMTask: AC2DMTask
 ) : GPlayLoginInterface {
 
     /**

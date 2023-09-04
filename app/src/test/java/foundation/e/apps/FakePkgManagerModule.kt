@@ -27,7 +27,7 @@ import foundation.e.apps.install.pkg.PkgManagerModule
 
 class FakePkgManagerModule(
     context: Context,
-    val gplayApps: List<FusedApp>,
+    val gplayApps: List<FusedApp>
 ) : PkgManagerModule(context) {
 
     val applicationInfo = mutableListOf(

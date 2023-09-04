@@ -18,8 +18,4 @@
 
 package foundation.e.apps.domain.settings.repository
 
-import foundation.e.apps.data.enums.User
-
-interface SettingsRepository {
-
-}
+interface SettingsRepository

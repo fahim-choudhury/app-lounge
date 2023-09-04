@@ -27,5 +27,5 @@ import foundation.e.apps.data.enums.User
 open class GPlayLoginException(
     isTimeout: Boolean,
     message: String? = null,
-    val user: User,
+    val user: User
 ) : GPlayException(isTimeout, message)

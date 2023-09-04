@@ -20,22 +20,16 @@ package foundation.e.apps.ui.categories
 
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
 import foundation.e.apps.data.fused.utils.CategoryType
-import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentGamesBinding
 import foundation.e.apps.presentation.login.LoginViewModel
-import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.categories.model.CategoriesRVAdapter
-import foundation.e.apps.ui.parentFragment.TimeoutFragment
 
 @AndroidEntryPoint
 class GamesFragment : Fragment(R.layout.fragment_games) {

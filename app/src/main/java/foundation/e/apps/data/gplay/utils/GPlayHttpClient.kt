@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class GPlayHttpClient @Inject constructor(
-    cache: Cache,
+    cache: Cache
 ) : IHttpClient {
 
     private val POST = "POST"

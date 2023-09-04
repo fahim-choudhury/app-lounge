@@ -445,12 +445,13 @@ class FusedApiImplTest {
             _id = "113",
             name = "Demo Three",
             package_name = "foundation.e.demothree",
-            latest_version_code = 123,
+            latest_version_code = 123
         )
 
         Mockito.`when`(
             pkgManagerModule.getPackageStatus(
-                fusedApp.package_name, fusedApp.latest_version_code
+                fusedApp.package_name,
+                fusedApp.latest_version_code
             )
         ).thenReturn(Status.INSTALLED)
 
@@ -464,7 +465,7 @@ class FusedApiImplTest {
             _id = "113",
             name = "Demo Three",
             package_name = "",
-            latest_version_code = 123,
+            latest_version_code = 123
         )
 
         val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, AUTH_DATA)
@@ -554,7 +555,7 @@ class FusedApiImplTest {
                 gPlayAPIRepository.getDownloadInfo(
                     fusedApp.package_name,
                     fusedApp.latest_version_code,
-                    fusedApp.offer_type,
+                    fusedApp.offer_type
                 )
             ).thenReturn(listOf())
 
@@ -580,7 +581,9 @@ class FusedApiImplTest {
 
         Mockito.`when`(
             gPlayAPIRepository.getDownloadInfo(
-                fusedApp.package_name, fusedApp.latest_version_code, fusedApp.offer_type
+                fusedApp.package_name,
+                fusedApp.latest_version_code,
+                fusedApp.offer_type
             )
         ).thenReturn(listOf())
 
@@ -606,7 +609,9 @@ class FusedApiImplTest {
 
         Mockito.`when`(
             gPlayAPIRepository.getDownloadInfo(
-                fusedApp.package_name, fusedApp.latest_version_code, fusedApp.offer_type
+                fusedApp.package_name,
+                fusedApp.latest_version_code,
+                fusedApp.offer_type
             )
         ).thenThrow(RuntimeException())
 
@@ -695,7 +700,9 @@ class FusedApiImplTest {
     fun `getCategory when All source is selected`() = runTest {
         val gplayCategories = listOf(Category(), Category(), Category(), Category())
         val openSourcecategories = Categories(
-            listOf("app one", "app two", "app three", "app four"), listOf("game 1", "game 2"), true
+            listOf("app one", "app two", "app three", "app four"),
+            listOf("game 1", "game 2"),
+            true
         )
         val openSourceResponse = Response.success(openSourcecategories)
         val pwaCategories =
@@ -762,11 +769,14 @@ class FusedApiImplTest {
         preferenceManagerModule.isOpenSourceelectedFake = true
         preferenceManagerModule.isGplaySelectedFake = true
         val gplayFlow: Pair<List<App>, MutableSet<SearchBundle.SubBundle>> = Pair(
-            listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), mutableSetOf()
+            listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")),
+            mutableSetOf()
         )
 
         setupMockingSearchApp(
-            packageNameSearchResponse, gplayPackageResult, gplayFlow
+            packageNameSearchResponse,
+            gplayPackageResult,
+            gplayFlow
         )
 
         val searchResultLiveData =
@@ -787,7 +797,8 @@ class FusedApiImplTest {
             .thenReturn(Status.UNAVAILABLE)
         Mockito.`when`(
             cleanApkAppsRepository.getSearchResult(
-                query = "com.search.package", searchBy = "package_name"
+                query = "com.search.package",
+                searchBy = "package_name"
             )
         ).thenReturn(packageNameSearchResponse)
         formatterMocked.`when`<String> { Formatter.formatFileSize(any(), any()) }.thenReturn("15MB")
@@ -851,11 +862,15 @@ class FusedApiImplTest {
         val gplayPackageResult = App("com.search.package")
 
         val gplayFlow: Pair<List<App>, MutableSet<SearchBundle.SubBundle>> = Pair(
-            listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), mutableSetOf()
+            listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")),
+            mutableSetOf()
         )
 
         setupMockingSearchApp(
-            packageNameSearchResponse, gplayPackageResult, gplayFlow, true
+            packageNameSearchResponse,
+            gplayPackageResult,
+            gplayFlow,
+            true
         )
 
         preferenceManagerModule.isPWASelectedFake = false

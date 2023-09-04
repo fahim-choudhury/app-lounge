@@ -101,7 +101,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         versionInfo?.apply {
             summary = BuildConfig.VERSION_NAME
             setOnLongClickListener {
-
                 val osVersion = SystemInfoProvider.getSystemProperty(SystemInfoProvider.KEY_LINEAGE_VERSION)
                 val appVersionLabel = getString(R.string.app_version_label)
                 var contents = "$appVersionLabel: $summary"
@@ -145,7 +144,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     Toast.LENGTH_SHORT
                 ).show()
                 false
-            } else true
+            } else {
+                true
+            }
         }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -183,8 +184,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         settingsViewModel.getCurrentUser()
-        settingsViewModel.currentUserState.observe(viewLifecycleOwner)  {
-            when(it.user) {
+        settingsViewModel.currentUserState.observe(viewLifecycleOwner) {
+            when (it.user) {
                 User.ANONYMOUS -> {
                     binding.accountType.setText(R.string.user_anonymous)
                     binding.email.isVisible = false
@@ -259,7 +260,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun setCheckboxDependency(
         checkBox: CheckBoxPreference?,
         parentCheckBox: CheckBoxPreference?,
-        parentCheckBoxPreferenceChangeListener: OnPreferenceChangeListener? = null,
+        parentCheckBoxPreferenceChangeListener: OnPreferenceChangeListener? = null
     ) {
         checkBox?.dependency = parentCheckBox?.key
         parentCheckBox?.onPreferenceChangeListener =
@@ -275,7 +276,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun copyTextToClipboard(
         clipboard: ClipboardManager,
         label: String,
-        text: String,
+        text: String
     ) {
         val clip = ClipData.newPlainText(label, text)
         clipboard.setPrimaryClip(clip)

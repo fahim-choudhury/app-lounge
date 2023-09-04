@@ -27,6 +27,7 @@ sealed class Resource<T>(val data: T? = null, val message: String? = null) {
      * @param data The data associated with the resource.
      */
     class Success<T>(data: T) : Resource<T>(data)
+
     /**
      * Represents an error state of the resource with an error message.
      * @param message The error message associated with the resource.

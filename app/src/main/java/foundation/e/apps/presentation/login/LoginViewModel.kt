@@ -148,7 +148,7 @@ class LoginViewModel @Inject constructor(
 
     fun authenticateAnonymousUser() {
         viewModelScope.launch(Dispatchers.IO) {
-            userLoginUseCase.performAnonymousUserAuthentication().onEach {result ->
+            userLoginUseCase.performAnonymousUserAuthentication().onEach { result ->
                 withContext(Dispatchers.Main) {
                     when (result) {
                         is Resource.Success -> {
@@ -184,7 +184,7 @@ class LoginViewModel @Inject constructor(
 
     private suspend fun updateSavedAuthData() {
         userLoginUseCase.retrieveCachedAuthData().onEach {
-            when(it) {
+            when (it) {
                 is Resource.Error -> {
                     val error = it.message.let { message ->
                         when (message) {
@@ -194,7 +194,7 @@ class LoginViewModel @Inject constructor(
                     }
                     _loginState.value = LoginState(error = error)
                 }
-                is Resource.Loading ->  _loginState.value = LoginState(isLoading = true)
+                is Resource.Loading -> _loginState.value = LoginState(isLoading = true)
                 is Resource.Success -> {
                     // TODO
                     it.data?.let { it1 -> updateAuthObjectForAnonymousUser(it1) }
@@ -216,5 +216,4 @@ class LoginViewModel @Inject constructor(
             )
         )
     }
-
 }

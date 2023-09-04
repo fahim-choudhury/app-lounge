@@ -29,7 +29,6 @@ class TOSFragment : Fragment(R.layout.fragment_tos) {
         webView = binding.tosWebView
 
         viewModel.tocStatus.observe(viewLifecycleOwner) {
-
             if (it == true && webView != null) {
                 binding.TOSWarning.visibility = View.GONE
                 binding.TOSButtons.visibility = View.GONE
@@ -102,8 +101,11 @@ class TOSFragment : Fragment(R.layout.fragment_tos) {
             .append(body.toString())
             .append("</HTML>")
         webView?.loadDataWithBaseURL(
-            "file:///android_asset/", sb.toString(),
-            "text/html", "utf-8", null
+            "file:///android_asset/",
+            sb.toString(),
+            "text/html",
+            "utf-8",
+            null
         )
 
         webView?.setOnScrollChangeListener { _, scrollX, scrollY, _, _ ->

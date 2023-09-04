@@ -29,7 +29,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.isVisible
 import androidx.cursoradapter.widget.CursorAdapter
 import androidx.cursoradapter.widget.SimpleCursorAdapter
 import androidx.fragment.app.Fragment
@@ -171,7 +170,7 @@ class SearchFragment :
     private fun updateSearchResult(
         listAdapter: ApplicationListRVAdapter?,
         appList: List<FusedApp>?,
-        hasMore: Boolean,
+        hasMore: Boolean
     ): Boolean {
         val currentList = listAdapter?.currentList ?: listOf()
         if (appList != null && !searchViewModel.isAnyAppUpdated(appList, currentList)) {
@@ -213,7 +212,10 @@ class SearchFragment :
         val to = intArrayOf(android.R.id.text1)
         searchView?.suggestionsAdapter = SimpleCursorAdapter(
             context,
-            R.layout.custom_simple_list_item, null, from, to,
+            R.layout.custom_simple_list_item,
+            null,
+            from,
+            to,
             CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
         )
 
@@ -241,7 +243,7 @@ class SearchFragment :
             positiveButtonAction = {
                 getApplication(fusedApp)
             },
-            cancelButtonText = getString(R.string.dialog_cancel),
+            cancelButtonText = getString(R.string.dialog_cancel)
         ).show(childFragmentManager, "SearchFragment")
     }
 

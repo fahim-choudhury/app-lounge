@@ -31,6 +31,6 @@ interface EcloudApiInterface {
     @Headers("Content-Type: application/json")
     @POST("report")
     suspend fun uploadFaultyEmail(
-        @Body faultyToken: FaultyToken,
+        @Body faultyToken: FaultyToken
     )
 }

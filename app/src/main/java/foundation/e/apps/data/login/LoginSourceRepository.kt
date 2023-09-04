@@ -27,12 +27,11 @@ import javax.inject.Singleton
 @Singleton
 class LoginSourceRepository @Inject constructor(
     private val loginCommon: LoginCommon,
-    private val sources: List<LoginSourceInterface>,
+    private val sources: List<LoginSourceInterface>
 ) {
 
     var gplayAuth: AuthData? = null
     suspend fun getAuthObjects(clearAuthTypes: List<String> = listOf()): List<AuthObject> {
-
         val authObjectsLocal = ArrayList<AuthObject>()
 
         for (source in sources) {

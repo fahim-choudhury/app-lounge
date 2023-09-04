@@ -6,7 +6,7 @@ import javax.inject.Inject
 class MainActivityUserCase @Inject constructor(
     private val commonRepository: CommonRepository
 ) {
-    fun currentUser() =  commonRepository.currentUser()
+    fun currentUser() = commonRepository.currentUser()
 
     fun currentAuthData() = commonRepository.cacheAuthData()
 }

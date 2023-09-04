@@ -29,7 +29,7 @@ import java.util.Properties
 class AnonymousLoginApi(
     private val gPlayHttpClient: GPlayHttpClient,
     private val nativeDeviceProperty: Properties,
-    private val gson: Gson,
+    private val gson: Gson
 ) : GPlayLoginInterface {
 
     private val tokenUrl: String = "https://eu.gtoken.ecloud.global"
@@ -50,8 +50,11 @@ class AnonymousLoginApi(
                         "Network code: ${response.code}\n" +
                         "Success: ${response.isSuccessful}" +
                         response.errorString.run {
-                            if (isNotBlank()) "\nError message: $this"
-                            else ""
+                            if (isNotBlank()) {
+                                "\nError message: $this"
+                            } else {
+                                ""
+                            }
                         }
                 )
             } else {

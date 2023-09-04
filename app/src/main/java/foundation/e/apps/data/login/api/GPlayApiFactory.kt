@@ -30,7 +30,7 @@ class GPlayApiFactory @Inject constructor(
     private val gPlayHttpClient: GPlayHttpClient,
     private val nativeDeviceProperty: Properties,
     private val aC2DMTask: AC2DMTask,
-    private val gson: Gson,
+    private val gson: Gson
 ) {
 
     fun getGPlayApi(user: User): GPlayLoginInterface {

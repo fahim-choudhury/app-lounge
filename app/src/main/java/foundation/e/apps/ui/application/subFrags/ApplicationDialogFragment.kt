@@ -49,7 +49,7 @@ class ApplicationDialogFragment() : DialogFragment() {
         positiveButtonText: String = "",
         positiveButtonAction: (() -> Unit)? = null,
         cancelButtonText: String = "",
-        cancelButtonAction: (() -> Unit)? = null,
+        cancelButtonAction: (() -> Unit)? = null
     ) : this() {
         this.drawable = drawable
         this.title = title
@@ -101,7 +101,9 @@ class ApplicationDialogFragment() : DialogFragment() {
                         textPaint.isUnderlineText = false
                     }
                 },
-                spannable.getSpanStart(urlSpan), spannable.getSpanEnd(urlSpan), 0
+                spannable.getSpanStart(urlSpan),
+                spannable.getSpanEnd(urlSpan),
+                0
             )
         }
         text = spannable

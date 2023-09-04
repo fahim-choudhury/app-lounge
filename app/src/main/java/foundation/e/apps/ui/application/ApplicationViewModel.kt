@@ -32,12 +32,8 @@ import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.exceptions.CleanApkException
-import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.download.data.DownloadProgressLD
-import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -46,7 +42,7 @@ import javax.inject.Inject
 class ApplicationViewModel @Inject constructor(
     downloadProgressLD: DownloadProgressLD,
     private val fusedAPIRepository: FusedAPIRepository,
-    private val fusedManagerRepository: FusedManagerRepository,
+    private val fusedManagerRepository: FusedManagerRepository
 ) : ViewModel() {
 
     val fusedApp: MutableLiveData<Pair<FusedApp, ResultStatus>> = MutableLiveData()
@@ -60,9 +56,8 @@ class ApplicationViewModel @Inject constructor(
         packageName: String,
         origin: Origin,
         isFdroidLink: Boolean,
-        authData: AuthData?,
+        authData: AuthData?
     ) {
-
         if (isFdroidLink) {
             getCleanapkAppDetails(packageName)
             return

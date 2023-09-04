@@ -55,18 +55,17 @@ class UserLoginUseCase @Inject constructor(
         commonRepository.resetCachedData()
     }
 
-    fun currentUser() =  commonRepository.currentUser()
-
+    fun currentUser() = commonRepository.currentUser()
 
     fun performAnonymousUserAuthentication(): Flow<Resource<AuthData>> = flow {
-        anonymousUser().onEach {anonymousAuth ->
+        anonymousUser().onEach { anonymousAuth ->
             // TODO -> If we are not using auth data then
-            when(anonymousAuth ) {
+            when (anonymousAuth) {
                 is Resource.Error -> emit(Resource.Error(anonymousAuth.message ?: "An unexpected error occured"))
                 is Resource.Loading -> emit(Resource.Loading())
                 is Resource.Success -> {
                     retrieveCachedAuthData().onEach {
-                        when(it) {
+                        when (it) {
                             is Resource.Error -> {
                                 emit(Resource.Error(anonymousAuth.message ?: "An unexpected error occured"))
                             }
