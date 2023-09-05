@@ -34,7 +34,7 @@ import timber.log.Timber
  * adb logcat -s "AUTHDATA_DUMP" &
  * adb shell am broadcast -a foundation.e.apps.action.DUMP_GACCOUNT_INFO --receiver-include-background
  */
-class DumpAuthData: BroadcastReceiver() {
+class DumpAuthData : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action != ACTION_AUTHDATA_DUMP || context == null) {
             return
