@@ -20,14 +20,15 @@ package foundation.e.apps.installProcessor
 
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import app.lounge.storage.cache.configurations
 import com.aurora.gplayapi.data.models.AuthData
+import com.google.gson.Gson
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
 import foundation.e.apps.data.fusedDownload.IFusedManager
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.install.workmanager.AppInstallProcessor
 import foundation.e.apps.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -67,9 +68,6 @@ class AppInstallProcessorTest {
     private lateinit var context: Context
 
     @Mock
-    private lateinit var dataStoreManager: DataStoreManager
-
-    @Mock
     private lateinit var fusedAPIRepository: FusedAPIRepository
 
     private lateinit var appInstallProcessor: AppInstallProcessor
@@ -87,7 +85,7 @@ class AppInstallProcessorTest {
             fusedDownloadRepository,
             fakeFusedManagerRepository,
             fusedAPIRepository,
-            dataStoreManager
+            Gson()
         )
     }
 
@@ -105,7 +103,7 @@ class AppInstallProcessorTest {
     ): FusedDownload {
         val fusedDownload = createFusedDownload(packageName, downloadUrlList)
         fakeFusedDownloadDAO.addDownload(fusedDownload)
-        Mockito.`when`(dataStoreManager.getAuthData()).thenReturn(AuthData("", ""))
+        Mockito.`when`(context.configurations.authData).thenReturn("{{aasToken:\"\",email:\"\"}")
         return fusedDownload
     }
 

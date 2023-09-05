@@ -21,7 +21,10 @@ package foundation.e.apps.install.workmanager
 import android.content.Context
 import android.os.Environment
 import android.os.StatFs
+import app.lounge.storage.cache.configurations
+import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.exceptions.ApiException
+import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
@@ -34,7 +37,6 @@ import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.install.updates.UpdatesNotifier
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
@@ -51,7 +53,7 @@ class AppInstallProcessor @Inject constructor(
     private val fusedDownloadRepository: FusedDownloadRepository,
     private val fusedManagerRepository: FusedManagerRepository,
     private val fusedAPIRepository: FusedAPIRepository,
-    private val dataStoreManager: DataStoreManager
+    private val gson: Gson
 ) {
 
     private var isItUpdateWork = false
@@ -107,7 +109,7 @@ class AppInstallProcessor @Inject constructor(
         isAnUpdate: Boolean = false
     ) {
         try {
-            val authData = dataStoreManager.getAuthData()
+            val authData = getAuthData()
             if (!fusedDownload.isFree && authData.isAnonymous) {
                 EventBus.invokeEvent(AppEvent.ErrorMessageEvent(R.string.paid_app_anonymous_message))
                 return
@@ -273,7 +275,7 @@ class AppInstallProcessor @Inject constructor(
     }
 
     private fun showNotificationOnUpdateEnded() {
-        val locale = dataStoreManager.getAuthData().locale
+        val locale = getAuthData().locale
         val date = Date().getFormattedString(DATE_FORMAT, locale)
         val numberOfUpdatedApps = NumberFormat.getNumberInstance(locale)
             .format(UpdatesDao.successfulUpdatedApps.size)
@@ -372,5 +374,10 @@ class AppInstallProcessor @Inject constructor(
 
     private suspend fun finishInstallation(fusedDownload: FusedDownload) {
         checkUpdateWork(fusedDownload)
+    }
+
+    private fun getAuthData(): AuthData {
+        val authDataJson = context.configurations.authData
+        return gson.fromJson(authDataJson, AuthData::class.java)
     }
 }
