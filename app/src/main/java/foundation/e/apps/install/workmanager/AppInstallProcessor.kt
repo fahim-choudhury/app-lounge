@@ -37,6 +37,7 @@ import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.domain.install.usecase.AppInstallerUseCase
 import foundation.e.apps.install.updates.UpdatesNotifier
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
@@ -53,7 +54,7 @@ class AppInstallProcessor @Inject constructor(
     private val fusedDownloadRepository: FusedDownloadRepository,
     private val fusedManagerRepository: FusedManagerRepository,
     private val fusedAPIRepository: FusedAPIRepository,
-    private val gson: Gson
+    private val appInstallerUseCase: AppInstallerUseCase
 ) {
 
     private var isItUpdateWork = false
@@ -109,7 +110,7 @@ class AppInstallProcessor @Inject constructor(
         isAnUpdate: Boolean = false
     ) {
         try {
-            val authData = getAuthData()
+            val authData = appInstallerUseCase.currentAuthData()
             if (!fusedDownload.isFree && authData.isAnonymous) {
                 EventBus.invokeEvent(AppEvent.ErrorMessageEvent(R.string.paid_app_anonymous_message))
                 return
@@ -275,7 +276,7 @@ class AppInstallProcessor @Inject constructor(
     }
 
     private fun showNotificationOnUpdateEnded() {
-        val locale = getAuthData().locale
+        val locale = appInstallerUseCase.currentAuthData().locale
         val date = Date().getFormattedString(DATE_FORMAT, locale)
         val numberOfUpdatedApps = NumberFormat.getNumberInstance(locale)
             .format(UpdatesDao.successfulUpdatedApps.size)
@@ -374,10 +375,5 @@ class AppInstallProcessor @Inject constructor(
 
     private suspend fun finishInstallation(fusedDownload: FusedDownload) {
         checkUpdateWork(fusedDownload)
-    }
-
-    private fun getAuthData(): AuthData {
-        val authDataJson = context.configurations.authData
-        return gson.fromJson(authDataJson, AuthData::class.java)
     }
 }

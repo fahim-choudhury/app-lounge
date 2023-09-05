@@ -25,9 +25,10 @@ import foundation.e.apps.data.login.LoginSourceCleanApk
 import foundation.e.apps.data.login.LoginSourceGPlay
 import foundation.e.apps.data.login.LoginSourceInterface
 import foundation.e.apps.domain.common.repository.CommonRepositoryImpl
+import foundation.e.apps.domain.install.usecase.AppInstallerUseCase
 import foundation.e.apps.domain.login.repository.LoginRepositoryImpl
 import foundation.e.apps.domain.login.usecase.UserLoginUseCase
-import foundation.e.apps.domain.main.usecase.MainActivityUserCase
+import foundation.e.apps.domain.main.usecase.MainActivityUseCase
 import foundation.e.apps.domain.settings.usecase.SettingsUseCase
 import foundation.e.apps.domain.updates.usecase.UpdatesUseCase
 
@@ -61,8 +62,8 @@ object LoginModule {
     @Provides
     fun provideMainActivityUseCase(
         commonRepositoryImpl: CommonRepositoryImpl
-    ): MainActivityUserCase {
-        return MainActivityUserCase(commonRepositoryImpl)
+    ): MainActivityUseCase {
+        return MainActivityUseCase(commonRepositoryImpl)
     }
 
     @Provides
@@ -70,5 +71,12 @@ object LoginModule {
         commonRepositoryImpl: CommonRepositoryImpl
     ): UpdatesUseCase {
         return UpdatesUseCase(commonRepositoryImpl)
+    }
+
+    @Provides
+    fun provideAppInstallerUseCase(
+        commonRepositoryImpl: CommonRepositoryImpl
+    ): AppInstallerUseCase {
+        return AppInstallerUseCase(commonRepositoryImpl)
     }
 }

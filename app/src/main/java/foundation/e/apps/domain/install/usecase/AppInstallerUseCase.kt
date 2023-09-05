@@ -1,12 +1,11 @@
-package foundation.e.apps.domain.main.usecase
+package foundation.e.apps.domain.install.usecase
 
 import foundation.e.apps.domain.common.repository.CommonRepository
 import javax.inject.Inject
 
-class MainActivityUserCase @Inject constructor(
+class AppInstallerUseCase@Inject constructor(
     private val commonRepository: CommonRepository
 ) {
-    fun currentUser() = commonRepository.currentUser()
 
     fun currentAuthData() = commonRepository.cacheAuthData()
 }

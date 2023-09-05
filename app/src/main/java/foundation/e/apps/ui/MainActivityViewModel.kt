@@ -46,7 +46,7 @@ import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.preference.DataStoreModule
-import foundation.e.apps.domain.main.usecase.MainActivityUserCase
+import foundation.e.apps.domain.main.usecase.MainActivityUseCase
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.install.workmanager.AppInstallProcessor
@@ -66,7 +66,7 @@ class MainActivityViewModel @Inject constructor(
     private val ecloudRepository: EcloudRepository,
     private val blockedAppRepository: BlockedAppRepository,
     private val appInstallProcessor: AppInstallProcessor,
-    private val mainActivityUserCase: MainActivityUserCase
+    private val mainActivityUseCase: MainActivityUseCase
 ) : ViewModel() {
 
     val tocStatus: LiveData<Boolean> = dataStoreModule.tocStatus.asLiveData()
@@ -76,7 +76,7 @@ class MainActivityViewModel @Inject constructor(
     val isAppPurchased: MutableLiveData<String> = MutableLiveData()
     val purchaseDeclined: MutableLiveData<String> = MutableLiveData()
 
-    private val gPlayAuthData: AuthData by lazy { mainActivityUserCase.currentAuthData() }
+    private val gPlayAuthData: AuthData by lazy { mainActivityUseCase.currentAuthData() }
 
     // Downloads
     val downloadList = fusedManagerRepository.getDownloadLiveList()
@@ -93,7 +93,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun getUser(): User {
-        return mainActivityUserCase.currentUser()
+        return mainActivityUseCase.currentUser()
     }
 
     fun getUserEmail(): String {
