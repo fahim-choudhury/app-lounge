@@ -39,6 +39,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import timber.log.Timber
 import java.io.IOException
+import java.net.Socket
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
@@ -158,7 +159,8 @@ class GPlayHttpClient @Inject constructor(
             val call = okHttpClient.newCall(request)
             buildPlayResponse(call.execute())
         } catch (e: Exception) {
-            throw e
+            val status = if (e is SocketTimeoutException) 408 else -1
+            throw GplayHttpRequestException(status, e.localizedMessage ?: "")
         }
     }
 
