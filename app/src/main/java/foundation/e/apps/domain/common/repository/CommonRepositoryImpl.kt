@@ -24,10 +24,12 @@ import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.utils.toAuthData
+import okhttp3.Cache
 import javax.inject.Inject
 
 class CommonRepositoryImpl @Inject constructor(
-    @ApplicationContext val applicationContext: Context
+    @ApplicationContext val applicationContext: Context,
+    val cache: Cache
 ) : CommonRepository {
 
     override fun currentUser(): User {
@@ -43,6 +45,7 @@ class CommonRepositoryImpl @Inject constructor(
             oauthtoken = ""
             // TODO: reset access token for Google login. It is not defined yet.
         }
+        cache.evictAll()
     }
 
     override fun cacheAuthData(): AuthData =

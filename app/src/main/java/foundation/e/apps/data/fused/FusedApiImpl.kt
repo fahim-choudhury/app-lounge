@@ -23,6 +23,7 @@ import android.text.format.Formatter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
+import app.lounge.storage.cache.configurations
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
@@ -118,9 +119,9 @@ class FusedApiImpl @Inject constructor(
 
     override fun getApplicationCategoryPreference(): List<String> {
         val prefs = mutableListOf<String>()
-        if (preferenceManagerModule.isGplaySelected()) prefs.add(APP_TYPE_ANY)
-        if (preferenceManagerModule.isOpenSourceSelected()) prefs.add(APP_TYPE_OPEN)
-        if (preferenceManagerModule.isPWASelected()) prefs.add(APP_TYPE_PWA)
+        if (context.configurations.showAllApplications) prefs.add(APP_TYPE_ANY)
+        if (context.configurations.showFOSSApplications) prefs.add(APP_TYPE_OPEN)
+        if (context.configurations.showPWAApplications) prefs.add(APP_TYPE_PWA)
         return prefs
     }
 
@@ -134,15 +135,15 @@ class FusedApiImpl @Inject constructor(
 
         return liveData {
             coroutineScope {
-                if (preferenceManagerModule.isGplaySelected()) {
+                if (context.configurations.showAllApplications) {
                     resultGplay = async { loadHomeData(list, Source.GPLAY, authData) }
                 }
 
-                if (preferenceManagerModule.isOpenSourceSelected()) {
+                if (context.configurations.showFOSSApplications) {
                     resultOpenSource = async { loadHomeData(list, Source.OPEN, authData) }
                 }
 
-                if (preferenceManagerModule.isPWASelected()) {
+                if (context.configurations.showPWAApplications) {
                     resultPWA = async { loadHomeData(list, Source.PWA, authData) }
                 }
 
@@ -261,7 +262,7 @@ class FusedApiImpl @Inject constructor(
         val searchResult = mutableListOf<FusedApp>()
         val cleanApkResults = mutableListOf<FusedApp>()
 
-        if (preferenceManagerModule.isOpenSourceSelected()) {
+        if (context.configurations.showFOSSApplications) {
             finalSearchResult = fetchOpenSourceSearchResult(
                 cleanApkResults,
                 query,
@@ -270,7 +271,7 @@ class FusedApiImpl @Inject constructor(
             )
         }
 
-        if (preferenceManagerModule.isPWASelected()) {
+        if (context.configurations.showPWAApplications) {
             finalSearchResult = fetchPWASearchResult(
                 query,
                 searchResult,
@@ -309,7 +310,7 @@ class FusedApiImpl @Inject constructor(
                     packageSpecificResults,
                     query
                 ),
-                preferenceManagerModule.isGplaySelected()
+                context.configurations.showAllApplications
             )
         )
     }
@@ -336,7 +337,7 @@ class FusedApiImpl @Inject constructor(
                     packageSpecificResults,
                     query
                 ),
-                preferenceManagerModule.isGplaySelected() || preferenceManagerModule.isPWASelected()
+                context.configurations.showAllApplications || context.configurations.showPWAApplications
             )
         )
     }
@@ -350,11 +351,11 @@ class FusedApiImpl @Inject constructor(
         var cleanapkPackageResult: FusedApp? = null
 
         val status = runCodeWithTimeout({
-            if (preferenceManagerModule.isGplaySelected()) {
+            if (context.configurations.showAllApplications) {
                 gplayPackageResult = getGplayPackagResult(query, authData)
             }
 
-            if (preferenceManagerModule.isOpenSourceSelected()) {
+            if (context.configurations.showFOSSApplications) {
                 cleanapkPackageResult = getCleanApkPackageResult(query)
             }
         })
@@ -368,7 +369,7 @@ class FusedApiImpl @Inject constructor(
             gplayPackageResult?.let { packageSpecificResults.add(it) }
         }
 
-        if (preferenceManagerModule.isGplaySelected()) {
+        if (context.configurations.showAllApplications) {
             packageSpecificResults.add(FusedApp(isPlaceHolder = true))
         }
 
@@ -400,7 +401,7 @@ class FusedApiImpl @Inject constructor(
 
         val finalList = (packageSpecificResults + filteredResults).toMutableList()
         finalList.removeIf { it.isPlaceHolder }
-        if (preferenceManagerModule.isGplaySelected()) {
+        if (context.configurations.showAllApplications) {
             finalList.add(FusedApp(isPlaceHolder = true))
         }
 
@@ -818,21 +819,21 @@ class FusedApiImpl @Inject constructor(
         var apiStatus = ResultStatus.OK
         var errorApplicationCategory = ""
 
-        if (preferenceManagerModule.isOpenSourceSelected()) {
+        if (context.configurations.showFOSSApplications) {
             val openSourceCategoryResult = fetchOpenSourceCategories(type)
             categoriesList.addAll(openSourceCategoryResult.second)
             apiStatus = openSourceCategoryResult.first
             errorApplicationCategory = openSourceCategoryResult.third
         }
 
-        if (preferenceManagerModule.isPWASelected()) {
+        if (context.configurations.showPWAApplications) {
             val pwaCategoriesResult = fetchPWACategories(type)
             categoriesList.addAll(pwaCategoriesResult.second)
             apiStatus = pwaCategoriesResult.first
             errorApplicationCategory = pwaCategoriesResult.third
         }
 
-        if (preferenceManagerModule.isGplaySelected()) {
+        if (context.configurations.showAllApplications) {
             val gplayCategoryResult = fetchGplayCategories(
                 type
             )
@@ -1092,7 +1093,7 @@ class FusedApiImpl @Inject constructor(
             val searchResults =
                 gplayRepository.getSearchResult(query, nextPageSubBundle?.toMutableSet())
 
-            if (!preferenceManagerModule.isGplaySelected()) {
+            if (!context.configurations.showAllApplications) {
                 return ResultSupreme.Error(ERROR_GPLAY_SOURCE_NOT_SELECTED)
             }
 
@@ -1419,7 +1420,7 @@ class FusedApiImpl @Inject constructor(
         return false
     }
 
-    override fun isOpenSourceSelected() = preferenceManagerModule.isOpenSourceSelected()
+    override fun isOpenSourceSelected() = context.configurations.showFOSSApplications
     override suspend fun getGplayAppsByCategory(
         authData: AuthData,
         category: String,
