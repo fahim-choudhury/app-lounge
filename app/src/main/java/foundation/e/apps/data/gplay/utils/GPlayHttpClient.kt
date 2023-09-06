@@ -39,6 +39,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import timber.log.Timber
 import java.io.IOException
+import java.net.Socket
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
@@ -54,13 +55,11 @@ class GPlayHttpClient @Inject constructor(
     companion object {
         private const val TAG = "GPlayHttpClient"
         private const val HTTP_TIMEOUT_IN_SECOND = 10L
-        <<<<<<< HEAD
         private const val SEARCH = "search"
         private const val SEARCH_SUGGEST = "searchSuggest"
         private const val STATUS_CODE_UNAUTHORIZED = 401
         private const val STATUS_CODE_TOO_MANY_REQUESTS = 429
-        =======
-        >>>>>>> ea7f47e2 (error handling updated for search and homepage)
+
     }
 
     private val okHttpClient = OkHttpClient().newBuilder()
@@ -167,7 +166,8 @@ class GPlayHttpClient @Inject constructor(
             response = call.execute()
             buildPlayResponse(response)
         } catch (e: Exception) {
-            throw e
+            val status = if (e is SocketTimeoutException) 408 else -1
+            throw GplayHttpRequestException(status, e.localizedMessage ?: "")
         } finally {
             response?.close()
         }
