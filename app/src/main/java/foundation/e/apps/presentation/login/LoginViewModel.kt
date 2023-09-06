@@ -28,6 +28,7 @@ import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.User.NO_GOOGLE
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.LoginSourceRepository
+import foundation.e.apps.domain.login.usecase.NoGoogleModeUseCase
 import foundation.e.apps.domain.login.usecase.UserLoginUseCase
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import foundation.e.apps.utils.Resource
@@ -45,7 +46,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginSourceRepository: LoginSourceRepository,
-    private val userLoginUseCase: UserLoginUseCase
+    private val userLoginUseCase: UserLoginUseCase,
+    private val noGoogleModeUseCase: NoGoogleModeUseCase
 ) : ViewModel() {
 
     /**
@@ -107,9 +109,10 @@ class LoginViewModel @Inject constructor(
      */
     fun initialNoGoogleLogin(onUserSaved: () -> Unit) {
         viewModelScope.launch {
-            loginSourceRepository.setNoGoogleMode()
+            val authObject = noGoogleModeUseCase.performNoGoogleLogin()
+            _loginState.value = LoginState(isLoading = false, isLoggedIn = true)
+            authObjects.postValue(listOf(authObject))
             onUserSaved()
-            startLoginFlow()
         }
     }
 

@@ -47,6 +47,7 @@ import kotlinx.coroutines.flow.transformWhile
 import timber.log.Timber
 import java.text.NumberFormat
 import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 class AppInstallProcessor @Inject constructor(
@@ -111,7 +112,7 @@ class AppInstallProcessor @Inject constructor(
     ) {
         try {
             val authData = appInstallerUseCase.currentAuthData()
-            if (!fusedDownload.isFree && authData.isAnonymous) {
+            if (!fusedDownload.isFree && authData?.isAnonymous == true) {
                 EventBus.invokeEvent(AppEvent.ErrorMessageEvent(R.string.paid_app_anonymous_message))
                 return
             }
@@ -276,7 +277,7 @@ class AppInstallProcessor @Inject constructor(
     }
 
     private fun showNotificationOnUpdateEnded() {
-        val locale = appInstallerUseCase.currentAuthData().locale
+        val locale = appInstallerUseCase.currentAuthData()?.locale ?: Locale.getDefault()
         val date = Date().getFormattedString(DATE_FORMAT, locale)
         val numberOfUpdatedApps = NumberFormat.getNumberInstance(locale)
             .format(UpdatesDao.successfulUpdatedApps.size)
