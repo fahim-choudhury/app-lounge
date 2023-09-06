@@ -269,7 +269,7 @@ class UpdatesManagerImpl @Inject constructor(
         val fDroidUpdatablePackageNames = fDroidAppsAndSignatures.filter {
             // For each installed app also present on F-droid, check signature of base APK.
             val baseApkPath = pkgManagerModule.getBaseApkPath(it.key)
-            ApkSignatureManager.verifyFdroidSignature(context, baseApkPath, it.value)
+            ApkSignatureManager.verifyFdroidSignature(context, baseApkPath, it.value, it.key)
         }.map { it.key }
 
         return fDroidUpdatablePackageNames

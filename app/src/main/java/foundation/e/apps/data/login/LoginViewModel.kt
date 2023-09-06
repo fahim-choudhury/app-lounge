@@ -24,8 +24,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import okhttp3.Cache
+import javax.inject.Inject
 
 /**
  * ViewModel to handle all login related operations.

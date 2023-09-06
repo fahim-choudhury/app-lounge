@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class GPlayHttpClient @Inject constructor(
-    private  val cache: Cache,
+    private val cache: Cache,
 ) : IHttpClient {
 
     private val POST = "POST"
@@ -174,6 +174,7 @@ class GPlayHttpClient @Inject constructor(
             when (e) {
                 is UnknownHostException,
                 is SocketTimeoutException -> handleExceptionOnGooglePlayRequest(e)
+
                 else -> handleExceptionOnGooglePlayRequest(e)
             }
         } finally {
