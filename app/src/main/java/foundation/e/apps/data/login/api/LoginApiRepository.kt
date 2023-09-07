@@ -19,14 +19,11 @@ package foundation.e.apps.data.login.api
 
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.PlayResponse
-import foundation.e.apps.data.Constants.timeoutDurationInMillis
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.gplay.utils.AC2DMUtil
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.withTimeout
 import java.util.Locale
 
 /**

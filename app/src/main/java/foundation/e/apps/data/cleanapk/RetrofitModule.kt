@@ -34,7 +34,6 @@ import foundation.e.apps.data.ecloud.EcloudApiInterface
 import foundation.e.apps.data.exodus.ExodusTrackerApi
 import foundation.e.apps.data.fdroid.FdroidApiInterface
 import foundation.e.apps.data.fdroid.FdroidWebInterface
-import foundation.e.apps.data.gplay.utils.GPlayHttpClient
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaTypeOrNull

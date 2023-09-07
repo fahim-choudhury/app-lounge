@@ -124,11 +124,11 @@ sealed class ResultSupreme<T> {
     }
 
     fun getResultStatus(): ResultStatus {
-        return when(this) {
+        return when (this) {
             is Success -> ResultStatus.OK
             is Timeout -> ResultStatus.TIMEOUT
             else -> ResultStatus.UNKNOWN.apply {
-                message = this@ResultSupreme.exception?.localizedMessage?: UNKNOWN_ERROR
+                message = this@ResultSupreme.exception?.localizedMessage ?: UNKNOWN_ERROR
             }
         }
     }
