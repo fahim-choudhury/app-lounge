@@ -24,6 +24,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
+import okhttp3.Cache
 import javax.inject.Inject
 
 /**
@@ -33,6 +34,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginSourceRepository: LoginSourceRepository,
+    private val cache: Cache,
 ) : ViewModel() {
 
     /**
@@ -120,6 +122,7 @@ class LoginViewModel @Inject constructor(
         }
 
         authObjects.postValue(authObjectsLocal)
+        cache.evictAll()
     }
 
     /**
@@ -127,6 +130,7 @@ class LoginViewModel @Inject constructor(
      */
     fun logout() {
         viewModelScope.launch {
+            cache.evictAll()
             loginSourceRepository.logout()
             authObjects.postValue(listOf())
         }

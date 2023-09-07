@@ -283,7 +283,6 @@ class FusedApiImpl @Inject constructor(
                 packageSpecificResults
             )
         }
-
         return finalSearchResult
     }
 
@@ -431,7 +430,7 @@ class FusedApiImpl @Inject constructor(
     ): FusedApp? {
         try {
             getApplicationDetails(query, query, authData, Origin.GPLAY).let {
-                if (it.second == ResultStatus.OK) {
+                if (it.second == ResultStatus.OK && it.first.package_name.isNotEmpty()) {
                     return it.first
                 }
             }

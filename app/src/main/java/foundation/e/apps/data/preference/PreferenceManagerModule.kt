@@ -52,6 +52,8 @@ class PreferenceManagerModule @Inject constructor(
     fun isPWASelected() = preferenceManager.getBoolean(PREFERENCE_SHOW_PWA, true)
     fun isGplaySelected() = preferenceManager.getBoolean(PREFERENCE_SHOW_GPLAY, true)
 
+    fun disableGplay() = preferenceManager.edit().putBoolean(PREFERENCE_SHOW_GPLAY, false).apply()
+
     fun autoUpdatePreferred(): Boolean {
         return preferenceManager.getBoolean("updateInstallAuto", false)
     }

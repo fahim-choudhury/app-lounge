@@ -19,7 +19,6 @@
 package foundation.e.apps.ui.search
 
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.SearchSuggestEntry
@@ -51,8 +50,7 @@ class SearchViewModel @Inject constructor(
 
     val searchResult: MutableLiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
         MutableLiveData()
-    private var searchResultLiveData: LiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
-        MutableLiveData()
+
     private var lastAuthObjects: List<AuthObject>? = null
 
     private var nextSubBundle: Set<SearchBundle.SubBundle>? = null
@@ -159,8 +157,8 @@ class SearchViewModel @Inject constructor(
         val isFirstFetch = nextSubBundle == null
         nextSubBundle = gplaySearchResult.data?.second
 
-        // if first page has less data, then fetch next page data without waiting for users' scroll
-        if (isFirstFetch && gplaySearchResult.data?.first?.size!! < 4) {
+        // first page has less data, then fetch next page data without waiting for users' scroll
+        if (isFirstFetch && gplaySearchResult.isSuccess()) {
             CoroutineScope(coroutineContext).launch {
                 fetchGplayData(query)
             }
