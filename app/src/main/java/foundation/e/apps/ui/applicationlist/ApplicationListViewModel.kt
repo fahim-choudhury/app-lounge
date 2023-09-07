@@ -42,9 +42,11 @@ class ApplicationListViewModel @Inject constructor(
 
     val appListLiveData: MutableLiveData<ResultSupreme<List<FusedApp>>?> = MutableLiveData()
 
-    var isLoading = false
+    private var isLoading = false
 
-    var nextPageUrl: String? = null
+    private var nextPageUrl: String? = null
+
+    private var currentAuthListObject: List<AuthObject>? = null
 
     fun loadData(
         category: String,
@@ -54,11 +56,18 @@ class ApplicationListViewModel @Inject constructor(
     ) {
         super.onLoadData(authObjectList, { successAuthList, _ ->
 
-            if (appListLiveData.value?.data?.isNotEmpty() == true) {
+            // if token is refreshed, then reset all data
+            if (currentAuthListObject != null && currentAuthListObject != authObjectList) {
+                appListLiveData.postValue(ResultSupreme.Success(emptyList()))
+                nextPageUrl = null
+            }
+
+            if (appListLiveData.value?.data?.isNotEmpty() == true && currentAuthListObject == authObjectList) {
                 appListLiveData.postValue(appListLiveData.value)
                 return@onLoadData
             }
 
+            this.currentAuthListObject = authObjectList
             successAuthList.find { it is AuthObject.GPlayAuth }?.run {
                 getList(category, result.data!! as AuthData, source)
                 return@onLoadData
@@ -163,17 +172,8 @@ class ApplicationListViewModel @Inject constructor(
     private fun appendAppList(it: Pair<List<FusedApp>, String>): List<FusedApp>? {
         val currentAppList = appListLiveData.value?.data?.toMutableList()
         currentAppList?.removeIf { item -> item.isPlaceHolder }
-        val appList = currentAppList?.plus(it.first)
-        return appList
+        return currentAppList?.plus(it.first)
     }
-
-    /**
-     * @return returns true if there is changes in data, otherwise false
-     */
-    fun isAnyAppUpdated(
-        newFusedApps: List<FusedApp>,
-        oldFusedApps: List<FusedApp>
-    ) = fusedAPIRepository.isAnyFusedAppUpdated(newFusedApps, oldFusedApps)
 
     fun hasAnyAppInstallStatusChanged(currentList: List<FusedApp>) =
         fusedAPIRepository.isAnyAppInstallStatusChanged(currentList)
