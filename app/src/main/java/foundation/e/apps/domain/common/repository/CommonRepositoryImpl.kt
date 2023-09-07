@@ -43,6 +43,9 @@ class CommonRepositoryImpl @Inject constructor(
             userType = User.UNAVAILABLE.name
             email = ""
             oauthtoken = ""
+            showAllApplications = true
+            showFOSSApplications = true
+            showPWAApplications = true
             // TODO: reset access token for Google login. It is not defined yet.
         }
         cache.evictAll()

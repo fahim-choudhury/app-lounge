@@ -163,15 +163,20 @@ class SettingsFragment : PreferenceFragmentCompat() {
         // This is useful if a user from older App Lounge updates to this version
         disableDependentCheckbox(onlyUnmeteredNetwork, autoInstallUpdate)
 
-        loginViewModel.loginState.observe(viewLifecycleOwner) {
-            val user = it.user
-            val authData = it.authData
-            when (user) {
+        settingsViewModel.currentUser()
+        settingsViewModel.currentUserState.observe(viewLifecycleOwner) {
+            when (it.user) {
+                User.ANONYMOUS -> {
+                    binding.accountType.setText(R.string.user_anonymous)
+                    binding.email.isVisible = false
+                }
                 User.GOOGLE -> {
-                    if (!authData!!.isAnonymous) {
+                    it.authData?.let { authData ->
                         binding.accountType.text = authData.userProfile?.name
                         binding.email.text = authData.email
                         binding.avatar.load(authData.userProfile?.artwork?.url)
+                    } ?: run {
+                        settingsViewModel.currentAuthData()
                     }
                 }
                 User.NO_GOOGLE -> {
@@ -179,17 +184,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     binding.email.isVisible = false
                     setCheckboxForNoGoogle()
                 }
-                else -> {}
-            }
-        }
 
-        settingsViewModel.getCurrentUser()
-        settingsViewModel.currentUserState.observe(viewLifecycleOwner) {
-            when (it.user) {
-                User.ANONYMOUS -> {
-                    binding.accountType.setText(R.string.user_anonymous)
-                    binding.email.isVisible = false
-                }
                 else -> {}
             }
         }
@@ -289,5 +284,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         super.onDestroyView()
         _binding = null
+        settingsViewModel.resetSettingState()
     }
 }

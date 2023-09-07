@@ -18,6 +18,7 @@
 
 package foundation.e.apps.domain.settings.usecase
 
+import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.domain.common.repository.CommonRepository
 import foundation.e.apps.utils.Resource
@@ -32,6 +33,12 @@ class SettingsUseCase @Inject constructor(
         kotlin.runCatching {
             val currentUser = commonRepository.currentUser()
             emit(Resource.Success(currentUser))
+        }.onFailure { emit(Resource.Error("Something went wrong in fun currentUser()")) }
+    }
+
+    fun currentAuthData(): Flow<Resource<AuthData>> = flow {
+        kotlin.runCatching {
+            emit(Resource.Success(commonRepository.cacheAuthData()))
         }.onFailure { emit(Resource.Error("Something went wrong in fun currentUser()")) }
     }
 

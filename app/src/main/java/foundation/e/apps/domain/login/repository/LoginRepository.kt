@@ -22,4 +22,5 @@ import com.aurora.gplayapi.data.models.AuthData
 
 interface LoginRepository {
     suspend fun anonymousUser(): AuthData
+    suspend fun googleUser(authData: AuthData, oauthToken: String)
 }

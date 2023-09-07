@@ -42,6 +42,21 @@ class UserLoginUseCase @Inject constructor(
         }
     }
 
+    fun googleUser(authData: AuthData, token:String): Flow<Resource<Unit>> = flow {
+        try {
+            emit(
+                Resource.Success(
+                    loginRepository.googleUser(
+                        authData = authData,
+                        oauthToken = token
+                    )
+                )
+            )
+        } catch (e: Exception) {
+            emit(Resource.Error(e.localizedMessage))
+        }
+    }
+
     fun retrieveCachedAuthData(): Flow<Resource<AuthData>> = flow {
         try {
             emit(Resource.Loading())

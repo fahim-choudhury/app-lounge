@@ -93,10 +93,33 @@ class LoginViewModel @Inject constructor(
      */
     fun initialGoogleLogin(email: String, oauthToken: String, onUserSaved: () -> Unit) {
         viewModelScope.launch {
-            loginSourceRepository.saveGoogleLogin(email, oauthToken)
-            loginSourceRepository.saveUserType(User.GOOGLE)
+            val authObjectsLocal = loginSourceRepository.getAuthObjects(listOf())
+            authObjects.postValue(authObjectsLocal)
+
+            if (authObjectsLocal.isNotEmpty() &&
+                authObjectsLocal[0] is AuthObject.GPlayAuth) {
+                val authObject = authObjectsLocal[0] as AuthObject.GPlayAuth
+                authObject.result.data?.let { authData ->
+                    userLoginUseCase.googleUser(authData, oauthToken).collect()
+                    _loginState.value = LoginState(isLoading = false, isLoggedIn = true)
+                } ?: kotlin.run {
+                    _loginState.value =
+                        LoginState(
+                            isLoading = false,
+                            isLoggedIn = false,
+                            error = "Google login failed"
+                        )
+                }
+            } else {
+                _loginState.value =
+                    LoginState(
+                        isLoading = false,
+                        isLoggedIn = false,
+                        error = "Google login failed"
+                    )
+            }
+
             onUserSaved()
-            startLoginFlow()
         }
     }
 

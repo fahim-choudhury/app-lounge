@@ -18,9 +18,13 @@
 
 package foundation.e.apps.presentation.settings
 
+import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.enums.User
 
-data class CurrentUserState(
-    val error: String = "",
-    val user: User = User.UNAVAILABLE
+var settingUserState = SettingUserState()
+
+data class SettingUserState(
+    var error: String = "",
+    var authData: AuthData? = null,
+    var user: User = User.UNAVAILABLE
 )

@@ -36,21 +36,40 @@ class SettingsViewModel @Inject constructor(
     private val settingsUseCase: SettingsUseCase
 ) : ViewModel() {
 
-    private val _currentUserState: MutableLiveData<CurrentUserState> = MutableLiveData()
-    val currentUserState: LiveData<CurrentUserState> = _currentUserState
+    private val _currentUserState: MutableLiveData<SettingUserState> = MutableLiveData()
+    val currentUserState: LiveData<SettingUserState> = _currentUserState
 
-    fun getCurrentUser() {
+    fun currentUser() {
         viewModelScope.launch {
             settingsUseCase.currentUser().onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         _currentUserState.value =
-                            result.data?.let { CurrentUserState(user = it) }
+                            result.data?.let { settingUserState.apply { user = it } }
                     }
                     is Resource.Error -> {
-                        _currentUserState.value = CurrentUserState(
-                            error = result.message ?: "An unexpected error occurred"
-                        )
+                        _currentUserState.value =
+                            settingUserState.apply { error = result.message ?: "An unexpected error occurred" }
+
+                    }
+
+                    is Resource.Loading -> TODO()
+                }
+            }.collect()
+        }
+    }
+
+    fun currentAuthData() {
+        viewModelScope.launch {
+            settingsUseCase.currentAuthData().onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        _currentUserState.value =
+                            result.data?.let { settingUserState.apply { authData = it } }
+                    }
+                    is Resource.Error -> {
+                        _currentUserState.value =
+                            settingUserState.apply { error = result.message ?: "An unexpected error occurred" }
                     }
 
                     is Resource.Loading -> TODO()
@@ -61,5 +80,9 @@ class SettingsViewModel @Inject constructor(
 
     fun logout() {
         settingsUseCase.logoutUser().launchIn(viewModelScope)
+    }
+
+    fun resetSettingState() {
+        settingUserState = SettingUserState()
     }
 }
