@@ -23,6 +23,7 @@ import foundation.e.apps.data.Constants.timeoutDurationInMillis
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.gplay.utils.AC2DMUtil
+import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
@@ -52,9 +53,9 @@ class LoginApiRepository constructor(
      * else blank for Anonymous login.
      */
     suspend fun fetchAuthData(email: String, aasToken: String, locale: Locale): ResultSupreme<AuthData?> {
-        val result = runCodeWithTimeout({
+        val result = handleNetworkResult {
             gPlayLoginInterface.fetchAuthData(email, aasToken)
-        })
+        }
         return result.apply {
             this.data?.locale = locale
             this.exception = when (result) {
@@ -76,13 +77,13 @@ class LoginApiRepository constructor(
      */
     suspend fun login(authData: AuthData): ResultSupreme<PlayResponse> {
         var response = PlayResponse()
-        val result = runCodeWithTimeout({
+        val result = handleNetworkResult {
             response = gPlayLoginInterface.login(authData)
             if (response.code != 200) {
                 throw Exception("Validation network code: ${response.code}")
             }
             response
-        })
+        }
         return ResultSupreme.replicate(result, response).apply {
             this.exception = when (result) {
                 is ResultSupreme.Timeout -> GPlayLoginException(true, "GPlay API timeout", user)
@@ -109,8 +110,8 @@ class LoginApiRepository constructor(
         googleLoginApi: GoogleLoginApi,
         email: String,
         oauthToken: String
-    ): ResultSupreme<String?> {
-        val result = runCodeWithTimeout({
+    ): ResultSupreme<String> {
+        val result = handleNetworkResult {
             var aasToken = ""
             val response = googleLoginApi.getAC2DMResponse(email, oauthToken)
             var error = response.errorString
@@ -129,32 +130,13 @@ class LoginApiRepository constructor(
                 throw Exception(error)
             }
             aasToken
-        })
+        }
         return result.apply {
             this.exception = when (result) {
                 is ResultSupreme.Timeout -> GPlayLoginException(true, "GPlay API timeout", User.GOOGLE)
                 is ResultSupreme.Error -> GPlayLoginException(false, result.message, User.GOOGLE)
                 else -> null
             }
-        }
-    }
-
-    /**
-     * Utility method to run a specified code block in a fixed amount of time.
-     */
-    private suspend fun <T> runCodeWithTimeout(
-        block: suspend () -> T,
-        exceptionBlock: ((e: Exception) -> T?)? = null,
-    ): ResultSupreme<T?> {
-        return try {
-            withTimeout(timeoutDurationInMillis) {
-                return@withTimeout ResultSupreme.Success(block())
-            }
-        } catch (e: TimeoutCancellationException) {
-            ResultSupreme.Timeout(exception = e)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            ResultSupreme.Error(exceptionBlock?.invoke(e), message = e.message ?: "")
         }
     }
 }

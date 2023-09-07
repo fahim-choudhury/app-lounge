@@ -63,6 +63,7 @@ import foundation.e.apps.data.fused.utils.CategoryUtils
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.gplay.GplayStoreRepository
 import foundation.e.apps.data.gplay.utils.GplayHttpRequestException
+import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.install.pkg.PWAManagerModule
@@ -98,10 +99,6 @@ class FusedApiImpl @Inject constructor(
         private const val CATEGORY_TITLE_REPLACEABLE_CONJUNCTION = "&"
         private const val CATEGORY_OPEN_GAMES_ID = "game_open_games"
         private const val CATEGORY_OPEN_GAMES_TITLE = "Open games"
-        private const val ERROR_GPLAY_API = "Gplay api has faced error!"
-        private const val TIMEOUT = "Timeout"
-        private const val UNKNOWN = "Unknown"
-        private const val STATUS = "Status: "
     }
 
     /**
@@ -383,7 +380,10 @@ class FusedApiImpl @Inject constructor(
          * Also send true in the pair to signal more results being loaded.
          */
         if (result.getResultStatus() != ResultStatus.OK) {
-            return ResultSupreme.create(result.getResultStatus(), Pair(packageSpecificResults, false))
+            return ResultSupreme.create(
+                result.getResultStatus(),
+                Pair(packageSpecificResults, false)
+            )
         }
         return ResultSupreme.create(result.getResultStatus(), Pair(packageSpecificResults, true))
     }
@@ -1084,36 +1084,6 @@ class FusedApiImpl @Inject constructor(
 
             return@handleNetworkResult Pair(fusedAppList.toList(), searchResults.second.toSet())
         }
-    }
-
-    private suspend fun <T> handleNetworkResult(call: suspend () -> T): ResultSupreme<T> {
-        return try {
-            ResultSupreme.Success(call())
-        } catch (e: SocketTimeoutException) {
-            val message = extractErrorMessage(e)
-            val resultTimeout = ResultSupreme.Timeout<T>(exception = e)
-            resultTimeout.message = message
-            resultTimeout
-        } catch (e: GplayHttpRequestException) {
-            val message = extractErrorMessage(e)
-            val exception = GPlayException(e.status == 408, message)
-
-            ResultSupreme.Error(message, exception)
-        } catch (e: Exception) {
-            val message = extractErrorMessage(e)
-            ResultSupreme.Error(message, e)
-        }
-    }
-
-    private fun extractErrorMessage(e: Exception): String {
-        val status = when (e) {
-            is GplayHttpRequestException -> e.status.toString()
-            is SocketTimeoutException -> TIMEOUT
-            else -> UNKNOWN
-        }
-
-        return (e.localizedMessage?.ifBlank { ERROR_GPLAY_API }
-            ?: ERROR_GPLAY_API) + "$STATUS$status"
     }
 
     /*

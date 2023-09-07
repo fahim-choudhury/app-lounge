@@ -45,6 +45,7 @@ import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+
 class GPlayHttpClient @Inject constructor(
     private val cache: Cache,
 ) : IHttpClient {
@@ -59,7 +60,7 @@ class GPlayHttpClient @Inject constructor(
         private const val SEARCH_SUGGEST = "searchSuggest"
         private const val STATUS_CODE_UNAUTHORIZED = 401
         private const val STATUS_CODE_TOO_MANY_REQUESTS = 429
-
+        const val STATUS_CODE_TIMEOUT = 408
     }
 
     private val okHttpClient = OkHttpClient().newBuilder()
@@ -165,8 +166,10 @@ class GPlayHttpClient @Inject constructor(
             val call = okHttpClient.newCall(request)
             response = call.execute()
             buildPlayResponse(response)
+        } catch (e: GplayHttpRequestException) {
+            throw e
         } catch (e: Exception) {
-            val status = if (e is SocketTimeoutException) 408 else -1
+            val status = if (e is SocketTimeoutException) STATUS_CODE_TIMEOUT else -1
             throw GplayHttpRequestException(status, e.localizedMessage ?: "")
         } finally {
             response?.close()
