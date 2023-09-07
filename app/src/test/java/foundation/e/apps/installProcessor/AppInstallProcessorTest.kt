@@ -21,8 +21,6 @@ package foundation.e.apps.installProcessor
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.lounge.storage.cache.configurations
-import com.aurora.gplayapi.data.models.AuthData
-import com.google.gson.Gson
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.fused.FusedAPIRepository

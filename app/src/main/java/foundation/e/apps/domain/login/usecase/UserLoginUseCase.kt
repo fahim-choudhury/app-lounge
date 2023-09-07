@@ -42,7 +42,7 @@ class UserLoginUseCase @Inject constructor(
         }
     }
 
-    fun googleUser(authData: AuthData, token:String): Flow<Resource<Unit>> = flow {
+    fun googleUser(authData: AuthData, token: String): Flow<Resource<Unit>> = flow {
         try {
             emit(
                 Resource.Success(

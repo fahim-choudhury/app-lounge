@@ -50,7 +50,6 @@ class SettingsViewModel @Inject constructor(
                     is Resource.Error -> {
                         _currentUserState.value =
                             settingUserState.apply { error = result.message ?: "An unexpected error occurred" }
-
                     }
 
                     is Resource.Loading -> TODO()

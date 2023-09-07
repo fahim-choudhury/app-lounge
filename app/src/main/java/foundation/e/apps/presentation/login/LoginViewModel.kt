@@ -97,7 +97,8 @@ class LoginViewModel @Inject constructor(
             authObjects.postValue(authObjectsLocal)
 
             if (authObjectsLocal.isNotEmpty() &&
-                authObjectsLocal[0] is AuthObject.GPlayAuth) {
+                authObjectsLocal[0] is AuthObject.GPlayAuth
+            ) {
                 val authObject = authObjectsLocal[0] as AuthObject.GPlayAuth
                 authObject.result.data?.let { authData ->
                     userLoginUseCase.googleUser(authData, oauthToken).collect()

@@ -15,7 +15,7 @@ class AppInstallerUseCase@Inject constructor(
             commonRepository.cacheAuthData()
         } catch (e: Exception) {
             if (commonRepository.currentUser() == User.NO_GOOGLE) {
-                return AuthData("","").apply {
+                return AuthData("", "").apply {
                     this.isAnonymous = false
                     this.locale = Locale.getDefault()
                 }

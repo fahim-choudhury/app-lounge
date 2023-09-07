@@ -60,7 +60,7 @@ class LoginRepositoryImpl @Inject constructor(
     }
 
     // TODO: Remove function parameter once we refactor Google User APIs
-    override suspend fun googleUser(authData: AuthData, token:String) {
+    override suspend fun googleUser(authData: AuthData, token: String) {
         applicationContext.configurations.authData = authData.toJsonString()
         applicationContext.configurations.email = authData.email
         applicationContext.configurations.oauthtoken = token
