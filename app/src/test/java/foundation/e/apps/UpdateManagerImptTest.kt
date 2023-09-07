@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.AuthData
+import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
@@ -73,6 +74,9 @@ class UpdateManagerImptTest {
     private lateinit var faultyAppRepository: FaultyAppRepository
 
     @Mock
+    private lateinit var blockedAppRepository: BlockedAppRepository
+
+    @Mock
     private lateinit var fdroidRepository: FdroidRepository
 
     val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
@@ -90,7 +94,7 @@ class UpdateManagerImptTest {
         preferenceModule = FakePreferenceModule(context)
         pkgManagerModule = FakePkgManagerModule(context, getGplayApps())
         updatesManagerImpl =
-            UpdatesManagerImpl(context, pkgManagerModule, fusedAPIRepository, faultyAppRepository, preferenceModule, fdroidRepository)
+            UpdatesManagerImpl(context, pkgManagerModule, fusedAPIRepository, faultyAppRepository, preferenceModule, fdroidRepository, blockedAppRepository)
     }
 
     @Test

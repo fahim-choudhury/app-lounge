@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.cleanapk.ApkSignatureManager
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
@@ -46,6 +47,7 @@ class UpdatesManagerImpl @Inject constructor(
     private val faultyAppRepository: FaultyAppRepository,
     private val preferenceManagerModule: PreferenceManagerModule,
     private val fdroidRepository: FdroidRepository,
+    private val blockedAppRepository: BlockedAppRepository,
 ) {
 
     companion object {
@@ -77,6 +79,14 @@ class UpdatesManagerImpl @Inject constructor(
                 otherStoresInstalledApps.removeAll(updatableFDroidApps)
                 gPlayInstalledApps.addAll(otherStoresInstalledApps)
             }
+        }
+
+        openSourceInstalledApps.removeIf {
+            blockedAppRepository.isBlockedApp(it)
+        }
+
+        gPlayInstalledApps.removeIf {
+            blockedAppRepository.isBlockedApp(it)
         }
 
         // Get open source app updates
@@ -127,6 +137,10 @@ class UpdatesManagerImpl @Inject constructor(
                 findPackagesMatchingFDroidSignatures(otherStoresInstalledApps)
 
             openSourceInstalledApps.addAll(updatableFDroidApps)
+        }
+
+        openSourceInstalledApps.removeIf {
+            blockedAppRepository.isBlockedApp(it)
         }
 
         if (openSourceInstalledApps.isNotEmpty()) {
