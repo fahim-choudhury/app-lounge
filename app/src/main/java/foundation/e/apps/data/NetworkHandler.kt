@@ -39,6 +39,5 @@ private fun extractErrorMessage(e: Exception): String {
         is SocketTimeoutException -> TIMEOUT
         else -> UNKNOWN
     }
-    return (e.localizedMessage?.ifBlank { ERROR_GPLAY_API }
-        ?: ERROR_GPLAY_API) + " $STATUS $status"
+    return (e.localizedMessage?.ifBlank { ERROR_GPLAY_API } ?: ERROR_GPLAY_API) + " $STATUS $status"
 }

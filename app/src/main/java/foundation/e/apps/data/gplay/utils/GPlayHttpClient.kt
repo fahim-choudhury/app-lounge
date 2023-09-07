@@ -39,12 +39,9 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import timber.log.Timber
 import java.io.IOException
-import java.net.Socket
 import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-
 
 class GPlayHttpClient @Inject constructor(
     private val cache: Cache,

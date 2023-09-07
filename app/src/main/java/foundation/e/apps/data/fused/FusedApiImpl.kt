@@ -62,9 +62,7 @@ import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.fused.utils.CategoryUtils
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.gplay.GplayStoreRepository
-import foundation.e.apps.data.gplay.utils.GplayHttpRequestException
 import foundation.e.apps.data.handleNetworkResult
-import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
@@ -76,7 +74,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withTimeout
 import retrofit2.Response
 import timber.log.Timber
-import java.net.SocketTimeoutException
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -941,9 +938,8 @@ class FusedApiImpl @Inject constructor(
     }
 
     private fun getCategoryIconName(category: FusedCategory): String {
-        var categoryTitle = if (category.tag.getOperationalTag()
-                .contentEquals(AppTag.GPlay().getOperationalTag())
-        ) category.id else category.title
+        var categoryTitle = if (category.tag.getOperationalTag().contentEquals(AppTag.GPlay().getOperationalTag()))
+            category.id else category.title
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
             categoryTitle = categoryTitle.replace(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION, "and")
