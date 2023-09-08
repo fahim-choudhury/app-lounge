@@ -35,13 +35,16 @@ import com.aurora.gplayapi.helpers.SearchHelper
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
+import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.gplay.utils.GPlayHttpClient
 import foundation.e.apps.data.login.LoginSourceRepository
+import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.math.log
 
 class GplayStoreRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -52,7 +55,7 @@ class GplayStoreRepositoryImpl @Inject constructor(
     override suspend fun getHomeScreenData(): Any {
         val homeScreenData = mutableMapOf<String, List<App>>()
         val homeElements = createTopChartElements()
-        val authData = loginSourceRepository.gplayAuth ?: return homeScreenData
+        val authData = loginSourceRepository.gplayAuth!!
 
         homeElements.forEach {
             val chart = it.value.keys.iterator().next()
@@ -77,7 +80,7 @@ class GplayStoreRepositoryImpl @Inject constructor(
         query: String,
         subBundle: MutableSet<SearchBundle.SubBundle>?
     ): Pair<List<App>, MutableSet<SearchBundle.SubBundle>> {
-        var authData = loginSourceRepository.gplayAuth ?: return Pair(emptyList(), mutableSetOf())
+        var authData = loginSourceRepository.gplayAuth!!
         val searchHelper =
             SearchHelper(authData).using(gPlayHttpClient)
 
@@ -102,7 +105,7 @@ class GplayStoreRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
-        val authData = loginSourceRepository.gplayAuth ?: return listOf()
+        val authData = loginSourceRepository.gplayAuth!!
 
         val searchData = mutableListOf<SearchSuggestEntry>()
         withContext(Dispatchers.IO) {
@@ -113,7 +116,7 @@ class GplayStoreRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getAppsByCategory(category: String, pageUrl: String?): StreamCluster {
-        val authData = loginSourceRepository.gplayAuth ?: return StreamCluster()
+        val authData = loginSourceRepository.gplayAuth!!
 
         val subCategoryHelper =
             CategoryAppsHelper(authData).using(gPlayHttpClient)
@@ -131,7 +134,7 @@ class GplayStoreRepositoryImpl @Inject constructor(
             return categoryList
         }
 
-        val authData = loginSourceRepository.gplayAuth ?: return categoryList
+        val authData = loginSourceRepository.gplayAuth!!
 
         withContext(Dispatchers.IO) {
             val categoryHelper = CategoryHelper(authData).using(gPlayHttpClient)
@@ -142,7 +145,7 @@ class GplayStoreRepositoryImpl @Inject constructor(
 
     override suspend fun getAppDetails(packageNameOrId: String): App? {
         var appDetails: App?
-        val authData = loginSourceRepository.gplayAuth ?: return null
+        val authData = loginSourceRepository.gplayAuth!!
 
         withContext(Dispatchers.IO) {
             val appDetailsHelper = AppDetailsHelper(authData).using(gPlayHttpClient)
@@ -153,7 +156,7 @@ class GplayStoreRepositoryImpl @Inject constructor(
 
     override suspend fun getAppsDetails(packageNamesOrIds: List<String>): List<App> {
         val appDetailsList = mutableListOf<App>()
-        val authData = loginSourceRepository.gplayAuth ?: return appDetailsList
+        val authData = loginSourceRepository.gplayAuth!!
 
         withContext(Dispatchers.IO) {
             val appDetailsHelper = AppDetailsHelper(authData).using(gPlayHttpClient)
@@ -185,7 +188,7 @@ class GplayStoreRepositoryImpl @Inject constructor(
         offerType: Int
     ): List<File> {
         val downloadData = mutableListOf<File>()
-        val authData = loginSourceRepository.gplayAuth ?: return downloadData
+        val authData = loginSourceRepository.gplayAuth!!
 
         withContext(Dispatchers.IO) {
             val version = versionCode?.let { it as Int } ?: -1
@@ -202,7 +205,7 @@ class GplayStoreRepositoryImpl @Inject constructor(
         offerType: Int
     ): List<File> {
         val downloadData = mutableListOf<File>()
-        val authData = loginSourceRepository.gplayAuth ?: return downloadData
+        val authData = loginSourceRepository.gplayAuth!!
 
         withContext(Dispatchers.IO) {
             val purchaseHelper = PurchaseHelper(authData).using(gPlayHttpClient)
