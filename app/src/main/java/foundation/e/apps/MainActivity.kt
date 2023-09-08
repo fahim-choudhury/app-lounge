@@ -139,11 +139,6 @@ class MainActivity : AppCompatActivity() {
                     )
                 } else if (exception != null) {
                     Timber.e(exception, "Login failed! message: ${exception?.localizedMessage}")
-                    ApplicationDialogFragment(
-                        title = getString(R.string.sign_in_failed_title),
-                        message = getString(R.string.sign_in_failed_desc),
-                        positiveButtonText = getString(R.string.ok)
-                    ).show(supportFragmentManager, TAG)
                 }
             }
         }

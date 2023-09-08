@@ -20,6 +20,7 @@ package foundation.e.apps.data.login
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.User
+import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,6 +32,8 @@ class LoginSourceRepository @Inject constructor(
 ) {
 
     var gplayAuth: AuthData? = null
+        get() = field ?: throw GPlayLoginException(false, "AuthData is not available!", getUserType())
+
     suspend fun getAuthObjects(clearAuthTypes: List<String> = listOf()): List<AuthObject> {
 
         val authObjectsLocal = ArrayList<AuthObject>()
@@ -70,5 +73,9 @@ class LoginSourceRepository @Inject constructor(
         val validateAuthData = authDataValidator.validateAuthData()
         this.gplayAuth = validateAuthData.data
         return validateAuthData
+    }
+
+    private fun getUserType(): User {
+        return loginCommon.getUserType()
     }
 }
