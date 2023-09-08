@@ -35,16 +35,13 @@ import com.aurora.gplayapi.helpers.SearchHelper
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
-import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.gplay.utils.GPlayHttpClient
 import foundation.e.apps.data.login.LoginSourceRepository
-import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.math.log
 
 class GplayStoreRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
