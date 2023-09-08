@@ -158,7 +158,7 @@ class SearchViewModel @Inject constructor(
         nextSubBundle = gplaySearchResult.data?.second
 
         // first page has less data, then fetch next page data without waiting for users' scroll
-        if (isFirstFetch) {
+        if (isFirstFetch && gplaySearchResult.isSuccess()) {
             CoroutineScope(coroutineContext).launch {
                 fetchGplayData(query)
             }

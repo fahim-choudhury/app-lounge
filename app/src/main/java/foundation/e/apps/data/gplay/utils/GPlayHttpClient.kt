@@ -40,7 +40,6 @@ import okhttp3.Response
 import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -58,6 +57,7 @@ class GPlayHttpClient @Inject constructor(
         private const val SEARCH_SUGGEST = "searchSuggest"
         private const val STATUS_CODE_UNAUTHORIZED = 401
         private const val STATUS_CODE_TOO_MANY_REQUESTS = 429
+        const val STATUS_CODE_TIMEOUT = 408
     }
 
     private val okHttpClient = OkHttpClient().newBuilder()
@@ -163,29 +163,13 @@ class GPlayHttpClient @Inject constructor(
             val call = okHttpClient.newCall(request)
             response = call.execute()
             buildPlayResponse(response)
+        } catch (e: GplayHttpRequestException) {
+            throw e
         } catch (e: Exception) {
-            // TODO: exception will be thrown for all apis when all gplay api implementation
-            // will handle the exceptions. this will be done in following issue.
-            // Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/1483
-            if (request.url.toString().contains(SEARCH)) {
-                throw e
-            }
-
-            when (e) {
-                is UnknownHostException,
-                is SocketTimeoutException -> handleExceptionOnGooglePlayRequest(e)
-
-                else -> handleExceptionOnGooglePlayRequest(e)
-            }
+            val status = if (e is SocketTimeoutException) STATUS_CODE_TIMEOUT else -1
+            throw GplayHttpRequestException(status, e.localizedMessage ?: "")
         } finally {
             response?.close()
-        }
-    }
-
-    private fun handleExceptionOnGooglePlayRequest(e: Exception): PlayResponse {
-        Timber.e("processRequest: ${e.localizedMessage}")
-        return PlayResponse().apply {
-            errorString = "${this@GPlayHttpClient::class.java.simpleName}: ${e.localizedMessage}"
         }
     }
 
@@ -222,10 +206,7 @@ class GPlayHttpClient @Inject constructor(
                 }
             }
 
-            // TODO: exception will be thrown for all apis when all gplay api implementation
-            // will handle the exceptions. this will be done in following issue.
-            // Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/1483
-            if (response.request.url.toString().contains(SEARCH) && code != 200) {
+            if (code != 200) {
                 throw GplayHttpRequestException(code, response.message)
             }
 

@@ -48,12 +48,15 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import timber.log.Timber
 import java.net.ConnectException
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object RetrofitModule {
+
+    private const val HTTP_TIMEOUT_IN_SECOND = 10L
 
     /**
      * Provides an instance of Retrofit to work with CleanAPK API
@@ -208,6 +211,7 @@ object RetrofitModule {
     fun provideOkHttpClient(cache: Cache, interceptor: Interceptor): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(interceptor)
+            .callTimeout(HTTP_TIMEOUT_IN_SECOND, TimeUnit.SECONDS)
             .cache(cache)
             .build()
     }
