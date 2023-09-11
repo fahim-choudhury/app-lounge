@@ -19,7 +19,6 @@
 package foundation.e.apps.ui.search
 
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.SearchSuggestEntry
@@ -41,7 +40,6 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
-
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -159,8 +157,8 @@ class SearchViewModel @Inject constructor(
         val isFirstFetch = nextSubBundle == null
         nextSubBundle = gplaySearchResult.data?.second
 
-        //first page has less data, then fetch next page data without waiting for users' scroll
-        if (isFirstFetch) {
+        // first page has less data, then fetch next page data without waiting for users' scroll
+        if (isFirstFetch && gplaySearchResult.isSuccess()) {
             CoroutineScope(coroutineContext).launch {
                 fetchGplayData(query)
             }
