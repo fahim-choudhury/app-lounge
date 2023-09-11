@@ -20,6 +20,7 @@ package foundation.e.apps.presentation.login
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import foundation.e.apps.data.login.LoginSourceRepository
+import foundation.e.apps.domain.login.usecase.NoGoogleModeUseCase
 import foundation.e.apps.domain.login.usecase.UserLoginUseCase
 import foundation.e.apps.loginFailureMessage
 import foundation.e.apps.testAnonymousResponseData
@@ -53,6 +54,9 @@ class LoginViewModelTest {
     lateinit var mockUserLoginUseCase: UserLoginUseCase
 
     @Mock
+    lateinit var mockNoGoogleModeUseCase: NoGoogleModeUseCase
+
+    @Mock
     lateinit var loginRepository: LoginSourceRepository
 
     @Before
@@ -66,7 +70,7 @@ class LoginViewModelTest {
         Mockito.`when`(mockUserLoginUseCase.anonymousUser())
             .thenReturn(flowOf(Resource.Success(testAnonymousResponseData)))
 
-        val loginViewModel = LoginViewModel(loginRepository, mockUserLoginUseCase)
+        val loginViewModel = LoginViewModel(loginRepository, mockUserLoginUseCase, mockNoGoogleModeUseCase)
         loginViewModel.authenticateAnonymousUser()
         testDispatcher.scheduler.advanceUntilIdle()
         val result = loginViewModel.loginState.getOrAwaitValue()
@@ -79,7 +83,7 @@ class LoginViewModelTest {
         Mockito.`when`(mockUserLoginUseCase.anonymousUser())
             .thenReturn(flowOf(Resource.Error(loginFailureMessage, null)))
 
-        val loginViewModel = LoginViewModel(loginRepository, mockUserLoginUseCase)
+        val loginViewModel = LoginViewModel(loginRepository, mockUserLoginUseCase, mockNoGoogleModeUseCase)
         loginViewModel.authenticateAnonymousUser()
         testDispatcher.scheduler.advanceUntilIdle()
         val result = loginViewModel.loginState.getOrAwaitValue()
@@ -93,7 +97,7 @@ class LoginViewModelTest {
         Mockito.`when`(mockUserLoginUseCase.anonymousUser())
             .thenReturn(flowOf(Resource.Loading(null)))
 
-        val loginViewModel = LoginViewModel(loginRepository, mockUserLoginUseCase)
+        val loginViewModel = LoginViewModel(loginRepository, mockUserLoginUseCase, mockNoGoogleModeUseCase)
         loginViewModel.authenticateAnonymousUser()
         testDispatcher.scheduler.advanceUntilIdle()
         val result = loginViewModel.loginState.getOrAwaitValue()
