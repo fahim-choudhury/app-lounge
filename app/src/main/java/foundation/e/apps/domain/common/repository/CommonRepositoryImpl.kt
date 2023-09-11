@@ -24,11 +24,10 @@ import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.utils.toAuthData
-import okhttp3.Cache
 import javax.inject.Inject
 
 class CommonRepositoryImpl @Inject constructor(
-    @ApplicationContext val applicationContext: Context,
+    @ApplicationContext val applicationContext: Context
 ) : CommonRepository {
 
     override fun currentUser(): User {
