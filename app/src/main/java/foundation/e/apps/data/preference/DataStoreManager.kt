@@ -33,7 +33,7 @@ class DataStoreManager @Inject constructor() {
 
     fun getAuthData(): AuthData {
         val authDataJson = dataStoreModule.getAuthDataSync()
-        return gson.fromJson(authDataJson, AuthData::class.java)
+        return gson.fromJson(authDataJson, AuthData::class.java) ?: AuthData("", "")
     }
 
     fun getUserType(): User {
