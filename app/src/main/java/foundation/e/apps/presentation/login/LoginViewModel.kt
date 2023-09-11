@@ -93,6 +93,8 @@ class LoginViewModel @Inject constructor(
      */
     fun initialGoogleLogin(email: String, oauthToken: String, onUserSaved: () -> Unit) {
         viewModelScope.launch {
+            loginSourceRepository.saveGoogleLogin(email, oauthToken)
+            loginSourceRepository.saveUserType(User.GOOGLE)
             val authObjectsLocal = loginSourceRepository.getAuthObjects(listOf())
             authObjects.postValue(authObjectsLocal)
 
