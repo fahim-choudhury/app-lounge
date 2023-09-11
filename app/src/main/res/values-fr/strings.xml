@@ -118,17 +118,12 @@
 \nMerci de réessayer maintenant ou plus tard.</string>
     <string name="data_load_error">Une erreur est survenue pendant le chargement de l\'application.</string>
     <string name="more_info"><u>Plus d\'informations</u></string>
-    <string name="open_settings">Ouvrir les Paramètres</string>
     <string name="timeout_desc_cleanapk">Des problèmes de connexion empêchent de récupérer toutes les applications.</string>
-    <string name="timeout_desc_gplay">Des problèmes de connexion empêchent de récupérer toutes les applications.
-\n
-\nOuvrez les paramètres pour n\'afficher que les applications Open Source et PWA.</string>
     <string name="timeout_title">Expiration du délai de récupération des applications !</string>
     <string name="tracker_information_not_found">Aucune information concernant les pisteurs pour cette application.</string>
     <string name="discover_pwa">PWA à découvrir</string>
     <string name="update_error">Erreur lors de la mise à jour !</string>
     <string name="error_signature_mismatch">La mise à jour ne peut être appliquée car la signature de la mise à jour de %1$s ne correspond pas à la signature de la version installée sur votre téléphone. Pour y remédier vous pouvez désinstaller %1$s puis la réinstaller depuis App Lounge. <br/><br/> Note : Ce message ne s\'affichera plus.</string>
-    <string name="gplay_data_for_oss">Il est impossible d\'afficher les applications Google Play quand seules les applications Open Source sont sélectionnées.</string>
     <string name="show_more">Afficher plus</string>
     <string name="something_went_wrong">Une erreur s\'est produite !</string>
     <string name="app_not_found">Application non trouvée.</string>

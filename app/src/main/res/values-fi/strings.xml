@@ -124,16 +124,11 @@
 \nYritä uudelleen tai kokeile myöhemmin.</string>
     <string name="data_load_error">Sovellusten lataamisessa tapahtui virhe.</string>
     <string name="more_info"><u>Lisätietoja</u></string>
-    <string name="open_settings">Avaa asetukset</string>
     <string name="timeout_desc_cleanapk">Jokin verkko-ongelma estää kaikkien sovellusten hakemisen.</string>
-    <string name="timeout_desc_gplay">Jokin verkko-ongelma estää kaikkien sovellusten hakemisen.
-\n
-\nAvaa asetukset ja etsi vain avoimen lähdekoodin sovelluksia tai PWA:ita.</string>
     <string name="timeout_title">Aikakatkaisu sovellusten hakemisessa!</string>
     <string name="discover_pwa">Tutustu PWA:n</string>
     <string name="update_error">Päivitysvirhe!</string>
     <string name="error_signature_mismatch">Päivitystä ei voida suorittaa koska allekirjoitus on ristiriidassa %1$s ja puhelimeesi asennetun version välillä. Voit korjata tämän poistamalla %1$s ja asentamalla se uudestaan App Loungesta. <br/><br/> Huomautus: Tämä viesti ei tule näkyviin uudelleen.</string>
-    <string name="gplay_data_for_oss">Google Play -sovelluksia ei voida näyttää, kun vain avoimen lähdekoodin sovellukset ovat valittuna.</string>
     <string name="show_more">Näytä lisää</string>
     <string name="something_went_wrong">Tapahtui virhe!</string>
     <string name="app_not_found">Sovellusta ei löytynyt.</string>

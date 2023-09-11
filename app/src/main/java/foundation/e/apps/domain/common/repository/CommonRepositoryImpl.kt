@@ -29,7 +29,6 @@ import javax.inject.Inject
 
 class CommonRepositoryImpl @Inject constructor(
     @ApplicationContext val applicationContext: Context,
-    val cache: Cache
 ) : CommonRepository {
 
     override fun currentUser(): User {
@@ -48,7 +47,6 @@ class CommonRepositoryImpl @Inject constructor(
             showPWAApplications = true
             // TODO: reset access token for Google login. It is not defined yet.
         }
-        cache.evictAll()
     }
 
     override fun cacheAuthData(): AuthData =

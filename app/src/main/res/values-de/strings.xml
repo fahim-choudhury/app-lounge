@@ -102,10 +102,6 @@
     <string name="tracker_information_not_found">Es ist keine Tracker-Information für diese App verfügbar.</string>
     <string name="unsupported_app_unreleased">Die %s App wird zurzeit nicht unterstützt. Ein Grund könnte sein, dass die App noch nicht sehr verbreitet, oder ein anderer Fehler aufgetreten ist.</string>
     <string name="unsupported_app_title">Diese App wird nicht unterstützt!</string>
-    <string name="open_settings">Einstellungen öffnen</string>
-    <string name="timeout_desc_gplay">Gewisse Netzwerkfehler verhindern das Holen der Apps.
-\n
-\nÖffne die Einstellungen und suche nur nach Quelloffenen Apps oder PWAs.</string>
     <string name="timeout_desc_cleanapk">Gewisse Netzwerkfehler verhindern das Holen der Apps.</string>
     <string name="timeout_title">Zeit abgelaufen beim Holen von Apps!</string>
     <string name="app_not_found">Deine App wurde nicht gefunden.</string>
@@ -134,7 +130,6 @@
 \nBitte versuche es später noch einmal.</string>
     <string name="data_load_error">Fehler beim Laden der Apps.</string>
     <string name="more_info"><u>Mehr Info</u></string>
-    <string name="gplay_data_for_oss">Google Play Apps können nicht angezeigt werden, wenn nur Open Source Apps anzeigen erlaubt sind.</string>
     <string name="close">Schließen</string>
     <string name="anonymous_login_failed_desc">Dies kann verursacht sein durch einen Fehler bei der Generierung oder Verifizierung des Tokens.
 \n

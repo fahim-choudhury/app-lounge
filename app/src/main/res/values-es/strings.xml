@@ -120,11 +120,7 @@
 \nVuelva a intentarlo o inténtelo más tarde.</string>
     <string name="data_load_error">Ha ocurrido un error al cargar aplicaciones.</string>
     <string name="more_info"><u>Más información</u></string>
-    <string name="open_settings">Abrir ajustes</string>
     <string name="timeout_desc_cleanapk">Un problema de red está impidiendo la obtención de aplicaciones.</string>
-    <string name="timeout_desc_gplay">Un problema de red está impidiendo la obtención de aplicaciones.
-\n
-\nAbra la configuración para buscar solo aplicaciones de código abierto o PWA.</string>
     <string name="timeout_title">¡Límite de tiempo buscando aplicaciones!</string>
     <string name="tracker_information_not_found">No hay información de rastreo disponible para esta aplicación.</string>
     <string name="message_last_update_triggered">Actualización de %1$s aplicaciones completada en %2$s.</string>
@@ -137,7 +133,6 @@
     <string name="duplicate_app_from_sources">Algunas aplicaciones propietarias pueden tener también una versión de código abierto. En ese caso, App Lounge sólo muestra la versión de código abierto, para evitar duplicados.</string>
     <string name="open_source_apps">Aplicaciones de código abierto</string>
     <string name="why_open_source_version">¿Por qué veo la versión de código abierto\?</string>
-    <string name="gplay_data_for_oss">Google Play no se puede mostrar cuando sólo se permiten aplicaciones de código abierto.</string>
     <string name="show_more">Mostrar más</string>
     <string name="something_went_wrong">¡Algo salió mal!</string>
     <string name="app_not_found">Su aplicación no fue encontrada.</string>

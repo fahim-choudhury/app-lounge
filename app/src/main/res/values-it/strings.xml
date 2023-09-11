@@ -108,11 +108,7 @@
     <string name="dialog_title_paid_app">Acquista <b>%1$s</b></string>
     <string name="sign_in_failed_desc">A causa di un errore di rete, App Lounge non è riuscita a ottenere i dati di accesso a Google.</string>
     <string name="sign_in_failed_title">Accesso a Google non riuscito!</string>
-    <string name="open_settings">Apri Impostazioni</string>
     <string name="timeout_desc_cleanapk">Un problema di rete impedisce il recupero di tutte le app.</string>
-    <string name="timeout_desc_gplay">Un problema di rete impedisce il recupero di tutte le app.
-\n
-\nAprire le impostazioni per selezionare solo app open source o le PWA.</string>
     <string name="timeout_title">Timeout nel recupero delle app!</string>
     <string name="tracker_information_not_found">Informazioni sui tracker di questa app non disponibili.</string>
     <string name="update_error">Errore nell\'aggiornamento!</string>
@@ -138,7 +134,6 @@
     <string name="data_load_error">Si è verificato un errore durante il caricamento delle App.</string>
     <string name="more_info"><u>Maggiori informazioni</u></string>
     <string name="discover_pwa">Scopri le PWA</string>
-    <string name="gplay_data_for_oss">Non posso avviare l\'App Google Play se sono permesse solo App open source.</string>
     <string name="close">Chiudi</string>
     <string name="monthly">Mensilmente</string>
     <string name="weekly">Settimanalmente</string>

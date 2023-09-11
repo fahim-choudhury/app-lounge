@@ -89,7 +89,6 @@
         <item quantity="many"><xliff:g id="version_code">%1$d</xliff:g> оновлень застосунків доступно</item>
         <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> оновлень застосунків доступно</item>
     </plurals>
-    <string name="gplay_data_for_oss">Неможливо відобразити застосунок Google Play коли дозволені тільки застосунки з відкритим кодом.</string>
     <string name="updated_on">Оновлено до: <xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="privacy_description">Рейтинг Приватності автоматично обчислюється з дозволів та трекерів, що були знайдені в застосунку.&lt;br /&gt;&lt;br /&gt; Його алгоритм обчислення можна &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;побачити тут&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Виявлення трекерів робиться за допомогою&lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt; Інструментів Exodus Privacy&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Рейтинг від 0 до 10.&lt;br /&gt;&lt;br /&gt;Дізнайтесь більше про те, як обчислюється Рейтинг Приватності, які в нього є обмеження та як він може допомогти Вам захистити себе від мікротаргетингу &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;на цій сторінці&lt;/a&gt;.</string>
     <string name="close">Закрити</string>
@@ -126,11 +125,7 @@
 \nБудь ласка, повторіть спробу, або спробуйте пізніше.</string>
     <string name="data_load_error">Виникла проблема при завантаженні застосунків.</string>
     <string name="more_info"><u>Більше інформації</u></string>
-    <string name="open_settings">Відкрити налаштування</string>
     <string name="timeout_desc_cleanapk">Деяка проблема мережі не дає отримувати всі застосунки.</string>
-    <string name="timeout_desc_gplay">Деяка проблема з мережою не дає отримувати всі застосунки.
-\n
-\nВідкрийте налаштування, щоб перевірити опції \"Тільки застосунки з відкритим кодом\" та \"Тільки прогресивні вебзастосунки\".</string>
     <string name="timeout_title">Час запиту на отримання застосунків вичерпано!</string>
     <string name="no_internet_message">Неможливо приєднатись до мережі! Будь ласка, перевірте налаштування Вашої мережі та спробуйте знову</string>
     <string name="no_tracker_found">Трекерів не було знайдено!</string>

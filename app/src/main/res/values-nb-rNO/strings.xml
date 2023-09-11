@@ -22,11 +22,7 @@
 \nPrøv igjen nå, eller prøv igjen senere.</string>
     <string name="data_load_error">Feil oppstod ved applikasjonslasting.</string>
     <string name="more_info"><u>Mer informasjon</u></string>
-    <string name="open_settings">Åpne innstillinger</string>
     <string name="timeout_desc_cleanapk">Nettverksproblem forhindrer henting av alle applikasjoner.</string>
-    <string name="timeout_desc_gplay">Nettverksproblem forhindrer henting av alle applikasjoner.
-\n
-\nÅpne instillinger for å kun se etter åpen kildekode-applikasjoner eller PWAer.</string>
     <string name="timeout_title">Tidsavbrudd ved henting av applikasjoner!</string>
     <string name="no_internet_message">Kan ikke koble til! Kontroller internettilgangen og prøv igjen</string>
     <string name="privacy_computed_using_text">Utregnet med &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus Privacy-analyse</string>
@@ -49,7 +45,6 @@
     <string name="update_all">Oppdater alle</string>
     <string name="open_source_apps">Åpen kildekode-applikasjoner</string>
     <string name="why_open_source_version">Hvorfor ser jeg åpen kildekode-versjonen\?</string>
-    <string name="gplay_data_for_oss">Kan ikke vise Google Play-applikasjoner når kun åpen kildekode-applikasjoner er tillatt.</string>
     <string name="show_more">Vis mer</string>
     <string name="app_not_found">Applikasjonen den ble ikke funnet.</string>
     <string name="not_enough_storage">Der er ikke nok tilgjengelig lagringsplass for å laste ned denne applikasjonen!</string>

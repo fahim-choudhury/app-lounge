@@ -16,7 +16,6 @@
     <string name="sign_in_failed_title">Google aanmelden mislukt!</string>
     <string name="data_load_error">Fout tijdens het laden van apps.</string>
     <string name="more_info"><u>Meer info</u></string>
-    <string name="open_settings">Open Instellingen</string>
     <string name="no_internet_message">Kan niet verbinden! Kijk alstublieft je internet verbinding na en probeer opnieuw</string>
     <string name="tracker_information_not_found">Geen tracker informatie beschikbaar voor deze app.</string>
     <string name="no_tracker_found">Geen trackers gevonden!</string>
@@ -40,7 +39,6 @@
         <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> app updates zijn beschikbaar</item>
     </plurals>
     <string name="update_all">Alles updaten</string>
-    <string name="gplay_data_for_oss">Kan geen Google Play app tonen wanneer enkel open source apps toegelaten zijn.</string>
     <string name="show_more">Toon meer</string>
     <string name="something_went_wrong">Er is iets fout gegaan!</string>
     <string name="app_not_found">Je applicatie is niet gevonden.</string>
@@ -129,9 +127,6 @@
 \n
 \nProbeer a.u.b. opnieuw op een later tijdstip.</string>
     <string name="timeout_desc_cleanapk">Een netwerk probleem verhindert het ophalen van de applicaties.</string>
-    <string name="timeout_desc_gplay">Een netwerk probleem verhindert het ophalen van de applicaties.
-\n
-\nOpen Instellingen om enkel voor Open source apps of PWA\'s te kijken.</string>
     <string name="timeout_title">Time-out bij het ophalen van applicaties!</string>
     <string name="no_permission_found">Geen \"runtime android\" machtiging gevonden!</string>
     <string name="movers_shakers_games">Top Populaire Games</string>
