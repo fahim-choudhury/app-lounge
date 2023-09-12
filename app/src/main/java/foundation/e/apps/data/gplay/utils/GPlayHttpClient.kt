@@ -61,7 +61,7 @@ class GPlayHttpClient @Inject constructor(
         const val STATUS_CODE_TIMEOUT = 408
     }
 
-    private val okHttpClient = OkHttpClient().newBuilder()
+    var okHttpClient = OkHttpClient().newBuilder()
         .retryOnConnectionFailure(false)
         .callTimeout(HTTP_TIMEOUT_IN_SECOND, TimeUnit.SECONDS)
         .followRedirects(true)
