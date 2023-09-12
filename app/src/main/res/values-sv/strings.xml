@@ -80,4 +80,43 @@
         <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> appuppdatering är tillgänglig</item>
         <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> appuppdateringar är tillgängliga</item>
     </plurals>
+    <string name="pwa" weblate_ctx="categories_applications">PWA</string>
+    <string name="sign_in_desc" weblate_ctx="welcome">Logga in i App Lounge med ditt Google-konto eller välj Anonymt läge för att logga in privat.</string>
+    <string name="or" weblate_ctx="welcome">Eller visa endast</string>
+    <string name="pwa_and_open_source_apps" weblate_ctx="welcome">PWA och appar med öppen källkod</string>
+    <string name="preference_update_interval_title" weblate_ctx="settings">Kontrollintervall för uppdateringar</string>
+    <string name="preference_update_apps_from_other_stores_title">Uppdatera appar installerade av andra affärer</string>
+    <string name="preference_update_apps_from_other_stores_description">Uppdatera appar installerade av andra affärer.
+\nDom apparna kommer försöka uppdateras från kategorierna vanliga appar och öppen källkod.</string>
+    <string name="show_only_pwa_apps">Visa PWA</string>
+    <string name="app_version_label">App Lounge version</string>
+    <string name="os_version">/e/OS version</string>
+    <string name="select_one_source_of_applications">Välj åtminstone en källa av applikationer.</string>
+    <string name="privacy_analyses">Integritetsanalys</string>
+    <string name="having_troubles">Har du problem\?</string>
+    <string name="discover_pwa">Upptäck PWA</string>
+    <string name="popular_apps_in_last_24_hours">Populäraste apparna de senaste 24 timmarna med öppen källkod</string>
+    <string name="popular_games_in_last_24_hours">Populäraste spelen de senaste 24 timmarna med öppen källkod</string>
+    <string name="popular_apps">Populära PWA-appar</string>
+    <string name="popular_games">Populära PWA-spel</string>
+    <string name="downloads">Hämtningar</string>
+    <string name="automatically_install_updates_notification_text">Appuppdateringar kommer installera automatiskt</string>
+    <string name="manually_install_updates_notification_text">Appuppdateringar kommer inte att installeras automatiskt</string>
+    <string name="more_info"><u>Mer info</u></string>
+    <string name="no_tracker_found">Ingen spårare hittades!</string>
+    <string name="tracker_information_not_found">Ingen information tillgänglig om spårare för denna app.</string>
+    <string name="no_internet_message">Kan inte ansluta! Kontrollera din internetanslutning och försök igen</string>
+    <string name="open_settings">Öppna inställningar</string>
+    <string name="too_many_requests_desc">Det anonyma kontot du använder är inte tillgängligt. Uppdatera sessionen för att få ett annat.</string>
+    <string name="refresh_session">UPPADATERA SESSIONEN</string>
+    <string name="data_load_error">Ett fel uppstod när appar lästes in.</string>
+    <string name="sign_in_failed_title">Inloggning med Google misslyckades</string>
+    <string name="dialog_title_paid_app">Köp <b>%1$s</b></string>
+    <string name="dialog_confirm">BEKRÄFTA</string>
+    <string name="unsupported_app_title">Appen stöds ej!</string>
+    <string name="install_anyway">Installera ändå</string>
+    <string name="daily">Varje dag</string>
+    <string name="weekly">Varje vecka</string>
+    <string name="monthly">Varje månad</string>
+    <string name="anonymous_login_failed">Anonym inloggning misslyckades.</string>
 </resources>
