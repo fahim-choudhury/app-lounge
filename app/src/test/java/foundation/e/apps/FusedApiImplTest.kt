@@ -682,7 +682,7 @@ class FusedApiImplTest {
 
         Mockito.`when`(
             gPlayAPIRepository.getCategories(CategoryType.APPLICATION)
-        ).thenThrow(RuntimeException())
+        ).thenThrow()
 
         val categoryListResponse =
             fusedAPIImpl.getCategoriesList(CategoryType.APPLICATION)
