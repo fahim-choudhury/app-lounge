@@ -16,10 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps
+package foundation.e.apps.gplay
 
 import com.aurora.gplayapi.data.models.PlayResponse
 import foundation.e.apps.data.gplay.utils.GPlayHttpClient
+import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.util.FakeCall
 import foundation.e.apps.util.MainCoroutineRule
 import foundation.e.apps.utils.SystemInfoProvider
@@ -69,49 +70,49 @@ class GplyHttpClientTest {
     }
 
     @Test
-    fun testPostMapFailWhenStatus401() = runTest {
+    fun testPostWithMapFailedWhenStatus401() = runTest {
         initMocks()
         val response = gPlayHttpClient.post("http://abc.abc", mapOf(), mapOf())
         assertResponse(response)
     }
 
     @Test
-    fun testPostRequestBodyFailWhenStatus401() = runTest {
+    fun testPostWithRequestBodyFailedWhenStatus401() = runTest {
         initMocks()
         val response = gPlayHttpClient.post("http://abc.abc", mapOf(), "".toRequestBody())
         assertResponse(response)
     }
 
     @Test
-    fun testPostByteArrayRequestBodyFailWhenStatus401() = runTest {
+    fun testPostWithByteArrayFailedWhenStatus401() = runTest {
         initMocks()
         val response = gPlayHttpClient.post("http://abc.abc", mapOf(), "".toByteArray())
         assertResponse(response)
     }
 
     @Test
-    fun testGetFailWhenStatus401() = runTest {
+    fun testGetWithoutParamsFailedWhenStatus401() = runTest {
         initMocks()
         val response = gPlayHttpClient.get(FakeCall.FAKE_URL, mapOf())
         assertResponse(response)
     }
 
     @Test
-    fun testGetParamStringFailWhenStatus401() = runTest {
+    fun testGetWithStringParamsFailedWhenStatus401() = runTest {
         initMocks()
         val response = gPlayHttpClient.get(FakeCall.FAKE_URL, mapOf(), "")
         assertResponse(response)
     }
 
     @Test
-    fun testGetMapFailWhenStatus401() = runTest {
+    fun testGetWithMapParamsFailedWhenStatus401() = runTest {
         initMocks()
         val response = gPlayHttpClient.get(FakeCall.FAKE_URL, mapOf(), mapOf())
         assertResponse(response)
     }
 
     @Test
-    fun testPostAuthFailWhenStatus401() = runTest {
+    fun testPostAuthFailedWhenStatus401() = runTest {
         initMocks()
         val response = gPlayHttpClient.postAuth("http://abc.abc", "".toByteArray())
         assertResponse(response)
@@ -126,7 +127,9 @@ class GplyHttpClientTest {
     private suspend fun assertResponse(response: PlayResponse) {
         assertFalse(response.isSuccessful)
         assertTrue(response.code == 401)
-        assertTrue(EventBus.events.first() is AppEvent.InvalidAuthEvent)
+        val event = EventBus.events.first()
+        assertTrue(event is AppEvent.InvalidAuthEvent)
+        assertTrue(event.data is String)
+        assertTrue(event.data == AuthObject.GPlayAuth::class.java.simpleName)
     }
-
 }

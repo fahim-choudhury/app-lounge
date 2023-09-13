@@ -15,7 +15,7 @@
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps
+package foundation.e.apps.fused
 
 import android.content.Context
 import android.text.format.Formatter
@@ -25,6 +25,8 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.SearchBundle
+import foundation.e.apps.FakePreferenceModule
+import foundation.e.apps.R
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.search.Search
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
