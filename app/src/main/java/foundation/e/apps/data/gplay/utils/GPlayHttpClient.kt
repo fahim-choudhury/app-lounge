@@ -19,6 +19,7 @@
 
 package foundation.e.apps.data.gplay.utils
 
+import androidx.annotation.VisibleForTesting
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.network.IHttpClient
 import foundation.e.apps.data.login.AuthObject
@@ -61,6 +62,7 @@ class GPlayHttpClient @Inject constructor(
         const val STATUS_CODE_TIMEOUT = 408
     }
 
+    @VisibleForTesting
     var okHttpClient = OkHttpClient().newBuilder()
         .retryOnConnectionFailure(false)
         .callTimeout(HTTP_TIMEOUT_IN_SECOND, TimeUnit.SECONDS)
