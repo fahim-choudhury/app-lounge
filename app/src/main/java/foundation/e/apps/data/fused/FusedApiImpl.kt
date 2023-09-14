@@ -574,6 +574,7 @@ class FusedApiImpl @Inject constructor(
         return Pair(fusedApp, result.getResultStatus())
     }
 
+    // Warning - GPlay results may not have proper geo-restriction information.
     override suspend fun getApplicationDetails(
         packageNameList: List<String>,
         authData: AuthData,
@@ -714,52 +715,43 @@ class FusedApiImpl @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5720
      */
     override suspend fun getAppFilterLevel(fusedApp: FusedApp, authData: AuthData?): FilterLevel {
-        if (fusedApp.package_name.isBlank()) {
-            return FilterLevel.UNKNOWN
+        return when {
+            fusedApp.package_name.isBlank() -> FilterLevel.UNKNOWN
+            !fusedApp.isFree && fusedApp.price.isBlank() -> FilterLevel.UI
+            fusedApp.origin == Origin.CLEANAPK -> FilterLevel.NONE
+            !isRestricted(fusedApp) -> FilterLevel.NONE
+            authData == null -> FilterLevel.UNKNOWN // cannot determine for gplay app
+            !isApplicationVisible(fusedApp) -> FilterLevel.DATA
+            fusedApp.originalSize == 0L -> FilterLevel.UI
+            !isDownloadable(fusedApp) -> FilterLevel.UI
+            else -> FilterLevel.NONE
         }
-        if (fusedApp.origin == Origin.CLEANAPK) {
-            /*
-             * Whitelist all open source apps.
-             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5785
-             */
-            return FilterLevel.NONE
-        }
-        if (authData == null) {
-            return if (fusedApp.origin == Origin.GPLAY) FilterLevel.UNKNOWN
-            else FilterLevel.NONE
-        }
+    }
 
-        if (!fusedApp.isFree && fusedApp.price.isBlank()) {
-            return FilterLevel.UI
-        }
+    /**
+     * Some apps are simply not visible.
+     * Example: com.skype.m2
+     */
+    private suspend fun isApplicationVisible(fusedApp: FusedApp): Boolean {
+        return kotlin.runCatching { gplayRepository.getAppDetails(fusedApp.package_name) }.isSuccess
+    }
 
-        if (fusedApp.restriction != Constants.Restriction.NOT_RESTRICTED) {
-            /*
-             * Check if app details can be shown. If not then remove the app from lists.
-             */
-            try {
-                gplayRepository.getAppDetails(fusedApp.package_name)
-            } catch (e: Exception) {
-                return FilterLevel.DATA
-            }
+    /**
+     * Some apps are visible but not downloadable.
+     * Example: com.riotgames.league.wildrift
+     */
+    private suspend fun isDownloadable(fusedApp: FusedApp): Boolean {
+        return kotlin.runCatching {
+            gplayRepository.getDownloadInfo(
+                fusedApp.package_name,
+                fusedApp.latest_version_code,
+                fusedApp.offer_type,
+            )
+        }.isSuccess
+    }
 
-            /*
-             * If the app can be shown, check if the app is downloadable.
-             * If not then change "Install" button to "N/A"
-             */
-            try {
-                gplayRepository.getDownloadInfo(
-                    fusedApp.package_name,
-                    fusedApp.latest_version_code,
-                    fusedApp.offer_type,
-                )
-            } catch (e: Exception) {
-                return FilterLevel.UI
-            }
-        } else if (fusedApp.originalSize == 0L) {
-            return FilterLevel.UI
-        }
-        return FilterLevel.NONE
+    private fun isRestricted(fusedApp: FusedApp): Boolean {
+        return fusedApp.restriction != Constants.Restriction.NOT_RESTRICTED
     }
 
     /*

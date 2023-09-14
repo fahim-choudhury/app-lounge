@@ -39,6 +39,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 class UpdatesManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -106,10 +109,9 @@ class UpdatesManagerImpl @Inject constructor(
         ) {
 
             val gplayStatus = getUpdatesFromApi({
-                fusedAPIRepository.getApplicationDetails(
+                getGPlayUpdates(
                     gPlayInstalledApps,
-                    authData,
-                    Origin.GPLAY
+                    authData
                 )
             }, updateList)
 
@@ -220,6 +222,37 @@ class UpdatesManagerImpl @Inject constructor(
         }
         updateAccumulationList.addAll(updatableApps)
         return apiResult.second
+    }
+
+    /**
+     * Bulk info from gplay api is not providing correct geo restriction status of apps.
+     * So we get all individual app information asynchronously.
+     * Example: in.startv.hotstar.dplus
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/7135
+     */
+    private suspend fun getGPlayUpdates(
+        packageNames: List<String>,
+        authData: AuthData
+    ): Pair<List<FusedApp>, ResultStatus> {
+
+        val appsResults = coroutineScope {
+            val deferredResults = packageNames.map { packageName ->
+                async {
+                    fusedAPIRepository.getApplicationDetails(
+                        "",
+                        packageName,
+                        authData,
+                        Origin.GPLAY
+                    )
+                }
+            }
+            deferredResults.awaitAll()
+        }
+
+        val status = appsResults.find { it.second != ResultStatus.OK }?.second ?: ResultStatus.OK
+        val appsList = appsResults.map { it.first }
+
+        return Pair(appsList, status)
     }
 
     /**
