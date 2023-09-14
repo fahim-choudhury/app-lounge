@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 E FOUNDATION <https://gitlab.e.foundation/e/apps/apps/-/wikis/home>
+#
+# SPDX-License-Identifier: CC0-1.0
+
 *.iml
 .gradle
 /local.properties
