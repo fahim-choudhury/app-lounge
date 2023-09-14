@@ -1,3 +1,10 @@
+stages:
+  - build
+  - test
+  - mycustomstage
+  - release
+  - publish
+
 include:
   - project: 'e/templates'
     ref: gitlab-ci-apps
