@@ -81,20 +81,21 @@ class UpdateManagerImptTest {
 
     val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
 
-    val applicationInfo = mutableListOf<ApplicationInfo>(
-        ApplicationInfo().apply { this.packageName = "foundation.e.demoone" },
-        ApplicationInfo().apply { this.packageName = "foundation.e.demotwo" },
-        ApplicationInfo().apply { this.packageName = "foundation.e.demothree" }
-    )
-
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
         faultyAppRepository = FaultyAppRepository(FakeFaultyAppDao())
         preferenceModule = FakePreferenceModule(context)
         pkgManagerModule = FakePkgManagerModule(context, getGplayApps())
-        updatesManagerImpl =
-            UpdatesManagerImpl(context, pkgManagerModule, fusedAPIRepository, faultyAppRepository, preferenceModule, fdroidRepository, blockedAppRepository)
+        updatesManagerImpl = UpdatesManagerImpl(
+            context,
+            pkgManagerModule,
+            fusedAPIRepository,
+            faultyAppRepository,
+            preferenceModule,
+            fdroidRepository,
+            blockedAppRepository
+        )
     }
 
     @Test
@@ -330,14 +331,31 @@ class UpdateManagerImptTest {
                 eq(Origin.CLEANAPK)
             )
         ).thenReturn(openSourceUpdates)
+
         Mockito.`when`(fusedAPIRepository.getApplicationCategoryPreference())
             .thenReturn(selectedApplicationSources)
-        Mockito.`when`(
-            fusedAPIRepository.getApplicationDetails(
-                any(),
-                any(),
-                eq(Origin.GPLAY)
+
+        if (gplayUpdates.first.isNotEmpty()) {
+            Mockito.`when`(
+                fusedAPIRepository.getApplicationDetails(
+                    any(),
+                    any(),
+                    any(),
+                    eq(Origin.GPLAY)
+                )
+            ).thenReturn(
+                Pair(gplayUpdates.first.first(), ResultStatus.OK),
+                Pair(gplayUpdates.first[1], ResultStatus.OK)
             )
-        ).thenReturn(gplayUpdates)
+        } else {
+            Mockito.`when`(
+                fusedAPIRepository.getApplicationDetails(
+                    any(),
+                    any(),
+                    any(),
+                    eq(Origin.GPLAY)
+                )
+            ).thenReturn(Pair(FusedApp(), ResultStatus.TIMEOUT))
+        }
     }
 }
