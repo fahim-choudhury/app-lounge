@@ -15,7 +15,7 @@
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps
+package foundation.e.apps.fused
 
 import android.content.Context
 import android.text.format.Formatter
@@ -25,6 +25,8 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.SearchBundle
+import foundation.e.apps.FakePreferenceModule
+import foundation.e.apps.R
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.search.Search
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
@@ -474,27 +476,26 @@ class FusedApiImplTest {
 
     @Test
     fun `getAppFilterLevel when app is CleanApk`() = runTest {
-        val fusedApp = FusedApp(
-            _id = "113",
-            name = "Demo Three",
-            package_name = "foundation.e.demothree",
-            latest_version_code = 123,
-            origin = Origin.CLEANAPK
-        )
+        val fusedApp = getFusedAppForFilterLevelTest()
 
         val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, AUTH_DATA)
         assertEquals("getAppFilterLevel", FilterLevel.NONE, filterLevel)
     }
 
+    private fun getFusedAppForFilterLevelTest(isFree: Boolean = true) = FusedApp(
+        _id = "113",
+        name = "Demo Three",
+        package_name = "foundation.e.demothree",
+        latest_version_code = 123,
+        origin = Origin.CLEANAPK,
+        originalSize = -1,
+        isFree = isFree,
+        price = ""
+    )
+
     @Test
     fun `getAppFilterLevel when Authdata is NULL`() = runTest {
-        val fusedApp = FusedApp(
-            _id = "113",
-            name = "Demo Three",
-            package_name = "foundation.e.demothree",
-            latest_version_code = 123,
-            origin = Origin.CLEANAPK
-        )
+        val fusedApp = getFusedAppForFilterLevelTest()
 
         val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, null)
         assertEquals("getAppFilterLevel", FilterLevel.NONE, filterLevel)
@@ -502,16 +503,10 @@ class FusedApiImplTest {
 
     @Test
     fun `getAppFilterLevel when app is restricted and paid and no price`() = runTest {
-        val fusedApp = FusedApp(
-            _id = "113",
-            name = "Demo Three",
-            package_name = "foundation.e.demothree",
-            latest_version_code = 123,
-            origin = Origin.GPLAY,
-            restriction = Constants.Restriction.UNKNOWN,
-            isFree = false,
-            price = ""
-        )
+        val fusedApp = getFusedAppForFilterLevelTest(false).apply {
+            this.origin = Origin.GPLAY
+            this.restriction = Constants.Restriction.UNKNOWN
+        }
 
         val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, AUTH_DATA)
         assertEquals("getAppFilterLevel", FilterLevel.UI, filterLevel)
@@ -519,16 +514,10 @@ class FusedApiImplTest {
 
     @Test
     fun `getAppFilterLevel when app is not_restricted and paid and no price`() = runTest {
-        val fusedApp = FusedApp(
-            _id = "113",
-            name = "Demo Three",
-            package_name = "foundation.e.demothree",
-            latest_version_code = 123,
-            origin = Origin.GPLAY,
-            restriction = Constants.Restriction.NOT_RESTRICTED,
-            isFree = false,
-            price = ""
-        )
+        val fusedApp = getFusedAppForFilterLevelTest(false).apply {
+            this.origin = Origin.GPLAY
+            this.restriction = Constants.Restriction.NOT_RESTRICTED
+        }
 
         val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, AUTH_DATA)
         assertEquals("getAppFilterLevel", FilterLevel.UI, filterLevel)
@@ -537,16 +526,10 @@ class FusedApiImplTest {
     @Test
     fun `getAppFilterLevel when app is restricted and getAppDetails and getDownloadDetails returns success`() =
         runTest {
-            val fusedApp = FusedApp(
-                _id = "113",
-                name = "Demo Three",
-                package_name = "foundation.e.demothree",
-                latest_version_code = 123,
-                origin = Origin.GPLAY,
-                restriction = Constants.Restriction.UNKNOWN,
-                isFree = true,
-                price = ""
-            )
+            val fusedApp = getFusedAppForFilterLevelTest().apply {
+                this.origin = Origin.GPLAY
+                this.restriction = Constants.Restriction.UNKNOWN
+            }
 
             Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name))
                 .thenReturn(App(fusedApp.package_name))
@@ -565,16 +548,10 @@ class FusedApiImplTest {
 
     @Test
     fun `getAppFilterLevel when app is restricted and getAppDetails throws exception`() = runTest {
-        val fusedApp = FusedApp(
-            _id = "113",
-            name = "Demo Three",
-            package_name = "foundation.e.demothree",
-            latest_version_code = 123,
-            origin = Origin.GPLAY,
-            restriction = Constants.Restriction.UNKNOWN,
-            isFree = true,
-            price = ""
-        )
+        val fusedApp = getFusedAppForFilterLevelTest().apply {
+            this.origin = Origin.GPLAY
+            this.restriction = Constants.Restriction.UNKNOWN
+        }
 
         Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name))
             .thenThrow(RuntimeException())
@@ -593,16 +570,10 @@ class FusedApiImplTest {
 
     @Test
     fun `getAppFilterLevel when app is restricted and getDownoadInfo throws exception`() = runTest {
-        val fusedApp = FusedApp(
-            _id = "113",
-            name = "Demo Three",
-            package_name = "foundation.e.demothree",
-            latest_version_code = 123,
-            origin = Origin.GPLAY,
-            restriction = Constants.Restriction.UNKNOWN,
-            isFree = true,
-            price = ""
-        )
+        val fusedApp = getFusedAppForFilterLevelTest().apply {
+            this.origin = Origin.GPLAY
+            this.restriction = Constants.Restriction.UNKNOWN
+        }
 
         Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name))
             .thenReturn(App(fusedApp.package_name))
@@ -687,7 +658,7 @@ class FusedApiImplTest {
 
         Mockito.`when`(
             gPlayAPIRepository.getCategories(CategoryType.APPLICATION)
-        ).thenThrow(RuntimeException())
+        ).thenThrow()
 
         val categoryListResponse =
             fusedAPIImpl.getCategoriesList(CategoryType.APPLICATION)

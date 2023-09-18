@@ -19,6 +19,7 @@
 package foundation.e.apps.ui.application.subFrags
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.text.Html
 import android.text.SpannableString
@@ -41,6 +42,8 @@ class ApplicationDialogFragment() : DialogFragment() {
     private var positiveButtonAction: (() -> Unit)? = null
     private var cancelButtonText: String? = null
     private var cancelButtonAction: (() -> Unit)? = null
+    private var cancellable: Boolean = true
+    private var onDismissListener: (() -> Unit)? = null
 
     constructor(
         drawable: Int = -1,
@@ -49,7 +52,9 @@ class ApplicationDialogFragment() : DialogFragment() {
         positiveButtonText: String = "",
         positiveButtonAction: (() -> Unit)? = null,
         cancelButtonText: String = "",
-        cancelButtonAction: (() -> Unit)? = null
+        cancelButtonAction: (() -> Unit)? = null,
+        cancellable: Boolean = true,
+        onDismissListener: (() -> Unit)? = null,
     ) : this() {
         this.drawable = drawable
         this.title = title
@@ -58,6 +63,8 @@ class ApplicationDialogFragment() : DialogFragment() {
         this.positiveButtonAction = positiveButtonAction
         this.cancelButtonText = cancelButtonText
         this.cancelButtonAction = cancelButtonAction
+        this.cancellable = cancellable
+        this.onDismissListener = onDismissListener
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -70,6 +77,7 @@ class ApplicationDialogFragment() : DialogFragment() {
                 positiveButtonAction?.invoke()
                 this.dismiss()
             }
+            .setCancelable(cancellable)
         if (cancelButtonText?.isNotEmpty() == true) {
             materialAlertDialogBuilder.setNegativeButton(cancelButtonText) { _, _ ->
                 cancelButtonAction?.invoke()
@@ -89,6 +97,11 @@ class ApplicationDialogFragment() : DialogFragment() {
             isClickable = true
             removeUnderlineFromLinks()
         }
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        onDismissListener?.invoke()
     }
 
     private fun TextView.removeUnderlineFromLinks() {

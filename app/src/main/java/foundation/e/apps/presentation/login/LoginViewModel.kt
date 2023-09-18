@@ -37,6 +37,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.Cache
 import javax.inject.Inject
 
 /**
@@ -47,7 +48,9 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val loginSourceRepository: LoginSourceRepository,
     private val userLoginUseCase: UserLoginUseCase,
-    private val noGoogleModeUseCase: NoGoogleModeUseCase
+    private val noGoogleModeUseCase: NoGoogleModeUseCase,
+    private val userLoginUseCase: UserLoginUseCase,
+    private val cache: Cache,
 ) : ViewModel() {
 
     /**
@@ -162,12 +165,18 @@ class LoginViewModel @Inject constructor(
         }
 
         authObjects.postValue(authObjectsLocal)
+        cache.evictAll()
     }
 
     /**
      * Clears all saved data and logs out the user to the sign in screen.
      */
     fun logout() {
+        viewModelScope.launch {
+            cache.evictAll()
+            loginSourceRepository.logout()
+            authObjects.postValue(listOf())
+        }
         userLoginUseCase.logoutUser()
         _loginState.value = LoginState()
     }

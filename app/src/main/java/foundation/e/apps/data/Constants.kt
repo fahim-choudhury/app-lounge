@@ -6,4 +6,7 @@ object Constants {
     const val PREFERENCE_SHOW_FOSS = "showFOSSApplications"
     const val PREFERENCE_SHOW_PWA = "showPWAApplications"
     const val PREFERENCE_SHOW_GPLAY = "showAllApplications"
+
+    const val ACTION_AUTHDATA_DUMP = "foundation.e.apps.action.DUMP_GACCOUNT_INFO"
+    const val TAG_AUTHDATA_DUMP = "AUTHDATA_DUMP"
 }

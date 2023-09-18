@@ -47,6 +47,16 @@ class PreferenceManagerModule @Inject constructor(
         }
     }
 
+    fun isOpenSourceSelected() = preferenceManager.getBoolean(PREFERENCE_SHOW_FOSS, true)
+    fun isPWASelected() = preferenceManager.getBoolean(PREFERENCE_SHOW_PWA, true)
+    fun isGplaySelected() = preferenceManager.getBoolean(PREFERENCE_SHOW_GPLAY, true)
+
+    fun disableGplay() = preferenceManager.edit().putBoolean(PREFERENCE_SHOW_GPLAY, false).apply()
+
+    fun autoUpdatePreferred(): Boolean {
+        return preferenceManager.getBoolean("updateInstallAuto", false)
+    }
+
     fun getUpdateInterval() = preferenceManager.getString(
         context.getString(R.string.update_check_intervals),
         context.getString(R.string.preference_update_interval_default)

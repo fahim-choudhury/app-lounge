@@ -292,7 +292,9 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun updateAppWarningList() {
-        blockedAppRepository.fetchUpdateOfAppWarningList()
+        viewModelScope.launch {
+            blockedAppRepository.fetchUpdateOfAppWarningList()
+        }
     }
 
     fun getAppNameByPackageName(packageName: String): String {

@@ -16,9 +16,12 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
+import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.login.LoginSourceRepository
+import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.data.updates.UpdatesManagerRepository
 import foundation.e.apps.domain.updates.usecase.UpdatesUseCase
 import foundation.e.apps.install.workmanager.AppInstallProcessor
@@ -34,6 +37,10 @@ class UpdatesWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted private val params: WorkerParameters,
     private val updatesManagerRepository: UpdatesManagerRepository,
+    private val dataStoreManager: DataStoreManager,
+    private val loginSourceRepository: LoginSourceRepository,
+    private val appInstallProcessor: AppInstallProcessor,
+    private val blockedAppRepository: BlockedAppRepository,
     private val appInstallProcessor: AppInstallProcessor,
     private val updatesUseCase: UpdatesUseCase
 ) : CoroutineWorker(context, params) {
@@ -44,7 +51,6 @@ class UpdatesWorker @AssistedInject constructor(
         private const val DELAY_FOR_RETRY = 3000L
     }
 
-    val TAG = UpdatesWorker::class.simpleName
     private var shouldShowNotification = true
     private var automaticInstallEnabled = true
     private var onlyOnUnmeteredNetwork = false
@@ -61,6 +67,7 @@ class UpdatesWorker @AssistedInject constructor(
                 return Result.success()
             }
 
+            refreshBlockedAppList()
             checkForUpdates()
             Result.success()
         } catch (e: Throwable) {
@@ -70,6 +77,12 @@ class UpdatesWorker @AssistedInject constructor(
             if (shouldShowNotification && automaticInstallEnabled) {
                 UpdatesNotifier.cancelNotification(context)
             }
+        }
+    }
+
+    private suspend fun refreshBlockedAppList() {
+        if (isAutoUpdate) {
+            blockedAppRepository.fetchUpdateOfAppWarningList()
         }
     }
 

@@ -15,7 +15,7 @@
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps
+package foundation.e.apps.fused
 
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.FusedApiImpl

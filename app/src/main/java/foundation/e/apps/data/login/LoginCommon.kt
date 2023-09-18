@@ -36,6 +36,10 @@ class LoginCommon @Inject constructor(
         loginDataStore.saveUserType(user)
     }
 
+    fun getUserType(): User {
+        return loginDataStore.getUserType()
+    }
+
     suspend fun saveGoogleLogin(email: String, oauth: String) {
         loginDataStore.saveGoogleLogin(email, oauth)
     }

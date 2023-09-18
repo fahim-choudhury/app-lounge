@@ -19,6 +19,7 @@
 
 package foundation.e.apps.data.gplay.utils
 
+import androidx.annotation.VisibleForTesting
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.network.IHttpClient
 import foundation.e.apps.data.login.AuthObject
@@ -40,12 +41,11 @@ import okhttp3.Response
 import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class GPlayHttpClient @Inject constructor(
-    cache: Cache
+    private val cache: Cache
 ) : IHttpClient {
 
     private val POST = "POST"
@@ -55,9 +55,15 @@ class GPlayHttpClient @Inject constructor(
         private const val TAG = "GPlayHttpClient"
         private const val HTTP_TIMEOUT_IN_SECOND = 10L
         private const val SEARCH = "search"
+        private const val SEARCH_SUGGEST = "searchSuggest"
+        private const val STATUS_CODE_OK = 200
+        private const val STATUS_CODE_UNAUTHORIZED = 401
+        private const val STATUS_CODE_TOO_MANY_REQUESTS = 429
+        const val STATUS_CODE_TIMEOUT = 408
     }
 
-    private val okHttpClient = OkHttpClient().newBuilder()
+    @VisibleForTesting
+    var okHttpClient = OkHttpClient().newBuilder()
         .retryOnConnectionFailure(false)
         .callTimeout(HTTP_TIMEOUT_IN_SECOND, TimeUnit.SECONDS)
         .followRedirects(true)
@@ -155,29 +161,18 @@ class GPlayHttpClient @Inject constructor(
     }
 
     private fun processRequest(request: Request): PlayResponse {
+        var response: Response? = null
         return try {
             val call = okHttpClient.newCall(request)
-            buildPlayResponse(call.execute())
+            response = call.execute()
+            buildPlayResponse(response)
+        } catch (e: GplayHttpRequestException) {
+            throw e
         } catch (e: Exception) {
-            // TODO: exception will be thrown for all apis when all gplay api implementation
-            // will handle the exceptions. this will be done in following issue.
-            // Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/1483
-            if (request.url.toString().contains(SEARCH)) {
-                throw e
-            }
-
-            when (e) {
-                is UnknownHostException,
-                is SocketTimeoutException -> handleExceptionOnGooglePlayRequest(e)
-                else -> handleExceptionOnGooglePlayRequest(e)
-            }
-        }
-    }
-
-    private fun handleExceptionOnGooglePlayRequest(e: Exception): PlayResponse {
-        Timber.e("processRequest: ${e.localizedMessage}")
-        return PlayResponse().apply {
-            errorString = "${this@GPlayHttpClient::class.java.simpleName}: ${e.localizedMessage}"
+            val status = if (e is SocketTimeoutException) STATUS_CODE_TIMEOUT else -1
+            throw GplayHttpRequestException(status, e.localizedMessage ?: "")
+        } finally {
+            response?.close()
         }
     }
 
@@ -195,18 +190,26 @@ class GPlayHttpClient @Inject constructor(
             code = response.code
             Timber.d("$TAG: Url: ${response.request.url}\nStatus: $code")
 
-            if (code == 401) {
-                MainScope().launch {
+            when (code) {
+                STATUS_CODE_UNAUTHORIZED -> MainScope().launch {
                     EventBus.invokeEvent(
                         AppEvent.InvalidAuthEvent(AuthObject.GPlayAuth::class.java.simpleName)
                     )
                 }
+
+                STATUS_CODE_TOO_MANY_REQUESTS -> MainScope().launch {
+                    cache.evictAll()
+                    if (response.request.url.toString().contains(SEARCH_SUGGEST)) {
+                        return@launch
+                    }
+
+                    EventBus.invokeEvent(
+                        AppEvent.TooManyRequests()
+                    )
+                }
             }
 
-            // TODO: exception will be thrown for all apis when all gplay api implementation
-            // will handle the exceptions. this will be done in following issue.
-            // Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/1483
-            if (response.request.url.toString().contains(SEARCH) && code != 200) {
+            if (code !in listOf(STATUS_CODE_OK, STATUS_CODE_UNAUTHORIZED)) {
                 throw GplayHttpRequestException(code, response.message)
             }
 

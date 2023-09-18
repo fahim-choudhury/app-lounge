@@ -73,6 +73,15 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        
+        <receiver android:name=".receivers.DumpAuthData"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="foundation.e.apps.action.DUMP_GACCOUNT_INFO"/>
+            </intent-filter>
+        </receiver>
 
         <!-- TODO: ExportedReceiver, suppressing because changes are needed in other apps -->
         <receiver android:name=".install.receiver.PWAPlayerStatusReceiver"

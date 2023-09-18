@@ -56,7 +56,7 @@ class FdroidRepository @Inject constructor(
 
     override suspend fun isFdroidApplicationSigned(context: Context, packageName: String, apkFilePath: String, signature: String): Boolean {
         if (isFdroidApplication(packageName)) {
-            return ApkSignatureManager.verifyFdroidSignature(context, apkFilePath, signature)
+            return ApkSignatureManager.verifyFdroidSignature(context, apkFilePath, signature, packageName)
         }
         return false
     }
