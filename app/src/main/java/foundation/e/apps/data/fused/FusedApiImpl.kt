@@ -22,7 +22,6 @@ import android.content.Context
 import android.text.format.Formatter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
-import androidx.lifecycle.map
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
@@ -63,8 +62,7 @@ import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.fused.utils.CategoryUtils
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.gplay.GplayStoreRepository
-import foundation.e.apps.data.gplay.utils.GplayHttpRequestException
-import foundation.e.apps.data.login.exceptions.GPlayException
+import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
@@ -73,11 +71,9 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeout
 import retrofit2.Response
 import timber.log.Timber
-import java.net.SocketTimeoutException
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -100,8 +96,6 @@ class FusedApiImpl @Inject constructor(
         private const val CATEGORY_TITLE_REPLACEABLE_CONJUNCTION = "&"
         private const val CATEGORY_OPEN_GAMES_ID = "game_open_games"
         private const val CATEGORY_OPEN_GAMES_TITLE = "Open games"
-        private const val ERROR_GPLAY_SEARCH = "Gplay search has failed!"
-        private const val ERROR_GPLAY_SOURCE_NOT_SELECTED = "Gplay apps are not selected!"
     }
 
     /**
@@ -167,29 +161,32 @@ class FusedApiImpl @Inject constructor(
         authData: AuthData,
     ): ResultSupreme<List<FusedHome>> {
 
-        val apiStatus = when (source) {
-            Source.GPLAY -> runCodeWithTimeout({
+        val result = when (source) {
+            Source.GPLAY -> handleNetworkResult<List<FusedHome>> {
                 priorList.addAll(fetchGPlayHome(authData))
-            })
+                priorList
+            }
 
-            Source.OPEN -> runCodeWithTimeout({
+            Source.OPEN -> handleNetworkResult {
                 val response =
                     (cleanApkAppsRepository.getHomeScreenData() as Response<HomeScreen>).body()
                 response?.home?.let {
                     priorList.addAll(generateCleanAPKHome(it, APP_TYPE_OPEN))
                 }
-            })
+                priorList
+            }
 
-            Source.PWA -> runCodeWithTimeout({
+            Source.PWA -> handleNetworkResult {
                 val response =
                     (cleanApkPWARepository.getHomeScreenData() as Response<HomeScreen>).body()
                 response?.home?.let {
                     priorList.addAll(generateCleanAPKHome(it, APP_TYPE_PWA))
                 }
-            })
+                priorList
+            }
         }
 
-        setHomeErrorMessage(apiStatus, source)
+        setHomeErrorMessage(result.getResultStatus(), source)
         priorList.sortByDescending {
             when (it.source) {
                 APP_TYPE_OPEN -> 2
@@ -197,7 +194,7 @@ class FusedApiImpl @Inject constructor(
                 else -> 3
             }
         }
-        return ResultSupreme.create(apiStatus, priorList)
+        return ResultSupreme.create(result.getResultStatus(), priorList)
     }
 
     private fun setHomeErrorMessage(apiStatus: ResultStatus, source: Source) {
@@ -280,7 +277,6 @@ class FusedApiImpl @Inject constructor(
                 packageSpecificResults
             )
         }
-
         return finalSearchResult
     }
 
@@ -290,7 +286,7 @@ class FusedApiImpl @Inject constructor(
         packageSpecificResults: ArrayList<FusedApp>
     ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
         val pwaApps: MutableList<FusedApp> = mutableListOf()
-        val status = runCodeWithTimeout({
+        val result = handleNetworkResult {
             val apps =
                 cleanApkPWARepository.getSearchResult(query).body()?.apps
             apps?.apply {
@@ -298,14 +294,14 @@ class FusedApiImpl @Inject constructor(
                     pwaApps.addAll(this)
                 }
             }
-        })
+        }
 
-        if (pwaApps.isNotEmpty() || status != ResultStatus.OK) {
+        if (pwaApps.isNotEmpty() || result.getResultStatus() != ResultStatus.OK) {
             searchResult.addAll(pwaApps)
         }
 
         return ResultSupreme.create(
-            status,
+            result.getResultStatus(),
             Pair(
                 filterWithKeywordSearch(
                     searchResult,
@@ -323,16 +319,17 @@ class FusedApiImpl @Inject constructor(
         searchResult: MutableList<FusedApp>,
         packageSpecificResults: ArrayList<FusedApp>
     ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
-        val status = runCodeWithTimeout({
+        val result = handleNetworkResult {
             cleanApkResults.addAll(getCleanAPKSearchResults(query))
-        })
+            cleanApkResults
+        }
 
         if (cleanApkResults.isNotEmpty()) {
             searchResult.addAll(cleanApkResults)
         }
 
         return ResultSupreme.create(
-            status,
+            result.getResultStatus(),
             Pair(
                 filterWithKeywordSearch(
                     searchResult,
@@ -352,7 +349,7 @@ class FusedApiImpl @Inject constructor(
         var gplayPackageResult: FusedApp? = null
         var cleanapkPackageResult: FusedApp? = null
 
-        val status = runCodeWithTimeout({
+        val result = handleNetworkResult {
             if (preferenceManagerModule.isGplaySelected()) {
                 gplayPackageResult = getGplayPackagResult(query, authData)
             }
@@ -360,7 +357,7 @@ class FusedApiImpl @Inject constructor(
             if (preferenceManagerModule.isOpenSourceSelected()) {
                 cleanapkPackageResult = getCleanApkPackageResult(query)
             }
-        })
+        }
 
         /*
          * Currently only show open source package result if exists in both fdroid and gplay.
@@ -379,10 +376,13 @@ class FusedApiImpl @Inject constructor(
          * If there was a timeout, return it and don't try to fetch anything else.
          * Also send true in the pair to signal more results being loaded.
          */
-        if (status != ResultStatus.OK) {
-            return ResultSupreme.create(status, Pair(packageSpecificResults, false))
+        if (result.getResultStatus() != ResultStatus.OK) {
+            return ResultSupreme.create(
+                result.getResultStatus(),
+                Pair(packageSpecificResults, false)
+            )
         }
-        return ResultSupreme.create(status, Pair(packageSpecificResults, true))
+        return ResultSupreme.create(result.getResultStatus(), Pair(packageSpecificResults, true))
     }
 
     /*
@@ -427,7 +427,7 @@ class FusedApiImpl @Inject constructor(
     ): FusedApp? {
         try {
             getApplicationDetails(query, query, authData, Origin.GPLAY).let {
-                if (it.second == ResultStatus.OK) {
+                if (it.second == ResultStatus.OK && it.first.package_name.isNotEmpty()) {
                     return it.first
                 }
             }
@@ -447,7 +447,7 @@ class FusedApiImpl @Inject constructor(
      */
     private suspend fun getCleanapkSearchResult(packageName: String): ResultSupreme<FusedApp> {
         var fusedApp = FusedApp()
-        val status = runCodeWithTimeout({
+        val result = handleNetworkResult {
             val result = cleanApkAppsRepository.getSearchResult(
                 packageName,
                 "package_name"
@@ -456,15 +456,15 @@ class FusedApiImpl @Inject constructor(
             if (result?.apps?.isNotEmpty() == true && result.numberOfResults == 1) {
                 fusedApp = result.apps[0]
             }
-        })
-        return ResultSupreme.create(status, fusedApp)
+        }
+        return ResultSupreme.create(result.getResultStatus(), fusedApp)
     }
 
     override suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
         var searchSuggesions = listOf<SearchSuggestEntry>()
-        runCodeWithTimeout({
+        handleNetworkResult {
             searchSuggesions = gplayRepository.getSearchSuggestions(query)
-        })
+        }
 
         return searchSuggesions
     }
@@ -524,7 +524,7 @@ class FusedApiImpl @Inject constructor(
 
     override suspend fun getPWAApps(category: String): ResultSupreme<Pair<List<FusedApp>, String>> {
         val list = mutableListOf<FusedApp>()
-        val status = runCodeWithTimeout({
+        val result = handleNetworkResult {
             val response = getPWAAppsResponse(category)
             response?.apps?.forEach {
                 it.updateStatus()
@@ -532,13 +532,13 @@ class FusedApiImpl @Inject constructor(
                 it.updateFilterLevel(null)
                 list.add(it)
             }
-        })
-        return ResultSupreme.create(status, Pair(list, ""))
+        }
+        return ResultSupreme.create(result.getResultStatus(), Pair(list, ""))
     }
 
     override suspend fun getOpenSourceApps(category: String): ResultSupreme<Pair<List<FusedApp>, String>> {
         val list = mutableListOf<FusedApp>()
-        val status = runCodeWithTimeout({
+        val result = handleNetworkResult {
             val response = getOpenSourceAppsResponse(category)
             response?.apps?.forEach {
                 it.updateStatus()
@@ -546,8 +546,8 @@ class FusedApiImpl @Inject constructor(
                 it.updateFilterLevel(null)
                 list.add(it)
             }
-        })
-        return ResultSupreme.create(status, Pair(list, ""))
+        }
+        return ResultSupreme.create(result.getResultStatus(), Pair(list, ""))
     }
 
     /*
@@ -558,7 +558,7 @@ class FusedApiImpl @Inject constructor(
      */
     override suspend fun getCleanapkAppDetails(packageName: String): Pair<FusedApp, ResultStatus> {
         var fusedApp = FusedApp()
-        val status = runCodeWithTimeout({
+        val result = handleNetworkResult {
             val result = cleanApkAppsRepository.getSearchResult(
                 packageName,
                 "package_name"
@@ -570,10 +570,11 @@ class FusedApiImpl @Inject constructor(
                         ?: FusedApp()
             }
             fusedApp.updateFilterLevel(null)
-        })
-        return Pair(fusedApp, status)
+        }
+        return Pair(fusedApp, result.getResultStatus())
     }
 
+    // Warning - GPlay results may not have proper geo-restriction information.
     override suspend fun getApplicationDetails(
         packageNameList: List<String>,
         authData: AuthData,
@@ -615,7 +616,7 @@ class FusedApiImpl @Inject constructor(
          * i.e. check timeout for individual package query.
          */
         for (packageName in packageNameList) {
-            status = runCodeWithTimeout({
+            val result = handleNetworkResult {
                 cleanApkAppsRepository.getSearchResult(
                     packageName,
                     "package_name"
@@ -628,7 +629,9 @@ class FusedApiImpl @Inject constructor(
                         )
                     }
                 }
-            })
+            }
+
+            status = result.getResultStatus()
 
             /*
              * If status is not ok, immediately return.
@@ -654,7 +657,7 @@ class FusedApiImpl @Inject constructor(
         /*
          * Old code moved from getApplicationDetails()
          */
-        val status = runCodeWithTimeout({
+        val result = handleNetworkResult {
             gplayRepository.getAppsDetails(packageNameList).forEach { app ->
                 /*
                  * Some apps are restricted to locations. Example "com.skype.m2".
@@ -671,9 +674,9 @@ class FusedApiImpl @Inject constructor(
                     )
                 }
             }
-        })
+        }
 
-        return Pair(fusedAppList, status)
+        return Pair(fusedAppList, result.getResultStatus())
     }
 
     /**
@@ -692,7 +695,7 @@ class FusedApiImpl @Inject constructor(
         appList: List<App>,
     ): ResultSupreme<List<FusedApp>> {
         val filteredFusedApps = mutableListOf<FusedApp>()
-        val status = runCodeWithTimeout({
+        return handleNetworkResult {
             appList.forEach {
                 val filter = getAppFilterLevel(it, authData)
                 if (filter.isUnFiltered()) {
@@ -703,9 +706,8 @@ class FusedApiImpl @Inject constructor(
                     )
                 }
             }
-        })
-
-        return ResultSupreme.create(status, filteredFusedApps)
+            filteredFusedApps
+        }
     }
 
     /**
@@ -713,52 +715,43 @@ class FusedApiImpl @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5720
      */
     override suspend fun getAppFilterLevel(fusedApp: FusedApp, authData: AuthData?): FilterLevel {
-        if (fusedApp.package_name.isBlank()) {
-            return FilterLevel.UNKNOWN
+        return when {
+            fusedApp.package_name.isBlank() -> FilterLevel.UNKNOWN
+            !fusedApp.isFree && fusedApp.price.isBlank() -> FilterLevel.UI
+            fusedApp.origin == Origin.CLEANAPK -> FilterLevel.NONE
+            !isRestricted(fusedApp) -> FilterLevel.NONE
+            authData == null -> FilterLevel.UNKNOWN // cannot determine for gplay app
+            !isApplicationVisible(fusedApp) -> FilterLevel.DATA
+            fusedApp.originalSize == 0L -> FilterLevel.UI
+            !isDownloadable(fusedApp) -> FilterLevel.UI
+            else -> FilterLevel.NONE
         }
-        if (fusedApp.origin == Origin.CLEANAPK) {
-            /*
-             * Whitelist all open source apps.
-             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5785
-             */
-            return FilterLevel.NONE
-        }
-        if (authData == null) {
-            return if (fusedApp.origin == Origin.GPLAY) FilterLevel.UNKNOWN
-            else FilterLevel.NONE
-        }
+    }
 
-        if (!fusedApp.isFree && fusedApp.price.isBlank()) {
-            return FilterLevel.UI
-        }
+    /**
+     * Some apps are simply not visible.
+     * Example: com.skype.m2
+     */
+    private suspend fun isApplicationVisible(fusedApp: FusedApp): Boolean {
+        return kotlin.runCatching { gplayRepository.getAppDetails(fusedApp.package_name) }.isSuccess
+    }
 
-        if (fusedApp.restriction != Constants.Restriction.NOT_RESTRICTED) {
-            /*
-             * Check if app details can be shown. If not then remove the app from lists.
-             */
-            try {
-                gplayRepository.getAppDetails(fusedApp.package_name)
-            } catch (e: Exception) {
-                return FilterLevel.DATA
-            }
+    /**
+     * Some apps are visible but not downloadable.
+     * Example: com.riotgames.league.wildrift
+     */
+    private suspend fun isDownloadable(fusedApp: FusedApp): Boolean {
+        return kotlin.runCatching {
+            gplayRepository.getDownloadInfo(
+                fusedApp.package_name,
+                fusedApp.latest_version_code,
+                fusedApp.offer_type,
+            )
+        }.isSuccess
+    }
 
-            /*
-             * If the app can be shown, check if the app is downloadable.
-             * If not then change "Install" button to "N/A"
-             */
-            try {
-                gplayRepository.getDownloadInfo(
-                    fusedApp.package_name,
-                    fusedApp.latest_version_code,
-                    fusedApp.offer_type,
-                )
-            } catch (e: Exception) {
-                return FilterLevel.UI
-            }
-        } else if (fusedApp.originalSize == 0L) {
-            return FilterLevel.UI
-        }
-        return FilterLevel.NONE
+    private fun isRestricted(fusedApp: FusedApp): Boolean {
+        return fusedApp.restriction != Constants.Restriction.NOT_RESTRICTED
     }
 
     /*
@@ -784,7 +777,7 @@ class FusedApiImpl @Inject constructor(
 
         var response: FusedApp? = null
 
-        val status = runCodeWithTimeout({
+        val result = handleNetworkResult {
             response = if (origin == Origin.CLEANAPK) {
                 (cleanApkAppsRepository.getAppDetails(id) as Response<Application>).body()?.app
             } else {
@@ -797,9 +790,10 @@ class FusedApiImpl @Inject constructor(
                 it.updateSource()
                 it.updateFilterLevel(authData)
             }
-        })
+            response
+        }
 
-        return Pair(response ?: FusedApp(), status)
+        return Pair(result.data ?: FusedApp(), result.getResultStatus())
     }
 
     /*
@@ -837,9 +831,9 @@ class FusedApiImpl @Inject constructor(
             val gplayCategoryResult = fetchGplayCategories(
                 type,
             )
-            categoriesList.addAll(gplayCategoryResult.second)
-            apiStatus = gplayCategoryResult.first
-            errorApplicationCategory = gplayCategoryResult.third
+            categoriesList.addAll(gplayCategoryResult.data ?: listOf())
+            apiStatus = gplayCategoryResult.getResultStatus()
+            errorApplicationCategory = APP_TYPE_ANY
         }
 
         return Pair(apiStatus, errorApplicationCategory)
@@ -847,34 +841,25 @@ class FusedApiImpl @Inject constructor(
 
     private suspend fun fetchGplayCategories(
         type: CategoryType,
-    ): Triple<ResultStatus, List<FusedCategory>, String> {
-        var errorApplicationCategory = ""
-        var apiStatus = ResultStatus.OK
+    ): ResultSupreme<List<FusedCategory>> {
         val categoryList = mutableListOf<FusedCategory>()
-        runCodeWithTimeout({
+
+        return handleNetworkResult {
             val playResponse = gplayRepository.getCategories(type).map { app ->
                 val category = app.transformToFusedCategory()
                 updateCategoryDrawable(category)
                 category
             }
             categoryList.addAll(playResponse)
-        }, {
-            errorApplicationCategory = APP_TYPE_ANY
-            apiStatus = ResultStatus.TIMEOUT
-        }, {
-            errorApplicationCategory = APP_TYPE_ANY
-            apiStatus = ResultStatus.UNKNOWN
-        })
-        return Triple(apiStatus, categoryList, errorApplicationCategory)
+            categoryList
+        }
     }
 
     private suspend fun fetchPWACategories(
         type: CategoryType,
     ): Triple<ResultStatus, List<FusedCategory>, String> {
-        var errorApplicationCategory = ""
-        var apiStatus: ResultStatus = ResultStatus.OK
         val fusedCategoriesList = mutableListOf<FusedCategory>()
-        runCodeWithTimeout({
+        val result = handleNetworkResult {
             getPWAsCategories()?.let {
                 fusedCategoriesList.addAll(
                     getFusedCategoryBasedOnCategoryType(
@@ -882,23 +867,16 @@ class FusedApiImpl @Inject constructor(
                     )
                 )
             }
-        }, {
-            errorApplicationCategory = APP_TYPE_PWA
-            apiStatus = ResultStatus.TIMEOUT
-        }, {
-            errorApplicationCategory = APP_TYPE_PWA
-            apiStatus = ResultStatus.UNKNOWN
-        })
-        return Triple(apiStatus, fusedCategoriesList, errorApplicationCategory)
+        }
+
+        return Triple(result.getResultStatus(), fusedCategoriesList, APP_TYPE_PWA)
     }
 
     private suspend fun fetchOpenSourceCategories(
         type: CategoryType,
     ): Triple<ResultStatus, List<FusedCategory>, String> {
-        var errorApplicationCategory = ""
-        var apiStatus: ResultStatus = ResultStatus.OK
         val fusedCategoryList = mutableListOf<FusedCategory>()
-        runCodeWithTimeout({
+        val result = handleNetworkResult {
             getOpenSourceCategories()?.let {
                 fusedCategoryList.addAll(
                     getFusedCategoryBasedOnCategoryType(
@@ -908,14 +886,9 @@ class FusedApiImpl @Inject constructor(
                     )
                 )
             }
-        }, {
-            errorApplicationCategory = APP_TYPE_OPEN
-            apiStatus = ResultStatus.TIMEOUT
-        }, {
-            errorApplicationCategory = APP_TYPE_OPEN
-            apiStatus = ResultStatus.UNKNOWN
-        })
-        return Triple(apiStatus, fusedCategoryList, errorApplicationCategory)
+        }
+
+        return Triple(result.getResultStatus(), fusedCategoryList, APP_TYPE_OPEN)
     }
 
     /**
@@ -957,9 +930,8 @@ class FusedApiImpl @Inject constructor(
     }
 
     private fun getCategoryIconName(category: FusedCategory): String {
-        var categoryTitle = if (category.tag.getOperationalTag()
-            .contentEquals(AppTag.GPlay().getOperationalTag())
-        ) category.id else category.title
+        var categoryTitle = if (category.tag.getOperationalTag().contentEquals(AppTag.GPlay().getOperationalTag()))
+            category.id else category.title
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
             categoryTitle = categoryTitle.replace(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION, "and")
@@ -1083,12 +1055,12 @@ class FusedApiImpl @Inject constructor(
         query: String,
         nextPageSubBundle: Set<SearchBundle.SubBundle>?
     ): GplaySearchResult {
-        try {
+        return handleNetworkResult {
             val searchResults =
                 gplayRepository.getSearchResult(query, nextPageSubBundle?.toMutableSet())
 
             if (!preferenceManagerModule.isGplaySelected()) {
-                return ResultSupreme.Error(ERROR_GPLAY_SOURCE_NOT_SELECTED)
+                return@handleNetworkResult Pair(listOf<FusedApp>(), setOf<SearchBundle.SubBundle>())
             }
 
             val fusedAppList =
@@ -1098,20 +1070,7 @@ class FusedApiImpl @Inject constructor(
                 fusedAppList.add(FusedApp(isPlaceHolder = true))
             }
 
-            return ResultSupreme.Success(Pair(fusedAppList.toList(), searchResults.second.toSet()))
-        } catch (e: GplayHttpRequestException) {
-            val message = (
-                e.localizedMessage?.ifBlank { ERROR_GPLAY_SEARCH }
-                    ?: ERROR_GPLAY_SEARCH
-                ) + "Status: ${e.status}"
-
-            val exception = GPlayException(e.status == 408, message)
-            return ResultSupreme.Error(message, exception)
-        } catch (e: Exception) {
-            val exception =
-                GPlayException(e is SocketTimeoutException, e.localizedMessage)
-
-            return ResultSupreme.Error(e.localizedMessage ?: "", exception)
+            return@handleNetworkResult Pair(fusedAppList.toList(), searchResults.second.toSet())
         }
     }
 
@@ -1417,7 +1376,7 @@ class FusedApiImpl @Inject constructor(
         var fusedAppList: MutableList<FusedApp> = mutableListOf()
         var nextPageUrl = ""
 
-        val status = runCodeWithTimeout({
+        return handleNetworkResult {
             val streamCluster =
                 gplayRepository.getAppsByCategory(category, pageUrl) as StreamCluster
 
@@ -1430,8 +1389,7 @@ class FusedApiImpl @Inject constructor(
             if (!nextPageUrl.isNullOrEmpty()) {
                 fusedAppList.add(FusedApp(isPlaceHolder = true))
             }
-        })
-
-        return ResultSupreme.create(status, Pair(fusedAppList, nextPageUrl))
+            Pair(fusedAppList, nextPageUrl)
+        }
     }
 }

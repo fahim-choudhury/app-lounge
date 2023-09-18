@@ -34,13 +34,14 @@ import java.io.InputStream
 import java.security.Security
 
 object ApkSignatureManager {
-    fun verifyFdroidSignature(context: Context, apkFilePath: String, signature: String): Boolean {
+    fun verifyFdroidSignature(context: Context, apkFilePath: String, signature: String, packageName: String): Boolean {
         Security.addProvider(BouncyCastleProvider())
         try {
             return verifyAPKSignature(
                 BufferedInputStream(FileInputStream(apkFilePath)),
                 signature.byteInputStream(Charsets.UTF_8),
-                context.assets.open("f-droid.org-signing-key.gpg")
+                context.assets.open("f-droid.org-signing-key.gpg"),
+                packageName
             )
         } catch (e: Exception) {
             Timber.e(e)
@@ -51,10 +52,11 @@ object ApkSignatureManager {
     private fun verifyAPKSignature(
         apkInputStream: BufferedInputStream,
         apkSignatureInputStream: InputStream,
-        publicKeyInputStream: InputStream
+        publicKeyInputStream: InputStream,
+        packageName: String
     ): Boolean {
         try {
-            val signature = extractSignature(apkSignatureInputStream)
+            val signature = extractSignature(apkSignatureInputStream) ?: return false
             val pgpPublicKeyRingCollection =
                 PGPPublicKeyRingCollection(
                     PGPUtil.getDecoderStream(publicKeyInputStream),
@@ -66,7 +68,7 @@ object ApkSignatureManager {
             updateSignature(apkInputStream, signature)
             return signature.verify()
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e, "Signature verification failed for: $packageName")
         } finally {
             apkInputStream.close()
             apkSignatureInputStream.close()
@@ -76,20 +78,21 @@ object ApkSignatureManager {
         return false
     }
 
-    private fun extractSignature(apkSignatureInputStream: InputStream): PGPSignature {
+    private fun extractSignature(apkSignatureInputStream: InputStream): PGPSignature? {
         var jcaPGPObjectFactory =
             JcaPGPObjectFactory(PGPUtil.getDecoderStream(apkSignatureInputStream))
         val pgpSignatureList: PGPSignatureList
 
-        val pgpObject = jcaPGPObjectFactory.nextObject()
+        val pgpObject = jcaPGPObjectFactory.nextObject() ?: return null
+
         if (pgpObject is PGPCompressedData) {
             jcaPGPObjectFactory = JcaPGPObjectFactory(pgpObject.dataStream)
             pgpSignatureList = jcaPGPObjectFactory.nextObject() as PGPSignatureList
         } else {
             pgpSignatureList = pgpObject as PGPSignatureList
         }
-        val signature = pgpSignatureList.get(0)
-        return signature
+
+        return pgpSignatureList.get(0)
     }
 
     private fun updateSignature(

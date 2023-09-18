@@ -40,7 +40,9 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.AuthObject
+import foundation.e.apps.data.login.LoginSourceGPlay
 import foundation.e.apps.data.login.exceptions.GPlayValidationException
+import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.databinding.ActivityMainBinding
 import foundation.e.apps.install.updates.UpdatesNotifier
 import foundation.e.apps.presentation.login.LoginViewModel
@@ -56,6 +58,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -64,6 +68,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val TAG = MainActivity::class.java.simpleName
     private lateinit var viewModel: MainActivityViewModel
+
+    @Inject
+    lateinit var preferenceManagerModule: PreferenceManagerModule
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,6 +137,8 @@ class MainActivity : AppCompatActivity() {
                         email,
                         SystemInfoProvider.getAppBuildInfo()
                     )
+                } else if (exception != null) {
+                    Timber.e(exception, "Login failed! message: ${exception?.localizedMessage}")
                 }
             }
         }
@@ -208,6 +217,10 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 launch {
+                    observeTooManyRequests()
+                }
+
+                launch {
                     observeSignatureMissMatchError()
                 }
 
@@ -277,9 +290,25 @@ class MainActivity : AppCompatActivity() {
         }.distinctUntilChanged { old, new ->
             ((old.data is String) && (new.data is String) && old.data == new.data)
         }.collectLatest {
-            val data = it.data as String
-            if (data.isNotBlank()) {
-                loginViewModel.markInvalidAuthObject(data)
+            validatedAuthObject(it)
+        }
+    }
+
+    private fun validatedAuthObject(appEvent: AppEvent) {
+        val data = appEvent.data as String
+        if (data.isNotBlank()) {
+            loginViewModel.markInvalidAuthObject(data)
+        }
+    }
+
+    private suspend fun observeTooManyRequests() {
+        EventBus.events.filter { appEvent ->
+            appEvent is AppEvent.TooManyRequests
+        }.collectLatest {
+            binding.sessionErrorLayout.visibility = View.VISIBLE
+            binding.retrySessionButton.setOnClickListener {
+                binding.sessionErrorLayout.visibility = View.GONE
+                loginViewModel.startLoginFlow(listOf(LoginSourceGPlay::class.java.simpleName))
             }
         }
     }

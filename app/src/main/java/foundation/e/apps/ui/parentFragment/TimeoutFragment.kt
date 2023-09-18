@@ -54,6 +54,10 @@ import timber.log.Timber
  */
 abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
 
+    companion object {
+        private const val STATUS_TOO_MANY_REQUESTS = "Status: 429"
+    }
+
     val loginViewModel: LoginViewModel by lazy {
         ViewModelProvider(requireActivity())[LoginViewModel::class.java]
     }
@@ -353,7 +357,6 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      * is shown to the user.
      */
     fun showDataLoadError(exception: Exception) {
-
         val dialogView = DialogErrorLogBinding.inflate(requireActivity().layoutInflater)
         dialogView.apply {
             moreInfo.setOnClickListener {
@@ -405,6 +408,10 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
             this as GPlayException
         }
         val unknownSourceException = exceptions.find { it is UnknownSourceException }
+
+        if (gPlayException?.message?.contains(STATUS_TOO_MANY_REQUESTS) == true) {
+            return
+        }
 
         /*
          * Take caution altering the cases.

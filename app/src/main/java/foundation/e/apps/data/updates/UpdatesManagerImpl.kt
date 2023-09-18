@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.cleanapk.ApkSignatureManager
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
@@ -38,6 +39,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 class UpdatesManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -46,6 +50,7 @@ class UpdatesManagerImpl @Inject constructor(
     private val faultyAppRepository: FaultyAppRepository,
     private val preferenceManagerModule: PreferenceManagerModule,
     private val fdroidRepository: FdroidRepository,
+    private val blockedAppRepository: BlockedAppRepository,
 ) {
 
     companion object {
@@ -79,6 +84,14 @@ class UpdatesManagerImpl @Inject constructor(
             }
         }
 
+        openSourceInstalledApps.removeIf {
+            blockedAppRepository.isBlockedApp(it)
+        }
+
+        gPlayInstalledApps.removeIf {
+            blockedAppRepository.isBlockedApp(it)
+        }
+
         // Get open source app updates
         if (openSourceInstalledApps.isNotEmpty()) {
             status = getUpdatesFromApi({
@@ -96,10 +109,9 @@ class UpdatesManagerImpl @Inject constructor(
         ) {
 
             val gplayStatus = getUpdatesFromApi({
-                fusedAPIRepository.getApplicationDetails(
+                getGPlayUpdates(
                     gPlayInstalledApps,
-                    authData,
-                    Origin.GPLAY
+                    authData
                 )
             }, updateList)
 
@@ -127,6 +139,10 @@ class UpdatesManagerImpl @Inject constructor(
                 findPackagesMatchingFDroidSignatures(otherStoresInstalledApps)
 
             openSourceInstalledApps.addAll(updatableFDroidApps)
+        }
+
+        openSourceInstalledApps.removeIf {
+            blockedAppRepository.isBlockedApp(it)
         }
 
         if (openSourceInstalledApps.isNotEmpty()) {
@@ -209,6 +225,37 @@ class UpdatesManagerImpl @Inject constructor(
     }
 
     /**
+     * Bulk info from gplay api is not providing correct geo restriction status of apps.
+     * So we get all individual app information asynchronously.
+     * Example: in.startv.hotstar.dplus
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/7135
+     */
+    private suspend fun getGPlayUpdates(
+        packageNames: List<String>,
+        authData: AuthData
+    ): Pair<List<FusedApp>, ResultStatus> {
+
+        val appsResults = coroutineScope {
+            val deferredResults = packageNames.map { packageName ->
+                async {
+                    fusedAPIRepository.getApplicationDetails(
+                        "",
+                        packageName,
+                        authData,
+                        Origin.GPLAY
+                    )
+                }
+            }
+            deferredResults.awaitAll()
+        }
+
+        val status = appsResults.find { it.second != ResultStatus.OK }?.second ?: ResultStatus.OK
+        val appsList = appsResults.map { it.first }
+
+        return Pair(appsList, status)
+    }
+
+    /**
      * Takes a list of package names and for the apps present on F-Droid,
      * returns key value pairs of package names and their signatures.
      *
@@ -269,7 +316,7 @@ class UpdatesManagerImpl @Inject constructor(
         val fDroidUpdatablePackageNames = fDroidAppsAndSignatures.filter {
             // For each installed app also present on F-droid, check signature of base APK.
             val baseApkPath = pkgManagerModule.getBaseApkPath(it.key)
-            ApkSignatureManager.verifyFdroidSignature(context, baseApkPath, it.value)
+            ApkSignatureManager.verifyFdroidSignature(context, baseApkPath, it.value, it.key)
         }.map { it.key }
 
         return fDroidUpdatablePackageNames

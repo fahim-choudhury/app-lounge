@@ -191,6 +191,10 @@
     <string name="open_settings">Open Settings</string>
     <string name="more_info"><u>More info</u></string>
 
+    <!--Too many request-->
+    <string name="too_many_requests_desc">The anonymous account you\'re currently using is unavailable. Please refresh the session to get another one.</string>
+    <string name="refresh_session">REFRESH SESSION</string>
+
     <!--Data load error-->
     <string name="data_load_error">Error occurred while loading apps.</string>
     <string name="data_load_error_desc">This can be because server is not responding or other server error.\n\nPlease retry to try again, or try later.</string>
