@@ -24,7 +24,9 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.LoginSourceRepository
-import foundation.e.apps.data.login.LoginViewModel
+import foundation.e.apps.domain.login.usecase.NoGoogleModeUseCase
+import foundation.e.apps.domain.login.usecase.UserLoginUseCase
+import foundation.e.apps.presentation.login.LoginViewModel
 import okhttp3.Cache
 import org.junit.Before
 import org.junit.Rule
@@ -36,6 +38,7 @@ class LoginViewModelTest {
 
     @Mock
     private lateinit var loginSourceRepository: LoginSourceRepository
+
     @Mock
     private lateinit var cache: Cache
 
@@ -45,17 +48,29 @@ class LoginViewModelTest {
     @get:Rule
     val instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
 
+    @Mock
+    lateinit var mockUserLoginUseCase: UserLoginUseCase
+
+    @Mock
+    lateinit var mockNoGoogleModeUseCase: NoGoogleModeUseCase
+
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        loginViewModel = LoginViewModel(loginSourceRepository, cache)
+        loginViewModel = LoginViewModel(
+            loginSourceRepository,
+            mockUserLoginUseCase,
+            mockNoGoogleModeUseCase,
+            cache
+        )
     }
 
     @Test
     fun testMarkInvalidAuthObject() {
         val authObjectList = mutableListOf<AuthObject>(
             AuthObject.GPlayAuth(
-                ResultSupreme.Success(AuthData("aa@aa.com", "feri4234")), User.GOOGLE
+                ResultSupreme.Success(AuthData("aa@aa.com", "feri4234")),
+                User.GOOGLE
             )
         )
         loginViewModel.authObjects.value = authObjectList

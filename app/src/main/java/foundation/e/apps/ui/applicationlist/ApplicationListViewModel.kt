@@ -46,7 +46,7 @@ class ApplicationListViewModel @Inject constructor(
     fun loadData(
         category: String,
         source: String,
-        authData: AuthData?,
+        authData: AuthData?
     ) {
         getList(category, authData ?: AuthData("", ""), source)
     }

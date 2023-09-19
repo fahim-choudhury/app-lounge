@@ -54,7 +54,7 @@ class ApplicationDialogFragment() : DialogFragment() {
         cancelButtonText: String = "",
         cancelButtonAction: (() -> Unit)? = null,
         cancellable: Boolean = true,
-        onDismissListener: (() -> Unit)? = null,
+        onDismissListener: (() -> Unit)? = null
     ) : this() {
         this.drawable = drawable
         this.title = title

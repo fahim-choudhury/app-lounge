@@ -119,9 +119,8 @@ class FusedApiImpl @Inject constructor(
     }
 
     override suspend fun getHomeScreenData(
-        authData: AuthData,
+        authData: AuthData
     ): LiveData<ResultSupreme<List<FusedHome>>> {
-
         val list = mutableListOf<FusedHome>()
         var resultGplay: FusedHomeDeferred? = null
         var resultOpenSource: FusedHomeDeferred? = null
@@ -129,7 +128,6 @@ class FusedApiImpl @Inject constructor(
 
         return liveData {
             coroutineScope {
-
                 if (preferenceManagerModule.isGplaySelected()) {
                     resultGplay = async { loadHomeData(list, Source.GPLAY, authData) }
                 }
@@ -158,9 +156,8 @@ class FusedApiImpl @Inject constructor(
     private suspend fun loadHomeData(
         priorList: MutableList<FusedHome>,
         source: Source,
-        authData: AuthData,
+        authData: AuthData
     ): ResultSupreme<List<FusedHome>> {
-
         val result = when (source) {
             Source.GPLAY -> handleNetworkResult<List<FusedHome>> {
                 priorList.addAll(fetchGPlayHome(authData))
@@ -219,7 +216,7 @@ class FusedApiImpl @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
     override suspend fun getCategoriesList(
-        type: CategoryType,
+        type: CategoryType
     ): Triple<List<FusedCategory>, String, ResultStatus> {
         val categoriesList = mutableListOf<FusedCategory>()
         val preferredApplicationType = preferenceManagerModule.preferredApplicationType()
@@ -411,7 +408,7 @@ class FusedApiImpl @Inject constructor(
     }
 
     private suspend fun getCleanApkPackageResult(
-        query: String,
+        query: String
     ): FusedApp? {
         getCleanapkSearchResult(query).let {
             if (it.isSuccess() && it.data!!.package_name.isNotBlank()) {
@@ -423,7 +420,7 @@ class FusedApiImpl @Inject constructor(
 
     private suspend fun getGplayPackagResult(
         query: String,
-        authData: AuthData,
+        authData: AuthData
     ): FusedApp? {
         try {
             getApplicationDetails(query, query, authData, Origin.GPLAY).let {
@@ -479,7 +476,7 @@ class FusedApiImpl @Inject constructor(
             packageName,
             moduleName,
             versionCode,
-            offerType,
+            offerType
         )
         for (element in list) {
             if (element.name == "$moduleName.apk") {
@@ -606,7 +603,7 @@ class FusedApiImpl @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
     private suspend fun getAppDetailsListFromCleanapk(
-        packageNameList: List<String>,
+        packageNameList: List<String>
     ): Pair<List<FusedApp>, ResultStatus> {
         var status = ResultStatus.OK
         val fusedAppList = mutableListOf<FusedApp>()
@@ -650,7 +647,7 @@ class FusedApiImpl @Inject constructor(
      */
     private suspend fun getAppDetailsListFromGPlay(
         packageNameList: List<String>,
-        authData: AuthData,
+        authData: AuthData
     ): Pair<List<FusedApp>, ResultStatus> {
         val fusedAppList = mutableListOf<FusedApp>()
 
@@ -692,7 +689,7 @@ class FusedApiImpl @Inject constructor(
      */
     override suspend fun filterRestrictedGPlayApps(
         authData: AuthData,
-        appList: List<App>,
+        appList: List<App>
     ): ResultSupreme<List<FusedApp>> {
         val filteredFusedApps = mutableListOf<FusedApp>()
         return handleNetworkResult {
@@ -745,7 +742,7 @@ class FusedApiImpl @Inject constructor(
             gplayRepository.getDownloadInfo(
                 fusedApp.package_name,
                 fusedApp.latest_version_code,
-                fusedApp.offer_type,
+                fusedApp.offer_type
             )
         }.isSuccess
     }
@@ -774,7 +771,6 @@ class FusedApiImpl @Inject constructor(
         authData: AuthData,
         origin: Origin
     ): Pair<FusedApp, ResultStatus> {
-
         var response: FusedApp? = null
 
         val result = handleNetworkResult {
@@ -808,7 +804,7 @@ class FusedApiImpl @Inject constructor(
      */
     private suspend fun handleAllSourcesCategories(
         categoriesList: MutableList<FusedCategory>,
-        type: CategoryType,
+        type: CategoryType
     ): Pair<ResultStatus, String> {
         var apiStatus = ResultStatus.OK
         var errorApplicationCategory = ""
@@ -829,7 +825,7 @@ class FusedApiImpl @Inject constructor(
 
         if (preferenceManagerModule.isGplaySelected()) {
             val gplayCategoryResult = fetchGplayCategories(
-                type,
+                type
             )
             categoriesList.addAll(gplayCategoryResult.data ?: listOf())
             apiStatus = gplayCategoryResult.getResultStatus()
@@ -840,7 +836,7 @@ class FusedApiImpl @Inject constructor(
     }
 
     private suspend fun fetchGplayCategories(
-        type: CategoryType,
+        type: CategoryType
     ): ResultSupreme<List<FusedCategory>> {
         val categoryList = mutableListOf<FusedCategory>()
 
@@ -856,14 +852,16 @@ class FusedApiImpl @Inject constructor(
     }
 
     private suspend fun fetchPWACategories(
-        type: CategoryType,
+        type: CategoryType
     ): Triple<ResultStatus, List<FusedCategory>, String> {
         val fusedCategoriesList = mutableListOf<FusedCategory>()
         val result = handleNetworkResult {
             getPWAsCategories()?.let {
                 fusedCategoriesList.addAll(
                     getFusedCategoryBasedOnCategoryType(
-                        it, type, AppTag.PWA(context.getString(R.string.pwa))
+                        it,
+                        type,
+                        AppTag.PWA(context.getString(R.string.pwa))
                     )
                 )
             }
@@ -873,7 +871,7 @@ class FusedApiImpl @Inject constructor(
     }
 
     private suspend fun fetchOpenSourceCategories(
-        type: CategoryType,
+        type: CategoryType
     ): Triple<ResultStatus, List<FusedCategory>, String> {
         val fusedCategoryList = mutableListOf<FusedCategory>()
         val result = handleNetworkResult {
@@ -903,7 +901,7 @@ class FusedApiImpl @Inject constructor(
     private suspend fun runCodeWithTimeout(
         block: suspend () -> Unit,
         timeoutBlock: (() -> Unit)? = null,
-        exceptionBlock: ((e: Exception) -> Unit)? = null,
+        exceptionBlock: ((e: Exception) -> Unit)? = null
     ): ResultStatus {
         return try {
             withTimeout(timeoutDurationInMillis) {
@@ -923,15 +921,18 @@ class FusedApiImpl @Inject constructor(
     }
 
     private fun updateCategoryDrawable(
-        category: FusedCategory,
+        category: FusedCategory
     ) {
         category.drawable =
             getCategoryIconResource(getCategoryIconName(category))
     }
 
     private fun getCategoryIconName(category: FusedCategory): String {
-        var categoryTitle = if (category.tag.getOperationalTag().contentEquals(AppTag.GPlay().getOperationalTag()))
-            category.id else category.title
+        var categoryTitle = if (category.tag.getOperationalTag().contentEquals(AppTag.GPlay().getOperationalTag())) {
+            category.id
+        } else {
+            category.title
+        }
 
         if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
             categoryTitle = categoryTitle.replace(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION, "and")
@@ -1009,13 +1010,13 @@ class FusedApiImpl @Inject constructor(
 
     private suspend fun getOpenSourceAppsResponse(category: String): Search? {
         return cleanApkAppsRepository.getAppsByCategory(
-            category,
+            category
         ).body()
     }
 
     private suspend fun getPWAAppsResponse(category: String): Search? {
         return cleanApkPWARepository.getAppsByCategory(
-            category,
+            category
         ).body()
     }
 
@@ -1025,7 +1026,7 @@ class FusedApiImpl @Inject constructor(
             id = id.lowercase(),
             title = this.title,
             browseUrl = this.browseUrl,
-            imageUrl = this.imageUrl,
+            imageUrl = this.imageUrl
         )
     }
 
@@ -1035,7 +1036,7 @@ class FusedApiImpl @Inject constructor(
 
     private suspend fun getCleanAPKSearchResults(
         keyword: String,
-        source: String = CleanApkRetrofit.APP_SOURCE_FOSS,
+        source: String = CleanApkRetrofit.APP_SOURCE_FOSS
     ): List<FusedApp> {
         val list = mutableListOf<FusedApp>()
         val response =
@@ -1237,7 +1238,9 @@ class FusedApiImpl @Inject constructor(
                 this.labeledRating.run {
                     if (isNotEmpty()) {
                         this.replace(",", ".").toDoubleOrNull() ?: -1.0
-                    } else -1.0
+                    } else {
+                        -1.0
+                    }
                 }
             ),
             offer_type = this.offerType,
@@ -1247,7 +1250,7 @@ class FusedApiImpl @Inject constructor(
             appSize = Formatter.formatFileSize(context, this.size),
             isFree = this.isFree,
             price = this.price,
-            restriction = this.restriction,
+            restriction = this.restriction
         )
         app.updateStatus()
         return app
@@ -1279,9 +1282,13 @@ class FusedApiImpl @Inject constructor(
 
     private fun FusedApp.updateSource() {
         this.apply {
-            source = if (origin == Origin.CLEANAPK && is_pwa) context.getString(R.string.pwa)
-            else if (origin == Origin.CLEANAPK) context.getString(R.string.open_source)
-            else ""
+            source = if (origin == Origin.CLEANAPK && is_pwa) {
+                context.getString(R.string.pwa)
+            } else if (origin == Origin.CLEANAPK) {
+                context.getString(R.string.open_source)
+            } else {
+                ""
+            }
         }
     }
 
@@ -1315,7 +1322,7 @@ class FusedApiImpl @Inject constructor(
 
     private fun areFusedAppsUpdated(
         oldFusedHome: FusedHome,
-        newFusedHome: FusedHome,
+        newFusedHome: FusedHome
     ): Boolean {
         val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
         if (oldFusedHome.list.size != newFusedHome.list.size) {

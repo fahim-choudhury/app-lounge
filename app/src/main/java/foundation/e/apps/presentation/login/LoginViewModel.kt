@@ -49,7 +49,7 @@ class LoginViewModel @Inject constructor(
     private val loginSourceRepository: LoginSourceRepository,
     private val userLoginUseCase: UserLoginUseCase,
     private val noGoogleModeUseCase: NoGoogleModeUseCase,
-    private val cache: Cache,
+    private val cache: Cache
 ) : ViewModel() {
 
     /**

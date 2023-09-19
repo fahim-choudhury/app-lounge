@@ -32,7 +32,7 @@ import kotlin.coroutines.resume
 class BlockedAppRepository @Inject constructor(
     private val downloadManager: DownloadManager,
     private val gson: Gson,
-    @Named("cacheDir") private val cacheDir: String,
+    @Named("cacheDir") private val cacheDir: String
 ) {
 
     companion object {

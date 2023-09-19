@@ -18,7 +18,6 @@
 package foundation.e.apps
 
 import android.content.Context
-import android.content.pm.ApplicationInfo
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.blockedApps.BlockedAppRepository

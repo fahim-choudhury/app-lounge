@@ -38,9 +38,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.LoginSourceGPlay
-import foundation.e.apps.data.login.exceptions.GPlayValidationException
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.databinding.ActivityMainBinding
 import foundation.e.apps.install.updates.UpdatesNotifier
@@ -56,7 +54,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
