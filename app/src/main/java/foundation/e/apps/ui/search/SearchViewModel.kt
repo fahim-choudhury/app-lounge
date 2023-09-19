@@ -24,13 +24,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.models.SearchBundle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.fused.FusedAPIRepository
+import foundation.e.apps.data.fused.GplaySearchResult
 import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.login.AuthObject
+import foundation.e.apps.data.login.exceptions.CleanApkException
+import foundation.e.apps.data.login.exceptions.GPlayException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
+import kotlin.coroutines.coroutineContext
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -40,12 +48,16 @@ class SearchViewModel @Inject constructor(
     val searchSuggest: MutableLiveData<List<SearchSuggestEntry>?> = MutableLiveData()
     val searchResult: MutableLiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
         MutableLiveData()
-    private var searchResultLiveData: MutableLiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
-        MutableLiveData()
 
     private var lastAuthObjects: List<AuthObject>? = null
 
     private var nextSubBundle: Set<SearchBundle.SubBundle>? = null
+
+    private var isLoading: Boolean = false
+
+    companion object {
+        private const val DATA_LOAD_ERROR = "Data load error"
+    }
 
     fun getSearchSuggestions(query: String, authData: AuthData?) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -99,7 +111,7 @@ class SearchViewModel @Inject constructor(
                         )
                     }
 
-                handleException(exception)
+//                handleException(exception)
             }
 
             nextSubBundle = null
@@ -123,7 +135,7 @@ class SearchViewModel @Inject constructor(
         val gplaySearchResult = fusedAPIRepository.getGplaySearchResults(query, nextSubBundle)
 
         if (!gplaySearchResult.isSuccess()) {
-            handleException(gplaySearchResult.exception ?: UnknownSourceException())
+//            handleException(gplaySearchResult.exception ?: UnknownSourceException())
         }
 
         val isFirstFetch = nextSubBundle == null
@@ -153,10 +165,10 @@ class SearchViewModel @Inject constructor(
         return currentAppList.distinctBy { it.package_name }
     }
 
-    private fun handleException(exception: Exception) {
-        exceptionsList.add(exception)
-        exceptionsLiveData.postValue(exceptionsList)
-    }
+//    private fun handleException(exception: Exception) {
+//        exceptionsList.add(exception)
+//        exceptionsLiveData.postValue(exceptionsList)
+//    }
 
     /**
      * @return returns true if there is changes in data, otherwise false

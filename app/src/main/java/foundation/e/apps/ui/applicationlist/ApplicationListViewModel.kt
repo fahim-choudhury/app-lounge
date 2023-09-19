@@ -43,38 +43,12 @@ class ApplicationListViewModel @Inject constructor(
 
     private var nextPageUrl: String? = null
 
-    private var currentAuthListObject: List<AuthObject>? = null
-
     fun loadData(
         category: String,
         source: String,
-        authData: AuthData?
+        authData: AuthData?,
     ) {
         getList(category, authData ?: AuthData("", ""), source)
-        super.onLoadData(authObjectList, { successAuthList, _ ->
-
-            // if token is refreshed, then reset all data
-            if (currentAuthListObject != null && currentAuthListObject != authObjectList) {
-                appListLiveData.postValue(ResultSupreme.Success(emptyList()))
-                nextPageUrl = null
-            }
-
-            if (appListLiveData.value?.data?.isNotEmpty() == true && currentAuthListObject == authObjectList) {
-                appListLiveData.postValue(appListLiveData.value)
-                return@onLoadData
-            }
-
-            this.currentAuthListObject = authObjectList
-            successAuthList.find { it is AuthObject.GPlayAuth }?.run {
-                getList(category, result.data!! as AuthData, source)
-                return@onLoadData
-            }
-
-            successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getList(category, AuthData("", ""), source)
-                return@onLoadData
-            }
-        }, retryBlock)
     }
 
     private fun getList(category: String, authData: AuthData, source: String) {

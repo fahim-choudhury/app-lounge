@@ -25,6 +25,7 @@ import foundation.e.apps.OpenForTesting
 import foundation.e.apps.R
 import foundation.e.apps.data.Constants.PREFERENCE_SHOW_FOSS
 import foundation.e.apps.data.Constants.PREFERENCE_SHOW_PWA
+import foundation.e.apps.data.Constants.PREFERENCE_SHOW_GPLAY
 import javax.inject.Inject
 import javax.inject.Singleton
 

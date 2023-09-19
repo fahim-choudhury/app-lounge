@@ -22,8 +22,6 @@ import android.content.Context
 import android.text.format.Formatter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
-import androidx.lifecycle.map
-import app.lounge.storage.cache.configurations
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
@@ -114,15 +112,16 @@ class FusedApiImpl @Inject constructor(
 
     override fun getApplicationCategoryPreference(): List<String> {
         val prefs = mutableListOf<String>()
-        if (context.configurations.showAllApplications) prefs.add(APP_TYPE_ANY)
-        if (context.configurations.showFOSSApplications) prefs.add(APP_TYPE_OPEN)
-        if (context.configurations.showPWAApplications) prefs.add(APP_TYPE_PWA)
+        if (preferenceManagerModule.isGplaySelected()) prefs.add(APP_TYPE_ANY)
+        if (preferenceManagerModule.isOpenSourceSelected()) prefs.add(APP_TYPE_OPEN)
+        if (preferenceManagerModule.isPWASelected()) prefs.add(APP_TYPE_PWA)
         return prefs
     }
 
     override suspend fun getHomeScreenData(
-        authData: AuthData
+        authData: AuthData,
     ): LiveData<ResultSupreme<List<FusedHome>>> {
+
         val list = mutableListOf<FusedHome>()
         var resultGplay: FusedHomeDeferred? = null
         var resultOpenSource: FusedHomeDeferred? = null
@@ -130,15 +129,16 @@ class FusedApiImpl @Inject constructor(
 
         return liveData {
             coroutineScope {
-                if (context.configurations.showAllApplications) {
+
+                if (preferenceManagerModule.isGplaySelected()) {
                     resultGplay = async { loadHomeData(list, Source.GPLAY, authData) }
                 }
 
-                if (context.configurations.showFOSSApplications) {
+                if (preferenceManagerModule.isOpenSourceSelected()) {
                     resultOpenSource = async { loadHomeData(list, Source.OPEN, authData) }
                 }
 
-                if (context.configurations.showPWAApplications) {
+                if (preferenceManagerModule.isPWASelected()) {
                     resultPWA = async { loadHomeData(list, Source.PWA, authData) }
                 }
 
@@ -158,10 +158,8 @@ class FusedApiImpl @Inject constructor(
     private suspend fun loadHomeData(
         priorList: MutableList<FusedHome>,
         source: Source,
-        authData: AuthData
+        authData: AuthData,
     ): ResultSupreme<List<FusedHome>> {
-        val apiStatus = when (source) {
-            Source.GPLAY -> runCodeWithTimeout({
 
         val result = when (source) {
             Source.GPLAY -> handleNetworkResult<List<FusedHome>> {
@@ -221,7 +219,7 @@ class FusedApiImpl @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
     override suspend fun getCategoriesList(
-        type: CategoryType
+        type: CategoryType,
     ): Triple<List<FusedCategory>, String, ResultStatus> {
         val categoriesList = mutableListOf<FusedCategory>()
         val preferredApplicationType = preferenceManagerModule.preferredApplicationType()
@@ -263,7 +261,7 @@ class FusedApiImpl @Inject constructor(
         val searchResult = mutableListOf<FusedApp>()
         val cleanApkResults = mutableListOf<FusedApp>()
 
-        if (context.configurations.showFOSSApplications) {
+        if (preferenceManagerModule.isOpenSourceSelected()) {
             finalSearchResult = fetchOpenSourceSearchResult(
                 cleanApkResults,
                 query,
@@ -272,7 +270,7 @@ class FusedApiImpl @Inject constructor(
             )
         }
 
-        if (context.configurations.showPWAApplications) {
+        if (preferenceManagerModule.isPWASelected()) {
             finalSearchResult = fetchPWASearchResult(
                 query,
                 searchResult,
@@ -310,7 +308,7 @@ class FusedApiImpl @Inject constructor(
                     packageSpecificResults,
                     query
                 ),
-                context.configurations.showAllApplications
+                preferenceManagerModule.isGplaySelected()
             )
         )
     }
@@ -338,7 +336,7 @@ class FusedApiImpl @Inject constructor(
                     packageSpecificResults,
                     query
                 ),
-                context.configurations.showAllApplications || context.configurations.showPWAApplications
+                preferenceManagerModule.isGplaySelected() || preferenceManagerModule.isPWASelected()
             )
         )
     }
@@ -351,14 +349,12 @@ class FusedApiImpl @Inject constructor(
         var gplayPackageResult: FusedApp? = null
         var cleanapkPackageResult: FusedApp? = null
 
-        val status = runCodeWithTimeout({
-            if (context.configurations.showAllApplications) {
         val result = handleNetworkResult {
             if (preferenceManagerModule.isGplaySelected()) {
                 gplayPackageResult = getGplayPackagResult(query, authData)
             }
 
-            if (context.configurations.showFOSSApplications) {
+            if (preferenceManagerModule.isOpenSourceSelected()) {
                 cleanapkPackageResult = getCleanApkPackageResult(query)
             }
         }
@@ -372,7 +368,7 @@ class FusedApiImpl @Inject constructor(
             gplayPackageResult?.let { packageSpecificResults.add(it) }
         }
 
-        if (context.configurations.showAllApplications) {
+        if (preferenceManagerModule.isGplaySelected()) {
             packageSpecificResults.add(FusedApp(isPlaceHolder = true))
         }
 
@@ -407,7 +403,7 @@ class FusedApiImpl @Inject constructor(
 
         val finalList = (packageSpecificResults + filteredResults).toMutableList()
         finalList.removeIf { it.isPlaceHolder }
-        if (context.configurations.showAllApplications) {
+        if (preferenceManagerModule.isGplaySelected()) {
             finalList.add(FusedApp(isPlaceHolder = true))
         }
 
@@ -415,7 +411,7 @@ class FusedApiImpl @Inject constructor(
     }
 
     private suspend fun getCleanApkPackageResult(
-        query: String
+        query: String,
     ): FusedApp? {
         getCleanapkSearchResult(query).let {
             if (it.isSuccess() && it.data!!.package_name.isNotBlank()) {
@@ -427,7 +423,7 @@ class FusedApiImpl @Inject constructor(
 
     private suspend fun getGplayPackagResult(
         query: String,
-        authData: AuthData
+        authData: AuthData,
     ): FusedApp? {
         try {
             getApplicationDetails(query, query, authData, Origin.GPLAY).let {
@@ -483,7 +479,7 @@ class FusedApiImpl @Inject constructor(
             packageName,
             moduleName,
             versionCode,
-            offerType
+            offerType,
         )
         for (element in list) {
             if (element.name == "$moduleName.apk") {
@@ -610,7 +606,7 @@ class FusedApiImpl @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
     private suspend fun getAppDetailsListFromCleanapk(
-        packageNameList: List<String>
+        packageNameList: List<String>,
     ): Pair<List<FusedApp>, ResultStatus> {
         var status = ResultStatus.OK
         val fusedAppList = mutableListOf<FusedApp>()
@@ -654,7 +650,7 @@ class FusedApiImpl @Inject constructor(
      */
     private suspend fun getAppDetailsListFromGPlay(
         packageNameList: List<String>,
-        authData: AuthData
+        authData: AuthData,
     ): Pair<List<FusedApp>, ResultStatus> {
         val fusedAppList = mutableListOf<FusedApp>()
 
@@ -696,7 +692,7 @@ class FusedApiImpl @Inject constructor(
      */
     override suspend fun filterRestrictedGPlayApps(
         authData: AuthData,
-        appList: List<App>
+        appList: List<App>,
     ): ResultSupreme<List<FusedApp>> {
         val filteredFusedApps = mutableListOf<FusedApp>()
         return handleNetworkResult {
@@ -719,22 +715,6 @@ class FusedApiImpl @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5720
      */
     override suspend fun getAppFilterLevel(fusedApp: FusedApp, authData: AuthData?): FilterLevel {
-        if (fusedApp.package_name.isBlank()) {
-            return FilterLevel.UNKNOWN
-        }
-        if (fusedApp.origin == Origin.CLEANAPK) {
-            /*
-             * Whitelist all open source apps.
-             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5785
-             */
-            return FilterLevel.NONE
-        }
-        if (authData == null) {
-            return if (fusedApp.origin == Origin.GPLAY) {
-                FilterLevel.UNKNOWN
-            } else {
-                FilterLevel.NONE
-            }
         return when {
             fusedApp.package_name.isBlank() -> FilterLevel.UNKNOWN
             !fusedApp.isFree && fusedApp.price.isBlank() -> FilterLevel.UI
@@ -794,6 +774,7 @@ class FusedApiImpl @Inject constructor(
         authData: AuthData,
         origin: Origin
     ): Pair<FusedApp, ResultStatus> {
+
         var response: FusedApp? = null
 
         val result = handleNetworkResult {
@@ -827,28 +808,28 @@ class FusedApiImpl @Inject constructor(
      */
     private suspend fun handleAllSourcesCategories(
         categoriesList: MutableList<FusedCategory>,
-        type: CategoryType
+        type: CategoryType,
     ): Pair<ResultStatus, String> {
         var apiStatus = ResultStatus.OK
         var errorApplicationCategory = ""
 
-        if (context.configurations.showFOSSApplications) {
+        if (preferenceManagerModule.isOpenSourceSelected()) {
             val openSourceCategoryResult = fetchOpenSourceCategories(type)
             categoriesList.addAll(openSourceCategoryResult.second)
             apiStatus = openSourceCategoryResult.first
             errorApplicationCategory = openSourceCategoryResult.third
         }
 
-        if (context.configurations.showPWAApplications) {
+        if (preferenceManagerModule.isPWASelected()) {
             val pwaCategoriesResult = fetchPWACategories(type)
             categoriesList.addAll(pwaCategoriesResult.second)
             apiStatus = pwaCategoriesResult.first
             errorApplicationCategory = pwaCategoriesResult.third
         }
 
-        if (context.configurations.showAllApplications) {
+        if (preferenceManagerModule.isGplaySelected()) {
             val gplayCategoryResult = fetchGplayCategories(
-                type
+                type,
             )
             categoriesList.addAll(gplayCategoryResult.data ?: listOf())
             apiStatus = gplayCategoryResult.getResultStatus()
@@ -875,16 +856,14 @@ class FusedApiImpl @Inject constructor(
     }
 
     private suspend fun fetchPWACategories(
-        type: CategoryType
+        type: CategoryType,
     ): Triple<ResultStatus, List<FusedCategory>, String> {
         val fusedCategoriesList = mutableListOf<FusedCategory>()
         val result = handleNetworkResult {
             getPWAsCategories()?.let {
                 fusedCategoriesList.addAll(
                     getFusedCategoryBasedOnCategoryType(
-                        it,
-                        type,
-                        AppTag.PWA(context.getString(R.string.pwa))
+                        it, type, AppTag.PWA(context.getString(R.string.pwa))
                     )
                 )
             }
@@ -894,7 +873,7 @@ class FusedApiImpl @Inject constructor(
     }
 
     private suspend fun fetchOpenSourceCategories(
-        type: CategoryType
+        type: CategoryType,
     ): Triple<ResultStatus, List<FusedCategory>, String> {
         val fusedCategoryList = mutableListOf<FusedCategory>()
         val result = handleNetworkResult {
@@ -924,7 +903,7 @@ class FusedApiImpl @Inject constructor(
     private suspend fun runCodeWithTimeout(
         block: suspend () -> Unit,
         timeoutBlock: (() -> Unit)? = null,
-        exceptionBlock: ((e: Exception) -> Unit)? = null
+        exceptionBlock: ((e: Exception) -> Unit)? = null,
     ): ResultStatus {
         return try {
             withTimeout(timeoutDurationInMillis) {
@@ -944,7 +923,7 @@ class FusedApiImpl @Inject constructor(
     }
 
     private fun updateCategoryDrawable(
-        category: FusedCategory
+        category: FusedCategory,
     ) {
         category.drawable =
             getCategoryIconResource(getCategoryIconName(category))
@@ -1030,13 +1009,13 @@ class FusedApiImpl @Inject constructor(
 
     private suspend fun getOpenSourceAppsResponse(category: String): Search? {
         return cleanApkAppsRepository.getAppsByCategory(
-            category
+            category,
         ).body()
     }
 
     private suspend fun getPWAAppsResponse(category: String): Search? {
         return cleanApkPWARepository.getAppsByCategory(
-            category
+            category,
         ).body()
     }
 
@@ -1046,7 +1025,7 @@ class FusedApiImpl @Inject constructor(
             id = id.lowercase(),
             title = this.title,
             browseUrl = this.browseUrl,
-            imageUrl = this.imageUrl
+            imageUrl = this.imageUrl,
         )
     }
 
@@ -1056,7 +1035,7 @@ class FusedApiImpl @Inject constructor(
 
     private suspend fun getCleanAPKSearchResults(
         keyword: String,
-        source: String = CleanApkRetrofit.APP_SOURCE_FOSS
+        source: String = CleanApkRetrofit.APP_SOURCE_FOSS,
     ): List<FusedApp> {
         val list = mutableListOf<FusedApp>()
         val response =
@@ -1080,7 +1059,7 @@ class FusedApiImpl @Inject constructor(
             val searchResults =
                 gplayRepository.getSearchResult(query, nextPageSubBundle?.toMutableSet())
 
-            if (!context.configurations.showAllApplications) {
+            if (!preferenceManagerModule.isGplaySelected()) {
                 return@handleNetworkResult Pair(listOf<FusedApp>(), setOf<SearchBundle.SubBundle>())
             }
 
@@ -1258,9 +1237,7 @@ class FusedApiImpl @Inject constructor(
                 this.labeledRating.run {
                     if (isNotEmpty()) {
                         this.replace(",", ".").toDoubleOrNull() ?: -1.0
-                    } else {
-                        -1.0
-                    }
+                    } else -1.0
                 }
             ),
             offer_type = this.offerType,
@@ -1270,7 +1247,7 @@ class FusedApiImpl @Inject constructor(
             appSize = Formatter.formatFileSize(context, this.size),
             isFree = this.isFree,
             price = this.price,
-            restriction = this.restriction
+            restriction = this.restriction,
         )
         app.updateStatus()
         return app
@@ -1302,13 +1279,9 @@ class FusedApiImpl @Inject constructor(
 
     private fun FusedApp.updateSource() {
         this.apply {
-            source = if (origin == Origin.CLEANAPK && is_pwa) {
-                context.getString(R.string.pwa)
-            } else if (origin == Origin.CLEANAPK) {
-                context.getString(R.string.open_source)
-            } else {
-                ""
-            }
+            source = if (origin == Origin.CLEANAPK && is_pwa) context.getString(R.string.pwa)
+            else if (origin == Origin.CLEANAPK) context.getString(R.string.open_source)
+            else ""
         }
     }
 
@@ -1342,7 +1315,7 @@ class FusedApiImpl @Inject constructor(
 
     private fun areFusedAppsUpdated(
         oldFusedHome: FusedHome,
-        newFusedHome: FusedHome
+        newFusedHome: FusedHome,
     ): Boolean {
         val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
         if (oldFusedHome.list.size != newFusedHome.list.size) {
@@ -1394,7 +1367,7 @@ class FusedApiImpl @Inject constructor(
         return false
     }
 
-    override fun isOpenSourceSelected() = context.configurations.showFOSSApplications
+    override fun isOpenSourceSelected() = preferenceManagerModule.isOpenSourceSelected()
     override suspend fun getGplayAppsByCategory(
         authData: AuthData,
         category: String,

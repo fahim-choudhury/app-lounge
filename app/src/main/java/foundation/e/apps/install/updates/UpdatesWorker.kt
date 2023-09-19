@@ -39,7 +39,6 @@ class UpdatesWorker @AssistedInject constructor(
     private val updatesManagerRepository: UpdatesManagerRepository,
     private val dataStoreManager: DataStoreManager,
     private val loginSourceRepository: LoginSourceRepository,
-    private val appInstallProcessor: AppInstallProcessor,
     private val blockedAppRepository: BlockedAppRepository,
     private val appInstallProcessor: AppInstallProcessor,
     private val updatesUseCase: UpdatesUseCase
