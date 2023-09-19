@@ -56,7 +56,6 @@
     <string name="app_not_found">Din app hittades inte.</string>
     <string name="something_went_wrong">Något gick fel!</string>
     <string name="show_more">Visa mer</string>
-    <string name="gplay_data_for_oss">Kan inte visa Google Play-appar när endast appar med öppen källkod tillåts.</string>
     <string name="why_open_source_version">Varför visas versionen med öppen källkod\?</string>
     <string name="open_source_apps">Appar med öppen källkod</string>
     <string name="downloading">Hämtar …</string>
@@ -106,7 +105,6 @@
     <string name="no_tracker_found">Ingen spårare hittades!</string>
     <string name="tracker_information_not_found">Ingen information tillgänglig om spårare för denna app.</string>
     <string name="no_internet_message">Kan inte ansluta! Kontrollera din internetanslutning och försök igen</string>
-    <string name="open_settings">Öppna inställningar</string>
     <string name="too_many_requests_desc">Det anonyma kontot du använder är inte tillgängligt. Uppdatera sessionen för att få ett annat.</string>
     <string name="refresh_session">UPPADATERA SESSIONEN</string>
     <string name="data_load_error">Ett fel uppstod när appar lästes in.</string>
