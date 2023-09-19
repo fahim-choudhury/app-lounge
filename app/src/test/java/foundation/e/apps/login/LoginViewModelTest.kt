@@ -27,7 +27,6 @@ import foundation.e.apps.data.login.LoginSourceRepository
 import foundation.e.apps.domain.login.usecase.NoGoogleModeUseCase
 import foundation.e.apps.domain.login.usecase.UserLoginUseCase
 import foundation.e.apps.presentation.login.LoginViewModel
-import okhttp3.Cache
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -38,9 +37,6 @@ class LoginViewModelTest {
 
     @Mock
     private lateinit var loginSourceRepository: LoginSourceRepository
-
-    @Mock
-    private lateinit var cache: Cache
 
     private lateinit var loginViewModel: LoginViewModel
 
@@ -60,8 +56,7 @@ class LoginViewModelTest {
         loginViewModel = LoginViewModel(
             loginSourceRepository,
             mockUserLoginUseCase,
-            mockNoGoogleModeUseCase,
-            cache
+            mockNoGoogleModeUseCase
         )
     }
 

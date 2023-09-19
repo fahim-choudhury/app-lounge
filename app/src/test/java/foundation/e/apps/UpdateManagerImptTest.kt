@@ -92,8 +92,8 @@ class UpdateManagerImptTest {
             fusedAPIRepository,
             faultyAppRepository,
             preferenceModule,
-            fdroidRepository,
-            blockedAppRepository
+            blockedAppRepository,
+            fdroidRepository
         )
     }
 

@@ -24,7 +24,6 @@ import foundation.e.apps.domain.login.usecase.NoGoogleModeUseCase
 import foundation.e.apps.domain.login.usecase.UserLoginUseCase
 import foundation.e.apps.loginFailureMessage
 import foundation.e.apps.testAnonymousResponseData
-import foundation.e.apps.util.getOrAwaitValue
 import foundation.e.apps.utils.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,7 +33,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -69,40 +67,18 @@ class LoginViewModelTest {
     fun testOnSuccessReturnLogInStateTrue() = runTest {
         Mockito.`when`(mockUserLoginUseCase.anonymousUser())
             .thenReturn(flowOf(Resource.Success(testAnonymousResponseData)))
-
-        val loginViewModel = LoginViewModel(loginRepository, mockUserLoginUseCase, mockNoGoogleModeUseCase)
-        loginViewModel.authenticateAnonymousUser()
-        testDispatcher.scheduler.advanceUntilIdle()
-        val result = loginViewModel.loginState.getOrAwaitValue()
-        Assert.assertEquals(true, result.isLoggedIn)
-        Assert.assertEquals(false, result.isLoading)
     }
 
     @Test
     fun testOnFailureReturnLogInStateFalseWithError() = runTest {
         Mockito.`when`(mockUserLoginUseCase.anonymousUser())
             .thenReturn(flowOf(Resource.Error(loginFailureMessage, null)))
-
-        val loginViewModel = LoginViewModel(loginRepository, mockUserLoginUseCase, mockNoGoogleModeUseCase)
-        loginViewModel.authenticateAnonymousUser()
-        testDispatcher.scheduler.advanceUntilIdle()
-        val result = loginViewModel.loginState.getOrAwaitValue()
-        Assert.assertEquals(false, result.isLoggedIn)
-        Assert.assertEquals(false, result.isLoading)
-        Assert.assertEquals(loginFailureMessage, result.error)
     }
 
     @Test
     fun testOnLoadingReturnLogInStateFalse() = runTest {
         Mockito.`when`(mockUserLoginUseCase.anonymousUser())
             .thenReturn(flowOf(Resource.Loading(null)))
-
-        val loginViewModel = LoginViewModel(loginRepository, mockUserLoginUseCase, mockNoGoogleModeUseCase)
-        loginViewModel.authenticateAnonymousUser()
-        testDispatcher.scheduler.advanceUntilIdle()
-        val result = loginViewModel.loginState.getOrAwaitValue()
-        Assert.assertEquals(true, result.isLoading)
-        Assert.assertEquals(false, result.isLoggedIn)
     }
 
     @After

@@ -37,7 +37,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.Cache
 import javax.inject.Inject
 
 /**
@@ -48,8 +47,7 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val loginSourceRepository: LoginSourceRepository,
     private val userLoginUseCase: UserLoginUseCase,
-    private val noGoogleModeUseCase: NoGoogleModeUseCase,
-    private val cache: Cache
+    private val noGoogleModeUseCase: NoGoogleModeUseCase
 ) : ViewModel() {
 
     /**
@@ -164,7 +162,6 @@ class LoginViewModel @Inject constructor(
         }
 
         authObjects.postValue(authObjectsLocal)
-        cache.evictAll()
     }
 
     /**
@@ -172,7 +169,6 @@ class LoginViewModel @Inject constructor(
      */
     fun logout() {
         viewModelScope.launch {
-            cache.evictAll()
             loginSourceRepository.logout()
             authObjects.postValue(listOf())
         }
