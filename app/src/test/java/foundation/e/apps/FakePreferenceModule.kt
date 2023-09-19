@@ -26,6 +26,18 @@ class FakePreferenceModule(context: Context) : PreferenceManagerModule(context) 
     var isGplaySelectedFake = false
     var shouldUpdateFromOtherStores = true
 
+    override fun isPWASelected(): Boolean {
+        return isPWASelectedFake
+    }
+
+    override fun isOpenSourceSelected(): Boolean {
+        return isOpenSourceelectedFake
+    }
+
+    override fun isGplaySelected(): Boolean {
+        return isGplaySelectedFake
+    }
+
     override fun preferredApplicationType(): String {
         return when {
             isOpenSourceelectedFake -> "open"

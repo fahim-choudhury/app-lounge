@@ -20,7 +20,7 @@ package foundation.e.apps.installProcessor
 
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import app.lounge.storage.cache.configurations
+import app.lounge.storage.cache.PersistentConfiguration
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.fused.FusedAPIRepository
@@ -70,6 +70,9 @@ class AppInstallProcessorTest {
     @Mock
     private lateinit var fusedAPIRepository: FusedAPIRepository
 
+    @Mock
+    private lateinit var persistentConfiguration: PersistentConfiguration
+
     private lateinit var appInstallProcessor: AppInstallProcessor
 
     @Before
@@ -103,7 +106,7 @@ class AppInstallProcessorTest {
     ): FusedDownload {
         val fusedDownload = createFusedDownload(packageName, downloadUrlList)
         fakeFusedDownloadDAO.addDownload(fusedDownload)
-        Mockito.`when`(context.configurations.authData).thenReturn("{{aasToken:\"\",email:\"\"}")
+        Mockito.`when`(persistentConfiguration.authData).thenReturn("{{aasToken:\"\",email:\"\"}")
         return fusedDownload
     }
 
