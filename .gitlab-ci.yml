@@ -130,6 +130,9 @@ lintRelease:
 
 ktlintRelease:
   extends: .lintReleaseDefault
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
   script:
     - ./gradlew app:ktlintCheck --info
   artifacts:
