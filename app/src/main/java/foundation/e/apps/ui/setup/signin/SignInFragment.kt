@@ -55,7 +55,7 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
                             R.id.signInFragment,
                             R.id.action_signInFragment_to_homeFragment
                         )
-                } ?: run { Timber.e("Auth Data is null") }
+                } ?: run { Timber.d("Auth Data is null") }
             }
         }
     }

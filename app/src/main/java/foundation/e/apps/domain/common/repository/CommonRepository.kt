@@ -20,6 +20,7 @@ package foundation.e.apps.domain.common.repository
 
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.enums.User
+
 interface CommonRepository {
     fun currentUser(): User
     fun cacheAuthData(): AuthData
