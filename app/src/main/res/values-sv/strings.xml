@@ -119,4 +119,7 @@
     <string name="weekly">Varje vecka</string>
     <string name="monthly">Varje månad</string>
     <string name="anonymous_login_failed">Anonym inloggning misslyckades.</string>
+    <string name="preference_update_wifi_only_title" weblate_ctx="settings">Endast på nätverk med obegränsad data</string>
+    <string name="rating_description">Betyg av 5. Beräknad utifrån användares betyg av appen.</string>
+    <string name="preference_update_wifi_only_description" weblate_ctx="settings">Uppdatera endast appar automatiskt på nätverk utan databegränsning som t.ex. Wi-Fi</string>
 </resources>
