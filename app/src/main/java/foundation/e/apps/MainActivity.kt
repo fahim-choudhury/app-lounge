@@ -41,6 +41,8 @@ import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.LoginSourceGPlay
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.databinding.ActivityMainBinding
+import foundation.e.apps.domain.errors.CentralErrorHandler
+import foundation.e.apps.domain.errors.RetryMechanism
 import foundation.e.apps.install.updates.UpdatesNotifier
 import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.ui.MainActivityViewModel
@@ -63,6 +65,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val TAG = MainActivity::class.java.simpleName
     private lateinit var viewModel: MainActivityViewModel
+
+    private val retryMechanism by lazy { RetryMechanism() }
+    private val ceh by lazy { CentralErrorHandler() }
 
     @Inject
     lateinit var preferenceManagerModule: PreferenceManagerModule
@@ -271,7 +276,19 @@ class MainActivity : AppCompatActivity() {
         }.distinctUntilChanged { old, new ->
             ((old.data is String) && (new.data is String) && old.data == new.data)
         }.collectLatest {
-            validatedAuthObject(it)
+            val currentUser = loginViewModel.currentUser()
+            retryMechanism.wrapWithRetry(
+                { loginViewModel.getNewToken() },
+                {
+                    ceh.getDialogForUnauthorized(
+                        context = this@MainActivity,
+                        logToDisplay = it.data.toString(),
+                        user = currentUser,
+                        retryAction = { loginViewModel.getNewToken() },
+                        logoutAction = { loginViewModel.logout() }
+                    ).run { ceh.dismissAllAndShow(this) }
+                }
+            )
         }
     }
 
