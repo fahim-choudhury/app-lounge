@@ -19,45 +19,47 @@ package foundation.e.apps.data.login.api
 
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.PlayResponse
-import com.aurora.gplayapi.helpers.AuthHelper
-import foundation.e.apps.data.gplay.utils.AC2DMTask
+import com.google.gson.Gson
 import foundation.e.apps.data.gplay.utils.CustomAuthValidator
 import foundation.e.apps.data.gplay.utils.GPlayHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Properties
 
-class GoogleLoginApi(
+class AnonymousLogger(
     private val gPlayHttpClient: GPlayHttpClient,
     private val nativeDeviceProperty: Properties,
-    private val aC2DMTask: AC2DMTask,
-) : GPlayLoginInterface {
+    private val gson: Gson,
+) : GooglePlayLogger {
+
+    private val tokenUrl: String = "https://eu.gtoken.ecloud.global"
 
     /**
-     * Get PlayResponse for AC2DM Map. This allows us to get an error message too.
-     *
-     * An aasToken is extracted from this map. This is passed to [fetchAuthData]
-     * to generate AuthData. This token is very important as it cannot be regenerated,
-     * hence it must be saved for future use.
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
+     * Log anonymously a user
+     * @param email email of the user
+     * @param aasToken aasToken corresponding to the user
      */
-    suspend fun getAC2DMResponse(email: String, oauthToken: String): PlayResponse {
-        var response: PlayResponse
+    override suspend fun login(email: String, aasToken: String): AuthData? {
+        var authData: AuthData? = null
         withContext(Dispatchers.IO) {
-            response = aC2DMTask.getAC2DMResponse(email, oauthToken)
-        }
-        return response
-    }
-
-    /**
-     * Convert email and AASToken to AuthData class.
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
-     */
-    override suspend fun fetchAuthData(email: String, aasToken: String): AuthData? {
-        var authData: AuthData?
-        withContext(Dispatchers.IO) {
-            authData = AuthHelper.build(email, aasToken, nativeDeviceProperty)
+            val response =
+                gPlayHttpClient.postAuth(tokenUrl, gson.toJson(nativeDeviceProperty).toByteArray())
+            if (response.code != 200 || !response.isSuccessful) {
+                throw Exception(
+                    "Error fetching Anonymous credentials\n" +
+                        "Network code: ${response.code}\n" +
+                        "Success: ${response.isSuccessful}" +
+                        response.errorString.run {
+                            if (isNotBlank()) "\nError message: $this"
+                            else ""
+                        }
+                )
+            } else {
+                authData = gson.fromJson(
+                    String(response.responseBytes),
+                    AuthData::class.java
+                )
+            }
         }
         return authData
     }
@@ -66,7 +68,7 @@ class GoogleLoginApi(
      * Check if an AuthData is valid. Returns a [PlayResponse].
      * Check [PlayResponse.isSuccessful] to see if the validation was successful.
      */
-    override suspend fun login(authData: AuthData): PlayResponse {
+    override suspend fun validate(authData: AuthData): PlayResponse {
         var result = PlayResponse()
         withContext(Dispatchers.IO) {
             try {

@@ -21,7 +21,7 @@ package foundation.e.apps.data.login
  * Store (Google Play Store, Clean Apk) authenticator.
  */
 interface StoreAuthenticator {
-    suspend fun getAuthObject(): AuthObject
-    suspend fun clearSavedAuth()
+    suspend fun login(): AuthObject
+    suspend fun logout()
     fun isStoreActive(): Boolean
 }

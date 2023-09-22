@@ -41,10 +41,10 @@ class AuthenticatorRepository @Inject constructor(
         for (authenticator in authenticators) {
             if (!authenticator.isStoreActive()) continue
             if (authenticator::class.java.simpleName in clearAuthTypes) {
-                authenticator.clearSavedAuth()
+                authenticator.logout()
             }
 
-            val authObject = authenticator.getAuthObject()
+            val authObject = authenticator.login()
             authObjectsLocal.add(authObject)
 
             if (authObject is AuthObject.GPlayAuth) {

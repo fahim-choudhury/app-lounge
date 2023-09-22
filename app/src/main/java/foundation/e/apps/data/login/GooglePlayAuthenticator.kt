@@ -25,16 +25,16 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.login.api.GPlayApiFactory
-import foundation.e.apps.data.login.api.GPlayLoginInterface
-import foundation.e.apps.data.login.api.GoogleLoginApi
-import foundation.e.apps.data.login.api.LoginApiRepository
+import foundation.e.apps.data.login.api.GooglePlayLogger
+import foundation.e.apps.data.login.api.GoogleAccountLogger
+import foundation.e.apps.data.login.api.GooglePlayWrapper
 import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Class to get GPlay auth data. Call [getAuthObject] to get an already saved auth data
+ * Class to get GPlay auth data. Call [login] to get an already saved auth data
  * or to fetch a new one for first use. Handles auth validation internally.
  *
  * https://gitlab.e.foundation/e/backlog/-/issues/5680
@@ -52,11 +52,11 @@ class GooglePlayAuthenticator @Inject constructor(
     private val user: User
         get() = loginData.getUserType()
 
-    private val gPlayLoginInterface: GPlayLoginInterface
+    private val logger: GooglePlayLogger
         get() = gPlayApiFactory.getGPlayApi(user)
 
-    private val loginApiRepository: LoginApiRepository
-        get() = LoginApiRepository(gPlayLoginInterface, user)
+    private val loggerWrapper: GooglePlayWrapper
+        get() = GooglePlayWrapper(logger, user)
 
     private val locale: Locale
         get() = context.resources.configuration.locales[0]
@@ -74,7 +74,7 @@ class GooglePlayAuthenticator @Inject constructor(
     /**
      * Main entry point to get GPlay auth data.
      */
-    override suspend fun getAuthObject(): AuthObject.GPlayAuth {
+    override suspend fun login(): AuthObject.GPlayAuth {
         val savedAuth = getSavedAuthData()
 
         val authData = (
@@ -102,7 +102,7 @@ class GooglePlayAuthenticator @Inject constructor(
         return AuthObject.GPlayAuth(result, user)
     }
 
-    override suspend fun clearSavedAuth() {
+    override suspend fun logout() {
         loginData.clearAuthData()
     }
 
@@ -155,7 +155,7 @@ class GooglePlayAuthenticator @Inject constructor(
      * Get AuthData for ANONYMOUS mode.
      */
     private suspend fun getAuthData(): ResultSupreme<AuthData?> {
-        return loginApiRepository.fetchAuthData("", "", locale).run {
+        return loggerWrapper.login("", "", locale).run {
             if (isSuccess()) ResultSupreme.Success(formatAuthData(this.data!!))
             else this
         }
@@ -175,14 +175,14 @@ class GooglePlayAuthenticator @Inject constructor(
          * Use it to fetch auth data.
          */
         if (aasToken.isNotBlank()) {
-            return loginApiRepository.fetchAuthData(email, aasToken, locale)
+            return loggerWrapper.login(email, aasToken, locale)
         }
 
         /*
          * If aasToken is not yet saved / made, fetch it from email and oauthToken.
          */
-        val aasTokenResponse = loginApiRepository.getAasToken(
-            gPlayLoginInterface as GoogleLoginApi,
+        val aasTokenResponse = loggerWrapper.getAasToken(
+            logger as GoogleAccountLogger,
             email,
             oauthToken
         )
@@ -206,7 +206,7 @@ class GooglePlayAuthenticator @Inject constructor(
          * Finally save the aasToken and create auth data.
          */
         loginData.saveAasToken(aasTokenFetched)
-        return loginApiRepository.fetchAuthData(email, aasTokenFetched, locale).run {
+        return loggerWrapper.login(email, aasTokenFetched, locale).run {
             if (isSuccess()) ResultSupreme.Success(formatAuthData(this.data!!))
             else this
         }
@@ -228,5 +228,5 @@ class GooglePlayAuthenticator @Inject constructor(
     }
 
     private suspend fun isAuthDataValid(savedAuth: AuthData?) =
-        savedAuth != null && loginApiRepository.login(savedAuth).exception == null
+        savedAuth != null && loggerWrapper.validate(savedAuth).exception == null
 }

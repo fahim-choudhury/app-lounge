@@ -44,12 +44,12 @@ class CleanApkAuthenticator @Inject constructor(
         return loginData.isOpenSourceSelected() || loginData.isPWASelected()
     }
 
-    override suspend fun getAuthObject(): AuthObject.CleanApk {
+    override suspend fun login(): AuthObject.CleanApk {
         return AuthObject.CleanApk(
             ResultSupreme.Success(Unit),
             user,
         )
     }
 
-    override suspend fun clearSavedAuth() {}
+    override suspend fun logout() {}
 }

@@ -27,21 +27,21 @@ import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import java.util.Locale
 
 /**
- * Call methods of [GoogleLoginApi] and [AnonymousLoginApi] from here.
+ * Call methods of [GoogleAccountLogger] and [AnonymousLogger] from here.
  *
  * Dependency Injection via hilt is not possible,
- * we need to manually check login type, create an instance of either [GoogleLoginApi]
- * or [AnonymousLoginApi] and pass it to [gPlayLoginInterface].
+ * we need to manually check login type, create an instance of either [GoogleAccountLogger]
+ * or [AnonymousLogger] and pass it to [logger].
  *
  * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
  */
-class LoginApiRepository constructor(
-    private val gPlayLoginInterface: GPlayLoginInterface,
+class GooglePlayWrapper constructor(
+    private val logger: GooglePlayLogger,
     private val user: User,
 ) {
 
     /**
-     * Gets the auth data from instance of [GPlayLoginInterface].
+     * Gets the auth data from instance of [GooglePlayLogger].
      * Applicable for both Google and Anonymous login.
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
@@ -49,9 +49,9 @@ class LoginApiRepository constructor(
      * @param aasToken For Google login - Access token obtained from [getAasToken] function,
      * else blank for Anonymous login.
      */
-    suspend fun fetchAuthData(email: String, aasToken: String, locale: Locale): ResultSupreme<AuthData?> {
+    suspend fun login(email: String, aasToken: String, locale: Locale): ResultSupreme<AuthData?> {
         val result = handleNetworkResult {
-            gPlayLoginInterface.fetchAuthData(email, aasToken)
+            logger.login(email, aasToken)
         }
         return result.apply {
             this.data?.locale = locale
@@ -72,10 +72,10 @@ class LoginApiRepository constructor(
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
      */
-    suspend fun login(authData: AuthData): ResultSupreme<PlayResponse> {
+    suspend fun validate(authData: AuthData): ResultSupreme<PlayResponse> {
         var response = PlayResponse()
         val result = handleNetworkResult {
-            response = gPlayLoginInterface.login(authData)
+            response = logger.validate(authData)
             if (response.code != 200) {
                 throw Exception("Validation network code: ${response.code}")
             }
@@ -92,25 +92,25 @@ class LoginApiRepository constructor(
 
     /**
      * Gets email and oauthToken from Google login, finds the AASToken from AC2DM response
-     * and returns it. This token is then used to fetch AuthData from [fetchAuthData].
+     * and returns it. This token is then used to fetch AuthData from [login].
      *
      * Do note that for a given oauthToken, it has been observed that AASToken can
      * only be generated once. So this token must be saved for future use.
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
      *
-     * @param googleLoginApi An instance of [GoogleLoginApi] must be passed, this method
-     * cannot work on [gPlayLoginInterface] as it is a common interface for both Google and Anonymous
+     * @param googleAccountLogin An instance of [GoogleAccountLogger] must be passed, this method
+     * cannot work on [logger] as it is a common interface for both Google and Anonymous
      * login, but this method is only for Google login.
      */
     suspend fun getAasToken(
-        googleLoginApi: GoogleLoginApi,
+        googleAccountLogin: GoogleAccountLogger,
         email: String,
         oauthToken: String
     ): ResultSupreme<String> {
         val result = handleNetworkResult {
             var aasToken = ""
-            val response = googleLoginApi.getAC2DMResponse(email, oauthToken)
+            val response = googleAccountLogin.getAC2DMResponse(email, oauthToken)
             var error = response.errorString
             if (response.isSuccessful) {
                 val responseMap = AC2DMUtil.parseResponse(String(response.responseBytes))
