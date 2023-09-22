@@ -72,6 +72,8 @@ class UserLoginUseCase @Inject constructor(
 
     fun currentUser() = commonRepository.currentUser()
 
+    fun clearAuthData() = commonRepository.clearAuthData()
+
     fun performAnonymousUserAuthentication(): Flow<Resource<AuthData>> = flow {
         anonymousUser().onEach { anonymousAuth ->
             // TODO -> If we are not using auth data then
