@@ -28,11 +28,11 @@ import javax.inject.Singleton
  */
 @Singleton
 class CleanApkAuthenticator @Inject constructor(
-    val loginDataStore: LoginDataStore,
+    val loginData: LoginData,
 ) : StoreAuthenticator {
 
     private val user: User
-        get() = loginDataStore.getUserType()
+        get() = loginData.getUserType()
 
     override fun isStoreActive(): Boolean {
         if (user == User.UNAVAILABLE) {
@@ -41,7 +41,7 @@ class CleanApkAuthenticator @Inject constructor(
              */
             return false
         }
-        return loginDataStore.isOpenSourceSelected() || loginDataStore.isPWASelected()
+        return loginData.isOpenSourceSelected() || loginData.isPWASelected()
     }
 
     override suspend fun getAuthObject(): AuthObject.CleanApk {

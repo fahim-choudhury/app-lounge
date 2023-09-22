@@ -36,7 +36,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class LoginDataStore @Inject constructor(
+class LoginData @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val gson: Gson

@@ -30,33 +30,33 @@ import javax.inject.Singleton
  */
 @Singleton
 class LoginCommon @Inject constructor(
-    private val loginDataStore: LoginDataStore,
+    private val loginData: LoginData,
 ) {
     suspend fun saveUserType(user: User) {
-        loginDataStore.saveUserType(user)
+        loginData.saveUserType(user)
     }
 
     fun getUserType(): User {
-        return loginDataStore.getUserType()
+        return loginData.getUserType()
     }
 
     suspend fun saveGoogleLogin(email: String, oauth: String) {
-        loginDataStore.saveGoogleLogin(email, oauth)
+        loginData.saveGoogleLogin(email, oauth)
     }
 
     suspend fun setNoGoogleMode() {
-        loginDataStore.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
-        loginDataStore.setSource(Constants.PREFERENCE_SHOW_PWA, true)
-        loginDataStore.setSource(Constants.PREFERENCE_SHOW_GPLAY, false)
-        loginDataStore.saveUserType(User.NO_GOOGLE)
+        loginData.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
+        loginData.setSource(Constants.PREFERENCE_SHOW_PWA, true)
+        loginData.setSource(Constants.PREFERENCE_SHOW_GPLAY, false)
+        loginData.saveUserType(User.NO_GOOGLE)
     }
 
     suspend fun logout() {
-        loginDataStore.destroyCredentials()
-        loginDataStore.clearUserType()
+        loginData.destroyCredentials()
+        loginData.clearUserType()
         // reset app source preferences on logout.
-        loginDataStore.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
-        loginDataStore.setSource(Constants.PREFERENCE_SHOW_PWA, true)
-        loginDataStore.setSource(Constants.PREFERENCE_SHOW_GPLAY, true)
+        loginData.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
+        loginData.setSource(Constants.PREFERENCE_SHOW_PWA, true)
+        loginData.setSource(Constants.PREFERENCE_SHOW_GPLAY, true)
     }
 }

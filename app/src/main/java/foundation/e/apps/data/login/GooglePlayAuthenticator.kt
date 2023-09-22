@@ -43,14 +43,14 @@ import javax.inject.Singleton
 class GooglePlayAuthenticator @Inject constructor(
     @ApplicationContext private val context: Context,
     private val gson: Gson,
-    private val loginDataStore: LoginDataStore,
+    private val loginData: LoginData,
 ) : StoreAuthenticator, AuthDataValidator {
 
     @Inject
     lateinit var gPlayApiFactory: GPlayApiFactory
 
     private val user: User
-        get() = loginDataStore.getUserType()
+        get() = loginData.getUserType()
 
     private val gPlayLoginInterface: GPlayLoginInterface
         get() = gPlayApiFactory.getGPlayApi(user)
@@ -68,7 +68,7 @@ class GooglePlayAuthenticator @Inject constructor(
              */
             return false
         }
-        return loginDataStore.isGplaySelected()
+        return loginData.isGplaySelected()
     }
 
     /**
@@ -103,7 +103,7 @@ class GooglePlayAuthenticator @Inject constructor(
     }
 
     override suspend fun clearSavedAuth() {
-        loginDataStore.clearAuthData()
+        loginData.clearAuthData()
     }
 
     /**
@@ -111,7 +111,7 @@ class GooglePlayAuthenticator @Inject constructor(
      * Returns null if nothing is saved.
      */
     private fun getSavedAuthData(): AuthData? {
-        val authJson = loginDataStore.getAuthData()
+        val authJson = loginData.getAuthData()
         return if (authJson.isBlank()) null
         else try {
             gson.fromJson(authJson, AuthData::class.java)
@@ -122,20 +122,20 @@ class GooglePlayAuthenticator @Inject constructor(
     }
 
     private suspend fun saveAuthData(authData: AuthData) {
-        loginDataStore.saveAuthData(authData)
+        loginData.saveAuthData(authData)
     }
 
     /**
      * Generate new AuthData based on the user type.
      */
     private suspend fun generateAuthData(): ResultSupreme<AuthData?> {
-        return when (loginDataStore.getUserType()) {
+        return when (loginData.getUserType()) {
             User.ANONYMOUS -> getAuthData()
             User.GOOGLE -> {
                 getAuthData(
-                    loginDataStore.getEmail(),
-                    loginDataStore.getOAuthToken(),
-                    loginDataStore.getAASToken()
+                    loginData.getEmail(),
+                    loginData.getOAuthToken(),
+                    loginData.getAASToken()
                 )
             }
             else -> ResultSupreme.Error("User type not ANONYMOUS or GOOGLE")
@@ -205,7 +205,7 @@ class GooglePlayAuthenticator @Inject constructor(
         /*
          * Finally save the aasToken and create auth data.
          */
-        loginDataStore.saveAasToken(aasTokenFetched)
+        loginData.saveAasToken(aasTokenFetched)
         return loginApiRepository.fetchAuthData(email, aasTokenFetched, locale).run {
             if (isSuccess()) ResultSupreme.Success(formatAuthData(this.data!!))
             else this
