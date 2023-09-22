@@ -176,6 +176,10 @@ class LoginViewModel @Inject constructor(
         _loginState.value = LoginState()
     }
 
+    fun currentUser(): User {
+        return userLoginUseCase.currentUser()
+    }
+
     private val _loginState: MutableLiveData<LoginState> = MutableLiveData()
     val loginState: LiveData<LoginState> = _loginState
 
@@ -205,7 +209,7 @@ class LoginViewModel @Inject constructor(
 
     fun checkLogin() {
         viewModelScope.launch {
-            val user = userLoginUseCase.currentUser()
+            val user = currentUser()
             if (user == NO_GOOGLE) {
                 _loginState.value =
                     LoginState(isLoggedIn = true, authData = null, user = user)
@@ -248,5 +252,17 @@ class LoginViewModel @Inject constructor(
                 AuthObject.GPlayAuth(ResultSupreme.Success(authData), User.ANONYMOUS)
             )
         )
+    }
+
+    fun getNewToken() {
+        userLoginUseCase.clearAuthData()
+        when (currentUser()) {
+            User.NO_GOOGLE -> {}
+            User.UNAVAILABLE -> {}
+            User.ANONYMOUS -> authenticateAnonymousUser()
+            User.GOOGLE -> {
+                // TODO
+            }
+        }
     }
 }
