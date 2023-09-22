@@ -53,4 +53,8 @@ class CommonRepositoryImpl @Inject constructor(
             if (data.isEmpty()) throw Exception("Auth Data not available")
             return data.toAuthData()
         }
+
+    override fun clearAuthData() {
+        applicationContext.configurations.authData = ""
+    }
 }

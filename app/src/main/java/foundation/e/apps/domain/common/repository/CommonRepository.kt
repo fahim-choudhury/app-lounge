@@ -25,4 +25,5 @@ interface CommonRepository {
     fun currentUser(): User
     fun cacheAuthData(): AuthData
     fun resetCachedData()
+    fun clearAuthData()
 }
