@@ -26,7 +26,7 @@ import javax.inject.Singleton
 
 @JvmSuppressWildcards
 @Singleton
-class LoginSourceRepository @Inject constructor(
+class AuthenticatorRepository @Inject constructor(
     private val loginCommon: LoginCommon,
     private val authenticators: List<StoreAuthenticator>,
 ) {

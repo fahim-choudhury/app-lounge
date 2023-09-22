@@ -32,7 +32,7 @@ import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.gplay.GplayStoreRepository
 import foundation.e.apps.data.gplay.GplayStoreRepositoryImpl
 import foundation.e.apps.data.gplay.utils.GPlayHttpClient
-import foundation.e.apps.data.login.LoginSourceRepository
+import foundation.e.apps.data.login.AuthenticatorRepository
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -45,9 +45,9 @@ object NamedRepositoryModule {
     fun getGplayRepository(
         @ApplicationContext context: Context,
         gPlayHttpClient: GPlayHttpClient,
-        loginSourceRepository: LoginSourceRepository
+        authenticatorRepository: AuthenticatorRepository
     ): GplayStoreRepository {
-        return GplayStoreRepositoryImpl(context, gPlayHttpClient, loginSourceRepository)
+        return GplayStoreRepositoryImpl(context, gPlayHttpClient, authenticatorRepository)
     }
 
     @Singleton

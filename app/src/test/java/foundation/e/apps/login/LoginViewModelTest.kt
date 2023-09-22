@@ -23,7 +23,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.LoginSourceRepository
+import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.login.LoginViewModel
 import okhttp3.Cache
 import org.junit.Before
@@ -35,7 +35,7 @@ import org.mockito.MockitoAnnotations
 class LoginViewModelTest {
 
     @Mock
-    private lateinit var loginSourceRepository: LoginSourceRepository
+    private lateinit var authenticatorRepository: AuthenticatorRepository
     @Mock
     private lateinit var cache: Cache
 
@@ -48,7 +48,7 @@ class LoginViewModelTest {
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        loginViewModel = LoginViewModel(loginSourceRepository, cache)
+        loginViewModel = LoginViewModel(authenticatorRepository, cache)
     }
 
     @Test
