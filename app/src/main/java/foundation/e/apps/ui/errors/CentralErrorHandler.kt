@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.domain.errors
+package foundation.e.apps.ui.errors
 
 import android.app.Activity
 import android.content.Intent

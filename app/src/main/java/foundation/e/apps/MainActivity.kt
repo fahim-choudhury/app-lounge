@@ -41,7 +41,7 @@ import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.LoginSourceGPlay
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.databinding.ActivityMainBinding
-import foundation.e.apps.domain.errors.CentralErrorHandler
+import foundation.e.apps.ui.errors.CentralErrorHandler
 import foundation.e.apps.domain.errors.RetryMechanism
 import foundation.e.apps.install.updates.UpdatesNotifier
 import foundation.e.apps.presentation.login.LoginViewModel
