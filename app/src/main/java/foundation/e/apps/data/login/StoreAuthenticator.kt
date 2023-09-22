@@ -18,13 +18,10 @@
 package foundation.e.apps.data.login
 
 /**
- * Interface that defines what methods a login source must define.
- * Login sources (can also be called - data sources): Google Play, CleanApk.
- *
- * https://gitlab.e.foundation/e/backlog/-/issues/5680
+ * Store (Google Play Store, Clean Apk) authenticator.
  */
-interface LoginSourceInterface {
+interface StoreAuthenticator {
     suspend fun getAuthObject(): AuthObject
     suspend fun clearSavedAuth()
-    fun isActive(): Boolean
+    fun isStoreActive(): Boolean
 }

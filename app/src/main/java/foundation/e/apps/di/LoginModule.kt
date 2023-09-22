@@ -21,19 +21,19 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import foundation.e.apps.data.login.LoginSourceCleanApk
-import foundation.e.apps.data.login.LoginSourceGPlay
-import foundation.e.apps.data.login.LoginSourceInterface
+import foundation.e.apps.data.login.CleanApkAuthenticator
+import foundation.e.apps.data.login.GooglePlayAuthenticator
+import foundation.e.apps.data.login.StoreAuthenticator
 
 @InstallIn(SingletonComponent::class)
 @Module
 object LoginModule {
 
     @Provides
-    fun providesLoginSources(
-        gPlay: LoginSourceGPlay,
-        cleanApk: LoginSourceCleanApk,
-    ): List<LoginSourceInterface> {
+    fun providesAuthenticators(
+        gPlay: GooglePlayAuthenticator,
+        cleanApk: CleanApkAuthenticator,
+    ): List<StoreAuthenticator> {
         return listOf(gPlay, cleanApk)
     }
 }

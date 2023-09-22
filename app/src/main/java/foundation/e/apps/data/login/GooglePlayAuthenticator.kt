@@ -40,11 +40,11 @@ import javax.inject.Singleton
  * https://gitlab.e.foundation/e/backlog/-/issues/5680
  */
 @Singleton
-class LoginSourceGPlay @Inject constructor(
+class GooglePlayAuthenticator @Inject constructor(
     @ApplicationContext private val context: Context,
     private val gson: Gson,
     private val loginDataStore: LoginDataStore,
-) : LoginSourceInterface, AuthDataValidator {
+) : StoreAuthenticator, AuthDataValidator {
 
     @Inject
     lateinit var gPlayApiFactory: GPlayApiFactory
@@ -61,7 +61,7 @@ class LoginSourceGPlay @Inject constructor(
     private val locale: Locale
         get() = context.resources.configuration.locales[0]
 
-    override fun isActive(): Boolean {
+    override fun isStoreActive(): Boolean {
         if (user == User.UNAVAILABLE) {
             /*
              * UNAVAILABLE user means first login is not completed.

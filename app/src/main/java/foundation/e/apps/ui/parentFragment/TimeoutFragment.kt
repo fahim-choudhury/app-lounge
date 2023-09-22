@@ -33,7 +33,7 @@ import androidx.lifecycle.ViewModelProvider
 import foundation.e.apps.R
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.LoginSourceGPlay
+import foundation.e.apps.data.login.GooglePlayAuthenticator
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
@@ -206,7 +206,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      * Clears saved GPlay AuthData and restarts login process to get
      */
     fun clearAndRestartGPlayLogin() {
-        loginViewModel.startLoginFlow(listOf(LoginSourceGPlay::class.java.simpleName))
+        loginViewModel.startLoginFlow(listOf(GooglePlayAuthenticator::class.java.simpleName))
     }
 
     /**

@@ -27,14 +27,14 @@ import javax.inject.Singleton
  * https://gitlab.e.foundation/e/backlog/-/issues/5680
  */
 @Singleton
-class LoginSourceCleanApk @Inject constructor(
+class CleanApkAuthenticator @Inject constructor(
     val loginDataStore: LoginDataStore,
-) : LoginSourceInterface {
+) : StoreAuthenticator {
 
     private val user: User
         get() = loginDataStore.getUserType()
 
-    override fun isActive(): Boolean {
+    override fun isStoreActive(): Boolean {
         if (user == User.UNAVAILABLE) {
             /*
              * UNAVAILABLE user means first login is not completed.
