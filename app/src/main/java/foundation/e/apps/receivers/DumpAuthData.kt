@@ -19,6 +19,7 @@ package foundation.e.apps.receivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import app.lounge.storage.cache.configurations
 import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import foundation.e.apps.data.Constants.ACTION_AUTHDATA_DUMP
@@ -47,9 +48,10 @@ class DumpAuthData : BroadcastReceiver() {
     private fun getAuthDataDump(context: Context): String {
         val gson = Gson()
         // TODO: replace with context.configuration
-        val authData = DataStoreModule(context, gson).getAuthDataSync().let {
+        val authData = context.configurations.authData.let {
             gson.fromJson(it, AuthData::class.java)
-        }
+        } ?: return ""
+
         val filteredData = JSONObject().apply {
             put("email", authData.email)
             put("authToken", authData.authToken)
