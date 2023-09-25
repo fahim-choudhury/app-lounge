@@ -24,7 +24,7 @@ import dagger.hilt.components.SingletonComponent
 import foundation.e.apps.data.login.LoginSourceCleanApk
 import foundation.e.apps.data.login.LoginSourceGPlay
 import foundation.e.apps.data.login.LoginSourceInterface
-import foundation.e.apps.domain.common.repository.CommonRepositoryImpl
+import foundation.e.apps.domain.common.repository.CacheRepositoryImpl
 import foundation.e.apps.domain.install.usecase.AppInstallerUseCase
 import foundation.e.apps.domain.login.repository.LoginRepositoryImpl
 import foundation.e.apps.domain.login.usecase.UserLoginUseCase
@@ -47,36 +47,36 @@ object LoginModule {
     @Provides
     fun provideLoginUserCase(
         loginRepositoryImpl: LoginRepositoryImpl,
-        commonRepositoryImpl: CommonRepositoryImpl
+        cacheRepositoryImpl: CacheRepositoryImpl
     ): UserLoginUseCase {
-        return UserLoginUseCase(loginRepositoryImpl, commonRepositoryImpl)
+        return UserLoginUseCase(loginRepositoryImpl, cacheRepositoryImpl)
     }
 
     @Provides
     fun provideSettingsUserCase(
-        commonRepositoryImpl: CommonRepositoryImpl
+        cacheRepositoryImpl: CacheRepositoryImpl
     ): SettingsUseCase {
-        return SettingsUseCase(commonRepositoryImpl)
+        return SettingsUseCase(cacheRepositoryImpl)
     }
 
     @Provides
     fun provideMainActivityUseCase(
-        commonRepositoryImpl: CommonRepositoryImpl
+        cacheRepositoryImpl: CacheRepositoryImpl
     ): MainActivityUseCase {
-        return MainActivityUseCase(commonRepositoryImpl)
+        return MainActivityUseCase(cacheRepositoryImpl)
     }
 
     @Provides
     fun provideUpdatesUseCase(
-        commonRepositoryImpl: CommonRepositoryImpl
+        cacheRepositoryImpl: CacheRepositoryImpl
     ): UpdatesUseCase {
-        return UpdatesUseCase(commonRepositoryImpl)
+        return UpdatesUseCase(cacheRepositoryImpl)
     }
 
     @Provides
     fun provideAppInstallerUseCase(
-        commonRepositoryImpl: CommonRepositoryImpl
+        cacheRepositoryImpl: CacheRepositoryImpl
     ): AppInstallerUseCase {
-        return AppInstallerUseCase(commonRepositoryImpl)
+        return AppInstallerUseCase(cacheRepositoryImpl)
     }
 }

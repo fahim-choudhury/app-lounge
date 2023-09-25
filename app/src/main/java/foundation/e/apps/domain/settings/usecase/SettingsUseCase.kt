@@ -20,31 +20,31 @@ package foundation.e.apps.domain.settings.usecase
 
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.domain.common.repository.CommonRepository
+import foundation.e.apps.domain.common.repository.CacheRepository
 import foundation.e.apps.utils.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class SettingsUseCase @Inject constructor(
-    private val commonRepository: CommonRepository
+    private val cacheRepository: CacheRepository
 ) {
     fun currentUser(): Flow<Resource<User>> = flow {
         kotlin.runCatching {
-            val currentUser = commonRepository.currentUser()
+            val currentUser = cacheRepository.currentUser()
             emit(Resource.Success(currentUser))
         }.onFailure { emit(Resource.Error("Something went wrong in fun currentUser()")) }
     }
 
     fun currentAuthData(): Flow<Resource<AuthData>> = flow {
         kotlin.runCatching {
-            emit(Resource.Success(commonRepository.cacheAuthData()))
+            emit(Resource.Success(cacheRepository.cacheAuthData()))
         }.onFailure { emit(Resource.Error("Something went wrong in fun currentUser()")) }
     }
 
     fun logoutUser(): Flow<Resource<Unit>> = flow {
         runCatching {
-            commonRepository.resetCachedData()
+            cacheRepository.resetCachedData()
             emit(Resource.Success(Unit))
         }.onFailure { emit(Resource.Error("Error during logout")) }
     }

@@ -27,7 +27,7 @@ import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
 import foundation.e.apps.data.fusedDownload.IFusedManager
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.apps.domain.common.repository.CommonRepositoryImpl
+import foundation.e.apps.domain.common.repository.CacheRepositoryImpl
 import foundation.e.apps.domain.install.usecase.AppInstallerUseCase
 import foundation.e.apps.install.workmanager.AppInstallProcessor
 import foundation.e.apps.util.MainCoroutineRule
@@ -88,7 +88,7 @@ class AppInstallProcessorTest {
             fusedDownloadRepository,
             fakeFusedManagerRepository,
             fusedAPIRepository,
-            AppInstallerUseCase(CommonRepositoryImpl(context))
+            AppInstallerUseCase(CacheRepositoryImpl(context))
         )
     }
 

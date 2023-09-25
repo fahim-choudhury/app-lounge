@@ -18,13 +18,13 @@
 
 package foundation.e.apps.domain.main.usecase
 
-import foundation.e.apps.domain.common.repository.CommonRepository
+import foundation.e.apps.domain.common.repository.CacheRepository
 import javax.inject.Inject
 
 class MainActivityUseCase @Inject constructor(
-    private val commonRepository: CommonRepository
+    private val cacheRepository: CacheRepository
 ) {
-    fun currentUser() = commonRepository.currentUser()
+    fun currentUser() = cacheRepository.currentUser()
 
-    fun currentAuthData() = commonRepository.cacheAuthData()
+    fun currentAuthData() = cacheRepository.cacheAuthData()
 }

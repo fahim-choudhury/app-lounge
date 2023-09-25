@@ -19,7 +19,7 @@
 package foundation.e.apps.domain.login.usecase
 
 import com.aurora.gplayapi.data.models.AuthData
-import foundation.e.apps.domain.common.repository.CommonRepository
+import foundation.e.apps.domain.common.repository.CacheRepository
 import foundation.e.apps.domain.login.repository.LoginRepository
 import foundation.e.apps.utils.Resource
 import kotlinx.coroutines.flow.Flow
@@ -30,7 +30,7 @@ import javax.inject.Inject
 
 class UserLoginUseCase @Inject constructor(
     private val loginRepository: LoginRepository,
-    private val commonRepository: CommonRepository
+    private val cacheRepository: CacheRepository
 ) {
 
     fun anonymousUser(): Flow<Resource<AuthData>> = flow {
@@ -60,19 +60,19 @@ class UserLoginUseCase @Inject constructor(
     fun retrieveCachedAuthData(): Flow<Resource<AuthData>> = flow {
         try {
             emit(Resource.Loading())
-            emit(Resource.Success(commonRepository.cacheAuthData()))
+            emit(Resource.Success(cacheRepository.cacheAuthData()))
         } catch (e: Exception) {
             emit(Resource.Error(e.localizedMessage))
         }
     }
 
     fun logoutUser() {
-        commonRepository.resetCachedData()
+        cacheRepository.resetCachedData()
     }
 
-    fun currentUser() = commonRepository.currentUser()
+    fun currentUser() = cacheRepository.currentUser()
 
-    fun clearAuthData() = commonRepository.clearAuthData()
+    fun clearAuthData() = cacheRepository.clearAuthData()
 
     fun performAnonymousUserAuthentication(): Flow<Resource<AuthData>> = flow {
         anonymousUser().onEach { anonymousAuth ->
@@ -88,7 +88,7 @@ class UserLoginUseCase @Inject constructor(
                             }
                             is Resource.Loading -> emit(Resource.Loading())
                             is Resource.Success -> {
-                                emit(Resource.Success(commonRepository.cacheAuthData()))
+                                emit(Resource.Success(cacheRepository.cacheAuthData()))
                             }
                         }
                     }.collect()
