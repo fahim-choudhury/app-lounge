@@ -130,14 +130,8 @@ class GooglePlayAuthenticator @Inject constructor(
      */
     private suspend fun generateAuthData(): ResultSupreme<AuthData?> {
         return when (loginData.getUserType()) {
-            User.ANONYMOUS -> getAuthData()
-            User.GOOGLE -> {
-                getAuthData(
-                    loginData.getEmail(),
-                    loginData.getOAuthToken(),
-                    loginData.getAASToken()
-                )
-            }
+            User.ANONYMOUS -> getAuthDataAnonymously()
+            User.GOOGLE -> getAuthDataWithGoogleAccount()
             else -> ResultSupreme.Error("User type not ANONYMOUS or GOOGLE")
         }
     }
@@ -151,31 +145,24 @@ class GooglePlayAuthenticator @Inject constructor(
         return gson.fromJson(localAuthDataJson, AuthData::class.java)
     }
 
-    /**
-     * Get AuthData for ANONYMOUS mode.
-     */
-    private suspend fun getAuthData(): ResultSupreme<AuthData?> {
-        return loggerWrapper.login("", "", locale).run {
+    private suspend fun getAuthDataAnonymously(): ResultSupreme<AuthData?> {
+        return loggerWrapper.login(locale).run {
             if (isSuccess()) ResultSupreme.Success(formatAuthData(this.data!!))
             else this
         }
     }
 
-    /**
-     * Get AuthData for GOOGLE login mode.
-     */
-    private suspend fun getAuthData(
-        email: String,
-        oauthToken: String,
-        aasToken: String,
-    ): ResultSupreme<AuthData?> {
+    private suspend fun getAuthDataWithGoogleAccount(): ResultSupreme<AuthData?> {
 
+        val email = loginData.getEmail()
+        val oauthToken = loginData.getOAuthToken()
+        val aasToken = loginData.getAASToken()
         /*
          * If aasToken is not blank, means it was stored successfully from a previous Google login.
          * Use it to fetch auth data.
          */
         if (aasToken.isNotBlank()) {
-            return loggerWrapper.login(email, aasToken, locale)
+            return loggerWrapper.login(locale)
         }
 
         /*
@@ -206,7 +193,7 @@ class GooglePlayAuthenticator @Inject constructor(
          * Finally save the aasToken and create auth data.
          */
         loginData.saveAasToken(aasTokenFetched)
-        return loggerWrapper.login(email, aasTokenFetched, locale).run {
+        return loggerWrapper.login(locale).run {
             if (isSuccess()) ResultSupreme.Success(formatAuthData(this.data!!))
             else this
         }

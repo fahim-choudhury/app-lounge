@@ -67,11 +67,11 @@ class LoginData @Inject constructor(
      * If AasToken is not stored, user has to logout and login again.
      */
 
-    val authData = context.dataStore.data.map { it[AUTHDATA] ?: "" }
-    val emailData = context.dataStore.data.map { it[EMAIL] ?: "" }
-    val aasToken = context.dataStore.data.map { it[AASTOKEN] ?: "" }
-    val oauthToken = context.dataStore.data.map { it[OAUTHTOKEN] ?: "" }
-    val userType = context.dataStore.data.map { it[USERTYPE] ?: "" }
+    private val authData = context.dataStore.data.map { it[AUTHDATA] ?: "" }
+    private val emailData = context.dataStore.data.map { it[EMAIL] ?: "" }
+    private val aasToken = context.dataStore.data.map { it[AASTOKEN] ?: "" }
+    private val oauthToken = context.dataStore.data.map { it[OAUTHTOKEN] ?: "" }
+    private val userType = context.dataStore.data.map { it[USERTYPE] ?: "" }
 
     // Setters
 

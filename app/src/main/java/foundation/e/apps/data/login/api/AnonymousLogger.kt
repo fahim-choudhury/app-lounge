@@ -36,10 +36,10 @@ class AnonymousLogger(
 
     /**
      * Log anonymously a user
-     * @param email email of the user
-     * @param aasToken aasToken corresponding to the user
+     *
+     * @return authData: authentication data
      */
-    override suspend fun login(email: String, aasToken: String): AuthData? {
+    override suspend fun login(): AuthData? {
         var authData: AuthData? = null
         withContext(Dispatchers.IO) {
             val response =

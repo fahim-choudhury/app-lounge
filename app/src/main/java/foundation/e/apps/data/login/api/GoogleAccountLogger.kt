@@ -23,6 +23,7 @@ import com.aurora.gplayapi.helpers.AuthHelper
 import foundation.e.apps.data.gplay.utils.AC2DMTask
 import foundation.e.apps.data.gplay.utils.CustomAuthValidator
 import foundation.e.apps.data.gplay.utils.GPlayHttpClient
+import foundation.e.apps.data.login.LoginData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Properties
@@ -31,6 +32,7 @@ class GoogleAccountLogger(
     private val gPlayHttpClient: GPlayHttpClient,
     private val nativeDeviceProperty: Properties,
     private val aC2DMTask: AC2DMTask,
+    private val loginData: LoginData
 ) : GooglePlayLogger {
 
     /**
@@ -51,10 +53,14 @@ class GoogleAccountLogger(
     }
 
     /**
-     * Convert email and AASToken to AuthData class.
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
+     * Login
+     *
+     * @return authData: authentication data
      */
-    override suspend fun login(email: String, aasToken: String): AuthData? {
+    override suspend fun login(): AuthData? {
+        val email = loginData.getEmail()
+        val aasToken = loginData.getAASToken()
+
         var authData: AuthData?
         withContext(Dispatchers.IO) {
             authData = AuthHelper.build(email, aasToken, nativeDeviceProperty)

@@ -21,6 +21,6 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.PlayResponse
 
 interface GooglePlayLogger {
-    suspend fun login(email: String, aasToken: String): AuthData?
+    suspend fun login(): AuthData?
     suspend fun validate(authData: AuthData): PlayResponse
 }

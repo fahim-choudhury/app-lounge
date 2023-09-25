@@ -42,16 +42,10 @@ class GooglePlayWrapper constructor(
 
     /**
      * Gets the auth data from instance of [GooglePlayLogger].
-     * Applicable for both Google and Anonymous login.
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
-     * @param email Email address for Google login. Blank for Anonymous login.
-     * @param aasToken For Google login - Access token obtained from [getAasToken] function,
-     * else blank for Anonymous login.
      */
-    suspend fun login(email: String, aasToken: String, locale: Locale): ResultSupreme<AuthData?> {
+    suspend fun login(locale: Locale): ResultSupreme<AuthData?> {
         val result = handleNetworkResult {
-            logger.login(email, aasToken)
+            logger.login()
         }
         return result.apply {
             this.data?.locale = locale
