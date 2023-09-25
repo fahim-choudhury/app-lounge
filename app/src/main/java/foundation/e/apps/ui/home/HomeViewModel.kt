@@ -28,6 +28,8 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fused.data.FusedHome
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -52,6 +54,10 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             fusedAPIRepository.getHomeScreenData(authData).observe(lifecycleOwner) {
                 homeScreenData.postValue(it)
+
+                if (!it.isSuccess()) viewModelScope.launch {
+                    EventBus.invokeEvent(AppEvent.DataLoadError(it))
+                }
             }
         }
     }

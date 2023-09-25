@@ -33,6 +33,8 @@ import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -98,20 +100,7 @@ class SearchViewModel @Inject constructor(
             searchResult.postValue(searchResultSupreme)
 
             if (!searchResultSupreme.isSuccess()) {
-                val exception =
-                    if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank()) {
-                        GPlayException(
-                            searchResultSupreme.isTimeout(),
-                            searchResultSupreme.message.ifBlank { DATA_LOAD_ERROR }
-                        )
-                    } else {
-                        CleanApkException(
-                            searchResultSupreme.isTimeout(),
-                            searchResultSupreme.message.ifBlank { DATA_LOAD_ERROR }
-                        )
-                    }
-
-//                handleException(exception)
+                EventBus.invokeEvent(AppEvent.DataLoadError(searchResultSupreme))
             }
 
             nextSubBundle = null

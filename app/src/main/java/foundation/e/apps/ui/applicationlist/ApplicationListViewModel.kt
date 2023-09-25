@@ -28,6 +28,8 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -71,6 +73,8 @@ class ApplicationListViewModel @Inject constructor(
                 appListLiveData.postValue(ResultSupreme.create(ResultStatus.OK, it.first))
                 updateNextPageUrl(it.second)
             }
+
+            if (!result.isSuccess()) EventBus.invokeEvent(AppEvent.DataLoadError(result))
         }
     }
 
