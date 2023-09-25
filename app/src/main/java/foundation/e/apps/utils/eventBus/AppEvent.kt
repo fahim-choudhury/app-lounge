@@ -29,6 +29,7 @@ sealed class AppEvent(val data: Any) {
     class UpdateEvent(result: ResultSupreme.WorkError<ResultStatus>) : AppEvent(result)
 
     class InvalidAuthEvent(authName: String) : AppEvent(authName)
+    class DataLoadError<T>(result: ResultSupreme<T>) : AppEvent(result)
     class ErrorMessageEvent(stringResourceId: Int) : AppEvent(stringResourceId)
     class AppPurchaseEvent(fusedDownload: FusedDownload) : AppEvent(fusedDownload)
     class NoInternetEvent(isInternetAvailable: Boolean) : AppEvent(isInternetAvailable)

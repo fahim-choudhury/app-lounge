@@ -27,6 +27,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import foundation.e.apps.R
+import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.databinding.DialogErrorLogBinding
 
@@ -34,23 +35,28 @@ class CentralErrorHandler {
 
     private var lastDialog: AlertDialog? = null
 
-    fun getDialogForTimeout(
+    fun <T> getDialogForDataLoadError(
         context: Activity,
-        logToDisplay: String = "",
+        result: ResultSupreme<T>,
         retryAction: () -> Unit,
-    ): AlertDialog.Builder {
-        val customDialogView = getDialogCustomView(context, logToDisplay)
-        val dialog = AlertDialog.Builder(context).apply {
-            setTitle(R.string.timeout_title)
-            setMessage(R.string.timeout_desc_cleanapk)
-            setView(customDialogView)
-            setPositiveButton(R.string.retry) { _, _ ->
-                retryAction()
+    ): AlertDialog.Builder? {
+        return when (result) {
+            is ResultSupreme.Timeout -> {
+                getDialogForTimeout(
+                    context,
+                    result.message.ifBlank { result.exception?.message ?: "Timeout - ${result.exception}" },
+                    retryAction
+                )
             }
-            setNegativeButton(R.string.close, null)
-            setCancelable(true)
+            is ResultSupreme.Error -> {
+                getDialogForOtherErrors(
+                    context,
+                    result.message.ifBlank { result.exception?.message ?: "Error - ${result.exception}" },
+                    retryAction
+                )
+            }
+            else -> null
         }
-        return dialog
     }
 
     fun getDialogForUnauthorized(
@@ -78,6 +84,44 @@ class CentralErrorHandler {
             setNegativeButton(R.string.logout) { _, _ ->
                 logoutAction()
             }
+            setCancelable(true)
+        }
+        return dialog
+    }
+
+    private fun getDialogForTimeout(
+        context: Activity,
+        logToDisplay: String = "",
+        retryAction: () -> Unit,
+    ): AlertDialog.Builder {
+        val customDialogView = getDialogCustomView(context, logToDisplay)
+        val dialog = AlertDialog.Builder(context).apply {
+            setTitle(R.string.timeout_title)
+            setMessage(R.string.timeout_desc_cleanapk)
+            setView(customDialogView)
+            setPositiveButton(R.string.retry) { _, _ ->
+                retryAction()
+            }
+            setNegativeButton(R.string.close, null)
+            setCancelable(true)
+        }
+        return dialog
+    }
+
+    private fun getDialogForOtherErrors(
+        context: Activity,
+        logToDisplay: String = "",
+        retryAction: () -> Unit,
+    ): AlertDialog.Builder {
+        val customDialogView = getDialogCustomView(context, logToDisplay)
+        val dialog = AlertDialog.Builder(context).apply {
+            setTitle(R.string.data_load_error)
+            setMessage(R.string.data_load_error_desc)
+            setView(customDialogView)
+            setPositiveButton(R.string.retry) { _, _ ->
+                retryAction()
+            }
+            setNegativeButton(R.string.close, null)
             setCancelable(true)
         }
         return dialog

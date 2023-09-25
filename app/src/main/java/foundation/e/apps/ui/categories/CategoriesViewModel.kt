@@ -22,10 +22,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.data.FusedCategory
 import foundation.e.apps.data.fused.utils.CategoryType
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -47,6 +50,16 @@ class CategoriesViewModel @Inject constructor(
         viewModelScope.launch {
             val categoriesData = fusedAPIRepository.getCategoriesList(type)
             categoriesList.postValue(categoriesData)
+
+            val status = categoriesData.third
+
+            if (status != ResultStatus.OK) {
+                EventBus.invokeEvent(
+                    AppEvent.DataLoadError(
+                        ResultSupreme.create(status, categoriesData.second)
+                    )
+                )
+            }
         }
     }
 }

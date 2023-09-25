@@ -24,12 +24,15 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.data.updates.UpdatesManagerRepository
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -56,6 +59,16 @@ class UpdatesViewModel @Inject constructor(
                 updatesManagerRepository.getUpdatesOSS()
             }
             updatesList.postValue(updatesResult)
+
+            val status = updatesResult.second
+
+            if (status != ResultStatus.OK) {
+                EventBus.invokeEvent(
+                    AppEvent.DataLoadError(
+                        ResultSupreme.create(status, updatesResult.first)
+                    )
+                )
+            }
         }
     }
 

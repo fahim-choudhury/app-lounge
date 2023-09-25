@@ -25,6 +25,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.exceptions.ApiException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.R
+import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
@@ -34,6 +35,8 @@ import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.download.data.DownloadProgressLD
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -77,6 +80,16 @@ class ApplicationViewModel @Inject constructor(
                         origin
                     )
                 fusedApp.postValue(appData)
+
+                val status = appData.second
+
+                if (status != ResultStatus.OK) {
+                    EventBus.invokeEvent(
+                        AppEvent.DataLoadError(
+                            ResultSupreme.create(status, appData.first)
+                        )
+                    )
+                }
             } catch (e: ApiException.AppNotFound) {
                 _errorMessageLiveData.postValue(R.string.app_not_found)
             } catch (e: Exception) {
