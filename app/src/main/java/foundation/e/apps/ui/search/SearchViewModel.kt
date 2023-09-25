@@ -121,10 +121,6 @@ class SearchViewModel @Inject constructor(
         isLoading = true
         val gplaySearchResult = fusedAPIRepository.getGplaySearchResults(query, nextSubBundle)
 
-        if (!gplaySearchResult.isSuccess()) {
-//            handleException(gplaySearchResult.exception ?: UnknownSourceException())
-        }
-
         val isFirstFetch = nextSubBundle == null
         nextSubBundle = gplaySearchResult.data?.second
 
@@ -151,11 +147,6 @@ class SearchViewModel @Inject constructor(
         currentAppList.addAll(gplaySearchResult.data?.first ?: emptyList())
         return currentAppList.distinctBy { it.package_name }
     }
-
-//    private fun handleException(exception: Exception) {
-//        exceptionsList.add(exception)
-//        exceptionsLiveData.postValue(exceptionsList)
-//    }
 
     /**
      * @return returns true if there is changes in data, otherwise false
