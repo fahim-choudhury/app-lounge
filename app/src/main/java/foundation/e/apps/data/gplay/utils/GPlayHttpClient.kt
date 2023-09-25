@@ -40,6 +40,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import timber.log.Timber
 import java.io.IOException
+import java.io.InterruptedIOException
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -169,7 +170,11 @@ class GPlayHttpClient @Inject constructor(
         } catch (e: GplayHttpRequestException) {
             throw e
         } catch (e: Exception) {
-            val status = if (e is SocketTimeoutException) STATUS_CODE_TIMEOUT else -1
+            val status = when {
+                e is SocketTimeoutException -> STATUS_CODE_TIMEOUT
+                e is InterruptedIOException && e.message == "timeout" -> STATUS_CODE_TIMEOUT
+                else -> -1
+            }
             throw GplayHttpRequestException(status, e.localizedMessage ?: "")
         } finally {
             response?.close()
