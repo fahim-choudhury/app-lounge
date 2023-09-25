@@ -27,25 +27,25 @@ import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import java.util.Locale
 
 /**
- * Call methods of [GoogleAccountLogger] and [AnonymousLogger] from here.
+ * Call methods of [GoogleAccountLoginManager] and [AnonymousLoginManager] from here.
  *
  * Dependency Injection via hilt is not possible,
- * we need to manually check login type, create an instance of either [GoogleAccountLogger]
- * or [AnonymousLogger] and pass it to [logger].
+ * we need to manually check login type, create an instance of either [GoogleAccountLoginManager]
+ * or [AnonymousLoginManager] and pass it to [loginManager].
  *
  * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
  */
 class GooglePlayWrapper constructor(
-    private val logger: GooglePlayLogger,
+    private val loginManager: GooglePlayLoginManager,
     private val user: User,
 ) {
 
     /**
-     * Gets the auth data from instance of [GooglePlayLogger].
+     * Gets the auth data from instance of [GooglePlayLoginManager].
      */
     suspend fun login(locale: Locale): ResultSupreme<AuthData?> {
         val result = handleNetworkResult {
-            logger.login()
+            loginManager.login()
         }
         return result.apply {
             this.data?.locale = locale
@@ -69,7 +69,7 @@ class GooglePlayWrapper constructor(
     suspend fun validate(authData: AuthData): ResultSupreme<PlayResponse> {
         var response = PlayResponse()
         val result = handleNetworkResult {
-            response = logger.validate(authData)
+            response = loginManager.validate(authData)
             if (response.code != 200) {
                 throw Exception("Validation network code: ${response.code}")
             }
@@ -93,18 +93,18 @@ class GooglePlayWrapper constructor(
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
      *
-     * @param googleAccountLogin An instance of [GoogleAccountLogger] must be passed, this method
-     * cannot work on [logger] as it is a common interface for both Google and Anonymous
+     * @param googleAccountLoginManager An instance of [GoogleAccountLoginManager] must be passed, this method
+     * cannot work on [loginManager] as it is a common interface for both Google and Anonymous
      * login, but this method is only for Google login.
      */
     suspend fun getAasToken(
-        googleAccountLogin: GoogleAccountLogger,
+        googleAccountLoginManager: GoogleAccountLoginManager,
         email: String,
         oauthToken: String
     ): ResultSupreme<String> {
         val result = handleNetworkResult {
             var aasToken = ""
-            val response = googleAccountLogin.getAC2DMResponse(email, oauthToken)
+            val response = googleAccountLoginManager.getAC2DMResponse(email, oauthToken)
             var error = response.errorString
             if (response.isSuccessful) {
                 val responseMap = AC2DMUtil.parseResponse(String(response.responseBytes))

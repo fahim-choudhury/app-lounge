@@ -20,7 +20,7 @@ package foundation.e.apps.data.login.api
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.PlayResponse
 
-interface GooglePlayLogger {
+interface GooglePlayLoginManager {
     suspend fun login(): AuthData?
     suspend fun validate(authData: AuthData): PlayResponse
 }

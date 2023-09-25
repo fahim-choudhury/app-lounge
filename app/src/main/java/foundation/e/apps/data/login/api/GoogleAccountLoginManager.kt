@@ -28,12 +28,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Properties
 
-class GoogleAccountLogger(
+class GoogleAccountLoginManager(
     private val gPlayHttpClient: GPlayHttpClient,
     private val nativeDeviceProperty: Properties,
     private val aC2DMTask: AC2DMTask,
     private val loginData: LoginData
-) : GooglePlayLogger {
+) : GooglePlayLoginManager {
 
     /**
      * Get PlayResponse for AC2DM Map. This allows us to get an error message too.

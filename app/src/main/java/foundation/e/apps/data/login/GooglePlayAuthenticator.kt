@@ -25,8 +25,8 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.login.api.GPlayApiFactory
-import foundation.e.apps.data.login.api.GooglePlayLogger
-import foundation.e.apps.data.login.api.GoogleAccountLogger
+import foundation.e.apps.data.login.api.GooglePlayLoginManager
+import foundation.e.apps.data.login.api.GoogleAccountLoginManager
 import foundation.e.apps.data.login.api.GooglePlayWrapper
 import timber.log.Timber
 import java.util.Locale
@@ -52,11 +52,11 @@ class GooglePlayAuthenticator @Inject constructor(
     private val user: User
         get() = loginData.getUserType()
 
-    private val logger: GooglePlayLogger
+    private val loginManager: GooglePlayLoginManager
         get() = gPlayApiFactory.getGPlayApi(user)
 
     private val loggerWrapper: GooglePlayWrapper
-        get() = GooglePlayWrapper(logger, user)
+        get() = GooglePlayWrapper(loginManager, user)
 
     private val locale: Locale
         get() = context.resources.configuration.locales[0]
@@ -169,7 +169,7 @@ class GooglePlayAuthenticator @Inject constructor(
          * If aasToken is not yet saved / made, fetch it from email and oauthToken.
          */
         val aasTokenResponse = loggerWrapper.getAasToken(
-            logger as GoogleAccountLogger,
+            loginManager as GoogleAccountLoginManager,
             email,
             oauthToken
         )

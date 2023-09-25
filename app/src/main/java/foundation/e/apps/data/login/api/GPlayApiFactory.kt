@@ -35,10 +35,10 @@ class GPlayApiFactory @Inject constructor(
     private val loginData: LoginData
 ) {
 
-    fun getGPlayApi(user: User): GooglePlayLogger {
+    fun getGPlayApi(user: User): GooglePlayLoginManager {
         return when (user) {
-            User.GOOGLE -> GoogleAccountLogger(gPlayHttpClient, nativeDeviceProperty, aC2DMTask, loginData)
-            else -> AnonymousLogger(gPlayHttpClient, nativeDeviceProperty, gson)
+            User.GOOGLE -> GoogleAccountLoginManager(gPlayHttpClient, nativeDeviceProperty, aC2DMTask, loginData)
+            else -> AnonymousLoginManager(gPlayHttpClient, nativeDeviceProperty, gson)
         }
     }
 }

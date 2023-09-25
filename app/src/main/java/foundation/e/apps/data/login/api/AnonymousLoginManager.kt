@@ -26,11 +26,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Properties
 
-class AnonymousLogger(
+class AnonymousLoginManager(
     private val gPlayHttpClient: GPlayHttpClient,
     private val nativeDeviceProperty: Properties,
     private val gson: Gson,
-) : GooglePlayLogger {
+) : GooglePlayLoginManager {
 
     private val tokenUrl: String = "https://eu.gtoken.ecloud.global"
 
