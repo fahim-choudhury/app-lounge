@@ -83,6 +83,25 @@ class CentralErrorHandler {
         return dialog
     }
 
+    fun getDialogForDataLoadError(
+        context: Activity,
+        logToDisplay: String = "",
+        retryAction: () -> Unit,
+    ): AlertDialog.Builder {
+        val customDialogView = getDialogCustomView(context, logToDisplay)
+        val dialog = AlertDialog.Builder(context).apply {
+            setTitle(R.string.data_load_error)
+            setMessage(R.string.data_load_error_desc)
+            setView(customDialogView)
+            setPositiveButton(R.string.retry) { _, _ ->
+                retryAction()
+            }
+            setNegativeButton(R.string.close, null)
+            setCancelable(true)
+        }
+        return dialog
+    }
+
     private fun getDialogCustomView(
         context: Activity,
         logToDisplay: String,
