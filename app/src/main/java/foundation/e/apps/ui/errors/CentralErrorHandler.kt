@@ -27,6 +27,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import foundation.e.apps.R
+import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.databinding.DialogErrorLogBinding
 
@@ -34,7 +35,7 @@ class CentralErrorHandler {
 
     private var lastDialog: AlertDialog? = null
 
-    fun getDialogForTimeout(
+    private fun getDialogForTimeout(
         context: Activity,
         logToDisplay: String = "",
         retryAction: () -> Unit,
@@ -83,7 +84,7 @@ class CentralErrorHandler {
         return dialog
     }
 
-    fun getDialogForDataLoadError(
+    private fun getDialogForOtherErrors(
         context: Activity,
         logToDisplay: String = "",
         retryAction: () -> Unit,
@@ -100,6 +101,30 @@ class CentralErrorHandler {
             setCancelable(true)
         }
         return dialog
+    }
+
+    fun <T> getDialogForDataLoadError(
+        context: Activity,
+        result: ResultSupreme<T>,
+        retryAction: () -> Unit,
+    ): AlertDialog.Builder? {
+        return when (result) {
+            is ResultSupreme.Timeout -> {
+                getDialogForTimeout(
+                    context,
+                    result.message.ifBlank { result.exception?.message ?: "Timeout - ${result.exception}" },
+                    retryAction
+                )
+            }
+            is ResultSupreme.Error -> {
+                getDialogForOtherErrors(
+                    context,
+                    result.message.ifBlank { result.exception?.message ?: "Error - ${result.exception}" },
+                    retryAction
+                )
+            }
+            else -> null
+        }
     }
 
     private fun getDialogCustomView(
