@@ -37,6 +37,7 @@ import com.aurora.gplayapi.exceptions.ApiException
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.LoginSourceGPlay
 import foundation.e.apps.data.preference.PreferenceManagerModule
@@ -221,6 +222,10 @@ class MainActivity : AppCompatActivity() {
                 launch {
                     observeNoInternetEvent()
                 }
+
+                launch {
+                    observeDataLoadError()
+                }
             }
         }
     }
@@ -287,6 +292,23 @@ class MainActivity : AppCompatActivity() {
                         retryAction = { loginViewModel.getNewToken() },
                         logoutAction = { loginViewModel.logout() }
                     ).run { ceh.dismissAllAndShow(this) }
+                }
+            )
+        }
+    }
+
+    private suspend fun observeDataLoadError() {
+        EventBus.events.filter { appEvent ->
+            appEvent is AppEvent.DataLoadError<*>
+        }.collectLatest {
+            retryMechanism.wrapWithRetry(
+                { loginViewModel.checkLogin() },
+                {
+                    ceh.getDialogForDataLoadError(
+                        context = this@MainActivity,
+                        result = it.data as ResultSupreme<*>,
+                        retryAction = { loginViewModel.checkLogin() },
+                    )?.run { ceh.dismissAllAndShow(this) }
                 }
             )
         }
