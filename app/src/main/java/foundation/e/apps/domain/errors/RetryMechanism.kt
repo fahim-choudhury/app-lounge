@@ -27,7 +27,7 @@ class RetryMechanism {
      */
     fun wrapWithRetry(
         retryBlock: () -> Unit,
-        retryFailureBlock: () -> Unit,
+        retryFailureBlock: () -> Unit
     ) {
         if (!retryEvaluator(retryBlock)) {
             retryFailureBlock()
@@ -49,7 +49,7 @@ class RetryMechanism {
      * @return true if retry conditions have not expired, false otherwise.
      */
     private fun retryEvaluator(
-        retryBlock: () -> Unit,
+        retryBlock: () -> Unit
     ): Boolean {
         if (shouldFailRetry()) return false
         retryBlock()
@@ -64,5 +64,4 @@ class RetryMechanism {
     private fun shouldFailRetry(): Boolean {
         return autoRetryCount > 0
     }
-
 }

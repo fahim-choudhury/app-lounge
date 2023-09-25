@@ -24,7 +24,6 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import foundation.e.apps.data.Constants.ACTION_AUTHDATA_DUMP
 import foundation.e.apps.data.Constants.TAG_AUTHDATA_DUMP
-import foundation.e.apps.data.preference.DataStoreModule
 import org.json.JSONObject
 import timber.log.Timber
 

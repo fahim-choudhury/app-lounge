@@ -38,7 +38,7 @@ class CentralErrorHandler {
     fun <T> getDialogForDataLoadError(
         context: Activity,
         result: ResultSupreme<T>,
-        retryAction: () -> Unit,
+        retryAction: () -> Unit
     ): AlertDialog.Builder? {
         return when (result) {
             is ResultSupreme.Timeout -> {
@@ -64,7 +64,7 @@ class CentralErrorHandler {
         logToDisplay: String = "",
         user: User,
         retryAction: () -> Unit,
-        logoutAction: () -> Unit,
+        logoutAction: () -> Unit
     ): AlertDialog.Builder {
         val customDialogView = getDialogCustomView(context, logToDisplay)
         val dialog = AlertDialog.Builder(context).apply {
@@ -92,7 +92,7 @@ class CentralErrorHandler {
     private fun getDialogForTimeout(
         context: Activity,
         logToDisplay: String = "",
-        retryAction: () -> Unit,
+        retryAction: () -> Unit
     ): AlertDialog.Builder {
         val customDialogView = getDialogCustomView(context, logToDisplay)
         val dialog = AlertDialog.Builder(context).apply {
@@ -111,7 +111,7 @@ class CentralErrorHandler {
     private fun getDialogForOtherErrors(
         context: Activity,
         logToDisplay: String = "",
-        retryAction: () -> Unit,
+        retryAction: () -> Unit
     ): AlertDialog.Builder {
         val customDialogView = getDialogCustomView(context, logToDisplay)
         val dialog = AlertDialog.Builder(context).apply {
@@ -129,7 +129,7 @@ class CentralErrorHandler {
 
     private fun getDialogCustomView(
         context: Activity,
-        logToDisplay: String,
+        logToDisplay: String
     ): View {
         val dialogLayout = DialogErrorLogBinding.inflate(context.layoutInflater)
         dialogLayout.apply {

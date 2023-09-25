@@ -55,8 +55,10 @@ class HomeViewModel @Inject constructor(
             fusedAPIRepository.getHomeScreenData(authData).observe(lifecycleOwner) {
                 homeScreenData.postValue(it)
 
-                if (!it.isSuccess()) viewModelScope.launch {
-                    EventBus.invokeEvent(AppEvent.DataLoadError(it))
+                if (!it.isSuccess()) {
+                    viewModelScope.launch {
+                        EventBus.invokeEvent(AppEvent.DataLoadError(it))
+                    }
                 }
             }
         }

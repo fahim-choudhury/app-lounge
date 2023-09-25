@@ -42,12 +42,12 @@ import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.LoginSourceGPlay
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.databinding.ActivityMainBinding
-import foundation.e.apps.ui.errors.CentralErrorHandler
 import foundation.e.apps.domain.errors.RetryMechanism
 import foundation.e.apps.install.updates.UpdatesNotifier
 import foundation.e.apps.presentation.login.LoginViewModel
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
+import foundation.e.apps.ui.errors.CentralErrorHandler
 import foundation.e.apps.ui.purchase.AppPurchaseFragmentDirections
 import foundation.e.apps.ui.settings.SettingsFragment
 import foundation.e.apps.ui.setup.signin.SignInViewModel
@@ -307,7 +307,7 @@ class MainActivity : AppCompatActivity() {
                     ceh.getDialogForDataLoadError(
                         context = this@MainActivity,
                         result = it.data as ResultSupreme<*>,
-                        retryAction = { loginViewModel.checkLogin() },
+                        retryAction = { loginViewModel.checkLogin() }
                     )?.run { ceh.dismissAllAndShow(this) }
                 }
             )
