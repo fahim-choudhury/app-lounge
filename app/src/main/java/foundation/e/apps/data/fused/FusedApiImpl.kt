@@ -891,37 +891,6 @@ class FusedApiImpl @Inject constructor(
         return Triple(result.getResultStatus(), fusedCategoryList, APP_TYPE_OPEN)
     }
 
-    /**
-     * Run a block of code with timeout. Returns status.
-     *
-     * @param block Main block to execute within [timeoutDurationInMillis] limit.
-     * @param timeoutBlock Optional code to execute in case of timeout.
-     * @param exceptionBlock Optional code to execute in case of an exception other than timeout.
-     *
-     * @return Instance of [ResultStatus] based on whether [block] was executed within timeout limit.
-     */
-    private suspend fun runCodeWithTimeout(
-        block: suspend () -> Unit,
-        timeoutBlock: (() -> Unit)? = null,
-        exceptionBlock: ((e: Exception) -> Unit)? = null,
-    ): ResultStatus {
-        return try {
-            withTimeout(timeoutDurationInMillis) {
-                block()
-            }
-            ResultStatus.OK
-        } catch (e: TimeoutCancellationException) {
-            timeoutBlock?.invoke()
-            ResultStatus.TIMEOUT
-        } catch (e: Exception) {
-            e.printStackTrace()
-            exceptionBlock?.invoke(e)
-            ResultStatus.UNKNOWN.apply {
-                message = e.stackTraceToString()
-            }
-        }
-    }
-
     private fun updateCategoryDrawable(
         category: FusedCategory,
     ) {
