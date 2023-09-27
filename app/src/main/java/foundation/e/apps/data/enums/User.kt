@@ -10,7 +10,7 @@ enum class User {
         fun getUser(userString: String): User {
             val userStrings = values().map { it.name }
             return if (userString in userStrings) {
-                valueOf(userString)              
+                valueOf(userString)
             } else {
                 UNAVAILABLE
             }
