@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainActivityViewModel
 
     private val retryMechanism by lazy { RetryMechanism() }
-    private val ceh by lazy { CentralErrorHandler() }
+    private val errorHandler by lazy { CentralErrorHandler() }
 
     @Inject
     lateinit var preferenceManagerModule: PreferenceManagerModule
@@ -285,13 +285,13 @@ class MainActivity : AppCompatActivity() {
             retryMechanism.wrapWithRetry(
                 { loginViewModel.getNewToken() },
                 {
-                    ceh.getDialogForUnauthorized(
+                    errorHandler.getDialogForUnauthorized(
                         context = this@MainActivity,
                         logToDisplay = it.data.toString(),
                         user = currentUser,
                         retryAction = { loginViewModel.getNewToken() },
                         logoutAction = { loginViewModel.logout() }
-                    ).run { ceh.dismissAllAndShow(this) }
+                    ).run { errorHandler.dismissAllAndShow(this) }
                 }
             )
         }
@@ -304,11 +304,11 @@ class MainActivity : AppCompatActivity() {
             retryMechanism.wrapWithRetry(
                 { loginViewModel.checkLogin() },
                 {
-                    ceh.getDialogForDataLoadError(
+                    errorHandler.getDialogForDataLoadError(
                         context = this@MainActivity,
                         result = it.data as ResultSupreme<*>,
                         retryAction = { loginViewModel.checkLogin() }
-                    )?.run { ceh.dismissAllAndShow(this) }
+                    )?.run { errorHandler.dismissAllAndShow(this) }
                 }
             )
         }
