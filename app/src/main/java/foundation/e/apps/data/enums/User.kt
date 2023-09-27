@@ -9,10 +9,10 @@ enum class User {
     companion object {
         fun getUser(userString: String): User {
             val userStrings = values().map { it.name }
-            return if (userString !in userStrings) {
-                UNAVAILABLE
+            return if (userString in userStrings) {
+                valueOf(userString)              
             } else {
-                valueOf(userString)
+                UNAVAILABLE
             }
         }
     }
