@@ -432,7 +432,7 @@ class FusedApiImplTest {
             name = "Demo Three",
             package_name = "foundation.e.demothree",
             latest_version_code = 123,
-            is_pwa = true
+            isPwa = true
         )
 
         Mockito.`when`(pwaManagerModule.getPwaStatus(fusedApp)).thenReturn(fusedApp.status)

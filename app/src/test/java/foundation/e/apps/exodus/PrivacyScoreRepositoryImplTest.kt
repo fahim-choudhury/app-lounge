@@ -43,7 +43,7 @@ class PrivacyScoreRepositoryImplTest {
             name = "Demo Three",
             package_name = "a.b.c",
             latest_version_code = 123,
-            is_pwa = true,
+            isPwa = true,
             permsFromExodus = listOf(),
             perms = listOf(),
             trackers = listOf()
@@ -60,7 +60,7 @@ class PrivacyScoreRepositoryImplTest {
             name = "Demo Three",
             package_name = "a.b.c",
             latest_version_code = 123,
-            is_pwa = true,
+            isPwa = true,
             perms = listOf(),
             trackers = listOf()
         )
@@ -76,7 +76,7 @@ class PrivacyScoreRepositoryImplTest {
             name = "Demo Three",
             package_name = "a.b.c",
             latest_version_code = 123,
-            is_pwa = true,
+            isPwa = true,
             permsFromExodus = listOf(),
             perms = listOf(),
             trackers = CommonUtilsModule.LIST_OF_NULL

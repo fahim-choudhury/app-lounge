@@ -63,7 +63,7 @@ class AppPrivacyInfoRepositoryImplTest {
             name = "Demo Three",
             package_name = "foundation.e.demothree",
             latest_version_code = 123,
-            is_pwa = true
+            isPwa = true
         )
         val result = appPrivacyInfoRepository.getAppPrivacyInfo(fusedApp, fusedApp.package_name)
         assertEquals("getAppPrivacyInfo", true, result.isSuccess())
@@ -78,7 +78,7 @@ class AppPrivacyInfoRepositoryImplTest {
             name = "Demo Three",
             package_name = "",
             latest_version_code = 123,
-            is_pwa = true
+            isPwa = true
         )
         val result = appPrivacyInfoRepository.getAppPrivacyInfo(fusedApp, fusedApp.package_name)
         assertEquals("getAppPrivacyInfo", false, result.isSuccess())
@@ -92,7 +92,7 @@ class AppPrivacyInfoRepositoryImplTest {
             name = "Demo Three",
             package_name = "a.b.c",
             latest_version_code = 123,
-            is_pwa = true
+            isPwa = true
         )
         fakeTrackerDao.trackers.clear()
         val result = appPrivacyInfoRepository.getAppPrivacyInfo(fusedApp, fusedApp.package_name)

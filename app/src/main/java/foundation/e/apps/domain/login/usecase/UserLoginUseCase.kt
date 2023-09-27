@@ -34,16 +34,14 @@ class UserLoginUseCase @Inject constructor(
 ) {
 
     fun anonymousUser(): Flow<Resource<AuthData>> = flow {
-        try {
+        kotlin.runCatching {
             emit(Resource.Loading())
             emit(Resource.Success(loginRepository.anonymousUser()))
-        } catch (e: Exception) {
-            emit(Resource.Error(e.localizedMessage))
-        }
+        }.onFailure { failure -> emit(Resource.Error(failure.localizedMessage)) }
     }
 
     fun googleUser(authData: AuthData, token: String): Flow<Resource<Unit>> = flow {
-        try {
+        kotlin.runCatching {
             emit(
                 Resource.Success(
                     loginRepository.googleUser(
@@ -52,18 +50,14 @@ class UserLoginUseCase @Inject constructor(
                     )
                 )
             )
-        } catch (e: Exception) {
-            emit(Resource.Error(e.localizedMessage))
-        }
+        }.onFailure { failure -> emit(Resource.Error(failure.localizedMessage)) }
     }
 
     fun retrieveCachedAuthData(): Flow<Resource<AuthData>> = flow {
-        try {
+        kotlin.runCatching {
             emit(Resource.Loading())
             emit(Resource.Success(cacheRepository.cacheAuthData()))
-        } catch (e: Exception) {
-            emit(Resource.Error(e.localizedMessage))
-        }
+        }.onFailure { failure -> emit(Resource.Error(failure.localizedMessage)) }
     }
 
     fun logoutUser() {

@@ -52,7 +52,7 @@ data class FusedApp(
     var source: String = String(),
     val price: String = String(),
     val isFree: Boolean = true,
-    val is_pwa: Boolean = false,
+    val isPwa: Boolean = false,
     var pwaPlayerDbId: Long = -1,
     val url: String = String(),
     var type: Type = Type.NATIVE,

@@ -135,6 +135,7 @@ class LoginViewModel @Inject constructor(
      */
     fun initialNoGoogleLogin(onUserSaved: () -> Unit) {
         viewModelScope.launch {
+            loginSourceRepository.setNoGoogleMode()
             val authObject = noGoogleModeUseCase.performNoGoogleLogin()
             _loginState.value = LoginState(isLoading = false, isLoggedIn = true)
             authObjects.postValue(listOf(authObject))

@@ -527,7 +527,7 @@ class ApplicationListRVAdapter(
             enableInstallButton(Status.INSTALLED)
             text = context.getString(R.string.open)
             setOnClickListener {
-                if (searchApp.is_pwa) {
+                if (searchApp.isPwa) {
                     mainActivityViewModel.launchPwa(searchApp)
                 } else {
                     context.startActivity(
