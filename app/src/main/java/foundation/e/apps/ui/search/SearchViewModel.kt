@@ -121,6 +121,10 @@ class SearchViewModel @Inject constructor(
         isLoading = true
         val gplaySearchResult = fusedAPIRepository.getGplaySearchResults(query, nextSubBundle)
 
+        if (!gplaySearchResult.isSuccess()) {
+            EventBus.invokeEvent(AppEvent.DataLoadError(gplaySearchResult))
+        }
+
         val isFirstFetch = nextSubBundle == null
         nextSubBundle = gplaySearchResult.data?.second
 
