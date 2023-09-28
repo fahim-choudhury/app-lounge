@@ -35,6 +35,7 @@ class CacheRepositoryImpl @Inject constructor(
             ?.let { User.getUser(it) }
             ?: run { User.UNAVAILABLE }
     }
+
     override fun resetCachedData() {
         applicationContext.configurations.apply {
             authData = ""
