@@ -125,4 +125,6 @@
     <string name="duplicate_app_from_sources">Vissa proprietära appar kan också ha en version med öppen källkod. När detta händer visar App Lounge endast den version med öppen källkod för att undvika dubbletter.</string>
     <string name="additional_file_for">Ytterligare filer för %s</string>
     <string name="privacy_description">Integritetspoängen är automatiskt beräknad utifrån behörigheter och spårare som detekterats i applikationer. Det ger en fingervisning micro-spårar sina användare.&lt;br /&gt;&lt;br /&gt;Algoritmens källkod för beräkningar kan hittas &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;här&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Spårardetektering utförs med &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Privacy tools&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Poäng av 10.&lt;br /&gt;&lt;br /&gt;Läs mer om hur Integritetspoäng beräknas, dess begränsningar och hur du kan skydda dig själv från microspårning &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;på denna sidan&lt;/a&gt;.</string>
+    <string name="updates">Uppdateringar</string>
+    <string name="message_update_failed">På grund av ett tillfälligt fel kan inte alla dina appar uppdateras. Försök igen senare.</string>
 </resources>
