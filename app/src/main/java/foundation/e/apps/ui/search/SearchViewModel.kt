@@ -30,7 +30,7 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.GplaySearchResult
 import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.login.AuthObject
+import foundation.e.apps.presentation.login.LoginState
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.CoroutineScope
@@ -49,7 +49,7 @@ class SearchViewModel @Inject constructor(
     val searchResult: MutableLiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
         MutableLiveData()
 
-    private var lastAuthObjects: List<AuthObject>? = null
+    private var lastLoginState: LoginState? = null
 
     private var nextSubBundle: Set<SearchBundle.SubBundle>? = null
 
@@ -159,4 +159,6 @@ class SearchViewModel @Inject constructor(
         newFusedApps: List<FusedApp>,
         oldFusedApps: List<FusedApp>
     ) = fusedAPIRepository.isAnyFusedAppUpdated(newFusedApps, oldFusedApps)
+
+    fun isLoginStateChanged(loginState: LoginState) = this.lastLoginState == null || this.lastLoginState != loginState
 }

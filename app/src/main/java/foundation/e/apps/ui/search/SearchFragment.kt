@@ -75,7 +75,7 @@ class SearchFragment :
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
 
-    //To avoid SyntheticAccessor, declared as protected
+    // To avoid SyntheticAccessor, declared as protected
     protected val searchViewModel: SearchViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
@@ -123,7 +123,12 @@ class SearchFragment :
 
         loginViewModel.loginState.observe(viewLifecycleOwner) {
             val currentQuery = searchView?.query?.toString() ?: ""
-            if (!it.isLoggedIn || (currentQuery.isNotEmpty() && lastSearch == currentQuery)) return@observe
+            if ((!it.isLoggedIn || (currentQuery.isNotEmpty() && lastSearch == currentQuery)) &&
+                !searchViewModel.isLoginStateChanged(it)
+            ) {
+                return@observe
+            }
+
             // TODO : check for network and wait if network is unavailable
             this.authData = it.authData
             loadData()
