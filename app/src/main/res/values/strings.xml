@@ -130,6 +130,7 @@
 
     <!-- Updates Fragment -->
     <string name="update_all">Update All</string>
+    <string name="checking_updates">Checking Updates...</string>
     <plurals name="updates_notification_title">
         <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> app update is available</item>
         <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> app updates are available</item>
@@ -231,4 +232,6 @@
 
     <string name="request_exodus_report">Request Exodus report</string>
     <string name="request_exodus_report_confirm_dialog">Clicking on \"<xliff:g id="ok">%1$s</xliff:g>\" will open a tab in your browser with the app\'s package name prefilled.&lt;br /&gt;&lt;br /&gt;Click on \"Perform analysis\" to start the analysis by Exodus.&lt;br /&gt;&lt;br /&gt;When the button \"See the report\" is displayed (it can take a while depending on the app) you can close the tab and go back to the app description in <xliff:g id="app_name">%2$s</xliff:g> where you should see the Privacy Score. Sometimes Exodus can fail to analyze the app.&lt;br /&gt;&lt;br /&gt;NB: it can take up to 10 min for the score to be displayed in the app description.</string>
+
+    <string name="free_space_for_update">Free up %1$s on your phone to get the latest updates.</string>
 </resources>

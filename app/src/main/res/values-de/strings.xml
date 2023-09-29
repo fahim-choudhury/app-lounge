@@ -165,4 +165,5 @@
 \n
 \n\t• Micro-Targeting abzuschwächen
 \n\t• die Auswirkungen zu begrenzen, falls dieses Konto von Google eingeschränkt wird</string>
+    <string name="free_space_for_update">Bitte %1$s Speicherplatz auf diesem Gerät freimachen, damtit die neueste Aktualisierung installiert werden kann.</string>
 </resources>
