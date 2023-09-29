@@ -32,7 +32,6 @@ import com.aurora.gplayapi.data.models.SearchBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
-import foundation.e.apps.data.Constants.timeoutDurationInMillis
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
@@ -68,10 +67,8 @@ import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.ui.home.model.HomeChildFusedAppDiffUtil
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withTimeout
 import retrofit2.Response
 import timber.log.Timber
 import javax.inject.Inject

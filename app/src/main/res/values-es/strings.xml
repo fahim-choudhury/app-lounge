@@ -154,4 +154,5 @@
     <string name="about">Acerca de</string>
     <string name="pwa_and_open_source_apps">PWA y aplicaciones de código abierto</string>
     <string name="or">O mostrar sólo</string>
+    <string name="free_space_for_update">Libera %1$s en tu teléfono para recibir las últimas actualizaciones.</string>
 </resources>

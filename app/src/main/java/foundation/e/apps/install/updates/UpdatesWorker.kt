@@ -103,7 +103,7 @@ class UpdatesWorker @AssistedInject constructor(
 
     private suspend fun checkForUpdates() {
         loadSettings()
-        val isConnectedToUnmeteredNetwork = isConnectedToUnmeteredNetwork(applicationContext)
+        val isConnectedToUnMeteredNetwork = isConnectedToUnMeteredNetwork(applicationContext)
         val appsNeededToUpdate = mutableListOf<FusedApp>()
         val user = getUser()
         val authData = loginSourceRepository.getValidatedAuthData().data
@@ -134,7 +134,7 @@ class UpdatesWorker @AssistedInject constructor(
         }
         Timber.i("Updates found: ${appsNeededToUpdate.size}; $resultStatus")
         if (isAutoUpdate && shouldShowNotification) {
-            handleNotification(appsNeededToUpdate.size, isConnectedToUnmeteredNetwork)
+            handleNotification(appsNeededToUpdate.size, isConnectedToUnMeteredNetwork)
         }
 
         if (resultStatus != ResultStatus.OK) {
@@ -146,11 +146,11 @@ class UpdatesWorker @AssistedInject constructor(
              */
             retryCount = 0
             if (isAutoUpdate && shouldShowNotification) {
-                handleNotification(appsNeededToUpdate.size, isConnectedToUnmeteredNetwork)
+                handleNotification(appsNeededToUpdate.size, isConnectedToUnMeteredNetwork)
             }
 
             triggerUpdateProcessOnSettings(
-                isConnectedToUnmeteredNetwork,
+                isConnectedToUnMeteredNetwork,
                 appsNeededToUpdate,
                 /*
                  * If authData is null, only cleanApk data will be present
@@ -251,7 +251,7 @@ class UpdatesWorker @AssistedInject constructor(
      * @param context current Context
      * @return returns true if the connections is not metered, false otherwise
      */
-    private fun isConnectedToUnmeteredNetwork(context: Context): Boolean {
+    private fun isConnectedToUnMeteredNetwork(context: Context): Boolean {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val capabilities =

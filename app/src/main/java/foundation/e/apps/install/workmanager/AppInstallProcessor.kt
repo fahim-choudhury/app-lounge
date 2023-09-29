@@ -19,8 +19,6 @@
 package foundation.e.apps.install.workmanager
 
 import android.content.Context
-import android.os.Environment
-import android.os.StatFs
 import com.aurora.gplayapi.exceptions.ApiException
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
@@ -35,7 +33,9 @@ import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.preference.DataStoreManager
+import foundation.e.apps.install.notification.StorageNotificationManager
 import foundation.e.apps.install.updates.UpdatesNotifier
+import foundation.e.apps.utils.StorageComputer
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.getFormattedString
@@ -51,7 +51,8 @@ class AppInstallProcessor @Inject constructor(
     private val fusedDownloadRepository: FusedDownloadRepository,
     private val fusedManagerRepository: FusedManagerRepository,
     private val fusedAPIRepository: FusedAPIRepository,
-    private val dataStoreManager: DataStoreManager
+    private val dataStoreManager: DataStoreManager,
+    private val storageNotificationManager: StorageNotificationManager
 ) {
 
     private var isItUpdateWork = false
@@ -127,8 +128,9 @@ class AppInstallProcessor @Inject constructor(
                 return
             }
 
-            if (!isStorageAvailable(fusedDownload)) {
+            if (StorageComputer.spaceMissing(fusedDownload) > 0) {
                 Timber.d("Storage is not available for: ${fusedDownload.name} size: ${fusedDownload.appSize}")
+                storageNotificationManager.showNotEnoughSpaceNotification(fusedDownload)
                 fusedManagerRepository.installationIssue(fusedDownload)
                 EventBus.invokeEvent(AppEvent.ErrorMessageEvent(R.string.not_enough_storage))
                 return
@@ -137,7 +139,10 @@ class AppInstallProcessor @Inject constructor(
             fusedManagerRepository.updateAwaiting(fusedDownload)
             InstallWorkManager.enqueueWork(fusedDownload, isAnUpdate)
         } catch (e: Exception) {
-            Timber.e("Enqueuing App install work is failed for ${fusedDownload.packageName} exception: ${e.localizedMessage}", e)
+            Timber.e(
+                "Enqueuing App install work is failed for ${fusedDownload.packageName} exception: ${e.localizedMessage}",
+                e
+            )
             fusedManagerRepository.installationIssue(fusedDownload)
         }
     }
@@ -151,12 +156,14 @@ class AppInstallProcessor @Inject constructor(
             EventBus.invokeEvent(AppEvent.AppPurchaseEvent(fusedDownload))
             return false
         } catch (e: Exception) {
-            Timber.e("Updating download Urls failed for ${fusedDownload.packageName} exception: ${e.localizedMessage}", e)
+            Timber.e(
+                "Updating download Urls failed for ${fusedDownload.packageName} exception: ${e.localizedMessage}",
+                e
+            )
             EventBus.invokeEvent(
                 AppEvent.UpdateEvent(
                     ResultSupreme.WorkError(
-                        ResultStatus.UNKNOWN,
-                        fusedDownload
+                        ResultStatus.UNKNOWN, fusedDownload
                     )
                 )
             )
@@ -169,20 +176,8 @@ class AppInstallProcessor @Inject constructor(
         fusedDownload: FusedDownload
     ) {
         fusedAPIRepository.updateFusedDownloadWithDownloadingInfo(
-            fusedDownload.origin,
-            fusedDownload
+            fusedDownload.origin, fusedDownload
         )
-    }
-
-    private fun isStorageAvailable(fusedDownload: FusedDownload): Boolean {
-        val availableSpace = calculateAvailableDiskSpace()
-        return availableSpace > fusedDownload.appSize + (500 * (1000 * 1000))
-    }
-
-    private fun calculateAvailableDiskSpace(): Long {
-        val path = Environment.getDataDirectory().absolutePath
-        val statFs = StatFs(path)
-        return statFs.availableBytes
     }
 
     suspend fun processInstall(
@@ -199,8 +194,8 @@ class AppInstallProcessor @Inject constructor(
 
             fusedDownload?.let {
 
-                this.isItUpdateWork = isItUpdateWork &&
-                    fusedManagerRepository.isFusedDownloadInstalled(fusedDownload)
+                this.isItUpdateWork =
+                    isItUpdateWork && fusedManagerRepository.isFusedDownloadInstalled(fusedDownload)
 
                 if (!fusedDownload.isAppInstalling()) {
                     Timber.d("!!! returned")
@@ -223,7 +218,10 @@ class AppInstallProcessor @Inject constructor(
                 startAppInstallationProcess(it)
             }
         } catch (e: Exception) {
-            Timber.e("Install worker is failed for ${fusedDownload?.packageName} exception: ${e.localizedMessage}", e)
+            Timber.e(
+                "Install worker is failed for ${fusedDownload?.packageName} exception: ${e.localizedMessage}",
+                e
+            )
             fusedDownload?.let {
                 fusedManagerRepository.cancelDownload(fusedDownload)
             }
@@ -234,11 +232,7 @@ class AppInstallProcessor @Inject constructor(
     }
 
     private fun areFilesDownloadedButNotInstalled(fusedDownload: FusedDownload) =
-        fusedDownload.areFilesDownloaded() && (
-            !fusedManagerRepository.isFusedDownloadInstalled(
-                fusedDownload
-            ) || fusedDownload.status == Status.INSTALLING
-            )
+        fusedDownload.areFilesDownloaded() && (!fusedManagerRepository.isFusedDownloadInstalled(fusedDownload) || fusedDownload.status == Status.INSTALLING)
 
     private suspend fun checkUpdateWork(
         fusedDownload: FusedDownload?
@@ -261,14 +255,11 @@ class AppInstallProcessor @Inject constructor(
     }
 
     private suspend fun isUpdateCompleted(): Boolean {
-        val downloadListWithoutAnyIssue =
-            fusedDownloadRepository.getDownloadList()
-                .filter {
-                    !listOf(
-                        Status.INSTALLATION_ISSUE,
-                        Status.PURCHASE_NEEDED
-                    ).contains(it.status)
-                }
+        val downloadListWithoutAnyIssue = fusedDownloadRepository.getDownloadList().filter {
+            !listOf(
+                Status.INSTALLATION_ISSUE, Status.PURCHASE_NEEDED
+            ).contains(it.status)
+        }
 
         return UpdatesDao.successfulUpdatedApps.isNotEmpty() && downloadListWithoutAnyIssue.isEmpty()
     }
@@ -276,9 +267,9 @@ class AppInstallProcessor @Inject constructor(
     private fun showNotificationOnUpdateEnded() {
         val locale = dataStoreManager.getAuthData().locale
         val date = Date().getFormattedString(DATE_FORMAT, locale)
-        val numberOfUpdatedApps = NumberFormat.getNumberInstance(locale)
-            .format(UpdatesDao.successfulUpdatedApps.size)
-            .toString()
+        val numberOfUpdatedApps =
+            NumberFormat.getNumberInstance(locale).format(UpdatesDao.successfulUpdatedApps.size)
+                .toString()
 
         UpdatesNotifier.showNotification(
             context, context.getString(R.string.update),
@@ -294,13 +285,12 @@ class AppInstallProcessor @Inject constructor(
             Timber.i("===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}")
         }
 
-        fusedDownloadRepository.getDownloadFlowById(fusedDownload.id)
-            .transformWhile {
-                emit(it)
-                isInstallRunning(it)
-            }.collect { latestFusedDownload ->
-                handleFusedDownload(latestFusedDownload, fusedDownload)
-            }
+        fusedDownloadRepository.getDownloadFlowById(fusedDownload.id).transformWhile {
+            emit(it)
+            isInstallRunning(it)
+        }.collect { latestFusedDownload ->
+            handleFusedDownload(latestFusedDownload, fusedDownload)
+        }
     }
 
     /**
@@ -360,8 +350,7 @@ class AppInstallProcessor @Inject constructor(
 
             else -> {
                 Timber.wtf(
-                    TAG,
-                    "===> ${fusedDownload.name} is in wrong state ${fusedDownload.status}"
+                    TAG, "===> ${fusedDownload.name} is in wrong state ${fusedDownload.status}"
                 )
                 finishInstallation(fusedDownload)
             }

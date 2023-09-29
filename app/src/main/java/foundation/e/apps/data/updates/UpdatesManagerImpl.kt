@@ -36,12 +36,12 @@ import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import timber.log.Timber
-import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
+import timber.log.Timber
+import javax.inject.Inject
 
 class UpdatesManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
