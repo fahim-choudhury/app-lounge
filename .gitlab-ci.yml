@@ -2,3 +2,5 @@ include:
   - project: 'e/templates'
     ref: gitlab-ci-apps
     file: '/gitlab-ci/.ci-apps.yml'
+
+# finish script
