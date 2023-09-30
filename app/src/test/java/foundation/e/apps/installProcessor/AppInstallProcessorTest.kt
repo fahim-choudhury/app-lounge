@@ -29,6 +29,7 @@ import foundation.e.apps.data.fusedDownload.IFusedManager
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.domain.common.repository.CacheRepositoryImpl
 import foundation.e.apps.domain.install.usecase.AppInstallerUseCase
+import foundation.e.apps.install.notification.StorageNotificationManager
 import foundation.e.apps.install.workmanager.AppInstallProcessor
 import foundation.e.apps.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -75,6 +76,9 @@ class AppInstallProcessorTest {
 
     private lateinit var appInstallProcessor: AppInstallProcessor
 
+    @Mock
+    private lateinit var storageNotificationManager: StorageNotificationManager
+
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
@@ -88,7 +92,8 @@ class AppInstallProcessorTest {
             fusedDownloadRepository,
             fakeFusedManagerRepository,
             fusedAPIRepository,
-            AppInstallerUseCase(CacheRepositoryImpl(context))
+            AppInstallerUseCase(CacheRepositoryImpl(context)),
+            storageNotificationManager
         )
     }
 

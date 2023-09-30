@@ -38,7 +38,7 @@
             android:id="@+id/errorMessagePanel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/black">
+            android:background="@color/e_primary_text_color">
 
             <TextView
                 android:id="@+id/errorMessageText"
@@ -49,7 +49,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:gravity="center_vertical"
-                android:textColor="@android:color/white"
+                android:textColor="@color/e_background"
                 app:drawableLeftCompat="@drawable/ic_warning_white"
                 android:drawablePadding="15dp"
                 android:text="@string/too_many_requests_desc" />
@@ -63,7 +63,7 @@
                 android:layout_marginBottom="15dp"
                 android:gravity="end"
                 android:text="@string/refresh_session"
-                android:textColor="@color/colorAccent"
+                android:textColor="@color/e_accent_inverse"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:layout_alignParentEnd="true"

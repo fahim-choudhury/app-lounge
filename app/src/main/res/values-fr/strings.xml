@@ -160,4 +160,5 @@
 \n
 \n\t• limiter le micro-ciblage
 \n\t• limiter les impacts au cas où ce compte serait restreint par Google</string>
+    <string name="free_space_for_update">Libérez %1$s sur votre téléphone afin de bénéficier des dernières mises à jour.</string>
 </resources>

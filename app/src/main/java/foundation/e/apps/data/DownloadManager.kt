@@ -19,6 +19,7 @@ package foundation.e.apps.data
 
 import android.app.DownloadManager
 import android.content.Context
+import android.database.Cursor
 import android.net.Uri
 import android.os.Environment
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -35,6 +36,7 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
+import kotlin.math.abs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -123,12 +125,17 @@ class DownloadManager @Inject constructor(
             downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
                 .use { cursor ->
                     if (cursor.moveToFirst()) {
-                        val status =
+                        var status =
                             cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
                         val totalSizeBytes =
-                            cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
+                            getLong(cursor, DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
                         val bytesDownloadedSoFar =
-                            cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
+                            getLong(cursor, DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
+                        val reason =
+                            cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON))
+
+                        status = sanitizeStatus(downloadId, status, reason)
+
                         if (status == DownloadManager.STATUS_FAILED) {
                             Timber.d("Download Failed: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status")
                             downloadsMaps[downloadId] = false
@@ -165,6 +172,34 @@ class DownloadManager @Inject constructor(
         return getDownloadStatus(downloadId) == DownloadManager.STATUS_FAILED
     }
 
+    fun getSizeRequired(downloadId: Long): Long {
+        var totalSizeBytes = -1L
+        var bytesDownloadedSoFar = -1L
+
+        try {
+            downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
+                .use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        totalSizeBytes = getLong(cursor, DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
+                        bytesDownloadedSoFar =
+                            getLong(cursor, DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
+                    }
+                }
+        } catch (e: RuntimeException) {
+            Timber.e(e, "runtime exception on retrieving download file size.")
+        }
+
+        if (totalSizeBytes <= 0) {
+            return 0
+        }
+
+        if (bytesDownloadedSoFar <= 0) {
+            return totalSizeBytes
+        }
+
+        return abs(totalSizeBytes - bytesDownloadedSoFar)
+    }
+
     private fun getDownloadStatus(downloadId: Long): Int {
         var status = -1
         var reason = -1
@@ -186,7 +221,26 @@ class DownloadManager @Inject constructor(
         if (status != DownloadManager.STATUS_SUCCESSFUL) {
             Timber.e("Download Issue: $downloadId status: $status reason: $reason")
         }
-        return status
+
+        return sanitizeStatus(downloadId, status, reason)
+    }
+
+    private fun sanitizeStatus(downloadId: Long, status: Int, reason: Int): Int {
+        if (reason <= 0) {
+            return status
+        }
+
+        if (status in listOf(DownloadManager.STATUS_FAILED, DownloadManager.STATUS_PAUSED)) {
+            return status
+        }
+
+        Timber.e("Download Issue: $downloadId : DownloadManager returns status: $status but the failed because: reason: $reason")
+
+        if (reason <= DownloadManager.PAUSED_UNKNOWN) {
+            return DownloadManager.STATUS_PAUSED
+        }
+
+        return DownloadManager.STATUS_FAILED
     }
 
     fun getDownloadFailureReason(downloadId: Long): Int {
@@ -204,4 +258,7 @@ class DownloadManager @Inject constructor(
         }
         return reason
     }
+
+    private fun getLong(cursor: Cursor, column: String) =
+        cursor.getLong(cursor.getColumnIndexOrThrow(column))
 }
