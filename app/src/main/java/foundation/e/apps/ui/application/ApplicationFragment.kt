@@ -67,6 +67,7 @@ import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.PrivacyInfoViewModel
 import foundation.e.apps.ui.application.model.ApplicationScreenshotsRVAdapter
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
+import foundation.e.apps.utils.loadDataOnce
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -146,11 +147,12 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentApplicationBinding.bind(view)
 
-        loginViewModel.loginState.observe(viewLifecycleOwner) {
-            if (it.isLoggedIn) {
-                // TODO : check for network and wait if network is unavailable
-                this.authData = it.authData
-                loadData()
+        mainActivityViewModel.internetConnection.loadDataOnce(this) {
+            loginViewModel.loginState.observe(viewLifecycleOwner) {
+                if (it.isLoggedIn) {
+                    this.authData = it.authData
+                    loadData()
+                }
             }
         }
 

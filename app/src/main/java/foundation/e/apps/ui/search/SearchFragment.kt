@@ -59,6 +59,7 @@ import foundation.e.apps.ui.PrivacyInfoViewModel
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.applicationlist.ApplicationListRVAdapter
 import foundation.e.apps.utils.isNetworkAvailable
+import foundation.e.apps.utils.loadDataOnce
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -121,17 +122,17 @@ class SearchFragment :
 
         observeSearchResult(listAdapter)
 
-        loginViewModel.loginState.observe(viewLifecycleOwner) {
-            val currentQuery = searchView?.query?.toString() ?: ""
-            if ((!it.isLoggedIn || (currentQuery.isNotEmpty() && lastSearch == currentQuery)) &&
-                !searchViewModel.isLoginStateChanged(it)
-            ) {
-                return@observe
+        mainActivityViewModel.internetConnection.loadDataOnce(this) {
+            loginViewModel.loginState.observe(viewLifecycleOwner) {
+                val currentQuery = searchView?.query?.toString() ?: ""
+                if ((!it.isLoggedIn || (currentQuery.isNotEmpty() && lastSearch == currentQuery)) &&
+                    !searchViewModel.isLoginStateChanged(it)
+                ) {
+                    return@observe
+                }
+                this.authData = it.authData
+                loadData()
             }
-
-            // TODO : check for network and wait if network is unavailable
-            this.authData = it.authData
-            loadData()
         }
 
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {

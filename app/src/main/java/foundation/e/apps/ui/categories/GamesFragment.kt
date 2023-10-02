@@ -21,6 +21,7 @@ package foundation.e.apps.ui.categories
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,7 +30,9 @@ import foundation.e.apps.R
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.databinding.FragmentGamesBinding
 import foundation.e.apps.presentation.login.LoginViewModel
+import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.categories.model.CategoriesRVAdapter
+import foundation.e.apps.utils.loadDataOnce
 
 @AndroidEntryPoint
 class GamesFragment : Fragment(R.layout.fragment_games) {
@@ -37,6 +40,7 @@ class GamesFragment : Fragment(R.layout.fragment_games) {
     private val binding get() = _binding!!
 
     private val categoriesViewModel: CategoriesViewModel by viewModels()
+    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
 
     private val loginViewModel: LoginViewModel by lazy {
         ViewModelProvider(requireActivity())[LoginViewModel::class.java]
@@ -46,10 +50,11 @@ class GamesFragment : Fragment(R.layout.fragment_games) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentGamesBinding.bind(view)
 
-        loginViewModel.loginState.observe(viewLifecycleOwner) {
-            if (it.isLoggedIn) {
-                // TODO : check for network and wait if network is unavailable
-                loadData()
+        mainActivityViewModel.internetConnection.loadDataOnce(this) {
+            loginViewModel.loginState.observe(viewLifecycleOwner) {
+                if (it.isLoggedIn) {
+                    loadData()
+                }
             }
         }
 

@@ -57,6 +57,7 @@ import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.applicationlist.ApplicationListRVAdapter
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
+import foundation.e.apps.utils.loadDataOnce
 import foundation.e.apps.utils.toast
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
@@ -93,12 +94,14 @@ class UpdatesFragment : Fragment(R.layout.fragment_updates), FusedAPIInterface {
 
         binding.button.isEnabled = false
 
-        loginViewModel.loginState.observe(viewLifecycleOwner) {
-            if (!it.isLoggedIn) return@observe
-            if (!updatesViewModel.updatesList.value?.first.isNullOrEmpty()) {
-                return@observe
+        mainActivityViewModel.internetConnection.loadDataOnce(this) {
+            loginViewModel.loginState.observe(viewLifecycleOwner) {
+                if (!it.isLoggedIn) return@observe
+                if (!updatesViewModel.updatesList.value?.first.isNullOrEmpty()) {
+                    return@observe
+                }
+                loadData()
             }
-            loadData()
         }
 
         val recyclerView = binding.recyclerView
