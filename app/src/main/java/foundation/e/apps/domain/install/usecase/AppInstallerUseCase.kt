@@ -31,7 +31,7 @@ class AppInstallerUseCase@Inject constructor(
     fun currentAuthData(): AuthData? {
         return try {
             cacheRepository.cacheAuthData()
-        } catch (e: Exception) {
+        } catch (e: RuntimeException) {
             if (cacheRepository.currentUser() == User.NO_GOOGLE) {
                 return AuthData("", "").apply {
                     this.isAnonymous = false
