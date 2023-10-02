@@ -4,6 +4,9 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import foundation.e.apps.R
@@ -48,3 +51,17 @@ fun Context.isNetworkAvailable(): Boolean {
 fun AuthData.toJsonString(): String = Gson().toJson(this)
 
 fun String.toAuthData(): AuthData = Gson().fromJson(this, AuthData::class.java)
+
+fun LiveData<Boolean>.loadDataOnce(lifecycleOwner: LifecycleOwner, observer: Observer<Boolean>) {
+    this.observe(
+        lifecycleOwner,
+        object : Observer<Boolean> {
+            override fun onChanged(value: Boolean) {
+                if (value) {
+                    observer.onChanged(true)
+                    this@loadDataOnce.removeObserver(this)
+                }
+            }
+        }
+    )
+}
