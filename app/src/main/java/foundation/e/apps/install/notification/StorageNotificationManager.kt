@@ -35,14 +35,13 @@ import javax.inject.Inject
 
 class StorageNotificationManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val downloadManager: DownloadManager,
+    private val downloadManager: DownloadManager
 ) {
     companion object {
         const val NOT_ENOUGH_SPACE_NOTIFICATION_ID = 7874
     }
 
     fun showNotEnoughSpaceNotification(fusedDownload: FusedDownload, downloadId: Long? = null) {
-
         with(NotificationManagerCompat.from(context)) {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED

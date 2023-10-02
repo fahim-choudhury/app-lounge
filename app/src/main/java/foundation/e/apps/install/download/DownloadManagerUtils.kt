@@ -44,7 +44,7 @@ class DownloadManagerUtils @Inject constructor(
     @ApplicationContext private val context: Context,
     private val fusedManagerRepository: FusedManagerRepository,
     private val downloadManager: DownloadManager,
-    private val storageNotificationManager: StorageNotificationManager,
+    private val storageNotificationManager: StorageNotificationManager
 ) {
     private val mutex = Mutex()
 
@@ -107,7 +107,8 @@ class DownloadManagerUtils @Inject constructor(
         fusedDownload: FusedDownload,
         downloadId: Long
     ) = downloadManager.isDownloadSuccessful(downloadId) && areAllFilesDownloaded(
-        numberOfDownloadedItems, fusedDownload
+        numberOfDownloadedItems,
+        fusedDownload
     ) && checkCleanApkSignatureOK(fusedDownload)
 
     private fun areAllFilesDownloaded(
@@ -126,7 +127,8 @@ class DownloadManagerUtils @Inject constructor(
 
     private suspend fun checkCleanApkSignatureOK(fusedDownload: FusedDownload): Boolean {
         if (fusedDownload.origin != Origin.CLEANAPK || fusedManagerRepository.isFdroidApplicationSigned(
-                context, fusedDownload
+                context,
+                fusedDownload
             )
         ) {
             Timber.d("Apk signature is OK")

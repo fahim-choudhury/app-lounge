@@ -164,7 +164,8 @@ class AppInstallProcessor @Inject constructor(
             EventBus.invokeEvent(
                 AppEvent.UpdateEvent(
                     ResultSupreme.WorkError(
-                        ResultStatus.UNKNOWN, fusedDownload
+                        ResultStatus.UNKNOWN,
+                        fusedDownload
                     )
                 )
             )
@@ -177,7 +178,8 @@ class AppInstallProcessor @Inject constructor(
         fusedDownload: FusedDownload
     ) {
         fusedAPIRepository.updateFusedDownloadWithDownloadingInfo(
-            fusedDownload.origin, fusedDownload
+            fusedDownload.origin,
+            fusedDownload
         )
     }
 
@@ -257,7 +259,8 @@ class AppInstallProcessor @Inject constructor(
     private suspend fun isUpdateCompleted(): Boolean {
         val downloadListWithoutAnyIssue = fusedDownloadRepository.getDownloadList().filter {
             !listOf(
-                Status.INSTALLATION_ISSUE, Status.PURCHASE_NEEDED
+                Status.INSTALLATION_ISSUE,
+                Status.PURCHASE_NEEDED
             ).contains(it.status)
         }
 
@@ -353,7 +356,8 @@ class AppInstallProcessor @Inject constructor(
 
             else -> {
                 Timber.wtf(
-                    TAG, "===> ${fusedDownload.name} is in wrong state ${fusedDownload.status}"
+                    TAG,
+                    "===> ${fusedDownload.name} is in wrong state ${fusedDownload.status}"
                 )
                 finishInstallation(fusedDownload)
             }
