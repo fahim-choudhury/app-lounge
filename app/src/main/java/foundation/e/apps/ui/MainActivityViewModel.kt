@@ -247,7 +247,7 @@ class MainActivityViewModel @Inject constructor(
 
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
-                callbackFlowScope.sendInternetStatus(connectivityManager)
+                callbackFlowScope.trySend(true)
             }
 
             override fun onCapabilitiesChanged(
@@ -260,7 +260,7 @@ class MainActivityViewModel @Inject constructor(
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                callbackFlowScope.sendInternetStatus(connectivityManager)
+                callbackFlowScope.trySend(false)
             }
         }
     }
