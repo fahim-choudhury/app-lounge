@@ -58,6 +58,7 @@ class ApplicationListViewModel @Inject constructor(
             return
         }
 
+        this.nextPageUrl = null
         viewModelScope.launch(Dispatchers.IO) {
             isLoading = true
             val result = fusedAPIRepository.getAppsListBasedOnCategory(
@@ -72,6 +73,10 @@ class ApplicationListViewModel @Inject constructor(
             result.data?.let {
                 appListLiveData.postValue(ResultSupreme.create(ResultStatus.OK, it.first))
                 updateNextPageUrl(it.second)
+            }
+
+            if (result.isSuccess()) {
+                loadMore(authData, category)
             }
 
             if (!result.isSuccess()) EventBus.invokeEvent(AppEvent.DataLoadError(result))

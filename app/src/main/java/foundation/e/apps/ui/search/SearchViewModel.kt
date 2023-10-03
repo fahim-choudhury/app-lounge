@@ -30,7 +30,6 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.GplaySearchResult
 import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.presentation.login.LoginState
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.CoroutineScope
@@ -49,7 +48,7 @@ class SearchViewModel @Inject constructor(
     val searchResult: MutableLiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
         MutableLiveData()
 
-    private var lastLoginState: LoginState? = null
+    var authData: AuthData? = null
 
     private var nextSubBundle: Set<SearchBundle.SubBundle>? = null
 
@@ -59,13 +58,13 @@ class SearchViewModel @Inject constructor(
         private const val DATA_LOAD_ERROR = "Data load error"
     }
 
-    fun getSearchSuggestions(query: String, authData: AuthData?) {
+    fun getSearchSuggestions(query: String) {
         viewModelScope.launch(Dispatchers.IO) {
             if (query.isNotBlank() && authData != null) {
                 searchSuggest.postValue(
                     fusedAPIRepository.getSearchSuggestions(
                         query,
-                        authData
+                        this@SearchViewModel.getNonNullAuthData()
                     )
                 )
             }
@@ -74,12 +73,13 @@ class SearchViewModel @Inject constructor(
 
     fun loadData(
         query: String,
-        lifecycleOwner: LifecycleOwner,
-        authData: AuthData?
+        lifecycleOwner: LifecycleOwner
     ) {
         if (query.isBlank()) return
-        getSearchResults(query, authData ?: AuthData("", ""), lifecycleOwner)
+        getSearchResults(query, getNonNullAuthData(), lifecycleOwner)
     }
+
+    private fun getNonNullAuthData() = authData ?: AuthData("", "")
 
     /*
      * Observe data from Fused API and publish the result in searchResult.
@@ -101,6 +101,11 @@ class SearchViewModel @Inject constructor(
                 EventBus.invokeEvent(AppEvent.DataLoadError(searchResultSupreme))
             }
 
+            // if authadata is not available or valid, no need to fetch gplay data
+            if (authData.email.isEmpty() || authData.authToken.isEmpty()) {
+                return@launch
+            }
+
             nextSubBundle = null
             fetchGplayData(query)
         }
@@ -120,7 +125,6 @@ class SearchViewModel @Inject constructor(
     private suspend fun fetchGplayData(query: String) {
         isLoading = true
         val gplaySearchResult = fusedAPIRepository.getGplaySearchResults(query, nextSubBundle)
-
         if (!gplaySearchResult.isSuccess()) {
             EventBus.invokeEvent(AppEvent.DataLoadError(gplaySearchResult))
         }
@@ -159,6 +163,4 @@ class SearchViewModel @Inject constructor(
         newFusedApps: List<FusedApp>,
         oldFusedApps: List<FusedApp>
     ) = fusedAPIRepository.isAnyFusedAppUpdated(newFusedApps, oldFusedApps)
-
-    fun isLoginStateChanged(loginState: LoginState) = this.lastLoginState == null || this.lastLoginState != loginState
 }

@@ -79,6 +79,7 @@ class AnonymousUserRetrofitImpl @Inject constructor(
                     byteCount = result.size
                 )
             }
+
         return fetch {
             eCloudRetrofitAPI.authDataRequest(
                 requestBody = requestBody,

@@ -68,7 +68,9 @@ class LoginViewModel @Inject constructor(
     fun startLoginFlow(clearList: List<String> = listOf()) {
         viewModelScope.launch {
             val authObjectsLocal = loginSourceRepository.getAuthObjects(clearList)
-            authObjects.postValue(authObjectsLocal)
+            if (authObjectsLocal.isNotEmpty()) {
+                _loginState.postValue(LoginState(isLoggedIn = authObjectsLocal[0].result.isSuccess()))
+            }
         }
     }
 
@@ -235,8 +237,7 @@ class LoginViewModel @Inject constructor(
                 is Resource.Loading -> _loginState.value = LoginState(isLoading = true)
                 is Resource.Success -> {
                     // TODO
-                    it.data?.let { it1 -> updateAuthObjectForAnonymousUser(it1) }
-
+                    it.data?.let { authData -> updateAuthObjectForAnonymousUser(authData) }
                     _loginState.value =
                         LoginState(isLoggedIn = true, authData = it.data, user = User.ANONYMOUS)
                 }

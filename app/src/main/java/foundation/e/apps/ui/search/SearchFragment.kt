@@ -40,7 +40,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aurora.gplayapi.SearchSuggestEntry
-import com.aurora.gplayapi.data.models.AuthData
 import com.facebook.shimmer.ShimmerFrameLayout
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
@@ -87,8 +86,6 @@ class SearchFragment :
         ViewModelProvider(requireActivity())[LoginViewModel::class.java]
     }
 
-    private var authData: AuthData? = null
-
     private val SUGGESTION_KEY = "suggestion"
     private var lastSearch = ""
 
@@ -103,6 +100,24 @@ class SearchFragment :
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
     private var searchText = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mainActivityViewModel.internetConnection.loadDataOnce(this) {
+            observeLoginState()
+        }
+    }
+
+    private fun observeLoginState() {
+        loginViewModel.loginState.observe(viewLifecycleOwner) {
+            if (it.authData == null || !it.isLoggedIn) {
+                return@observe
+            }
+
+            searchViewModel.authData = it.authData
+            loadData()
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -122,26 +137,10 @@ class SearchFragment :
 
         observeSearchResult(listAdapter)
 
-        mainActivityViewModel.internetConnection.loadDataOnce(this) {
-            loginViewModel.loginState.observe(viewLifecycleOwner) {
-                val currentQuery = searchView?.query?.toString() ?: ""
-                if ((!it.isLoggedIn || (currentQuery.isNotEmpty() && lastSearch == currentQuery)) &&
-                    !searchViewModel.isLoginStateChanged(it)
-                ) {
-                    return@observe
-                }
-                this.authData = it.authData
-                loadData()
-            }
-        }
-
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                if (!recyclerView.canScrollVertically(1)) {
-                    if (!requireContext().isNetworkAvailable()) {
-                        return
-                    }
+                if (!recyclerView.canScrollVertically(1) && requireContext().isNetworkAvailable()) {
                     searchViewModel.loadMore(searchText)
                 }
             }
@@ -288,7 +287,7 @@ class SearchFragment :
 
     private fun loadData() {
         showLoadingUI()
-        searchViewModel.loadData(searchText, viewLifecycleOwner, authData)
+        searchViewModel.loadData(searchText, viewLifecycleOwner)
     }
 
     private fun showLoadingUI() {
@@ -379,7 +378,7 @@ class SearchFragment :
 
     override fun onQueryTextChange(newText: String?): Boolean {
         newText?.let { text ->
-            searchViewModel.getSearchSuggestions(text, authData)
+            searchViewModel.getSearchSuggestions(text)
         }
         return true
     }

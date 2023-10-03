@@ -18,6 +18,7 @@
 
 package foundation.e.apps.domain.main.usecase
 
+import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.domain.common.repository.CacheRepository
 import javax.inject.Inject
 
@@ -26,5 +27,11 @@ class MainActivityUseCase @Inject constructor(
 ) {
     fun currentUser() = cacheRepository.currentUser()
 
-    fun currentAuthData() = cacheRepository.cacheAuthData()
+    fun currentAuthData(): AuthData {
+        return try {
+            cacheRepository.cacheAuthData()
+        } catch (e: RuntimeException) {
+            AuthData("", "")
+        }
+    }
 }

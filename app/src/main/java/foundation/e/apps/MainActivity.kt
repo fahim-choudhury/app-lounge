@@ -39,7 +39,6 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.apps.data.login.LoginSourceGPlay
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.databinding.ActivityMainBinding
 import foundation.e.apps.domain.errors.RetryMechanism
@@ -72,6 +71,10 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var preferenceManagerModule: PreferenceManagerModule
+
+    companion object {
+        private const val STATUS_TOO_MANY_REQUESTS = "Status: 429"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -301,6 +304,10 @@ class MainActivity : AppCompatActivity() {
         EventBus.events.filter { appEvent ->
             appEvent is AppEvent.DataLoadError<*>
         }.collectLatest {
+            if (it.data is ResultSupreme<*> && it.data.message.contains(STATUS_TOO_MANY_REQUESTS)) {
+                return@collectLatest
+            }
+
             retryMechanism.wrapWithRetry(
                 { loginViewModel.checkLogin() },
                 {
@@ -328,7 +335,7 @@ class MainActivity : AppCompatActivity() {
             binding.sessionErrorLayout.visibility = View.VISIBLE
             binding.retrySessionButton.setOnClickListener {
                 binding.sessionErrorLayout.visibility = View.GONE
-                loginViewModel.startLoginFlow(listOf(LoginSourceGPlay::class.java.simpleName))
+                loginViewModel.getNewToken()
             }
         }
     }
