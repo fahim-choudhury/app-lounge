@@ -91,7 +91,7 @@ class SearchViewModel @Inject constructor(
             }
 
             successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getSearchResults(query, AuthData("", ""), lifecycleOwner)
+                getSearchResults(query, null, lifecycleOwner)
                 return@onLoadData
             }
         }, retryBlock)
@@ -105,17 +105,20 @@ class SearchViewModel @Inject constructor(
      */
     private fun getSearchResults(
         query: String,
-        authData: AuthData,
+        authData: AuthData?,
         lifecycleOwner: LifecycleOwner
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val searchResultSupreme = fusedAPIRepository.getCleanApkSearchResults(query, authData)
+            val searchResultSupreme = fusedAPIRepository.getCleanApkSearchResults(
+                query,
+                authData ?: AuthData("", "")
+            )
 
             searchResult.postValue(searchResultSupreme)
 
             if (!searchResultSupreme.isSuccess()) {
                 val exception =
-                    if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank()) {
+                    if (authData != null) {
                         GPlayException(
                             searchResultSupreme.isTimeout(),
                             searchResultSupreme.message.ifBlank { DATA_LOAD_ERROR }
@@ -128,6 +131,10 @@ class SearchViewModel @Inject constructor(
                     }
 
                 handleException(exception)
+            }
+
+            if (authData == null) {
+                return@launch
             }
 
             nextSubBundle = null
