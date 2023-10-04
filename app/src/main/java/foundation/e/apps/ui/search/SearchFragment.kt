@@ -140,6 +140,11 @@ class SearchFragment :
                     if (!requireContext().isNetworkAvailable()) {
                         return
                     }
+
+                    if (authObjects.value?.none { it is AuthObject.GPlayAuth } == true) {
+                        return
+                    }
+
                     searchViewModel.loadMore(searchText)
                 }
             }
