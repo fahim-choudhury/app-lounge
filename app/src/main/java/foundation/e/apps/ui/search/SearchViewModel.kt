@@ -117,6 +117,10 @@ class SearchViewModel @Inject constructor(
             return
         }
 
+        if (authData == null) {
+            return
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
             fetchGplayData(query)
         }
