@@ -163,4 +163,6 @@
     <string name="request_exodus_report_confirm_dialog">Með því að smella á \"<xliff:g id="ok">%1$s</xliff:g>\" mun opnast flipi í vafranum þínum mep heiti pakkans forútfylltu.&lt;br /&gt;&lt;br /&gt;Smelltu á \"Perform analysis\" til að hefja greiningu með Exodus.&lt;br /&gt;&lt;br /&gt;Þegar hnappurinn \"See the report\" birtist (tíminn sem það tekur fer eftir forritinu) geturðu lokað flipanum og snúið til baka í lýsingu forritsins á <xliff:g id="app_name">%2$s</xliff:g> þar sem þú ættir að sjá gagnaleyndareinkunnina (Privacy Score). Stundum mistekst Exodus að greina forrit.&lt;br /&gt;&lt;br /&gt;ATH: það getur tekið allt að 10 mínútur fyrir einkunnina að birtast í lýsingunni á forritinu.</string>
     <string name="refresh_session">ENDURLESA SETU</string>
     <string name="too_many_requests_desc">Nafnlausi aðgangurinn sem þú ert að nota er ekki tiltækur. Endurlestu setuna til að fá annann.</string>
+    <string name="free_space_for_update">Losaðu um %1$s pláss á símanum þínum til að fá nýjustu uppfærslur.</string>
+    <string name="checking_updates">Athuga með uppfærslur...</string>
 </resources>

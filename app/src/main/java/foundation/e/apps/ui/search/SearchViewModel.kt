@@ -106,6 +106,10 @@ class SearchViewModel @Inject constructor(
                 return@launch
             }
 
+            if (authData == null) {
+                return@launch
+            }
+
             nextSubBundle = null
             fetchGplayData(query)
         }
