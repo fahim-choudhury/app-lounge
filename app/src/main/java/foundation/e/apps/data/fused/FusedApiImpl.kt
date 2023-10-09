@@ -1165,7 +1165,7 @@ class FusedApiImpl @Inject constructor(
         }
     }
 
-    private suspend fun fetchGPlayHome(authData: AuthData): List<FusedHome> {
+    private suspend fun  fetchGPlayHome(authData: AuthData): List<FusedHome> {
         val list = mutableListOf<FusedHome>()
         val gplayHomeData = gplayRepository.getHomeScreenData() as Map<String, List<App>>
         gplayHomeData.map {
@@ -1176,6 +1176,7 @@ class FusedApiImpl @Inject constructor(
             }
             list.add(FusedHome(it.key, fusedApps))
         }
+
         Timber.d("===> $list")
         return list
     }

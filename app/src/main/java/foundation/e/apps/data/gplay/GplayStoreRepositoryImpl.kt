@@ -60,7 +60,8 @@ class GplayStoreRepositoryImpl @Inject constructor(
             val result = getTopApps(type, chart, authData)
             homeScreenData[it.key] = result
         }
-
+        val firstAppList = homeScreenData[Chart.TOP_SELLING_FREE.toString()]
+        homeScreenData[Chart.TOP_SELLING_FREE.toString()] = firstAppList?.toMutableList()?.subList(0, 2) ?: mutableListOf()
         return homeScreenData
     }
 

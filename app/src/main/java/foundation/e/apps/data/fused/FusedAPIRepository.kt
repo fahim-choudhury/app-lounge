@@ -19,6 +19,8 @@
 package foundation.e.apps.data.fused
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.SearchBundle
@@ -33,14 +35,44 @@ import foundation.e.apps.data.fused.data.FusedCategory
 import foundation.e.apps.data.fused.data.FusedHome
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.login.AuthObject
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi) {
 
+    private var hasGplayLimitedResult: Boolean = false
+
     suspend fun getHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<FusedHome>>> {
-        return fusedAPIImpl.getHomeScreenData(authData)
+        return fusedAPIImpl.getHomeScreenData(authData).map {
+            if (!it.isSuccess()) {
+                return@map it
+            }
+
+            val gplayHomes = it.data?.filter { fusedHome -> fusedHome.source.isEmpty() }
+            Timber.d("Gplayhome size: ${gplayHomes?.size}")
+            hasGplayLimitedResult = gplayHomes?.any { fusedHome -> fusedHome.list.size < 4 } == true
+            Timber.d("hasGplayLimitedResult: $hasGplayLimitedResult")
+            if (hasGplayLimitedResult) {
+                triggerInvalidAuthEvent()
+            }
+
+            it
+        }
+    }
+
+    private fun triggerInvalidAuthEvent() {
+        MainScope().launch {
+            EventBus.invokeEvent(
+                AppEvent.InvalidAuthEvent(AuthObject.GPlayAuth::class.java.simpleName)
+            )
+        }
     }
 
     fun isHomesEmpty(fusedHomes: List<FusedHome>): Boolean {
@@ -119,7 +151,13 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi)
         query: String,
         nextPageSubBundle: Set<SearchBundle.SubBundle>?
     ): GplaySearchResult {
-        return fusedAPIImpl.getGplaySearchResult(query, nextPageSubBundle)
+        val gplaySearchResult = fusedAPIImpl.getGplaySearchResult(query, nextPageSubBundle)
+        val appList = gplaySearchResult.data?.first
+        if (hasGplayLimitedResult && appList.isNullOrEmpty()) {
+            triggerInvalidAuthEvent()
+        }
+
+        return gplaySearchResult
     }
 
     suspend fun getAppsListBasedOnCategory(
