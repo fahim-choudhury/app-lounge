@@ -50,6 +50,6 @@ class HomeChildFusedAppDiffUtil : DiffUtil.ItemCallback<FusedApp>() {
             oldItem.trackers == newItem.trackers &&
             oldItem.url.contentEquals(newItem.url) &&
             oldItem.isFree == newItem.isFree &&
-            oldItem.isPwa == newItem.isPwa
+            oldItem.is_pwa == newItem.is_pwa
     }
 }

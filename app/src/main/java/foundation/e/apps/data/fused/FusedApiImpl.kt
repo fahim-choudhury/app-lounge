@@ -1229,7 +1229,7 @@ class FusedApiImpl @Inject constructor(
      * Recommended to use this instead of [PkgManagerModule.getPackageStatus].
      */
     override fun getFusedAppInstallationStatus(fusedApp: FusedApp): Status {
-        return if (fusedApp.isPwa) {
+        return if (fusedApp.is_pwa) {
             pwaManagerModule.getPwaStatus(fusedApp)
         } else {
             pkgManagerModule.getPackageStatus(fusedApp.package_name, fusedApp.latest_version_code)
@@ -1243,12 +1243,12 @@ class FusedApiImpl @Inject constructor(
     }
 
     private fun FusedApp.updateType() {
-        this.type = if (this.isPwa) Type.PWA else Type.NATIVE
+        this.type = if (this.is_pwa) Type.PWA else Type.NATIVE
     }
 
     private fun FusedApp.updateSource() {
         this.apply {
-            source = if (origin == Origin.CLEANAPK && isPwa) {
+            source = if (origin == Origin.CLEANAPK && is_pwa) {
                 context.getString(R.string.pwa)
             } else if (origin == Origin.CLEANAPK) {
                 context.getString(R.string.open_source)

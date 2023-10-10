@@ -756,7 +756,7 @@ class ApplicationFragment : Fragment(R.layout.fragment_application) {
             backgroundTintList =
                 ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
-                if (fusedApp.isPwa) {
+                if (fusedApp.is_pwa) {
                     pwaManagerModule.launchPwa(fusedApp)
                 } else {
                     startActivity(pkgManagerModule.getLaunchIntent(fusedApp.package_name))

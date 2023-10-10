@@ -51,6 +51,6 @@ class ApplicationDiffUtil : DiffUtil.ItemCallback<FusedApp>() {
             ((oldItem.trackers == LIST_OF_NULL && newItem.trackers.isEmpty()) || oldItem.trackers == newItem.trackers) &&
             oldItem.url.contentEquals(newItem.url) &&
             oldItem.isFree == newItem.isFree &&
-            oldItem.isPwa == newItem.isPwa
+            oldItem.is_pwa == newItem.is_pwa
     }
 }

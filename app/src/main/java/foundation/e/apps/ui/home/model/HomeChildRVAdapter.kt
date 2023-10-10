@@ -236,7 +236,7 @@ class HomeChildRVAdapter(
             enableInstallButton(Status.INSTALLED)
             text = context.getString(R.string.open)
             setOnClickListener {
-                if (homeApp.isPwa) {
+                if (homeApp.is_pwa) {
                     mainActivityViewModel.launchPwa(homeApp)
                 } else {
                     context.startActivity(
