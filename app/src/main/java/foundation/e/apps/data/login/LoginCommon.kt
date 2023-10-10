@@ -19,6 +19,7 @@ package foundation.e.apps.data.login
 
 import foundation.e.apps.data.Constants
 import foundation.e.apps.data.enums.User
+import foundation.e.apps.data.fused.UpdatesDao
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -58,5 +59,6 @@ class LoginCommon @Inject constructor(
         loginDataStore.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
         loginDataStore.setSource(Constants.PREFERENCE_SHOW_PWA, true)
         loginDataStore.setSource(Constants.PREFERENCE_SHOW_GPLAY, true)
+        UpdatesDao.clearAllUpdatableApps()
     }
 }

@@ -43,4 +43,8 @@ object UpdatesDao {
     fun clearSuccessfullyUpdatedApps() {
         _successfulUpdatedApps.clear()
     }
+
+    fun clearAllUpdatableApps() {
+        _appsAwaitingForUpdate.clear()
+    }
 }

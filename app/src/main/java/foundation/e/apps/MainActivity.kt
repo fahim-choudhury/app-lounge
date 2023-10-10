@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.setupConnectivityManager(this)
+        viewModel.setupConnectivityManager(applicationContext)
 
         viewModel.internetConnection.observe(this) { isInternetAvailable ->
             hasInternet = isInternetAvailable
