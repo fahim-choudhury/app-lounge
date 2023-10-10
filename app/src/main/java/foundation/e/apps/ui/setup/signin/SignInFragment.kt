@@ -35,6 +35,11 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
 
         binding.anonymousBT.setOnClickListener {
             viewModel.authenticateAnonymousUser()
+            view.findNavController()
+                .safeNavigate(
+                    R.id.signInFragment,
+                    R.id.action_signInFragment_to_homeFragment
+                )
         }
 
         binding.noGoogleBT.setOnClickListener {
@@ -49,12 +54,6 @@ class SignInFragment : Fragment(R.layout.fragment_sign_in) {
                 loginState.authData?.let { data ->
 
                     viewModel.updateAuthObjectForAnonymousUser(data)
-
-                    view.findNavController()
-                        .safeNavigate(
-                            R.id.signInFragment,
-                            R.id.action_signInFragment_to_homeFragment
-                        )
                 } ?: run { Timber.d("Auth Data is null") }
             }
         }
