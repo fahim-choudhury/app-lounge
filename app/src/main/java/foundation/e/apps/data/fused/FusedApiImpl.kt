@@ -49,7 +49,6 @@ import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.enums.isUnFiltered
-import foundation.e.apps.data.fdroid.FdroidWebInterface
 import foundation.e.apps.data.fused.FusedApi.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.fused.FusedApi.Companion.APP_TYPE_OPEN
 import foundation.e.apps.data.fused.FusedApi.Companion.APP_TYPE_PWA
@@ -82,7 +81,6 @@ class FusedApiImpl @Inject constructor(
     private val pkgManagerModule: PkgManagerModule,
     private val pwaManagerModule: PWAManagerModule,
     private val preferenceManagerModule: PreferenceManagerModule,
-    private val fdroidWebInterface: FdroidWebInterface,
     @Named("gplayRepository") private val gplayRepository: GplayStoreRepository,
     @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
     @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository,
@@ -1047,8 +1045,8 @@ class FusedApiImpl @Inject constructor(
          */
     private suspend fun replaceWithFDroid(gPlayApp: App): FusedApp {
         val gPlayFusedApp = gPlayApp.transformToFusedApp()
-        val response = fdroidWebInterface.getFdroidApp(gPlayFusedApp.package_name)
-        if (response.isSuccessful) {
+        val response = cleanApkAppsRepository.getAppDetails(gPlayApp.packageName)
+        if (response != null) {
             val fdroidApp = getCleanApkPackageResult(gPlayFusedApp.package_name)?.apply {
                 updateSource()
                 isGplayReplaced = true

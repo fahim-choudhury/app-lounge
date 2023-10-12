@@ -34,7 +34,6 @@ import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fdroid.FdroidWebInterface
 import foundation.e.apps.data.fused.FusedApiImpl
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fused.data.FusedHome
@@ -45,6 +44,7 @@ import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -95,9 +95,6 @@ class FusedApiImplTest {
     @Mock
     private lateinit var gPlayAPIRepository: GplayStoreRepository
 
-    @Mock
-    private lateinit var fdroidWebInterface: FdroidWebInterface
-
     private lateinit var preferenceManagerModule: FakePreferenceModule
 
     private lateinit var formatterMocked: MockedStatic<Formatter>
@@ -115,7 +112,6 @@ class FusedApiImplTest {
             pkgManagerModule,
             pwaManagerModule,
             preferenceManagerModule,
-            fdroidWebInterface,
             gPlayAPIRepository,
             cleanApkAppsRepository,
             cleanApkPWARepository,
@@ -794,8 +790,8 @@ class FusedApiImplTest {
             )
         ).thenReturn(packageNameSearchResponse)
 
-        Mockito.`when`(fdroidWebInterface.getFdroidApp(any()))
-            .thenReturn(Response.error(404, "".toResponseBody(null)))
+        Mockito.`when`(cleanApkAppsRepository.getAppDetails(any()))
+            .thenReturn(Response.error<ResponseBody>(404, "".toResponseBody()))
 
         Mockito.`when`(gPlayAPIRepository.getSearchResult(eq("com.search.package"), null))
             .thenReturn(gplayLivedata)
