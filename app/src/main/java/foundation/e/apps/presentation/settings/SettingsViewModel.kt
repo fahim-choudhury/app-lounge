@@ -23,6 +23,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import foundation.e.apps.data.Constants
 import foundation.e.apps.domain.settings.usecase.SettingsUseCase
 import foundation.e.apps.utils.Resource
 import kotlinx.coroutines.flow.collect
@@ -49,7 +50,7 @@ class SettingsViewModel @Inject constructor(
                     }
                     is Resource.Error -> {
                         _currentUserState.value =
-                            settingUserState.apply { error = result.message ?: "An unexpected error occurred" }
+                            settingUserState.apply { error = result.message ?: Constants.UNEXPECTED_ERROR }
                     }
 
                     is Resource.Loading -> TODO()
@@ -68,10 +69,12 @@ class SettingsViewModel @Inject constructor(
                     }
                     is Resource.Error -> {
                         _currentUserState.value =
-                            settingUserState.apply { error = result.message ?: "An unexpected error occurred" }
+                            settingUserState.apply { error = result.message ?: Constants.UNEXPECTED_ERROR }
                     }
 
-                    is Resource.Loading -> TODO()
+                    is Resource.Loading -> {
+                        // NO NEED
+                    }
                 }
             }.collect()
         }

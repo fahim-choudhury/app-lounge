@@ -9,4 +9,7 @@ object Constants {
 
     const val ACTION_AUTHDATA_DUMP = "foundation.e.apps.action.DUMP_GACCOUNT_INFO"
     const val TAG_AUTHDATA_DUMP = "AUTHDATA_DUMP"
+
+    const val GOOGLE_LOGIN_FAIL = "Google login failed"
+    const val UNEXPECTED_ERROR = "An unexpected error occurred"
 }

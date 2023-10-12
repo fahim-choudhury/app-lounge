@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import foundation.e.apps.data.Constants
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.User.NO_GOOGLE
@@ -112,7 +113,7 @@ class LoginViewModel @Inject constructor(
                         LoginState(
                             isLoading = false,
                             isLoggedIn = false,
-                            error = "Google login failed"
+                            error = Constants.GOOGLE_LOGIN_FAIL
                         )
                 }
             } else {
@@ -120,7 +121,7 @@ class LoginViewModel @Inject constructor(
                     LoginState(
                         isLoading = false,
                         isLoggedIn = false,
-                        error = "Google login failed"
+                        error = Constants.GOOGLE_LOGIN_FAIL
                     )
             }
 
@@ -197,7 +198,7 @@ class LoginViewModel @Inject constructor(
 
                         is Resource.Error -> {
                             _loginState.value = LoginState(
-                                error = result.message ?: "An unexpected error occured"
+                                error = result.message ?: Constants.UNEXPECTED_ERROR
                             )
                         }
 
@@ -228,7 +229,7 @@ class LoginViewModel @Inject constructor(
                 is Resource.Error -> {
                     val error = it.message.let { message ->
                         when (message) {
-                            null -> "An unexpected error occurred"
+                            null -> Constants.UNEXPECTED_ERROR
                             else -> message
                         }
                     }
