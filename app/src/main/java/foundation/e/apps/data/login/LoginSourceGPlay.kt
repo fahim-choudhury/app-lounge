@@ -121,7 +121,7 @@ class LoginSourceGPlay @Inject constructor(
             try {
                 gson.fromJson(authJson, AuthData::class.java)
             } catch (e: Exception) {
-                e.printStackTrace()
+                Timber.e(e)
                 null
             }
         }
