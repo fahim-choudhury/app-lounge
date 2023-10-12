@@ -24,7 +24,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.login.api.GPlayApiFactory
+import foundation.e.apps.data.login.api.GooglePlayLoginManagerFactory
 import foundation.e.apps.data.login.api.GooglePlayLoginManager
 import foundation.e.apps.data.login.api.GoogleAccountLoginManager
 import foundation.e.apps.data.login.api.GooglePlayWrapper
@@ -47,13 +47,13 @@ class GooglePlayAuthenticator @Inject constructor(
 ) : StoreAuthenticator, AuthDataValidator {
 
     @Inject
-    lateinit var gPlayApiFactory: GPlayApiFactory
+    lateinit var loginManagerFactory: GooglePlayLoginManagerFactory
 
     private val user: User
         get() = loginData.getUserType()
 
     private val loginManager: GooglePlayLoginManager
-        get() = gPlayApiFactory.getGPlayApi(user)
+        get() = loginManagerFactory.createLoginManager(user)
 
     private val loggerWrapper: GooglePlayWrapper
         get() = GooglePlayWrapper(loginManager, user)

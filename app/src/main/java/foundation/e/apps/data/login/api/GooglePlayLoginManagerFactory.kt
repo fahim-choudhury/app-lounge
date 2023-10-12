@@ -27,7 +27,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GPlayApiFactory @Inject constructor(
+class GooglePlayLoginManagerFactory @Inject constructor(
     private val gPlayHttpClient: GPlayHttpClient,
     private val nativeDeviceProperty: Properties,
     private val aC2DMTask: AC2DMTask,
@@ -35,7 +35,7 @@ class GPlayApiFactory @Inject constructor(
     private val loginData: LoginData
 ) {
 
-    fun getGPlayApi(user: User): GooglePlayLoginManager {
+    fun createLoginManager(user: User): GooglePlayLoginManager {
         return when (user) {
             User.GOOGLE -> GoogleAccountLoginManager(gPlayHttpClient, nativeDeviceProperty, aC2DMTask, loginData)
             else -> AnonymousLoginManager(gPlayHttpClient, nativeDeviceProperty, gson)
