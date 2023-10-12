@@ -33,7 +33,6 @@ import foundation.e.apps.data.cleanapk.data.app.Application
 import foundation.e.apps.data.ecloud.EcloudApiInterface
 import foundation.e.apps.data.exodus.ExodusTrackerApi
 import foundation.e.apps.data.fdroid.FdroidApiInterface
-import foundation.e.apps.data.fdroid.FdroidWebInterface
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -119,18 +118,6 @@ object RetrofitModule {
             .addConverterFactory(yamlFactory)
             .build()
             .create(FdroidApiInterface::class.java)
-    }
-
-    @Singleton
-    @Provides
-    fun provideFdroidWebApi(
-        okHttpClient: OkHttpClient,
-    ): FdroidWebInterface {
-        return Retrofit.Builder()
-            .baseUrl(FdroidWebInterface.BASE_URL)
-            .client(okHttpClient)
-            .build()
-            .create(FdroidWebInterface::class.java)
     }
 
     @Singleton
