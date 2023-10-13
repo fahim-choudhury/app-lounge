@@ -53,11 +53,11 @@ class RetryMechanism {
     ): Boolean {
         if (shouldFailRetry()) return false
         retryBlock()
-        updateAutoRetryCondition()
+        incrementAutoRetryCounter()
         return true
     }
 
-    private fun updateAutoRetryCondition() {
+    private fun incrementAutoRetryCounter() {
         autoRetryCount++
     }
 
