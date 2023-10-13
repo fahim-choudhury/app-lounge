@@ -62,13 +62,18 @@ import foundation.e.apps.data.fused.utils.CategoryUtils
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.gplay.GplayStoreRepository
 import foundation.e.apps.data.handleNetworkResult
+import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.ui.home.model.HomeChildFusedAppDiffUtil
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import retrofit2.Response
 import timber.log.Timber
 import javax.inject.Inject
@@ -93,6 +98,8 @@ class FusedApiImpl @Inject constructor(
         private const val CATEGORY_TITLE_REPLACEABLE_CONJUNCTION = "&"
         private const val CATEGORY_OPEN_GAMES_ID = "game_open_games"
         private const val CATEGORY_OPEN_GAMES_TITLE = "Open games"
+        private const val THRESHOLD_LIMITED_RESULT_HOME_PAGE = 4
+        private const val KEYWORD_TEST_SEARCH = "facebook"
     }
 
     /**
@@ -1031,12 +1038,23 @@ class FusedApiImpl @Inject constructor(
 
             val fusedAppList =
                 searchResults.first.map { app -> replaceWithFDroid(app) }.toMutableList()
+            hasLimitedResultForSearch(fusedAppList)
 
             if (searchResults.second.isNotEmpty()) {
                 fusedAppList.add(FusedApp(isPlaceHolder = true))
             }
 
             return@handleNetworkResult Pair(fusedAppList.toList(), searchResults.second.toSet())
+        }
+    }
+
+    private suspend fun hasLimitedResultForSearch(appList: List<FusedApp>?) {
+        if (appList.isNullOrEmpty()) {
+            val searchResult = gplayRepository.getSearchResult(KEYWORD_TEST_SEARCH, null)
+            if (searchResult.first.isEmpty()) {
+                Timber.w("Limited result for search is found...")
+                triggerInvalidAuthEvent()
+            }
         }
     }
 
@@ -1177,14 +1195,32 @@ class FusedApiImpl @Inject constructor(
             list.add(FusedHome(it.key, fusedApps))
         }
 
-        Timber.d("===> $list")
+        handleLimitedResultForHomePage(list)
+        Timber.d("HomePageData: $list")
+
         return list
+    }
+
+    private fun handleLimitedResultForHomePage(it: List<FusedHome>) {
+        val gplayHomes = it.filter { fusedHome -> fusedHome.source.isEmpty() }
+        val hasGplayLimitedResult = gplayHomes.any { fusedHome -> fusedHome.list.size < THRESHOLD_LIMITED_RESULT_HOME_PAGE }
+        if (hasGplayLimitedResult) {
+            Timber.w("Limited result is found for homepage...")
+            triggerInvalidAuthEvent()
+        }
+    }
+
+    private fun triggerInvalidAuthEvent() {
+        MainScope().launch {
+            EventBus.invokeEvent(
+                AppEvent.InvalidAuthEvent(AuthObject.GPlayAuth::class.java.simpleName)
+            )
+        }
     }
 
     /*
      * FusedApp-related internal extensions and functions
      */
-
     private fun App.transformToFusedApp(): FusedApp {
         val app = FusedApp(
             _id = this.id.toString(),
