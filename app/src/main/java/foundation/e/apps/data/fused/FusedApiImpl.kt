@@ -284,10 +284,11 @@ class FusedApiImpl @Inject constructor(
         val result = handleNetworkResult {
             val apps =
                 cleanApkPWARepository.getSearchResult(query).body()?.apps
-            apps?.apply {
-                if (this.isNotEmpty()) {
-                    pwaApps.addAll(this)
-                }
+            apps?.forEach {
+                it.updateStatus()
+                it.updateType()
+                it.updateSource()
+                pwaApps.add(it)
             }
         }
 
@@ -1008,8 +1009,7 @@ class FusedApiImpl @Inject constructor(
         response?.forEach {
             it.updateStatus()
             it.updateType()
-            it.source =
-                if (source.contentEquals(CleanApkRetrofit.APP_SOURCE_FOSS)) "Open Source" else "PWA"
+            it.updateSource()
             list.add(it)
         }
         return list
