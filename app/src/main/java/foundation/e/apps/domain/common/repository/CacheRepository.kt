@@ -23,7 +23,7 @@ import foundation.e.apps.data.enums.User
 
 interface CacheRepository {
     fun currentUser(): User
-    fun cacheAuthData(): AuthData
+    fun cachedAuthData(): AuthData
     fun resetCachedData()
     fun clearAuthData()
 }

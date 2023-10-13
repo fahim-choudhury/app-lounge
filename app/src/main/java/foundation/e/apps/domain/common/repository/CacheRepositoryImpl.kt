@@ -49,7 +49,7 @@ class CacheRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun cacheAuthData(): AuthData =
+    override fun cachedAuthData(): AuthData =
         applicationContext.configurations.authData.let { data ->
             if (data.isEmpty()) throw RuntimeException("Auth Data not available")
             return data.toAuthData()

@@ -56,7 +56,7 @@ class UserLoginUseCase @Inject constructor(
     fun retrieveCachedAuthData(): Flow<Resource<AuthData>> = flow {
         kotlin.runCatching {
             emit(Resource.Loading())
-            emit(Resource.Success(cacheRepository.cacheAuthData()))
+            emit(Resource.Success(cacheRepository.cachedAuthData()))
         }.onFailure { failure -> emit(Resource.Error(failure.localizedMessage)) }
     }
 
@@ -82,7 +82,7 @@ class UserLoginUseCase @Inject constructor(
                             }
                             is Resource.Loading -> emit(Resource.Loading())
                             is Resource.Success -> {
-                                emit(Resource.Success(cacheRepository.cacheAuthData()))
+                                emit(Resource.Success(cacheRepository.cachedAuthData()))
                             }
                         }
                     }.collect()

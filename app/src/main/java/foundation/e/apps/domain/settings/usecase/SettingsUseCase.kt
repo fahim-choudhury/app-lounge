@@ -38,7 +38,7 @@ class SettingsUseCase @Inject constructor(
 
     fun currentAuthData(): Flow<Resource<AuthData>> = flow {
         kotlin.runCatching {
-            emit(Resource.Success(cacheRepository.cacheAuthData()))
+            emit(Resource.Success(cacheRepository.cachedAuthData()))
         }.onFailure { emit(Resource.Error("Something went wrong in fun currentUser()")) }
     }
 

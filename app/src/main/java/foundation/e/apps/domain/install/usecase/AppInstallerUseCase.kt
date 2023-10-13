@@ -30,7 +30,7 @@ class AppInstallerUseCase@Inject constructor(
 
     fun currentAuthData(): AuthData? {
         return try {
-            cacheRepository.cacheAuthData()
+            cacheRepository.cachedAuthData()
         } catch (e: RuntimeException) {
             if (cacheRepository.currentUser() == User.NO_GOOGLE) {
                 return AuthData("", "").apply {

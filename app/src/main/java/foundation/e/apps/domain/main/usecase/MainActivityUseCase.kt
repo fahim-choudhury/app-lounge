@@ -29,7 +29,7 @@ class MainActivityUseCase @Inject constructor(
 
     fun currentAuthData(): AuthData {
         return try {
-            cacheRepository.cacheAuthData()
+            cacheRepository.cachedAuthData()
         } catch (e: RuntimeException) {
             AuthData("", "")
         }

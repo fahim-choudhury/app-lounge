@@ -26,5 +26,5 @@ class UpdatesUseCase @Inject constructor(
 ) {
     fun currentUser() = cacheRepository.currentUser()
 
-    fun currentAuthData() = cacheRepository.cacheAuthData()
+    fun currentAuthData() = cacheRepository.cachedAuthData()
 }
