@@ -29,9 +29,9 @@ import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.cleanapk.repositories.CleanApkAppsRepositoryImpl
 import foundation.e.apps.data.cleanapk.repositories.CleanApkPWARepository
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
-import foundation.e.apps.data.gplay.GplayStoreRepository
-import foundation.e.apps.data.gplay.GplayStoreRepositoryImpl
-import foundation.e.apps.data.gplay.utils.GPlayHttpClient
+import foundation.e.apps.data.playstore.PlayStoreRepository
+import foundation.e.apps.data.playstore.PlayStoreRepositoryImpl
+import foundation.e.apps.data.playstore.utils.GPlayHttpClient
 import foundation.e.apps.data.login.AuthenticatorRepository
 import javax.inject.Named
 import javax.inject.Singleton
@@ -46,8 +46,8 @@ object NamedRepositoryModule {
         @ApplicationContext context: Context,
         gPlayHttpClient: GPlayHttpClient,
         authenticatorRepository: AuthenticatorRepository
-    ): GplayStoreRepository {
-        return GplayStoreRepositoryImpl(context, gPlayHttpClient, authenticatorRepository)
+    ): PlayStoreRepository {
+        return PlayStoreRepositoryImpl(context, gPlayHttpClient, authenticatorRepository)
     }
 
     @Singleton

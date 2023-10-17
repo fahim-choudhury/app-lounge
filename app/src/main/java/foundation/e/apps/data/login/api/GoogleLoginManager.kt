@@ -20,20 +20,20 @@ package foundation.e.apps.data.login.api
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.helpers.AuthHelper
-import foundation.e.apps.data.gplay.utils.AC2DMTask
-import foundation.e.apps.data.gplay.utils.CustomAuthValidator
-import foundation.e.apps.data.gplay.utils.GPlayHttpClient
+import foundation.e.apps.data.playstore.utils.AC2DMTask
+import foundation.e.apps.data.playstore.utils.CustomAuthValidator
+import foundation.e.apps.data.playstore.utils.GPlayHttpClient
 import foundation.e.apps.data.login.LoginData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Properties
 
-class GoogleAccountLoginManager(
+class GoogleLoginManager(
     private val gPlayHttpClient: GPlayHttpClient,
     private val nativeDeviceProperty: Properties,
     private val aC2DMTask: AC2DMTask,
     private val loginData: LoginData
-) : GooglePlayLoginManager {
+) : PlayStoreLoginManager {
 
     /**
      * Get PlayResponse for AC2DM Map. This allows us to get an error message too.

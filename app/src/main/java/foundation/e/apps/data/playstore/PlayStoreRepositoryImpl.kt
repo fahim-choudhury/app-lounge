@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.gplay
+package foundation.e.apps.data.playstore
 
 import android.content.Context
 import com.aurora.gplayapi.SearchSuggestEntry
@@ -36,18 +36,18 @@ import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.fused.utils.CategoryType
-import foundation.e.apps.data.gplay.utils.GPlayHttpClient
+import foundation.e.apps.data.playstore.utils.GPlayHttpClient
 import foundation.e.apps.data.login.AuthenticatorRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
-class GplayStoreRepositoryImpl @Inject constructor(
+class PlayStoreRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val gPlayHttpClient: GPlayHttpClient,
     private val authenticatorRepository: AuthenticatorRepository
-) : GplayStoreRepository {
+) : PlayStoreRepository {
 
     override suspend fun getHomeScreenData(): Any {
         val homeScreenData = mutableMapOf<String, List<App>>()

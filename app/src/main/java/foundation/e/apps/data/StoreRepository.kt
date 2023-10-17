@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2019-2022  E FOUNDATION
+ * Copyright MURENA SAS 2023
+ * Apps  Quickly and easily install Android apps onto your device!
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.login.api
+package foundation.e.apps.data
 
-import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.PlayResponse
-
-interface GooglePlayLoginManager {
-    suspend fun login(): AuthData?
-    suspend fun validate(authData: AuthData): PlayResponse
+interface StoreRepository {
+    suspend fun getHomeScreenData(): Any
+    suspend fun getAppDetails(packageNameOrId: String): Any?
 }

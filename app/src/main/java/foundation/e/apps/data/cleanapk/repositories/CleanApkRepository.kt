@@ -18,7 +18,7 @@
 
 package foundation.e.apps.data.cleanapk.repositories
 
-import foundation.e.apps.data.BaseStoreRepository
+import foundation.e.apps.data.StoreRepository
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.search.Search
 import retrofit2.Response
@@ -26,7 +26,7 @@ import retrofit2.Response
 const val NUMBER_OF_ITEMS = 20
 
 const val NUMBER_OF_PAGES = 1
-interface CleanApkRepository : BaseStoreRepository {
+interface CleanApkRepository : StoreRepository {
     suspend fun getSearchResult(query: String, searchBy: String? = null): Response<Search>
     suspend fun getAppsByCategory(category: String, paginationParameter: Any? = null): Response<Search>
     suspend fun getCategories(): Response<Categories>

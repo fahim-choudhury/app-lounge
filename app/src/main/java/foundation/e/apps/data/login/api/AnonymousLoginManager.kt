@@ -20,8 +20,8 @@ package foundation.e.apps.data.login.api
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.google.gson.Gson
-import foundation.e.apps.data.gplay.utils.CustomAuthValidator
-import foundation.e.apps.data.gplay.utils.GPlayHttpClient
+import foundation.e.apps.data.playstore.utils.CustomAuthValidator
+import foundation.e.apps.data.playstore.utils.GPlayHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Properties
@@ -30,7 +30,7 @@ class AnonymousLoginManager(
     private val gPlayHttpClient: GPlayHttpClient,
     private val nativeDeviceProperty: Properties,
     private val gson: Gson,
-) : GooglePlayLoginManager {
+) : PlayStoreLoginManager {
 
     private val tokenUrl: String = "https://eu.gtoken.ecloud.global"
 

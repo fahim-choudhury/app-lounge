@@ -19,15 +19,15 @@ package foundation.e.apps.data.login.api
 
 import com.google.gson.Gson
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.gplay.utils.AC2DMTask
-import foundation.e.apps.data.gplay.utils.GPlayHttpClient
+import foundation.e.apps.data.playstore.utils.AC2DMTask
+import foundation.e.apps.data.playstore.utils.GPlayHttpClient
 import foundation.e.apps.data.login.LoginData
 import java.util.Properties
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GooglePlayLoginManagerFactory @Inject constructor(
+class PlayStoreLoginManagerFactory @Inject constructor(
     private val gPlayHttpClient: GPlayHttpClient,
     private val nativeDeviceProperty: Properties,
     private val aC2DMTask: AC2DMTask,
@@ -35,9 +35,9 @@ class GooglePlayLoginManagerFactory @Inject constructor(
     private val loginData: LoginData
 ) {
 
-    fun createLoginManager(user: User): GooglePlayLoginManager {
+    fun createLoginManager(user: User): PlayStoreLoginManager {
         return when (user) {
-            User.GOOGLE -> GoogleAccountLoginManager(gPlayHttpClient, nativeDeviceProperty, aC2DMTask, loginData)
+            User.GOOGLE -> GoogleLoginManager(gPlayHttpClient, nativeDeviceProperty, aC2DMTask, loginData)
             else -> AnonymousLoginManager(gPlayHttpClient, nativeDeviceProperty, gson)
         }
     }

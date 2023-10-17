@@ -21,27 +21,27 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.PlayResponse
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.gplay.utils.AC2DMUtil
+import foundation.e.apps.data.playstore.utils.AC2DMUtil
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import java.util.Locale
 
 /**
- * Call methods of [GoogleAccountLoginManager] and [AnonymousLoginManager] from here.
+ * Call methods of [GoogleLoginManager] and [AnonymousLoginManager] from here.
  *
  * Dependency Injection via hilt is not possible,
- * we need to manually check login type, create an instance of either [GoogleAccountLoginManager]
+ * we need to manually check login type, create an instance of either [GoogleLoginManager]
  * or [AnonymousLoginManager] and pass it to [loginManager].
  *
  * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
  */
-class GooglePlayWrapper constructor(
-    private val loginManager: GooglePlayLoginManager,
+class PlayStoreLoginWrapper constructor(
+    private val loginManager: PlayStoreLoginManager,
     private val user: User,
 ) {
 
     /**
-     * Gets the auth data from instance of [GooglePlayLoginManager].
+     * Gets the auth data from instance of [PlayStoreLoginManager].
      */
     suspend fun login(locale: Locale): ResultSupreme<AuthData?> {
         val result = handleNetworkResult {
@@ -93,12 +93,12 @@ class GooglePlayWrapper constructor(
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
      *
-     * @param googleAccountLoginManager An instance of [GoogleAccountLoginManager] must be passed, this method
+     * @param googleAccountLoginManager An instance of [GoogleLoginManager] must be passed, this method
      * cannot work on [loginManager] as it is a common interface for both Google and Anonymous
      * login, but this method is only for Google login.
      */
     suspend fun getAasToken(
-        googleAccountLoginManager: GoogleAccountLoginManager,
+        googleAccountLoginManager: GoogleLoginManager,
         email: String,
         oauthToken: String
     ): ResultSupreme<String> {

@@ -24,10 +24,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.login.api.GooglePlayLoginManagerFactory
-import foundation.e.apps.data.login.api.GooglePlayLoginManager
-import foundation.e.apps.data.login.api.GoogleAccountLoginManager
-import foundation.e.apps.data.login.api.GooglePlayWrapper
+import foundation.e.apps.data.login.api.PlayStoreLoginManagerFactory
+import foundation.e.apps.data.login.api.PlayStoreLoginManager
+import foundation.e.apps.data.login.api.GoogleLoginManager
+import foundation.e.apps.data.login.api.PlayStoreLoginWrapper
 import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
@@ -40,23 +40,23 @@ import javax.inject.Singleton
  * https://gitlab.e.foundation/e/backlog/-/issues/5680
  */
 @Singleton
-class GooglePlayAuthenticator @Inject constructor(
+class PlayStoreAuthenticator @Inject constructor(
     @ApplicationContext private val context: Context,
     private val gson: Gson,
     private val loginData: LoginData,
 ) : StoreAuthenticator, AuthDataValidator {
 
     @Inject
-    lateinit var loginManagerFactory: GooglePlayLoginManagerFactory
+    lateinit var loginManagerFactory: PlayStoreLoginManagerFactory
 
     private val user: User
         get() = loginData.getUserType()
 
-    private val loginManager: GooglePlayLoginManager
+    private val loginManager: PlayStoreLoginManager
         get() = loginManagerFactory.createLoginManager(user)
 
-    private val loggerWrapper: GooglePlayWrapper
-        get() = GooglePlayWrapper(loginManager, user)
+    private val loginWrapper: PlayStoreLoginWrapper
+        get() = PlayStoreLoginWrapper(loginManager, user)
 
     private val locale: Locale
         get() = context.resources.configuration.locales[0]
@@ -146,7 +146,7 @@ class GooglePlayAuthenticator @Inject constructor(
     }
 
     private suspend fun getAuthDataAnonymously(): ResultSupreme<AuthData?> {
-        return loggerWrapper.login(locale).run {
+        return loginWrapper.login(locale).run {
             if (isSuccess()) ResultSupreme.Success(formatAuthData(this.data!!))
             else this
         }
@@ -162,14 +162,14 @@ class GooglePlayAuthenticator @Inject constructor(
          * Use it to fetch auth data.
          */
         if (aasToken.isNotBlank()) {
-            return loggerWrapper.login(locale)
+            return loginWrapper.login(locale)
         }
 
         /*
          * If aasToken is not yet saved / made, fetch it from email and oauthToken.
          */
-        val aasTokenResponse = loggerWrapper.getAasToken(
-            loginManager as GoogleAccountLoginManager,
+        val aasTokenResponse = loginWrapper.getAasToken(
+            loginManager as GoogleLoginManager,
             email,
             oauthToken
         )
@@ -193,7 +193,7 @@ class GooglePlayAuthenticator @Inject constructor(
          * Finally save the aasToken and create auth data.
          */
         loginData.saveAasToken(aasTokenFetched)
-        return loggerWrapper.login(locale).run {
+        return loginWrapper.login(locale).run {
             if (isSuccess()) ResultSupreme.Success(formatAuthData(this.data!!))
             else this
         }
@@ -215,5 +215,5 @@ class GooglePlayAuthenticator @Inject constructor(
     }
 
     private suspend fun isAuthDataValid(savedAuth: AuthData?) =
-        savedAuth != null && loggerWrapper.validate(savedAuth).exception == null
+        savedAuth != null && loginWrapper.validate(savedAuth).exception == null
 }
