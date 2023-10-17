@@ -51,7 +51,7 @@
     <string name="min_android_version">Kräver: <xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="package_name">Paketnamn: <xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="install_blocked_anonymous">Betalda appar kan inte installeras i anonymt läge. Logga in med ditt Googlekonto för att installera betalda appar.</string>
-    <string name="message_app_available_later">Denna appen kommer vara tillgänglig senare.</string>
+    <string name="message_app_available_later">Denna app kommer att vara tillgänglig senare!</string>
     <string name="unknown_error">Okänt fel!</string>
     <string name="app_not_found">Din app hittades inte.</string>
     <string name="something_went_wrong">Något gick fel!</string>
