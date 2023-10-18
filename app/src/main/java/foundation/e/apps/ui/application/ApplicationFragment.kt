@@ -772,7 +772,8 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 if (fusedApp.is_pwa) {
                     pwaManagerModule.launchPwa(fusedApp)
                 } else {
-                    startActivity(pkgManagerModule.getLaunchIntent(fusedApp.package_name))
+                    val launchIntent = pkgManagerModule.getLaunchIntent(fusedApp.package_name)
+                    launchIntent?.run { startActivity(this) }
                 }
             }
         }
