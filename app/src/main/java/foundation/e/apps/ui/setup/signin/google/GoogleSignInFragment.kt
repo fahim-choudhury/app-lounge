@@ -31,7 +31,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
-import foundation.e.apps.data.gplay.utils.AC2DMUtil
+import foundation.e.apps.data.playstore.utils.AC2DMUtil
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.databinding.FragmentGoogleSigninBinding
 import foundation.e.apps.di.CommonUtilsModule.safeNavigate

@@ -10,7 +10,7 @@ import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.gplay.GplayStoreRepository
+import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.DataStoreModule
 import javax.inject.Inject
 import javax.inject.Named
@@ -21,7 +21,7 @@ import javax.inject.Named
 @HiltViewModel
 class AppInfoFetchViewModel @Inject constructor(
     private val fdroidRepository: FdroidRepository,
-    @Named("gplayRepository") private val gplayRepository: GplayStoreRepository,
+    @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
     private val faultyAppRepository: FaultyAppRepository,
     private val dataStoreModule: DataStoreModule,
     private val blockedAppRepository: BlockedAppRepository,

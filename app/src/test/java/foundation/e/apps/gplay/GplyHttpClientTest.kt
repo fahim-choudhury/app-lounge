@@ -19,7 +19,7 @@
 package foundation.e.apps.gplay
 
 import com.aurora.gplayapi.data.models.PlayResponse
-import foundation.e.apps.data.gplay.utils.GPlayHttpClient
+import foundation.e.apps.data.playstore.utils.GPlayHttpClient
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.util.FakeCall
 import foundation.e.apps.util.MainCoroutineRule

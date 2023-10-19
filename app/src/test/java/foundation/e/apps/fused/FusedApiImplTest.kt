@@ -38,7 +38,7 @@ import foundation.e.apps.data.fused.FusedApiImpl
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fused.data.FusedHome
 import foundation.e.apps.data.fused.utils.CategoryType
-import foundation.e.apps.data.gplay.GplayStoreRepository
+import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.util.MainCoroutineRule
@@ -93,7 +93,7 @@ class FusedApiImplTest {
     private lateinit var cleanApkPWARepository: CleanApkRepository
 
     @Mock
-    private lateinit var gPlayAPIRepository: GplayStoreRepository
+    private lateinit var gPlayAPIRepository: PlayStoreRepository
 
     private lateinit var preferenceManagerModule: FakePreferenceModule
 

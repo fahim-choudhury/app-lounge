@@ -15,16 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.login
+package foundation.e.apps.data.login.api
 
-/**
- * Interface that defines what methods a login source must define.
- * Login sources (can also be called - data sources): Google Play, CleanApk.
- *
- * https://gitlab.e.foundation/e/backlog/-/issues/5680
- */
-interface LoginSourceInterface {
-    suspend fun getAuthObject(): AuthObject
-    suspend fun clearSavedAuth()
-    fun isActive(): Boolean
+import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.models.PlayResponse
+
+interface PlayStoreLoginManager {
+    suspend fun login(): AuthData?
+    suspend fun validate(authData: AuthData): PlayResponse
 }

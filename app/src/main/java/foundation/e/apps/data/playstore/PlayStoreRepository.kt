@@ -16,17 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.gplay
+package foundation.e.apps.data.playstore
 
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.File
 import com.aurora.gplayapi.data.models.SearchBundle
-import foundation.e.apps.data.BaseStoreRepository
+import foundation.e.apps.data.StoreRepository
 import foundation.e.apps.data.fused.utils.CategoryType
 
-interface GplayStoreRepository : BaseStoreRepository {
+interface PlayStoreRepository : StoreRepository {
     suspend fun getSearchResult(query: String, subBundle: MutableSet<SearchBundle.SubBundle>?): Pair<List<App>, MutableSet<SearchBundle.SubBundle>>
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry>
     suspend fun getAppsByCategory(category: String, pageUrl: String? = null): Any

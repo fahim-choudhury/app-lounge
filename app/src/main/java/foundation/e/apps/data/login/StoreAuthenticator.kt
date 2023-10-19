@@ -15,12 +15,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.login.api
+package foundation.e.apps.data.login
 
-import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.PlayResponse
-
-interface GPlayLoginInterface {
-    suspend fun login(authData: AuthData): PlayResponse
-    suspend fun fetchAuthData(email: String, aasToken: String): AuthData?
+/**
+ * Store (Google Play Store, Clean Apk) authenticator.
+ */
+interface StoreAuthenticator {
+    suspend fun login(): AuthObject
+    suspend fun logout()
+    fun isStoreActive(): Boolean
 }

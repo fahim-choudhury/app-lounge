@@ -59,7 +59,7 @@ import foundation.e.apps.data.fused.data.Ratings
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.fused.utils.CategoryUtils
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.apps.data.gplay.GplayStoreRepository
+import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.preference.PreferenceManagerModule
@@ -86,7 +86,7 @@ class FusedApiImpl @Inject constructor(
     private val pkgManagerModule: PkgManagerModule,
     private val pwaManagerModule: PWAManagerModule,
     private val preferenceManagerModule: PreferenceManagerModule,
-    @Named("gplayRepository") private val gplayRepository: GplayStoreRepository,
+    @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
     @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
     @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository,
     @ApplicationContext private val context: Context

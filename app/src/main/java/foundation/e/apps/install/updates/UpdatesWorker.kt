@@ -20,7 +20,7 @@ import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.login.LoginSourceRepository
+import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.data.updates.UpdatesManagerRepository
 import foundation.e.apps.install.workmanager.AppInstallProcessor
@@ -37,7 +37,7 @@ class UpdatesWorker @AssistedInject constructor(
     @Assisted private val params: WorkerParameters,
     private val updatesManagerRepository: UpdatesManagerRepository,
     private val dataStoreManager: DataStoreManager,
-    private val loginSourceRepository: LoginSourceRepository,
+    private val authenticatorRepository: AuthenticatorRepository,
     private val appInstallProcessor: AppInstallProcessor,
     private val blockedAppRepository: BlockedAppRepository,
 ) : CoroutineWorker(context, params) {
@@ -106,7 +106,7 @@ class UpdatesWorker @AssistedInject constructor(
         val isConnectedToUnMeteredNetwork = isConnectedToUnMeteredNetwork(applicationContext)
         val appsNeededToUpdate = mutableListOf<FusedApp>()
         val user = getUser()
-        val authData = loginSourceRepository.getValidatedAuthData().data
+        val authData = authenticatorRepository.getValidatedAuthData().data
         val resultStatus: ResultStatus
 
         if (user in listOf(User.ANONYMOUS, User.GOOGLE) && authData != null) {

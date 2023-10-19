@@ -26,9 +26,9 @@ import javax.inject.Singleton
 
 @JvmSuppressWildcards
 @Singleton
-class LoginSourceRepository @Inject constructor(
+class AuthenticatorRepository @Inject constructor(
     private val loginCommon: LoginCommon,
-    private val sources: List<LoginSourceInterface>,
+    private val authenticators: List<StoreAuthenticator>,
 ) {
 
     var gplayAuth: AuthData? = null
@@ -38,13 +38,13 @@ class LoginSourceRepository @Inject constructor(
 
         val authObjectsLocal = ArrayList<AuthObject>()
 
-        for (source in sources) {
-            if (!source.isActive()) continue
-            if (source::class.java.simpleName in clearAuthTypes) {
-                source.clearSavedAuth()
+        for (authenticator in authenticators) {
+            if (!authenticator.isStoreActive()) continue
+            if (authenticator::class.java.simpleName in clearAuthTypes) {
+                authenticator.logout()
             }
 
-            val authObject = source.getAuthObject()
+            val authObject = authenticator.login()
             authObjectsLocal.add(authObject)
 
             if (authObject is AuthObject.GPlayAuth) {
@@ -72,7 +72,7 @@ class LoginSourceRepository @Inject constructor(
     }
 
     suspend fun getValidatedAuthData(): ResultSupreme<AuthData?> {
-        val authDataValidator = (sources.find { it is AuthDataValidator } as AuthDataValidator)
+        val authDataValidator = (authenticators.find { it is AuthDataValidator } as AuthDataValidator)
         val validateAuthData = authDataValidator.validateAuthData()
         this.gplayAuth = validateAuthData.data
         return validateAuthData

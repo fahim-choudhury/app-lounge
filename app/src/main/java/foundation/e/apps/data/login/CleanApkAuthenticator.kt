@@ -27,29 +27,29 @@ import javax.inject.Singleton
  * https://gitlab.e.foundation/e/backlog/-/issues/5680
  */
 @Singleton
-class LoginSourceCleanApk @Inject constructor(
-    val loginDataStore: LoginDataStore,
-) : LoginSourceInterface {
+class CleanApkAuthenticator @Inject constructor(
+    val loginData: LoginData,
+) : StoreAuthenticator {
 
     private val user: User
-        get() = loginDataStore.getUserType()
+        get() = loginData.getUserType()
 
-    override fun isActive(): Boolean {
+    override fun isStoreActive(): Boolean {
         if (user == User.UNAVAILABLE) {
             /*
              * UNAVAILABLE user means first login is not completed.
              */
             return false
         }
-        return loginDataStore.isOpenSourceSelected() || loginDataStore.isPWASelected()
+        return loginData.isOpenSourceSelected() || loginData.isPWASelected()
     }
 
-    override suspend fun getAuthObject(): AuthObject.CleanApk {
+    override suspend fun login(): AuthObject.CleanApk {
         return AuthObject.CleanApk(
             ResultSupreme.Success(Unit),
             user,
         )
     }
 
-    override suspend fun clearSavedAuth() {}
+    override suspend fun logout() {}
 }

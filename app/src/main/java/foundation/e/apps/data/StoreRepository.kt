@@ -18,7 +18,7 @@
 
 package foundation.e.apps.data
 
-interface BaseStoreRepository {
+interface StoreRepository {
     suspend fun getHomeScreenData(): Any
     suspend fun getAppDetails(packageNameOrId: String): Any?
 }

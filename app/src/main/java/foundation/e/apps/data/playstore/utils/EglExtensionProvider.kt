@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.gplay.utils
+package foundation.e.apps.data.playstore.utils
 
 import android.opengl.GLES10
 import android.text.TextUtils

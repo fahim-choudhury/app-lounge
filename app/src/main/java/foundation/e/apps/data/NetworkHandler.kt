@@ -18,8 +18,8 @@
 
 package foundation.e.apps.data
 
-import foundation.e.apps.data.gplay.utils.GPlayHttpClient
-import foundation.e.apps.data.gplay.utils.GplayHttpRequestException
+import foundation.e.apps.data.playstore.utils.GPlayHttpClient
+import foundation.e.apps.data.playstore.utils.GplayHttpRequestException
 import foundation.e.apps.data.login.exceptions.GPlayException
 import java.net.SocketTimeoutException
 

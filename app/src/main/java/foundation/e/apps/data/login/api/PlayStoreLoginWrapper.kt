@@ -21,37 +21,31 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.PlayResponse
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.gplay.utils.AC2DMUtil
+import foundation.e.apps.data.playstore.utils.AC2DMUtil
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import java.util.Locale
 
 /**
- * Call methods of [GoogleLoginApi] and [AnonymousLoginApi] from here.
+ * Call methods of [GoogleLoginManager] and [AnonymousLoginManager] from here.
  *
  * Dependency Injection via hilt is not possible,
- * we need to manually check login type, create an instance of either [GoogleLoginApi]
- * or [AnonymousLoginApi] and pass it to [gPlayLoginInterface].
+ * we need to manually check login type, create an instance of either [GoogleLoginManager]
+ * or [AnonymousLoginManager] and pass it to [loginManager].
  *
  * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
  */
-class LoginApiRepository constructor(
-    private val gPlayLoginInterface: GPlayLoginInterface,
+class PlayStoreLoginWrapper constructor(
+    private val loginManager: PlayStoreLoginManager,
     private val user: User,
 ) {
 
     /**
-     * Gets the auth data from instance of [GPlayLoginInterface].
-     * Applicable for both Google and Anonymous login.
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
-     * @param email Email address for Google login. Blank for Anonymous login.
-     * @param aasToken For Google login - Access token obtained from [getAasToken] function,
-     * else blank for Anonymous login.
+     * Gets the auth data from instance of [PlayStoreLoginManager].
      */
-    suspend fun fetchAuthData(email: String, aasToken: String, locale: Locale): ResultSupreme<AuthData?> {
+    suspend fun login(locale: Locale): ResultSupreme<AuthData?> {
         val result = handleNetworkResult {
-            gPlayLoginInterface.fetchAuthData(email, aasToken)
+            loginManager.login()
         }
         return result.apply {
             this.data?.locale = locale
@@ -72,10 +66,10 @@ class LoginApiRepository constructor(
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
      */
-    suspend fun login(authData: AuthData): ResultSupreme<PlayResponse> {
+    suspend fun validate(authData: AuthData): ResultSupreme<PlayResponse> {
         var response = PlayResponse()
         val result = handleNetworkResult {
-            response = gPlayLoginInterface.login(authData)
+            response = loginManager.validate(authData)
             if (response.code != 200) {
                 throw Exception("Validation network code: ${response.code}")
             }
@@ -92,25 +86,25 @@ class LoginApiRepository constructor(
 
     /**
      * Gets email and oauthToken from Google login, finds the AASToken from AC2DM response
-     * and returns it. This token is then used to fetch AuthData from [fetchAuthData].
+     * and returns it. This token is then used to fetch AuthData from [login].
      *
      * Do note that for a given oauthToken, it has been observed that AASToken can
      * only be generated once. So this token must be saved for future use.
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
      *
-     * @param googleLoginApi An instance of [GoogleLoginApi] must be passed, this method
-     * cannot work on [gPlayLoginInterface] as it is a common interface for both Google and Anonymous
+     * @param googleAccountLoginManager An instance of [GoogleLoginManager] must be passed, this method
+     * cannot work on [loginManager] as it is a common interface for both Google and Anonymous
      * login, but this method is only for Google login.
      */
     suspend fun getAasToken(
-        googleLoginApi: GoogleLoginApi,
+        googleAccountLoginManager: GoogleLoginManager,
         email: String,
         oauthToken: String
     ): ResultSupreme<String> {
         val result = handleNetworkResult {
             var aasToken = ""
-            val response = googleLoginApi.getAC2DMResponse(email, oauthToken)
+            val response = googleAccountLoginManager.getAC2DMResponse(email, oauthToken)
             var error = response.errorString
             if (response.isSuccessful) {
                 val responseMap = AC2DMUtil.parseResponse(String(response.responseBytes))

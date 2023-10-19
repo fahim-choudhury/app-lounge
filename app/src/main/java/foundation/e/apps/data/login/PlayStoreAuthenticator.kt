@@ -24,57 +24,57 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.login.api.GPlayApiFactory
-import foundation.e.apps.data.login.api.GPlayLoginInterface
-import foundation.e.apps.data.login.api.GoogleLoginApi
-import foundation.e.apps.data.login.api.LoginApiRepository
+import foundation.e.apps.data.login.api.PlayStoreLoginManagerFactory
+import foundation.e.apps.data.login.api.PlayStoreLoginManager
+import foundation.e.apps.data.login.api.GoogleLoginManager
+import foundation.e.apps.data.login.api.PlayStoreLoginWrapper
 import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Class to get GPlay auth data. Call [getAuthObject] to get an already saved auth data
+ * Class to get GPlay auth data. Call [login] to get an already saved auth data
  * or to fetch a new one for first use. Handles auth validation internally.
  *
  * https://gitlab.e.foundation/e/backlog/-/issues/5680
  */
 @Singleton
-class LoginSourceGPlay @Inject constructor(
+class PlayStoreAuthenticator @Inject constructor(
     @ApplicationContext private val context: Context,
     private val gson: Gson,
-    private val loginDataStore: LoginDataStore,
-) : LoginSourceInterface, AuthDataValidator {
+    private val loginData: LoginData,
+) : StoreAuthenticator, AuthDataValidator {
 
     @Inject
-    lateinit var gPlayApiFactory: GPlayApiFactory
+    lateinit var loginManagerFactory: PlayStoreLoginManagerFactory
 
     private val user: User
-        get() = loginDataStore.getUserType()
+        get() = loginData.getUserType()
 
-    private val gPlayLoginInterface: GPlayLoginInterface
-        get() = gPlayApiFactory.getGPlayApi(user)
+    private val loginManager: PlayStoreLoginManager
+        get() = loginManagerFactory.createLoginManager(user)
 
-    private val loginApiRepository: LoginApiRepository
-        get() = LoginApiRepository(gPlayLoginInterface, user)
+    private val loginWrapper: PlayStoreLoginWrapper
+        get() = PlayStoreLoginWrapper(loginManager, user)
 
     private val locale: Locale
         get() = context.resources.configuration.locales[0]
 
-    override fun isActive(): Boolean {
+    override fun isStoreActive(): Boolean {
         if (user == User.UNAVAILABLE) {
             /*
              * UNAVAILABLE user means first login is not completed.
              */
             return false
         }
-        return loginDataStore.isGplaySelected()
+        return loginData.isGplaySelected()
     }
 
     /**
      * Main entry point to get GPlay auth data.
      */
-    override suspend fun getAuthObject(): AuthObject.GPlayAuth {
+    override suspend fun login(): AuthObject.GPlayAuth {
         val savedAuth = getSavedAuthData()
 
         val authData = (
@@ -102,8 +102,8 @@ class LoginSourceGPlay @Inject constructor(
         return AuthObject.GPlayAuth(result, user)
     }
 
-    override suspend fun clearSavedAuth() {
-        loginDataStore.clearAuthData()
+    override suspend fun logout() {
+        loginData.clearAuthData()
     }
 
     /**
@@ -111,7 +111,7 @@ class LoginSourceGPlay @Inject constructor(
      * Returns null if nothing is saved.
      */
     private fun getSavedAuthData(): AuthData? {
-        val authJson = loginDataStore.getAuthData()
+        val authJson = loginData.getAuthData()
         return if (authJson.isBlank()) null
         else try {
             gson.fromJson(authJson, AuthData::class.java)
@@ -122,22 +122,16 @@ class LoginSourceGPlay @Inject constructor(
     }
 
     private suspend fun saveAuthData(authData: AuthData) {
-        loginDataStore.saveAuthData(authData)
+        loginData.saveAuthData(authData)
     }
 
     /**
      * Generate new AuthData based on the user type.
      */
     private suspend fun generateAuthData(): ResultSupreme<AuthData?> {
-        return when (loginDataStore.getUserType()) {
-            User.ANONYMOUS -> getAuthData()
-            User.GOOGLE -> {
-                getAuthData(
-                    loginDataStore.getEmail(),
-                    loginDataStore.getOAuthToken(),
-                    loginDataStore.getAASToken()
-                )
-            }
+        return when (loginData.getUserType()) {
+            User.ANONYMOUS -> getAuthDataAnonymously()
+            User.GOOGLE -> getAuthDataWithGoogleAccount()
             else -> ResultSupreme.Error("User type not ANONYMOUS or GOOGLE")
         }
     }
@@ -151,38 +145,31 @@ class LoginSourceGPlay @Inject constructor(
         return gson.fromJson(localAuthDataJson, AuthData::class.java)
     }
 
-    /**
-     * Get AuthData for ANONYMOUS mode.
-     */
-    private suspend fun getAuthData(): ResultSupreme<AuthData?> {
-        return loginApiRepository.fetchAuthData("", "", locale).run {
+    private suspend fun getAuthDataAnonymously(): ResultSupreme<AuthData?> {
+        return loginWrapper.login(locale).run {
             if (isSuccess()) ResultSupreme.Success(formatAuthData(this.data!!))
             else this
         }
     }
 
-    /**
-     * Get AuthData for GOOGLE login mode.
-     */
-    private suspend fun getAuthData(
-        email: String,
-        oauthToken: String,
-        aasToken: String,
-    ): ResultSupreme<AuthData?> {
+    private suspend fun getAuthDataWithGoogleAccount(): ResultSupreme<AuthData?> {
 
+        val email = loginData.getEmail()
+        val oauthToken = loginData.getOAuthToken()
+        val aasToken = loginData.getAASToken()
         /*
          * If aasToken is not blank, means it was stored successfully from a previous Google login.
          * Use it to fetch auth data.
          */
         if (aasToken.isNotBlank()) {
-            return loginApiRepository.fetchAuthData(email, aasToken, locale)
+            return loginWrapper.login(locale)
         }
 
         /*
          * If aasToken is not yet saved / made, fetch it from email and oauthToken.
          */
-        val aasTokenResponse = loginApiRepository.getAasToken(
-            gPlayLoginInterface as GoogleLoginApi,
+        val aasTokenResponse = loginWrapper.getAasToken(
+            loginManager as GoogleLoginManager,
             email,
             oauthToken
         )
@@ -205,8 +192,8 @@ class LoginSourceGPlay @Inject constructor(
         /*
          * Finally save the aasToken and create auth data.
          */
-        loginDataStore.saveAasToken(aasTokenFetched)
-        return loginApiRepository.fetchAuthData(email, aasTokenFetched, locale).run {
+        loginData.saveAasToken(aasTokenFetched)
+        return loginWrapper.login(locale).run {
             if (isSuccess()) ResultSupreme.Success(formatAuthData(this.data!!))
             else this
         }
@@ -228,5 +215,5 @@ class LoginSourceGPlay @Inject constructor(
     }
 
     private suspend fun isAuthDataValid(savedAuth: AuthData?) =
-        savedAuth != null && loginApiRepository.login(savedAuth).exception == null
+        savedAuth != null && loginWrapper.validate(savedAuth).exception == null
 }

@@ -19,47 +19,51 @@ package foundation.e.apps.data.login.api
 
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.PlayResponse
-import com.google.gson.Gson
-import foundation.e.apps.data.gplay.utils.CustomAuthValidator
-import foundation.e.apps.data.gplay.utils.GPlayHttpClient
+import com.aurora.gplayapi.helpers.AuthHelper
+import foundation.e.apps.data.playstore.utils.AC2DMTask
+import foundation.e.apps.data.playstore.utils.CustomAuthValidator
+import foundation.e.apps.data.playstore.utils.GPlayHttpClient
+import foundation.e.apps.data.login.LoginData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Properties
 
-class AnonymousLoginApi(
+class GoogleLoginManager(
     private val gPlayHttpClient: GPlayHttpClient,
     private val nativeDeviceProperty: Properties,
-    private val gson: Gson,
-) : GPlayLoginInterface {
-
-    private val tokenUrl: String = "https://eu.gtoken.ecloud.global"
+    private val aC2DMTask: AC2DMTask,
+    private val loginData: LoginData
+) : PlayStoreLoginManager {
 
     /**
-     * Fetches AuthData for Anonymous login.
-     * @param email Keep it blank ("").
-     * @param aasToken Keep it blank ("").
+     * Get PlayResponse for AC2DM Map. This allows us to get an error message too.
+     *
+     * An aasToken is extracted from this map. This is passed to [login]
+     * to generate AuthData. This token is very important as it cannot be regenerated,
+     * hence it must be saved for future use.
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5680
      */
-    override suspend fun fetchAuthData(email: String, aasToken: String): AuthData? {
-        var authData: AuthData? = null
+    suspend fun getAC2DMResponse(email: String, oauthToken: String): PlayResponse {
+        var response: PlayResponse
         withContext(Dispatchers.IO) {
-            val response =
-                gPlayHttpClient.postAuth(tokenUrl, gson.toJson(nativeDeviceProperty).toByteArray())
-            if (response.code != 200 || !response.isSuccessful) {
-                throw Exception(
-                    "Error fetching Anonymous credentials\n" +
-                        "Network code: ${response.code}\n" +
-                        "Success: ${response.isSuccessful}" +
-                        response.errorString.run {
-                            if (isNotBlank()) "\nError message: $this"
-                            else ""
-                        }
-                )
-            } else {
-                authData = gson.fromJson(
-                    String(response.responseBytes),
-                    AuthData::class.java
-                )
-            }
+            response = aC2DMTask.getAC2DMResponse(email, oauthToken)
+        }
+        return response
+    }
+
+    /**
+     * Login
+     *
+     * @return authData: authentication data
+     */
+    override suspend fun login(): AuthData? {
+        val email = loginData.getEmail()
+        val aasToken = loginData.getAASToken()
+
+        var authData: AuthData?
+        withContext(Dispatchers.IO) {
+            authData = AuthHelper.build(email, aasToken, nativeDeviceProperty)
         }
         return authData
     }
@@ -68,7 +72,7 @@ class AnonymousLoginApi(
      * Check if an AuthData is valid. Returns a [PlayResponse].
      * Check [PlayResponse.isSuccessful] to see if the validation was successful.
      */
-    override suspend fun login(authData: AuthData): PlayResponse {
+    override suspend fun validate(authData: AuthData): PlayResponse {
         var result = PlayResponse()
         withContext(Dispatchers.IO) {
             try {

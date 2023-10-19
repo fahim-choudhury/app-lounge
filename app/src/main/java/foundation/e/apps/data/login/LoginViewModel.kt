@@ -33,7 +33,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val loginSourceRepository: LoginSourceRepository,
+    private val authenticatorRepository: AuthenticatorRepository,
     private val cache: Cache,
 ) : ViewModel() {
 
@@ -54,7 +54,7 @@ class LoginViewModel @Inject constructor(
      */
     fun startLoginFlow(clearList: List<String> = listOf()) {
         viewModelScope.launch {
-            val authObjectsLocal = loginSourceRepository.getAuthObjects(clearList)
+            val authObjectsLocal = authenticatorRepository.getAuthObjects(clearList)
             authObjects.postValue(authObjectsLocal)
         }
     }
@@ -66,7 +66,7 @@ class LoginViewModel @Inject constructor(
      */
     fun initialAnonymousLogin(onUserSaved: () -> Unit) {
         viewModelScope.launch {
-            loginSourceRepository.saveUserType(User.ANONYMOUS)
+            authenticatorRepository.saveUserType(User.ANONYMOUS)
             onUserSaved()
             startLoginFlow()
         }
@@ -80,8 +80,8 @@ class LoginViewModel @Inject constructor(
      */
     fun initialGoogleLogin(email: String, oauthToken: String, onUserSaved: () -> Unit) {
         viewModelScope.launch {
-            loginSourceRepository.saveGoogleLogin(email, oauthToken)
-            loginSourceRepository.saveUserType(User.GOOGLE)
+            authenticatorRepository.saveGoogleLogin(email, oauthToken)
+            authenticatorRepository.saveUserType(User.GOOGLE)
             onUserSaved()
             startLoginFlow()
         }
@@ -96,7 +96,7 @@ class LoginViewModel @Inject constructor(
      */
     fun initialNoGoogleLogin(onUserSaved: () -> Unit) {
         viewModelScope.launch {
-            loginSourceRepository.setNoGoogleMode()
+            authenticatorRepository.setNoGoogleMode()
             onUserSaved()
             startLoginFlow()
         }
@@ -131,7 +131,7 @@ class LoginViewModel @Inject constructor(
     fun logout() {
         viewModelScope.launch {
             cache.evictAll()
-            loginSourceRepository.logout()
+            authenticatorRepository.logout()
             authObjects.postValue(listOf())
         }
     }
