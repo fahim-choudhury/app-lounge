@@ -42,7 +42,12 @@ import foundation.e.apps.data.gplay.GplayStoreRepository
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.util.MainCoroutineRule
+import foundation.e.apps.util.getOrAwaitValue
+import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -54,6 +59,7 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
 import org.mockito.MockedStatic
 import org.mockito.Mockito
@@ -834,5 +840,57 @@ class FusedApiImplTest {
 
         val size = searchResultLiveData.data?.first?.size ?: -2
         assertEquals("getSearchResult", 4, size)
+    }
+
+    @Test
+    fun testHomeScreenDataWhenDataIsLimited() = runTest {
+        val newAppList = mutableListOf<App>(
+            App("foundation.e.demoone"),
+            App("foundation.e.demotwo"),
+            App("foundation.e.demothree"),
+        )
+
+        var newHomeData = mapOf<String, List<App>>(Pair("Top Free Apps", newAppList))
+        preferenceManagerModule.isGplaySelectedFake = true
+
+        formatterMocked.`when`<String> { Formatter.formatFileSize(any(), any()) }.thenReturn("15MB")
+        Mockito.`when`(gPlayAPIRepository.getHomeScreenData()).thenReturn(newHomeData)
+        Mockito.`when`(gPlayAPIRepository.getAppDetails(anyString())).thenReturn(App("foundation.e.demothree"))
+        Mockito.`when`(gPlayAPIRepository.getDownloadInfo(anyString(), any(), any())).thenReturn(listOf())
+        Mockito.`when`(pkgManagerModule.getPackageStatus(any(), any())).thenReturn(Status.UNAVAILABLE)
+
+        var hasLimitedDataFound = false
+        val job = launch {
+            EventBus.events.collect {
+                hasLimitedDataFound = true
+            }
+        }
+
+        fusedAPIImpl.getHomeScreenData(AUTH_DATA).getOrAwaitValue()
+        delay(500)
+        job.cancel()
+
+        assert(hasLimitedDataFound)
+    }
+
+    @Test
+    fun testSearchResultWhenDataIsLimited() = runTest {
+        preferenceManagerModule.isGplaySelectedFake = true
+        formatterMocked.`when`<String> { Formatter.formatFileSize(any(), any()) }.thenReturn("15MB")
+        Mockito.`when`(gPlayAPIRepository.getSearchResult(anyString(), eq(null))).thenReturn(Pair(emptyList(), mutableSetOf()))
+        Mockito.`when`(cleanApkAppsRepository.getAppDetails(any())).thenReturn(null)
+
+        var isEventBusTriggered = false
+        val job = launch {
+            EventBus.events.collect {
+                isEventBusTriggered = true
+            }
+        }
+
+        fusedAPIImpl.getGplaySearchResult("anything", null)
+        delay(500)
+        job.cancel()
+
+        assert(isEventBusTriggered)
     }
 }
