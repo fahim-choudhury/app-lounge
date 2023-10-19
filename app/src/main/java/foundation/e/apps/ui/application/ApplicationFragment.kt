@@ -665,7 +665,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 applicationIcon?.let {
                     if (fusedApp.isFree) {
                         disableInstallButton(R.string.cancel)
-                        installApplication(fusedApp, it)
+                        installApplication(fusedApp)
                     } else {
                         if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(fusedApp)) {
                             ApplicationDialogFragment(
@@ -677,7 +677,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                                 ),
                                 positiveButtonText = getString(R.string.dialog_confirm),
                                 positiveButtonAction = {
-                                    installApplication(fusedApp, it)
+                                    installApplication(fusedApp)
                                 },
                                 cancelButtonText = getString(R.string.dialog_cancel),
                             ).show(childFragmentManager, "ApplicationFragment")
@@ -709,8 +709,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun installApplication(
-        fusedApp: FusedApp,
-        it: ImageView
+        fusedApp: FusedApp
     ) {
         if (appInfoFetchViewModel.isAppInBlockedList(fusedApp)) {
             ApplicationDialogFragment(

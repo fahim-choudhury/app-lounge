@@ -278,7 +278,6 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
 
     private fun initUpdataAllButton() {
         binding.button.setOnClickListener {
-            val interval = updatesViewModel.getUpdateInterval()
             UpdatesWorkManager.startUpdateAllWork(requireContext())
             observeUpdateWork()
             binding.button.isEnabled = false

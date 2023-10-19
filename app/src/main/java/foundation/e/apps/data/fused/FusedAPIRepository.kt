@@ -104,7 +104,7 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi)
         return fusedAPIImpl.getCategoriesList(type)
     }
 
-    suspend fun getSearchSuggestions(query: String, authData: AuthData): List<SearchSuggestEntry> {
+    suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
         return fusedAPIImpl.getSearchSuggestions(query)
     }
 
