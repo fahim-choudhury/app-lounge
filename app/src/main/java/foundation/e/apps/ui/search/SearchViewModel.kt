@@ -65,10 +65,7 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             if (gPlayAuth.result.isSuccess())
                 searchSuggest.postValue(
-                    fusedAPIRepository.getSearchSuggestions(
-                        query,
-                        gPlayAuth.result.data!!
-                    )
+                    fusedAPIRepository.getSearchSuggestions(query)
                 )
         }
     }
@@ -86,12 +83,12 @@ class SearchViewModel @Inject constructor(
         super.onLoadData(authObjectList, { successAuthList, _ ->
 
             successAuthList.find { it is AuthObject.GPlayAuth }?.run {
-                getSearchResults(query, result.data!! as AuthData, lifecycleOwner)
+                getSearchResults(query, result.data!! as AuthData)
                 return@onLoadData
             }
 
             successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getSearchResults(query, null, lifecycleOwner)
+                getSearchResults(query, null)
                 return@onLoadData
             }
         }, retryBlock)
@@ -105,8 +102,7 @@ class SearchViewModel @Inject constructor(
      */
     private fun getSearchResults(
         query: String,
-        authData: AuthData?,
-        lifecycleOwner: LifecycleOwner
+        authData: AuthData?
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val searchResultSupreme = fusedAPIRepository.getCleanApkSearchResults(

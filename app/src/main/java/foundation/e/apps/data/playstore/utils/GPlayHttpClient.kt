@@ -54,7 +54,6 @@ class GPlayHttpClient @Inject constructor(
     companion object {
         private const val TAG = "GPlayHttpClient"
         private const val HTTP_TIMEOUT_IN_SECOND = 10L
-        private const val SEARCH = "search"
         private const val SEARCH_SUGGEST = "searchSuggest"
         private const val STATUS_CODE_OK = 200
         private const val STATUS_CODE_UNAUTHORIZED = 401

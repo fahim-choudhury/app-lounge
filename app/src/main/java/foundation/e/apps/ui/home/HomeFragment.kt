@@ -292,20 +292,6 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         mainActivityViewModel.cancelDownload(app)
     }
 
-    private fun onTosAccepted(isTosAccepted: Boolean) {
-        if (isTosAccepted) {
-            /*
-             * "safeNavigate" is an extension function, to prevent calling this navigation multiple times.
-             * This is taken from:
-             * https://nezspencer.medium.com/navigation-components-a-fix-for-navigation-action-cannot-be-found-in-the-current-destination-95b63e16152e
-             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5166
-             * Also related: https://gitlab.e.foundation/ecorp/apps/apps/-/merge_requests/28
-             */
-            view?.findNavController()
-                ?.safeNavigate(R.id.homeFragment, R.id.action_homeFragment_to_signInFragment)
-        }
-    }
-
     private fun openSettings() {
         view?.findNavController()
             ?.safeNavigate(R.id.homeFragment, R.id.action_homeFragment_to_SettingsFragment)

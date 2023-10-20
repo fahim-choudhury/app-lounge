@@ -1006,8 +1006,7 @@ class FusedApiImpl @Inject constructor(
      */
 
     private suspend fun getCleanAPKSearchResults(
-        keyword: String,
-        source: String = CleanApkRetrofit.APP_SOURCE_FOSS,
+        keyword: String
     ): List<FusedApp> {
         val list = mutableListOf<FusedApp>()
         val response =

@@ -86,10 +86,6 @@ class MainActivityViewModel @Inject constructor(
 
     lateinit var connectivityManager: ConnectivityManager
 
-    companion object {
-        private const val TAG = "MainActivityViewModel"
-    }
-
     fun getUser(): User {
         return dataStoreModule.getUserType()
     }
