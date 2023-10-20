@@ -26,13 +26,13 @@ subprojects {
         )
 
         config.setFrom("detekt.yml")
-
+        baseline = file("detekt-baseline.xml")
         parallel = false
         buildUponDefaultConfig = true
         allRules = false
         disableDefaultRuleSets = false
         debug = false
-        ignoreFailures = true
+        ignoreFailures = false
         basePath = projectDir
     }
 }
