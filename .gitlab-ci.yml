@@ -51,14 +51,6 @@ lintDebug:
     paths:
       - app/build/reports/
 
-ktlintDebug:
-  extends: .lintDebugDefault
-  script:
-    - ./gradlew app:ktlintCheck --info
-  artifacts:
-    paths:
-      - app/build/reports/ktlint/
-
 # Release build related jobs
 
 # Default configuration for release builds
@@ -129,15 +121,6 @@ lintRelease:
     paths:
       - app/build/reports/
       - build/reports/
-
-ktlintRelease:
-  extends: .lintReleaseDefault
-  script:
-    - ./gradlew app:ktlintCheck --info
-  artifacts:
-    paths:
-      - app/build/reports/ktlint/
-
 
 pushToPrebuilt:
   stage: publish
