@@ -100,18 +100,6 @@ class FusedApiImpl @Inject constructor(
         private const val KEYWORD_TEST_SEARCH = "facebook"
     }
 
-    /**
-     * Check if list in all the FusedHome is empty.
-     * If any list is not empty, send false.
-     * Else (if all lists are empty) send true.
-     */
-    override fun isHomesEmpty(fusedHomes: List<FusedHome>): Boolean {
-        fusedHomes.forEach {
-            if (it.list.isNotEmpty()) return false
-        }
-        return true
-    }
-
     override fun getApplicationCategoryPreference(): List<String> {
         val prefs = mutableListOf<String>()
         if (preferenceManagerModule.isGplaySelected()) prefs.add(APP_TYPE_ANY)
