@@ -26,7 +26,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.SearchBundle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
-import foundation.e.apps.data.fused.FusedAPIRepository
+import foundation.e.apps.data.fused.ApplicationRepository
 import foundation.e.apps.data.fused.GplaySearchResult
 import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.login.AuthObject
@@ -43,7 +43,7 @@ import kotlin.coroutines.coroutineContext
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val fusedAPIRepository: FusedAPIRepository,
+    private val applicationRepository: ApplicationRepository,
 ) : LoadingViewModel() {
 
     val searchSuggest: MutableLiveData<List<SearchSuggestEntry>?> = MutableLiveData()
@@ -65,7 +65,7 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             if (gPlayAuth.result.isSuccess())
                 searchSuggest.postValue(
-                    fusedAPIRepository.getSearchSuggestions(query)
+                    applicationRepository.getSearchSuggestions(query)
                 )
         }
     }
@@ -105,7 +105,7 @@ class SearchViewModel @Inject constructor(
         authData: AuthData?
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val searchResultSupreme = fusedAPIRepository.getCleanApkSearchResults(
+            val searchResultSupreme = applicationRepository.getCleanApkSearchResults(
                 query,
                 authData ?: AuthData("", "")
             )
@@ -151,7 +151,7 @@ class SearchViewModel @Inject constructor(
 
     private suspend fun fetchGplayData(query: String) {
         isLoading = true
-        val gplaySearchResult = fusedAPIRepository.getGplaySearchResults(query, nextSubBundle)
+        val gplaySearchResult = applicationRepository.getGplaySearchResults(query, nextSubBundle)
 
         if (!gplaySearchResult.isSuccess()) {
             handleException(gplaySearchResult.exception ?: UnknownSourceException())
@@ -195,7 +195,7 @@ class SearchViewModel @Inject constructor(
     fun isAnyAppUpdated(
         newApplications: List<Application>,
         oldApplications: List<Application>
-    ) = fusedAPIRepository.isAnyFusedAppUpdated(newApplications, oldApplications)
+    ) = applicationRepository.isAnyFusedAppUpdated(newApplications, oldApplications)
 
     fun isAuthObjectListSame(authObjectList: List<AuthObject>?): Boolean {
         return lastAuthObjects == authObjectList

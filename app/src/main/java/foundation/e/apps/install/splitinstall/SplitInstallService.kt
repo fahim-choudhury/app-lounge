@@ -28,7 +28,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.DownloadManager
-import foundation.e.apps.data.fused.FusedAPIRepository
+import foundation.e.apps.data.fused.ApplicationRepository
 import foundation.e.apps.data.preference.DataStoreModule
 import foundation.e.splitinstall.ISplitInstallService
 import foundation.e.splitinstall.SplitInstall
@@ -43,7 +43,7 @@ class SplitInstallService : LifecycleService() {
     }
 
     @Inject lateinit var dataStoreModule: DataStoreModule
-    @Inject lateinit var fusedAPIRepository: FusedAPIRepository
+    @Inject lateinit var applicationRepository: ApplicationRepository
     @Inject lateinit var downloadManager: DownloadManager
     @Inject lateinit var gson: Gson
     private lateinit var binder: SplitInstallBinder
@@ -92,7 +92,7 @@ class SplitInstallService : LifecycleService() {
         binder = SplitInstallBinder(
             applicationContext,
             lifecycleScope,
-            fusedAPIRepository,
+            applicationRepository,
             downloadManager,
             authData,
             splitInstallSystemService

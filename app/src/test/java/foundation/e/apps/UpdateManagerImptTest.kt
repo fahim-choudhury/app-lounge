@@ -27,7 +27,7 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
-import foundation.e.apps.data.fused.FusedAPIRepository
+import foundation.e.apps.data.fused.ApplicationRepository
 import foundation.e.apps.data.fused.ApplicationApi
 import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.updates.UpdatesManagerImpl
@@ -66,7 +66,7 @@ class UpdateManagerImptTest {
     private lateinit var pkgManagerModule: FakePkgManagerModule
 
     @Mock
-    private lateinit var fusedAPIRepository: FusedAPIRepository
+    private lateinit var applicationRepository: ApplicationRepository
 
     private lateinit var preferenceModule: FakePreferenceModule
 
@@ -89,7 +89,7 @@ class UpdateManagerImptTest {
         updatesManagerImpl = UpdatesManagerImpl(
             context,
             pkgManagerModule,
-            fusedAPIRepository,
+            applicationRepository,
             faultyAppRepository,
             preferenceModule,
             fdroidRepository,
@@ -324,19 +324,19 @@ class UpdateManagerImptTest {
         )
     ) {
         Mockito.`when`(
-            fusedAPIRepository.getApplicationDetails(
+            applicationRepository.getApplicationDetails(
                 any(),
                 any(),
                 eq(Origin.CLEANAPK)
             )
         ).thenReturn(openSourceUpdates)
 
-        Mockito.`when`(fusedAPIRepository.getApplicationCategoryPreference())
+        Mockito.`when`(applicationRepository.getApplicationCategoryPreference())
             .thenReturn(selectedApplicationSources)
 
         if (gplayUpdates.first.isNotEmpty()) {
             Mockito.`when`(
-                fusedAPIRepository.getApplicationDetails(
+                applicationRepository.getApplicationDetails(
                     any(),
                     any(),
                     any(),
@@ -348,7 +348,7 @@ class UpdateManagerImptTest {
             )
         } else {
             Mockito.`when`(
-                fusedAPIRepository.getApplicationDetails(
+                applicationRepository.getApplicationDetails(
                     any(),
                     any(),
                     any(),

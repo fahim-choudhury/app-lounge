@@ -23,7 +23,7 @@ import androidx.core.content.pm.PackageInfoCompat
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.ISplitInstallService
 import foundation.e.apps.data.DownloadManager
-import foundation.e.apps.data.fused.FusedAPIRepository
+import foundation.e.apps.data.fused.ApplicationRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,7 +33,7 @@ import timber.log.Timber
 class SplitInstallBinder(
     val context: Context,
     private val coroutineScope: CoroutineScope,
-    val fusedAPIRepository: FusedAPIRepository,
+    val applicationRepository: ApplicationRepository,
     val downloadManager: DownloadManager,
     val authData: AuthData?,
     private var splitInstallSystemService: foundation.e.splitinstall.ISplitInstallService?
@@ -97,10 +97,10 @@ class SplitInstallBinder(
         moduleName: String,
         versionCode: Int
     ): String? {
-        var url = fusedAPIRepository.getOnDemandModule(packageName, moduleName, versionCode, 1)
+        var url = applicationRepository.getOnDemandModule(packageName, moduleName, versionCode, 1)
 
         if (url == null) {
-            url = fusedAPIRepository.getOnDemandModule(
+            url = applicationRepository.getOnDemandModule(
                 packageName,
                 "config.$moduleName",
                 versionCode,

@@ -37,7 +37,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FusedAPIRepository @Inject constructor(private val applicationAPIImpl: ApplicationApi) {
+class ApplicationRepository @Inject constructor(private val applicationAPIImpl: ApplicationApi) {
 
     suspend fun getHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<Home>>> {
         return applicationAPIImpl.getHomeScreenData(authData)

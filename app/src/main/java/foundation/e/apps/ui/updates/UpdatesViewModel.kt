@@ -25,7 +25,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.FusedAPIRepository
+import foundation.e.apps.data.fused.ApplicationRepository
 import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
@@ -39,7 +39,7 @@ import javax.inject.Inject
 @HiltViewModel
 class UpdatesViewModel @Inject constructor(
     private val updatesManagerRepository: UpdatesManagerRepository,
-    private val fusedAPIRepository: FusedAPIRepository,
+    private val applicationRepository: ApplicationRepository,
     private val preferenceManagerModule: PreferenceManagerModule
 ) : LoadingViewModel() {
 
@@ -111,7 +111,7 @@ class UpdatesViewModel @Inject constructor(
                 return listOf(
                     Status.INSTALLED,
                     Status.UPDATABLE
-                ).contains(fusedAPIRepository.getFusedAppInstallationStatus(foundApp))
+                ).contains(applicationRepository.getFusedAppInstallationStatus(foundApp))
             }
         }
         return false

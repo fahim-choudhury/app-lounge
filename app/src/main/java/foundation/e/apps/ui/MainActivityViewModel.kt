@@ -41,7 +41,7 @@ import foundation.e.apps.data.ecloud.EcloudRepository
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
 import foundation.e.apps.data.enums.isUnFiltered
-import foundation.e.apps.data.fused.FusedAPIRepository
+import foundation.e.apps.data.fused.ApplicationRepository
 import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
@@ -58,7 +58,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     private val dataStoreModule: DataStoreModule,
-    private val fusedAPIRepository: FusedAPIRepository,
+    private val applicationRepository: ApplicationRepository,
     private val fusedManagerRepository: FusedManagerRepository,
     private val pkgManagerModule: PkgManagerModule,
     private val pwaManagerModule: PWAManagerModule,
@@ -168,7 +168,7 @@ class MainActivityViewModel @Inject constructor(
             if (application.filterLevel.isInitialized()) {
                 method()
             } else {
-                fusedAPIRepository.getAppFilterLevel(application, authData).run {
+                applicationRepository.getAppFilterLevel(application, authData).run {
                     if (isInitialized()) {
                         application.filterLevel = this
                         method()
@@ -283,7 +283,7 @@ class MainActivityViewModel @Inject constructor(
                 fusedDownload.origin == it.origin && (fusedDownload.packageName == it.package_name || fusedDownload.id == it._id)
             }
             it.status =
-                downloadingItem?.status ?: fusedAPIRepository.getFusedAppInstallationStatus(it)
+                downloadingItem?.status ?: applicationRepository.getFusedAppInstallationStatus(it)
         }
     }
 

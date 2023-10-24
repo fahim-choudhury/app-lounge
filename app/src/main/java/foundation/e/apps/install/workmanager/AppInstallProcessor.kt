@@ -26,7 +26,7 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
-import foundation.e.apps.data.fused.FusedAPIRepository
+import foundation.e.apps.data.fused.ApplicationRepository
 import foundation.e.apps.data.fused.UpdatesDao
 import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
@@ -50,7 +50,7 @@ class AppInstallProcessor @Inject constructor(
     @ApplicationContext private val context: Context,
     private val fusedDownloadRepository: FusedDownloadRepository,
     private val fusedManagerRepository: FusedManagerRepository,
-    private val fusedAPIRepository: FusedAPIRepository,
+    private val applicationRepository: ApplicationRepository,
     private val dataStoreManager: DataStoreManager,
     private val storageNotificationManager: StorageNotificationManager
 ) {
@@ -175,7 +175,7 @@ class AppInstallProcessor @Inject constructor(
     private suspend fun updateFusedDownloadWithAppDownloadLink(
         fusedDownload: FusedDownload
     ) {
-        fusedAPIRepository.updateFusedDownloadWithDownloadingInfo(
+        applicationRepository.updateFusedDownloadWithDownloadingInfo(
             fusedDownload.origin, fusedDownload
         )
     }

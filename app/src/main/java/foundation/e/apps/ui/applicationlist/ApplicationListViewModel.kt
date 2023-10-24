@@ -25,7 +25,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
-import foundation.e.apps.data.fused.FusedAPIRepository
+import foundation.e.apps.data.fused.ApplicationRepository
 import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
@@ -37,7 +37,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ApplicationListViewModel @Inject constructor(
-    private val fusedAPIRepository: FusedAPIRepository
+    private val applicationRepository: ApplicationRepository
 ) : LoadingViewModel() {
 
     val appListLiveData: MutableLiveData<ResultSupreme<List<Application>>?> = MutableLiveData()
@@ -87,7 +87,7 @@ class ApplicationListViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             isLoading = true
-            val result = fusedAPIRepository.getAppsListBasedOnCategory(
+            val result = applicationRepository.getAppsListBasedOnCategory(
                 authData,
                 category,
                 nextPageUrl,
@@ -135,7 +135,7 @@ class ApplicationListViewModel @Inject constructor(
         newApplications: List<Application>,
         oldApplications: List<Application>
     ): Boolean {
-        return fusedAPIRepository.isAnyFusedAppUpdated(newApplications, oldApplications)
+        return applicationRepository.isAnyFusedAppUpdated(newApplications, oldApplications)
     }
 
     fun loadMore(gPlayAuth: AuthObject?, category: String) {
@@ -151,7 +151,7 @@ class ApplicationListViewModel @Inject constructor(
             }
 
             isLoading = true
-            val result = fusedAPIRepository.getAppsListBasedOnCategory(
+            val result = applicationRepository.getAppsListBasedOnCategory(
                 authData,
                 category,
                 nextPageUrl,
@@ -176,5 +176,5 @@ class ApplicationListViewModel @Inject constructor(
     }
 
     fun hasAnyAppInstallStatusChanged(currentList: List<Application>) =
-        fusedAPIRepository.isAnyAppInstallStatusChanged(currentList)
+        applicationRepository.isAnyAppInstallStatusChanged(currentList)
 }

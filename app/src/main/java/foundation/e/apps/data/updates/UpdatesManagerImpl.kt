@@ -30,7 +30,7 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
-import foundation.e.apps.data.fused.FusedAPIRepository
+import foundation.e.apps.data.fused.ApplicationRepository
 import foundation.e.apps.data.fused.ApplicationApi.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.preference.PreferenceManagerModule
@@ -46,7 +46,7 @@ import javax.inject.Inject
 class UpdatesManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val pkgManagerModule: PkgManagerModule,
-    private val fusedAPIRepository: FusedAPIRepository,
+    private val applicationRepository: ApplicationRepository,
     private val faultyAppRepository: FaultyAppRepository,
     private val preferenceManagerModule: PreferenceManagerModule,
     private val fdroidRepository: FdroidRepository,
@@ -95,7 +95,7 @@ class UpdatesManagerImpl @Inject constructor(
         // Get open source app updates
         if (openSourceInstalledApps.isNotEmpty()) {
             status = getUpdatesFromApi({
-                fusedAPIRepository.getApplicationDetails(
+                applicationRepository.getApplicationDetails(
                     openSourceInstalledApps,
                     authData,
                     Origin.CLEANAPK
@@ -147,7 +147,7 @@ class UpdatesManagerImpl @Inject constructor(
 
         if (openSourceInstalledApps.isNotEmpty()) {
             status = getUpdatesFromApi({
-                fusedAPIRepository.getApplicationDetails(
+                applicationRepository.getApplicationDetails(
                     openSourceInstalledApps,
                     AuthData("", ""),
                     Origin.CLEANAPK
@@ -238,7 +238,7 @@ class UpdatesManagerImpl @Inject constructor(
         val appsResults = coroutineScope {
             val deferredResults = packageNames.map { packageName ->
                 async {
-                    fusedAPIRepository.getApplicationDetails(
+                    applicationRepository.getApplicationDetails(
                         "",
                         packageName,
                         authData,
@@ -273,7 +273,7 @@ class UpdatesManagerImpl @Inject constructor(
     private suspend fun getFDroidAppsAndSignatures(installedPackageNames: List<String>): Map<String, String> {
         val appsAndSignatures = hashMapOf<String, String>()
         for (packageName in installedPackageNames) {
-            val cleanApkFusedApp = fusedAPIRepository.getCleanapkAppDetails(packageName).first
+            val cleanApkFusedApp = applicationRepository.getCleanapkAppDetails(packageName).first
             if (cleanApkFusedApp.package_name.isBlank()) {
                 continue
             }
@@ -286,7 +286,7 @@ class UpdatesManagerImpl @Inject constructor(
         val installedVersionSignature = calculateSignatureVersion(cleanApkApplication)
 
         val downloadInfo =
-            fusedAPIRepository
+            applicationRepository
                 .getOSSDownloadInfo(cleanApkApplication._id, installedVersionSignature)
                 .body()?.download_data
 
@@ -377,6 +377,6 @@ class UpdatesManagerImpl @Inject constructor(
     }
 
     fun getApplicationCategoryPreference(): List<String> {
-        return fusedAPIRepository.getApplicationCategoryPreference()
+        return applicationRepository.getApplicationCategoryPreference()
     }
 }
