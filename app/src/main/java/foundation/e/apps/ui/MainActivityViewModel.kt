@@ -42,7 +42,7 @@ import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.preference.DataStoreModule
@@ -119,7 +119,7 @@ class MainActivityViewModel @Inject constructor(
      *
      * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/266
      */
-    fun shouldShowPaidAppsSnackBar(app: FusedApp): Boolean {
+    fun shouldShowPaidAppsSnackBar(app: Application): Boolean {
         if (!app.isFree && gPlayAuthData.isAnonymous) {
             _errorMessageStringResource.value = R.string.paid_app_anonymous_message
             return true
@@ -129,7 +129,7 @@ class MainActivityViewModel @Inject constructor(
 
     /**
      * Handle various cases of unsupported apps here.
-     * Returns true if the [fusedApp] is not supported by App Lounge.
+     * Returns true if the [application] is not supported by App Lounge.
      *
      * Pass [alertDialogContext] as null to prevent an alert dialog from being shown to the user.
      * In that case, this method simply works as a validation.
@@ -137,17 +137,17 @@ class MainActivityViewModel @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/178
      */
     fun checkUnsupportedApplication(
-        fusedApp: FusedApp,
+        application: Application,
         alertDialogContext: Context? = null
     ): Boolean {
-        if (!fusedApp.filterLevel.isUnFiltered()) {
+        if (!application.filterLevel.isUnFiltered()) {
             alertDialogContext?.let { context ->
                 AlertDialog.Builder(context).apply {
                     setTitle(R.string.unsupported_app_title)
                     setMessage(
                         context.getString(
                             R.string.unsupported_app_unreleased,
-                            fusedApp.name
+                            application.name
                         )
                     )
                     setPositiveButton(android.R.string.ok, null)
@@ -162,15 +162,15 @@ class MainActivityViewModel @Inject constructor(
      * Fetch the filter level of an app and perform some action.
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5720
      */
-    fun verifyUiFilter(fusedApp: FusedApp, method: () -> Unit) {
+    fun verifyUiFilter(application: Application, method: () -> Unit) {
         viewModelScope.launch {
             val authData = gPlayAuthData
-            if (fusedApp.filterLevel.isInitialized()) {
+            if (application.filterLevel.isInitialized()) {
                 method()
             } else {
-                fusedAPIRepository.getAppFilterLevel(fusedApp, authData).run {
+                fusedAPIRepository.getAppFilterLevel(application, authData).run {
                     if (isInitialized()) {
-                        fusedApp.filterLevel = this
+                        application.filterLevel = this
                         method()
                     }
                 }
@@ -178,7 +178,7 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun getApplication(app: FusedApp) {
+    fun getApplication(app: Application) {
         viewModelScope.launch {
             appInstallProcessor.initAppInstall(app)
         }
@@ -200,7 +200,7 @@ class MainActivityViewModel @Inject constructor(
         fusedManagerRepository.updateUnavailable(fusedDownload)
     }
 
-    fun cancelDownload(app: FusedApp) {
+    fun cancelDownload(app: Application) {
         viewModelScope.launch {
             val fusedDownload =
                 fusedManagerRepository.getFusedDownload(packageName = app.package_name)
@@ -275,10 +275,10 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun updateStatusOfFusedApps(
-        fusedAppList: List<FusedApp>,
+        applicationList: List<Application>,
         fusedDownloadList: List<FusedDownload>
     ) {
-        fusedAppList.forEach {
+        applicationList.forEach {
             val downloadingItem = fusedDownloadList.find { fusedDownload ->
                 fusedDownload.origin == it.origin && (fusedDownload.packageName == it.package_name || fusedDownload.id == it._id)
             }
@@ -301,7 +301,7 @@ class MainActivityViewModel @Inject constructor(
         return pkgManagerModule.getLaunchIntent(packageName)
     }
 
-    fun launchPwa(fusedApp: FusedApp) {
-        pwaManagerModule.launchPwa(fusedApp)
+    fun launchPwa(application: Application) {
+        pwaManagerModule.launchPwa(application)
     }
 }

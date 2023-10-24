@@ -53,7 +53,7 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentApplicationBinding
@@ -157,7 +157,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
         binding.applicationLayout.visibility = View.INVISIBLE
 
-        applicationViewModel.fusedApp.observe(viewLifecycleOwner) { resultPair ->
+        applicationViewModel.application.observe(viewLifecycleOwner) { resultPair ->
             updateUi(resultPair)
         }
 
@@ -167,7 +167,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun updateUi(
-        resultPair: Pair<FusedApp, ResultStatus>,
+        resultPair: Pair<Application, ResultStatus>,
     ) {
         if (resultPair.second != ResultStatus.OK) {
             return
@@ -220,7 +220,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         stopLoadingUI()
     }
 
-    private fun showWarningMessage(it: FusedApp) {
+    private fun showWarningMessage(it: Application) {
         if (appInfoFetchViewModel.isAppInBlockedList(it)) {
             binding.snackbarLayout.visibility = View.VISIBLE
         } else if (args.isGplayReplaced && !applicationViewModel.isOpenSourceSelected()) {
@@ -241,7 +241,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
     }
 
-    private fun updateAppDescriptionText(it: FusedApp) {
+    private fun updateAppDescriptionText(it: Application) {
         binding.appDescription.text =
             Html.fromHtml(it.description, Html.FROM_HTML_MODE_COMPACT)
 
@@ -275,11 +275,11 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
     }
 
-    private fun buildTrackersString(fusedApp: FusedApp?): String {
+    private fun buildTrackersString(application: Application?): String {
         var trackers =
-            privacyInfoViewModel.getTrackerListText(fusedApp)
+            privacyInfoViewModel.getTrackerListText(application)
 
-        if (fusedApp?.trackers == LIST_OF_NULL) {
+        if (application?.trackers == LIST_OF_NULL) {
             trackers = getString(R.string.tracker_information_not_found)
         } else if (trackers.isNotEmpty()) {
             trackers += "<br /> <br />" + getString(
@@ -294,7 +294,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun updateAppInformation(
-        it: FusedApp,
+        it: Application,
     ) {
         binding.infoInclude.apply {
             appUpdatedOn.text = getString(
@@ -315,7 +315,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
     }
 
-    private fun updateAppRating(it: FusedApp) {
+    private fun updateAppRating(it: Application) {
         binding.ratingsInclude.apply {
             if (it.ratings.usageQualityScore != -1.0) {
                 val rating =
@@ -389,7 +389,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         ).show(childFragmentManager, TAG)
     }
 
-    private fun updateAppTitlePanel(it: FusedApp) {
+    private fun updateAppTitlePanel(it: Application) {
         binding.titleInclude.apply {
             applicationIcon = appIcon
             appName.text = it.name
@@ -411,7 +411,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
     }
 
-    private fun updateCategoryTitle(app: FusedApp) {
+    private fun updateCategoryTitle(app: Application) {
         binding.titleInclude.apply {
             var catText = app.category.ifBlank { args.category }
             when {
@@ -492,17 +492,17 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             val installButton = binding.downloadInclude.installButton
             val downloadPB = binding.downloadInclude.progressLayout
             val appSize = binding.downloadInclude.appSize
-            val fusedApp = applicationViewModel.getFusedApp() ?: FusedApp()
+            val application = applicationViewModel.getFusedApp() ?: Application()
 
-            mainActivityViewModel.verifyUiFilter(fusedApp) {
-                if (!fusedApp.filterLevel.isInitialized()) {
+            mainActivityViewModel.verifyUiFilter(application) {
+                if (!application.filterLevel.isInitialized()) {
                     return@verifyUiFilter
                 }
                 when (status) {
                     Status.INSTALLED -> handleInstalled(
                         installButton,
                         view,
-                        fusedApp,
+                        application,
                         downloadPB,
                         appSize
                     )
@@ -510,28 +510,28 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                     Status.UPDATABLE -> handleUpdatable(
                         installButton,
                         view,
-                        fusedApp,
+                        application,
                         downloadPB,
                         appSize
                     )
 
                     Status.UNAVAILABLE -> handleUnavaiable(
                         installButton,
-                        fusedApp,
+                        application,
                         downloadPB,
                         appSize
                     )
 
                     Status.QUEUED, Status.AWAITING, Status.DOWNLOADED -> handleQueued(
                         installButton,
-                        fusedApp,
+                        application,
                         downloadPB,
                         appSize
                     )
 
                     Status.DOWNLOADING -> handleDownloading(
                         installButton,
-                        fusedApp,
+                        application,
                         downloadPB,
                         appSize
                     )
@@ -545,7 +545,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                     Status.BLOCKED -> handleBlocked(installButton, view)
                     Status.INSTALLATION_ISSUE -> handleInstallingIssue(
                         installButton,
-                        fusedApp,
+                        application,
                         downloadPB,
                         appSize
                     )
@@ -560,7 +560,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun handleInstallingIssue(
         installButton: MaterialButton,
-        fusedApp: FusedApp,
+        application: Application,
         downloadPB: RelativeLayout,
         appSize: MaterialTextView
     ) {
@@ -568,7 +568,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             enableInstallButton(R.string.retry)
             setOnClickListener {
                 applicationIcon?.let {
-                    mainActivityViewModel.getApplication(fusedApp)
+                    mainActivityViewModel.getApplication(application)
                 }
             }
         }
@@ -606,7 +606,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun handleDownloading(
         installButton: MaterialButton,
-        fusedApp: FusedApp,
+        application: Application,
         downloadPB: RelativeLayout,
         appSize: MaterialTextView
     ) {
@@ -614,7 +614,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             enableInstallButton(R.string.cancel)
             text = getString(R.string.cancel)
             setOnClickListener {
-                mainActivityViewModel.cancelDownload(fusedApp)
+                mainActivityViewModel.cancelDownload(application)
             }
         }
         downloadPB.visibility = View.VISIBLE
@@ -628,7 +628,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun handleQueued(
         installButton: MaterialButton,
-        fusedApp: FusedApp,
+        application: Application,
         downloadPB: RelativeLayout,
         appSize: MaterialTextView
     ) {
@@ -638,46 +638,46 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             enableInstallButton(R.string.cancel)
             text = getString(R.string.cancel)
             setOnClickListener {
-                mainActivityViewModel.cancelDownload(fusedApp)
+                mainActivityViewModel.cancelDownload(application)
             }
         }
     }
 
     private fun handleUnavaiable(
         installButton: MaterialButton,
-        fusedApp: FusedApp,
+        application: Application,
         downloadPB: RelativeLayout,
         appSize: MaterialTextView
     ) {
         installButton.apply {
             enableInstallButton(R.string.install)
             text = when {
-                mainActivityViewModel.checkUnsupportedApplication(fusedApp) ->
+                mainActivityViewModel.checkUnsupportedApplication(application) ->
                     getString(R.string.not_available)
 
-                fusedApp.isFree -> getString(R.string.install)
-                else -> fusedApp.price
+                application.isFree -> getString(R.string.install)
+                else -> application.price
             }
             setOnClickListener {
-                if (mainActivityViewModel.checkUnsupportedApplication(fusedApp, activity)) {
+                if (mainActivityViewModel.checkUnsupportedApplication(application, activity)) {
                     return@setOnClickListener
                 }
                 applicationIcon?.let {
-                    if (fusedApp.isFree) {
+                    if (application.isFree) {
                         disableInstallButton(R.string.cancel)
-                        installApplication(fusedApp)
+                        installApplication(application)
                     } else {
-                        if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(fusedApp)) {
+                        if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(application)) {
                             ApplicationDialogFragment(
-                                title = getString(R.string.dialog_title_paid_app, fusedApp.name),
+                                title = getString(R.string.dialog_title_paid_app, application.name),
                                 message = getString(
                                     R.string.dialog_paidapp_message,
-                                    fusedApp.name,
-                                    fusedApp.price
+                                    application.name,
+                                    application.price
                                 ),
                                 positiveButtonText = getString(R.string.dialog_confirm),
                                 positiveButtonAction = {
-                                    installApplication(fusedApp)
+                                    installApplication(application)
                                 },
                                 cancelButtonText = getString(R.string.dialog_cancel),
                             ).show(childFragmentManager, "ApplicationFragment")
@@ -709,43 +709,43 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun installApplication(
-        fusedApp: FusedApp
+        application: Application
     ) {
-        if (appInfoFetchViewModel.isAppInBlockedList(fusedApp)) {
+        if (appInfoFetchViewModel.isAppInBlockedList(application)) {
             ApplicationDialogFragment(
                 title = getString(R.string.this_app_may_not_work_properly),
                 message = getString(R.string.may_not_work_warning_message),
                 positiveButtonText = getString(R.string.install_anyway),
                 positiveButtonAction = {
-                    mainActivityViewModel.getApplication(fusedApp)
+                    mainActivityViewModel.getApplication(application)
                 }
             ).show(childFragmentManager, "ApplicationFragment")
         } else {
-            mainActivityViewModel.getApplication(fusedApp)
+            mainActivityViewModel.getApplication(application)
         }
     }
 
     private fun handleUpdatable(
         installButton: MaterialButton,
         view: View,
-        fusedApp: FusedApp,
+        application: Application,
         downloadPB: RelativeLayout,
         appSize: MaterialTextView
     ) {
         installButton.apply {
             enableInstallButton(R.string.not_available)
-            text = if (mainActivityViewModel.checkUnsupportedApplication(fusedApp))
+            text = if (mainActivityViewModel.checkUnsupportedApplication(application))
                 getString(R.string.not_available)
             else getString(R.string.update)
             setTextColor(Color.WHITE)
             backgroundTintList =
                 ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
-                if (mainActivityViewModel.checkUnsupportedApplication(fusedApp, activity)) {
+                if (mainActivityViewModel.checkUnsupportedApplication(application, activity)) {
                     return@setOnClickListener
                 }
                 applicationIcon?.let {
-                    mainActivityViewModel.getApplication(fusedApp)
+                    mainActivityViewModel.getApplication(application)
                 }
             }
         }
@@ -756,7 +756,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     private fun handleInstalled(
         installButton: MaterialButton,
         view: View,
-        fusedApp: FusedApp,
+        application: Application,
         downloadPB: RelativeLayout,
         appSize: MaterialTextView
     ) {
@@ -768,10 +768,10 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             backgroundTintList =
                 ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
-                if (fusedApp.is_pwa) {
-                    pwaManagerModule.launchPwa(fusedApp)
+                if (application.is_pwa) {
+                    pwaManagerModule.launchPwa(application)
                 } else {
-                    val launchIntent = pkgManagerModule.getLaunchIntent(fusedApp.package_name)
+                    val launchIntent = pkgManagerModule.getLaunchIntent(application.package_name)
                     launchIntent?.run { startActivity(this) }
                 }
             }
@@ -818,12 +818,12 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             return EXODUS_URL
         }
 
-        val reportId = applicationViewModel.fusedApp.value!!.first.reportId
+        val reportId = applicationViewModel.application.value!!.first.reportId
         return "$EXODUS_REPORT_URL${Locale.getDefault().language}/reports/$reportId"
     }
 
-    private fun fetchAppTracker(fusedApp: FusedApp) {
-        privacyInfoViewModel.getSingularAppPrivacyInfoLiveData(fusedApp)
+    private fun fetchAppTracker(application: Application) {
+        privacyInfoViewModel.getSingularAppPrivacyInfoLiveData(application)
             .observe(viewLifecycleOwner) {
                 updatePrivacyScore()
             }

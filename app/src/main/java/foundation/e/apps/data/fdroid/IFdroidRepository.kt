@@ -20,7 +20,7 @@ package foundation.e.apps.data.fdroid
 
 import android.content.Context
 import foundation.e.apps.data.fdroid.models.FdroidEntity
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 
 interface IFdroidRepository {
     /**
@@ -31,7 +31,7 @@ interface IFdroidRepository {
      */
     suspend fun getFdroidInfo(packageName: String): FdroidEntity?
 
-    suspend fun getAuthorName(fusedApp: FusedApp): String
+    suspend fun getAuthorName(application: Application): String
 
     suspend fun isFdroidApplicationSigned(
         context: Context,

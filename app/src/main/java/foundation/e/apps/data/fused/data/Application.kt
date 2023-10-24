@@ -25,7 +25,7 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 
-data class FusedApp(
+data class Application(
     val _id: String = String(),
     val author: String = String(),
     val category: String = String(),

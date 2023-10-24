@@ -26,7 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import foundation.e.apps.data.fused.ApplicationInstaller
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fused.data.FusedHome
 import foundation.e.apps.databinding.HomeParentListItemBinding
 import foundation.e.apps.ui.AppInfoFetchViewModel
@@ -37,7 +37,7 @@ class HomeParentRVAdapter(
     private val mainActivityViewModel: MainActivityViewModel,
     private val appInfoFetchViewModel: AppInfoFetchViewModel,
     private var lifecycleOwner: LifecycleOwner?,
-    private val paidAppHandler: ((FusedApp) -> Unit)? = null
+    private val paidAppHandler: ((Application) -> Unit)? = null
 ) : ListAdapter<FusedHome, HomeParentRVAdapter.ViewHolder>(FusedHomeDiffUtil()) {
 
     private val viewPool = RecyclerView.RecycledViewPool()

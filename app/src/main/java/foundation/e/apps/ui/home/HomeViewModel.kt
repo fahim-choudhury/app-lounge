@@ -25,7 +25,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fused.data.FusedHome
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
@@ -103,7 +103,7 @@ class HomeViewModel @Inject constructor(
             return false
         }
 
-        val appList = mutableListOf<FusedApp>()
+        val appList = mutableListOf<Application>()
         currentList.forEach { appList.addAll(it.list) }
         return fusedAPIRepository.isAnyAppInstallStatusChanged(appList)
     }

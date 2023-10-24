@@ -13,7 +13,7 @@ import androidx.core.graphics.drawable.IconCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.OpenForTesting
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import kotlinx.coroutines.delay
@@ -51,13 +51,13 @@ class PWAManagerModule @Inject constructor(
      * Note that there is no pwa version. Also there is no "package_name".
      *
      * In this method, we get all the available PWAs from PWA Player and compare each of their url
-     * to the method argument [fusedApp]'s url. If an item (from the cursor) has url equal to
+     * to the method argument [application]'s url. If an item (from the cursor) has url equal to
      * that of pwa app, we return [Status.INSTALLED].
-     * We also set [FusedApp.pwaPlayerDbId] for the [fusedApp].
+     * We also set [Application.pwaPlayerDbId] for the [application].
      *
      * As there is no concept of version, we cannot send [Status.UPDATABLE].
      */
-    fun getPwaStatus(fusedApp: FusedApp): Status {
+    fun getPwaStatus(application: Application): Status {
         context.contentResolver.query(
             Uri.parse(PWA_PLAYER),
             null, null, null, null
@@ -68,8 +68,8 @@ class PWAManagerModule @Inject constructor(
                         try {
                             val pwaItemUrl = cursor.getString(cursor.columnNames.indexOf("url"))
                             val pwaItemDbId = cursor.getLong(cursor.columnNames.indexOf("_id"))
-                            if (fusedApp.url == pwaItemUrl) {
-                                fusedApp.pwaPlayerDbId = pwaItemDbId
+                            if (application.url == pwaItemUrl) {
+                                application.pwaPlayerDbId = pwaItemDbId
                                 return Status.INSTALLED
                             }
                         } catch (e: Exception) {
@@ -87,10 +87,10 @@ class PWAManagerModule @Inject constructor(
     /**
      * Launch PWA using PWA Player.
      */
-    fun launchPwa(fusedApp: FusedApp) {
+    fun launchPwa(application: Application) {
         val launchIntent = Intent(VIEW_PWA).apply {
-            data = Uri.parse(fusedApp.url)
-            putExtra(PWA_ID, fusedApp.pwaPlayerDbId)
+            data = Uri.parse(application.url)
+            putExtra(PWA_ID, application.pwaPlayerDbId)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS)
         }

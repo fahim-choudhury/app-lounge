@@ -20,7 +20,7 @@ package foundation.e.apps.ui
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.download.data.DownloadProgressLD
@@ -35,9 +35,9 @@ class AppProgressViewModel @Inject constructor(
     val downloadProgress = downloadProgressLD
 
     suspend fun calculateProgress(
-        fusedApp: FusedApp?,
+        application: Application?,
         progress: DownloadProgress
     ): Int {
-        return fusedManagerRepository.calculateProgress(fusedApp, progress)
+        return fusedManagerRepository.calculateProgress(application, progress)
     }
 }

@@ -28,7 +28,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.GplaySearchResult
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
@@ -48,7 +48,7 @@ class SearchViewModel @Inject constructor(
 
     val searchSuggest: MutableLiveData<List<SearchSuggestEntry>?> = MutableLiveData()
 
-    val searchResult: MutableLiveData<ResultSupreme<Pair<List<FusedApp>, Boolean>>> =
+    val searchResult: MutableLiveData<ResultSupreme<Pair<List<Application>, Boolean>>> =
         MutableLiveData()
 
     private var lastAuthObjects: List<AuthObject>? = null
@@ -176,7 +176,7 @@ class SearchViewModel @Inject constructor(
         isLoading = false
     }
 
-    private fun updateCurrentAppList(gplaySearchResult: GplaySearchResult): List<FusedApp> {
+    private fun updateCurrentAppList(gplaySearchResult: GplaySearchResult): List<Application> {
         val currentSearchResult = searchResult.value?.data
         val currentAppList = currentSearchResult?.first?.toMutableList() ?: mutableListOf()
         currentAppList.removeIf { item -> item.isPlaceHolder }
@@ -193,9 +193,9 @@ class SearchViewModel @Inject constructor(
      * @return returns true if there is changes in data, otherwise false
      */
     fun isAnyAppUpdated(
-        newFusedApps: List<FusedApp>,
-        oldFusedApps: List<FusedApp>
-    ) = fusedAPIRepository.isAnyFusedAppUpdated(newFusedApps, oldFusedApps)
+        newApplications: List<Application>,
+        oldApplications: List<Application>
+    ) = fusedAPIRepository.isAnyFusedAppUpdated(newApplications, oldApplications)
 
     fun isAuthObjectListSame(authObjectList: List<AuthObject>?): Boolean {
         return lastAuthObjects == authObjectList

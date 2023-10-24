@@ -28,7 +28,7 @@ import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fused.data.FusedCategory
 import foundation.e.apps.data.fused.data.FusedHome
 import foundation.e.apps.data.fused.utils.CategoryType
@@ -51,12 +51,12 @@ class FusedAPIRepository @Inject constructor(private val applicationAPIImpl: App
         packageNameList: List<String>,
         authData: AuthData,
         origin: Origin
-    ): Pair<List<FusedApp>, ResultStatus> {
+    ): Pair<List<Application>, ResultStatus> {
         return applicationAPIImpl.getApplicationDetails(packageNameList, authData, origin)
     }
 
-    suspend fun getAppFilterLevel(fusedApp: FusedApp, authData: AuthData?): FilterLevel {
-        return applicationAPIImpl.getAppFilterLevel(fusedApp, authData)
+    suspend fun getAppFilterLevel(application: Application, authData: AuthData?): FilterLevel {
+        return applicationAPIImpl.getAppFilterLevel(application, authData)
     }
 
     suspend fun getApplicationDetails(
@@ -64,11 +64,11 @@ class FusedAPIRepository @Inject constructor(private val applicationAPIImpl: App
         packageName: String,
         authData: AuthData,
         origin: Origin
-    ): Pair<FusedApp, ResultStatus> {
+    ): Pair<Application, ResultStatus> {
         return applicationAPIImpl.getApplicationDetails(id, packageName, authData, origin)
     }
 
-    suspend fun getCleanapkAppDetails(packageName: String): Pair<FusedApp, ResultStatus> {
+    suspend fun getCleanapkAppDetails(packageName: String): Pair<Application, ResultStatus> {
         return applicationAPIImpl.getCleanapkAppDetails(packageName)
     }
 
@@ -107,7 +107,7 @@ class FusedAPIRepository @Inject constructor(private val applicationAPIImpl: App
     suspend fun getCleanApkSearchResults(
         query: String,
         authData: AuthData
-    ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
+    ): ResultSupreme<Pair<List<Application>, Boolean>> {
         return applicationAPIImpl.getCleanApkSearchResults(query, authData)
     }
 
@@ -123,7 +123,7 @@ class FusedAPIRepository @Inject constructor(private val applicationAPIImpl: App
         category: String,
         pageUrl: String?,
         source: Source
-    ): ResultSupreme<Pair<List<FusedApp>, String>> {
+    ): ResultSupreme<Pair<List<Application>, String>> {
         return when (source) {
             Source.OPEN -> applicationAPIImpl.getOpenSourceApps(category)
             Source.PWA -> applicationAPIImpl.getPWAApps(category)
@@ -131,8 +131,8 @@ class FusedAPIRepository @Inject constructor(private val applicationAPIImpl: App
         }
     }
 
-    fun getFusedAppInstallationStatus(fusedApp: FusedApp): Status {
-        return applicationAPIImpl.getFusedAppInstallationStatus(fusedApp)
+    fun getFusedAppInstallationStatus(application: Application): Status {
+        return applicationAPIImpl.getFusedAppInstallationStatus(application)
     }
 
     fun isHomeDataUpdated(
@@ -141,11 +141,11 @@ class FusedAPIRepository @Inject constructor(private val applicationAPIImpl: App
     ) = applicationAPIImpl.isHomeDataUpdated(newHomeData, oldHomeData)
 
     fun isAnyFusedAppUpdated(
-        newFusedApps: List<FusedApp>,
-        oldFusedApps: List<FusedApp>
-    ) = applicationAPIImpl.isAnyFusedAppUpdated(newFusedApps, oldFusedApps)
+        newApplications: List<Application>,
+        oldApplications: List<Application>
+    ) = applicationAPIImpl.isAnyFusedAppUpdated(newApplications, oldApplications)
 
-    fun isAnyAppInstallStatusChanged(currentList: List<FusedApp>) =
+    fun isAnyAppInstallStatusChanged(currentList: List<Application>) =
         applicationAPIImpl.isAnyAppInstallStatusChanged(currentList)
 
     fun isOpenSourceSelected() = applicationAPIImpl.isOpenSourceSelected()

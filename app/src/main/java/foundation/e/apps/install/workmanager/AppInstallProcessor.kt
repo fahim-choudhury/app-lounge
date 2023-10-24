@@ -28,7 +28,7 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.UpdatesDao
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
@@ -63,34 +63,34 @@ class AppInstallProcessor @Inject constructor(
     }
 
     /**
-     * creates [FusedDownload] from [FusedApp] and enqueues into WorkManager to run install process.
-     * @param fusedApp represents the app info which will be installed
+     * creates [FusedDownload] from [Application] and enqueues into WorkManager to run install process.
+     * @param application represents the app info which will be installed
      * @param isAnUpdate indicates the app is requested for update or not
      *
      */
     suspend fun initAppInstall(
-        fusedApp: FusedApp,
+        application: Application,
         isAnUpdate: Boolean = false
     ) {
         val fusedDownload = FusedDownload(
-            fusedApp._id,
-            fusedApp.origin,
-            fusedApp.status,
-            fusedApp.name,
-            fusedApp.package_name,
+            application._id,
+            application.origin,
+            application.status,
+            application.name,
+            application.package_name,
             mutableListOf(),
             mutableMapOf(),
-            fusedApp.status,
-            fusedApp.type,
-            fusedApp.icon_image_path,
-            fusedApp.latest_version_code,
-            fusedApp.offer_type,
-            fusedApp.isFree,
-            fusedApp.originalSize
+            application.status,
+            application.type,
+            application.icon_image_path,
+            application.latest_version_code,
+            application.offer_type,
+            application.isFree,
+            application.originalSize
         )
 
         if (fusedDownload.type == Type.PWA) {
-            fusedDownload.downloadURLList = mutableListOf(fusedApp.url)
+            fusedDownload.downloadURLList = mutableListOf(application.url)
         }
 
         enqueueFusedDownload(fusedDownload, isAnUpdate)

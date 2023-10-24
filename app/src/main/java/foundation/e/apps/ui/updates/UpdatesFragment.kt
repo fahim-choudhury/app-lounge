@@ -37,7 +37,7 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fused.ApplicationInstaller
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayException
@@ -151,7 +151,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
         }
     }
 
-    private fun handleStateNoUpdates(list: List<FusedApp>?) {
+    private fun handleStateNoUpdates(list: List<Application>?) {
         if (!list.isNullOrEmpty()) {
             binding.button.isEnabled = true
             initUpdataAllButton()
@@ -212,15 +212,15 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
         }
     }
 
-    private fun showPurchasedAppMessage(fusedApp: FusedApp) {
+    private fun showPurchasedAppMessage(application: Application) {
         ApplicationDialogFragment(
-            title = getString(R.string.dialog_title_paid_app, fusedApp.name),
+            title = getString(R.string.dialog_title_paid_app, application.name),
             message = getString(
-                R.string.dialog_paidapp_message, fusedApp.name, fusedApp.price
+                R.string.dialog_paidapp_message, application.name, application.price
             ),
             positiveButtonText = getString(R.string.dialog_confirm),
             positiveButtonAction = {
-                installApplication(fusedApp)
+                installApplication(application)
             },
             cancelButtonText = getString(R.string.dialog_cancel),
         ).show(childFragmentManager, "UpdatesFragment")
@@ -373,11 +373,11 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
         _binding = null
     }
 
-    override fun installApplication(app: FusedApp) {
+    override fun installApplication(app: Application) {
         mainActivityViewModel.getApplication(app)
     }
 
-    override fun cancelDownload(app: FusedApp) {
+    override fun cancelDownload(app: Application) {
         mainActivityViewModel.cancelDownload(app)
     }
 
