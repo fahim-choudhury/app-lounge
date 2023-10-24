@@ -34,7 +34,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
-import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.cleanapk.data.app.Application
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.home.Home
@@ -49,9 +48,9 @@ import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.enums.isUnFiltered
-import foundation.e.apps.data.fused.FusedApi.Companion.APP_TYPE_ANY
-import foundation.e.apps.data.fused.FusedApi.Companion.APP_TYPE_OPEN
-import foundation.e.apps.data.fused.FusedApi.Companion.APP_TYPE_PWA
+import foundation.e.apps.data.fused.ApplicationApi.Companion.APP_TYPE_ANY
+import foundation.e.apps.data.fused.ApplicationApi.Companion.APP_TYPE_OPEN
+import foundation.e.apps.data.fused.ApplicationApi.Companion.APP_TYPE_PWA
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fused.data.FusedCategory
 import foundation.e.apps.data.fused.data.FusedHome
@@ -82,7 +81,7 @@ import javax.inject.Singleton
 typealias FusedHomeDeferred = Deferred<ResultSupreme<List<FusedHome>>>
 
 @Singleton
-class FusedApiImpl @Inject constructor(
+class ApplicationApiImpl @Inject constructor(
     private val pkgManagerModule: PkgManagerModule,
     private val pwaManagerModule: PWAManagerModule,
     private val preferenceManagerModule: PreferenceManagerModule,
@@ -90,7 +89,7 @@ class FusedApiImpl @Inject constructor(
     @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
     @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository,
     @ApplicationContext private val context: Context
-) : FusedApi {
+) : ApplicationApi {
 
     companion object {
         private const val CATEGORY_TITLE_REPLACEABLE_CONJUNCTION = "&"

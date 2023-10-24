@@ -34,7 +34,7 @@ import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.FusedApiImpl
+import foundation.e.apps.data.fused.ApplicationApiImpl
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fused.data.FusedHome
 import foundation.e.apps.data.fused.utils.CategoryType
@@ -46,7 +46,6 @@ import foundation.e.apps.util.getOrAwaitValue
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import okhttp3.ResponseBody
@@ -69,7 +68,7 @@ import org.mockito.kotlin.eq
 import retrofit2.Response
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class FusedApiImplTest {
+class ApplicationApiImplTest {
 
     // Run tasks synchronously
     @Rule
@@ -81,7 +80,7 @@ class FusedApiImplTest {
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
-    private lateinit var fusedAPIImpl: FusedApiImpl
+    private lateinit var fusedAPIImpl: ApplicationApiImpl
 
     @Mock
     private lateinit var pwaManagerModule: PWAManagerModule
@@ -114,7 +113,7 @@ class FusedApiImplTest {
         MockitoAnnotations.openMocks(this)
         formatterMocked = Mockito.mockStatic(Formatter::class.java)
         preferenceManagerModule = FakePreferenceModule(context)
-        fusedAPIImpl = FusedApiImpl(
+        fusedAPIImpl = ApplicationApiImpl(
             pkgManagerModule,
             pwaManagerModule,
             preferenceManagerModule,

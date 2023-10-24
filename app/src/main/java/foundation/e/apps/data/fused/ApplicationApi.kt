@@ -20,7 +20,7 @@ import retrofit2.Response
 
 typealias GplaySearchResult = ResultSupreme<Pair<List<FusedApp>, Set<SearchBundle.SubBundle>>>
 
-interface FusedApi {
+interface ApplicationApi {
     companion object {
         const val APP_TYPE_ANY = "any"
         const val APP_TYPE_OPEN = "open"

@@ -18,7 +18,7 @@
 package foundation.e.apps.fused
 
 import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.fused.FusedApiImpl
+import foundation.e.apps.data.fused.ApplicationApiImpl
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -27,10 +27,10 @@ import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 
-class FusedApiRepositoryTest {
+class ApplicationApiRepositoryTest {
     private lateinit var fusedApiRepository: FusedAPIRepository
     @Mock
-    private lateinit var fusedAPIImpl: FusedApiImpl
+    private lateinit var fusedAPIImpl: ApplicationApiImpl
 
     @Before
     fun setup() {

@@ -28,7 +28,7 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.fused.FusedApi
+import foundation.e.apps.data.fused.ApplicationApi
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.updates.UpdatesManagerImpl
 import foundation.e.apps.util.MainCoroutineRule
@@ -318,9 +318,9 @@ class UpdateManagerImptTest {
         openSourceUpdates: Pair<MutableList<FusedApp>, ResultStatus>,
         gplayUpdates: Pair<MutableList<FusedApp>, ResultStatus>,
         selectedApplicationSources: List<String> = mutableListOf(
-            FusedApi.APP_TYPE_ANY,
-            FusedApi.APP_TYPE_OPEN,
-            FusedApi.APP_TYPE_PWA
+            ApplicationApi.APP_TYPE_ANY,
+            ApplicationApi.APP_TYPE_OPEN,
+            ApplicationApi.APP_TYPE_PWA
         )
     ) {
         Mockito.`when`(
