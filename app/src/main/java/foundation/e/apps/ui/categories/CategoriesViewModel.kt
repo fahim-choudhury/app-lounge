@@ -24,7 +24,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.fused.data.FusedCategory
+import foundation.e.apps.data.fused.data.Category
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
@@ -38,7 +38,7 @@ class CategoriesViewModel @Inject constructor(
     private val fusedAPIRepository: FusedAPIRepository
 ) : LoadingViewModel() {
 
-    val categoriesList: MutableLiveData<Triple<List<FusedCategory>, String, ResultStatus>> =
+    val categoriesList: MutableLiveData<Triple<List<Category>, String, ResultStatus>> =
         MutableLiveData()
 
     fun loadData(

@@ -27,7 +27,7 @@ import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Artwork
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.Category
+import com.aurora.gplayapi.data.models.Category as GplayapiCategory
 import com.aurora.gplayapi.data.models.SearchBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -52,7 +52,7 @@ import foundation.e.apps.data.fused.ApplicationApi.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.fused.ApplicationApi.Companion.APP_TYPE_OPEN
 import foundation.e.apps.data.fused.ApplicationApi.Companion.APP_TYPE_PWA
 import foundation.e.apps.data.fused.data.Application
-import foundation.e.apps.data.fused.data.FusedCategory
+import foundation.e.apps.data.fused.data.Category
 import foundation.e.apps.data.fused.data.FusedHome
 import foundation.e.apps.data.fused.data.Ratings
 import foundation.e.apps.data.fused.utils.CategoryType
@@ -209,8 +209,8 @@ class ApplicationApiImpl @Inject constructor(
      */
     override suspend fun getCategoriesList(
         type: CategoryType,
-    ): Triple<List<FusedCategory>, String, ResultStatus> {
-        val categoriesList = mutableListOf<FusedCategory>()
+    ): Triple<List<Category>, String, ResultStatus> {
+        val categoriesList = mutableListOf<Category>()
         val preferredApplicationType = preferenceManagerModule.preferredApplicationType()
         var apiStatus: ResultStatus = ResultStatus.OK
         var applicationCategoryType = preferredApplicationType
@@ -797,7 +797,7 @@ class ApplicationApiImpl @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
     private suspend fun handleAllSourcesCategories(
-        categoriesList: MutableList<FusedCategory>,
+        categoriesList: MutableList<Category>,
         type: CategoryType,
     ): Pair<ResultStatus, String> {
         var apiStatus = ResultStatus.OK
@@ -831,8 +831,8 @@ class ApplicationApiImpl @Inject constructor(
 
     private suspend fun fetchGplayCategories(
         type: CategoryType,
-    ): ResultSupreme<List<FusedCategory>> {
-        val categoryList = mutableListOf<FusedCategory>()
+    ): ResultSupreme<List<Category>> {
+        val categoryList = mutableListOf<Category>()
 
         return handleNetworkResult {
             val playResponse = gplayRepository.getCategories(type).map { app ->
@@ -847,8 +847,8 @@ class ApplicationApiImpl @Inject constructor(
 
     private suspend fun fetchPWACategories(
         type: CategoryType,
-    ): Triple<ResultStatus, List<FusedCategory>, String> {
-        val fusedCategoriesList = mutableListOf<FusedCategory>()
+    ): Triple<ResultStatus, List<Category>, String> {
+        val fusedCategoriesList = mutableListOf<Category>()
         val result = handleNetworkResult {
             getPWAsCategories()?.let {
                 fusedCategoriesList.addAll(
@@ -864,11 +864,11 @@ class ApplicationApiImpl @Inject constructor(
 
     private suspend fun fetchOpenSourceCategories(
         type: CategoryType,
-    ): Triple<ResultStatus, List<FusedCategory>, String> {
-        val fusedCategoryList = mutableListOf<FusedCategory>()
+    ): Triple<ResultStatus, List<Category>, String> {
+        val categoryList = mutableListOf<Category>()
         val result = handleNetworkResult {
             getOpenSourceCategories()?.let {
-                fusedCategoryList.addAll(
+                categoryList.addAll(
                     getFusedCategoryBasedOnCategoryType(
                         it,
                         type,
@@ -878,17 +878,17 @@ class ApplicationApiImpl @Inject constructor(
             }
         }
 
-        return Triple(result.getResultStatus(), fusedCategoryList, APP_TYPE_OPEN)
+        return Triple(result.getResultStatus(), categoryList, APP_TYPE_OPEN)
     }
 
     private fun updateCategoryDrawable(
-        category: FusedCategory,
+        category: Category,
     ) {
         category.drawable =
             getCategoryIconResource(getCategoryIconName(category))
     }
 
-    private fun getCategoryIconName(category: FusedCategory): String {
+    private fun getCategoryIconName(category: Category): String {
         var categoryTitle = if (category.tag.getOperationalTag().contentEquals(AppTag.GPlay().getOperationalTag()))
             category.id else category.title
 
@@ -903,7 +903,7 @@ class ApplicationApiImpl @Inject constructor(
         categories: Categories,
         categoryType: CategoryType,
         tag: AppTag
-    ): List<FusedCategory> {
+    ): List<Category> {
         return when (categoryType) {
             CategoryType.APPLICATION -> {
                 getAppsCategoriesAsFusedCategory(categories, tag)
@@ -918,7 +918,7 @@ class ApplicationApiImpl @Inject constructor(
     private fun getAppsCategoriesAsFusedCategory(
         categories: Categories,
         tag: AppTag
-    ): List<FusedCategory> {
+    ): List<Category> {
         return categories.apps.map { category ->
             createFusedCategoryFromCategory(category, categories, tag)
         }
@@ -927,7 +927,7 @@ class ApplicationApiImpl @Inject constructor(
     private fun getGamesCategoriesAsFusedCategory(
         categories: Categories,
         tag: AppTag
-    ): List<FusedCategory> {
+    ): List<Category> {
         return categories.games.map { category ->
             createFusedCategoryFromCategory(category, categories, tag)
         }
@@ -937,8 +937,8 @@ class ApplicationApiImpl @Inject constructor(
         category: String,
         categories: Categories,
         tag: AppTag
-    ): FusedCategory {
-        return FusedCategory(
+    ): Category {
+        return Category(
             id = category,
             title = getCategoryTitle(category, categories),
             drawable = getCategoryIconResource(category),
@@ -978,9 +978,9 @@ class ApplicationApiImpl @Inject constructor(
         ).body()
     }
 
-    private fun Category.transformToFusedCategory(): FusedCategory {
+    private fun GplayapiCategory.transformToFusedCategory(): Category {
         val id = this.browseUrl.substringAfter("cat=").substringBefore("&c=")
-        return FusedCategory(
+        return Category(
             id = id.lowercase(),
             title = this.title,
             browseUrl = this.browseUrl,

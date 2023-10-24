@@ -29,7 +29,7 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fused.data.Application
-import foundation.e.apps.data.fused.data.FusedCategory
+import foundation.e.apps.data.fused.data.Category
 import foundation.e.apps.data.fused.data.FusedHome
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
@@ -96,7 +96,7 @@ class FusedAPIRepository @Inject constructor(private val applicationAPIImpl: App
 
     suspend fun getCategoriesList(
         type: CategoryType,
-    ): Triple<List<FusedCategory>, String, ResultStatus> {
+    ): Triple<List<Category>, String, ResultStatus> {
         return applicationAPIImpl.getCategoriesList(type)
     }
 

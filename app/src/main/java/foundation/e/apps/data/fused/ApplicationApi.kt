@@ -12,7 +12,7 @@ import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fused.data.Application
-import foundation.e.apps.data.fused.data.FusedCategory
+import foundation.e.apps.data.fused.data.Category
 import foundation.e.apps.data.fused.data.FusedHome
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
@@ -46,7 +46,7 @@ interface ApplicationApi {
         */
     suspend fun getCategoriesList(
         type: CategoryType,
-    ): Triple<List<FusedCategory>, String, ResultStatus>
+    ): Triple<List<Category>, String, ResultStatus>
 
     /**
      * Fetches search results from cleanAPK and GPlay servers and returns them

@@ -25,14 +25,14 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import foundation.e.apps.data.fused.data.FusedCategory
+import foundation.e.apps.data.fused.data.Category
 import foundation.e.apps.databinding.CategoriesListItemBinding
 import foundation.e.apps.ui.categories.CategoriesFragmentDirections
 
 class CategoriesRVAdapter :
     RecyclerView.Adapter<CategoriesRVAdapter.ViewHolder>() {
 
-    private var oldList = listOf<FusedCategory>()
+    private var oldList = listOf<Category>()
 
     inner class ViewHolder(val binding: CategoriesListItemBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -88,7 +88,7 @@ class CategoriesRVAdapter :
         return oldList.size
     }
 
-    fun setData(newList: List<FusedCategory>) {
+    fun setData(newList: List<Category>) {
         val diffUtil = CategoriesDiffUtil(oldList, newList)
         val diffResult = DiffUtil.calculateDiff(diffUtil)
         oldList = newList
