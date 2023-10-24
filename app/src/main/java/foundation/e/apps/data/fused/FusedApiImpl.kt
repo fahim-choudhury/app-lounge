@@ -1299,45 +1299,6 @@ class FusedApiImpl @Inject constructor(
     }
 
     /**
-     * @return true, if any change is found, otherwise false
-     */
-    override fun isHomeDataUpdated(
-        newHomeData: List<FusedHome>,
-        oldHomeData: List<FusedHome>
-    ): Boolean {
-        if (newHomeData.size != oldHomeData.size) {
-            return true
-        }
-
-        oldHomeData.forEach {
-            val fusedHome = newHomeData[oldHomeData.indexOf(it)]
-            if (!it.title.contentEquals(fusedHome.title) || areFusedAppsUpdated(it, fusedHome)) {
-                return true
-            }
-        }
-        return false
-    }
-
-    private fun areFusedAppsUpdated(
-        oldFusedHome: FusedHome,
-        newFusedHome: FusedHome,
-    ): Boolean {
-        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
-        if (oldFusedHome.list.size != newFusedHome.list.size) {
-            return true
-        }
-
-        oldFusedHome.list.forEach { oldFusedApp ->
-            val indexOfOldFusedApp = oldFusedHome.list.indexOf(oldFusedApp)
-            val fusedApp = newFusedHome.list[indexOfOldFusedApp]
-            if (!fusedAppDiffUtil.areContentsTheSame(oldFusedApp, fusedApp)) {
-                return true
-            }
-        }
-        return false
-    }
-
-    /**
      * @return returns true if there is changes in data, otherwise false
      */
     override fun isAnyFusedAppUpdated(

@@ -94,10 +94,6 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
                 return@observe
             }
 
-            if (!isHomeDataUpdated(it)) {
-                return@observe
-            }
-
             homeParentRVAdapter?.setData(it.data!!)
         }
     }
@@ -139,12 +135,6 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
             cancelButtonText = getString(R.string.dialog_cancel),
         ).show(childFragmentManager, "HomeFragment")
     }
-
-    private fun isHomeDataUpdated(homeScreenResult: ResultSupreme<List<FusedHome>>) =
-        homeParentRVAdapter?.currentList?.isEmpty() == true || homeViewModel.isHomeDataUpdated(
-            homeScreenResult.data!!,
-            homeParentRVAdapter?.currentList as List<FusedHome>
-        )
 
     override fun onTimeout(
         exception: Exception,
