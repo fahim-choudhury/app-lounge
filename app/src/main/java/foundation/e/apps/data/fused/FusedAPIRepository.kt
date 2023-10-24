@@ -43,10 +43,6 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi)
         return fusedAPIImpl.getHomeScreenData(authData)
     }
 
-    fun isHomesEmpty(fusedHomes: List<FusedHome>): Boolean {
-        return fusedAPIImpl.isHomesEmpty(fusedHomes)
-    }
-
     fun getApplicationCategoryPreference(): List<String> {
         return fusedAPIImpl.getApplicationCategoryPreference()
     }

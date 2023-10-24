@@ -27,12 +27,6 @@ interface FusedApi {
         const val APP_TYPE_PWA = "pwa"
     }
 
-    /**
-     * Check if list in all the FusedHome is empty.
-     * If any list is not empty, send false.
-     * Else (if all lists are empty) send true.
-     */
-    fun isHomesEmpty(fusedHomes: List<FusedHome>): Boolean
     fun getApplicationCategoryPreference(): List<String>
 
     suspend fun getHomeScreenData(
