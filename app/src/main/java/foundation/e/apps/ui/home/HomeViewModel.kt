@@ -26,7 +26,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.fused.FusedAPIRepository
 import foundation.e.apps.data.fused.data.Application
-import foundation.e.apps.data.fused.data.FusedHome
+import foundation.e.apps.data.fused.data.Home
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
@@ -45,7 +45,7 @@ class HomeViewModel @Inject constructor(
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
      */
-    var homeScreenData: MutableLiveData<ResultSupreme<List<FusedHome>>> = MutableLiveData()
+    var homeScreenData: MutableLiveData<ResultSupreme<List<Home>>> = MutableLiveData()
 
     fun loadData(
         authObjectList: List<AuthObject>,
@@ -94,11 +94,11 @@ class HomeViewModel @Inject constructor(
     }
 
     fun isHomeDataUpdated(
-        newHomeData: List<FusedHome>,
-        oldHomeData: List<FusedHome>
+        newHomeData: List<Home>,
+        oldHomeData: List<Home>
     ) = fusedAPIRepository.isHomeDataUpdated(newHomeData, oldHomeData)
 
-    fun isAnyAppInstallStatusChanged(currentList: List<FusedHome>?): Boolean {
+    fun isAnyAppInstallStatusChanged(currentList: List<Home>?): Boolean {
         if (currentList == null) {
             return false
         }

@@ -33,7 +33,7 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fused.ApplicationInstaller
 import foundation.e.apps.data.fused.data.Application
-import foundation.e.apps.data.fused.data.FusedHome
+import foundation.e.apps.data.fused.data.Home
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
@@ -139,10 +139,10 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
         ).show(childFragmentManager, "HomeFragment")
     }
 
-    private fun isHomeDataUpdated(homeScreenResult: ResultSupreme<List<FusedHome>>) =
+    private fun isHomeDataUpdated(homeScreenResult: ResultSupreme<List<Home>>) =
         homeParentRVAdapter?.currentList?.isEmpty() == true || homeViewModel.isHomeDataUpdated(
             homeScreenResult.data!!,
-            homeParentRVAdapter?.currentList as List<FusedHome>
+            homeParentRVAdapter?.currentList as List<Home>
         )
 
     override fun onTimeout(

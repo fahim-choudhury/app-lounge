@@ -27,7 +27,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import foundation.e.apps.data.fused.ApplicationInstaller
 import foundation.e.apps.data.fused.data.Application
-import foundation.e.apps.data.fused.data.FusedHome
+import foundation.e.apps.data.fused.data.Home
 import foundation.e.apps.databinding.HomeParentListItemBinding
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.MainActivityViewModel
@@ -38,7 +38,7 @@ class HomeParentRVAdapter(
     private val appInfoFetchViewModel: AppInfoFetchViewModel,
     private var lifecycleOwner: LifecycleOwner?,
     private val paidAppHandler: ((Application) -> Unit)? = null
-) : ListAdapter<FusedHome, HomeParentRVAdapter.ViewHolder>(FusedHomeDiffUtil()) {
+) : ListAdapter<Home, HomeParentRVAdapter.ViewHolder>(FusedHomeDiffUtil()) {
 
     private val viewPool = RecyclerView.RecycledViewPool()
     private var isDetachedFromRecyclerView = false
@@ -88,8 +88,8 @@ class HomeParentRVAdapter(
         observeAppInstall(fusedHome, homeChildRVAdapter)
     }
 
-    private fun handleChildShimmerView(fusedHome: FusedHome, holder: ViewHolder) {
-        if (fusedHome.list.isEmpty()) {
+    private fun handleChildShimmerView(home: Home, holder: ViewHolder) {
+        if (home.list.isEmpty()) {
             holder.binding.shimmerLayout.visibility = View.VISIBLE
             holder.binding.shimmerLayout.startShimmer()
             holder.binding.childRV.visibility = View.GONE
@@ -102,18 +102,18 @@ class HomeParentRVAdapter(
     }
 
     private fun observeAppInstall(
-        fusedHome: FusedHome,
+        home: Home,
         homeChildRVAdapter: RecyclerView.Adapter<*>?
     ) {
         lifecycleOwner?.let {
             mainActivityViewModel.downloadList.observe(it) {
-                mainActivityViewModel.updateStatusOfFusedApps(fusedHome.list, it)
-                (homeChildRVAdapter as HomeChildRVAdapter).setData(fusedHome.list)
+                mainActivityViewModel.updateStatusOfFusedApps(home.list, it)
+                (homeChildRVAdapter as HomeChildRVAdapter).setData(home.list)
             }
         }
     }
 
-    fun setData(newList: List<FusedHome>) {
+    fun setData(newList: List<Home>) {
         submitList(newList.map { it.copy() })
     }
 

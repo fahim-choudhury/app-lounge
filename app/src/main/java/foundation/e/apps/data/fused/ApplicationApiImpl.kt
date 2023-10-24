@@ -36,7 +36,7 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
 import foundation.e.apps.data.cleanapk.data.app.Application as CleanApkApplication
 import foundation.e.apps.data.cleanapk.data.categories.Categories
-import foundation.e.apps.data.cleanapk.data.home.Home
+import foundation.e.apps.data.cleanapk.data.home.Home as CleanApkHome
 import foundation.e.apps.data.cleanapk.data.home.HomeScreen
 import foundation.e.apps.data.cleanapk.data.search.Search
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
@@ -53,7 +53,7 @@ import foundation.e.apps.data.fused.ApplicationApi.Companion.APP_TYPE_OPEN
 import foundation.e.apps.data.fused.ApplicationApi.Companion.APP_TYPE_PWA
 import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fused.data.Category
-import foundation.e.apps.data.fused.data.FusedHome
+import foundation.e.apps.data.fused.data.Home
 import foundation.e.apps.data.fused.data.Ratings
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.fused.utils.CategoryUtils
@@ -78,7 +78,7 @@ import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
 
-typealias FusedHomeDeferred = Deferred<ResultSupreme<List<FusedHome>>>
+typealias FusedHomeDeferred = Deferred<ResultSupreme<List<Home>>>
 
 @Singleton
 class ApplicationApiImpl @Inject constructor(
@@ -109,9 +109,9 @@ class ApplicationApiImpl @Inject constructor(
 
     override suspend fun getHomeScreenData(
         authData: AuthData,
-    ): LiveData<ResultSupreme<List<FusedHome>>> {
+    ): LiveData<ResultSupreme<List<Home>>> {
 
-        val list = mutableListOf<FusedHome>()
+        val list = mutableListOf<Home>()
         var resultGplay: FusedHomeDeferred? = null
         var resultOpenSource: FusedHomeDeferred? = null
         var resultPWA: FusedHomeDeferred? = null
@@ -145,13 +145,13 @@ class ApplicationApiImpl @Inject constructor(
     }
 
     private suspend fun loadHomeData(
-        priorList: MutableList<FusedHome>,
+        priorList: MutableList<Home>,
         source: Source,
         authData: AuthData,
-    ): ResultSupreme<List<FusedHome>> {
+    ): ResultSupreme<List<Home>> {
 
         val result = when (source) {
-            Source.GPLAY -> handleNetworkResult<List<FusedHome>> {
+            Source.GPLAY -> handleNetworkResult<List<Home>> {
                 priorList.addAll(fetchGPlayHome(authData))
                 priorList
             }
@@ -1067,8 +1067,8 @@ class ApplicationApiImpl @Inject constructor(
      * Home screen-related internal functions
      */
 
-    private suspend fun generateCleanAPKHome(home: Home, appType: String): List<FusedHome> {
-        val list = mutableListOf<FusedHome>()
+    private suspend fun generateCleanAPKHome(home: CleanApkHome, appType: String): List<Home> {
+        val list = mutableListOf<Home>()
         val headings = if (appType == APP_TYPE_OPEN) {
             mapOf(
                 "top_updated_apps" to context.getString(R.string.top_updated_apps),
@@ -1093,7 +1093,7 @@ class ApplicationApiImpl @Inject constructor(
                             it.updateType()
                             it.updateFilterLevel(null)
                         }
-                        list.add(FusedHome(value, home.top_updated_apps))
+                        list.add(Home(value, home.top_updated_apps))
                     }
                 }
 
@@ -1104,7 +1104,7 @@ class ApplicationApiImpl @Inject constructor(
                             it.updateType()
                             it.updateFilterLevel(null)
                         }
-                        list.add(FusedHome(value, home.top_updated_games))
+                        list.add(Home(value, home.top_updated_games))
                     }
                 }
 
@@ -1115,7 +1115,7 @@ class ApplicationApiImpl @Inject constructor(
                             it.updateType()
                             it.updateFilterLevel(null)
                         }
-                        list.add(FusedHome(value, home.popular_apps))
+                        list.add(Home(value, home.popular_apps))
                     }
                 }
 
@@ -1126,7 +1126,7 @@ class ApplicationApiImpl @Inject constructor(
                             it.updateType()
                             it.updateFilterLevel(null)
                         }
-                        list.add(FusedHome(value, home.popular_games))
+                        list.add(Home(value, home.popular_games))
                     }
                 }
 
@@ -1137,7 +1137,7 @@ class ApplicationApiImpl @Inject constructor(
                             it.updateType()
                             it.updateFilterLevel(null)
                         }
-                        list.add(FusedHome(value, home.popular_apps_in_last_24_hours))
+                        list.add(Home(value, home.popular_apps_in_last_24_hours))
                     }
                 }
 
@@ -1148,7 +1148,7 @@ class ApplicationApiImpl @Inject constructor(
                             it.updateType()
                             it.updateFilterLevel(null)
                         }
-                        list.add(FusedHome(value, home.popular_games_in_last_24_hours))
+                        list.add(Home(value, home.popular_games_in_last_24_hours))
                     }
                 }
 
@@ -1159,7 +1159,7 @@ class ApplicationApiImpl @Inject constructor(
                             it.updateType()
                             it.updateFilterLevel(null)
                         }
-                        list.add(FusedHome(value, home.discover))
+                        list.add(Home(value, home.discover))
                     }
                 }
             }
@@ -1170,8 +1170,8 @@ class ApplicationApiImpl @Inject constructor(
         }
     }
 
-    private suspend fun fetchGPlayHome(authData: AuthData): List<FusedHome> {
-        val list = mutableListOf<FusedHome>()
+    private suspend fun fetchGPlayHome(authData: AuthData): List<Home> {
+        val list = mutableListOf<Home>()
         val gplayHomeData = gplayRepository.getHomeScreenData() as Map<String, List<App>>
         gplayHomeData.map {
             val fusedApps = it.value.map { app ->
@@ -1179,7 +1179,7 @@ class ApplicationApiImpl @Inject constructor(
                     updateFilterLevel(authData)
                 }
             }
-            list.add(FusedHome(it.key, fusedApps))
+            list.add(Home(it.key, fusedApps))
         }
 
         handleLimitedResult(list)
@@ -1188,8 +1188,8 @@ class ApplicationApiImpl @Inject constructor(
         return list
     }
 
-    private fun handleLimitedResult(fusedHomeList: List<FusedHome>) {
-        val gplayHomes = fusedHomeList.filter { fusedHome -> fusedHome.source.isEmpty() }
+    private fun handleLimitedResult(homeList: List<Home>) {
+        val gplayHomes = homeList.filter { fusedHome -> fusedHome.source.isEmpty() }
         val hasGplayLimitedResult = gplayHomes.any { fusedHome -> fusedHome.list.size < THRESHOLD_LIMITED_RESULT_HOME_PAGE }
         if (hasGplayLimitedResult) {
             Timber.w("Limited result is found for homepage...")
@@ -1288,8 +1288,8 @@ class ApplicationApiImpl @Inject constructor(
      * @return true, if any change is found, otherwise false
      */
     override fun isHomeDataUpdated(
-        newHomeData: List<FusedHome>,
-        oldHomeData: List<FusedHome>
+        newHomeData: List<Home>,
+        oldHomeData: List<Home>
     ): Boolean {
         if (newHomeData.size != oldHomeData.size) {
             return true
@@ -1305,17 +1305,17 @@ class ApplicationApiImpl @Inject constructor(
     }
 
     private fun areFusedAppsUpdated(
-        oldFusedHome: FusedHome,
-        newFusedHome: FusedHome,
+        oldHome: Home,
+        newHome: Home,
     ): Boolean {
         val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
-        if (oldFusedHome.list.size != newFusedHome.list.size) {
+        if (oldHome.list.size != newHome.list.size) {
             return true
         }
 
-        oldFusedHome.list.forEach { oldFusedApp ->
-            val indexOfOldFusedApp = oldFusedHome.list.indexOf(oldFusedApp)
-            val fusedApp = newFusedHome.list[indexOfOldFusedApp]
+        oldHome.list.forEach { oldFusedApp ->
+            val indexOfOldFusedApp = oldHome.list.indexOf(oldFusedApp)
+            val fusedApp = newHome.list[indexOfOldFusedApp]
             if (!fusedAppDiffUtil.areContentsTheSame(oldFusedApp, fusedApp)) {
                 return true
             }

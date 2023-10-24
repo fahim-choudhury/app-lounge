@@ -30,7 +30,7 @@ import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fused.data.Category
-import foundation.e.apps.data.fused.data.FusedHome
+import foundation.e.apps.data.fused.data.Home
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import javax.inject.Inject
@@ -39,7 +39,7 @@ import javax.inject.Singleton
 @Singleton
 class FusedAPIRepository @Inject constructor(private val applicationAPIImpl: ApplicationApi) {
 
-    suspend fun getHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<FusedHome>>> {
+    suspend fun getHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<Home>>> {
         return applicationAPIImpl.getHomeScreenData(authData)
     }
 
@@ -136,8 +136,8 @@ class FusedAPIRepository @Inject constructor(private val applicationAPIImpl: App
     }
 
     fun isHomeDataUpdated(
-        newHomeData: List<FusedHome>,
-        oldHomeData: List<FusedHome>
+        newHomeData: List<Home>,
+        oldHomeData: List<Home>
     ) = applicationAPIImpl.isHomeDataUpdated(newHomeData, oldHomeData)
 
     fun isAnyFusedAppUpdated(

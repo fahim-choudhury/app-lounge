@@ -36,7 +36,7 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fused.ApplicationApiImpl
 import foundation.e.apps.data.fused.data.Application
-import foundation.e.apps.data.fused.data.FusedHome
+import foundation.e.apps.data.fused.data.Home
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PWAManagerModule
@@ -391,13 +391,13 @@ class ApplicationApiImplTest {
         )
 
         val oldHomeData =
-            listOf(FusedHome("Top Free Apps", oldAppList), FusedHome("Top Free Games", oldAppList))
+            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", oldAppList))
         var newHomeData =
-            listOf(FusedHome("Top Free Apps", oldAppList), FusedHome("Top Free Games", oldAppList))
+            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", oldAppList))
         var isHomeDataUpdated = fusedAPIImpl.isHomeDataUpdated(newHomeData, oldHomeData)
         assertFalse("isHomeDataUpdated/NO", isHomeDataUpdated)
         newHomeData =
-            listOf(FusedHome("Top Free Apps", oldAppList), FusedHome("Top Free Games", newAppList))
+            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", newAppList))
 
         isHomeDataUpdated = fusedAPIImpl.isHomeDataUpdated(newHomeData, oldHomeData)
         assertTrue("isHomeDataUpdated/YES", isHomeDataUpdated)
@@ -405,8 +405,8 @@ class ApplicationApiImplTest {
 
     @Test
     fun isHomeDataUpdatedWhenBothAreEmpty() {
-        val oldHomeData = listOf<FusedHome>()
-        val newHomeData = listOf<FusedHome>()
+        val oldHomeData = listOf<Home>()
+        val newHomeData = listOf<Home>()
         val isHomeDataUpdated = fusedAPIImpl.isHomeDataUpdated(oldHomeData, newHomeData)
         assertFalse("isHomeDataUpdated", isHomeDataUpdated)
     }
@@ -417,9 +417,9 @@ class ApplicationApiImplTest {
         val newAppList = mutableListOf(Application(), Application())
 
         val oldHomeData =
-            listOf(FusedHome("Top Free Apps", oldAppList), FusedHome("Top Free Games", oldAppList))
+            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", oldAppList))
         var newHomeData =
-            listOf(FusedHome("Top Free Apps", oldAppList), FusedHome("Top Free Games", newAppList))
+            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", newAppList))
 
         val isHomeDataUpdated = fusedAPIImpl.isHomeDataUpdated(newHomeData, oldHomeData)
         assertTrue("isHomeDataUpdated/YES", isHomeDataUpdated)

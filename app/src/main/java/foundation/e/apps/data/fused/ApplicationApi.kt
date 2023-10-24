@@ -13,7 +13,7 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fused.data.Category
-import foundation.e.apps.data.fused.data.FusedHome
+import foundation.e.apps.data.fused.data.Home
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import retrofit2.Response
@@ -31,7 +31,7 @@ interface ApplicationApi {
 
     suspend fun getHomeScreenData(
         authData: AuthData,
-    ): LiveData<ResultSupreme<List<FusedHome>>>
+    ): LiveData<ResultSupreme<List<Home>>>
 
     /*
         * Return three elements from the function.
@@ -145,8 +145,8 @@ interface ApplicationApi {
      * @return true, if any change is found, otherwise false
      */
     fun isHomeDataUpdated(
-        newHomeData: List<FusedHome>,
-        oldHomeData: List<FusedHome>
+        newHomeData: List<Home>,
+        oldHomeData: List<Home>
     ): Boolean
 
     /**
