@@ -20,7 +20,6 @@ package foundation.e.apps.ui.applicationlist
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.lifecycle.LifecycleOwner
@@ -40,7 +39,7 @@ import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.fused.FusedAPIInterface
+import foundation.e.apps.data.fused.ApplicationInstaller
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.databinding.ApplicationListItemBinding
 import foundation.e.apps.install.pkg.InstallerService
@@ -56,7 +55,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ApplicationListRVAdapter(
-    private val fusedAPIInterface: FusedAPIInterface,
+    private val applicationInstaller: ApplicationInstaller,
     private val privacyInfoViewModel: PrivacyInfoViewModel,
     private val appInfoFetchViewModel: AppInfoFetchViewModel,
     private val mainActivityViewModel: MainActivityViewModel,
@@ -326,7 +325,7 @@ class ApplicationListRVAdapter(
             backgroundTintList =
                 ContextCompat.getColorStateList(view.context, android.R.color.transparent)
             setOnClickListener {
-                installApplication(searchApp, appIcon)
+                installApplication(searchApp)
             }
         }
     }
@@ -447,7 +446,7 @@ class ApplicationListRVAdapter(
                 if (searchApp.isFree || searchApp.isPurchased) {
                     disableInstallButton()
                     text = context.getText(R.string.cancel)
-                    installApplication(searchApp, appIcon)
+                    installApplication(searchApp)
                 } else {
                     paidAppHandler?.invoke(searchApp)
                 }
@@ -504,7 +503,7 @@ class ApplicationListRVAdapter(
                 if (mainActivityViewModel.checkUnsupportedApplication(searchApp, context)) {
                     return@setOnClickListener
                 }
-                installApplication(searchApp, appIcon)
+                installApplication(searchApp)
             }
         }
         progressBarInstall.visibility = View.GONE
@@ -543,12 +542,12 @@ class ApplicationListRVAdapter(
         this.submitList(newList.map { it.copy() })
     }
 
-    private fun installApplication(searchApp: FusedApp, appIcon: ImageView) {
-        fusedAPIInterface.getApplication(searchApp, appIcon)
+    private fun installApplication(searchApp: FusedApp) {
+        applicationInstaller.installApplication(searchApp)
     }
 
     private fun cancelDownload(searchApp: FusedApp) {
-        fusedAPIInterface.cancelDownload(searchApp)
+        applicationInstaller.cancelDownload(searchApp)
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {

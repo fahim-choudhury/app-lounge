@@ -20,7 +20,6 @@ package foundation.e.apps.ui.applicationlist
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -34,7 +33,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.FusedAPIInterface
+import foundation.e.apps.data.fused.ApplicationInstaller
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
@@ -54,7 +53,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ApplicationListFragment :
     TimeoutFragment(R.layout.fragment_application_list),
-    FusedAPIInterface {
+    ApplicationInstaller {
 
     // protected to avoid SyntheticAccessor
     protected val args: ApplicationListFragmentArgs by navArgs()
@@ -196,7 +195,7 @@ class ApplicationListFragment :
             ),
             positiveButtonText = getString(R.string.dialog_confirm),
             positiveButtonAction = {
-                getApplication(fusedApp)
+                installApplication(fusedApp)
             },
             cancelButtonText = getString(R.string.dialog_cancel),
         ).show(childFragmentManager, "HomeFragment")
@@ -333,7 +332,7 @@ class ApplicationListFragment :
         super.onPause()
     }
 
-    override fun getApplication(app: FusedApp, appIcon: ImageView?) {
+    override fun installApplication(app: FusedApp) {
         mainActivityViewModel.getApplication(app)
     }
 

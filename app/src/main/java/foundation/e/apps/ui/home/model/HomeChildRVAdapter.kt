@@ -21,7 +21,6 @@ package foundation.e.apps.ui.home.model
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.findNavController
@@ -37,7 +36,7 @@ import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.fused.FusedAPIInterface
+import foundation.e.apps.data.fused.ApplicationInstaller
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.databinding.HomeChildListItemBinding
 import foundation.e.apps.ui.AppInfoFetchViewModel
@@ -47,7 +46,7 @@ import foundation.e.apps.utils.disableInstallButton
 import foundation.e.apps.utils.enableInstallButton
 
 class HomeChildRVAdapter(
-    private var fusedAPIInterface: FusedAPIInterface?,
+    private var applicationInstaller: ApplicationInstaller?,
     private val appInfoFetchViewModel: AppInfoFetchViewModel,
     private val mainActivityViewModel: MainActivityViewModel,
     private var lifecycleOwner: LifecycleOwner?,
@@ -136,7 +135,7 @@ class HomeChildRVAdapter(
             enableInstallButton()
             text = context.getString(R.string.retry)
             setOnClickListener {
-                installApplication(homeApp, appIcon)
+                installApplication(homeApp)
             }
         }
         progressBarInstall.visibility = View.GONE
@@ -201,7 +200,7 @@ class HomeChildRVAdapter(
                 if (homeApp.isFree) {
                     disableInstallButton()
                     text = context.getString(R.string.cancel)
-                    installApplication(homeApp, appIcon)
+                    installApplication(homeApp)
                 } else {
                     paidAppHandler?.invoke(homeApp)
                 }
@@ -221,7 +220,7 @@ class HomeChildRVAdapter(
                 if (mainActivityViewModel.checkUnsupportedApplication(homeApp, context)) {
                     return@setOnClickListener
                 }
-                installApplication(homeApp, appIcon)
+                installApplication(homeApp)
             }
         }
         progressBarInstall.visibility = View.GONE
@@ -283,18 +282,18 @@ class HomeChildRVAdapter(
         this.submitList(newList.map { it.copy() })
     }
 
-    private fun installApplication(homeApp: FusedApp, appIcon: ImageView) {
-        fusedAPIInterface?.getApplication(homeApp, appIcon)
+    private fun installApplication(homeApp: FusedApp) {
+        applicationInstaller?.installApplication(homeApp)
     }
 
     private fun cancelDownload(homeApp: FusedApp) {
-        fusedAPIInterface?.cancelDownload(homeApp)
+        applicationInstaller?.cancelDownload(homeApp)
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         super.onDetachedFromRecyclerView(recyclerView)
         lifecycleOwner = null
         paidAppHandler = null
-        fusedAPIInterface = null
+        applicationInstaller = null
     }
 }

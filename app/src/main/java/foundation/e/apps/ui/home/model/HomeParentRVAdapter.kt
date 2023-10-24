@@ -25,7 +25,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import foundation.e.apps.data.fused.FusedAPIInterface
+import foundation.e.apps.data.fused.ApplicationInstaller
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fused.data.FusedHome
 import foundation.e.apps.databinding.HomeParentListItemBinding
@@ -33,7 +33,7 @@ import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.MainActivityViewModel
 
 class HomeParentRVAdapter(
-    private val fusedAPIInterface: FusedAPIInterface,
+    private val applicationInstaller: ApplicationInstaller,
     private val mainActivityViewModel: MainActivityViewModel,
     private val appInfoFetchViewModel: AppInfoFetchViewModel,
     private var lifecycleOwner: LifecycleOwner?,
@@ -64,7 +64,7 @@ class HomeParentRVAdapter(
 
         val homeChildRVAdapter =
             HomeChildRVAdapter(
-                fusedAPIInterface,
+                applicationInstaller,
                 appInfoFetchViewModel,
                 mainActivityViewModel,
                 lifecycleOwner,
