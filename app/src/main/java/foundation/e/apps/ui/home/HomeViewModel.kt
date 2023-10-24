@@ -18,6 +18,7 @@
 
 package foundation.e.apps.ui.home
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -30,6 +31,7 @@ import foundation.e.apps.data.fused.data.FusedHome
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
+import foundation.e.apps.ui.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -46,6 +48,8 @@ class HomeViewModel @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
      */
     var homeScreenData: MutableLiveData<ResultSupreme<List<FusedHome>>> = MutableLiveData()
+
+    var currentHomes: List<FusedHome>? = null
 
     fun loadData(
         authObjectList: List<AuthObject>,
@@ -72,9 +76,17 @@ class HomeViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             fusedAPIRepository.getHomeScreenData(authData).observe(lifecycleOwner) {
-                homeScreenData.postValue(it)
 
-                if (it.isSuccess()) return@observe
+                if (it.isSuccess() && !hasAnyChange(it.data!!)) {
+                    this@HomeViewModel.currentHomes = it.data
+                    homeScreenData.postValue(ResultSupreme.Error("No change is found!"))
+                    return@observe
+                }
+
+                homeScreenData.postValue(it)
+                if (it.isSuccess()) {
+                    return@observe
+                }
 
                 val exception =
                     if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
@@ -93,10 +105,43 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun isHomeDataUpdated(
-        newHomeData: List<FusedHome>,
-        oldHomeData: List<FusedHome>
-    ) = fusedAPIRepository.isHomeDataUpdated(newHomeData, oldHomeData)
+    @VisibleForTesting
+    fun hasAnyChange(
+        newHomes: List<FusedHome>,
+    ) = currentHomes.isNullOrEmpty() || newHomes.size != currentHomes!!.size || compareWithNewData(newHomes)
+
+    private fun compareWithNewData(newHomes: List<FusedHome>): Boolean {
+        currentHomes!!.forEach {
+            val fusedHome = newHomes[currentHomes!!.indexOf(it)]
+            if (!it.title.contentEquals(fusedHome.title) || areFusedAppsUpdated(it, fusedHome)) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    private fun areFusedAppsUpdated(
+        oldHome: FusedHome,
+        newHome: FusedHome,
+    ) = oldHome.list.size != newHome.list.size || hasAppListsAnyChange(oldHome, newHome)
+
+    private fun hasAppListsAnyChange(
+        oldHome: FusedHome,
+        newHome: FusedHome,
+    ): Boolean {
+        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
+
+        oldHome.list.forEach { oldFusedApp ->
+            val indexOfOldFusedApp = oldHome.list.indexOf(oldFusedApp)
+            val fusedApp = newHome.list[indexOfOldFusedApp]
+            if (!fusedAppDiffUtil.areContentsTheSame(oldFusedApp, fusedApp)) {
+                return true
+            }
+        }
+
+        return false
+    }
 
     fun isAnyAppInstallStatusChanged(currentList: List<FusedHome>?): Boolean {
         if (currentList == null) {

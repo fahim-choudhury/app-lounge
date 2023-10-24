@@ -34,7 +34,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
-import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.cleanapk.data.app.Application
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.home.Home
@@ -59,9 +58,9 @@ import foundation.e.apps.data.fused.data.Ratings
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.fused.utils.CategoryUtils
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.AuthObject
+import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
@@ -1283,45 +1282,6 @@ class FusedApiImpl @Inject constructor(
             list.add(it.url)
         }
         return list
-    }
-
-    /**
-     * @return true, if any change is found, otherwise false
-     */
-    override fun isHomeDataUpdated(
-        newHomeData: List<FusedHome>,
-        oldHomeData: List<FusedHome>
-    ): Boolean {
-        if (newHomeData.size != oldHomeData.size) {
-            return true
-        }
-
-        oldHomeData.forEach {
-            val fusedHome = newHomeData[oldHomeData.indexOf(it)]
-            if (!it.title.contentEquals(fusedHome.title) || areFusedAppsUpdated(it, fusedHome)) {
-                return true
-            }
-        }
-        return false
-    }
-
-    private fun areFusedAppsUpdated(
-        oldFusedHome: FusedHome,
-        newFusedHome: FusedHome,
-    ): Boolean {
-        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
-        if (oldFusedHome.list.size != newFusedHome.list.size) {
-            return true
-        }
-
-        oldFusedHome.list.forEach { oldFusedApp ->
-            val indexOfOldFusedApp = oldFusedHome.list.indexOf(oldFusedApp)
-            val fusedApp = newFusedHome.list[indexOfOldFusedApp]
-            if (!fusedAppDiffUtil.areContentsTheSame(oldFusedApp, fusedApp)) {
-                return true
-            }
-        }
-        return false
     }
 
     /**
