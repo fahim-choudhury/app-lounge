@@ -43,7 +43,7 @@ import com.facebook.shimmer.ShimmerFrameLayout
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.FusedAPIInterface
+import foundation.e.apps.data.fused.ApplicationInstaller
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.AuthObject
@@ -67,7 +67,7 @@ class SearchFragment :
     TimeoutFragment(R.layout.fragment_search),
     SearchView.OnQueryTextListener,
     SearchView.OnSuggestionListener,
-    FusedAPIInterface {
+    ApplicationInstaller {
 
     @Inject
     lateinit var pwaManagerModule: PWAManagerModule
@@ -270,7 +270,7 @@ class SearchFragment :
             ),
             positiveButtonText = getString(R.string.dialog_confirm),
             positiveButtonAction = {
-                getApplication(fusedApp)
+                installApplication(fusedApp)
             },
             cancelButtonText = getString(R.string.dialog_cancel),
         ).show(childFragmentManager, "SearchFragment")
@@ -476,7 +476,7 @@ class SearchFragment :
         searchView?.suggestionsAdapter?.changeCursor(cursor)
     }
 
-    override fun getApplication(app: FusedApp, appIcon: ImageView?) {
+    override fun installApplication(app: FusedApp) {
         mainActivityViewModel.getApplication(app)
     }
 

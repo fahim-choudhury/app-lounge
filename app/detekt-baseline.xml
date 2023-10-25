@@ -27,7 +27,7 @@
     <ID>LongMethod:MainActivity.kt$MainActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
     <ID>LongMethod:NativeDeviceInfoProviderModule.kt$NativeDeviceInfoProviderModule$@Singleton @Provides fun provideNativeDeviceProperties( @ApplicationContext context: Context, ): Properties</ID>
     <ID>LongParameterList:ApplicationDialogFragment.kt$ApplicationDialogFragment$( drawable: Int = -1, title: String, message: String, positiveButtonText: String = "", positiveButtonAction: (() -&gt; Unit)? = null, cancelButtonText: String = "", cancelButtonAction: (() -&gt; Unit)? = null, cancellable: Boolean = true, onDismissListener: (() -&gt; Unit)? = null, )</ID>
-    <ID>LongParameterList:ApplicationListRVAdapter.kt$ApplicationListRVAdapter$( private val fusedAPIInterface: FusedAPIInterface, private val privacyInfoViewModel: PrivacyInfoViewModel, private val appInfoFetchViewModel: AppInfoFetchViewModel, private val mainActivityViewModel: MainActivityViewModel, private val currentDestinationId: Int, private var lifecycleOwner: LifecycleOwner?, private var paidAppHandler: ((FusedApp) -&gt; Unit)? = null )</ID>
+    <ID>LongParameterList:ApplicationListRVAdapter.kt$ApplicationListRVAdapter$( private val applicationInstaller: ApplicationInstaller, private val privacyInfoViewModel: PrivacyInfoViewModel, private val appInfoFetchViewModel: AppInfoFetchViewModel, private val mainActivityViewModel: MainActivityViewModel, private val currentDestinationId: Int, private var lifecycleOwner: LifecycleOwner?, private var paidAppHandler: ((FusedApp) -&gt; Unit)? = null )</ID>
     <ID>LongParameterList:ApplicationViewModel.kt$ApplicationViewModel$( id: String, packageName: String, origin: Origin, isFdroidLink: Boolean, authObjectList: List&lt;AuthObject&gt;, retryBlock: (failedObjects: List&lt;AuthObject&gt;) -&gt; Boolean, )</ID>
     <ID>LongParameterList:CleanApkRetrofit.kt$CleanApkRetrofit$( @Query("keyword") keyword: String, @Query("source") source: String = APP_SOURCE_FOSS, @Query("type") type: String = APP_TYPE_ANY, @Query("nres") nres: Int = 20, @Query("page") page: Int = 1, @Query("by") by: String? = null, )</ID>
     <ID>LongParameterList:EglExtensionProvider.kt$EglExtensionProvider$( egl10: EGL10, eglDisplay: EGLDisplay, eglConfig: EGLConfig?, ai: IntArray, ai1: IntArray?, set: MutableSet&lt;String&gt; )</ID>
@@ -195,7 +195,7 @@
     <ID>TooManyFunctions:AppInstallProcessor.kt$AppInstallProcessor</ID>
     <ID>TooManyFunctions:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl : IAppPrivacyInfoRepository</ID>
     <ID>TooManyFunctions:ApplicationFragment.kt$ApplicationFragment : TimeoutFragment</ID>
-    <ID>TooManyFunctions:ApplicationListFragment.kt$ApplicationListFragment : TimeoutFragmentFusedAPIInterface</ID>
+    <ID>TooManyFunctions:ApplicationListFragment.kt$ApplicationListFragment : TimeoutFragmentApplicationInstaller</ID>
     <ID>TooManyFunctions:ApplicationListRVAdapter.kt$ApplicationListRVAdapter : ListAdapter</ID>
     <ID>TooManyFunctions:DownloadManager.kt$DownloadManager</ID>
     <ID>TooManyFunctions:FusedAPIRepository.kt$FusedAPIRepository</ID>
@@ -205,7 +205,7 @@
     <ID>TooManyFunctions:FusedManagerRepository.kt$FusedManagerRepository</ID>
     <ID>TooManyFunctions:GPlayHttpClient.kt$GPlayHttpClient : IHttpClient</ID>
     <ID>TooManyFunctions:HomeChildRVAdapter.kt$HomeChildRVAdapter : ListAdapter</ID>
-    <ID>TooManyFunctions:HomeFragment.kt$HomeFragment : TimeoutFragmentFusedAPIInterface</ID>
+    <ID>TooManyFunctions:HomeFragment.kt$HomeFragment : TimeoutFragmentApplicationInstaller</ID>
     <ID>TooManyFunctions:IFusedManager.kt$IFusedManager</ID>
     <ID>TooManyFunctions:LoginData.kt$LoginData</ID>
     <ID>TooManyFunctions:MainActivity.kt$MainActivity : AppCompatActivity</ID>
@@ -214,9 +214,9 @@
     <ID>TooManyFunctions:PlayStoreAuthenticator.kt$PlayStoreAuthenticator : StoreAuthenticatorAuthDataValidator</ID>
     <ID>TooManyFunctions:PlayStoreRepositoryImpl.kt$PlayStoreRepositoryImpl : PlayStoreRepository</ID>
     <ID>TooManyFunctions:RetrofitModule.kt$RetrofitModule</ID>
-    <ID>TooManyFunctions:SearchFragment.kt$SearchFragment : TimeoutFragmentOnQueryTextListenerOnSuggestionListenerFusedAPIInterface</ID>
+    <ID>TooManyFunctions:SearchFragment.kt$SearchFragment : TimeoutFragmentOnQueryTextListenerOnSuggestionListenerApplicationInstaller</ID>
     <ID>TooManyFunctions:TimeoutFragment.kt$TimeoutFragment : Fragment</ID>
-    <ID>TooManyFunctions:UpdatesFragment.kt$UpdatesFragment : TimeoutFragmentFusedAPIInterface</ID>
+    <ID>TooManyFunctions:UpdatesFragment.kt$UpdatesFragment : TimeoutFragmentApplicationInstaller</ID>
     <ID>TooManyFunctions:UpdatesManagerImpl.kt$UpdatesManagerImpl</ID>
     <ID>TooManyFunctions:UpdatesWorker.kt$UpdatesWorker : CoroutineWorker</ID>
     <ID>UnusedParameter:ApplicationFragment.kt$ApplicationFragment$it: ImageView</ID>

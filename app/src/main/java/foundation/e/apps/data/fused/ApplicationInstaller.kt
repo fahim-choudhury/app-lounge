@@ -18,15 +18,11 @@
 
 package foundation.e.apps.data.fused
 
-import android.widget.ImageView
 import foundation.e.apps.data.fused.data.FusedApp
 
-/**
- * FusedAPIInterface to allow adapter classes to install applications easily
- */
-interface FusedAPIInterface {
+interface ApplicationInstaller {
 
-    fun getApplication(app: FusedApp, appIcon: ImageView? = null)
+    fun installApplication(app: FusedApp)
 
     fun cancelDownload(app: FusedApp)
 }

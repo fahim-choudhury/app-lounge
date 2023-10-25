@@ -20,7 +20,6 @@ package foundation.e.apps.ui.home
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -32,7 +31,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.FusedAPIInterface
+import foundation.e.apps.data.fused.ApplicationInstaller
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fused.data.FusedHome
 import foundation.e.apps.data.login.AuthObject
@@ -53,7 +52,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface {
+class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstaller {
 
     /*
      * Make adapter nullable to avoid memory leaks.
@@ -134,7 +133,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
             ),
             positiveButtonText = getString(R.string.dialog_confirm),
             positiveButtonAction = {
-                getApplication(fusedApp)
+                installApplication(fusedApp)
             },
             cancelButtonText = getString(R.string.dialog_cancel),
         ).show(childFragmentManager, "HomeFragment")
@@ -284,7 +283,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         homeParentRVAdapter = null
     }
 
-    override fun getApplication(app: FusedApp, appIcon: ImageView?) {
+    override fun installApplication(app: FusedApp) {
         mainActivityViewModel.getApplication(app)
     }
 

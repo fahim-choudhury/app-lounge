@@ -20,7 +20,6 @@ package foundation.e.apps.ui.updates
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -37,7 +36,7 @@ import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.FusedAPIInterface
+import foundation.e.apps.data.fused.ApplicationInstaller
 import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.AuthObject
@@ -66,7 +65,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInterface {
+class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationInstaller {
 
     private var _binding: FragmentUpdatesBinding? = null
     private val binding get() = _binding!!
@@ -221,7 +220,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
             ),
             positiveButtonText = getString(R.string.dialog_confirm),
             positiveButtonAction = {
-                getApplication(fusedApp)
+                installApplication(fusedApp)
             },
             cancelButtonText = getString(R.string.dialog_cancel),
         ).show(childFragmentManager, "UpdatesFragment")
@@ -374,7 +373,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), FusedAPIInte
         _binding = null
     }
 
-    override fun getApplication(app: FusedApp, appIcon: ImageView?) {
+    override fun installApplication(app: FusedApp) {
         mainActivityViewModel.getApplication(app)
     }
 
