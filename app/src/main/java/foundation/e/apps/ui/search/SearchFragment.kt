@@ -43,8 +43,8 @@ import com.facebook.shimmer.ShimmerFrameLayout
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.FusedAPIInterface
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.ApplicationInstaller
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
@@ -67,7 +67,7 @@ class SearchFragment :
     TimeoutFragment(R.layout.fragment_search),
     SearchView.OnQueryTextListener,
     SearchView.OnSuggestionListener,
-    FusedAPIInterface {
+    ApplicationInstaller {
 
     @Inject
     lateinit var pwaManagerModule: PWAManagerModule
@@ -198,7 +198,7 @@ class SearchFragment :
      */
     private fun updateSearchResult(
         listAdapter: ApplicationListRVAdapter?,
-        appList: List<FusedApp>,
+        appList: List<Application>,
     ): Boolean {
         val currentList = listAdapter?.currentList ?: listOf()
         if (!searchViewModel.isAnyAppUpdated(appList, currentList)) {
@@ -260,17 +260,17 @@ class SearchFragment :
         searchView?.let { configureCloseButton(it) }
     }
 
-    private fun showPaidAppMessage(fusedApp: FusedApp) {
+    private fun showPaidAppMessage(application: Application) {
         ApplicationDialogFragment(
-            title = getString(R.string.dialog_title_paid_app, fusedApp.name),
+            title = getString(R.string.dialog_title_paid_app, application.name),
             message = getString(
                 R.string.dialog_paidapp_message,
-                fusedApp.name,
-                fusedApp.price
+                application.name,
+                application.price
             ),
             positiveButtonText = getString(R.string.dialog_confirm),
             positiveButtonAction = {
-                getApplication(fusedApp)
+                installApplication(application)
             },
             cancelButtonText = getString(R.string.dialog_cancel),
         ).show(childFragmentManager, "SearchFragment")
@@ -476,11 +476,11 @@ class SearchFragment :
         searchView?.suggestionsAdapter?.changeCursor(cursor)
     }
 
-    override fun getApplication(app: FusedApp, appIcon: ImageView?) {
+    override fun installApplication(app: Application) {
         mainActivityViewModel.getApplication(app)
     }
 
-    override fun cancelDownload(app: FusedApp) {
+    override fun cancelDownload(app: Application) {
         mainActivityViewModel.cancelDownload(app)
     }
 }

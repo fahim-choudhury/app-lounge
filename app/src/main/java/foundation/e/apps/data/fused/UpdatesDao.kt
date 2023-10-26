@@ -17,17 +17,17 @@
 
 package foundation.e.apps.data.fused
 
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 
 object UpdatesDao {
-    private val _appsAwaitingForUpdate: MutableList<FusedApp> = mutableListOf()
-    val appsAwaitingForUpdate: List<FusedApp> = _appsAwaitingForUpdate
+    private val _appsAwaitingForUpdate: MutableList<Application> = mutableListOf()
+    val appsAwaitingForUpdate: List<Application> = _appsAwaitingForUpdate
 
     private val _successfulUpdatedApps = mutableListOf<FusedDownload>()
     val successfulUpdatedApps: List<FusedDownload> = _successfulUpdatedApps
 
-    fun addItemsForUpdate(appsNeedUpdate: List<FusedApp>) {
+    fun addItemsForUpdate(appsNeedUpdate: List<Application>) {
         _appsAwaitingForUpdate.clear()
         _appsAwaitingForUpdate.addAll(appsNeedUpdate)
     }

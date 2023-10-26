@@ -21,7 +21,7 @@ package foundation.e.apps.data.fused.data
 import foundation.e.apps.data.enums.AppTag
 import java.util.UUID
 
-data class FusedCategory(
+data class Category(
     val id: String = UUID.randomUUID().toString(),
     val title: String = String(),
     val browseUrl: String = String(),

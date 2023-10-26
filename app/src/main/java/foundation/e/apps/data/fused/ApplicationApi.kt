@@ -11,16 +11,16 @@ import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.fused.data.FusedCategory
-import foundation.e.apps.data.fused.data.FusedHome
+import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.fused.data.Category
+import foundation.e.apps.data.fused.data.Home
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import retrofit2.Response
 
-typealias GplaySearchResult = ResultSupreme<Pair<List<FusedApp>, Set<SearchBundle.SubBundle>>>
+typealias GplaySearchResult = ResultSupreme<Pair<List<Application>, Set<SearchBundle.SubBundle>>>
 
-interface FusedApi {
+interface ApplicationApi {
     companion object {
         const val APP_TYPE_ANY = "any"
         const val APP_TYPE_OPEN = "open"
@@ -31,7 +31,7 @@ interface FusedApi {
 
     suspend fun getHomeScreenData(
         authData: AuthData,
-    ): LiveData<ResultSupreme<List<FusedHome>>>
+    ): LiveData<ResultSupreme<List<Home>>>
 
     /*
         * Return three elements from the function.
@@ -46,7 +46,7 @@ interface FusedApi {
         */
     suspend fun getCategoriesList(
         type: CategoryType,
-    ): Triple<List<FusedCategory>, String, ResultStatus>
+    ): Triple<List<Category>, String, ResultStatus>
 
     /**
      * Fetches search results from cleanAPK and GPlay servers and returns them
@@ -58,7 +58,7 @@ interface FusedApi {
     suspend fun getCleanApkSearchResults(
         query: String,
         authData: AuthData
-    ): ResultSupreme<Pair<List<FusedApp>, Boolean>>
+    ): ResultSupreme<Pair<List<Application>, Boolean>>
 
     suspend fun getGplaySearchResult(
         query: String,
@@ -81,9 +81,9 @@ interface FusedApi {
 
     suspend fun getOSSDownloadInfo(id: String, version: String?): Response<Download>
 
-    suspend fun getPWAApps(category: String): ResultSupreme<Pair<List<FusedApp>, String>>
+    suspend fun getPWAApps(category: String): ResultSupreme<Pair<List<Application>, String>>
 
-    suspend fun getOpenSourceApps(category: String): ResultSupreme<Pair<List<FusedApp>, String>>
+    suspend fun getOpenSourceApps(category: String): ResultSupreme<Pair<List<Application>, String>>
 
     /*
         * Function to search cleanapk using package name.
@@ -91,13 +91,13 @@ interface FusedApi {
         *
         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5509
         */
-    suspend fun getCleanapkAppDetails(packageName: String): Pair<FusedApp, ResultStatus>
+    suspend fun getCleanapkAppDetails(packageName: String): Pair<Application, ResultStatus>
 
     suspend fun getApplicationDetails(
         packageNameList: List<String>,
         authData: AuthData,
         origin: Origin
-    ): Pair<List<FusedApp>, ResultStatus>
+    ): Pair<List<Application>, ResultStatus>
 
     /**
      * Filter out apps which are restricted, whose details cannot be fetched.
@@ -113,13 +113,13 @@ interface FusedApi {
     suspend fun filterRestrictedGPlayApps(
         authData: AuthData,
         appList: List<App>,
-    ): ResultSupreme<List<FusedApp>>
+    ): ResultSupreme<List<Application>>
 
     /**
      * Get different filter levels.
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5720
      */
-    suspend fun getAppFilterLevel(fusedApp: FusedApp, authData: AuthData?): FilterLevel
+    suspend fun getAppFilterLevel(application: Application, authData: AuthData?): FilterLevel
 
     /*
         * Similar to above method but uses Aurora OSS data class "App".
@@ -131,7 +131,7 @@ interface FusedApi {
         packageName: String,
         authData: AuthData,
         origin: Origin
-    ): Pair<FusedApp, ResultStatus>
+    ): Pair<Application, ResultStatus>
 
     /**
      * Get fused app installation status.
@@ -139,18 +139,18 @@ interface FusedApi {
      *
      * Recommended to use this instead of [PkgManagerModule.getPackageStatus].
      */
-    fun getFusedAppInstallationStatus(fusedApp: FusedApp): Status
+    fun getFusedAppInstallationStatus(application: Application): Status
 
     /**
      * @return returns true if there is changes in data, otherwise false
      */
     fun isAnyFusedAppUpdated(
-        newFusedApps: List<FusedApp>,
-        oldFusedApps: List<FusedApp>
+        newApplications: List<Application>,
+        oldApplications: List<Application>
     ): Boolean
 
-    fun isAnyAppInstallStatusChanged(currentList: List<FusedApp>): Boolean
+    fun isAnyAppInstallStatusChanged(currentList: List<Application>): Boolean
     fun isOpenSourceSelected(): Boolean
 
-    suspend fun getGplayAppsByCategory(authData: AuthData, category: String, pageUrl: String?): ResultSupreme<Pair<List<FusedApp>, String>>
+    suspend fun getGplayAppsByCategory(authData: AuthData, category: String, pageUrl: String?): ResultSupreme<Pair<List<Application>, String>>
 }

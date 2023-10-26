@@ -10,7 +10,7 @@ import foundation.e.apps.data.Result
 import foundation.e.apps.data.exodus.models.AppPrivacyInfo
 import foundation.e.apps.data.exodus.repositories.IAppPrivacyInfoRepository
 import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepository
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,23 +23,23 @@ class PrivacyInfoViewModel @Inject constructor(
     private val singularAppPrivacyInfoLiveData: MutableLiveData<Result<AppPrivacyInfo>> =
         MutableLiveData()
 
-    fun getAppPrivacyInfoLiveData(fusedApp: FusedApp): LiveData<Result<AppPrivacyInfo>> {
+    fun getAppPrivacyInfoLiveData(application: Application): LiveData<Result<AppPrivacyInfo>> {
         return liveData {
-            emit(fetchEmitAppPrivacyInfo(fusedApp))
+            emit(fetchEmitAppPrivacyInfo(application))
         }
     }
 
-    fun getSingularAppPrivacyInfoLiveData(fusedApp: FusedApp?): LiveData<Result<AppPrivacyInfo>> {
-        fetchPrivacyInfo(fusedApp)
+    fun getSingularAppPrivacyInfoLiveData(application: Application?): LiveData<Result<AppPrivacyInfo>> {
+        fetchPrivacyInfo(application)
         return singularAppPrivacyInfoLiveData
     }
 
-    fun refreshAppPrivacyInfo(fusedApp: FusedApp?) {
-        fetchPrivacyInfo(fusedApp, true)
+    fun refreshAppPrivacyInfo(application: Application?) {
+        fetchPrivacyInfo(application, true)
     }
 
-    private fun fetchPrivacyInfo(fusedApp: FusedApp?, forced: Boolean = false) {
-        fusedApp?.let {
+    private fun fetchPrivacyInfo(application: Application?, forced: Boolean = false) {
+        application?.let {
             if (forced) {
                 it.trackers = emptyList()
                 it.permsFromExodus = emptyList()
@@ -52,10 +52,10 @@ class PrivacyInfoViewModel @Inject constructor(
     }
 
     private suspend fun fetchEmitAppPrivacyInfo(
-        fusedApp: FusedApp
+        application: Application
     ): Result<AppPrivacyInfo> {
         val appPrivacyPrivacyInfoResult =
-            privacyInfoRepository.getAppPrivacyInfo(fusedApp, fusedApp.package_name)
+            privacyInfoRepository.getAppPrivacyInfo(application, application.package_name)
         return handleAppPrivacyInfoResult(appPrivacyPrivacyInfoResult)
     }
 
@@ -67,8 +67,8 @@ class PrivacyInfoViewModel @Inject constructor(
         } else appPrivacyPrivacyInfoResult
     }
 
-    fun getTrackerListText(fusedApp: FusedApp?): String {
-        fusedApp?.let {
+    fun getTrackerListText(application: Application?): String {
+        application?.let {
             if (it.trackers.isNotEmpty()) {
                 return it.trackers.joinToString(separator = "") { tracker -> "$tracker<br />" }
             }
@@ -76,18 +76,18 @@ class PrivacyInfoViewModel @Inject constructor(
         return ""
     }
 
-    fun getPrivacyScore(fusedApp: FusedApp?): Int {
-        fusedApp?.let {
+    fun getPrivacyScore(application: Application?): Int {
+        application?.let {
             return privacyScoreRepository.calculatePrivacyScore(it)
         }
         return -1
     }
 
-    fun shouldRequestExodusReport(fusedApp: FusedApp?): Boolean {
-        if (fusedApp?.isFree != true) {
+    fun shouldRequestExodusReport(application: Application?): Boolean {
+        if (application?.isFree != true) {
             return false
         }
 
-        return getPrivacyScore(fusedApp) < 0
+        return getPrivacyScore(application) < 0
     }
 }

@@ -16,17 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.fused
+package foundation.e.apps.data.fused.data
 
-import android.widget.ImageView
-import foundation.e.apps.data.fused.data.FusedApp
-
-/**
- * FusedAPIInterface to allow adapter classes to install applications easily
- */
-interface FusedAPIInterface {
-
-    fun getApplication(app: FusedApp, appIcon: ImageView? = null)
-
-    fun cancelDownload(app: FusedApp)
-}
+data class Home(
+    val title: String = String(),
+    val list: List<Application> = emptyList(),
+    var source: String = String()
+)

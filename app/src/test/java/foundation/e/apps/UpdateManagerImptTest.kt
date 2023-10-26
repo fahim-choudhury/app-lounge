@@ -27,9 +27,9 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
-import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.fused.FusedApi
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.ApplicationRepository
+import foundation.e.apps.data.fused.ApplicationApi
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.updates.UpdatesManagerImpl
 import foundation.e.apps.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -66,7 +66,7 @@ class UpdateManagerImptTest {
     private lateinit var pkgManagerModule: FakePkgManagerModule
 
     @Mock
-    private lateinit var fusedAPIRepository: FusedAPIRepository
+    private lateinit var applicationRepository: ApplicationRepository
 
     private lateinit var preferenceModule: FakePreferenceModule
 
@@ -89,7 +89,7 @@ class UpdateManagerImptTest {
         updatesManagerImpl = UpdatesManagerImpl(
             context,
             pkgManagerModule,
-            fusedAPIRepository,
+            applicationRepository,
             faultyAppRepository,
             preferenceModule,
             fdroidRepository,
@@ -116,8 +116,8 @@ class UpdateManagerImptTest {
         assertEquals("fetchUpdate", 2, updateResult.first.size)
     }
 
-    private fun getGplayApps(status: Status = Status.UPDATABLE) = mutableListOf<FusedApp>(
-        FusedApp(
+    private fun getGplayApps(status: Status = Status.UPDATABLE) = mutableListOf<Application>(
+        Application(
             _id = "111",
             status = status,
             name = "Demo One",
@@ -125,7 +125,7 @@ class UpdateManagerImptTest {
             origin = Origin.GPLAY,
             filterLevel = FilterLevel.NONE
         ),
-        FusedApp(
+        Application(
             _id = "112",
             status = Status.INSTALLED,
             name = "Demo Two",
@@ -204,7 +204,7 @@ class UpdateManagerImptTest {
     @Test
     fun getUpdateWhenFetchingOpenSourceIsFailed() = runTest {
         val gplayApps = getGplayApps(Status.UPDATABLE)
-        val openSourceApps = mutableListOf<FusedApp>()
+        val openSourceApps = mutableListOf<Application>()
 
         val openSourceUpdates = Pair(openSourceApps, ResultStatus.TIMEOUT)
         val gplayUpdates = Pair(gplayApps, ResultStatus.OK)
@@ -221,7 +221,7 @@ class UpdateManagerImptTest {
 
     @Test
     fun getUpdateWhenFetchingGplayIsFailed() = runTest {
-        val gplayApps = mutableListOf<FusedApp>()
+        val gplayApps = mutableListOf<Application>()
         val openSourceApps = getOpenSourceApps(Status.UPDATABLE)
 
         val openSourceUpdates = Pair(openSourceApps, ResultStatus.OK)
@@ -241,7 +241,7 @@ class UpdateManagerImptTest {
 
     @Test
     fun getUpdateWhenBothSourcesAreFailed() = runTest {
-        val gplayApps = mutableListOf<FusedApp>()
+        val gplayApps = mutableListOf<Application>()
         val openSourceApps = getOpenSourceApps(Status.UPDATABLE)
 
         val openSourceUpdates = Pair(openSourceApps, ResultStatus.TIMEOUT)
@@ -259,8 +259,8 @@ class UpdateManagerImptTest {
         assertEquals("fetchupdate", ResultStatus.TIMEOUT, updateResult.second)
     }
 
-    private fun getOpenSourceApps(status: Status = Status.UPDATABLE) = mutableListOf<FusedApp>(
-        FusedApp(
+    private fun getOpenSourceApps(status: Status = Status.UPDATABLE) = mutableListOf<Application>(
+        Application(
             _id = "113",
             status = status,
             name = "Demo Three",
@@ -301,7 +301,7 @@ class UpdateManagerImptTest {
 
     @Test
     fun getUpdatesOSSWhenOpenSourceIsFailed() = runTest {
-        val openSourceApps = mutableListOf<FusedApp>()
+        val openSourceApps = mutableListOf<Application>()
         val gPlayApps = getGplayApps(Status.UPDATABLE)
 
         val openSourceUpdates = Pair(openSourceApps, ResultStatus.TIMEOUT)
@@ -315,28 +315,28 @@ class UpdateManagerImptTest {
     }
 
     private suspend fun setupMockingForFetchingUpdates(
-        openSourceUpdates: Pair<MutableList<FusedApp>, ResultStatus>,
-        gplayUpdates: Pair<MutableList<FusedApp>, ResultStatus>,
+        openSourceUpdates: Pair<MutableList<Application>, ResultStatus>,
+        gplayUpdates: Pair<MutableList<Application>, ResultStatus>,
         selectedApplicationSources: List<String> = mutableListOf(
-            FusedApi.APP_TYPE_ANY,
-            FusedApi.APP_TYPE_OPEN,
-            FusedApi.APP_TYPE_PWA
+            ApplicationApi.APP_TYPE_ANY,
+            ApplicationApi.APP_TYPE_OPEN,
+            ApplicationApi.APP_TYPE_PWA
         )
     ) {
         Mockito.`when`(
-            fusedAPIRepository.getApplicationDetails(
+            applicationRepository.getApplicationDetails(
                 any(),
                 any(),
                 eq(Origin.CLEANAPK)
             )
         ).thenReturn(openSourceUpdates)
 
-        Mockito.`when`(fusedAPIRepository.getApplicationCategoryPreference())
+        Mockito.`when`(applicationRepository.getApplicationCategoryPreference())
             .thenReturn(selectedApplicationSources)
 
         if (gplayUpdates.first.isNotEmpty()) {
             Mockito.`when`(
-                fusedAPIRepository.getApplicationDetails(
+                applicationRepository.getApplicationDetails(
                     any(),
                     any(),
                     any(),
@@ -348,13 +348,13 @@ class UpdateManagerImptTest {
             )
         } else {
             Mockito.`when`(
-                fusedAPIRepository.getApplicationDetails(
+                applicationRepository.getApplicationDetails(
                     any(),
                     any(),
                     any(),
                     eq(Origin.GPLAY)
                 )
-            ).thenReturn(Pair(FusedApp(), ResultStatus.TIMEOUT))
+            ).thenReturn(Pair(Application(), ResultStatus.TIMEOUT))
         }
     }
 }

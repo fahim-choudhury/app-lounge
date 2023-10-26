@@ -18,7 +18,7 @@
 
 package foundation.e.apps.data.exodus.repositories
 
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.di.CommonUtilsModule
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,14 +28,14 @@ import kotlin.math.round
 @Singleton
 class PrivacyScoreRepositoryImpl @Inject constructor() : PrivacyScoreRepository {
 
-    override fun calculatePrivacyScore(fusedApp: FusedApp): Int {
-        if (fusedApp.permsFromExodus == CommonUtilsModule.LIST_OF_NULL) {
+    override fun calculatePrivacyScore(application: Application): Int {
+        if (application.permsFromExodus == CommonUtilsModule.LIST_OF_NULL) {
             return -1
         }
 
-        val calculateTrackersScore = calculateTrackersScore(fusedApp.trackers.size)
+        val calculateTrackersScore = calculateTrackersScore(application.trackers.size)
         val calculatePermissionsScore = calculatePermissionsScore(
-            countAndroidPermissions(fusedApp)
+            countAndroidPermissions(application)
         )
         return calculateTrackersScore + calculatePermissionsScore
     }
@@ -44,8 +44,8 @@ class PrivacyScoreRepositoryImpl @Inject constructor() : PrivacyScoreRepository 
         return if (numberOfTrackers > THRESHOLD_OF_NON_ZERO_TRACKER_SCORE) MIN_TRACKER_SCORE else MAX_TRACKER_SCORE - numberOfTrackers
     }
 
-    private fun countAndroidPermissions(fusedApp: FusedApp) =
-        fusedApp.permsFromExodus.filter { it.contains("android.permission") }.size
+    private fun countAndroidPermissions(application: Application) =
+        application.permsFromExodus.filter { it.contains("android.permission") }.size
 
     private fun calculatePermissionsScore(numberOfPermission: Int): Int {
         return if (numberOfPermission > THRESHOLD_OF_NON_ZERO_PERMISSION_SCORE) MIN_PERMISSION_SCORE else round(

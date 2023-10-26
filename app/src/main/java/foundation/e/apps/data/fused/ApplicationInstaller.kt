@@ -16,10 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.fused.data
+package foundation.e.apps.data.fused
 
-data class FusedHome(
-    val title: String = String(),
-    val list: List<FusedApp> = emptyList(),
-    var source: String = String()
-)
+import foundation.e.apps.data.fused.data.Application
+
+interface ApplicationInstaller {
+
+    fun installApplication(app: Application)
+
+    fun cancelDownload(app: Application)
+}

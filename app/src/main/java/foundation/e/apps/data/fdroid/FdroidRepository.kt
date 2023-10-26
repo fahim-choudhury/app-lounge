@@ -5,7 +5,7 @@ import foundation.e.apps.data.cleanapk.ApkSignatureManager
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.fdroid.models.BuildInfo
 import foundation.e.apps.data.fdroid.models.FdroidEntity
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -40,15 +40,15 @@ class FdroidRepository @Inject constructor(
         return fdroidApi.getFdroidInfoForPackage(packageName).body()?.builds
     }
 
-    override suspend fun getAuthorName(fusedApp: FusedApp): String {
-        if (fusedApp.author != UNKNOWN || fusedApp.origin != Origin.CLEANAPK) {
-            return fusedApp.author.ifEmpty { UNKNOWN }
+    override suspend fun getAuthorName(application: Application): String {
+        if (application.author != UNKNOWN || application.origin != Origin.CLEANAPK) {
+            return application.author.ifEmpty { UNKNOWN }
         }
 
-        var result = fdroidEntries[fusedApp.package_name]
+        var result = fdroidEntries[application.package_name]
         if (result == null) {
-            result = getFdroidInfo(fusedApp.package_name)?.also {
-                fdroidEntries[fusedApp.package_name] = it
+            result = getFdroidInfo(application.package_name)?.also {
+                fdroidEntries[application.package_name] = it
             }
         }
         return result?.authorName ?: FdroidEntity.DEFAULT_FDROID_AUTHOR_NAME

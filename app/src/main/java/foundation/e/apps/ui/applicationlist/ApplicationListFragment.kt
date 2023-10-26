@@ -20,7 +20,6 @@ package foundation.e.apps.ui.applicationlist
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -34,8 +33,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.FusedAPIInterface
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.ApplicationInstaller
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentApplicationListBinding
@@ -54,7 +53,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ApplicationListFragment :
     TimeoutFragment(R.layout.fragment_application_list),
-    FusedAPIInterface {
+    ApplicationInstaller {
 
     // protected to avoid SyntheticAccessor
     protected val args: ApplicationListFragmentArgs by navArgs()
@@ -120,7 +119,7 @@ class ApplicationListFragment :
 
     private fun observeDownloadList(
         adapter: ApplicationListRVAdapter,
-        fusedAppResult: ResultSupreme<List<FusedApp>>
+        applicationResult: ResultSupreme<List<Application>>
     ) {
         mainActivityViewModel.downloadList.removeObservers(viewLifecycleOwner)
         mainActivityViewModel.downloadList.observe(viewLifecycleOwner) { list ->
@@ -128,7 +127,7 @@ class ApplicationListFragment :
 
             appList.let {
                 mainActivityViewModel.updateStatusOfFusedApps(it, list)
-                if (isFusedAppsUpdated(fusedAppResult, listAdapter.currentList)) {
+                if (isFusedAppsUpdated(applicationResult, listAdapter.currentList)) {
                     adapter.setData(it, args.translation)
                 }
             }
@@ -186,17 +185,17 @@ class ApplicationListFragment :
         }
     }
 
-    private fun showPaidAppMessage(fusedApp: FusedApp) {
+    private fun showPaidAppMessage(application: Application) {
         ApplicationDialogFragment(
-            title = getString(R.string.dialog_title_paid_app, fusedApp.name),
+            title = getString(R.string.dialog_title_paid_app, application.name),
             message = getString(
                 R.string.dialog_paidapp_message,
-                fusedApp.name,
-                fusedApp.price
+                application.name,
+                application.price
             ),
             positiveButtonText = getString(R.string.dialog_confirm),
             positiveButtonAction = {
-                getApplication(fusedApp)
+                installApplication(application)
             },
             cancelButtonText = getString(R.string.dialog_cancel),
         ).show(childFragmentManager, "HomeFragment")
@@ -209,10 +208,10 @@ class ApplicationListFragment :
     }
 
     private fun isFusedAppsUpdated(
-        fusedAppResult: ResultSupreme<List<FusedApp>>,
-        currentList: MutableList<FusedApp>?
-    ) = currentList.isNullOrEmpty() || fusedAppResult.data != null && viewModel.isFusedAppUpdated(
-        fusedAppResult.data!!,
+        applicationResult: ResultSupreme<List<Application>>,
+        currentList: MutableList<Application>?
+    ) = currentList.isNullOrEmpty() || applicationResult.data != null && viewModel.isFusedAppUpdated(
+        applicationResult.data!!,
         currentList
     )
 
@@ -333,11 +332,11 @@ class ApplicationListFragment :
         super.onPause()
     }
 
-    override fun getApplication(app: FusedApp, appIcon: ImageView?) {
+    override fun installApplication(app: Application) {
         mainActivityViewModel.getApplication(app)
     }
 
-    override fun cancelDownload(app: FusedApp) {
+    override fun cancelDownload(app: Application) {
         mainActivityViewModel.cancelDownload(app)
     }
 }

@@ -21,7 +21,6 @@ package foundation.e.apps.ui.home.model
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.findNavController
@@ -37,8 +36,8 @@ import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.fused.FusedAPIInterface
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.ApplicationInstaller
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.databinding.HomeChildListItemBinding
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.MainActivityViewModel
@@ -47,12 +46,12 @@ import foundation.e.apps.utils.disableInstallButton
 import foundation.e.apps.utils.enableInstallButton
 
 class HomeChildRVAdapter(
-    private var fusedAPIInterface: FusedAPIInterface?,
+    private var applicationInstaller: ApplicationInstaller?,
     private val appInfoFetchViewModel: AppInfoFetchViewModel,
     private val mainActivityViewModel: MainActivityViewModel,
     private var lifecycleOwner: LifecycleOwner?,
-    private var paidAppHandler: ((FusedApp) -> Unit)? = null
-) : ListAdapter<FusedApp, HomeChildRVAdapter.ViewHolder>(HomeChildFusedAppDiffUtil()) {
+    private var paidAppHandler: ((Application) -> Unit)? = null
+) : ListAdapter<Application, HomeChildRVAdapter.ViewHolder>(HomeChildFusedAppDiffUtil()) {
 
     private val shimmer = Shimmer.ColorHighlightBuilder()
         .setDuration(500)
@@ -130,13 +129,13 @@ class HomeChildRVAdapter(
     }
 
     private fun HomeChildListItemBinding.handleInstallationIssue(
-        homeApp: FusedApp
+        homeApp: Application
     ) {
         installButton.apply {
             enableInstallButton()
             text = context.getString(R.string.retry)
             setOnClickListener {
-                installApplication(homeApp, appIcon)
+                installApplication(homeApp)
             }
         }
         progressBarInstall.visibility = View.GONE
@@ -168,7 +167,7 @@ class HomeChildRVAdapter(
     }
 
     private fun HomeChildListItemBinding.handleQueued(
-        homeApp: FusedApp
+        homeApp: Application
     ) {
         installButton.apply {
             enableInstallButton()
@@ -189,7 +188,7 @@ class HomeChildRVAdapter(
     }
 
     private fun HomeChildListItemBinding.handleUnavailable(
-        homeApp: FusedApp,
+        homeApp: Application,
         holder: ViewHolder,
     ) {
         installButton.apply {
@@ -201,7 +200,7 @@ class HomeChildRVAdapter(
                 if (homeApp.isFree) {
                     disableInstallButton()
                     text = context.getString(R.string.cancel)
-                    installApplication(homeApp, appIcon)
+                    installApplication(homeApp)
                 } else {
                     paidAppHandler?.invoke(homeApp)
                 }
@@ -210,7 +209,7 @@ class HomeChildRVAdapter(
     }
 
     private fun HomeChildListItemBinding.handleUpdatable(
-        homeApp: FusedApp
+        homeApp: Application
     ) {
         installButton.apply {
             enableInstallButton(Status.UPDATABLE)
@@ -221,14 +220,14 @@ class HomeChildRVAdapter(
                 if (mainActivityViewModel.checkUnsupportedApplication(homeApp, context)) {
                     return@setOnClickListener
                 }
-                installApplication(homeApp, appIcon)
+                installApplication(homeApp)
             }
         }
         progressBarInstall.visibility = View.GONE
     }
 
     private fun HomeChildListItemBinding.handleInstalled(
-        homeApp: FusedApp
+        homeApp: Application
     ) {
         installButton.apply {
             enableInstallButton(Status.INSTALLED)
@@ -249,7 +248,7 @@ class HomeChildRVAdapter(
     }
 
     private fun updateUIByPaymentType(
-        homeApp: FusedApp,
+        homeApp: Application,
         materialButton: MaterialButton,
         homeChildListItemBinding: HomeChildListItemBinding
     ) {
@@ -279,22 +278,22 @@ class HomeChildRVAdapter(
         }
     }
 
-    fun setData(newList: List<FusedApp>) {
+    fun setData(newList: List<Application>) {
         this.submitList(newList.map { it.copy() })
     }
 
-    private fun installApplication(homeApp: FusedApp, appIcon: ImageView) {
-        fusedAPIInterface?.getApplication(homeApp, appIcon)
+    private fun installApplication(homeApp: Application) {
+        applicationInstaller?.installApplication(homeApp)
     }
 
-    private fun cancelDownload(homeApp: FusedApp) {
-        fusedAPIInterface?.cancelDownload(homeApp)
+    private fun cancelDownload(homeApp: Application) {
+        applicationInstaller?.cancelDownload(homeApp)
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         super.onDetachedFromRecyclerView(recyclerView)
         lifecycleOwner = null
         paidAppHandler = null
-        fusedAPIInterface = null
+        applicationInstaller = null
     }
 }

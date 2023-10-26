@@ -20,14 +20,14 @@ package foundation.e.apps
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.updates.UpdatesManagerImpl.Companion.PACKAGE_NAME_ANDROID_VENDING
 import foundation.e.apps.data.updates.UpdatesManagerImpl.Companion.PACKAGE_NAME_F_DROID
 import foundation.e.apps.install.pkg.PkgManagerModule
 
 class FakePkgManagerModule(
     context: Context,
-    val gplayApps: List<FusedApp>,
+    val gplayApps: List<Application>,
 ) : PkgManagerModule(context) {
 
     val applicationInfo = mutableListOf(

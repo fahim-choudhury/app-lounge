@@ -20,7 +20,6 @@ package foundation.e.apps.ui.applicationlist
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.lifecycle.LifecycleOwner
@@ -40,8 +39,8 @@ import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.fused.FusedAPIInterface
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.ApplicationInstaller
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.databinding.ApplicationListItemBinding
 import foundation.e.apps.install.pkg.InstallerService
 import foundation.e.apps.ui.AppInfoFetchViewModel
@@ -56,14 +55,14 @@ import javax.inject.Singleton
 
 @Singleton
 class ApplicationListRVAdapter(
-    private val fusedAPIInterface: FusedAPIInterface,
+    private val applicationInstaller: ApplicationInstaller,
     private val privacyInfoViewModel: PrivacyInfoViewModel,
     private val appInfoFetchViewModel: AppInfoFetchViewModel,
     private val mainActivityViewModel: MainActivityViewModel,
     private val currentDestinationId: Int,
     private var lifecycleOwner: LifecycleOwner?,
-    private var paidAppHandler: ((FusedApp) -> Unit)? = null
-) : ListAdapter<FusedApp, ApplicationListRVAdapter.ViewHolder>(ApplicationDiffUtil()) {
+    private var paidAppHandler: ((Application) -> Unit)? = null
+) : ListAdapter<Application, ApplicationListRVAdapter.ViewHolder>(ApplicationDiffUtil()) {
 
     private var optionalCategory = ""
 
@@ -162,7 +161,7 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.setAppIcon(
-        searchApp: FusedApp,
+        searchApp: Application,
         shimmerDrawable: ShimmerDrawable
     ) {
         when (searchApp.origin) {
@@ -180,14 +179,14 @@ class ApplicationListRVAdapter(
         }
     }
 
-    private fun ApplicationListItemBinding.updateAppInfo(searchApp: FusedApp) {
+    private fun ApplicationListItemBinding.updateAppInfo(searchApp: Application) {
         appTitle.text = searchApp.name
         appInfoFetchViewModel.getAuthorName(searchApp).observe(lifecycleOwner!!) {
             appAuthor.text = it
         }
     }
 
-    private fun ApplicationListItemBinding.updateRating(searchApp: FusedApp) {
+    private fun ApplicationListItemBinding.updateRating(searchApp: Application) {
         if (searchApp.ratings.usageQualityScore != -1.0) {
             appRating.text = searchApp.ratings.usageQualityScore.toString()
         } else {
@@ -196,7 +195,7 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.updatePrivacyScore(
-        searchApp: FusedApp,
+        searchApp: Application,
         view: View
     ) {
         if (searchApp.ratings.privacyScore != -1.0) {
@@ -207,7 +206,7 @@ class ApplicationListRVAdapter(
         }
     }
 
-    private fun ApplicationListItemBinding.updateSourceTag(searchApp: FusedApp) {
+    private fun ApplicationListItemBinding.updateSourceTag(searchApp: Application) {
         if (searchApp.source.isEmpty()) {
             sourceTag.visibility = View.INVISIBLE
         } else {
@@ -217,7 +216,7 @@ class ApplicationListRVAdapter(
     }
 
     private fun handleAppItemClick(
-        searchApp: FusedApp,
+        searchApp: Application,
         view: View
     ) {
         val catText = searchApp.category.ifBlank { optionalCategory }
@@ -261,7 +260,7 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.setupInstallButton(
-        searchApp: FusedApp,
+        searchApp: Application,
         view: View,
         holder: ViewHolder
     ) {
@@ -303,7 +302,7 @@ class ApplicationListRVAdapter(
 
     private fun ApplicationListItemBinding.handleInstallationIssue(
         view: View,
-        searchApp: FusedApp,
+        searchApp: Application,
     ) {
         progressBarInstall.visibility = View.GONE
         if (lifecycleOwner == null) {
@@ -318,7 +317,7 @@ class ApplicationListRVAdapter(
     private fun ApplicationListItemBinding.updateInstallButton(
         faultyAppResult: Pair<Boolean, String>,
         view: View,
-        searchApp: FusedApp
+        searchApp: Application
     ) {
         installButton.apply {
             if (faultyAppResult.first) disableInstallButton() else enableInstallButton()
@@ -326,7 +325,7 @@ class ApplicationListRVAdapter(
             backgroundTintList =
                 ContextCompat.getColorStateList(view.context, android.R.color.transparent)
             setOnClickListener {
-                installApplication(searchApp, appIcon)
+                installApplication(searchApp)
             }
         }
     }
@@ -359,7 +358,7 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.showCalculatedPrivacyScoreData(
-        searchApp: FusedApp,
+        searchApp: Application,
         view: View
     ) {
         if (searchApp.privacyScore > -1) {
@@ -370,7 +369,7 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.showPrivacyScoreOnAvailableData(
-        searchApp: FusedApp,
+        searchApp: Application,
         view: View
     ) {
         showPrivacyScore()
@@ -381,7 +380,7 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.showPrivacyScoreAfterFetching(
-        searchApp: FusedApp,
+        searchApp: Application,
         view: View
     ) {
         if (lifecycleOwner == null) {
@@ -421,7 +420,7 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.handleDownloading(
-        searchApp: FusedApp,
+        searchApp: Application,
     ) {
         installButton.apply {
             enableInstallButton()
@@ -435,7 +434,7 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.handleUnavailable(
-        searchApp: FusedApp,
+        searchApp: Application,
         holder: ViewHolder,
     ) {
         installButton.apply {
@@ -447,7 +446,7 @@ class ApplicationListRVAdapter(
                 if (searchApp.isFree || searchApp.isPurchased) {
                     disableInstallButton()
                     text = context.getText(R.string.cancel)
-                    installApplication(searchApp, appIcon)
+                    installApplication(searchApp)
                 } else {
                     paidAppHandler?.invoke(searchApp)
                 }
@@ -456,7 +455,7 @@ class ApplicationListRVAdapter(
     }
 
     private fun updateUIByPaymentType(
-        searchApp: FusedApp,
+        searchApp: Application,
         materialButton: MaterialButton,
         applicationListItemBinding: ApplicationListItemBinding,
         holder: ViewHolder
@@ -493,7 +492,7 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.handleUpdatable(
-        searchApp: FusedApp
+        searchApp: Application
     ) {
         installButton.apply {
             enableInstallButton(Status.UPDATABLE)
@@ -504,14 +503,14 @@ class ApplicationListRVAdapter(
                 if (mainActivityViewModel.checkUnsupportedApplication(searchApp, context)) {
                     return@setOnClickListener
                 }
-                installApplication(searchApp, appIcon)
+                installApplication(searchApp)
             }
         }
         progressBarInstall.visibility = View.GONE
     }
 
     private fun ApplicationListItemBinding.handleInstalled(
-        searchApp: FusedApp,
+        searchApp: Application,
     ) {
         installButton.apply {
             enableInstallButton(Status.INSTALLED)
@@ -531,7 +530,7 @@ class ApplicationListRVAdapter(
         progressBarInstall.visibility = View.GONE
     }
 
-    fun setData(newList: List<FusedApp>, optionalCategory: String? = null) {
+    fun setData(newList: List<Application>, optionalCategory: String? = null) {
         optionalCategory?.let {
             this.optionalCategory = it
         }
@@ -543,12 +542,12 @@ class ApplicationListRVAdapter(
         this.submitList(newList.map { it.copy() })
     }
 
-    private fun installApplication(searchApp: FusedApp, appIcon: ImageView) {
-        fusedAPIInterface.getApplication(searchApp, appIcon)
+    private fun installApplication(searchApp: Application) {
+        applicationInstaller.installApplication(searchApp)
     }
 
-    private fun cancelDownload(searchApp: FusedApp) {
-        fusedAPIInterface.cancelDownload(searchApp)
+    private fun cancelDownload(searchApp: Application) {
+        applicationInstaller.cancelDownload(searchApp)
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {

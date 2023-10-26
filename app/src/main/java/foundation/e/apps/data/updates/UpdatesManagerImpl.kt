@@ -30,9 +30,9 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
-import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.fused.FusedApi.Companion.APP_TYPE_ANY
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.ApplicationRepository
+import foundation.e.apps.data.fused.ApplicationApi.Companion.APP_TYPE_ANY
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
 import kotlinx.coroutines.Dispatchers
@@ -46,7 +46,7 @@ import javax.inject.Inject
 class UpdatesManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val pkgManagerModule: PkgManagerModule,
-    private val fusedAPIRepository: FusedAPIRepository,
+    private val applicationRepository: ApplicationRepository,
     private val faultyAppRepository: FaultyAppRepository,
     private val preferenceManagerModule: PreferenceManagerModule,
     private val fdroidRepository: FdroidRepository,
@@ -62,8 +62,8 @@ class UpdatesManagerImpl @Inject constructor(
     private val userApplications: List<ApplicationInfo>
         get() = pkgManagerModule.getAllUserApps()
 
-    suspend fun getUpdates(authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
-        val updateList = mutableListOf<FusedApp>()
+    suspend fun getUpdates(authData: AuthData): Pair<List<Application>, ResultStatus> {
+        val updateList = mutableListOf<Application>()
         var status = ResultStatus.OK
 
         val openSourceInstalledApps = getOpenSourceInstalledApps().toMutableList()
@@ -95,7 +95,7 @@ class UpdatesManagerImpl @Inject constructor(
         // Get open source app updates
         if (openSourceInstalledApps.isNotEmpty()) {
             status = getUpdatesFromApi({
-                fusedAPIRepository.getApplicationDetails(
+                applicationRepository.getApplicationDetails(
                     openSourceInstalledApps,
                     authData,
                     Origin.CLEANAPK
@@ -125,8 +125,8 @@ class UpdatesManagerImpl @Inject constructor(
         return Pair(nonFaultyUpdateList, status)
     }
 
-    suspend fun getUpdatesOSS(): Pair<List<FusedApp>, ResultStatus> {
-        val updateList = mutableListOf<FusedApp>()
+    suspend fun getUpdatesOSS(): Pair<List<Application>, ResultStatus> {
+        val updateList = mutableListOf<Application>()
         var status = ResultStatus.OK
 
         val openSourceInstalledApps = getOpenSourceInstalledApps().toMutableList()
@@ -147,7 +147,7 @@ class UpdatesManagerImpl @Inject constructor(
 
         if (openSourceInstalledApps.isNotEmpty()) {
             status = getUpdatesFromApi({
-                fusedAPIRepository.getApplicationDetails(
+                applicationRepository.getApplicationDetails(
                     openSourceInstalledApps,
                     AuthData("", ""),
                     Origin.CLEANAPK
@@ -213,8 +213,8 @@ class UpdatesManagerImpl @Inject constructor(
      * @return ResultStatus from calling [apiFunction].
      */
     private suspend fun getUpdatesFromApi(
-        apiFunction: suspend () -> Pair<List<FusedApp>, ResultStatus>,
-        updateAccumulationList: MutableList<FusedApp>,
+        apiFunction: suspend () -> Pair<List<Application>, ResultStatus>,
+        updateAccumulationList: MutableList<Application>,
     ): ResultStatus {
         val apiResult = apiFunction()
         val updatableApps = apiResult.first.filter {
@@ -233,12 +233,12 @@ class UpdatesManagerImpl @Inject constructor(
     private suspend fun getGPlayUpdates(
         packageNames: List<String>,
         authData: AuthData
-    ): Pair<List<FusedApp>, ResultStatus> {
+    ): Pair<List<Application>, ResultStatus> {
 
         val appsResults = coroutineScope {
             val deferredResults = packageNames.map { packageName ->
                 async {
-                    fusedAPIRepository.getApplicationDetails(
+                    applicationRepository.getApplicationDetails(
                         "",
                         packageName,
                         authData,
@@ -273,7 +273,7 @@ class UpdatesManagerImpl @Inject constructor(
     private suspend fun getFDroidAppsAndSignatures(installedPackageNames: List<String>): Map<String, String> {
         val appsAndSignatures = hashMapOf<String, String>()
         for (packageName in installedPackageNames) {
-            val cleanApkFusedApp = fusedAPIRepository.getCleanapkAppDetails(packageName).first
+            val cleanApkFusedApp = applicationRepository.getCleanapkAppDetails(packageName).first
             if (cleanApkFusedApp.package_name.isBlank()) {
                 continue
             }
@@ -282,18 +282,18 @@ class UpdatesManagerImpl @Inject constructor(
         return appsAndSignatures
     }
 
-    private suspend fun getPgpSignature(cleanApkFusedApp: FusedApp): String {
-        val installedVersionSignature = calculateSignatureVersion(cleanApkFusedApp)
+    private suspend fun getPgpSignature(cleanApkApplication: Application): String {
+        val installedVersionSignature = calculateSignatureVersion(cleanApkApplication)
 
         val downloadInfo =
-            fusedAPIRepository
-                .getOSSDownloadInfo(cleanApkFusedApp._id, installedVersionSignature)
+            applicationRepository
+                .getOSSDownloadInfo(cleanApkApplication._id, installedVersionSignature)
                 .body()?.download_data
 
         val pgpSignature = downloadInfo?.signature ?: ""
 
         Timber.i(
-            "Signature calculated for : ${cleanApkFusedApp.package_name}, " +
+            "Signature calculated for : ${cleanApkApplication.package_name}, " +
                 "signature version: $installedVersionSignature, " +
                 "is sig blank: ${pgpSignature.isBlank()}"
         )
@@ -339,7 +339,7 @@ class UpdatesManagerImpl @Inject constructor(
      * Index of version 7 from top is 3 (index of version 10 is 0).
      * So the corresponding signature version will be "update_(33-3)" = "update_30"
      */
-    private suspend fun calculateSignatureVersion(latestCleanapkApp: FusedApp): String {
+    private suspend fun calculateSignatureVersion(latestCleanapkApp: Application): String {
         val packageName = latestCleanapkApp.package_name
         val latestSignatureVersion = latestCleanapkApp.latest_downloaded_version
 
@@ -377,6 +377,6 @@ class UpdatesManagerImpl @Inject constructor(
     }
 
     fun getApplicationCategoryPreference(): List<String> {
-        return fusedAPIRepository.getApplicationCategoryPreference()
+        return applicationRepository.getApplicationCategoryPreference()
     }
 }

@@ -19,9 +19,9 @@
 package foundation.e.apps.home
 
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.fused.data.FusedHome
+import foundation.e.apps.data.fused.ApplicationRepository
+import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.fused.data.Home
 import foundation.e.apps.ui.home.HomeViewModel
 import org.junit.Assert.assertFalse
 import org.junit.Before
@@ -32,25 +32,25 @@ import org.mockito.MockitoAnnotations
 class HomeViewModelTest {
 
     @Mock
-    private lateinit var fusedAPIRepository: FusedAPIRepository
+    private lateinit var applicationRepository: ApplicationRepository
 
     private lateinit var homeViewModel: HomeViewModel
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        homeViewModel = HomeViewModel(fusedAPIRepository)
+        homeViewModel = HomeViewModel(applicationRepository)
     }
 
     @Test
     fun `test hasAnyChange when app list sizes are not same`() {
-        val oldAppList = mutableListOf(FusedApp("123"), FusedApp("124"), FusedApp("125"))
-        val newAppList = mutableListOf(FusedApp("123"), FusedApp("124"))
+        val oldAppList = mutableListOf(Application("123"), Application("124"), Application("125"))
+        val newAppList = mutableListOf(Application("123"), Application("124"))
 
         val oldHomeData =
-            listOf(FusedHome("Top Free Apps", oldAppList), FusedHome("Top Free Games", oldAppList))
+            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", oldAppList))
         var newHomeData =
-            listOf(FusedHome("Top Free Apps", newAppList), FusedHome("Top Free Games", newAppList))
+            listOf(Home("Top Free Apps", newAppList), Home("Top Free Games", newAppList))
 
         homeViewModel.currentHomes = oldHomeData
 
@@ -60,13 +60,13 @@ class HomeViewModelTest {
 
     @Test
     fun `test hasAnyChange when contents are same`() {
-        val oldAppList = mutableListOf(FusedApp("123"), FusedApp("124"), FusedApp("125"))
-        val newAppList = mutableListOf(FusedApp("123"), FusedApp("124"), FusedApp("125"))
+        val oldAppList = mutableListOf(Application("123"), Application("124"), Application("125"))
+        val newAppList = mutableListOf(Application("123"), Application("124"), Application("125"))
 
         val oldHomeData =
-            listOf(FusedHome("Top Free Apps", oldAppList), FusedHome("Top Free Games", oldAppList))
+            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", oldAppList))
         var newHomeData =
-            listOf(FusedHome("Top Free Apps", newAppList), FusedHome("Top Free Games", newAppList))
+            listOf(Home("Top Free Apps", newAppList), Home("Top Free Games", newAppList))
 
         homeViewModel.currentHomes = oldHomeData
 
@@ -76,13 +76,13 @@ class HomeViewModelTest {
 
     @Test
     fun `test hasAnyChange when contents are not same`() {
-        val oldAppList = mutableListOf(FusedApp("123"), FusedApp("124"), FusedApp("125"))
-        val newAppList = mutableListOf(FusedApp("123"), FusedApp("124", status = Status.INSTALLED), FusedApp("125"))
+        val oldAppList = mutableListOf(Application("123"), Application("124"), Application("125"))
+        val newAppList = mutableListOf(Application("123"), Application("124", status = Status.INSTALLED), Application("125"))
 
         val oldHomeData =
-            listOf(FusedHome("Top Free Apps", oldAppList), FusedHome("Top Free Games", oldAppList))
+            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", oldAppList))
         var newHomeData =
-            listOf(FusedHome("Top Free Apps", newAppList), FusedHome("Top Free Games", newAppList))
+            listOf(Home("Top Free Apps", newAppList), Home("Top Free Games", newAppList))
 
         homeViewModel.currentHomes = oldHomeData
 

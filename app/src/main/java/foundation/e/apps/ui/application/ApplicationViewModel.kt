@@ -27,8 +27,8 @@ import foundation.e.apps.R
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.ApplicationRepository
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.AuthObject
@@ -44,11 +44,11 @@ import javax.inject.Inject
 @HiltViewModel
 class ApplicationViewModel @Inject constructor(
     downloadProgressLD: DownloadProgressLD,
-    private val fusedAPIRepository: FusedAPIRepository,
+    private val applicationRepository: ApplicationRepository,
     private val fusedManagerRepository: FusedManagerRepository,
 ) : LoadingViewModel() {
 
-    val fusedApp: MutableLiveData<Pair<FusedApp, ResultStatus>> = MutableLiveData()
+    val application: MutableLiveData<Pair<Application, ResultStatus>> = MutableLiveData()
     val appStatus: MutableLiveData<Status?> = MutableLiveData()
     val downloadProgress = downloadProgressLD
     private val _errorMessageLiveData: MutableLiveData<Int> = MutableLiveData()
@@ -97,13 +97,13 @@ class ApplicationViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val appData =
-                    fusedAPIRepository.getApplicationDetails(
+                    applicationRepository.getApplicationDetails(
                         id,
                         packageName,
                         authData,
                         origin
                     )
-                fusedApp.postValue(appData)
+                application.postValue(appData)
 
                 val status = appData.second
 
@@ -137,11 +137,11 @@ class ApplicationViewModel @Inject constructor(
     fun getCleanapkAppDetails(packageName: String) {
         viewModelScope.launch {
             try {
-                fusedAPIRepository.getCleanapkAppDetails(packageName).run {
+                applicationRepository.getCleanapkAppDetails(packageName).run {
                     if (this.first.package_name.isBlank()) {
                         _errorMessageLiveData.postValue(R.string.app_not_found)
                     } else {
-                        fusedApp.postValue(this)
+                        application.postValue(this)
                     }
                 }
             } catch (e: Exception) {
@@ -152,7 +152,7 @@ class ApplicationViewModel @Inject constructor(
 
     fun transformPermsToString(): String {
         var permissionString = ""
-        fusedApp.value?.first?.let {
+        application.value?.first?.let {
             // Filter list to only keep platform permissions
             val filteredList = it.perms.filter {
                 it.startsWith("android.permission.")
@@ -167,23 +167,23 @@ class ApplicationViewModel @Inject constructor(
         return permissionString
     }
 
-    fun getFusedApp(): FusedApp? {
-        return fusedApp.value?.first
+    fun getFusedApp(): Application? {
+        return application.value?.first
     }
     fun handleRatingFormat(rating: Double): String {
         return fusedManagerRepository.handleRatingFormat(rating)
     }
 
     suspend fun calculateProgress(progress: DownloadProgress): Pair<Long, Long> {
-        return fusedManagerRepository.getCalculateProgressWithTotalSize(fusedApp.value?.first, progress)
+        return fusedManagerRepository.getCalculateProgressWithTotalSize(application.value?.first, progress)
     }
 
     fun updateApplicationStatus(downloadList: List<FusedDownload>) {
-        fusedApp.value?.first?.let { app ->
+        application.value?.first?.let { app ->
             appStatus.value = fusedManagerRepository.getDownloadingItemStatus(app, downloadList)
-                ?: fusedAPIRepository.getFusedAppInstallationStatus(app)
+                ?: applicationRepository.getFusedAppInstallationStatus(app)
         }
     }
 
-    fun isOpenSourceSelected() = fusedAPIRepository.isOpenSourceSelected()
+    fun isOpenSourceSelected() = applicationRepository.isOpenSourceSelected()
 }

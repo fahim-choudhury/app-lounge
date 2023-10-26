@@ -25,9 +25,9 @@ import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
-import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.fused.data.FusedHome
+import foundation.e.apps.data.fused.ApplicationRepository
+import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.fused.data.Home
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
@@ -38,7 +38,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val fusedAPIRepository: FusedAPIRepository,
+    private val applicationRepository: ApplicationRepository,
 ) : LoadingViewModel() {
 
     /*
@@ -47,9 +47,9 @@ class HomeViewModel @Inject constructor(
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
      */
-    var homeScreenData: MutableLiveData<ResultSupreme<List<FusedHome>>> = MutableLiveData()
+    var homeScreenData: MutableLiveData<ResultSupreme<List<Home>>> = MutableLiveData()
 
-    var currentHomes: List<FusedHome>? = null
+    var currentHomes: List<Home>? = null
 
     fun loadData(
         authObjectList: List<AuthObject>,
@@ -75,7 +75,8 @@ class HomeViewModel @Inject constructor(
         lifecycleOwner: LifecycleOwner,
     ) {
         viewModelScope.launch {
-            fusedAPIRepository.getHomeScreenData(authData).observe(lifecycleOwner) {
+            applicationRepository.getHomeScreenData(authData).observe(lifecycleOwner) {
+                homeScreenData.postValue(it)
 
                 if (it.isSuccess() && !hasAnyChange(it.data!!)) {
                     this@HomeViewModel.currentHomes = it.data
@@ -107,10 +108,10 @@ class HomeViewModel @Inject constructor(
 
     @VisibleForTesting
     fun hasAnyChange(
-        newHomes: List<FusedHome>,
+        newHomes: List<Home>,
     ) = currentHomes.isNullOrEmpty() || newHomes.size != currentHomes!!.size || compareWithNewData(newHomes)
 
-    private fun compareWithNewData(newHomes: List<FusedHome>): Boolean {
+    private fun compareWithNewData(newHomes: List<Home>): Boolean {
         currentHomes!!.forEach {
             val fusedHome = newHomes[currentHomes!!.indexOf(it)]
             if (!it.title.contentEquals(fusedHome.title) || areFusedAppsUpdated(it, fusedHome)) {
@@ -122,13 +123,13 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun areFusedAppsUpdated(
-        oldHome: FusedHome,
-        newHome: FusedHome,
+        oldHome: Home,
+        newHome: Home,
     ) = oldHome.list.size != newHome.list.size || hasAppListsAnyChange(oldHome, newHome)
 
     private fun hasAppListsAnyChange(
-        oldHome: FusedHome,
-        newHome: FusedHome,
+        oldHome: Home,
+        newHome: Home,
     ): Boolean {
         val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
 
@@ -143,13 +144,13 @@ class HomeViewModel @Inject constructor(
         return false
     }
 
-    fun isAnyAppInstallStatusChanged(currentList: List<FusedHome>?): Boolean {
+    fun isAnyAppInstallStatusChanged(currentList: List<Home>?): Boolean {
         if (currentList == null) {
             return false
         }
 
-        val appList = mutableListOf<FusedApp>()
+        val appList = mutableListOf<Application>()
         currentList.forEach { appList.addAll(it.list) }
-        return fusedAPIRepository.isAnyAppInstallStatusChanged(appList)
+        return applicationRepository.isAnyAppInstallStatusChanged(appList)
     }
 }

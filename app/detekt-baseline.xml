@@ -3,11 +3,11 @@
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>ComplexCondition:AppPurchaseFragment.kt$AppPurchaseFragment.&lt;no name provided&gt;$url.contains("https://play.google.com/store/apps/details") &amp;&amp; url.contains("raii") &amp;&amp; url.contains("raboi") &amp;&amp; url.contains("rasi") &amp;&amp; url.contains("rapt")</ID>
-    <ID>CyclomaticComplexMethod:ApplicationDiffUtil.kt$ApplicationDiffUtil$override fun areContentsTheSame(oldItem: FusedApp, newItem: FusedApp): Boolean</ID>
+    <ID>CyclomaticComplexMethod:ApplicationApiImpl.kt$ApplicationApiImpl$private suspend fun generateCleanAPKHome(home: CleanApkHome, appType: String): List&lt;Home&gt;</ID>
+    <ID>CyclomaticComplexMethod:ApplicationDiffUtil.kt$ApplicationDiffUtil$override fun areContentsTheSame(oldItem: Application, newItem: Application): Boolean</ID>
     <ID>CyclomaticComplexMethod:CategoryUtils.kt$CategoryUtils$fun provideAppsCategoryIconResource(categoryId: String): Int</ID>
     <ID>CyclomaticComplexMethod:DownloadProgressLD.kt$DownloadProgressLD$override fun observe(owner: LifecycleOwner, observer: Observer&lt;in DownloadProgress&gt;)</ID>
-    <ID>CyclomaticComplexMethod:FusedApiImpl.kt$FusedApiImpl$private suspend fun generateCleanAPKHome(home: Home, appType: String): List&lt;FusedHome&gt;</ID>
-    <ID>CyclomaticComplexMethod:HomeChildFusedAppDiffUtil.kt$HomeChildFusedAppDiffUtil$override fun areContentsTheSame(oldItem: FusedApp, newItem: FusedApp): Boolean</ID>
+    <ID>CyclomaticComplexMethod:HomeChildFusedAppDiffUtil.kt$HomeChildFusedAppDiffUtil$override fun areContentsTheSame(oldItem: Application, newItem: Application): Boolean</ID>
     <ID>CyclomaticComplexMethod:MainActivity.kt$MainActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
     <ID>EmptyCatchBlock:NativeDeviceInfoProviderModule.kt$NativeDeviceInfoProviderModule${ }</ID>
     <ID>EmptyFunctionBlock:CleanApkAuthenticator.kt$CleanApkAuthenticator${}</ID>
@@ -19,27 +19,28 @@
     <ID>ImplicitDefaultLocale:UpdatesFragment.kt$UpdatesFragment$String.format("%d%%", progress)</ID>
     <ID>InstanceOfCheckForException:GPlayHttpClient.kt$GPlayHttpClient$e is SocketTimeoutException</ID>
     <ID>InvalidPackageDeclaration:Trackers.kt$package foundation.e.apps.data.exodus</ID>
+    <ID>LargeClass:ApplicationApiImpl.kt$ApplicationApiImpl : ApplicationApi</ID>
     <ID>LargeClass:ApplicationFragment.kt$ApplicationFragment : TimeoutFragment</ID>
-    <ID>LargeClass:FusedApiImpl.kt$FusedApiImpl : FusedApi</ID>
+    <ID>LongMethod:ApplicationApiImpl.kt$ApplicationApiImpl$private suspend fun generateCleanAPKHome(home: CleanApkHome, appType: String): List&lt;Home&gt;</ID>
     <ID>LongMethod:ApplicationFragment.kt$ApplicationFragment$private fun observeDownloadStatus(view: View)</ID>
     <ID>LongMethod:CategoryUtils.kt$CategoryUtils$fun provideAppsCategoryIconResource(categoryId: String): Int</ID>
-    <ID>LongMethod:FusedApiImpl.kt$FusedApiImpl$private suspend fun generateCleanAPKHome(home: Home, appType: String): List&lt;FusedHome&gt;</ID>
     <ID>LongMethod:MainActivity.kt$MainActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
     <ID>LongMethod:NativeDeviceInfoProviderModule.kt$NativeDeviceInfoProviderModule$@Singleton @Provides fun provideNativeDeviceProperties( @ApplicationContext context: Context, ): Properties</ID>
+    <ID>LongParameterList:ApplicationApiImpl.kt$ApplicationApiImpl$( private val pkgManagerModule: PkgManagerModule, private val pwaManagerModule: PWAManagerModule, private val preferenceManagerModule: PreferenceManagerModule, @Named("gplayRepository") private val gplayRepository: PlayStoreRepository, @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository, @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository, @ApplicationContext private val context: Context )</ID>
     <ID>LongParameterList:ApplicationDialogFragment.kt$ApplicationDialogFragment$( drawable: Int = -1, title: String, message: String, positiveButtonText: String = "", positiveButtonAction: (() -&gt; Unit)? = null, cancelButtonText: String = "", cancelButtonAction: (() -&gt; Unit)? = null, cancellable: Boolean = true, onDismissListener: (() -&gt; Unit)? = null, )</ID>
-    <ID>LongParameterList:ApplicationListRVAdapter.kt$ApplicationListRVAdapter$( private val fusedAPIInterface: FusedAPIInterface, private val privacyInfoViewModel: PrivacyInfoViewModel, private val appInfoFetchViewModel: AppInfoFetchViewModel, private val mainActivityViewModel: MainActivityViewModel, private val currentDestinationId: Int, private var lifecycleOwner: LifecycleOwner?, private var paidAppHandler: ((FusedApp) -&gt; Unit)? = null )</ID>
+    <ID>LongParameterList:ApplicationListRVAdapter.kt$ApplicationListRVAdapter$( private val applicationInstaller: ApplicationInstaller, private val privacyInfoViewModel: PrivacyInfoViewModel, private val appInfoFetchViewModel: AppInfoFetchViewModel, private val mainActivityViewModel: MainActivityViewModel, private val currentDestinationId: Int, private var lifecycleOwner: LifecycleOwner?, private var paidAppHandler: ((Application) -&gt; Unit)? = null )</ID>
     <ID>LongParameterList:ApplicationViewModel.kt$ApplicationViewModel$( id: String, packageName: String, origin: Origin, isFdroidLink: Boolean, authObjectList: List&lt;AuthObject&gt;, retryBlock: (failedObjects: List&lt;AuthObject&gt;) -&gt; Boolean, )</ID>
     <ID>LongParameterList:CleanApkRetrofit.kt$CleanApkRetrofit$( @Query("keyword") keyword: String, @Query("source") source: String = APP_SOURCE_FOSS, @Query("type") type: String = APP_TYPE_ANY, @Query("nres") nres: Int = 20, @Query("page") page: Int = 1, @Query("by") by: String? = null, )</ID>
     <ID>LongParameterList:EglExtensionProvider.kt$EglExtensionProvider$( egl10: EGL10, eglDisplay: EGLDisplay, eglConfig: EGLConfig?, ai: IntArray, ai1: IntArray?, set: MutableSet&lt;String&gt; )</ID>
-    <ID>LongParameterList:FusedApiImpl.kt$FusedApiImpl$( private val pkgManagerModule: PkgManagerModule, private val pwaManagerModule: PWAManagerModule, private val preferenceManagerModule: PreferenceManagerModule, @Named("gplayRepository") private val gplayRepository: PlayStoreRepository, @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository, @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository, @ApplicationContext private val context: Context )</ID>
     <ID>LongParameterList:FusedManagerImpl.kt$FusedManagerImpl$( @Named("cacheDir") private val cacheDir: String, private val downloadManager: DownloadManager, private val notificationManager: NotificationManager, private val fusedDownloadRepository: FusedDownloadRepository, private val pwaManagerModule: PWAManagerModule, private val pkgManagerModule: PkgManagerModule, @Named("download") private val downloadNotificationChannel: NotificationChannel, @Named("update") private val updateNotificationChannel: NotificationChannel, @ApplicationContext private val context: Context )</ID>
-    <ID>LongParameterList:MainActivityViewModel.kt$MainActivityViewModel$( private val dataStoreModule: DataStoreModule, private val fusedAPIRepository: FusedAPIRepository, private val fusedManagerRepository: FusedManagerRepository, private val pkgManagerModule: PkgManagerModule, private val pwaManagerModule: PWAManagerModule, private val ecloudRepository: EcloudRepository, private val blockedAppRepository: BlockedAppRepository, private val appInstallProcessor: AppInstallProcessor )</ID>
-    <ID>LongParameterList:UpdatesManagerImpl.kt$UpdatesManagerImpl$( @ApplicationContext private val context: Context, private val pkgManagerModule: PkgManagerModule, private val fusedAPIRepository: FusedAPIRepository, private val faultyAppRepository: FaultyAppRepository, private val preferenceManagerModule: PreferenceManagerModule, private val fdroidRepository: FdroidRepository, private val blockedAppRepository: BlockedAppRepository, )</ID>
+    <ID>LongParameterList:MainActivityViewModel.kt$MainActivityViewModel$( private val dataStoreModule: DataStoreModule, private val applicationRepository: ApplicationRepository, private val fusedManagerRepository: FusedManagerRepository, private val pkgManagerModule: PkgManagerModule, private val pwaManagerModule: PWAManagerModule, private val ecloudRepository: EcloudRepository, private val blockedAppRepository: BlockedAppRepository, private val appInstallProcessor: AppInstallProcessor )</ID>
+    <ID>LongParameterList:UpdatesManagerImpl.kt$UpdatesManagerImpl$( @ApplicationContext private val context: Context, private val pkgManagerModule: PkgManagerModule, private val applicationRepository: ApplicationRepository, private val faultyAppRepository: FaultyAppRepository, private val preferenceManagerModule: PreferenceManagerModule, private val fdroidRepository: FdroidRepository, private val blockedAppRepository: BlockedAppRepository, )</ID>
     <ID>LongParameterList:UpdatesWorker.kt$UpdatesWorker$( @Assisted private val context: Context, @Assisted private val params: WorkerParameters, private val updatesManagerRepository: UpdatesManagerRepository, private val dataStoreManager: DataStoreManager, private val authenticatorRepository: AuthenticatorRepository, private val appInstallProcessor: AppInstallProcessor, private val blockedAppRepository: BlockedAppRepository, )</ID>
     <ID>MagicNumber:AnonymousLoginManager.kt$AnonymousLoginManager$200</ID>
     <ID>MagicNumber:ApkSignatureManager.kt$ApkSignatureManager$1024</ID>
     <ID>MagicNumber:AppDatabase.kt$AppDatabase.Companion.&lt;no name provided&gt;$3</ID>
     <ID>MagicNumber:AppDatabase.kt$AppDatabase.Companion.&lt;no name provided&gt;$4</ID>
+    <ID>MagicNumber:ApplicationApiImpl.kt$ApplicationApiImpl$3</ID>
     <ID>MagicNumber:ApplicationFragment.kt$ApplicationFragment$100f</ID>
     <ID>MagicNumber:ApplicationFragment.kt$ApplicationFragment$15</ID>
     <ID>MagicNumber:ApplicationFragment.kt$ApplicationFragment$3</ID>
@@ -61,7 +62,6 @@
     <ID>MagicNumber:EglExtensionProvider.kt$EglExtensionProvider$4</ID>
     <ID>MagicNumber:EglExtensionProvider.kt$EglExtensionProvider$7939</ID>
     <ID>MagicNumber:FileManager.kt$FileManager$1024</ID>
-    <ID>MagicNumber:FusedApiImpl.kt$FusedApiImpl$3</ID>
     <ID>MagicNumber:FusedManagerRepository.kt$FusedManagerRepository$100</ID>
     <ID>MagicNumber:HomeChildRVAdapter.kt$HomeChildRVAdapter$0.6f</ID>
     <ID>MagicNumber:HomeChildRVAdapter.kt$HomeChildRVAdapter$0.7f</ID>
@@ -84,6 +84,9 @@
     <ID>MaxLineLength:AppInstallProcessor.kt$AppInstallProcessor$"Enqueuing App install work is failed for ${fusedDownload.packageName} exception: ${e.localizedMessage}"</ID>
     <ID>MaxLineLength:AppInstallProcessor.kt$AppInstallProcessor$fusedDownload.areFilesDownloaded() &amp;&amp; (!fusedManagerRepository.isFusedDownloadInstalled(fusedDownload) || fusedDownload.status == Status.INSTALLING)</ID>
     <ID>MaxLineLength:AppPrivacyInfo.kt$AppPrivacyInfo</ID>
+    <ID>MaxLineLength:ApplicationApi.kt$ApplicationApi$suspend fun getGplayAppsByCategory(authData: AuthData, category: String, pageUrl: String?): ResultSupreme&lt;Pair&lt;List&lt;Application&gt;, String&gt;&gt;</ID>
+    <ID>MaxLineLength:ApplicationApiImpl.kt$ApplicationApiImpl$(cleanApkAppsRepository.getAppDetails(result.apps[0]._id) as Response&lt;CleanApkApplication&gt;).body()?.app</ID>
+    <ID>MaxLineLength:ApplicationApiImpl.kt$ApplicationApiImpl$val hasGplayLimitedResult = gplayHomes.any { fusedHome -&gt; fusedHome.list.size &lt; THRESHOLD_LIMITED_RESULT_HOME_PAGE }</ID>
     <ID>MaxLineLength:ApplicationDiffUtil.kt$ApplicationDiffUtil$((oldItem.trackers == LIST_OF_NULL &amp;&amp; newItem.trackers.isEmpty()) || oldItem.trackers == newItem.trackers)</ID>
     <ID>MaxLineLength:ApplicationFragment.kt$ApplicationFragment.Companion$"https://gitlab.e.foundation/e/os/apps/-/blob/main/app/src/main/java/foundation/e/apps/data/exodus/repositories/PrivacyScoreRepositoryImpl.kt"</ID>
     <ID>MaxLineLength:CommonUtilsModule.kt$CommonUtilsModule$*</ID>
@@ -96,12 +99,11 @@
     <ID>MaxLineLength:DownloadProgressLD.kt$DownloadProgressLD$cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))</ID>
     <ID>MaxLineLength:DownloadProgressLD.kt$DownloadProgressLD$status == DownloadManager.STATUS_SUCCESSFUL || status == DownloadManager.STATUS_FAILED</ID>
     <ID>MaxLineLength:FdroidRepository.kt$FdroidRepository$override suspend</ID>
-    <ID>MaxLineLength:FusedApi.kt$FusedApi$suspend fun getGplayAppsByCategory(authData: AuthData, category: String, pageUrl: String?): ResultSupreme&lt;Pair&lt;List&lt;FusedApp&gt;, String&gt;&gt;</ID>
-    <ID>MaxLineLength:FusedApiImpl.kt$FusedApiImpl$val hasGplayLimitedResult = gplayHomes.any { fusedHome -&gt; fusedHome.list.size &lt; THRESHOLD_LIMITED_RESULT_HOME_PAGE }</ID>
     <ID>MaxLineLength:FusedManagerImpl.kt$FusedManagerImpl$.</ID>
     <ID>MaxLineLength:FusedManagerImpl.kt$FusedManagerImpl$return</ID>
     <ID>MaxLineLength:FusedManagerRepository.kt$FusedManagerRepository$downloadList.find { it.origin == app.origin &amp;&amp; (it.packageName == app.package_name || it.id == app.package_name) }</ID>
     <ID>MaxLineLength:FusedManagerRepository.kt$FusedManagerRepository$return fdroidRepository.isFdroidApplicationSigned(context, fusedDownload.packageName, apkFilePath, fusedDownload.signature)</ID>
+    <ID>MaxLineLength:FusedManagerRepository.kt$FusedManagerRepository$suspend</ID>
     <ID>MaxLineLength:MainActivity.kt$MainActivity$if</ID>
     <ID>MaxLineLength:MainActivityViewModel.kt$MainActivityViewModel$fusedDownload.origin == it.origin &amp;&amp; (fusedDownload.packageName == it.package_name || fusedDownload.id == it._id)</ID>
     <ID>MaxLineLength:PlayStoreRepository.kt$PlayStoreRepository$suspend fun getSearchResult(query: String, subBundle: MutableSet&lt;SearchBundle.SubBundle&gt;?): Pair&lt;List&lt;App&gt;, MutableSet&lt;SearchBundle.SubBundle&gt;&gt;</ID>
@@ -113,9 +115,9 @@
     <ID>MaxLineLength:UpdatesViewModel.kt$UpdatesViewModel$return updatesList.value?.first?.any { it.status == Status.UPDATABLE || it.status == Status.INSTALLATION_ISSUE } == true</ID>
     <ID>MaxLineLength:UpdatesWorker.kt$UpdatesWorker$applicationContext.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED</ID>
     <ID>MayBeConst:EcloudApiInterface.kt$EcloudApiInterface.Companion$val BASE_URL = "https://eu.gtoken.ecloud.global/"</ID>
+    <ID>NestedBlockDepth:ApplicationApiImpl.kt$ApplicationApiImpl$private suspend fun generateCleanAPKHome(home: CleanApkHome, appType: String): List&lt;Home&gt;</ID>
     <ID>NestedBlockDepth:DownloadManager.kt$DownloadManager$fun checkDownloadProgress( downloadId: Long, filePath: String = "", downloadCompleted: ((Boolean, String) -&gt; Unit)? )</ID>
-    <ID>NestedBlockDepth:FusedApiImpl.kt$FusedApiImpl$private suspend fun generateCleanAPKHome(home: Home, appType: String): List&lt;FusedHome&gt;</ID>
-    <ID>NestedBlockDepth:PWAManagerModule.kt$PWAManagerModule$fun getPwaStatus(fusedApp: FusedApp): Status</ID>
+    <ID>NestedBlockDepth:PWAManagerModule.kt$PWAManagerModule$fun getPwaStatus(application: Application): Status</ID>
     <ID>NestedBlockDepth:PkgManagerBR.kt$PkgManagerBR$override fun onReceive(context: Context?, intent: Intent?)</ID>
     <ID>NestedBlockDepth:SettingsFragment.kt$SettingsFragment$override fun onViewCreated(view: View, savedInstanceState: Bundle?)</ID>
     <ID>PrintStackTrace:CommonUtilsModule.kt$CommonUtilsModule$e</ID>
@@ -132,20 +134,20 @@
     <ID>ReturnCount:ApkSignatureManager.kt$ApkSignatureManager$private fun verifyAPKSignature( apkInputStream: BufferedInputStream, apkSignatureInputStream: InputStream, publicKeyInputStream: InputStream, packageName: String ): Boolean</ID>
     <ID>ReturnCount:AppInstallProcessor.kt$AppInstallProcessor$private suspend fun updateDownloadUrls(fusedDownload: FusedDownload): Boolean</ID>
     <ID>ReturnCount:AppInstallProcessor.kt$AppInstallProcessor$suspend fun enqueueFusedDownload( fusedDownload: FusedDownload, isAnUpdate: Boolean = false )</ID>
-    <ID>ReturnCount:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl$override suspend fun getAppPrivacyInfo( fusedApp: FusedApp, appHandle: String ): Result&lt;AppPrivacyInfo&gt;</ID>
-    <ID>ReturnCount:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl$private fun getAppPrivacyInfo( fusedApp: FusedApp, appTrackerData: List&lt;Report&gt;, ): AppPrivacyInfo</ID>
+    <ID>ReturnCount:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl$override suspend fun getAppPrivacyInfo( application: Application, appHandle: String ): Result&lt;AppPrivacyInfo&gt;</ID>
+    <ID>ReturnCount:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl$private fun getAppPrivacyInfo( application: Application, appTrackerData: List&lt;Report&gt;, ): AppPrivacyInfo</ID>
+    <ID>ReturnCount:ApplicationApiImpl.kt$ApplicationApiImpl$override fun isAnyFusedAppUpdated( newApplications: List&lt;Application&gt;, oldApplications: List&lt;Application&gt; ): Boolean</ID>
+    <ID>ReturnCount:ApplicationApiImpl.kt$ApplicationApiImpl$override fun isHomeDataUpdated( newHomeData: List&lt;Home&gt;, oldHomeData: List&lt;Home&gt; ): Boolean</ID>
+    <ID>ReturnCount:ApplicationApiImpl.kt$ApplicationApiImpl$private fun areFusedAppsUpdated( oldHome: Home, newHome: Home, ): Boolean</ID>
     <ID>ReturnCount:DownloadManager.kt$DownloadManager$fun getSizeRequired(downloadId: Long): Long</ID>
     <ID>ReturnCount:DownloadManager.kt$DownloadManager$private fun sanitizeStatus(downloadId: Long, status: Int, reason: Int): Int</ID>
     <ID>ReturnCount:Extensions.kt$fun Context.isNetworkAvailable(): Boolean</ID>
-    <ID>ReturnCount:FusedApiImpl.kt$FusedApiImpl$override fun isAnyFusedAppUpdated( newFusedApps: List&lt;FusedApp&gt;, oldFusedApps: List&lt;FusedApp&gt; ): Boolean</ID>
-    <ID>ReturnCount:FusedApiImpl.kt$FusedApiImpl$override fun isHomeDataUpdated( newHomeData: List&lt;FusedHome&gt;, oldHomeData: List&lt;FusedHome&gt; ): Boolean</ID>
-    <ID>ReturnCount:FusedApiImpl.kt$FusedApiImpl$private fun areFusedAppsUpdated( oldFusedHome: FusedHome, newFusedHome: FusedHome, ): Boolean</ID>
     <ID>ReturnCount:FusedManagerRepository.kt$FusedManagerRepository$suspend fun addDownload(fusedDownload: FusedDownload): Boolean</ID>
-    <ID>ReturnCount:FusedManagerRepository.kt$FusedManagerRepository$suspend fun calculateProgress( fusedApp: FusedApp?, progress: DownloadProgress ): Int</ID>
+    <ID>ReturnCount:FusedManagerRepository.kt$FusedManagerRepository$suspend fun calculateProgress( application: Application?, progress: DownloadProgress ): Int</ID>
     <ID>ReturnCount:PlayStoreAuthenticator.kt$PlayStoreAuthenticator$override suspend fun validateAuthData(): ResultSupreme&lt;AuthData?&gt;</ID>
     <ID>ReturnCount:PlayStoreAuthenticator.kt$PlayStoreAuthenticator$private suspend fun getAuthDataWithGoogleAccount(): ResultSupreme&lt;AuthData?&gt;</ID>
     <ID>ReturnCount:StorageNotificationManager.kt$StorageNotificationManager$private fun getSpaceMissing(fusedDownload: FusedDownload, downloadId: Long? = null): Long</ID>
-    <ID>ReturnCount:UpdatesManagerImpl.kt$UpdatesManagerImpl$private suspend fun calculateSignatureVersion(latestCleanapkApp: FusedApp): String</ID>
+    <ID>ReturnCount:UpdatesManagerImpl.kt$UpdatesManagerImpl$private suspend fun calculateSignatureVersion(latestCleanapkApp: Application): String</ID>
     <ID>SpreadOperator:DownloadProgressLD.kt$DownloadProgressLD$(*downloadingIds.toLongArray())</ID>
     <ID>SpreadOperator:EglExtensionProvider.kt$EglExtensionProvider$(*`as`)</ID>
     <ID>SpreadOperator:NativeDeviceInfoProviderModule.kt$NativeDeviceInfoProviderModule$(*context.assets.locales)</ID>
@@ -164,6 +166,7 @@
     <ID>TooGenericExceptionCaught:ApkSignatureManager.kt$ApkSignatureManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AppInfoFetchViewModel.kt$AppInfoFetchViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AppInstallProcessor.kt$AppInstallProcessor$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ApplicationApiImpl.kt$ApplicationApiImpl$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ApplicationViewModel.kt$ApplicationViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:BlockedAppRepository.kt$BlockedAppRepository$exception: Exception</ID>
     <ID>TooGenericExceptionCaught:CommonUtilsModule.kt$CommonUtilsModule$e: Exception</ID>
@@ -173,7 +176,6 @@
     <ID>TooGenericExceptionCaught:DownloadProgressLD.kt$DownloadProgressLD$e: Exception</ID>
     <ID>TooGenericExceptionCaught:EcloudRepository.kt$EcloudRepository$e: Exception</ID>
     <ID>TooGenericExceptionCaught:FileManager.kt$FileManager$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:FusedApiImpl.kt$FusedApiImpl$e: Exception</ID>
     <ID>TooGenericExceptionCaught:FusedManagerImpl.kt$FusedManagerImpl$e: Exception</ID>
     <ID>TooGenericExceptionCaught:GPlayHttpClient.kt$GPlayHttpClient$e: Exception</ID>
     <ID>TooGenericExceptionCaught:GoogleLoginManager.kt$GoogleLoginManager$e: Exception</ID>
@@ -194,18 +196,18 @@
     <ID>TooGenericExceptionThrown:PlayStoreLoginWrapper.kt$PlayStoreLoginWrapper$throw Exception(error)</ID>
     <ID>TooManyFunctions:AppInstallProcessor.kt$AppInstallProcessor</ID>
     <ID>TooManyFunctions:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl : IAppPrivacyInfoRepository</ID>
+    <ID>TooManyFunctions:ApplicationApi.kt$ApplicationApi</ID>
+    <ID>TooManyFunctions:ApplicationApiImpl.kt$ApplicationApiImpl : ApplicationApi</ID>
     <ID>TooManyFunctions:ApplicationFragment.kt$ApplicationFragment : TimeoutFragment</ID>
-    <ID>TooManyFunctions:ApplicationListFragment.kt$ApplicationListFragment : TimeoutFragmentFusedAPIInterface</ID>
+    <ID>TooManyFunctions:ApplicationListFragment.kt$ApplicationListFragment : TimeoutFragmentApplicationInstaller</ID>
     <ID>TooManyFunctions:ApplicationListRVAdapter.kt$ApplicationListRVAdapter : ListAdapter</ID>
+    <ID>TooManyFunctions:ApplicationRepository.kt$ApplicationRepository</ID>
     <ID>TooManyFunctions:DownloadManager.kt$DownloadManager</ID>
-    <ID>TooManyFunctions:FusedAPIRepository.kt$FusedAPIRepository</ID>
-    <ID>TooManyFunctions:FusedApi.kt$FusedApi</ID>
-    <ID>TooManyFunctions:FusedApiImpl.kt$FusedApiImpl : FusedApi</ID>
     <ID>TooManyFunctions:FusedManagerImpl.kt$FusedManagerImpl : IFusedManager</ID>
     <ID>TooManyFunctions:FusedManagerRepository.kt$FusedManagerRepository</ID>
     <ID>TooManyFunctions:GPlayHttpClient.kt$GPlayHttpClient : IHttpClient</ID>
     <ID>TooManyFunctions:HomeChildRVAdapter.kt$HomeChildRVAdapter : ListAdapter</ID>
-    <ID>TooManyFunctions:HomeFragment.kt$HomeFragment : TimeoutFragmentFusedAPIInterface</ID>
+    <ID>TooManyFunctions:HomeFragment.kt$HomeFragment : TimeoutFragmentApplicationInstaller</ID>
     <ID>TooManyFunctions:IFusedManager.kt$IFusedManager</ID>
     <ID>TooManyFunctions:LoginData.kt$LoginData</ID>
     <ID>TooManyFunctions:MainActivity.kt$MainActivity : AppCompatActivity</ID>
@@ -214,19 +216,11 @@
     <ID>TooManyFunctions:PlayStoreAuthenticator.kt$PlayStoreAuthenticator : StoreAuthenticatorAuthDataValidator</ID>
     <ID>TooManyFunctions:PlayStoreRepositoryImpl.kt$PlayStoreRepositoryImpl : PlayStoreRepository</ID>
     <ID>TooManyFunctions:RetrofitModule.kt$RetrofitModule</ID>
-    <ID>TooManyFunctions:SearchFragment.kt$SearchFragment : TimeoutFragmentOnQueryTextListenerOnSuggestionListenerFusedAPIInterface</ID>
+    <ID>TooManyFunctions:SearchFragment.kt$SearchFragment : TimeoutFragmentOnQueryTextListenerOnSuggestionListenerApplicationInstaller</ID>
     <ID>TooManyFunctions:TimeoutFragment.kt$TimeoutFragment : Fragment</ID>
-    <ID>TooManyFunctions:UpdatesFragment.kt$UpdatesFragment : TimeoutFragmentFusedAPIInterface</ID>
+    <ID>TooManyFunctions:UpdatesFragment.kt$UpdatesFragment : TimeoutFragmentApplicationInstaller</ID>
     <ID>TooManyFunctions:UpdatesManagerImpl.kt$UpdatesManagerImpl</ID>
     <ID>TooManyFunctions:UpdatesWorker.kt$UpdatesWorker : CoroutineWorker</ID>
-    <ID>UnusedParameter:ApplicationFragment.kt$ApplicationFragment$it: ImageView</ID>
-    <ID>UnusedParameter:FusedAPIRepository.kt$FusedAPIRepository$authData: AuthData</ID>
-    <ID>UnusedParameter:FusedApiImpl.kt$FusedApiImpl$source: String = CleanApkRetrofit.APP_SOURCE_FOSS</ID>
     <ID>UnusedParameter:SearchViewModel.kt$SearchViewModel$lifecycleOwner: LifecycleOwner</ID>
-    <ID>UnusedPrivateMember:HomeFragment.kt$HomeFragment$private fun onTosAccepted(isTosAccepted: Boolean)</ID>
-    <ID>UnusedPrivateProperty:AppInfoFetchViewModel.kt$AppInfoFetchViewModel$val authData = gson.fromJson(dataStoreModule.getAuthDataSync(), AuthData::class.java)</ID>
-    <ID>UnusedPrivateProperty:GPlayHttpClient.kt$GPlayHttpClient.Companion$private const val SEARCH = "search"</ID>
-    <ID>UnusedPrivateProperty:MainActivityViewModel.kt$MainActivityViewModel.Companion$private const val TAG = "MainActivityViewModel"</ID>
-    <ID>UnusedPrivateProperty:UpdatesFragment.kt$UpdatesFragment$val interval = updatesViewModel.getUpdateInterval()</ID>
   </CurrentIssues>
 </SmellBaseline>

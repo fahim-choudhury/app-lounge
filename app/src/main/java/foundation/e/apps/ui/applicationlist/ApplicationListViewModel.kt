@@ -25,8 +25,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
-import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.ApplicationRepository
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
@@ -37,10 +37,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ApplicationListViewModel @Inject constructor(
-    private val fusedAPIRepository: FusedAPIRepository
+    private val applicationRepository: ApplicationRepository
 ) : LoadingViewModel() {
 
-    val appListLiveData: MutableLiveData<ResultSupreme<List<FusedApp>>?> = MutableLiveData()
+    val appListLiveData: MutableLiveData<ResultSupreme<List<Application>>?> = MutableLiveData()
 
     private var isLoading = false
 
@@ -87,7 +87,7 @@ class ApplicationListViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             isLoading = true
-            val result = fusedAPIRepository.getAppsListBasedOnCategory(
+            val result = applicationRepository.getAppsListBasedOnCategory(
                 authData,
                 category,
                 nextPageUrl,
@@ -111,7 +111,7 @@ class ApplicationListViewModel @Inject constructor(
 
     private fun getException(
         authData: AuthData,
-        result: ResultSupreme<Pair<List<FusedApp>, String>>
+        result: ResultSupreme<Pair<List<Application>, String>>
     ) = if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank()) {
         GPlayException(
             result.isTimeout(),
@@ -132,10 +132,10 @@ class ApplicationListViewModel @Inject constructor(
      * @return returns true if there is changes in data, otherwise false
      */
     fun isFusedAppUpdated(
-        newFusedApps: List<FusedApp>,
-        oldFusedApps: List<FusedApp>
+        newApplications: List<Application>,
+        oldApplications: List<Application>
     ): Boolean {
-        return fusedAPIRepository.isAnyFusedAppUpdated(newFusedApps, oldFusedApps)
+        return applicationRepository.isAnyFusedAppUpdated(newApplications, oldApplications)
     }
 
     fun loadMore(gPlayAuth: AuthObject?, category: String) {
@@ -151,7 +151,7 @@ class ApplicationListViewModel @Inject constructor(
             }
 
             isLoading = true
-            val result = fusedAPIRepository.getAppsListBasedOnCategory(
+            val result = applicationRepository.getAppsListBasedOnCategory(
                 authData,
                 category,
                 nextPageUrl,
@@ -169,12 +169,12 @@ class ApplicationListViewModel @Inject constructor(
         }
     }
 
-    private fun appendAppList(it: Pair<List<FusedApp>, String>): List<FusedApp>? {
+    private fun appendAppList(it: Pair<List<Application>, String>): List<Application>? {
         val currentAppList = appListLiveData.value?.data?.toMutableList()
         currentAppList?.removeIf { item -> item.isPlaceHolder }
         return currentAppList?.plus(it.first)
     }
 
-    fun hasAnyAppInstallStatusChanged(currentList: List<FusedApp>) =
-        fusedAPIRepository.isAnyAppInstallStatusChanged(currentList)
+    fun hasAnyAppInstallStatusChanged(currentList: List<Application>) =
+        applicationRepository.isAnyAppInstallStatusChanged(currentList)
 }
