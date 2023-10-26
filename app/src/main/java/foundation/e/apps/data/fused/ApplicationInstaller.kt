@@ -18,11 +18,11 @@
 
 package foundation.e.apps.data.fused
 
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 
 interface ApplicationInstaller {
 
-    fun installApplication(app: FusedApp)
+    fun installApplication(app: Application)
 
-    fun cancelDownload(app: FusedApp)
+    fun cancelDownload(app: Application)
 }

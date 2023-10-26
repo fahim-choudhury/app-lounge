@@ -18,9 +18,9 @@
 
 package foundation.e.apps.data.exodus.repositories
 
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 
 interface PrivacyScoreRepository {
 
-    fun calculatePrivacyScore(fusedApp: FusedApp): Int
+    fun calculatePrivacyScore(application: Application): Int
 }

@@ -18,10 +18,10 @@
 
 package foundation.e.apps.data.cleanapk.data.search
 
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 
 data class Search(
-    val apps: List<FusedApp> = emptyList(),
+    val apps: List<Application> = emptyList(),
     val numberOfResults: Int = -1,
     val pages: Int = -1,
     val success: Boolean = false

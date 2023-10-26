@@ -28,35 +28,35 @@ import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.fused.data.FusedCategory
-import foundation.e.apps.data.fused.data.FusedHome
+import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.fused.data.Category
+import foundation.e.apps.data.fused.data.Home
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi) {
+class ApplicationRepository @Inject constructor(private val applicationAPIImpl: ApplicationApi) {
 
-    suspend fun getHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<FusedHome>>> {
-        return fusedAPIImpl.getHomeScreenData(authData)
+    suspend fun getHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<Home>>> {
+        return applicationAPIImpl.getHomeScreenData(authData)
     }
 
     fun getApplicationCategoryPreference(): List<String> {
-        return fusedAPIImpl.getApplicationCategoryPreference()
+        return applicationAPIImpl.getApplicationCategoryPreference()
     }
 
     suspend fun getApplicationDetails(
         packageNameList: List<String>,
         authData: AuthData,
         origin: Origin
-    ): Pair<List<FusedApp>, ResultStatus> {
-        return fusedAPIImpl.getApplicationDetails(packageNameList, authData, origin)
+    ): Pair<List<Application>, ResultStatus> {
+        return applicationAPIImpl.getApplicationDetails(packageNameList, authData, origin)
     }
 
-    suspend fun getAppFilterLevel(fusedApp: FusedApp, authData: AuthData?): FilterLevel {
-        return fusedAPIImpl.getAppFilterLevel(fusedApp, authData)
+    suspend fun getAppFilterLevel(application: Application, authData: AuthData?): FilterLevel {
+        return applicationAPIImpl.getAppFilterLevel(application, authData)
     }
 
     suspend fun getApplicationDetails(
@@ -64,26 +64,26 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi)
         packageName: String,
         authData: AuthData,
         origin: Origin
-    ): Pair<FusedApp, ResultStatus> {
-        return fusedAPIImpl.getApplicationDetails(id, packageName, authData, origin)
+    ): Pair<Application, ResultStatus> {
+        return applicationAPIImpl.getApplicationDetails(id, packageName, authData, origin)
     }
 
-    suspend fun getCleanapkAppDetails(packageName: String): Pair<FusedApp, ResultStatus> {
-        return fusedAPIImpl.getCleanapkAppDetails(packageName)
+    suspend fun getCleanapkAppDetails(packageName: String): Pair<Application, ResultStatus> {
+        return applicationAPIImpl.getCleanapkAppDetails(packageName)
     }
 
     suspend fun updateFusedDownloadWithDownloadingInfo(
         origin: Origin,
         fusedDownload: FusedDownload
     ) {
-        fusedAPIImpl.updateFusedDownloadWithDownloadingInfo(
+        applicationAPIImpl.updateFusedDownloadWithDownloadingInfo(
             origin,
             fusedDownload
         )
     }
 
     suspend fun getOSSDownloadInfo(id: String, version: String? = null) =
-        fusedAPIImpl.getOSSDownloadInfo(id, version)
+        applicationAPIImpl.getOSSDownloadInfo(id, version)
 
     suspend fun getOnDemandModule(
         packageName: String,
@@ -91,31 +91,31 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi)
         versionCode: Int,
         offerType: Int
     ): String? {
-        return fusedAPIImpl.getOnDemandModule(packageName, moduleName, versionCode, offerType)
+        return applicationAPIImpl.getOnDemandModule(packageName, moduleName, versionCode, offerType)
     }
 
     suspend fun getCategoriesList(
         type: CategoryType,
-    ): Triple<List<FusedCategory>, String, ResultStatus> {
-        return fusedAPIImpl.getCategoriesList(type)
+    ): Triple<List<Category>, String, ResultStatus> {
+        return applicationAPIImpl.getCategoriesList(type)
     }
 
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
-        return fusedAPIImpl.getSearchSuggestions(query)
+        return applicationAPIImpl.getSearchSuggestions(query)
     }
 
     suspend fun getCleanApkSearchResults(
         query: String,
         authData: AuthData
-    ): ResultSupreme<Pair<List<FusedApp>, Boolean>> {
-        return fusedAPIImpl.getCleanApkSearchResults(query, authData)
+    ): ResultSupreme<Pair<List<Application>, Boolean>> {
+        return applicationAPIImpl.getCleanApkSearchResults(query, authData)
     }
 
     suspend fun getGplaySearchResults(
         query: String,
         nextPageSubBundle: Set<SearchBundle.SubBundle>?
     ): GplaySearchResult {
-        return fusedAPIImpl.getGplaySearchResult(query, nextPageSubBundle)
+        return applicationAPIImpl.getGplaySearchResult(query, nextPageSubBundle)
     }
 
     suspend fun getAppsListBasedOnCategory(
@@ -123,30 +123,30 @@ class FusedAPIRepository @Inject constructor(private val fusedAPIImpl: FusedApi)
         category: String,
         pageUrl: String?,
         source: Source
-    ): ResultSupreme<Pair<List<FusedApp>, String>> {
+    ): ResultSupreme<Pair<List<Application>, String>> {
         return when (source) {
-            Source.OPEN -> fusedAPIImpl.getOpenSourceApps(category)
-            Source.PWA -> fusedAPIImpl.getPWAApps(category)
-            else -> fusedAPIImpl.getGplayAppsByCategory(authData, category, pageUrl)
+            Source.OPEN -> applicationAPIImpl.getOpenSourceApps(category)
+            Source.PWA -> applicationAPIImpl.getPWAApps(category)
+            else -> applicationAPIImpl.getGplayAppsByCategory(authData, category, pageUrl)
         }
     }
 
-    fun getFusedAppInstallationStatus(fusedApp: FusedApp): Status {
-        return fusedAPIImpl.getFusedAppInstallationStatus(fusedApp)
+    fun getFusedAppInstallationStatus(application: Application): Status {
+        return applicationAPIImpl.getFusedAppInstallationStatus(application)
     }
 
     fun isHomeDataUpdated(
-        newHomeData: List<FusedHome>,
-        oldHomeData: List<FusedHome>
-    ) = fusedAPIImpl.isHomeDataUpdated(newHomeData, oldHomeData)
+        newHomeData: List<Home>,
+        oldHomeData: List<Home>
+    ) = applicationAPIImpl.isHomeDataUpdated(newHomeData, oldHomeData)
 
     fun isAnyFusedAppUpdated(
-        newFusedApps: List<FusedApp>,
-        oldFusedApps: List<FusedApp>
-    ) = fusedAPIImpl.isAnyFusedAppUpdated(newFusedApps, oldFusedApps)
+        newApplications: List<Application>,
+        oldApplications: List<Application>
+    ) = applicationAPIImpl.isAnyFusedAppUpdated(newApplications, oldApplications)
 
-    fun isAnyAppInstallStatusChanged(currentList: List<FusedApp>) =
-        fusedAPIImpl.isAnyAppInstallStatusChanged(currentList)
+    fun isAnyAppInstallStatusChanged(currentList: List<Application>) =
+        applicationAPIImpl.isAnyAppInstallStatusChanged(currentList)
 
-    fun isOpenSourceSelected() = fusedAPIImpl.isOpenSourceSelected()
+    fun isOpenSourceSelected() = applicationAPIImpl.isOpenSourceSelected()
 }

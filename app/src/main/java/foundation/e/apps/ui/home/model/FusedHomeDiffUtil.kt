@@ -18,14 +18,14 @@
 package foundation.e.apps.ui.home.model
 
 import androidx.recyclerview.widget.DiffUtil
-import foundation.e.apps.data.fused.data.FusedHome
+import foundation.e.apps.data.fused.data.Home
 
-class FusedHomeDiffUtil : DiffUtil.ItemCallback<FusedHome>() {
-    override fun areItemsTheSame(oldItem: FusedHome, newItem: FusedHome): Boolean {
+class FusedHomeDiffUtil : DiffUtil.ItemCallback<Home>() {
+    override fun areItemsTheSame(oldItem: Home, newItem: Home): Boolean {
         return oldItem.list == newItem.list
     }
 
-    override fun areContentsTheSame(oldItem: FusedHome, newItem: FusedHome): Boolean {
+    override fun areContentsTheSame(oldItem: Home, newItem: Home): Boolean {
         return oldItem.title.contentEquals(newItem.title) &&
             oldItem.list == newItem.list
     }

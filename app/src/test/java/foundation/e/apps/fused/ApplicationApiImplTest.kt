@@ -34,9 +34,9 @@ import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.FusedApiImpl
-import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.fused.data.FusedHome
+import foundation.e.apps.data.fused.ApplicationApiImpl
+import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.fused.data.Home
 import foundation.e.apps.data.fused.utils.CategoryType
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PWAManagerModule
@@ -46,7 +46,6 @@ import foundation.e.apps.util.getOrAwaitValue
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import okhttp3.ResponseBody
@@ -69,7 +68,7 @@ import org.mockito.kotlin.eq
 import retrofit2.Response
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class FusedApiImplTest {
+class ApplicationApiImplTest {
 
     // Run tasks synchronously
     @Rule
@@ -81,7 +80,7 @@ class FusedApiImplTest {
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
-    private lateinit var fusedAPIImpl: FusedApiImpl
+    private lateinit var fusedAPIImpl: ApplicationApiImpl
 
     @Mock
     private lateinit var pwaManagerModule: PWAManagerModule
@@ -114,7 +113,7 @@ class FusedApiImplTest {
         MockitoAnnotations.openMocks(this)
         formatterMocked = Mockito.mockStatic(Formatter::class.java)
         preferenceManagerModule = FakePreferenceModule(context)
-        fusedAPIImpl = FusedApiImpl(
+        fusedAPIImpl = ApplicationApiImpl(
             pkgManagerModule,
             pwaManagerModule,
             preferenceManagerModule,
@@ -132,20 +131,20 @@ class FusedApiImplTest {
 
     @Test
     fun `is any app updated when new list is empty`() {
-        val oldAppList = mutableListOf<FusedApp>(
-            FusedApp(
+        val oldAppList = mutableListOf<Application>(
+            Application(
                 _id = "111",
                 status = Status.UNAVAILABLE,
                 name = "Demo One",
                 package_name = "foundation.e.demoone"
             ),
-            FusedApp(
+            Application(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo"
             ),
-            FusedApp(
+            Application(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -153,7 +152,7 @@ class FusedApiImplTest {
             )
         )
 
-        val newAppList = mutableListOf<FusedApp>()
+        val newAppList = mutableListOf<Application>()
         val isFusedAppUpdated = fusedAPIImpl.isAnyFusedAppUpdated(newAppList, oldAppList)
         assertTrue("isAnyAppUpdated", isFusedAppUpdated)
     }
@@ -166,20 +165,20 @@ class FusedApiImplTest {
 
     @Test
     fun `is any app updated when any app is uninstalled`() {
-        val oldAppList = mutableListOf<FusedApp>(
-            FusedApp(
+        val oldAppList = mutableListOf<Application>(
+            Application(
                 _id = "111",
                 status = Status.UNAVAILABLE,
                 name = "Demo One",
                 package_name = "foundation.e.demoone"
             ),
-            FusedApp(
+            Application(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo"
             ),
-            FusedApp(
+            Application(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -187,20 +186,20 @@ class FusedApiImplTest {
             )
         )
 
-        val newAppList = mutableListOf<FusedApp>(
-            FusedApp(
+        val newAppList = mutableListOf<Application>(
+            Application(
                 _id = "111",
                 status = Status.UNAVAILABLE,
                 name = "Demo One",
                 package_name = "foundation.e.demoone"
             ),
-            FusedApp(
+            Application(
                 _id = "112",
                 status = Status.UNAVAILABLE,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo"
             ),
-            FusedApp(
+            Application(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -214,22 +213,22 @@ class FusedApiImplTest {
 
     @Test
     fun `has any app install status changed when changed`() {
-        val oldAppList = mutableListOf<FusedApp>(
-            FusedApp(
+        val oldAppList = mutableListOf<Application>(
+            Application(
                 _id = "111",
                 status = Status.UNAVAILABLE,
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
             ),
-            FusedApp(
+            Application(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
             ),
-            FusedApp(
+            Application(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -257,22 +256,22 @@ class FusedApiImplTest {
 
     @Test
     fun `has any app install status changed when not changed`() {
-        val oldAppList = mutableListOf<FusedApp>(
-            FusedApp(
+        val oldAppList = mutableListOf<Application>(
+            Application(
                 _id = "111",
                 status = Status.UNAVAILABLE,
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
             ),
-            FusedApp(
+            Application(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
             ),
-            FusedApp(
+            Application(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -300,22 +299,22 @@ class FusedApiImplTest {
 
     @Test
     fun `has any app install status changed when installation_issue`() {
-        val oldAppList = mutableListOf<FusedApp>(
-            FusedApp(
+        val oldAppList = mutableListOf<Application>(
+            Application(
                 _id = "111",
                 status = Status.INSTALLATION_ISSUE,
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
             ),
-            FusedApp(
+            Application(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
             ),
-            FusedApp(
+            Application(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -343,22 +342,22 @@ class FusedApiImplTest {
 
     @Test
     fun isHomeDataUpdated() {
-        val oldAppList = mutableListOf<FusedApp>(
-            FusedApp(
+        val oldAppList = mutableListOf<Application>(
+            Application(
                 _id = "111",
                 status = Status.INSTALLATION_ISSUE,
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
             ),
-            FusedApp(
+            Application(
                 _id = "112",
                 status = Status.INSTALLED,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
             ),
-            FusedApp(
+            Application(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -367,22 +366,22 @@ class FusedApiImplTest {
             )
         )
 
-        val newAppList = mutableListOf<FusedApp>(
-            FusedApp(
+        val newAppList = mutableListOf<Application>(
+            Application(
                 _id = "111",
                 status = Status.INSTALLATION_ISSUE,
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
             ),
-            FusedApp(
+            Application(
                 _id = "112",
                 status = Status.UNAVAILABLE,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
             ),
-            FusedApp(
+            Application(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -392,13 +391,13 @@ class FusedApiImplTest {
         )
 
         val oldHomeData =
-            listOf(FusedHome("Top Free Apps", oldAppList), FusedHome("Top Free Games", oldAppList))
+            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", oldAppList))
         var newHomeData =
-            listOf(FusedHome("Top Free Apps", oldAppList), FusedHome("Top Free Games", oldAppList))
+            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", oldAppList))
         var isHomeDataUpdated = fusedAPIImpl.isHomeDataUpdated(newHomeData, oldHomeData)
         assertFalse("isHomeDataUpdated/NO", isHomeDataUpdated)
         newHomeData =
-            listOf(FusedHome("Top Free Apps", oldAppList), FusedHome("Top Free Games", newAppList))
+            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", newAppList))
 
         isHomeDataUpdated = fusedAPIImpl.isHomeDataUpdated(newHomeData, oldHomeData)
         assertTrue("isHomeDataUpdated/YES", isHomeDataUpdated)
@@ -406,21 +405,21 @@ class FusedApiImplTest {
 
     @Test
     fun isHomeDataUpdatedWhenBothAreEmpty() {
-        val oldHomeData = listOf<FusedHome>()
-        val newHomeData = listOf<FusedHome>()
+        val oldHomeData = listOf<Home>()
+        val newHomeData = listOf<Home>()
         val isHomeDataUpdated = fusedAPIImpl.isHomeDataUpdated(oldHomeData, newHomeData)
         assertFalse("isHomeDataUpdated", isHomeDataUpdated)
     }
 
     @Test
     fun `is home data updated when fusedapp list size is not same`() {
-        val oldAppList = mutableListOf(FusedApp(), FusedApp(), FusedApp())
-        val newAppList = mutableListOf(FusedApp(), FusedApp())
+        val oldAppList = mutableListOf(Application(), Application(), Application())
+        val newAppList = mutableListOf(Application(), Application())
 
         val oldHomeData =
-            listOf(FusedHome("Top Free Apps", oldAppList), FusedHome("Top Free Games", oldAppList))
+            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", oldAppList))
         var newHomeData =
-            listOf(FusedHome("Top Free Apps", oldAppList), FusedHome("Top Free Games", newAppList))
+            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", newAppList))
 
         val isHomeDataUpdated = fusedAPIImpl.isHomeDataUpdated(newHomeData, oldHomeData)
         assertTrue("isHomeDataUpdated/YES", isHomeDataUpdated)
@@ -428,7 +427,7 @@ class FusedApiImplTest {
 
     @Test
     fun getFusedAppInstallationStatusWhenPWA() {
-        val fusedApp = FusedApp(
+        val application = Application(
             _id = "113",
             status = Status.UNAVAILABLE,
             name = "Demo Three",
@@ -437,15 +436,15 @@ class FusedApiImplTest {
             is_pwa = true
         )
 
-        Mockito.`when`(pwaManagerModule.getPwaStatus(fusedApp)).thenReturn(fusedApp.status)
+        Mockito.`when`(pwaManagerModule.getPwaStatus(application)).thenReturn(application.status)
 
-        val installationStatus = fusedAPIImpl.getFusedAppInstallationStatus(fusedApp)
-        assertEquals("getFusedAppInstallationStatusWhenPWA", fusedApp.status, installationStatus)
+        val installationStatus = fusedAPIImpl.getFusedAppInstallationStatus(application)
+        assertEquals("getFusedAppInstallationStatusWhenPWA", application.status, installationStatus)
     }
 
     @Test
     fun getFusedAppInstallationStatus() {
-        val fusedApp = FusedApp(
+        val application = Application(
             _id = "113",
             name = "Demo Three",
             package_name = "foundation.e.demothree",
@@ -454,24 +453,24 @@ class FusedApiImplTest {
 
         Mockito.`when`(
             pkgManagerModule.getPackageStatus(
-                fusedApp.package_name, fusedApp.latest_version_code
+                application.package_name, application.latest_version_code
             )
         ).thenReturn(Status.INSTALLED)
 
-        val installationStatus = fusedAPIImpl.getFusedAppInstallationStatus(fusedApp)
+        val installationStatus = fusedAPIImpl.getFusedAppInstallationStatus(application)
         assertEquals("getFusedAppInstallationStatusWhenPWA", Status.INSTALLED, installationStatus)
     }
 
     @Test
     fun `getAppFilterLevel when package name is empty`() = runTest {
-        val fusedApp = FusedApp(
+        val application = Application(
             _id = "113",
             name = "Demo Three",
             package_name = "",
             latest_version_code = 123,
         )
 
-        val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, AUTH_DATA)
+        val filterLevel = fusedAPIImpl.getAppFilterLevel(application, AUTH_DATA)
         assertEquals("getAppFilterLevel", FilterLevel.UNKNOWN, filterLevel)
     }
 
@@ -483,7 +482,7 @@ class FusedApiImplTest {
         assertEquals("getAppFilterLevel", FilterLevel.NONE, filterLevel)
     }
 
-    private fun getFusedAppForFilterLevelTest(isFree: Boolean = true) = FusedApp(
+    private fun getFusedAppForFilterLevelTest(isFree: Boolean = true) = Application(
         _id = "113",
         name = "Demo Three",
         package_name = "foundation.e.demothree",
@@ -703,22 +702,22 @@ class FusedApiImplTest {
     @Ignore("Dependencies are not mockable")
     @Test
     fun `getSearchResult When all sources are selected`() = runTest {
-        val appList = mutableListOf<FusedApp>(
-            FusedApp(
+        val appList = mutableListOf<Application>(
+            Application(
                 _id = "111",
                 status = Status.UNAVAILABLE,
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
             ),
-            FusedApp(
+            Application(
                 _id = "112",
                 status = Status.UNAVAILABLE,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
             ),
-            FusedApp(
+            Application(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",
@@ -795,22 +794,22 @@ class FusedApiImplTest {
     @Ignore("Dependencies are not mockable")
     @Test
     fun `getSearchResult When getApplicationDetailsThrowsException`() = runTest {
-        val appList = mutableListOf<FusedApp>(
-            FusedApp(
+        val appList = mutableListOf<Application>(
+            Application(
                 _id = "111",
                 status = Status.UNAVAILABLE,
                 name = "Demo One",
                 package_name = "foundation.e.demoone",
                 latest_version_code = 123
             ),
-            FusedApp(
+            Application(
                 _id = "112",
                 status = Status.UNAVAILABLE,
                 name = "Demo Two",
                 package_name = "foundation.e.demotwo",
                 latest_version_code = 123
             ),
-            FusedApp(
+            Application(
                 _id = "113",
                 status = Status.UNAVAILABLE,
                 name = "Demo Three",

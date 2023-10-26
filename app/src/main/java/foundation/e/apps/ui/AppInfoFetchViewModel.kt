@@ -7,7 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import javax.inject.Inject
 import javax.inject.Named
@@ -23,12 +23,12 @@ class AppInfoFetchViewModel @Inject constructor(
     private val blockedAppRepository: BlockedAppRepository,
 ) : ViewModel() {
 
-    fun getAuthorName(fusedApp: FusedApp) = liveData {
-        val authorName = fdroidRepository.getAuthorName(fusedApp)
+    fun getAuthorName(application: Application) = liveData {
+        val authorName = fdroidRepository.getAuthorName(application)
         emit(authorName)
     }
 
-    fun isAppPurchased(app: FusedApp): LiveData<Boolean> {
+    fun isAppPurchased(app: Application): LiveData<Boolean> {
         return liveData {
             try {
                 gplayRepository.getDownloadInfo(
@@ -45,13 +45,13 @@ class AppInfoFetchViewModel @Inject constructor(
         }
     }
 
-    fun isAppInBlockedList(fusedApp: FusedApp): Boolean {
-        return blockedAppRepository.getBlockedAppPackages().contains(fusedApp.package_name)
+    fun isAppInBlockedList(application: Application): Boolean {
+        return blockedAppRepository.getBlockedAppPackages().contains(application.package_name)
     }
 
-    fun isAppFaulty(fusedApp: FusedApp) = liveData<Pair<Boolean, String>> {
+    fun isAppFaulty(application: Application) = liveData<Pair<Boolean, String>> {
         val faultyApp = faultyAppRepository.getAllFaultyApps()
-            .find { faultyApp -> faultyApp.packageName.contentEquals(fusedApp.package_name) }
+            .find { faultyApp -> faultyApp.packageName.contentEquals(application.package_name) }
         val faultyAppResult = Pair(faultyApp != null, faultyApp?.error ?: "")
         emit(faultyAppResult)
     }

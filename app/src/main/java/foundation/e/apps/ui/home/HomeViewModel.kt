@@ -24,9 +24,9 @@ import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
-import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.fused.data.FusedHome
+import foundation.e.apps.data.fused.ApplicationRepository
+import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.fused.data.Home
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
@@ -36,7 +36,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val fusedAPIRepository: FusedAPIRepository,
+    private val applicationRepository: ApplicationRepository,
 ) : LoadingViewModel() {
 
     /*
@@ -45,7 +45,7 @@ class HomeViewModel @Inject constructor(
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5404
      */
-    var homeScreenData: MutableLiveData<ResultSupreme<List<FusedHome>>> = MutableLiveData()
+    var homeScreenData: MutableLiveData<ResultSupreme<List<Home>>> = MutableLiveData()
 
     fun loadData(
         authObjectList: List<AuthObject>,
@@ -71,7 +71,7 @@ class HomeViewModel @Inject constructor(
         lifecycleOwner: LifecycleOwner,
     ) {
         viewModelScope.launch {
-            fusedAPIRepository.getHomeScreenData(authData).observe(lifecycleOwner) {
+            applicationRepository.getHomeScreenData(authData).observe(lifecycleOwner) {
                 homeScreenData.postValue(it)
 
                 if (it.isSuccess()) return@observe
@@ -94,17 +94,17 @@ class HomeViewModel @Inject constructor(
     }
 
     fun isHomeDataUpdated(
-        newHomeData: List<FusedHome>,
-        oldHomeData: List<FusedHome>
-    ) = fusedAPIRepository.isHomeDataUpdated(newHomeData, oldHomeData)
+        newHomeData: List<Home>,
+        oldHomeData: List<Home>
+    ) = applicationRepository.isHomeDataUpdated(newHomeData, oldHomeData)
 
-    fun isAnyAppInstallStatusChanged(currentList: List<FusedHome>?): Boolean {
+    fun isAnyAppInstallStatusChanged(currentList: List<Home>?): Boolean {
         if (currentList == null) {
             return false
         }
 
-        val appList = mutableListOf<FusedApp>()
+        val appList = mutableListOf<Application>()
         currentList.forEach { appList.addAll(it.list) }
-        return fusedAPIRepository.isAnyAppInstallStatusChanged(appList)
+        return applicationRepository.isAnyAppInstallStatusChanged(appList)
     }
 }

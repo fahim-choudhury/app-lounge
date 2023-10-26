@@ -37,7 +37,7 @@ import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.fused.ApplicationInstaller
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.databinding.HomeChildListItemBinding
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.MainActivityViewModel
@@ -50,8 +50,8 @@ class HomeChildRVAdapter(
     private val appInfoFetchViewModel: AppInfoFetchViewModel,
     private val mainActivityViewModel: MainActivityViewModel,
     private var lifecycleOwner: LifecycleOwner?,
-    private var paidAppHandler: ((FusedApp) -> Unit)? = null
-) : ListAdapter<FusedApp, HomeChildRVAdapter.ViewHolder>(HomeChildFusedAppDiffUtil()) {
+    private var paidAppHandler: ((Application) -> Unit)? = null
+) : ListAdapter<Application, HomeChildRVAdapter.ViewHolder>(HomeChildFusedAppDiffUtil()) {
 
     private val shimmer = Shimmer.ColorHighlightBuilder()
         .setDuration(500)
@@ -129,7 +129,7 @@ class HomeChildRVAdapter(
     }
 
     private fun HomeChildListItemBinding.handleInstallationIssue(
-        homeApp: FusedApp
+        homeApp: Application
     ) {
         installButton.apply {
             enableInstallButton()
@@ -167,7 +167,7 @@ class HomeChildRVAdapter(
     }
 
     private fun HomeChildListItemBinding.handleQueued(
-        homeApp: FusedApp
+        homeApp: Application
     ) {
         installButton.apply {
             enableInstallButton()
@@ -188,7 +188,7 @@ class HomeChildRVAdapter(
     }
 
     private fun HomeChildListItemBinding.handleUnavailable(
-        homeApp: FusedApp,
+        homeApp: Application,
         holder: ViewHolder,
     ) {
         installButton.apply {
@@ -209,7 +209,7 @@ class HomeChildRVAdapter(
     }
 
     private fun HomeChildListItemBinding.handleUpdatable(
-        homeApp: FusedApp
+        homeApp: Application
     ) {
         installButton.apply {
             enableInstallButton(Status.UPDATABLE)
@@ -227,7 +227,7 @@ class HomeChildRVAdapter(
     }
 
     private fun HomeChildListItemBinding.handleInstalled(
-        homeApp: FusedApp
+        homeApp: Application
     ) {
         installButton.apply {
             enableInstallButton(Status.INSTALLED)
@@ -248,7 +248,7 @@ class HomeChildRVAdapter(
     }
 
     private fun updateUIByPaymentType(
-        homeApp: FusedApp,
+        homeApp: Application,
         materialButton: MaterialButton,
         homeChildListItemBinding: HomeChildListItemBinding
     ) {
@@ -278,15 +278,15 @@ class HomeChildRVAdapter(
         }
     }
 
-    fun setData(newList: List<FusedApp>) {
+    fun setData(newList: List<Application>) {
         this.submitList(newList.map { it.copy() })
     }
 
-    private fun installApplication(homeApp: FusedApp) {
+    private fun installApplication(homeApp: Application) {
         applicationInstaller?.installApplication(homeApp)
     }
 
-    private fun cancelDownload(homeApp: FusedApp) {
+    private fun cancelDownload(homeApp: Application) {
         applicationInstaller?.cancelDownload(homeApp)
     }
 

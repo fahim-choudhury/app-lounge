@@ -19,15 +19,15 @@
 package foundation.e.apps.data.cleanapk.data.home
 
 import foundation.e.apps.data.enums.Origin
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 
 data class Home(
-    val top_updated_apps: List<FusedApp> = emptyList(),
-    val top_updated_games: List<FusedApp> = emptyList(),
-    val popular_apps: List<FusedApp> = emptyList(),
-    val popular_games: List<FusedApp> = emptyList(),
-    val popular_apps_in_last_24_hours: List<FusedApp> = emptyList(),
-    val popular_games_in_last_24_hours: List<FusedApp> = emptyList(),
-    val discover: List<FusedApp> = emptyList(),
+    val top_updated_apps: List<Application> = emptyList(),
+    val top_updated_games: List<Application> = emptyList(),
+    val popular_apps: List<Application> = emptyList(),
+    val popular_games: List<Application> = emptyList(),
+    val popular_apps_in_last_24_hours: List<Application> = emptyList(),
+    val popular_games_in_last_24_hours: List<Application> = emptyList(),
+    val discover: List<Application> = emptyList(),
     var origin: Origin = Origin.CLEANAPK // Origin
 )

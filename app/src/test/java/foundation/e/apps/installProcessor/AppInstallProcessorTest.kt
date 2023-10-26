@@ -23,7 +23,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FdroidRepository
-import foundation.e.apps.data.fused.FusedAPIRepository
+import foundation.e.apps.data.fused.ApplicationRepository
 import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
 import foundation.e.apps.data.fusedDownload.IFusedManager
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
@@ -71,7 +71,7 @@ class AppInstallProcessorTest {
     private lateinit var dataStoreManager: DataStoreManager
 
     @Mock
-    private lateinit var fusedAPIRepository: FusedAPIRepository
+    private lateinit var applicationRepository: ApplicationRepository
 
     private lateinit var appInstallProcessor: AppInstallProcessor
 
@@ -90,7 +90,7 @@ class AppInstallProcessorTest {
             context,
             fusedDownloadRepository,
             fakeFusedManagerRepository,
-            fusedAPIRepository,
+            applicationRepository,
             dataStoreManager,
             storageNotificationManager
         )

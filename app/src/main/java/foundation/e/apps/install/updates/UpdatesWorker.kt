@@ -19,7 +19,7 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.data.updates.UpdatesManagerRepository
@@ -104,7 +104,7 @@ class UpdatesWorker @AssistedInject constructor(
     private suspend fun checkForUpdates() {
         loadSettings()
         val isConnectedToUnMeteredNetwork = isConnectedToUnMeteredNetwork(applicationContext)
-        val appsNeededToUpdate = mutableListOf<FusedApp>()
+        val appsNeededToUpdate = mutableListOf<Application>()
         val user = getUser()
         val authData = authenticatorRepository.getValidatedAuthData().data
         val resultStatus: ResultStatus
@@ -180,7 +180,7 @@ class UpdatesWorker @AssistedInject constructor(
 
     private suspend fun triggerUpdateProcessOnSettings(
         isConnectedToUnmeteredNetwork: Boolean,
-        appsNeededToUpdate: List<FusedApp>,
+        appsNeededToUpdate: List<Application>,
         authData: AuthData
     ) {
         if ((!isAutoUpdate || automaticInstallEnabled) &&
@@ -210,7 +210,7 @@ class UpdatesWorker @AssistedInject constructor(
     }
 
     private suspend fun startUpdateProcess(
-        appsNeededToUpdate: List<FusedApp>,
+        appsNeededToUpdate: List<Application>,
         authData: AuthData
     ) {
         appsNeededToUpdate.forEach { fusedApp ->
