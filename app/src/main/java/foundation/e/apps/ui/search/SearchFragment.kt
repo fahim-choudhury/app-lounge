@@ -122,6 +122,7 @@ class SearchFragment :
                 showData()
                 return@observe
             }
+
             if (currentQuery.isNotEmpty()) searchText = currentQuery
 
             val applicationListRVAdapter = recyclerView?.adapter as ApplicationListRVAdapter
