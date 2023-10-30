@@ -18,7 +18,7 @@
 package foundation.e.apps.ui.applicationlist
 
 import androidx.recyclerview.widget.DiffUtil
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 
 class ApplicationDiffUtil : DiffUtil.ItemCallback<Application>() {

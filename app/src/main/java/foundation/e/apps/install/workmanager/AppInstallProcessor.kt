@@ -26,9 +26,9 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
-import foundation.e.apps.data.fused.ApplicationRepository
-import foundation.e.apps.data.fused.UpdatesDao
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.application.UpdatesDao
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload

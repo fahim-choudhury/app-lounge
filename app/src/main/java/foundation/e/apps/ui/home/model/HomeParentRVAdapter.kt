@@ -25,9 +25,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import foundation.e.apps.data.fused.ApplicationInstaller
-import foundation.e.apps.data.fused.data.Application
-import foundation.e.apps.data.fused.data.Home
+import foundation.e.apps.data.application.ApplicationInstaller
+import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.databinding.HomeParentListItemBinding
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.MainActivityViewModel

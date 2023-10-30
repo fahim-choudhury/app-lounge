@@ -18,7 +18,7 @@
 
 package foundation.e.apps.data.cleanapk.data.search
 
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.data.Application
 
 data class Search(
     val apps: List<Application> = emptyList(),

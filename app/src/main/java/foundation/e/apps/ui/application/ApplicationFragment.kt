@@ -53,7 +53,7 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentApplicationBinding

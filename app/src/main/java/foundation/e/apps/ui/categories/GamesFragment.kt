@@ -26,7 +26,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
-import foundation.e.apps.data.fused.utils.CategoryType
+import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentGamesBinding

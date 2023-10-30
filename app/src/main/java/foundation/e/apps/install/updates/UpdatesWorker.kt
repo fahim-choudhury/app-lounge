@@ -19,7 +19,7 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.data.updates.UpdatesManagerRepository

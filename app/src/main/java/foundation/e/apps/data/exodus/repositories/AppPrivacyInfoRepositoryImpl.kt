@@ -25,7 +25,7 @@ import foundation.e.apps.data.exodus.Report
 import foundation.e.apps.data.exodus.Tracker
 import foundation.e.apps.data.exodus.TrackerDao
 import foundation.e.apps.data.exodus.models.AppPrivacyInfo
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.getResult
 import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.utils.getFormattedString

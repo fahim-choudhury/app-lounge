@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData
 import foundation.e.apps.OpenForTesting
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FdroidRepository
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.workmanager.InstallWorkManager

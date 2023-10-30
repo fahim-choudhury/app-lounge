@@ -13,7 +13,7 @@ import androidx.core.graphics.drawable.IconCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.OpenForTesting
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import kotlinx.coroutines.delay
