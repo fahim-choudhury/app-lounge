@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.fused.utils
+package foundation.e.apps.data.application.utils
 
 import foundation.e.apps.R
 

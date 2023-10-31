@@ -25,7 +25,7 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import foundation.e.apps.data.fused.data.Category
+import foundation.e.apps.data.application.data.Category
 import foundation.e.apps.databinding.CategoriesListItemBinding
 import foundation.e.apps.ui.categories.CategoriesFragmentDirections
 

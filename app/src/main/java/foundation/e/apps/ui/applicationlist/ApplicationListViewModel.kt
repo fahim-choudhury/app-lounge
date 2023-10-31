@@ -25,8 +25,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
-import foundation.e.apps.data.fused.ApplicationRepository
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException

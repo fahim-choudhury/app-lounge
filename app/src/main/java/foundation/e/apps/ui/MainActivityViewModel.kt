@@ -41,8 +41,8 @@ import foundation.e.apps.data.ecloud.EcloudRepository
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
 import foundation.e.apps.data.enums.isUnFiltered
-import foundation.e.apps.data.fused.ApplicationRepository
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.preference.DataStoreModule

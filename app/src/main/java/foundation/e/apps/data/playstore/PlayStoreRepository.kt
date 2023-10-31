@@ -24,7 +24,7 @@ import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.File
 import com.aurora.gplayapi.data.models.SearchBundle
 import foundation.e.apps.data.StoreRepository
-import foundation.e.apps.data.fused.utils.CategoryType
+import foundation.e.apps.data.application.utils.CategoryType
 
 interface PlayStoreRepository : StoreRepository {
     suspend fun getSearchResult(query: String, subBundle: MutableSet<SearchBundle.SubBundle>?): Pair<List<App>, MutableSet<SearchBundle.SubBundle>>

@@ -24,7 +24,7 @@ import android.content.pm.PackageInstaller
 import android.os.IBinder
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
-import foundation.e.apps.data.fused.UpdatesDao
+import foundation.e.apps.data.application.UpdatesDao
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus

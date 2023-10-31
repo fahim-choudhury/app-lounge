@@ -18,7 +18,7 @@
 package foundation.e.apps.ui.home.model
 
 import androidx.recyclerview.widget.DiffUtil
-import foundation.e.apps.data.fused.data.Home
+import foundation.e.apps.data.application.data.Home
 
 class FusedHomeDiffUtil : DiffUtil.ItemCallback<Home>() {
     override fun areItemsTheSame(oldItem: Home, newItem: Home): Boolean {

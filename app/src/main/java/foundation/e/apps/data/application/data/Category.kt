@@ -16,10 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.fused.data
+package foundation.e.apps.data.application.data
 
-data class Home(
+import foundation.e.apps.data.enums.AppTag
+import java.util.UUID
+
+data class Category(
+    val id: String = UUID.randomUUID().toString(),
     val title: String = String(),
-    val list: List<Application> = emptyList(),
-    var source: String = String()
+    val browseUrl: String = String(),
+    val imageUrl: String = String(),
+    var drawable: Int = -1,
+    /*
+     * Change tag to standard AppTag class.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5364
+     */
+    var tag: AppTag = AppTag.GPlay()
 )

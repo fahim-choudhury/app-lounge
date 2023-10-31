@@ -1,4 +1,4 @@
-package foundation.e.apps.data.fused
+package foundation.e.apps.data.application
 
 import androidx.lifecycle.LiveData
 import com.aurora.gplayapi.SearchSuggestEntry
@@ -11,10 +11,10 @@ import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.data.Application
-import foundation.e.apps.data.fused.data.Category
-import foundation.e.apps.data.fused.data.Home
-import foundation.e.apps.data.fused.utils.CategoryType
+import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.application.data.Category
+import foundation.e.apps.data.application.data.Home
+import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import retrofit2.Response
 

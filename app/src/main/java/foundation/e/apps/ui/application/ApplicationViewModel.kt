@@ -27,8 +27,8 @@ import foundation.e.apps.R
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.ApplicationRepository
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.AuthObject

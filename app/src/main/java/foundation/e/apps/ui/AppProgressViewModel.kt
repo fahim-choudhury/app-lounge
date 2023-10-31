@@ -20,7 +20,7 @@ package foundation.e.apps.ui
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.download.data.DownloadProgressLD

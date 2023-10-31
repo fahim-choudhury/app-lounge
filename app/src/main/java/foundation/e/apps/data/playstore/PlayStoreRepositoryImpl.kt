@@ -35,7 +35,7 @@ import com.aurora.gplayapi.helpers.SearchHelper
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
-import foundation.e.apps.data.fused.utils.CategoryType
+import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.playstore.utils.GPlayHttpClient
 import foundation.e.apps.data.login.AuthenticatorRepository
 import kotlinx.coroutines.Dispatchers

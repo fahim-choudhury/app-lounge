@@ -7,7 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import javax.inject.Inject
 import javax.inject.Named

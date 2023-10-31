@@ -15,9 +15,9 @@
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.fused
+package foundation.e.apps.data.application
 
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 
 object UpdatesDao {

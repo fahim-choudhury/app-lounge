@@ -28,7 +28,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.DownloadManager
-import foundation.e.apps.data.fused.ApplicationRepository
+import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.preference.DataStoreModule
 import foundation.e.splitinstall.ISplitInstallService
 import foundation.e.splitinstall.SplitInstall

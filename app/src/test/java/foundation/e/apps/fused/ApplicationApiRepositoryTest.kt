@@ -17,8 +17,8 @@
 
 package foundation.e.apps.fused
 
-import foundation.e.apps.data.fused.ApplicationRepository
-import foundation.e.apps.data.fused.ApplicationApiImpl
+import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.application.ApplicationApiImpl
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
