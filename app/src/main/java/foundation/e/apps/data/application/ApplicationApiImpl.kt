@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.fused
+package foundation.e.apps.data.application
 
 import android.content.Context
 import android.text.format.Formatter
@@ -45,15 +45,15 @@ import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.enums.isUnFiltered
-import foundation.e.apps.data.fused.ApplicationApi.Companion.APP_TYPE_ANY
-import foundation.e.apps.data.fused.ApplicationApi.Companion.APP_TYPE_OPEN
-import foundation.e.apps.data.fused.ApplicationApi.Companion.APP_TYPE_PWA
-import foundation.e.apps.data.fused.data.Application
-import foundation.e.apps.data.fused.data.Category
-import foundation.e.apps.data.fused.data.Home
-import foundation.e.apps.data.fused.data.Ratings
-import foundation.e.apps.data.fused.utils.CategoryType
-import foundation.e.apps.data.fused.utils.CategoryUtils
+import foundation.e.apps.data.application.ApplicationApi.Companion.APP_TYPE_ANY
+import foundation.e.apps.data.application.ApplicationApi.Companion.APP_TYPE_OPEN
+import foundation.e.apps.data.application.ApplicationApi.Companion.APP_TYPE_PWA
+import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.application.data.Category
+import foundation.e.apps.data.application.data.Home
+import foundation.e.apps.data.application.data.Ratings
+import foundation.e.apps.data.application.utils.CategoryType
+import foundation.e.apps.data.application.utils.CategoryUtils
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.AuthObject

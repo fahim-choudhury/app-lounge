@@ -21,7 +21,7 @@ package foundation.e.apps.exodus
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.exodus.repositories.AppPrivacyInfoRepositoryImpl
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest

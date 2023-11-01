@@ -27,9 +27,9 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
-import foundation.e.apps.data.fused.ApplicationRepository
-import foundation.e.apps.data.fused.ApplicationApi
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.application.ApplicationApi
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.updates.UpdatesManagerImpl
 import foundation.e.apps.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi

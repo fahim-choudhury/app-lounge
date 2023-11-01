@@ -16,9 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.fused.data
+package foundation.e.apps.data.application
 
-data class Ratings(
-    val privacyScore: Double = -1.0,
-    val usageQualityScore: Double = -1.0
-)
+import foundation.e.apps.data.application.data.Application
+
+interface ApplicationInstaller {
+
+    fun installApplication(app: Application)
+
+    fun cancelDownload(app: Application)
+}

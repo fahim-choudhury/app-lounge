@@ -20,7 +20,7 @@ package foundation.e.apps.data.fdroid
 
 import android.content.Context
 import foundation.e.apps.data.fdroid.models.FdroidEntity
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.data.Application
 
 interface IFdroidRepository {
     /**

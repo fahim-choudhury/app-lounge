@@ -39,8 +39,8 @@ import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.fused.ApplicationInstaller
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.ApplicationInstaller
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.databinding.ApplicationListItemBinding
 import foundation.e.apps.install.pkg.InstallerService
 import foundation.e.apps.ui.AppInfoFetchViewModel

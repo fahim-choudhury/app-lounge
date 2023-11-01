@@ -19,7 +19,7 @@
 package foundation.e.apps.ui.categories.model
 
 import androidx.recyclerview.widget.DiffUtil
-import foundation.e.apps.data.fused.data.Category
+import foundation.e.apps.data.application.data.Category
 
 class CategoriesDiffUtil(
     private val oldList: List<Category>,

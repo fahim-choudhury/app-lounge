@@ -34,9 +34,9 @@ import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.ApplicationApiImpl
-import foundation.e.apps.data.fused.data.Application
-import foundation.e.apps.data.fused.utils.CategoryType
+import foundation.e.apps.data.application.ApplicationApiImpl
+import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule

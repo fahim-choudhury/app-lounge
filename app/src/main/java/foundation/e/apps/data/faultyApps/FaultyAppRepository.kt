@@ -21,7 +21,7 @@
 package foundation.e.apps.data.faultyApps
 
 import foundation.e.apps.OpenForTesting
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.data.Application
 import javax.inject.Inject
 import javax.inject.Singleton
 

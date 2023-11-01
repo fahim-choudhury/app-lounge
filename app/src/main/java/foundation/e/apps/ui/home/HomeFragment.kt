@@ -30,8 +30,8 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.ApplicationInstaller
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.ApplicationInstaller
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.data.login.exceptions.GPlayLoginException

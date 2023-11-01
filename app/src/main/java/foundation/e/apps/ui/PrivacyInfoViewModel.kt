@@ -10,7 +10,7 @@ import foundation.e.apps.data.Result
 import foundation.e.apps.data.exodus.models.AppPrivacyInfo
 import foundation.e.apps.data.exodus.repositories.IAppPrivacyInfoRepository
 import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepository
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.data.Application
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

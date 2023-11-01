@@ -18,7 +18,7 @@
 
 package foundation.e.apps.data.exodus.repositories
 
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.di.CommonUtilsModule
 import javax.inject.Inject
 import javax.inject.Singleton

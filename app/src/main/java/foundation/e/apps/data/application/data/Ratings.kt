@@ -16,13 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.fused.data
+package foundation.e.apps.data.application.data
 
-import java.util.UUID
-
-data class Home(
-    val title: String = String(),
-    val list: List<Application> = emptyList(),
-    var source: String = String(),
-    var id: String = UUID.randomUUID().toString()
+data class Ratings(
+    val privacyScore: Double = -1.0,
+    val usageQualityScore: Double = -1.0
 )

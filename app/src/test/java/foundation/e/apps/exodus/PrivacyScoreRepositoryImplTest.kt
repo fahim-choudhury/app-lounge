@@ -20,7 +20,7 @@ package foundation.e.apps.exodus
 
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepositoryImpl
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.di.CommonUtilsModule
 import org.junit.Assert
 import org.junit.Before

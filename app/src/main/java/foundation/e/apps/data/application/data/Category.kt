@@ -16,13 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.fused
+package foundation.e.apps.data.application.data
 
-import foundation.e.apps.data.fused.data.Application
+import foundation.e.apps.data.enums.AppTag
+import java.util.UUID
 
-interface ApplicationInstaller {
-
-    fun installApplication(app: Application)
-
-    fun cancelDownload(app: Application)
-}
+data class Category(
+    val id: String = UUID.randomUUID().toString(),
+    val title: String = String(),
+    val browseUrl: String = String(),
+    val imageUrl: String = String(),
+    var drawable: Int = -1,
+    /*
+     * Change tag to standard AppTag class.
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5364
+     */
+    var tag: AppTag = AppTag.GPlay()
+)

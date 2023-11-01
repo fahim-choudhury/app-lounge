@@ -23,7 +23,7 @@ import androidx.core.content.pm.PackageInfoCompat
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.ISplitInstallService
 import foundation.e.apps.data.DownloadManager
-import foundation.e.apps.data.fused.ApplicationRepository
+import foundation.e.apps.data.application.ApplicationRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

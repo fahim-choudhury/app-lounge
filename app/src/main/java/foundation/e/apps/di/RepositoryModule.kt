@@ -10,8 +10,8 @@ import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepository
 import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepositoryImpl
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.fdroid.IFdroidRepository
-import foundation.e.apps.data.fused.ApplicationApi
-import foundation.e.apps.data.fused.ApplicationApiImpl
+import foundation.e.apps.data.application.ApplicationApi
+import foundation.e.apps.data.application.ApplicationApiImpl
 import foundation.e.apps.data.fusedDownload.FusedManagerImpl
 import foundation.e.apps.data.fusedDownload.IFusedManager
 import javax.inject.Singleton
