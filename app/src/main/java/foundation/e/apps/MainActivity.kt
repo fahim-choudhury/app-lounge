@@ -40,8 +40,8 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.PlayStoreAuthenticator
 import foundation.e.apps.data.login.LoginViewModel
+import foundation.e.apps.data.login.PlayStoreAuthenticator
 import foundation.e.apps.data.login.exceptions.GPlayValidationException
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.databinding.ActivityMainBinding
@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.setupConnectivityManager(this)
+        viewModel.setupConnectivityManager(this.applicationContext)
 
         viewModel.internetConnection.observe(this) { isInternetAvailable ->
             hasInternet = isInternetAvailable

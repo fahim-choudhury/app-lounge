@@ -26,7 +26,6 @@ import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.fused.ApplicationRepository
-import foundation.e.apps.data.fused.data.Application
 import foundation.e.apps.data.fused.data.Home
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
@@ -34,6 +33,7 @@ import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.ui.home.model.HomeChildFusedAppDiffUtil
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -76,15 +76,8 @@ class HomeViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             applicationRepository.getHomeScreenData(authData).observe(lifecycleOwner) {
-                homeScreenData.postValue(it)
+                postHomeResult(it)
 
-                if (it.isSuccess() && !hasAnyChange(it.data!!)) {
-                    this@HomeViewModel.currentHomes = it.data
-                    homeScreenData.postValue(ResultSupreme.Error("No change is found!"))
-                    return@observe
-                }
-
-                homeScreenData.postValue(it)
                 if (it.isSuccess()) {
                     return@observe
                 }
@@ -106,15 +99,31 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private fun postHomeResult(homeResult: ResultSupreme<List<Home>>) {
+        if (shouldUpdateResult(homeResult)) {
+            homeScreenData.value = homeResult
+            this@HomeViewModel.currentHomes = homeResult.data?.map { home -> home.copy() }
+        } else { // homeResult is success, but not change is found
+            homeScreenData.value = ResultSupreme.Error("No change is found in homepage")
+        }
+    }
+
+    private fun shouldUpdateResult(homeResult: ResultSupreme<List<Home>>) =
+        (homeResult.isSuccess() && hasAnyChange(homeResult.data!!)) || !homeResult.isSuccess()
+
     @VisibleForTesting
     fun hasAnyChange(
         newHomes: List<Home>,
-    ) = currentHomes.isNullOrEmpty() || newHomes.size != currentHomes!!.size || compareWithNewData(newHomes)
+    ) = currentHomes.isNullOrEmpty() || newHomes.size != currentHomes!!.size || compareWithNewData(
+        newHomes
+    )
 
     private fun compareWithNewData(newHomes: List<Home>): Boolean {
         currentHomes!!.forEach {
             val fusedHome = newHomes[currentHomes!!.indexOf(it)]
-            if (!it.title.contentEquals(fusedHome.title) || areFusedAppsUpdated(it, fusedHome)) {
+            if (!it.title.contentEquals(fusedHome.title) || it.id.contentEquals(fusedHome.id)
+                || areFusedAppsUpdated(it, fusedHome)
+            ) {
                 return true
             }
         }
@@ -144,13 +153,37 @@ class HomeViewModel @Inject constructor(
         return false
     }
 
-    fun isAnyAppInstallStatusChanged(currentList: List<Home>?): Boolean {
-        if (currentList == null) {
-            return false
+    fun checkAnyChangeInAppStatus() {
+        if (this.currentHomes == null) {
+            return
         }
 
-        val appList = mutableListOf<Application>()
-        currentList.forEach { appList.addAll(it.list) }
-        return applicationRepository.isAnyAppInstallStatusChanged(appList)
+        val fusedHomes: MutableList<Home> = mutableListOf()
+        checkForChangesInAppStatus(fusedHomes)
+
+        if (fusedHomes.isNotEmpty() && hasAnyChange(fusedHomes)) {
+            homeScreenData.value = ResultSupreme.Success(fusedHomes)
+        }
+    }
+
+    private fun checkForChangesInAppStatus(fusedHomes: MutableList<Home>) {
+        var home: Home? = null
+        this.currentHomes?.forEach {
+
+            it.list.forEach { application ->
+                val status =
+                    applicationRepository.getFusedAppInstallationStatus(application)
+
+                if (application.status != status) {
+                    application.status = status
+                    home = it.copy()
+                    // Setting a new id, so that recyclerview can find that this item is changed
+                    home?.id = UUID.randomUUID().toString()
+                }
+            }
+
+            fusedHomes.add(home ?: it)
+            home = null
+        }
     }
 }

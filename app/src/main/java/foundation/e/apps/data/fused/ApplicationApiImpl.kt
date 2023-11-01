@@ -27,16 +27,13 @@ import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Artwork
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.Category as GplayapiCategory
 import com.aurora.gplayapi.data.models.SearchBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
-import foundation.e.apps.data.cleanapk.data.app.Application as CleanApkApplication
 import foundation.e.apps.data.cleanapk.data.categories.Categories
-import foundation.e.apps.data.cleanapk.data.home.Home as CleanApkHome
 import foundation.e.apps.data.cleanapk.data.home.HomeScreen
 import foundation.e.apps.data.cleanapk.data.search.Search
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
@@ -77,6 +74,9 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
+import com.aurora.gplayapi.data.models.Category as GplayapiCategory
+import foundation.e.apps.data.cleanapk.data.app.Application as CleanApkApplication
+import foundation.e.apps.data.cleanapk.data.home.Home as CleanApkHome
 
 typealias FusedHomeDeferred = Deferred<ResultSupreme<List<Home>>>
 
@@ -134,9 +134,11 @@ class ApplicationApiImpl @Inject constructor(
                 resultGplay?.await()?.let {
                     emit(it)
                 }
+
                 resultOpenSource?.await()?.let {
                     emit(it)
                 }
+
                 resultPWA?.await()?.let {
                     emit(it)
                 }
@@ -1311,7 +1313,7 @@ class ApplicationApiImpl @Inject constructor(
                 return@forEach
             }
             val currentAppStatus =
-                pkgManagerModule.getPackageStatus(it.package_name, it.latest_version_code)
+                getFusedAppInstallationStatus(it)
             if (it.status != currentAppStatus) {
                 return true
             }

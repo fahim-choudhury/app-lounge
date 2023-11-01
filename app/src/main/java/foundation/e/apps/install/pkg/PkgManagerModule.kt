@@ -56,7 +56,12 @@ class PkgManagerModule @Inject constructor(
 
     fun isInstalled(packageName: String): Boolean {
         return try {
-            packageManager.getPackageInfo(packageName, PackageManager.GET_META_DATA)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0L))
+            } else {
+                packageManager.getPackageInfo(packageName, PackageManager.GET_META_DATA)
+            }
+
             true
         } catch (e: PackageManager.NameNotFoundException) {
             false
