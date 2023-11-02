@@ -48,9 +48,9 @@ class HomeViewModelTest {
         val newAppList = mutableListOf(Application("123"), Application("124"))
 
         val oldHomeData =
-            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", oldAppList))
+            listOf(Home("Top Free Apps", oldAppList, id = "123"), Home("Top Free Games", oldAppList, id = "124"))
         var newHomeData =
-            listOf(Home("Top Free Apps", newAppList), Home("Top Free Games", newAppList))
+            listOf(Home("Top Free Apps", newAppList, id = "123"), Home("Top Free Games", newAppList, id = "124"))
 
         homeViewModel.currentHomes = oldHomeData
 
@@ -64,9 +64,9 @@ class HomeViewModelTest {
         val newAppList = mutableListOf(Application("123"), Application("124"), Application("125"))
 
         val oldHomeData =
-            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", oldAppList))
+            listOf(Home("Top Free Apps", oldAppList, id = "123"), Home("Top Free Games", oldAppList, id = "124"))
         var newHomeData =
-            listOf(Home("Top Free Apps", newAppList), Home("Top Free Games", newAppList))
+            listOf(Home("Top Free Apps", newAppList, id = "123"), Home("Top Free Games", newAppList, id = "124"))
 
         homeViewModel.currentHomes = oldHomeData
 
@@ -80,9 +80,9 @@ class HomeViewModelTest {
         val newAppList = mutableListOf(Application("123"), Application("124", status = Status.INSTALLED), Application("125"))
 
         val oldHomeData =
-            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", oldAppList))
+            listOf(Home("Top Free Apps", oldAppList, id = "123"), Home("Top Free Games", oldAppList, id = "124"))
         var newHomeData =
-            listOf(Home("Top Free Apps", newAppList), Home("Top Free Games", newAppList))
+            listOf(Home("Top Free Apps", newAppList, id = "123"), Home("Top Free Games", newAppList, id = "124"))
 
         homeViewModel.currentHomes = oldHomeData
 

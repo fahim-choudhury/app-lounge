@@ -103,11 +103,10 @@ class HomeViewModel @Inject constructor(
     private fun postHomeResult(homeResult: ResultSupreme<List<Home>>) {
         if (shouldUpdateResult(homeResult)) {
             homeScreenData.value = homeResult
-            currentHomes = homeResult.data?.map { home -> home.copy() }
+            currentHomes = homeResult.data
             return
         }
 
-        // homeResult is success, but not change is found
         homeScreenData.value = ResultSupreme.Error("No change is found in homepage")
     }
 
@@ -122,7 +121,7 @@ class HomeViewModel @Inject constructor(
     )
 
     private fun compareWithNewData(newHomes: List<Home>): Boolean {
-        currentHomes!!.forEach {
+        currentHomes?.forEach {
             val fusedHome = newHomes[currentHomes!!.indexOf(it)]
 
             if (!it.title.contentEquals(fusedHome.title) || !it.id.contentEquals(fusedHome.id)
