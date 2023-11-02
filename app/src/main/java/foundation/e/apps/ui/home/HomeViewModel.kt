@@ -41,6 +41,7 @@ class HomeViewModel @Inject constructor(
     private val applicationRepository: ApplicationRepository,
 ) : LoadingViewModel() {
 
+
     /*
      * Hold list of applications, as well as application source type.
      * Source type may change from user selected preference in case of timeout.
@@ -102,10 +103,12 @@ class HomeViewModel @Inject constructor(
     private fun postHomeResult(homeResult: ResultSupreme<List<Home>>) {
         if (shouldUpdateResult(homeResult)) {
             homeScreenData.value = homeResult
-            this@HomeViewModel.currentHomes = homeResult.data?.map { home -> home.copy() }
-        } else { // homeResult is success, but not change is found
-            homeScreenData.value = ResultSupreme.Error("No change is found in homepage")
+            currentHomes = homeResult.data?.map { home -> home.copy() }
+            return
         }
+
+        // homeResult is success, but not change is found
+        homeScreenData.value = ResultSupreme.Error("No change is found in homepage")
     }
 
     private fun shouldUpdateResult(homeResult: ResultSupreme<List<Home>>) =
@@ -121,7 +124,8 @@ class HomeViewModel @Inject constructor(
     private fun compareWithNewData(newHomes: List<Home>): Boolean {
         currentHomes!!.forEach {
             val fusedHome = newHomes[currentHomes!!.indexOf(it)]
-            if (!it.title.contentEquals(fusedHome.title) || it.id.contentEquals(fusedHome.id)
+
+            if (!it.title.contentEquals(fusedHome.title) || !it.id.contentEquals(fusedHome.id)
                 || areFusedAppsUpdated(it, fusedHome)
             ) {
                 return true
@@ -145,6 +149,7 @@ class HomeViewModel @Inject constructor(
         oldHome.list.forEach { oldFusedApp ->
             val indexOfOldFusedApp = oldHome.list.indexOf(oldFusedApp)
             val fusedApp = newHome.list[indexOfOldFusedApp]
+
             if (!fusedAppDiffUtil.areContentsTheSame(oldFusedApp, fusedApp)) {
                 return true
             }
@@ -163,6 +168,7 @@ class HomeViewModel @Inject constructor(
 
         if (fusedHomes.isNotEmpty() && hasAnyChange(fusedHomes)) {
             homeScreenData.value = ResultSupreme.Success(fusedHomes)
+            currentHomes = fusedHomes
         }
     }
 
