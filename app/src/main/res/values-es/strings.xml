@@ -46,7 +46,7 @@
     <string name="description">Descripción</string>
     <string name="ok">Ok</string>
     <string name="install">Instalar</string>
-    <string name="cancel">Cancelar</string>
+    <string name="cancel">Cancelado</string>
     <string name="app_icon">Icono de aplicación</string>
     <string name="open">Abrir</string>
     <string name="retry">Reintentar</string>
