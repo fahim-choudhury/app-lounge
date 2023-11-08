@@ -80,14 +80,15 @@ class PlayStoreAuthenticator @Inject constructor(
 
         val authData = savedAuth ?: run {
             // if no saved data, then generate new auth data.
-            retryWithBackoff({ generateAuthData() }).let { result ->
-                result?.let {
-                    if (it.isSuccess()) it.data!!
-                    else return AuthObject.GPlayAuth(it, user)
-                }
+            val result = retryWithBackoff {
+                generateAuthData()
+            }
+
+            result?.let {
+                if (it.isSuccess()) it.data!!
+                else return AuthObject.GPlayAuth(it, user)
             }
         }
-
 
         val formattedAuthData = authData?.let { formatAuthData(it) }
         formattedAuthData?.locale = locale

@@ -32,6 +32,7 @@ private const val ERROR_GPLAY_API = "Gplay api has faced error!"
 private const val REGEX_CONTAIN_429_OR_401 = "429|401"
 private const val MAX_RETRY_DELAY_IN_SECONDS = 300
 private const val ONE_SECOND_IN_MILLIS = 1000L
+private const val INITIAL_DELAY_RETRY_IN_SECONDS = 5
 
 suspend fun <T> handleNetworkResult(call: suspend () -> T): ResultSupreme<T> {
     return try {
@@ -77,31 +78,32 @@ private fun extractErrorMessage(e: Exception): String {
     return (e.localizedMessage?.ifBlank { ERROR_GPLAY_API } ?: ERROR_GPLAY_API) + " $STATUS $status"
 }
 
-suspend fun <T> retryWithBackoff(operation: suspend () -> T, retryDelayInSecond: Int = -1): T? {
+suspend fun <T> retryWithBackoff(retryDelayInSeconds: Int = -1, operation: suspend () -> T): T? {
+    var result: T? = null
     try {
-        if (retryDelayInSecond > 0) {
-            delay(ONE_SECOND_IN_MILLIS * retryDelayInSecond)
+        if (retryDelayInSeconds > 0) {
+            delay(ONE_SECOND_IN_MILLIS * retryDelayInSeconds)
         }
 
-        val result = operation()
+        result = operation()
 
-        if (shouldRetry(result, retryDelayInSecond)) {
-            Timber.w("Retrying...: $retryDelayInSecond")
-            return retryWithBackoff(operation, calculateRetryDelay(retryDelayInSecond))
+        if (shouldRetry(result, retryDelayInSeconds)) {
+            Timber.w("Retrying...: $retryDelayInSeconds")
+            result = retryWithBackoff(calculateRetryDelay(retryDelayInSeconds), operation)
         }
 
-        return result
     } catch (e: Exception) {
-        if (retryDelayInSecond < MAX_RETRY_DELAY_IN_SECONDS) {
-            return retryWithBackoff(operation, calculateRetryDelay(retryDelayInSecond))
+        Timber.e(e)
+        if (retryDelayInSeconds < MAX_RETRY_DELAY_IN_SECONDS) {
+            return retryWithBackoff(calculateRetryDelay(retryDelayInSeconds), operation)
         }
     }
 
-    return null
+    return result
 }
 
 private fun calculateRetryDelay(retryDelayInSecond: Int) =
-    if (retryDelayInSecond < 0) 5 else retryDelayInSecond * 2
+    if (retryDelayInSecond < 0) INITIAL_DELAY_RETRY_IN_SECONDS else retryDelayInSecond * 2
 
 
 private fun <T> shouldRetry(result: T, retryDelayInSecond: Int) =
@@ -109,6 +111,6 @@ private fun <T> shouldRetry(result: T, retryDelayInSecond: Int) =
             && isExceptionAllowedToRetry(result.exception)
 
 private fun isExceptionAllowedToRetry(exception: Exception?): Boolean {
-    val message = exception?.message
-    return message?.contains(Regex(REGEX_CONTAIN_429_OR_401)) != true // Here, (value != true) is used, because value can be null also and we want to allow retry for null message
+    // Here, (value != true) is used, because value can be null also and we want to allow retry for null message
+    return exception?.message?.contains(Regex(REGEX_CONTAIN_429_OR_401)) != true
 }
