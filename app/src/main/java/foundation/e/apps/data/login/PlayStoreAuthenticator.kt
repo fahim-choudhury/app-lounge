@@ -28,6 +28,7 @@ import foundation.e.apps.data.login.api.PlayStoreLoginManagerFactory
 import foundation.e.apps.data.login.api.PlayStoreLoginManager
 import foundation.e.apps.data.login.api.GoogleLoginManager
 import foundation.e.apps.data.login.api.PlayStoreLoginWrapper
+import foundation.e.apps.data.retryWithBackoff
 import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
@@ -77,25 +78,26 @@ class PlayStoreAuthenticator @Inject constructor(
     override suspend fun login(): AuthObject.GPlayAuth {
         val savedAuth = getSavedAuthData()
 
-        val authData = (
-            savedAuth ?: run {
-                // if no saved data, then generate new auth data.
-                generateAuthData().let {
+        val authData = savedAuth ?: run {
+            // if no saved data, then generate new auth data.
+            retryWithBackoff({ generateAuthData() }).let { result ->
+                result?.let {
                     if (it.isSuccess()) it.data!!
                     else return AuthObject.GPlayAuth(it, user)
                 }
             }
-            )
+        }
 
-        val formattedAuthData = formatAuthData(authData)
-        formattedAuthData.locale = locale
+
+        val formattedAuthData = authData?.let { formatAuthData(it) }
+        formattedAuthData?.locale = locale
         val result: ResultSupreme<AuthData?> = ResultSupreme.create(
             status = ResultStatus.OK,
             data = formattedAuthData
         )
-        result.otherPayload = formattedAuthData.email
+        result.otherPayload = formattedAuthData?.email
 
-        if (savedAuth == null) {
+        if (savedAuth == null && formattedAuthData != null) {
             saveAuthData(formattedAuthData)
         }
 
