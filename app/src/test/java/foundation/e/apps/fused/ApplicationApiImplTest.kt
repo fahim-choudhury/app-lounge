@@ -36,7 +36,6 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.application.ApplicationApiImpl
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PWAManagerModule
@@ -340,90 +339,6 @@ class ApplicationApiImplTest {
         assertFalse("hasInstallStatusUpdated", isAppStatusUpdated)
     }
 
-    @Test
-    fun isHomeDataUpdated() {
-        val oldAppList = mutableListOf<Application>(
-            Application(
-                _id = "111",
-                status = Status.INSTALLATION_ISSUE,
-                name = "Demo One",
-                package_name = "foundation.e.demoone",
-                latest_version_code = 123
-            ),
-            Application(
-                _id = "112",
-                status = Status.INSTALLED,
-                name = "Demo Two",
-                package_name = "foundation.e.demotwo",
-                latest_version_code = 123
-            ),
-            Application(
-                _id = "113",
-                status = Status.UNAVAILABLE,
-                name = "Demo Three",
-                package_name = "foundation.e.demothree",
-                latest_version_code = 123
-            )
-        )
-
-        val newAppList = mutableListOf<Application>(
-            Application(
-                _id = "111",
-                status = Status.INSTALLATION_ISSUE,
-                name = "Demo One",
-                package_name = "foundation.e.demoone",
-                latest_version_code = 123
-            ),
-            Application(
-                _id = "112",
-                status = Status.UNAVAILABLE,
-                name = "Demo Two",
-                package_name = "foundation.e.demotwo",
-                latest_version_code = 123
-            ),
-            Application(
-                _id = "113",
-                status = Status.UNAVAILABLE,
-                name = "Demo Three",
-                package_name = "foundation.e.demothree",
-                latest_version_code = 123
-            )
-        )
-
-        val oldHomeData =
-            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", oldAppList))
-        var newHomeData =
-            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", oldAppList))
-        var isHomeDataUpdated = fusedAPIImpl.isHomeDataUpdated(newHomeData, oldHomeData)
-        assertFalse("isHomeDataUpdated/NO", isHomeDataUpdated)
-        newHomeData =
-            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", newAppList))
-
-        isHomeDataUpdated = fusedAPIImpl.isHomeDataUpdated(newHomeData, oldHomeData)
-        assertTrue("isHomeDataUpdated/YES", isHomeDataUpdated)
-    }
-
-    @Test
-    fun isHomeDataUpdatedWhenBothAreEmpty() {
-        val oldHomeData = listOf<Home>()
-        val newHomeData = listOf<Home>()
-        val isHomeDataUpdated = fusedAPIImpl.isHomeDataUpdated(oldHomeData, newHomeData)
-        assertFalse("isHomeDataUpdated", isHomeDataUpdated)
-    }
-
-    @Test
-    fun `is home data updated when fusedapp list size is not same`() {
-        val oldAppList = mutableListOf(Application(), Application(), Application())
-        val newAppList = mutableListOf(Application(), Application())
-
-        val oldHomeData =
-            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", oldAppList))
-        var newHomeData =
-            listOf(Home("Top Free Apps", oldAppList), Home("Top Free Games", newAppList))
-
-        val isHomeDataUpdated = fusedAPIImpl.isHomeDataUpdated(newHomeData, oldHomeData)
-        assertTrue("isHomeDataUpdated/YES", isHomeDataUpdated)
-    }
 
     @Test
     fun getFusedAppInstallationStatusWhenPWA() {

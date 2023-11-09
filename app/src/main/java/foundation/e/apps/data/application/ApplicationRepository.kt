@@ -135,11 +135,6 @@ class ApplicationRepository @Inject constructor(private val applicationAPIImpl: 
         return applicationAPIImpl.getFusedAppInstallationStatus(application)
     }
 
-    fun isHomeDataUpdated(
-        newHomeData: List<Home>,
-        oldHomeData: List<Home>
-    ) = applicationAPIImpl.isHomeDataUpdated(newHomeData, oldHomeData)
-
     fun isAnyFusedAppUpdated(
         newApplications: List<Application>,
         oldApplications: List<Application>

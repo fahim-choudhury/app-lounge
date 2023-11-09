@@ -142,14 +142,6 @@ interface ApplicationApi {
     fun getFusedAppInstallationStatus(application: Application): Status
 
     /**
-     * @return true, if any change is found, otherwise false
-     */
-    fun isHomeDataUpdated(
-        newHomeData: List<Home>,
-        oldHomeData: List<Home>
-    ): Boolean
-
-    /**
      * @return returns true if there is changes in data, otherwise false
      */
     fun isAnyFusedAppUpdated(

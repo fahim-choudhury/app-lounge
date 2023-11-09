@@ -29,11 +29,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
-import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.application.ApplicationInstaller
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
@@ -93,10 +91,6 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
                 return@observe
             }
 
-            if (!isHomeDataUpdated(it)) {
-                return@observe
-            }
-
             homeParentRVAdapter?.setData(it.data!!)
         }
     }
@@ -138,12 +132,6 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
             cancelButtonText = getString(R.string.dialog_cancel),
         ).show(childFragmentManager, "HomeFragment")
     }
-
-    private fun isHomeDataUpdated(homeScreenResult: ResultSupreme<List<Home>>) =
-        homeParentRVAdapter?.currentList?.isEmpty() == true || homeViewModel.isHomeDataUpdated(
-            homeScreenResult.data!!,
-            homeParentRVAdapter?.currentList as List<Home>
-        )
 
     override fun onTimeout(
         exception: Exception,
@@ -263,9 +251,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
             updateProgressOfDownloadingAppItemViews(homeParentRVAdapter, it)
         }
 
-        if (homeViewModel.isAnyAppInstallStatusChanged(homeParentRVAdapter?.currentList)) {
-            repostAuthObjects()
-        }
+        homeViewModel.checkAnyChangeInAppStatus()
     }
 
     override fun onPause() {

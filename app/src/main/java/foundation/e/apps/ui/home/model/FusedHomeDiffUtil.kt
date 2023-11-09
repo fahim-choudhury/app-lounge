@@ -27,6 +27,7 @@ class FusedHomeDiffUtil : DiffUtil.ItemCallback<Home>() {
 
     override fun areContentsTheSame(oldItem: Home, newItem: Home): Boolean {
         return oldItem.title.contentEquals(newItem.title) &&
-            oldItem.list == newItem.list
+            oldItem.list == newItem.list &&
+            oldItem.id == newItem.id
     }
 }

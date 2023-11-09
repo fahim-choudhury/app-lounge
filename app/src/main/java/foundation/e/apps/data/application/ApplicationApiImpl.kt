@@ -27,16 +27,13 @@ import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Artwork
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.Category as GplayapiCategory
 import com.aurora.gplayapi.data.models.SearchBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
-import foundation.e.apps.data.cleanapk.data.app.Application as CleanApkApplication
 import foundation.e.apps.data.cleanapk.data.categories.Categories
-import foundation.e.apps.data.cleanapk.data.home.Home as CleanApkHome
 import foundation.e.apps.data.cleanapk.data.home.HomeScreen
 import foundation.e.apps.data.cleanapk.data.search.Search
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
@@ -58,9 +55,9 @@ import foundation.e.apps.data.application.data.Ratings
 import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.application.utils.CategoryUtils
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.AuthObject
+import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
@@ -77,6 +74,9 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
+import com.aurora.gplayapi.data.models.Category as GplayapiCategory
+import foundation.e.apps.data.cleanapk.data.app.Application as CleanApkApplication
+import foundation.e.apps.data.cleanapk.data.home.Home as CleanApkHome
 
 typealias FusedHomeDeferred = Deferred<ResultSupreme<List<Home>>>
 
@@ -134,9 +134,11 @@ class ApplicationApiImpl @Inject constructor(
                 resultGplay?.await()?.let {
                     emit(it)
                 }
+
                 resultOpenSource?.await()?.let {
                     emit(it)
                 }
+
                 resultPWA?.await()?.let {
                     emit(it)
                 }
@@ -1285,45 +1287,6 @@ class ApplicationApiImpl @Inject constructor(
     }
 
     /**
-     * @return true, if any change is found, otherwise false
-     */
-    override fun isHomeDataUpdated(
-        newHomeData: List<Home>,
-        oldHomeData: List<Home>
-    ): Boolean {
-        if (newHomeData.size != oldHomeData.size) {
-            return true
-        }
-
-        oldHomeData.forEach {
-            val fusedHome = newHomeData[oldHomeData.indexOf(it)]
-            if (!it.title.contentEquals(fusedHome.title) || areFusedAppsUpdated(it, fusedHome)) {
-                return true
-            }
-        }
-        return false
-    }
-
-    private fun areFusedAppsUpdated(
-        oldHome: Home,
-        newHome: Home,
-    ): Boolean {
-        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
-        if (oldHome.list.size != newHome.list.size) {
-            return true
-        }
-
-        oldHome.list.forEach { oldFusedApp ->
-            val indexOfOldFusedApp = oldHome.list.indexOf(oldFusedApp)
-            val fusedApp = newHome.list[indexOfOldFusedApp]
-            if (!fusedAppDiffUtil.areContentsTheSame(oldFusedApp, fusedApp)) {
-                return true
-            }
-        }
-        return false
-    }
-
-    /**
      * @return returns true if there is changes in data, otherwise false
      */
     override fun isAnyFusedAppUpdated(
@@ -1350,7 +1313,7 @@ class ApplicationApiImpl @Inject constructor(
                 return@forEach
             }
             val currentAppStatus =
-                pkgManagerModule.getPackageStatus(it.package_name, it.latest_version_code)
+                getFusedAppInstallationStatus(it)
             if (it.status != currentAppStatus) {
                 return true
             }
