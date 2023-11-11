@@ -1072,105 +1072,166 @@ class ApplicationApiImpl @Inject constructor(
     private suspend fun generateCleanAPKHome(home: CleanApkHome, appType: String): List<Home> {
         val list = mutableListOf<Home>()
         val headings = if (appType == APP_TYPE_OPEN) {
-            mapOf(
-                "top_updated_apps" to context.getString(R.string.top_updated_apps),
-                "top_updated_games" to context.getString(R.string.top_updated_games),
-                "popular_apps_in_last_24_hours" to context.getString(R.string.popular_apps_in_last_24_hours),
-                "popular_games_in_last_24_hours" to context.getString(R.string.popular_games_in_last_24_hours),
-                "discover" to context.getString(R.string.discover)
-            )
+            getOpenSourceHomeCategories()
         } else {
-            mapOf(
-                "popular_apps" to context.getString(R.string.popular_apps),
-                "popular_games" to context.getString(R.string.popular_games),
-                "discover" to context.getString(R.string.discover_pwa)
-            )
+            getPWAHomeCategories()
         }
         headings.forEach { (key, value) ->
             when (key) {
                 "top_updated_apps" -> {
-                    if (home.top_updated_apps.isNotEmpty()) {
-                        home.top_updated_apps.forEach {
-                            it.updateStatus()
-                            it.updateType()
-                            it.updateFilterLevel(null)
-                        }
-                        list.add(Home(value, home.top_updated_apps))
-                    }
+                    prepareTopUpdatedApps(home, list, value)
                 }
 
                 "top_updated_games" -> {
-                    if (home.top_updated_games.isNotEmpty()) {
-                        home.top_updated_games.forEach {
-                            it.updateStatus()
-                            it.updateType()
-                            it.updateFilterLevel(null)
-                        }
-                        list.add(Home(value, home.top_updated_games))
-                    }
+                    prepareTopUpdatedGames(home, list, value)
                 }
 
                 "popular_apps" -> {
-                    if (home.popular_apps.isNotEmpty()) {
-                        home.popular_apps.forEach {
-                            it.updateStatus()
-                            it.updateType()
-                            it.updateFilterLevel(null)
-                        }
-                        list.add(Home(value, home.popular_apps))
-                    }
+                    preparePopularApps(home, list, value)
                 }
 
                 "popular_games" -> {
-                    if (home.popular_games.isNotEmpty()) {
-                        home.popular_games.forEach {
-                            it.updateStatus()
-                            it.updateType()
-                            it.updateFilterLevel(null)
-                        }
-                        list.add(Home(value, home.popular_games))
-                    }
+                    preparePopularGames(home, list, value)
                 }
 
                 "popular_apps_in_last_24_hours" -> {
-                    if (home.popular_apps_in_last_24_hours.isNotEmpty()) {
-                        home.popular_apps_in_last_24_hours.forEach {
-                            it.updateStatus()
-                            it.updateType()
-                            it.updateFilterLevel(null)
-                        }
-                        list.add(Home(value, home.popular_apps_in_last_24_hours))
-                    }
+                    prepareAppsInLast24Hours(home, list, value)
                 }
 
                 "popular_games_in_last_24_hours" -> {
-                    if (home.popular_games_in_last_24_hours.isNotEmpty()) {
-                        home.popular_games_in_last_24_hours.forEach {
-                            it.updateStatus()
-                            it.updateType()
-                            it.updateFilterLevel(null)
-                        }
-                        list.add(Home(value, home.popular_games_in_last_24_hours))
-                    }
+                    prepareGamesInLast24Hours(home, list, value)
                 }
 
                 "discover" -> {
-                    if (home.discover.isNotEmpty()) {
-                        home.discover.forEach {
-                            it.updateStatus()
-                            it.updateType()
-                            it.updateFilterLevel(null)
-                        }
-                        list.add(Home(value, home.discover))
-                    }
+                    prepareDiscoverApps(home, list, value)
                 }
             }
         }
+
         return list.map {
             it.source = appType
             it
         }
     }
+
+    private suspend fun prepareDiscoverApps(
+        home: foundation.e.apps.data.cleanapk.data.home.Home,
+        list: MutableList<Home>,
+        value: String
+    ) {
+        if (home.discover.isNotEmpty()) {
+            home.discover.forEach {
+                it.updateStatus()
+                it.updateType()
+                it.updateFilterLevel(null)
+            }
+            list.add(Home(value, home.discover))
+        }
+    }
+
+    private suspend fun prepareGamesInLast24Hours(
+        home: foundation.e.apps.data.cleanapk.data.home.Home,
+        list: MutableList<Home>,
+        value: String
+    ) {
+        if (home.popular_games_in_last_24_hours.isNotEmpty()) {
+            home.popular_games_in_last_24_hours.forEach {
+                it.updateStatus()
+                it.updateType()
+                it.updateFilterLevel(null)
+            }
+            list.add(Home(value, home.popular_games_in_last_24_hours))
+        }
+    }
+
+    private suspend fun prepareAppsInLast24Hours(
+        home: foundation.e.apps.data.cleanapk.data.home.Home,
+        list: MutableList<Home>,
+        value: String
+    ) {
+        if (home.popular_apps_in_last_24_hours.isNotEmpty()) {
+            home.popular_apps_in_last_24_hours.forEach {
+                it.updateStatus()
+                it.updateType()
+                it.updateFilterLevel(null)
+            }
+            list.add(Home(value, home.popular_apps_in_last_24_hours))
+        }
+    }
+
+    private suspend fun preparePopularGames(
+        home: foundation.e.apps.data.cleanapk.data.home.Home,
+        list: MutableList<Home>,
+        value: String
+    ) {
+        if (home.popular_games.isNotEmpty()) {
+            home.popular_games.forEach {
+                it.updateStatus()
+                it.updateType()
+                it.updateFilterLevel(null)
+            }
+            list.add(Home(value, home.popular_games))
+        }
+    }
+
+    private suspend fun preparePopularApps(
+        home: foundation.e.apps.data.cleanapk.data.home.Home,
+        list: MutableList<Home>,
+        value: String
+    ) {
+        if (home.popular_apps.isNotEmpty()) {
+            home.popular_apps.forEach {
+                it.updateStatus()
+                it.updateType()
+                it.updateFilterLevel(null)
+            }
+            list.add(Home(value, home.popular_apps))
+        }
+    }
+
+    private suspend fun prepareTopUpdatedGames(
+        home: foundation.e.apps.data.cleanapk.data.home.Home,
+        list: MutableList<Home>,
+        value: String
+    ) {
+        if (home.top_updated_games.isNotEmpty()) {
+            home.top_updated_games.forEach {
+                it.updateStatus()
+                it.updateType()
+                it.updateFilterLevel(null)
+            }
+            list.add(Home(value, home.top_updated_games))
+        }
+    }
+
+    private suspend fun prepareTopUpdatedApps(
+        home: foundation.e.apps.data.cleanapk.data.home.Home,
+        list: MutableList<Home>,
+        value: String
+    ) {
+        if (home.top_updated_apps.isNotEmpty()) {
+            home.top_updated_apps.forEach {
+                it.updateStatus()
+                it.updateType()
+                it.updateFilterLevel(null)
+            }
+            list.add(Home(value, home.top_updated_apps))
+        }
+    }
+
+    private fun getPWAHomeCategories() = mapOf(
+        "popular_apps" to context.getString(R.string.popular_apps),
+        "popular_games" to context.getString(R.string.popular_games),
+        "discover" to context.getString(R.string.discover_pwa)
+    )
+
+    private fun getOpenSourceHomeCategories() = mapOf(
+        "top_updated_apps" to context.getString(R.string.top_updated_apps),
+        "top_updated_games" to context.getString(R.string.top_updated_games),
+        "popular_apps_in_last_24_hours" to context.getString(R.string.popular_apps_in_last_24_hours),
+        "popular_games_in_last_24_hours" to context.getString(R.string.popular_games_in_last_24_hours),
+        "discover" to context.getString(R.string.discover)
+    )
 
     private suspend fun fetchGPlayHome(authData: AuthData): List<Home> {
         val list = mutableListOf<Home>()

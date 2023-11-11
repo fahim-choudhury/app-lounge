@@ -61,52 +61,56 @@ class DownloadProgressLD @Inject constructor(
                     continue
                 }
                 try {
-                    downloadManager.query(downloadManagerQuery.setFilterById(*downloadingIds.toLongArray()))
-                        .use { cursor ->
-                            cursor.moveToFirst()
-                            while (!cursor.isAfterLast) {
-                                val id =
-                                    cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_ID))
-                                val status =
-                                    cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
-                                val totalSizeBytes =
-                                    cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-                                val bytesDownloadedSoFar =
-                                    cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
-
-                                downloadProgress.downloadId = id
-
-                                if (!downloadProgress.totalSizeBytes.containsKey(id) ||
-                                    downloadProgress.totalSizeBytes[id] != totalSizeBytes
-                                ) {
-                                    downloadProgress.totalSizeBytes[id] = totalSizeBytes
-                                }
-
-                                if (!downloadProgress.bytesDownloadedSoFar.containsKey(id) ||
-                                    downloadProgress.bytesDownloadedSoFar[id] != bytesDownloadedSoFar
-                                ) {
-                                    downloadProgress.bytesDownloadedSoFar[id] = bytesDownloadedSoFar
-                                }
-
-                                downloadProgress.status[id] =
-                                    status == DownloadManager.STATUS_SUCCESSFUL || status == DownloadManager.STATUS_FAILED
-
-                                if (downloadingIds.size == cursor.count) {
-                                    postValue(downloadProgress)
-                                }
-
-                                if (downloadingIds.isEmpty()) {
-                                    cancel()
-                                }
-                                cursor.moveToNext()
-                            }
-                        }
+                    findDownloadProgress(downloadingIds)
                 } catch (e: Exception) {
                     Timber.e("downloading Ids: $downloadingIds ${e.localizedMessage}")
                 }
                 delay(20)
             }
         }
+    }
+
+    private fun findDownloadProgress(downloadingIds: MutableList<Long>) {
+        downloadManager.query(downloadManagerQuery.setFilterById(*downloadingIds.toLongArray()))
+            .use { cursor ->
+                cursor.moveToFirst()
+                while (!cursor.isAfterLast) {
+                    val id =
+                        cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_ID))
+                    val status =
+                        cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+                    val totalSizeBytes =
+                        cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
+                    val bytesDownloadedSoFar =
+                        cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
+
+                    downloadProgress.downloadId = id
+
+                    if (!downloadProgress.totalSizeBytes.containsKey(id) ||
+                        downloadProgress.totalSizeBytes[id] != totalSizeBytes
+                    ) {
+                        downloadProgress.totalSizeBytes[id] = totalSizeBytes
+                    }
+
+                    if (!downloadProgress.bytesDownloadedSoFar.containsKey(id) ||
+                        downloadProgress.bytesDownloadedSoFar[id] != bytesDownloadedSoFar
+                    ) {
+                        downloadProgress.bytesDownloadedSoFar[id] = bytesDownloadedSoFar
+                    }
+
+                    downloadProgress.status[id] =
+                        status == DownloadManager.STATUS_SUCCESSFUL || status == DownloadManager.STATUS_FAILED
+
+                    if (downloadingIds.size == cursor.count) {
+                        postValue(downloadProgress)
+                    }
+
+                    if (downloadingIds.isEmpty()) {
+                        cancel()
+                    }
+                    cursor.moveToNext()
+                }
+            }
     }
 
     override fun onInactive() {
