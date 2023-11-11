@@ -106,11 +106,6 @@
     <ID>MaxLineLength:UpdatesViewModel.kt$UpdatesViewModel$return updatesList.value?.first?.any { it.status == Status.UPDATABLE || it.status == Status.INSTALLATION_ISSUE } == true</ID>
     <ID>MaxLineLength:UpdatesWorker.kt$UpdatesWorker$applicationContext.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED</ID>
     <ID>MayBeConst:EcloudApiInterface.kt$EcloudApiInterface.Companion$val BASE_URL = "https://eu.gtoken.ecloud.global/"</ID>
-    <ID>NestedBlockDepth:ApplicationApiImpl.kt$ApplicationApiImpl$private suspend fun generateCleanAPKHome(home: CleanApkHome, appType: String): List&lt;Home&gt;</ID>
-    <ID>NestedBlockDepth:DownloadManager.kt$DownloadManager$fun checkDownloadProgress( downloadId: Long, filePath: String = "", downloadCompleted: ((Boolean, String) -&gt; Unit)? )</ID>
-    <ID>NestedBlockDepth:PWAManagerModule.kt$PWAManagerModule$fun getPwaStatus(application: Application): Status</ID>
-    <ID>NestedBlockDepth:PkgManagerBR.kt$PkgManagerBR$override fun onReceive(context: Context?, intent: Intent?)</ID>
-    <ID>NestedBlockDepth:SettingsFragment.kt$SettingsFragment$override fun onViewCreated(view: View, savedInstanceState: Bundle?)</ID>
     <ID>PrintStackTrace:CommonUtilsModule.kt$CommonUtilsModule$e</ID>
     <ID>PrintStackTrace:EcloudRepository.kt$EcloudRepository$e</ID>
     <ID>PrintStackTrace:InstallWorkManager.kt$InstallWorkManager$e</ID>
