@@ -44,83 +44,102 @@ object NativeDeviceInfoProviderModule {
     ): Properties {
         val properties = Properties().apply {
             // Build Props
-            setProperty("UserReadableName", "${Build.DEVICE}-default")
-            setProperty("Build.HARDWARE", Build.HARDWARE)
-            setProperty(
-                "Build.RADIO",
-                if (Build.getRadioVersion() != null)
-                    Build.getRadioVersion()
-                else
-                    "unknown"
-            )
-            setProperty("Build.FINGERPRINT", Build.FINGERPRINT)
-            setProperty("Build.BRAND", Build.BRAND)
-            setProperty("Build.DEVICE", Build.DEVICE)
-            setProperty("Build.VERSION.SDK_INT", "${Build.VERSION.SDK_INT}")
-            setProperty("Build.VERSION.RELEASE", Build.VERSION.RELEASE)
-            setProperty("Build.MODEL", Build.MODEL)
-            setProperty("Build.MANUFACTURER", Build.MANUFACTURER)
-            setProperty("Build.PRODUCT", Build.PRODUCT)
-            setProperty("Build.ID", Build.ID)
-            setProperty("Build.BOOTLOADER", Build.BOOTLOADER)
-
-            val config = context.resources.configuration
-            setProperty("TouchScreen", "${config.touchscreen}")
-            setProperty("Keyboard", "${config.keyboard}")
-            setProperty("Navigation", "${config.navigation}")
-            setProperty("ScreenLayout", "${config.screenLayout and 15}")
-            setProperty("HasHardKeyboard", "${config.keyboard == Configuration.KEYBOARD_QWERTY}")
-            setProperty(
-                "HasFiveWayNavigation",
-                "${config.navigation == Configuration.NAVIGATIONHIDDEN_YES}"
-            )
-
+            setBuildProperties()
+            setConfigProperties(context)
             // Display Metrics
-            val metrics = context.resources.displayMetrics
-            setProperty("Screen.Density", "${metrics.densityDpi}")
-            setProperty("Screen.Width", "${metrics.widthPixels}")
-            setProperty("Screen.Height", "${metrics.heightPixels}")
-
-            // Supported Platforms
-            setProperty("Platforms", Build.SUPPORTED_ABIS.joinToString(separator = ","))
-
-            // Supported Features
-            setProperty("Features", getFeatures(context).joinToString(separator = ","))
-            // Shared Locales
-            setProperty("Locales", getLocales(context).joinToString(separator = ","))
-            // Shared Libraries
-            setProperty(
-                "SharedLibraries",
-                getSharedLibraries(context).joinToString(separator = ",")
-            )
+            setDisplayMetrics(context)
             // GL Extensions
-            val activityManager =
-                context.getSystemService(ACTIVITY_SERVICE) as ActivityManager
-            setProperty(
-                "GL.Version",
-                activityManager.deviceConfigurationInfo.reqGlEsVersion.toString()
-            )
-            setProperty(
-                "GL.Extensions",
-                EglExtensionProvider.eglExtensions.joinToString(separator = ",")
-            )
-
+            setGLExtensions(context)
             // Google Related Props
-            val gsfVersionProvider = NativeGsfVersionProvider(context)
-            setProperty("Client", "android-google")
-            setProperty("GSF.version", "${gsfVersionProvider.getGsfVersionCode(true)}")
-            setProperty("Vending.version", "${gsfVersionProvider.getVendingVersionCode(true)}")
-            setProperty("Vending.versionString", gsfVersionProvider.getVendingVersionString(true))
-
+            setGoogleProperties(context)
             // MISC
-            setProperty("Roaming", "mobile-notroaming")
-            setProperty("TimeZone", "UTC-10")
-
-            // Telephony (USA 3650 AT&T)
-            setProperty("CellOperator", "310")
-            setProperty("SimOperator", "38")
+            setMiscProperties()
         }
         return properties
+    }
+
+    private fun Properties.setMiscProperties() {
+        setProperty("Roaming", "mobile-notroaming")
+        setProperty("TimeZone", "UTC-10")
+        // Telephony (USA 3650 AT&T)
+        setProperty("CellOperator", "310")
+        setProperty("SimOperator", "38")
+    }
+
+    private fun Properties.setGoogleProperties(context: Context) {
+        val gsfVersionProvider = NativeGsfVersionProvider(context)
+        setProperty("Client", "android-google")
+        setProperty("GSF.version", "${gsfVersionProvider.getGsfVersionCode(true)}")
+        setProperty("Vending.version", "${gsfVersionProvider.getVendingVersionCode(true)}")
+        setProperty("Vending.versionString", gsfVersionProvider.getVendingVersionString(true))
+    }
+
+    private fun Properties.setGLExtensions(context: Context) {
+        val activityManager =
+            context.getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        setProperty(
+            "GL.Version",
+            activityManager.deviceConfigurationInfo.reqGlEsVersion.toString()
+        )
+        setProperty(
+            "GL.Extensions",
+            EglExtensionProvider.eglExtensions.joinToString(separator = ",")
+        )
+    }
+
+    private fun Properties.setDisplayMetrics(context: Context) {
+        val metrics = context.resources.displayMetrics
+        setProperty("Screen.Density", "${metrics.densityDpi}")
+        setProperty("Screen.Width", "${metrics.widthPixels}")
+        setProperty("Screen.Height", "${metrics.heightPixels}")
+
+        // Supported Platforms
+        setProperty("Platforms", Build.SUPPORTED_ABIS.joinToString(separator = ","))
+
+        // Supported Features
+        setProperty("Features", getFeatures(context).joinToString(separator = ","))
+        // Shared Locales
+        setProperty("Locales", getLocales(context).joinToString(separator = ","))
+        // Shared Libraries
+        setProperty(
+            "SharedLibraries",
+            getSharedLibraries(context).joinToString(separator = ",")
+        )
+    }
+
+    private fun Properties.setConfigProperties(context: Context) {
+        val config = context.resources.configuration
+        setProperty("TouchScreen", "${config.touchscreen}")
+        setProperty("Keyboard", "${config.keyboard}")
+        setProperty("Navigation", "${config.navigation}")
+        setProperty("ScreenLayout", "${config.screenLayout and 15}")
+        setProperty("HasHardKeyboard", "${config.keyboard == Configuration.KEYBOARD_QWERTY}")
+        setProperty(
+            "HasFiveWayNavigation",
+            "${config.navigation == Configuration.NAVIGATIONHIDDEN_YES}"
+        )
+    }
+
+    private fun Properties.setBuildProperties() {
+        setProperty("UserReadableName", "${Build.DEVICE}-default")
+        setProperty("Build.HARDWARE", Build.HARDWARE)
+        setProperty(
+            "Build.RADIO",
+            if (Build.getRadioVersion() != null)
+                Build.getRadioVersion()
+            else
+                "unknown"
+        )
+        setProperty("Build.FINGERPRINT", Build.FINGERPRINT)
+        setProperty("Build.BRAND", Build.BRAND)
+        setProperty("Build.DEVICE", Build.DEVICE)
+        setProperty("Build.VERSION.SDK_INT", "${Build.VERSION.SDK_INT}")
+        setProperty("Build.VERSION.RELEASE", Build.VERSION.RELEASE)
+        setProperty("Build.MODEL", Build.MODEL)
+        setProperty("Build.MANUFACTURER", Build.MANUFACTURER)
+        setProperty("Build.PRODUCT", Build.PRODUCT)
+        setProperty("Build.ID", Build.ID)
+        setProperty("Build.BOOTLOADER", Build.BOOTLOADER)
     }
 
     private fun getFeatures(context: Context): List<String> {
