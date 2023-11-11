@@ -2,7 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>ComplexCondition:AppPurchaseFragment.kt$AppPurchaseFragment.&lt;no name provided&gt;$url.contains("https://play.google.com/store/apps/details") &amp;&amp; url.contains("raii") &amp;&amp; url.contains("raboi") &amp;&amp; url.contains("rasi") &amp;&amp; url.contains("rapt")</ID>
     <ID>CyclomaticComplexMethod:ApplicationApiImpl.kt$ApplicationApiImpl$private suspend fun generateCleanAPKHome(home: CleanApkHome, appType: String): List&lt;Home&gt;</ID>
     <ID>CyclomaticComplexMethod:ApplicationDiffUtil.kt$ApplicationDiffUtil$override fun areContentsTheSame(oldItem: Application, newItem: Application): Boolean</ID>
     <ID>CyclomaticComplexMethod:CategoryUtils.kt$CategoryUtils$fun provideAppsCategoryIconResource(categoryId: String): Int</ID>
