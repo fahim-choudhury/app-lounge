@@ -61,7 +61,7 @@ import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
-import foundation.e.apps.ui.home.model.HomeChildFusedAppDiffUtil
+import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Deferred
@@ -1354,7 +1354,7 @@ class ApplicationApiImpl @Inject constructor(
         newApplications: List<Application>,
         oldApplications: List<Application>
     ): Boolean {
-        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
+        val fusedAppDiffUtil = ApplicationDiffUtil()
         if (newApplications.size != oldApplications.size) {
             return true
         }

@@ -30,7 +30,7 @@ import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
-import foundation.e.apps.ui.home.model.HomeChildFusedAppDiffUtil
+import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -143,7 +143,7 @@ class HomeViewModel @Inject constructor(
         oldHome: Home,
         newHome: Home,
     ): Boolean {
-        val fusedAppDiffUtil = HomeChildFusedAppDiffUtil()
+        val fusedAppDiffUtil = ApplicationDiffUtil()
 
         oldHome.list.forEach { oldFusedApp ->
             val indexOfOldFusedApp = oldHome.list.indexOf(oldFusedApp)

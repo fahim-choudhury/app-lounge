@@ -41,6 +41,7 @@ import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.databinding.HomeChildListItemBinding
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.MainActivityViewModel
+import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
 import foundation.e.apps.ui.home.HomeFragmentDirections
 import foundation.e.apps.utils.disableInstallButton
 import foundation.e.apps.utils.enableInstallButton
@@ -51,7 +52,7 @@ class HomeChildRVAdapter(
     private val mainActivityViewModel: MainActivityViewModel,
     private var lifecycleOwner: LifecycleOwner?,
     private var paidAppHandler: ((Application) -> Unit)? = null
-) : ListAdapter<Application, HomeChildRVAdapter.ViewHolder>(HomeChildFusedAppDiffUtil()) {
+) : ListAdapter<Application, HomeChildRVAdapter.ViewHolder>(ApplicationDiffUtil()) {
 
     private val shimmer = Shimmer.ColorHighlightBuilder()
         .setDuration(500)

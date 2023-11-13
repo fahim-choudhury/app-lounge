@@ -2,9 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:ApplicationDiffUtil.kt$ApplicationDiffUtil$override fun areContentsTheSame(oldItem: Application, newItem: Application): Boolean</ID>
-<!--    <ID>CyclomaticComplexMethod:DownloadProgressLD.kt$DownloadProgressLD$override fun observe(owner: LifecycleOwner, observer: Observer&lt;in DownloadProgress&gt;)</ID>-->
-    <ID>CyclomaticComplexMethod:HomeChildFusedAppDiffUtil.kt$HomeChildFusedAppDiffUtil$override fun areContentsTheSame(oldItem: Application, newItem: Application): Boolean</ID>
     <ID>EmptyCatchBlock:NativeDeviceInfoProviderModule.kt$NativeDeviceInfoProviderModule${ }</ID>
     <ID>EmptyFunctionBlock:CleanApkAuthenticator.kt$CleanApkAuthenticator${}</ID>
     <ID>ImplicitDefaultLocale:ApplicationFragment.kt$ApplicationFragment$String.format("%d%%", progressPercentage)</ID>
