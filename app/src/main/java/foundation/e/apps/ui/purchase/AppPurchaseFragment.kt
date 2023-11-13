@@ -60,6 +60,10 @@ class AppPurchaseFragment : Fragment() {
             override fun onPageFinished(view: WebView, url: String) {
                     isAppPurchased = isAppPurchased(url)
             }
+
+            private fun isAppPurchased(url: String) =
+                url.contains("https://play.google.com/store/apps/details") && url.contains("raii") &&
+                        url.contains("raboi") && url.contains("rasi") && url.contains("rapt")
         }
 
         binding.playStoreWebView.apply {
@@ -73,10 +77,6 @@ class AppPurchaseFragment : Fragment() {
             loadUrl(url)
         }
     }
-
-    private fun isAppPurchased(url: String) =
-        url.contains("https://play.google.com/store/apps/details") && url.contains("raii") &&
-                url.contains("raboi") && url.contains("rasi") && url.contains("rapt")
 
     override fun onDestroyView() {
         if (isAppPurchased) {
