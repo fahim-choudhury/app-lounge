@@ -103,7 +103,10 @@ class HomeViewModel @Inject constructor(
     private fun postHomeResult(homeResult: ResultSupreme<List<Home>>) {
         if (shouldUpdateResult(homeResult)) {
             homeScreenData.value = homeResult
-            currentHomes = homeResult.data
+            // Here, homeResult.data is a mutableList which can be changed anytime.
+            // That's why we're setting copy of the list, so that currentHomes isn't changed,
+            // when homeresult.data is changed.
+            currentHomes = homeResult.data?.map { it.copy() }
             return
         }
 
