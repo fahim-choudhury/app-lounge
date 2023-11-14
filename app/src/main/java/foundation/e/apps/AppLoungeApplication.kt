@@ -34,6 +34,7 @@ import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.install.updates.UpdatesWorkManager
 import foundation.e.apps.install.workmanager.InstallWorkManager
 import foundation.e.apps.ui.setup.tos.TOS_VERSION
+import foundation.e.apps.utils.CustomUncaughtExceptionHandler
 import foundation.e.lib.telemetry.Telemetry
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.MainScope
@@ -59,9 +60,14 @@ class AppLoungeApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var preferenceManagerModule: PreferenceManagerModule
 
+    @Inject
+    lateinit var uncaughtExceptionHandler: CustomUncaughtExceptionHandler
+
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate() {
         super.onCreate()
+
+        Thread.setDefaultUncaughtExceptionHandler(uncaughtExceptionHandler)
 
         InstallWorkManager.context = this
         // Register broadcast receiver for package manager
