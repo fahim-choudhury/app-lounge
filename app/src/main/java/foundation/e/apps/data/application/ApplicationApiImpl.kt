@@ -1079,31 +1079,31 @@ class ApplicationApiImpl @Inject constructor(
         headings.forEach { (key, value) ->
             when (key) {
                 "top_updated_apps" -> {
-                    prepareTopUpdatedApps(home, list, value)
+                    prepareApps(home.top_updated_apps, list, value)
                 }
 
                 "top_updated_games" -> {
-                    prepareTopUpdatedGames(home, list, value)
+                    prepareApps(home.top_updated_games, list, value)
                 }
 
                 "popular_apps" -> {
-                    preparePopularApps(home, list, value)
+                    prepareApps(home.popular_apps, list, value)
                 }
 
                 "popular_games" -> {
-                    preparePopularGames(home, list, value)
+                    prepareApps(home.popular_games, list, value)
                 }
 
                 "popular_apps_in_last_24_hours" -> {
-                    prepareAppsInLast24Hours(home, list, value)
+                    prepareApps(home.popular_apps_in_last_24_hours, list, value)
                 }
 
                 "popular_games_in_last_24_hours" -> {
-                    prepareGamesInLast24Hours(home, list, value)
+                    prepareApps(home.popular_games_in_last_24_hours, list, value)
                 }
 
                 "discover" -> {
-                    prepareDiscoverApps(home, list, value)
+                    prepareApps(home.discover, list, value)
                 }
             }
         }
@@ -1114,108 +1114,18 @@ class ApplicationApiImpl @Inject constructor(
         }
     }
 
-    private suspend fun prepareDiscoverApps(
-        home: foundation.e.apps.data.cleanapk.data.home.Home,
+    private suspend fun prepareApps(
+        appList: List<Application>,
         list: MutableList<Home>,
         value: String
     ) {
-        if (home.discover.isNotEmpty()) {
-            home.discover.forEach {
+        if (appList.isNotEmpty()) {
+            appList.forEach {
                 it.updateStatus()
                 it.updateType()
                 it.updateFilterLevel(null)
             }
-            list.add(Home(value, home.discover))
-        }
-    }
-
-    private suspend fun prepareGamesInLast24Hours(
-        home: foundation.e.apps.data.cleanapk.data.home.Home,
-        list: MutableList<Home>,
-        value: String
-    ) {
-        if (home.popular_games_in_last_24_hours.isNotEmpty()) {
-            home.popular_games_in_last_24_hours.forEach {
-                it.updateStatus()
-                it.updateType()
-                it.updateFilterLevel(null)
-            }
-            list.add(Home(value, home.popular_games_in_last_24_hours))
-        }
-    }
-
-    private suspend fun prepareAppsInLast24Hours(
-        home: foundation.e.apps.data.cleanapk.data.home.Home,
-        list: MutableList<Home>,
-        value: String
-    ) {
-        if (home.popular_apps_in_last_24_hours.isNotEmpty()) {
-            home.popular_apps_in_last_24_hours.forEach {
-                it.updateStatus()
-                it.updateType()
-                it.updateFilterLevel(null)
-            }
-            list.add(Home(value, home.popular_apps_in_last_24_hours))
-        }
-    }
-
-    private suspend fun preparePopularGames(
-        home: foundation.e.apps.data.cleanapk.data.home.Home,
-        list: MutableList<Home>,
-        value: String
-    ) {
-        if (home.popular_games.isNotEmpty()) {
-            home.popular_games.forEach {
-                it.updateStatus()
-                it.updateType()
-                it.updateFilterLevel(null)
-            }
-            list.add(Home(value, home.popular_games))
-        }
-    }
-
-    private suspend fun preparePopularApps(
-        home: foundation.e.apps.data.cleanapk.data.home.Home,
-        list: MutableList<Home>,
-        value: String
-    ) {
-        if (home.popular_apps.isNotEmpty()) {
-            home.popular_apps.forEach {
-                it.updateStatus()
-                it.updateType()
-                it.updateFilterLevel(null)
-            }
-            list.add(Home(value, home.popular_apps))
-        }
-    }
-
-    private suspend fun prepareTopUpdatedGames(
-        home: foundation.e.apps.data.cleanapk.data.home.Home,
-        list: MutableList<Home>,
-        value: String
-    ) {
-        if (home.top_updated_games.isNotEmpty()) {
-            home.top_updated_games.forEach {
-                it.updateStatus()
-                it.updateType()
-                it.updateFilterLevel(null)
-            }
-            list.add(Home(value, home.top_updated_games))
-        }
-    }
-
-    private suspend fun prepareTopUpdatedApps(
-        home: foundation.e.apps.data.cleanapk.data.home.Home,
-        list: MutableList<Home>,
-        value: String
-    ) {
-        if (home.top_updated_apps.isNotEmpty()) {
-            home.top_updated_apps.forEach {
-                it.updateStatus()
-                it.updateType()
-                it.updateFilterLevel(null)
-            }
-            list.add(Home(value, home.top_updated_apps))
+            list.add(Home(value, appList))
         }
     }
 

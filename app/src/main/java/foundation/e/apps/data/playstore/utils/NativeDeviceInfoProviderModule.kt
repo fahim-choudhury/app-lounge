@@ -43,16 +43,11 @@ object NativeDeviceInfoProviderModule {
         @ApplicationContext context: Context,
     ): Properties {
         val properties = Properties().apply {
-            // Build Props
             setBuildProperties()
             setConfigProperties(context)
-            // Display Metrics
             setDisplayMetrics(context)
-            // GL Extensions
             setGLExtensions(context)
-            // Google Related Props
             setGoogleProperties(context)
-            // MISC
             setMiscProperties()
         }
         return properties
@@ -61,7 +56,6 @@ object NativeDeviceInfoProviderModule {
     private fun Properties.setMiscProperties() {
         setProperty("Roaming", "mobile-notroaming")
         setProperty("TimeZone", "UTC-10")
-        // Telephony (USA 3650 AT&T)
         setProperty("CellOperator", "310")
         setProperty("SimOperator", "38")
     }
@@ -92,15 +86,9 @@ object NativeDeviceInfoProviderModule {
         setProperty("Screen.Density", "${metrics.densityDpi}")
         setProperty("Screen.Width", "${metrics.widthPixels}")
         setProperty("Screen.Height", "${metrics.heightPixels}")
-
-        // Supported Platforms
         setProperty("Platforms", Build.SUPPORTED_ABIS.joinToString(separator = ","))
-
-        // Supported Features
         setProperty("Features", getFeatures(context).joinToString(separator = ","))
-        // Shared Locales
         setProperty("Locales", getLocales(context).joinToString(separator = ","))
-        // Shared Libraries
         setProperty(
             "SharedLibraries",
             getSharedLibraries(context).joinToString(separator = ",")

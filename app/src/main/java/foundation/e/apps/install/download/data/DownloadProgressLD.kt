@@ -19,6 +19,10 @@
 package foundation.e.apps.install.download.data
 
 import android.app.DownloadManager
+import android.app.DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR
+import android.app.DownloadManager.COLUMN_ID
+import android.app.DownloadManager.COLUMN_STATUS
+import android.app.DownloadManager.COLUMN_TOTAL_SIZE_BYTES
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
@@ -76,13 +80,13 @@ class DownloadProgressLD @Inject constructor(
                 cursor.moveToFirst()
                 while (!cursor.isAfterLast) {
                     val id =
-                        cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_ID))
+                        cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ID))
                     val status =
-                        cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_STATUS))
                     val totalSizeBytes =
-                        cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
+                        cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_TOTAL_SIZE_BYTES))
                     val bytesDownloadedSoFar =
-                        cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
+                        cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_BYTES_DOWNLOADED_SO_FAR))
 
                     downloadProgress.downloadId = id
 

@@ -84,14 +84,12 @@ class MainActivity : AppCompatActivity() {
 
         setupViewModels()
 
-        // navOptions and activityNavController for TOS and SignIn Fragments
         setupNavigations(navController)
 
         if (intent.hasExtra(UpdatesNotifier.UPDATES_NOTIFICATION_CLICK_EXTRA)) {
             bottomNavigationView.selectedItemId = R.id.updatesFragment
         }
 
-        // Create notification channel on post-nougat devices
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             viewModel.createNotificationChannels()
         }
@@ -103,7 +101,6 @@ class MainActivity : AppCompatActivity() {
         observeAuthObjects(navController)
 
         setupDestinationChangedListener(navController, hasInternet, bottomNavigationView)
-
 
         observePurchaseAppPage()
 
@@ -211,15 +208,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeInternetConnections(hasInternet: Boolean): Boolean {
-        var hasInternet1 = hasInternet
+        var mutableHasInternet = hasInternet
         viewModel.internetConnection.observe(this) { isInternetAvailable ->
-            hasInternet1 = isInternetAvailable
+            mutableHasInternet = isInternetAvailable
             if (isInternetAvailable) {
                 binding.noInternet.visibility = View.GONE
                 binding.fragment.visibility = View.VISIBLE
             }
         }
-        return hasInternet1
+        return mutableHasInternet
     }
 
     private fun setupDestinationChangedListener(

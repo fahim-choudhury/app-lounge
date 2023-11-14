@@ -90,6 +90,7 @@ class PWAManagerModule @Inject constructor(
         } catch (e: Exception) {
            Timber.w(e)
         }
+
         return false
     }
 
