@@ -166,4 +166,6 @@
 \n\t• ridurre il micro-targeting
 \n\t• limitare l\'impatto nel caso in cui l\'account venga bloccato da Google</string>
     <string name="free_space_for_update">Per scaricare l\'aggiornamento, devi liberare %1$s di spazio sullo smartphone.</string>
+
+    <string name="notification_content_full_db">Ti invitiamo a liberare un pò di spazio sul telefono in modo che App Lounge possa funzionare correttamente.</string>
 </resources>
