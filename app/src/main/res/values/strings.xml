@@ -20,6 +20,11 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" translatable="false">App Lounge</string>
 
+    <string name="basic_notification_channel_id" translatable="false">applounge_notification</string>
+
+    <string name="warning_notification_channel_id" translatable="false">applounge_warning_notification</string>
+    <string name="warning_notification_channel_title" translatable="false">Warning</string>
+
     <!-- Bottom Navigation Bar -->
     <string name="menu_home" weblate_ctx="home">Home</string>
     <string name="menu_categories" weblate_ctx="home">Categories</string>
@@ -234,4 +239,6 @@
     <string name="request_exodus_report_confirm_dialog">Clicking on \"<xliff:g id="ok">%1$s</xliff:g>\" will open a tab in your browser with the app\'s package name prefilled.&lt;br /&gt;&lt;br /&gt;Click on \"Perform analysis\" to start the analysis by Exodus.&lt;br /&gt;&lt;br /&gt;When the button \"See the report\" is displayed (it can take a while depending on the app) you can close the tab and go back to the app description in <xliff:g id="app_name">%2$s</xliff:g> where you should see the Privacy Score. Sometimes Exodus can fail to analyze the app.&lt;br /&gt;&lt;br /&gt;NB: it can take up to 10 min for the score to be displayed in the app description.</string>
 
     <string name="free_space_for_update">Free up %1$s on your phone to get the latest updates.</string>
+
+    <string name="notification_content_full_db">Please free up some space on your phone so App Lounge can work properly.</string>
 </resources>
