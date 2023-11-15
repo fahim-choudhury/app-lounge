@@ -32,7 +32,7 @@ private const val ERROR_GPLAY_API = "Gplay api has faced error!"
 private const val REGEX_CONTAIN_429_OR_401 = "429|401"
 private const val MAX_RETRY_DELAY_IN_SECONDS = 300
 private const val ONE_SECOND_IN_MILLIS = 1000L
-private const val INITIAL_DELAY_RETRY_IN_SECONDS = 5
+private const val INITIAL_DELAY_RETRY_IN_SECONDS = 10
 
 suspend fun <T> handleNetworkResult(call: suspend () -> T): ResultSupreme<T> {
     return try {
