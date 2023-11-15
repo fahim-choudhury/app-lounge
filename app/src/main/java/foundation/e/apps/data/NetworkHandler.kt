@@ -29,7 +29,7 @@ private const val TIMEOUT = "Timeout"
 private const val UNKNOWN = "Unknown"
 private const val STATUS = "Status:"
 private const val ERROR_GPLAY_API = "Gplay api has faced error!"
-private const val REGEX_CONTAIN_429_OR_401 = "429|401"
+private const val REGEX_429_OR_401 = "429|401"
 private const val MAX_RETRY_DELAY_IN_SECONDS = 300
 private const val ONE_SECOND_IN_MILLIS = 1000L
 private const val INITIAL_DELAY_RETRY_IN_SECONDS = 10
@@ -112,5 +112,5 @@ private fun <T> shouldRetry(result: T, retryDelayInSecond: Int) =
 
 private fun isExceptionAllowedToRetry(exception: Exception?): Boolean {
     // Here, (value != true) is used, because value can be null also and we want to allow retry for null message
-    return exception?.message?.contains(Regex(REGEX_CONTAIN_429_OR_401)) != true
+    return exception?.message?.contains(Regex(REGEX_429_OR_401)) != true
 }
