@@ -152,7 +152,7 @@
 \nÝttu á \'Reyna aftur\' til að athuga hvort þetta hafi lagast.</string>
     <string name="dialog_paidapp_message">Þegar smellt er á staðfestingu, er farið á síðu Google Play fyrir forritið til að ljúka kaupunum í vafra. Smelltu á \'Staðfesta\' til að kaupa %1$s fyrir %2$s.</string>
     <string name="install_blocked_anonymous">Ekki er hægt að setja keypt forrit upp í nafnleysisham. Skráðu þig inn á Google-aðganginn þinn til að setja upp keypt forrit.</string>
-    <string name="install_blocked_google">Keypt forrit eru ekki ennþá studd í App Lounge. Þýndu smá biðlund, það mun koma að því.</string>
+    <string name="install_blocked_google">Keypt forrit eru ekki ennþá studd í App Lounge. Sýndu smá biðlund, það mun koma að því.</string>
     <string name="duplicate_app_from_sources">Ýmis séreignarhugbúnaður gæti einnig átt sér útgáfu með opnu hugbúnaðarleyfi. Þegar slíkt á sér stað, mun App Lounge einungis sýna frjálsu opnu útgáfuna, til að koma í veg fyrir tvítekningar.</string>
     <string name="paid_app_anonymous_message">Ekki er hægt að setja keypt forrit upp í nafnleysisham. Skráðu þig inn á Google-aðganginn þinn til að setja upp keypt forrit.</string>
     <string name="unsupported_app_unreleased">Forritið %s er ekki stutt í augnablikinu. Það gæti verið raunin ef forritið sé ekki enn komið í almenna dreifingu, eða vegna einhverrar villu.</string>
@@ -170,4 +170,5 @@
     <string name="too_many_requests_desc">Nafnlausi aðgangurinn sem þú ert að nota er ekki tiltækur. Endurlestu setuna til að fá annann.</string>
     <string name="free_space_for_update">Losaðu um %1$s pláss á símanum þínum til að fá nýjustu uppfærslur.</string>
     <string name="checking_updates">Athuga með uppfærslur...</string>
+    <string name="notification_content_full_db">Losaðu um svolítið pláss á símanum þínum svo App Lounge geti virkað eðlilega.</string>
 </resources>
