@@ -63,21 +63,32 @@ open class PkgManagerBR : BroadcastReceiver() {
 
             Timber.d("onReceive: $packageName $action $extra $status")
             packages?.let { pkgList ->
-                pkgList.forEach { pkgName ->
-                    when (action) {
-                        Intent.ACTION_PACKAGE_ADDED -> {
-                            updateDownloadStatus(pkgName)
-                            removeFaultyAppByPackageName(pkgName)
-                        }
-                        Intent.ACTION_PACKAGE_REMOVED -> {
-                            if (!isUpdating) deleteDownload(pkgName)
-                            removeFaultyAppByPackageName(pkgName)
-                        }
-                        PkgManagerModule.ERROR_PACKAGE_INSTALL -> {
-                            Timber.e("Installation failed due to error: $extra")
-                            updateInstallationIssue(pkgName)
-                        }
-                    }
+                handlePackageList(pkgList, action, isUpdating, extra)
+            }
+        }
+    }
+
+    private fun handlePackageList(
+        pkgList: Array<out String>,
+        action: String,
+        isUpdating: Boolean,
+        extra: String?
+    ) {
+        pkgList.forEach { pkgName ->
+            when (action) {
+                Intent.ACTION_PACKAGE_ADDED -> {
+                    updateDownloadStatus(pkgName)
+                    removeFaultyAppByPackageName(pkgName)
+                }
+
+                Intent.ACTION_PACKAGE_REMOVED -> {
+                    if (!isUpdating) deleteDownload(pkgName)
+                    removeFaultyAppByPackageName(pkgName)
+                }
+
+                PkgManagerModule.ERROR_PACKAGE_INSTALL -> {
+                    Timber.e("Installation failed due to error: $extra")
+                    updateInstallationIssue(pkgName)
                 }
             }
         }

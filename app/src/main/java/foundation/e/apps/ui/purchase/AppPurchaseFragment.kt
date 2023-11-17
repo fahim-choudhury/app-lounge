@@ -58,11 +58,25 @@ class AppPurchaseFragment : Fragment() {
 
         binding.playStoreWebView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView, url: String) {
-                if (url.contains("https://play.google.com/store/apps/details") && url.contains("raii") &&
-                    url.contains("raboi") && url.contains("rasi") && url.contains("rapt")
-                ) {
-                    isAppPurchased = true
+                isAppPurchased = isAppPurchased(url)
+            }
+
+            private fun isAppPurchased(url: String): Boolean {
+                val urlElementsOfPurchasedApp = listOf(
+                    "https://play.google.com/store/apps/details",
+                    "raii",
+                    "raboi",
+                    "rasi",
+                    "rapt"
+                )
+
+                urlElementsOfPurchasedApp.forEach {
+                    if (!url.contains(it)) {
+                        return false
+                    }
                 }
+
+                return true
             }
         }
 

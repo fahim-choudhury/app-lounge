@@ -4,6 +4,7 @@ import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -62,26 +63,35 @@ class PWAManagerModule @Inject constructor(
             Uri.parse(PWA_PLAYER),
             null, null, null, null
         )?.let { cursor ->
-            if (cursor.count > 0) {
-                if (cursor.moveToFirst()) {
-                    do {
-                        try {
-                            val pwaItemUrl = cursor.getString(cursor.columnNames.indexOf("url"))
-                            val pwaItemDbId = cursor.getLong(cursor.columnNames.indexOf("_id"))
-                            if (application.url == pwaItemUrl) {
-                                application.pwaPlayerDbId = pwaItemDbId
-                                return Status.INSTALLED
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    } while (cursor.moveToNext())
+            cursor.moveToFirst()
+            while (!cursor.isAfterLast) {
+                if (isPwaInstalled(cursor, application)) {
+                    return Status.INSTALLED
                 }
+                cursor.moveToNext()
             }
             cursor.close()
         }
 
         return Status.UNAVAILABLE
+    }
+
+    private fun isPwaInstalled(
+        cursor: Cursor,
+        application: Application
+    ): Boolean {
+        try {
+            val pwaItemUrl = cursor.getString(cursor.columnNames.indexOf("url"))
+            val pwaItemDbId = cursor.getLong(cursor.columnNames.indexOf("_id"))
+            if (application.url == pwaItemUrl) {
+                application.pwaPlayerDbId = pwaItemDbId
+                return true
+            }
+        } catch (e: Exception) {
+           Timber.w(e)
+        }
+
+        return false
     }
 
     /**

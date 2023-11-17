@@ -78,20 +78,50 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val bottomNavigationView = binding.bottomNavigationView
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.fragment) as NavHostFragment
-        val navController = navHostFragment.navController
-        bottomNavigationView.setupWithNavController(navController)
-        setupBottomNavItemSelectedListener(bottomNavigationView, navHostFragment, navController)
+        val (bottomNavigationView, navController) = setupBootomNav()
 
         var hasInternet = true
 
-        viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
-        signInViewModel = ViewModelProvider(this)[SignInViewModel::class.java]
-        loginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
+        setupViewModels()
 
-        // navOptions and activityNavController for TOS and SignIn Fragments
+        setupNavigations(navController)
+
+        if (intent.hasExtra(UpdatesNotifier.UPDATES_NOTIFICATION_CLICK_EXTRA)) {
+            bottomNavigationView.selectedItemId = R.id.updatesFragment
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            viewModel.createNotificationChannels()
+        }
+
+        viewModel.setupConnectivityManager(this.applicationContext)
+
+        hasInternet = observeInternetConnections(hasInternet)
+
+        observeAuthObjects(navController)
+
+        setupDestinationChangedListener(navController, hasInternet, bottomNavigationView)
+
+        observePurchaseAppPage()
+
+        observeErrorMessage()
+
+        observeErrorMessageString()
+
+        observeIsAppPurchased()
+
+        observePurchaseDeclined()
+
+        if (viewModel.internetConnection.value != true) {
+            showNoInternet()
+        }
+
+        viewModel.updateAppWarningList()
+
+        observeEvents()
+    }
+
+    private fun setupNavigations(navController: NavController) {
         val navOptions = NavOptions.Builder()
             .setPopUpTo(R.id.navigation_resource, true)
             .build()
@@ -104,112 +134,9 @@ class MainActivity : AppCompatActivity() {
                 loginViewModel.startLoginFlow()
             }
         }
+    }
 
-        viewModel.setupConnectivityManager(this.applicationContext)
-
-        viewModel.internetConnection.observe(this) { isInternetAvailable ->
-            hasInternet = isInternetAvailable
-            if (isInternetAvailable) {
-                binding.noInternet.visibility = View.GONE
-                binding.fragment.visibility = View.VISIBLE
-            }
-        }
-
-        loginViewModel.authObjects.distinctUntilChanged().observe(this) {
-            when {
-                it == null -> return@observe
-                it.isEmpty() -> {
-                    // No auth type defined means user has not logged in yet
-                    // Pop back stack to prevent showing TOSFragment on pressing back button.
-                    navController.popBackStack()
-                    navController.navigate(R.id.signInFragment)
-                }
-
-                else -> {}
-            }
-
-            it.find { it is AuthObject.GPlayAuth }?.result?.run {
-                if (isSuccess()) {
-                    viewModel.gPlayAuthData = data as AuthData
-                } else if (exception is GPlayValidationException) {
-                    val email = otherPayload.toString()
-                    viewModel.uploadFaultyTokenToEcloud(
-                        email,
-                        SystemInfoProvider.getAppBuildInfo()
-                    )
-                } else if (exception != null) {
-                    Timber.e(exception, "Login failed! message: ${exception?.localizedMessage}")
-                }
-            }
-        }
-
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            if (!hasInternet) {
-                showNoInternet()
-            }
-            when (destination.id) {
-                R.id.applicationFragment,
-                R.id.applicationListFragment,
-                R.id.screenshotFragment,
-                R.id.descriptionFragment,
-                R.id.TOSFragment,
-                R.id.googleSignInFragment,
-                R.id.signInFragment -> {
-                    bottomNavigationView.visibility = View.GONE
-                }
-
-                else -> {
-                    bottomNavigationView.visibility = View.VISIBLE
-                }
-            }
-        }
-
-        if (intent.hasExtra(UpdatesNotifier.UPDATES_NOTIFICATION_CLICK_EXTRA)) {
-            bottomNavigationView.selectedItemId = R.id.updatesFragment
-        }
-
-        // Create notification channel on post-nougat devices
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            viewModel.createNotificationChannels()
-        }
-
-        viewModel.purchaseAppLiveData.observe(this) {
-            goToAppPurchaseFragment(it)
-        }
-
-        viewModel.errorMessage.observe(this) {
-            when (it) {
-                is ApiException.AppNotPurchased -> showSnackbarMessage(getString(R.string.message_app_available_later))
-                else -> showSnackbarMessage(
-                    it.localizedMessage ?: getString(R.string.unknown_error)
-                )
-            }
-        }
-
-        viewModel.errorMessageStringResource.observe(this) {
-            showSnackbarMessage(getString(it))
-        }
-
-        viewModel.isAppPurchased.observe(this) {
-            if (it.isNotEmpty()) {
-                startInstallationOfPurchasedApp(viewModel, it)
-            }
-        }
-
-        viewModel.purchaseDeclined.observe(this) {
-            if (it.isNotEmpty()) {
-                lifecycleScope.launch {
-                    viewModel.updateUnavailableForPurchaseDeclined(it)
-                }
-            }
-        }
-
-        if (viewModel.internetConnection.value != true) {
-            showNoInternet()
-        }
-
-        viewModel.updateAppWarningList()
-
+    private fun observeEvents() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -237,6 +164,132 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun observePurchaseDeclined() {
+        viewModel.purchaseDeclined.observe(this) {
+            if (it.isNotEmpty()) {
+                lifecycleScope.launch {
+                    viewModel.updateUnavailableForPurchaseDeclined(it)
+                }
+            }
+        }
+    }
+
+    private fun observeIsAppPurchased() {
+        viewModel.isAppPurchased.observe(this) {
+            if (it.isNotEmpty()) {
+                startInstallationOfPurchasedApp(viewModel, it)
+            }
+        }
+    }
+
+    private fun observeErrorMessageString() {
+        viewModel.errorMessageStringResource.observe(this) {
+            showSnackbarMessage(getString(it))
+        }
+    }
+
+    private fun observeErrorMessage() {
+        viewModel.errorMessage.observe(this) {
+            when (it) {
+                is ApiException.AppNotPurchased -> showSnackbarMessage(getString(R.string.message_app_available_later))
+                else -> showSnackbarMessage(
+                    it.localizedMessage ?: getString(R.string.unknown_error)
+                )
+            }
+        }
+    }
+
+    private fun observePurchaseAppPage() {
+        viewModel.purchaseAppLiveData.observe(this) {
+            goToAppPurchaseFragment(it)
+        }
+    }
+
+    private fun observeInternetConnections(hasInternet: Boolean): Boolean {
+        var mutableHasInternet = hasInternet
+        viewModel.internetConnection.observe(this) { isInternetAvailable ->
+            mutableHasInternet = isInternetAvailable
+            if (isInternetAvailable) {
+                binding.noInternet.visibility = View.GONE
+                binding.fragment.visibility = View.VISIBLE
+            }
+        }
+        return mutableHasInternet
+    }
+
+    private fun setupDestinationChangedListener(
+        navController: NavController,
+        hasInternet: Boolean,
+        bottomNavigationView: BottomNavigationView
+    ) {
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (!hasInternet) {
+                showNoInternet()
+            }
+            when (destination.id) {
+                R.id.applicationFragment,
+                R.id.applicationListFragment,
+                R.id.screenshotFragment,
+                R.id.descriptionFragment,
+                R.id.TOSFragment,
+                R.id.googleSignInFragment,
+                R.id.signInFragment -> {
+                    bottomNavigationView.visibility = View.GONE
+                }
+
+                else -> {
+                    bottomNavigationView.visibility = View.VISIBLE
+                }
+            }
+        }
+    }
+
+    private fun observeAuthObjects(navController: NavController) {
+        loginViewModel.authObjects.distinctUntilChanged().observe(this) {
+            when {
+                it == null -> return@observe
+                it.isEmpty() -> {
+                    // No auth type defined means user has not logged in yet
+                    // Pop back stack to prevent showing TOSFragment on pressing back button.
+                    navController.popBackStack()
+                    navController.navigate(R.id.signInFragment)
+                }
+
+                else -> {}
+            }
+
+            it.find { it is AuthObject.GPlayAuth }?.result?.run {
+                if (isSuccess()) {
+                    viewModel.gPlayAuthData = data as AuthData
+                } else if (exception is GPlayValidationException) {
+                    val email = otherPayload.toString()
+                    viewModel.uploadFaultyTokenToEcloud(
+                        email,
+                        SystemInfoProvider.getAppBuildInfo()
+                    )
+                } else if (exception != null) {
+                    Timber.e(exception, "Login failed! message: ${exception?.localizedMessage}")
+                }
+            }
+        }
+    }
+
+    private fun setupViewModels() {
+        viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
+        signInViewModel = ViewModelProvider(this)[SignInViewModel::class.java]
+        loginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
+    }
+
+    private fun setupBootomNav(): Pair<BottomNavigationView, NavController> {
+        val bottomNavigationView = binding.bottomNavigationView
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        bottomNavigationView.setupWithNavController(navController)
+        setupBottomNavItemSelectedListener(bottomNavigationView, navHostFragment, navController)
+        return Pair(bottomNavigationView, navController)
     }
 
     private suspend fun observeNoInternetEvent() {

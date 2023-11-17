@@ -489,71 +489,80 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun observeDownloadStatus(view: View) {
         applicationViewModel.appStatus.observe(viewLifecycleOwner) { status ->
-            val installButton = binding.downloadInclude.installButton
-            val downloadPB = binding.downloadInclude.progressLayout
-            val appSize = binding.downloadInclude.appSize
             val application = applicationViewModel.getFusedApp() ?: Application()
-
             mainActivityViewModel.verifyUiFilter(application) {
                 if (!application.filterLevel.isInitialized()) {
                     return@verifyUiFilter
                 }
-                when (status) {
-                    Status.INSTALLED -> handleInstalled(
-                        installButton,
-                        view,
-                        application,
-                        downloadPB,
-                        appSize
-                    )
 
-                    Status.UPDATABLE -> handleUpdatable(
-                        installButton,
-                        view,
-                        application,
-                        downloadPB,
-                        appSize
-                    )
+                handleInstallStatus(status, view, application)
+            }
+        }
+    }
 
-                    Status.UNAVAILABLE -> handleUnavaiable(
-                        installButton,
-                        application,
-                        downloadPB,
-                        appSize
-                    )
+    private fun handleInstallStatus(
+        status: Status?,
+        view: View,
+        application: Application,
+    ) {
+        val installButton = binding.downloadInclude.installButton
+        val downloadPB = binding.downloadInclude.progressLayout
+        val appSize = binding.downloadInclude.appSize
 
-                    Status.QUEUED, Status.AWAITING, Status.DOWNLOADED -> handleQueued(
-                        installButton,
-                        application,
-                        downloadPB,
-                        appSize
-                    )
+        when (status) {
+            Status.INSTALLED -> handleInstalled(
+                installButton,
+                view,
+                application,
+                downloadPB,
+                appSize
+            )
 
-                    Status.DOWNLOADING -> handleDownloading(
-                        installButton,
-                        application,
-                        downloadPB,
-                        appSize
-                    )
+            Status.UPDATABLE -> handleUpdatable(
+                installButton,
+                view,
+                application,
+                downloadPB,
+                appSize
+            )
 
-                    Status.INSTALLING -> handleInstalling(
-                        installButton,
-                        downloadPB,
-                        appSize
-                    )
+            Status.UNAVAILABLE -> handleUnavaiable(
+                installButton,
+                application,
+                downloadPB,
+                appSize
+            )
 
-                    Status.BLOCKED -> handleBlocked(installButton, view)
-                    Status.INSTALLATION_ISSUE -> handleInstallingIssue(
-                        installButton,
-                        application,
-                        downloadPB,
-                        appSize
-                    )
+            Status.QUEUED, Status.AWAITING, Status.DOWNLOADED -> handleQueued(
+                installButton,
+                application,
+                downloadPB,
+                appSize
+            )
 
-                    else -> {
-                        Timber.d("Unknown status: $status")
-                    }
-                }
+            Status.DOWNLOADING -> handleDownloading(
+                installButton,
+                application,
+                downloadPB,
+                appSize
+            )
+
+            Status.INSTALLING -> handleInstalling(
+                installButton,
+                downloadPB,
+                appSize
+            )
+
+            Status.BLOCKED -> handleBlocked(installButton, view)
+            Status.INSTALLATION_ISSUE -> handleInstallingIssue(
+                installButton,
+                application,
+                downloadPB,
+                appSize
+            )
+
+            else -> {
+                Timber.d("Unknown status: $status")
             }
         }
     }

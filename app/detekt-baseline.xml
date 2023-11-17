@@ -2,13 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>ComplexCondition:AppPurchaseFragment.kt$AppPurchaseFragment.&lt;no name provided&gt;$url.contains("https://play.google.com/store/apps/details") &amp;&amp; url.contains("raii") &amp;&amp; url.contains("raboi") &amp;&amp; url.contains("rasi") &amp;&amp; url.contains("rapt")</ID>
-    <ID>CyclomaticComplexMethod:ApplicationApiImpl.kt$ApplicationApiImpl$private suspend fun generateCleanAPKHome(home: CleanApkHome, appType: String): List&lt;Home&gt;</ID>
-    <ID>CyclomaticComplexMethod:ApplicationDiffUtil.kt$ApplicationDiffUtil$override fun areContentsTheSame(oldItem: Application, newItem: Application): Boolean</ID>
-    <ID>CyclomaticComplexMethod:CategoryUtils.kt$CategoryUtils$fun provideAppsCategoryIconResource(categoryId: String): Int</ID>
-    <ID>CyclomaticComplexMethod:DownloadProgressLD.kt$DownloadProgressLD$override fun observe(owner: LifecycleOwner, observer: Observer&lt;in DownloadProgress&gt;)</ID>
-    <ID>CyclomaticComplexMethod:HomeChildFusedAppDiffUtil.kt$HomeChildFusedAppDiffUtil$override fun areContentsTheSame(oldItem: Application, newItem: Application): Boolean</ID>
-    <ID>CyclomaticComplexMethod:MainActivity.kt$MainActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
     <ID>EmptyCatchBlock:NativeDeviceInfoProviderModule.kt$NativeDeviceInfoProviderModule${ }</ID>
     <ID>EmptyFunctionBlock:CleanApkAuthenticator.kt$CleanApkAuthenticator${}</ID>
     <ID>ImplicitDefaultLocale:ApplicationFragment.kt$ApplicationFragment$String.format("%d%%", progressPercentage)</ID>
@@ -21,11 +14,6 @@
     <ID>InvalidPackageDeclaration:Trackers.kt$package foundation.e.apps.data.exodus</ID>
     <ID>LargeClass:ApplicationApiImpl.kt$ApplicationApiImpl : ApplicationApi</ID>
     <ID>LargeClass:ApplicationFragment.kt$ApplicationFragment : TimeoutFragment</ID>
-    <ID>LongMethod:ApplicationApiImpl.kt$ApplicationApiImpl$private suspend fun generateCleanAPKHome(home: CleanApkHome, appType: String): List&lt;Home&gt;</ID>
-    <ID>LongMethod:ApplicationFragment.kt$ApplicationFragment$private fun observeDownloadStatus(view: View)</ID>
-    <ID>LongMethod:CategoryUtils.kt$CategoryUtils$fun provideAppsCategoryIconResource(categoryId: String): Int</ID>
-    <ID>LongMethod:MainActivity.kt$MainActivity$override fun onCreate(savedInstanceState: Bundle?)</ID>
-    <ID>LongMethod:NativeDeviceInfoProviderModule.kt$NativeDeviceInfoProviderModule$@Singleton @Provides fun provideNativeDeviceProperties( @ApplicationContext context: Context, ): Properties</ID>
     <ID>LongParameterList:ApplicationApiImpl.kt$ApplicationApiImpl$( private val pkgManagerModule: PkgManagerModule, private val pwaManagerModule: PWAManagerModule, private val preferenceManagerModule: PreferenceManagerModule, @Named("gplayRepository") private val gplayRepository: PlayStoreRepository, @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository, @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository, @ApplicationContext private val context: Context )</ID>
     <ID>LongParameterList:ApplicationDialogFragment.kt$ApplicationDialogFragment$( drawable: Int = -1, title: String, message: String, positiveButtonText: String = "", positiveButtonAction: (() -&gt; Unit)? = null, cancelButtonText: String = "", cancelButtonAction: (() -&gt; Unit)? = null, cancellable: Boolean = true, onDismissListener: (() -&gt; Unit)? = null, )</ID>
     <ID>LongParameterList:ApplicationListRVAdapter.kt$ApplicationListRVAdapter$( private val applicationInstaller: ApplicationInstaller, private val privacyInfoViewModel: PrivacyInfoViewModel, private val appInfoFetchViewModel: AppInfoFetchViewModel, private val mainActivityViewModel: MainActivityViewModel, private val currentDestinationId: Int, private var lifecycleOwner: LifecycleOwner?, private var paidAppHandler: ((Application) -&gt; Unit)? = null )</ID>
@@ -115,11 +103,6 @@
     <ID>MaxLineLength:UpdatesViewModel.kt$UpdatesViewModel$return updatesList.value?.first?.any { it.status == Status.UPDATABLE || it.status == Status.INSTALLATION_ISSUE } == true</ID>
     <ID>MaxLineLength:UpdatesWorker.kt$UpdatesWorker$applicationContext.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED</ID>
     <ID>MayBeConst:EcloudApiInterface.kt$EcloudApiInterface.Companion$val BASE_URL = "https://eu.gtoken.ecloud.global/"</ID>
-    <ID>NestedBlockDepth:ApplicationApiImpl.kt$ApplicationApiImpl$private suspend fun generateCleanAPKHome(home: CleanApkHome, appType: String): List&lt;Home&gt;</ID>
-    <ID>NestedBlockDepth:DownloadManager.kt$DownloadManager$fun checkDownloadProgress( downloadId: Long, filePath: String = "", downloadCompleted: ((Boolean, String) -&gt; Unit)? )</ID>
-    <ID>NestedBlockDepth:PWAManagerModule.kt$PWAManagerModule$fun getPwaStatus(application: Application): Status</ID>
-    <ID>NestedBlockDepth:PkgManagerBR.kt$PkgManagerBR$override fun onReceive(context: Context?, intent: Intent?)</ID>
-    <ID>NestedBlockDepth:SettingsFragment.kt$SettingsFragment$override fun onViewCreated(view: View, savedInstanceState: Bundle?)</ID>
     <ID>PrintStackTrace:CommonUtilsModule.kt$CommonUtilsModule$e</ID>
     <ID>PrintStackTrace:EcloudRepository.kt$EcloudRepository$e</ID>
     <ID>PrintStackTrace:InstallWorkManager.kt$InstallWorkManager$e</ID>
