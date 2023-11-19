@@ -100,7 +100,9 @@ data class Application(
     var filterLevel: FilterLevel = FilterLevel.UNKNOWN,
     var isGplayReplaced: Boolean = false,
     @SerializedName(value = "on_fdroid")
-    val isFDroidApp: Boolean = false
+    val isFDroidApp: Boolean = false,
+
+    var isSystemApp: Boolean = false,
 ) {
     fun updateType() {
         this.type = if (this.is_pwa) PWA else NATIVE
