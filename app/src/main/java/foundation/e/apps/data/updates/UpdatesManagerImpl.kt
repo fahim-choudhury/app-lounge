@@ -185,6 +185,11 @@ class UpdatesManagerImpl @Inject constructor(
                 return@forEach
             }
 
+            if (!pkgManagerModule.isInstalled(it.packageName)) {
+                // Don't install for system apps which are removed (by root or otherwise)
+                return@forEach
+            }
+
             val releaseTypes = it.releaseTypes
             if (releaseType in releaseTypes) {
                 systemAppsUpdatesRepository.getSystemAppUpdateInfo(
