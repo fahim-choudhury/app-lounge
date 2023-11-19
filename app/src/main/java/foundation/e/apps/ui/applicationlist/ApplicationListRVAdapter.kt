@@ -164,6 +164,17 @@ class ApplicationListRVAdapter(
         searchApp: Application,
         shimmerDrawable: ShimmerDrawable
     ) {
+        if (searchApp.isSystemApp) {
+            appIcon.apply {
+                try {
+                    setImageDrawable(context.packageManager.getApplicationIcon(searchApp.package_name))
+                } catch (e: Exception) {
+                    Timber.w("Icon could not be set for system app - ${searchApp.package_name} - ${e.message}")
+                    e.printStackTrace()
+                }
+            }
+            return
+        }
         when (searchApp.origin) {
             Origin.GPLAY -> {
                 appIcon.load(searchApp.icon_image_path) {
