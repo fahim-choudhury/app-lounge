@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
+import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -198,6 +199,11 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.updateRating(searchApp: Application) {
+        if (searchApp.isSystemApp) {
+            iconStar.isVisible = false
+            appRating.isVisible = false
+            return
+        }
         if (searchApp.ratings.usageQualityScore != -1.0) {
             appRating.text = searchApp.ratings.usageQualityScore.toString()
         } else {
@@ -209,6 +215,10 @@ class ApplicationListRVAdapter(
         searchApp: Application,
         view: View
     ) {
+        if (searchApp.isSystemApp) {
+            appPrivacyScoreLayout.isVisible = false
+            return
+        }
         if (searchApp.ratings.privacyScore != -1.0) {
             appPrivacyScore.text = view.context.getString(
                 R.string.privacy_rating_out_of,
