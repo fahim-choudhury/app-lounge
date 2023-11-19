@@ -44,6 +44,7 @@ class UpdatesWorker @AssistedInject constructor(
 
     companion object {
         const val IS_AUTO_UPDATE = "IS_AUTO_UPDATE"
+        const val IS_SELF_UPDATE = "IS_SELF_UPDATE"
         private const val MAX_RETRY_COUNT = 10
         private const val DELAY_FOR_RETRY = 3000L
     }
@@ -52,11 +53,13 @@ class UpdatesWorker @AssistedInject constructor(
     private var automaticInstallEnabled = true
     private var onlyOnUnmeteredNetwork = false
     private var isAutoUpdate = true // indicates it is auto update or user initiated update
+    private var isSelfUpdate = false
     private var retryCount = 0
 
     override suspend fun doWork(): Result {
         return try {
             isAutoUpdate = params.inputData.getBoolean(IS_AUTO_UPDATE, true)
+            isSelfUpdate = params.inputData.getBoolean(IS_SELF_UPDATE, false)
             if (isAutoUpdate && checkManualUpdateRunning()) {
                 return Result.success()
             }
@@ -109,7 +112,12 @@ class UpdatesWorker @AssistedInject constructor(
         val authData = authenticatorRepository.getValidatedAuthData().data
         val resultStatus: ResultStatus
 
-        if (user in listOf(User.ANONYMOUS, User.GOOGLE) && authData != null) {
+        if (isSelfUpdate) {
+            val list = updatesManagerRepository.getSystemUpdates(onlySelf = true)
+            appsNeededToUpdate.addAll(list)
+            resultStatus = ResultStatus.OK
+
+        } else if (user in listOf(User.ANONYMOUS, User.GOOGLE) && authData != null) {
             /*
              * Signifies valid Google user and valid auth data to update
              * apps from Google Play store.
@@ -133,7 +141,7 @@ class UpdatesWorker @AssistedInject constructor(
             return
         }
         Timber.i("Updates found: ${appsNeededToUpdate.size}; $resultStatus")
-        if (isAutoUpdate && shouldShowNotification) {
+        if (isSelfUpdate || (isAutoUpdate && shouldShowNotification)) {
             handleNotification(appsNeededToUpdate.size, isConnectedToUnMeteredNetwork)
         }
 
@@ -145,7 +153,7 @@ class UpdatesWorker @AssistedInject constructor(
              * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5376
              */
             retryCount = 0
-            if (isAutoUpdate && shouldShowNotification) {
+            if (isSelfUpdate || (isAutoUpdate && shouldShowNotification)) {
                 handleNotification(appsNeededToUpdate.size, isConnectedToUnMeteredNetwork)
             }
 
