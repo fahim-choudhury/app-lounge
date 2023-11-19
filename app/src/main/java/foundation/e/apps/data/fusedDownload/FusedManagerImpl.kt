@@ -89,11 +89,15 @@ class FusedManagerImpl @Inject constructor(
     override suspend fun updateDownloadStatus(fusedDownload: FusedDownload, status: Status) {
         if (status == Status.INSTALLED) {
             fusedDownload.status = status
-            flushOldDownload(fusedDownload.packageName)
+            if (fusedDownload.packageName != context.packageName) {
+                flushOldDownload(fusedDownload.packageName)
+            }
             fusedDownloadRepository.deleteDownload(fusedDownload)
         } else if (status == Status.INSTALLING) {
             fusedDownload.downloadIdMap.all { true }
-            fusedDownload.status = status
+            fusedDownload.status =
+                if (fusedDownload.packageName == context.packageName) Status.INSTALLED
+                else status
             fusedDownloadRepository.updateDownload(fusedDownload)
             installApp(fusedDownload)
         }

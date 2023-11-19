@@ -26,6 +26,7 @@ data class FusedDownload(
     val isFree: Boolean = true,
     var appSize: Long = 0,
     var files: List<File> = mutableListOf(),
+    var isSystemApp: Boolean = false,
     var signature: String = String()
 ) {
     @Ignore

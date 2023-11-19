@@ -87,10 +87,11 @@ class AppInstallProcessor @Inject constructor(
             application.latest_version_code,
             application.offer_type,
             application.isFree,
-            application.originalSize
+            application.originalSize,
+            isSystemApp = application.isSystemApp,
         )
 
-        if (fusedDownload.type == Type.PWA) {
+        if (fusedDownload.type == Type.PWA || application.isSystemApp) {
             fusedDownload.downloadURLList = mutableListOf(application.url)
         }
 
@@ -115,7 +116,10 @@ class AppInstallProcessor @Inject constructor(
                 return
             }
 
-            if (fusedDownload.type != Type.PWA && !updateDownloadUrls(fusedDownload)) return
+            if (!fusedDownload.isSystemApp && fusedDownload.type != Type.PWA && !updateDownloadUrls(
+                    fusedDownload
+                )
+            ) return
 
             val downloadAdded = fusedManagerRepository.addDownload(fusedDownload)
             if (!downloadAdded) {
