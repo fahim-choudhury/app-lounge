@@ -120,6 +120,7 @@
     <string name="open_source_apps">Open Source apps</string>
     <string name="duplicate_app_from_sources">Some proprietary apps may also have an Open Source version. Whenever this happens App Lounge shows the Open Source version only, in order to avoid duplicates.</string>
     <string name="downloading">Downloading…</string>
+    <string name="system_app">System app</string>
     <string name="additional_file_for">Additional file for %s</string>
     <string name="having_troubles">Having troubles?</string>
     <string name="troubleshootURL" translatable="false">https://doc.e.foundation/support-topics/app_lounge_troubleshooting</string>

@@ -218,6 +218,13 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.updateSourceTag(searchApp: Application) {
+        if (searchApp.isSystemApp) {
+            sourceTag.apply {
+                text = context.getText(R.string.system_app)
+                visibility = View.VISIBLE
+            }
+            return
+        }
         if (searchApp.source.isEmpty()) {
             sourceTag.visibility = View.INVISIBLE
         } else {
