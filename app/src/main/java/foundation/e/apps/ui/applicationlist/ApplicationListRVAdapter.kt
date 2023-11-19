@@ -230,6 +230,9 @@ class ApplicationListRVAdapter(
         searchApp: Application,
         view: View
     ) {
+        if (searchApp.isSystemApp) {
+            return
+        }
         val catText = searchApp.category.ifBlank { optionalCategory }
         val action = when (currentDestinationId) {
             R.id.applicationListFragment -> {
