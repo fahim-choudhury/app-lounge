@@ -46,4 +46,8 @@ class UpdatesManagerRepository @Inject constructor(
     fun getApplicationCategoryPreference(): List<String> {
         return updatesManagerImpl.getApplicationCategoryPreference()
     }
+
+    suspend fun getSystemUpdates(onlySelf: Boolean = false): List<Application> {
+        return updatesManagerImpl.getSystemUpdates(onlySelf)
+    }
 }

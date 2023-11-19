@@ -35,6 +35,14 @@ object UpdatesWorkManager {
     const val TAG = "UpdatesWorkTag"
     const val USER_TAG = "UpdatesWorkUserTag"
 
+    fun startAppLoungeUpdateWork(context: Context) {
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            UPDATES_WORK_USER_NAME,
+            ExistingWorkPolicy.APPEND_OR_REPLACE,
+            buildOneTimeWorkRequest(selfUpdate = true)
+        )
+    }
+
     fun startUpdateAllWork(context: Context) {
         WorkManager.getInstance(context).enqueueUniqueWork(
             UPDATES_WORK_USER_NAME,
@@ -43,12 +51,16 @@ object UpdatesWorkManager {
         )
     }
 
-    private fun buildOneTimeWorkRequest(): OneTimeWorkRequest {
+    private fun buildOneTimeWorkRequest(selfUpdate: Boolean = false): OneTimeWorkRequest {
         return OneTimeWorkRequest.Builder(UpdatesWorker::class.java).apply {
             setConstraints(buildWorkerConstraints())
             addTag(USER_TAG)
-        }.setInputData(Data.Builder().putBoolean(UpdatesWorker.IS_AUTO_UPDATE, false).build())
-            .build()
+        }.setInputData(
+            Data.Builder()
+                .putBoolean(UpdatesWorker.IS_AUTO_UPDATE, false)
+                .putBoolean(UpdatesWorker.IS_SELF_UPDATE, selfUpdate)
+                .build()
+        ).build()
     }
 
     private fun buildWorkerConstraints() = Constraints.Builder().apply {

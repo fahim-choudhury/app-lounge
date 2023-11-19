@@ -20,6 +20,7 @@ package foundation.e.apps.data.updates
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
+import android.os.Build
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
@@ -35,8 +36,10 @@ import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.handleNetworkResult
+import foundation.e.apps.data.gitlab.SystemAppsUpdatesRepository
 import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.install.pkg.AppLoungePackageManager
+import foundation.e.apps.utils.SystemInfoProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -52,6 +55,7 @@ class UpdatesManagerImpl @Inject constructor(
     private val faultyAppRepository: FaultyAppRepository,
     private val appLoungePreference: AppLoungePreference,
     private val fdroidRepository: FdroidRepository,
+    private val systemAppsUpdatesRepository: SystemAppsUpdatesRepository,
     private val blockedAppRepository: BlockedAppRepository,
 ) {
 
@@ -159,6 +163,46 @@ class UpdatesManagerImpl @Inject constructor(
 
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
         return Pair(nonFaultyUpdateList, status)
+    }
+
+    suspend fun getSystemUpdates(onlySelf: Boolean = false): List<Application> {
+        val updateList = mutableListOf<Application>()
+        val releaseType = getSystemReleaseType()
+
+        val eligibleApps = systemAppsUpdatesRepository.getAllEligibleApps()
+        eligibleApps?.forEach {
+            val packageName = it.packageName
+
+            if (onlySelf && packageName != context.packageName) {
+                return@forEach
+            }
+
+            val releaseTypes = it.releaseTypes
+            if (releaseType in releaseTypes) {
+                systemAppsUpdatesRepository.getSystemAppUpdateInfo(
+                    packageName,
+                    releaseType,
+                    getSdkLevel(),
+                    getDevice(),
+                )?.run {
+                    updateList.add(this)
+                }
+            }
+        }
+
+        return updateList
+    }
+
+    private fun getSdkLevel(): Int {
+        return Build.VERSION.SDK_INT
+    }
+
+    private fun getDevice(): String {
+        return SystemInfoProvider.getSystemProperty(SystemInfoProvider.KEY_LINEAGE_DEVICE) ?: ""
+    }
+
+    private fun getSystemReleaseType(): String {
+        return SystemInfoProvider.getSystemProperty(SystemInfoProvider.KEY_LINEAGE_RELEASE_TYPE) ?: ""
     }
 
     /**
