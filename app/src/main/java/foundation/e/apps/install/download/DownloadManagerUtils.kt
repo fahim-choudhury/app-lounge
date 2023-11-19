@@ -164,9 +164,10 @@ class DownloadManagerUtils @Inject constructor(
     }
 
     private suspend fun checkCleanApkSignatureOK(fusedDownload: FusedDownload): Boolean {
-        if (fusedDownload.origin != Origin.CLEANAPK || fusedManagerRepository.isFdroidApplicationSigned(
-                context, fusedDownload
-            )
+        if (
+            fusedDownload.isSystemApp ||
+            fusedDownload.origin != Origin.CLEANAPK ||
+            fusedManagerRepository.isFdroidApplicationSigned(context, fusedDownload)
         ) {
             Timber.d("Apk signature is OK")
             return true
