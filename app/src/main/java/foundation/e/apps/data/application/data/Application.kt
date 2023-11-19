@@ -94,7 +94,9 @@ data class Application(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5720
      */
     var filterLevel: FilterLevel = FilterLevel.UNKNOWN,
-    var isGplayReplaced: Boolean = false
+    var isGplayReplaced: Boolean = false,
+
+    var isSystemApp: Boolean = false,
 ) {
     fun updateType() {
         this.type = if (this.is_pwa) Type.PWA else Type.NATIVE

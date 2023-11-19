@@ -33,6 +33,7 @@ import foundation.e.apps.data.cleanapk.data.app.Application
 import foundation.e.apps.data.ecloud.EcloudApiInterface
 import foundation.e.apps.data.exodus.ExodusTrackerApi
 import foundation.e.apps.data.fdroid.FdroidApiInterface
+import foundation.e.apps.data.gitlab.SystemAppsUpdatesApi
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -118,6 +119,20 @@ object RetrofitModule {
             .addConverterFactory(yamlFactory)
             .build()
             .create(FdroidApiInterface::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideSystemAppsUpdatesApi(
+        okHttpClient: OkHttpClient,
+        moshi: Moshi,
+    ): SystemAppsUpdatesApi {
+        return Retrofit.Builder()
+            .baseUrl(SystemAppsUpdatesApi.BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+            .create(SystemAppsUpdatesApi::class.java)
     }
 
     @Singleton
