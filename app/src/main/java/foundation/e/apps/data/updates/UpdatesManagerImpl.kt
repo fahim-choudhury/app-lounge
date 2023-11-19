@@ -128,7 +128,11 @@ class UpdatesManagerImpl @Inject constructor(
         }
 
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
-        return Pair(nonFaultyUpdateList, status)
+
+        val systemApps = getSystemUpdates(false).toMutableList()
+        putAppLoungeAtLast(systemApps)
+
+        return Pair(nonFaultyUpdateList + systemApps, status)
     }
 
     suspend fun getUpdatesOSS(): Pair<List<Application>, ResultStatus> {
@@ -162,7 +166,11 @@ class UpdatesManagerImpl @Inject constructor(
         }
 
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
-        return Pair(nonFaultyUpdateList, status)
+
+        val systemApps = getSystemUpdates(false).toMutableList()
+        putAppLoungeAtLast(systemApps)
+
+        return Pair(nonFaultyUpdateList + systemApps, status)
     }
 
     suspend fun getSystemUpdates(onlySelf: Boolean = false): List<Application> {
@@ -191,6 +199,13 @@ class UpdatesManagerImpl @Inject constructor(
         }
 
         return updateList
+    }
+
+    private fun putAppLoungeAtLast(updateList: MutableList<Application>) {
+        val appLoungeItem = updateList.find { it.isSystemApp && it.package_name == context.packageName }
+            ?: return
+        updateList.remove(appLoungeItem)
+        updateList.add(appLoungeItem)
     }
 
     private fun getSdkLevel(): Int {
