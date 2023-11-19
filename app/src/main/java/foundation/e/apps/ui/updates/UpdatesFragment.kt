@@ -133,9 +133,12 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
 
     private fun observeUpdateList(listAdapter: ApplicationListRVAdapter?) {
         updatesViewModel.updatesList.observe(viewLifecycleOwner) {
-            listAdapter?.setData(it.first)
+
+            val appsToDisplay = it.first.filter { it.isSystemApp } + it.first.filter { !it.isSystemApp }
+
+            listAdapter?.setData(appsToDisplay)
             if (!isDownloadObserverAdded) {
-                handleStateNoUpdates(it.first)
+                handleStateNoUpdates(appsToDisplay)
                 observeDownloadList()
                 isDownloadObserverAdded = true
             }
