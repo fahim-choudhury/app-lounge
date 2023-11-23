@@ -15,11 +15,15 @@
  * limitations under the License.
  */
 
-package foundation.e.apps;
+package com.android.vending.splitinstall;
 
-import com.android.vending.splitinstall.ISplitInstallServiceCallback;
+import android.os.Bundle;
 
-interface ISplitInstallService {
+interface ISplitInstallServiceCallback {
 
-    void installSplitModule(String packageName, String moduleName, ISplitInstallServiceCallback callback);
+    void onStartInstall(int i);
+
+    void onInstalled(int i);
+
+    void onError(int errorCode);
 }

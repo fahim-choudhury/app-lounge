@@ -241,4 +241,9 @@
     <string name="free_space_for_update">Free up %1$s on your phone to get the latest updates.</string>
 
     <string name="notification_content_full_db">Please free up some space on your phone so App Lounge can work properly.</string>
+
+    <!--Split install-->
+    <string name="split_install_warning_title">Split install warning: %s</string>
+    <string name="split_install_warning_text">Please reconnect in AppLounge (either Anonymously or with a Google account).</string>
+    <string name="notification_channel_desc">Authentication token channel</string>
 </resources>
