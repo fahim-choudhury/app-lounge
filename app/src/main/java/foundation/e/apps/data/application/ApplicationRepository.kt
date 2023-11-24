@@ -43,7 +43,7 @@ class ApplicationRepository @Inject constructor(
 ) {
 
     suspend fun getHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<Home>>> {
-        return homeApi.getHomeScreenData(authData)
+        return homeApi.fetchHomeScreenData(authData)
     }
 
     fun getApplicationCategoryPreference(): List<String> {

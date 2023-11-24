@@ -26,7 +26,7 @@ import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.Ratings
 import foundation.e.apps.data.enums.Origin
 
-fun App.transformToFusedApp(context: Context): Application {
+fun App.transformToApplication(context: Context): Application {
     val app = Application(
         _id = this.id.toString(),
         author = this.developerName,

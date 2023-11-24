@@ -27,7 +27,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.data.Home
-import foundation.e.apps.data.application.utils.transformToFusedApp
+import foundation.e.apps.data.application.utils.transformToApplication
 import foundation.e.apps.data.cleanapk.data.home.HomeScreen
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.ResultStatus
@@ -63,7 +63,7 @@ class HomeApiImpl @Inject constructor(
         private const val WEIGHT_OPEN_SOURCE = 2
         private const val WEIGHT_GPLAY = 3
     }
-    override suspend fun getHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<Home>>> {
+    override suspend fun fetchHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<Home>>> {
         val list = mutableListOf<Home>()
         var resultGplay: FusedHomeDeferred? = null
         var resultOpenSource: FusedHomeDeferred? = null
@@ -220,7 +220,7 @@ class HomeApiImpl @Inject constructor(
         val gplayHomeData = gplayRepository.getHomeScreenData() as Map<String, List<App>>
         gplayHomeData.map {
             val fusedApps = it.value.map { app ->
-                app.transformToFusedApp (context).apply {
+                app.transformToApplication (context).apply {
                     applicationDataManager.updateStatus(this)
                     applicationDataManager.updateFilterLevel(authData, this)
                 }
