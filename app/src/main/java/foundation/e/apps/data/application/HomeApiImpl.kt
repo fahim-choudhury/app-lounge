@@ -59,10 +59,14 @@ class HomeApiImpl @Inject constructor(
 
     companion object {
         private const val THRESHOLD_LIMITED_RESULT_HOME_PAGE = 4
-        private const val WEIGHT_PWA = 1
-        private const val WEIGHT_OPEN_SOURCE = 2
-        private const val WEIGHT_GPLAY = 3
     }
+
+    private enum class AppSourceWeight {
+        GPLAY,
+        OPEN_SOURCE,
+        PWA
+    }
+
     override suspend fun fetchHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<Home>>> {
         val list = mutableListOf<Home>()
         var resultGplay: FusedHomeDeferred? = null
@@ -120,11 +124,11 @@ class HomeApiImpl @Inject constructor(
         }
 
         setHomeErrorMessage(result.getResultStatus(), source)
-        priorList.sortByDescending {
+        priorList.sortBy {
             when (it.source) {
-                ApplicationApi.APP_TYPE_OPEN -> WEIGHT_OPEN_SOURCE
-                ApplicationApi.APP_TYPE_PWA -> WEIGHT_PWA
-                else -> WEIGHT_GPLAY
+                ApplicationApi.APP_TYPE_OPEN -> AppSourceWeight.OPEN_SOURCE.ordinal
+                ApplicationApi.APP_TYPE_PWA -> AppSourceWeight.PWA.ordinal
+                else -> AppSourceWeight.GPLAY.ordinal
             }
         }
 
