@@ -28,7 +28,6 @@
     <ID>MagicNumber:ApkSignatureManager.kt$ApkSignatureManager$1024</ID>
     <ID>MagicNumber:AppDatabase.kt$AppDatabase.Companion.&lt;no name provided&gt;$3</ID>
     <ID>MagicNumber:AppDatabase.kt$AppDatabase.Companion.&lt;no name provided&gt;$4</ID>
-    <ID>MagicNumber:ApplicationApiImpl.kt$ApplicationApiImpl$3</ID>
     <ID>MagicNumber:ApplicationFragment.kt$ApplicationFragment$100f</ID>
     <ID>MagicNumber:ApplicationFragment.kt$ApplicationFragment$15</ID>
     <ID>MagicNumber:ApplicationFragment.kt$ApplicationFragment$3</ID>
@@ -74,8 +73,6 @@
     <ID>MaxLineLength:AppPrivacyInfo.kt$AppPrivacyInfo</ID>
     <ID>MaxLineLength:ApplicationApi.kt$ApplicationApi$suspend fun getGplayAppsByCategory(authData: AuthData, category: String, pageUrl: String?): ResultSupreme&lt;Pair&lt;List&lt;Application&gt;, String&gt;&gt;</ID>
     <ID>MaxLineLength:ApplicationApiImpl.kt$ApplicationApiImpl$(cleanApkAppsRepository.getAppDetails(result.apps[0]._id) as Response&lt;CleanApkApplication&gt;).body()?.app</ID>
-    <ID>MaxLineLength:ApplicationApiImpl.kt$ApplicationApiImpl$val hasGplayLimitedResult = gplayHomes.any { fusedHome -&gt; fusedHome.list.size &lt; THRESHOLD_LIMITED_RESULT_HOME_PAGE }</ID>
-    <ID>MaxLineLength:ApplicationDiffUtil.kt$ApplicationDiffUtil$((oldItem.trackers == LIST_OF_NULL &amp;&amp; newItem.trackers.isEmpty()) || oldItem.trackers == newItem.trackers)</ID>
     <ID>MaxLineLength:ApplicationFragment.kt$ApplicationFragment.Companion$"https://gitlab.e.foundation/e/os/apps/-/blob/main/app/src/main/java/foundation/e/apps/data/exodus/repositories/PrivacyScoreRepositoryImpl.kt"</ID>
     <ID>MaxLineLength:CommonUtilsModule.kt$CommonUtilsModule$*</ID>
     <ID>MaxLineLength:DownloadManager.kt$DownloadManager$Timber.e("Download Issue: $downloadId : DownloadManager returns status: $status but the failed because: reason: $reason")</ID>
@@ -83,9 +80,6 @@
     <ID>MaxLineLength:DownloadManagerUtils.kt$DownloadManagerUtils$Timber.d("===&gt; updateDownloadStatus: ${fusedDownload.name}: $downloadId: $numberOfDownloadedItems/${fusedDownload.downloadIdMap.size}")</ID>
     <ID>MaxLineLength:DownloadManagerUtils.kt$DownloadManagerUtils$if</ID>
     <ID>MaxLineLength:DownloadManagerUtils.kt$DownloadManagerUtils$numberOfDownloadedItems == fusedDownload.downloadIdMap.size &amp;&amp; numberOfDownloadedItems == fusedDownload.downloadURLList.size</ID>
-    <ID>MaxLineLength:DownloadProgressLD.kt$DownloadProgressLD$cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))</ID>
-    <ID>MaxLineLength:DownloadProgressLD.kt$DownloadProgressLD$cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))</ID>
-    <ID>MaxLineLength:DownloadProgressLD.kt$DownloadProgressLD$status == DownloadManager.STATUS_SUCCESSFUL || status == DownloadManager.STATUS_FAILED</ID>
     <ID>MaxLineLength:FdroidRepository.kt$FdroidRepository$override suspend</ID>
     <ID>MaxLineLength:FusedManagerImpl.kt$FusedManagerImpl$.</ID>
     <ID>MaxLineLength:FusedManagerImpl.kt$FusedManagerImpl$return</ID>
@@ -120,8 +114,6 @@
     <ID>ReturnCount:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl$override suspend fun getAppPrivacyInfo( application: Application, appHandle: String ): Result&lt;AppPrivacyInfo&gt;</ID>
     <ID>ReturnCount:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl$private fun getAppPrivacyInfo( application: Application, appTrackerData: List&lt;Report&gt;, ): AppPrivacyInfo</ID>
     <ID>ReturnCount:ApplicationApiImpl.kt$ApplicationApiImpl$override fun isAnyFusedAppUpdated( newApplications: List&lt;Application&gt;, oldApplications: List&lt;Application&gt; ): Boolean</ID>
-    <ID>ReturnCount:ApplicationApiImpl.kt$ApplicationApiImpl$override fun isHomeDataUpdated( newHomeData: List&lt;Home&gt;, oldHomeData: List&lt;Home&gt; ): Boolean</ID>
-    <ID>ReturnCount:ApplicationApiImpl.kt$ApplicationApiImpl$private fun areFusedAppsUpdated( oldHome: Home, newHome: Home, ): Boolean</ID>
     <ID>ReturnCount:DownloadManager.kt$DownloadManager$fun getSizeRequired(downloadId: Long): Long</ID>
     <ID>ReturnCount:DownloadManager.kt$DownloadManager$private fun sanitizeStatus(downloadId: Long, status: Int, reason: Int): Int</ID>
     <ID>ReturnCount:Extensions.kt$fun Context.isNetworkAvailable(): Boolean</ID>

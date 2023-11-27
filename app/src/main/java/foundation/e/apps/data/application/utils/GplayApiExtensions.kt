@@ -26,7 +26,7 @@ import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.Ratings
 import foundation.e.apps.data.enums.Origin
 
-fun App.transformToApplication(context: Context): Application {
+fun App.toApplication(context: Context): Application {
     val app = Application(
         _id = this.id.toString(),
         author = this.developerName,
@@ -38,7 +38,7 @@ fun App.transformToApplication(context: Context): Application {
         latest_version_code = this.versionCode,
         latest_version_number = this.versionName,
         name = this.displayName,
-        other_images_path = this.screenshots.transformToList(),
+        other_images_path = this.screenshots.toList(),
         package_name = this.packageName,
         ratings = Ratings(
             usageQualityScore =
@@ -60,7 +60,7 @@ fun App.transformToApplication(context: Context): Application {
     return app
 }
 
-private fun MutableList<Artwork>.transformToList(): List<String> {
+private fun MutableList<Artwork>.toList(): List<String> {
     val list = mutableListOf<String>()
     this.forEach {
         list.add(it.url)

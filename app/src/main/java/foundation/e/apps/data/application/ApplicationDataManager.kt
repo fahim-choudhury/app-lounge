@@ -75,7 +75,7 @@ class ApplicationDataManager @Inject constructor(
         return application.restriction != Constants.Restriction.NOT_RESTRICTED
     }
 
-    /**
+    /*
      * Some apps are simply not visible.
      * Example: com.skype.m2
      */
@@ -83,7 +83,7 @@ class ApplicationDataManager @Inject constructor(
         return kotlin.runCatching { gplayRepository.getAppDetails(application.package_name) }.isSuccess
     }
 
-    /**
+    /*
      * Some apps are visible but not downloadable.
      * Example: com.riotgames.league.wildrift
      */
@@ -103,7 +103,7 @@ class ApplicationDataManager @Inject constructor(
         }
     }
 
-    /**
+    /*
      * Get fused app installation status.
      * Applicable for both native apps and PWAs.
      *
