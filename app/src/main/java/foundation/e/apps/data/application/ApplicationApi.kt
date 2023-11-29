@@ -29,10 +29,6 @@ interface ApplicationApi {
 
     fun getApplicationCategoryPreference(): List<String>
 
-    suspend fun getHomeScreenData(
-        authData: AuthData,
-    ): LiveData<ResultSupreme<List<Home>>>
-
     /*
         * Return three elements from the function.
         * - List<FusedCategory> : List of categories.

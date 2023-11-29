@@ -20,8 +20,6 @@ package foundation.e.apps.data.application
 
 import android.content.Context
 import android.text.format.Formatter
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.liveData
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
@@ -32,19 +30,6 @@ import com.aurora.gplayapi.data.models.StreamCluster
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
-import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
-import foundation.e.apps.data.cleanapk.data.categories.Categories
-import foundation.e.apps.data.cleanapk.data.home.HomeScreen
-import foundation.e.apps.data.cleanapk.data.search.Search
-import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
-import foundation.e.apps.data.enums.AppTag
-import foundation.e.apps.data.enums.FilterLevel
-import foundation.e.apps.data.enums.Origin
-import foundation.e.apps.data.enums.ResultStatus
-import foundation.e.apps.data.enums.Source
-import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.enums.Type
-import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.application.ApplicationApi.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.application.ApplicationApi.Companion.APP_TYPE_OPEN
 import foundation.e.apps.data.application.ApplicationApi.Companion.APP_TYPE_PWA
@@ -54,6 +39,17 @@ import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.application.data.Ratings
 import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.application.utils.CategoryUtils
+import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
+import foundation.e.apps.data.cleanapk.data.categories.Categories
+import foundation.e.apps.data.cleanapk.data.search.Search
+import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
+import foundation.e.apps.data.enums.AppTag
+import foundation.e.apps.data.enums.FilterLevel
+import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.enums.Status
+import foundation.e.apps.data.enums.Type
+import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.AuthObject
@@ -66,8 +62,6 @@ import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import timber.log.Timber
@@ -76,7 +70,6 @@ import javax.inject.Named
 import javax.inject.Singleton
 import com.aurora.gplayapi.data.models.Category as GplayapiCategory
 import foundation.e.apps.data.cleanapk.data.app.Application as CleanApkApplication
-import foundation.e.apps.data.cleanapk.data.home.Home as CleanApkHome
 
 typealias FusedHomeDeferred = Deferred<ResultSupreme<List<Home>>>
 
@@ -95,7 +88,6 @@ class ApplicationApiImpl @Inject constructor(
         private const val CATEGORY_TITLE_REPLACEABLE_CONJUNCTION = "&"
         private const val CATEGORY_OPEN_GAMES_ID = "game_open_games"
         private const val CATEGORY_OPEN_GAMES_TITLE = "Open games"
-        private const val THRESHOLD_LIMITED_RESULT_HOME_PAGE = 4
         private const val KEYWORD_TEST_SEARCH = "facebook"
     }
 
@@ -105,97 +97,6 @@ class ApplicationApiImpl @Inject constructor(
         if (preferenceManagerModule.isOpenSourceSelected()) prefs.add(APP_TYPE_OPEN)
         if (preferenceManagerModule.isPWASelected()) prefs.add(APP_TYPE_PWA)
         return prefs
-    }
-
-    override suspend fun getHomeScreenData(
-        authData: AuthData,
-    ): LiveData<ResultSupreme<List<Home>>> {
-
-        val list = mutableListOf<Home>()
-        var resultGplay: FusedHomeDeferred? = null
-        var resultOpenSource: FusedHomeDeferred? = null
-        var resultPWA: FusedHomeDeferred? = null
-
-        return liveData {
-            coroutineScope {
-
-                if (preferenceManagerModule.isGplaySelected()) {
-                    resultGplay = async { loadHomeData(list, Source.GPLAY, authData) }
-                }
-
-                if (preferenceManagerModule.isOpenSourceSelected()) {
-                    resultOpenSource = async { loadHomeData(list, Source.OPEN, authData) }
-                }
-
-                if (preferenceManagerModule.isPWASelected()) {
-                    resultPWA = async { loadHomeData(list, Source.PWA, authData) }
-                }
-
-                resultGplay?.await()?.let {
-                    emit(it)
-                }
-
-                resultOpenSource?.await()?.let {
-                    emit(it)
-                }
-
-                resultPWA?.await()?.let {
-                    emit(it)
-                }
-            }
-        }
-    }
-
-    private suspend fun loadHomeData(
-        priorList: MutableList<Home>,
-        source: Source,
-        authData: AuthData,
-    ): ResultSupreme<List<Home>> {
-
-        val result = when (source) {
-            Source.GPLAY -> handleNetworkResult<List<Home>> {
-                priorList.addAll(fetchGPlayHome(authData))
-                priorList
-            }
-
-            Source.OPEN -> handleNetworkResult {
-                val response =
-                    (cleanApkAppsRepository.getHomeScreenData() as Response<HomeScreen>).body()
-                response?.home?.let {
-                    priorList.addAll(generateCleanAPKHome(it, APP_TYPE_OPEN))
-                }
-                priorList
-            }
-
-            Source.PWA -> handleNetworkResult {
-                val response =
-                    (cleanApkPWARepository.getHomeScreenData() as Response<HomeScreen>).body()
-                response?.home?.let {
-                    priorList.addAll(generateCleanAPKHome(it, APP_TYPE_PWA))
-                }
-                priorList
-            }
-        }
-
-        setHomeErrorMessage(result.getResultStatus(), source)
-        priorList.sortByDescending {
-            when (it.source) {
-                APP_TYPE_OPEN -> 2
-                APP_TYPE_PWA -> 1
-                else -> 3
-            }
-        }
-        return ResultSupreme.create(result.getResultStatus(), priorList)
-    }
-
-    private fun setHomeErrorMessage(apiStatus: ResultStatus, source: Source) {
-        if (apiStatus != ResultStatus.OK) {
-            apiStatus.message = when (source) {
-                Source.GPLAY -> ("GPlay home loading error\n" + apiStatus.message).trim()
-                Source.OPEN -> ("Open Source home loading error\n" + apiStatus.message).trim()
-                Source.PWA -> ("PWA home loading error\n" + apiStatus.message).trim()
-            }
-        }
     }
 
     /*
@@ -756,7 +657,7 @@ class ApplicationApiImpl @Inject constructor(
     /*
      * Handy method to run on an instance of FusedApp to update its filter level.
      */
-    private suspend fun Application.updateFilterLevel(authData: AuthData?) {
+    suspend fun Application.updateFilterLevel(authData: AuthData?) {
         this.filterLevel = getAppFilterLevel(this, authData)
     }
 
@@ -1063,111 +964,6 @@ class ApplicationApiImpl @Inject constructor(
         }
 
         return gPlayFusedApp
-    }
-
-    /*
-     * Home screen-related internal functions
-     */
-
-    private suspend fun generateCleanAPKHome(home: CleanApkHome, appType: String): List<Home> {
-        val list = mutableListOf<Home>()
-        val headings = if (appType == APP_TYPE_OPEN) {
-            getOpenSourceHomeCategories()
-        } else {
-            getPWAHomeCategories()
-        }
-        headings.forEach { (key, value) ->
-            when (key) {
-                "top_updated_apps" -> {
-                    prepareApps(home.top_updated_apps, list, value)
-                }
-
-                "top_updated_games" -> {
-                    prepareApps(home.top_updated_games, list, value)
-                }
-
-                "popular_apps" -> {
-                    prepareApps(home.popular_apps, list, value)
-                }
-
-                "popular_games" -> {
-                    prepareApps(home.popular_games, list, value)
-                }
-
-                "popular_apps_in_last_24_hours" -> {
-                    prepareApps(home.popular_apps_in_last_24_hours, list, value)
-                }
-
-                "popular_games_in_last_24_hours" -> {
-                    prepareApps(home.popular_games_in_last_24_hours, list, value)
-                }
-
-                "discover" -> {
-                    prepareApps(home.discover, list, value)
-                }
-            }
-        }
-
-        return list.map {
-            it.source = appType
-            it
-        }
-    }
-
-    private suspend fun prepareApps(
-        appList: List<Application>,
-        list: MutableList<Home>,
-        value: String
-    ) {
-        if (appList.isNotEmpty()) {
-            appList.forEach {
-                it.updateStatus()
-                it.updateType()
-                it.updateFilterLevel(null)
-            }
-            list.add(Home(value, appList))
-        }
-    }
-
-    private fun getPWAHomeCategories() = mapOf(
-        "popular_apps" to context.getString(R.string.popular_apps),
-        "popular_games" to context.getString(R.string.popular_games),
-        "discover" to context.getString(R.string.discover_pwa)
-    )
-
-    private fun getOpenSourceHomeCategories() = mapOf(
-        "top_updated_apps" to context.getString(R.string.top_updated_apps),
-        "top_updated_games" to context.getString(R.string.top_updated_games),
-        "popular_apps_in_last_24_hours" to context.getString(R.string.popular_apps_in_last_24_hours),
-        "popular_games_in_last_24_hours" to context.getString(R.string.popular_games_in_last_24_hours),
-        "discover" to context.getString(R.string.discover)
-    )
-
-    private suspend fun fetchGPlayHome(authData: AuthData): List<Home> {
-        val list = mutableListOf<Home>()
-        val gplayHomeData = gplayRepository.getHomeScreenData() as Map<String, List<App>>
-        gplayHomeData.map {
-            val fusedApps = it.value.map { app ->
-                app.transformToFusedApp().apply {
-                    updateFilterLevel(authData)
-                }
-            }
-            list.add(Home(it.key, fusedApps))
-        }
-
-        handleLimitedResult(list)
-        Timber.d("HomePageData: $list")
-
-        return list
-    }
-
-    private fun handleLimitedResult(homeList: List<Home>) {
-        val gplayHomes = homeList.filter { fusedHome -> fusedHome.source.isEmpty() }
-        val hasGplayLimitedResult = gplayHomes.any { fusedHome -> fusedHome.list.size < THRESHOLD_LIMITED_RESULT_HOME_PAGE }
-        if (hasGplayLimitedResult) {
-            Timber.w("Limited result is found for homepage...")
-            refreshToken()
-        }
     }
 
     private fun refreshToken() {

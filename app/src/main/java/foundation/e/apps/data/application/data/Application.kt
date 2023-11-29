@@ -93,4 +93,8 @@ data class Application(
      */
     var filterLevel: FilterLevel = FilterLevel.UNKNOWN,
     var isGplayReplaced: Boolean = false
-)
+) {
+    fun updateType() {
+        this.type = if (this.is_pwa) Type.PWA else Type.NATIVE
+    }
+}

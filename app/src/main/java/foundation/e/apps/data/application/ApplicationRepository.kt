@@ -37,10 +37,13 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ApplicationRepository @Inject constructor(private val applicationAPIImpl: ApplicationApi) {
+class ApplicationRepository @Inject constructor(
+    private val applicationAPIImpl: ApplicationApi,
+    private val homeApi: HomeApi
+) {
 
     suspend fun getHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<Home>>> {
-        return applicationAPIImpl.getHomeScreenData(authData)
+        return homeApi.fetchHomeScreenData(authData)
     }
 
     fun getApplicationCategoryPreference(): List<String> {
