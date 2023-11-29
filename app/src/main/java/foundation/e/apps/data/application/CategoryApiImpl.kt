@@ -1,3 +1,21 @@
+/*
+ * Copyright MURENA SAS 2023
+ * Apps  Quickly and easily install Android apps onto your device!
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package foundation.e.apps.data.application
 
 import android.content.Context
@@ -17,6 +35,7 @@ import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.AppTag
 import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.playstore.PlayStoreRepository
@@ -33,12 +52,6 @@ class CategoryApiImpl @Inject constructor(
     private val applicationDataManager: ApplicationDataManager
 ) : CategoryApi {
 
-    companion object {
-        private const val CATEGORY_TITLE_REPLACEABLE_CONJUNCTION = "&"
-        private const val CATEGORY_OPEN_GAMES_ID = "game_open_games"
-        private const val CATEGORY_OPEN_GAMES_TITLE = "Open games"
-    }
-
     /*
      * Return three elements from the function.
      * - List<FusedCategory> : List of categories.
@@ -50,20 +63,12 @@ class CategoryApiImpl @Inject constructor(
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
-    override suspend fun getCategoriesList(type: CategoryType): Triple<List<Category>, String, ResultStatus> {
+    override suspend fun getCategoriesList(type: CategoryType): Pair<List<Category>, ResultStatus> {
         val categoriesList = mutableListOf<Category>()
-        val preferredApplicationType = preferenceManagerModule.preferredApplicationType()
-        var apiStatus: ResultStatus = ResultStatus.OK
-        var applicationCategoryType = preferredApplicationType
+        var apiStatus = handleAllSourcesCategories(categoriesList, type)
 
-        handleAllSourcesCategories(categoriesList, type).run {
-            if (first != ResultStatus.OK) {
-                apiStatus = first
-                applicationCategoryType = second
-            }
-        }
         categoriesList.sortBy { item -> item.title.lowercase() }
-        return Triple(categoriesList, applicationCategoryType, apiStatus)
+        return Pair(categoriesList, apiStatus)
     }
 
     /*
@@ -79,98 +84,99 @@ class CategoryApiImpl @Inject constructor(
     private suspend fun handleAllSourcesCategories(
         categoriesList: MutableList<Category>,
         type: CategoryType,
-    ): Pair<ResultStatus, String> {
-        var apiStatus = ResultStatus.OK
-        var errorApplicationCategory = ""
+    ): ResultStatus {
+        var categoryResult: ResultStatus = ResultStatus.OK
 
         if (preferenceManagerModule.isOpenSourceSelected()) {
-            val openSourceCategoryResult = fetchOpenSourceCategories(type)
-            categoriesList.addAll(openSourceCategoryResult.second)
-            apiStatus = openSourceCategoryResult.first
-            errorApplicationCategory = openSourceCategoryResult.third
+            categoryResult = fetchCategoryResult(categoriesList, type, Source.OPEN)
         }
 
         if (preferenceManagerModule.isPWASelected()) {
-            val pwaCategoriesResult = fetchPWACategories(type)
-            categoriesList.addAll(pwaCategoriesResult.second)
-            apiStatus = pwaCategoriesResult.first
-            errorApplicationCategory = pwaCategoriesResult.third
+            categoryResult = fetchCategoryResult(categoriesList, type, Source.PWA)
         }
 
         if (preferenceManagerModule.isGplaySelected()) {
-            val gplayCategoryResult = fetchGplayCategories(
-                type,
-            )
-            categoriesList.addAll(gplayCategoryResult.data ?: listOf())
-            apiStatus = gplayCategoryResult.getResultStatus()
-            errorApplicationCategory = ApplicationApi.APP_TYPE_ANY
+            categoryResult = fetchCategoryResult(categoriesList, type, Source.GPLAY)
         }
 
-        return Pair(apiStatus, errorApplicationCategory)
+        return categoryResult
+    }
+
+    private suspend fun fetchCategoryResult(
+        categoriesList: MutableList<Category>,
+        type: CategoryType,
+        source: Source
+    ): ResultStatus {
+        val categoryResult = when (source) {
+            Source.OPEN -> {
+                fetchCleanApkCategories(type, Source.OPEN)
+            }
+
+            Source.PWA -> {
+                fetchCleanApkCategories(type, Source.PWA)
+            }
+
+            else -> {
+                fetchGplayCategories(type)
+            }
+        }
+
+        categoryResult.let {
+            categoriesList.addAll(it.first)
+        }
+
+        return categoryResult.second
     }
 
     private suspend fun fetchGplayCategories(
         type: CategoryType,
-    ): ResultSupreme<List<Category>> {
+    ): Pair<List<Category>, ResultStatus> {
         val categoryList = mutableListOf<Category>()
-
-        return handleNetworkResult {
+        val result = handleNetworkResult {
             val playResponse = gplayRepository.getCategories(type).map { app ->
                 val category = app.transformToFusedCategory()
                 category.drawable =
-                    CategoryUtils.provideAppsCategoryIconResource(getCategoryIconName(category))
+                    CategoryUtils.provideAppsCategoryIconResource(
+                        CategoryUtils.getCategoryIconName(category)
+                    )
                 category
             }
+
             categoryList.addAll(playResponse)
             categoryList
         }
+
+        return Pair(result.data ?: listOf(), result.getResultStatus())
     }
 
-    private fun getCategoryIconName(category: Category): String {
-        var categoryTitle = if (category.tag.getOperationalTag().contentEquals(AppTag.GPlay().getOperationalTag()))
-            category.id else category.title
-
-        if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
-            categoryTitle = categoryTitle.replace(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION, "and")
-        }
-        categoryTitle = categoryTitle.replace(' ', '_')
-        return categoryTitle.lowercase()
-    }
-
-    private suspend fun fetchPWACategories(
+    private suspend fun fetchCleanApkCategories(
         type: CategoryType,
-    ): Triple<ResultStatus, List<Category>, String> {
-        val fusedCategoriesList = mutableListOf<Category>()
-        val result = handleNetworkResult {
-            cleanApkPWARepository.getCategories().body()?.let {
-                fusedCategoriesList.addAll(
-                    getFusedCategoryBasedOnCategoryType(
-                        it, type, AppTag.PWA(context.getString(R.string.pwa))
-                    )
-                )
-            }
-        }
-
-        return Triple(result.getResultStatus(), fusedCategoriesList, ApplicationApi.APP_TYPE_PWA)
-    }
-
-    private suspend fun fetchOpenSourceCategories(
-        type: CategoryType,
-    ): Triple<ResultStatus, List<Category>, String> {
+        source: Source
+    ): Pair<List<Category>, ResultStatus> {
         val categoryList = mutableListOf<Category>()
+        var tag: AppTag? = null
+
         val result = handleNetworkResult {
-            cleanApkAppsRepository.getCategories().body()?.let {
-                categoryList.addAll(
-                    getFusedCategoryBasedOnCategoryType(
-                        it,
-                        type,
-                        AppTag.OpenSource(context.getString(R.string.open_source))
-                    )
-                )
+            val categories = when (source) {
+                Source.OPEN -> {
+                    tag = AppTag.OpenSource(context.getString(R.string.open_source))
+                    cleanApkAppsRepository.getCategories().body()
+                }
+
+                Source.PWA -> {
+                    tag = AppTag.PWA(context.getString(R.string.pwa))
+                    cleanApkPWARepository.getCategories().body()
+                }
+
+                else -> null
+            }
+
+            categories?.let {
+                categoryList.addAll(getFusedCategoryBasedOnCategoryType(it, type, tag!!))
             }
         }
 
-        return Triple(result.getResultStatus(), categoryList, ApplicationApi.APP_TYPE_OPEN)
+        return Pair(categoryList, result.getResultStatus())
     }
 
     private fun getFusedCategoryBasedOnCategoryType(
@@ -180,33 +186,12 @@ class CategoryApiImpl @Inject constructor(
     ): List<Category> {
         return when (categoryType) {
             CategoryType.APPLICATION -> {
-                getCategories(categories, categories.apps, tag)
+                CategoryUtils.getCategories(categories, categories.apps, tag)
             }
 
             CategoryType.GAMES -> {
-                getCategories(categories, categories.games, tag)
+                CategoryUtils.getCategories(categories, categories.games, tag)
             }
-        }
-    }
-
-    private fun getCategories(
-        categories: Categories,
-        categoryNames: List<String>,
-        tag: AppTag
-    ) = categoryNames.map { category ->
-        Category(
-            id = category,
-            title = getCategoryTitle(category, categories),
-            drawable = CategoryUtils.provideAppsCategoryIconResource(category),
-            tag = tag
-        )
-    }
-
-    private fun getCategoryTitle(category: String, categories: Categories): String {
-        return if (category.contentEquals(CATEGORY_OPEN_GAMES_ID)) {
-            CATEGORY_OPEN_GAMES_TITLE
-        } else {
-            categories.translations.getOrDefault(category, "")
         }
     }
 
@@ -228,14 +213,14 @@ class CategoryApiImpl @Inject constructor(
             }
 
             nextPageUrl = streamCluster.clusterNextPageUrl
-            if (!nextPageUrl.isNullOrEmpty()) {
+            if (nextPageUrl.isNotEmpty()) {
                 applicationList.add(Application(isPlaceHolder = true))
             }
             Pair(applicationList, nextPageUrl)
         }
     }
 
-    /**
+    /*
      * Filter out apps which are restricted, whose details cannot be fetched.
      * If an app is restricted, we do try to fetch the app details inside a
      * try-catch block. If that fails, we remove the app, else we keep it even
@@ -253,7 +238,11 @@ class CategoryApiImpl @Inject constructor(
         val filteredApplications = mutableListOf<Application>()
         return handleNetworkResult {
             appList.forEach {
-                val filter = applicationDataManager.getAppFilterLevel(it.transformToApplication(context), authData)
+                val filter = applicationDataManager.getAppFilterLevel(
+                    it.transformToApplication(context),
+                    authData
+                )
+
                 if (filter.isUnFiltered()) {
                     filteredApplications.add(
                         it.transformToApplication(context).apply {
@@ -266,10 +255,14 @@ class CategoryApiImpl @Inject constructor(
         }
     }
 
-    override suspend fun getPWAApps(category: String): ResultSupreme<Pair<List<Application>, String>> {
+    override suspend fun getCleanApkAppsByCategory(
+        category: String,
+        source: Source
+    ): ResultSupreme<Pair<List<Application>, String>> {
         val list = mutableListOf<Application>()
         val result = handleNetworkResult {
-            val response = cleanApkPWARepository.getAppsByCategory(category).body()
+            val response = getCleanApkAppsResponse(source, category)
+
             response?.apps?.forEach {
                 applicationDataManager.updateStatus(it)
                 it.updateType()
@@ -280,17 +273,18 @@ class CategoryApiImpl @Inject constructor(
         return ResultSupreme.create(result.getResultStatus(), Pair(list, ""))
     }
 
-    override suspend fun getOpenSourceApps(category: String): ResultSupreme<Pair<List<Application>, String>> {
-        val list = mutableListOf<Application>()
-        val result = handleNetworkResult {
-            val response = cleanApkAppsRepository.getAppsByCategory(category).body()
-            response?.apps?.forEach {
-                applicationDataManager.updateStatus(it)
-                it.updateType()
-                applicationDataManager.updateFilterLevel(null, it)
-                list.add(it)
-            }
+    private suspend fun getCleanApkAppsResponse(
+        source: Source,
+        category: String
+    ) = when (source) {
+        Source.OPEN -> {
+            cleanApkAppsRepository.getAppsByCategory(category).body()
         }
-        return ResultSupreme.create(result.getResultStatus(), Pair(list, ""))
+
+        Source.PWA -> {
+            cleanApkPWARepository.getAppsByCategory(category).body()
+        }
+
+        else -> null
     }
 }

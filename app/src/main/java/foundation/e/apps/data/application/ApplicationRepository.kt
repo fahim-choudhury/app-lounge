@@ -100,7 +100,7 @@ class ApplicationRepository @Inject constructor(
 
     suspend fun getCategoriesList(
         type: CategoryType,
-    ): Triple<List<Category>, String, ResultStatus> {
+    ): Pair<List<Category>, ResultStatus> {
         return categoryApi.getCategoriesList(type)
     }
 
@@ -129,8 +129,8 @@ class ApplicationRepository @Inject constructor(
         source: Source
     ): ResultSupreme<Pair<List<Application>, String>> {
         return when (source) {
-            Source.OPEN -> categoryApi.getOpenSourceApps(category)
-            Source.PWA -> categoryApi.getPWAApps(category)
+            Source.OPEN -> categoryApi.getCleanApkAppsByCategory(category, Source.OPEN)
+            Source.PWA -> categoryApi.getCleanApkAppsByCategory(category, Source.PWA)
             else -> categoryApi.getGplayAppsByCategory(authData, category, pageUrl)
         }
     }

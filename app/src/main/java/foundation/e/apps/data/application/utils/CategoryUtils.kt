@@ -19,8 +19,16 @@
 package foundation.e.apps.data.application.utils
 
 import foundation.e.apps.R
+import foundation.e.apps.data.application.data.Category
+import foundation.e.apps.data.cleanapk.data.categories.Categories
+import foundation.e.apps.data.enums.AppTag
 
 object CategoryUtils {
+
+    private const val CATEGORY_OPEN_GAMES_ID = "game_open_games"
+    private const val CATEGORY_OPEN_GAMES_TITLE = "Open games"
+    private const val CATEGORY_TITLE_REPLACEABLE_CONJUNCTION = "&"
+    private const val CATEGORY_TITLE_CONJUNCTION = "and"
 
     private val categoryIconMap = mapOf(
         "comics" to R.drawable.ic_cat_comics,
@@ -102,6 +110,42 @@ object CategoryUtils {
     fun provideAppsCategoryIconResource(categoryId: String) =
         categoryIconMap[categoryId] ?: R.drawable.ic_cat_default
 
+    fun getCategories(
+        categories: Categories,
+        categoryNames: List<String>,
+        tag: AppTag
+    ) = categoryNames.map { category ->
+        Category(
+            id = category,
+            title = getCategoryTitle(category, categories),
+            drawable = provideAppsCategoryIconResource(category),
+            tag = tag
+        )
+    }
+
+    private fun getCategoryTitle(category: String, categories: Categories): String {
+        return if (category.contentEquals(CATEGORY_OPEN_GAMES_ID)) {
+            CATEGORY_OPEN_GAMES_TITLE
+        } else {
+            categories.translations.getOrDefault(category, "")
+        }
+    }
+
+    fun getCategoryIconName(category: Category): String {
+        var categoryTitle =
+            if (category.tag.getOperationalTag().contentEquals(AppTag.GPlay().getOperationalTag()))
+                category.id else category.title
+
+        if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
+            categoryTitle = categoryTitle.replace(
+                CATEGORY_TITLE_REPLACEABLE_CONJUNCTION,
+                CATEGORY_TITLE_CONJUNCTION
+            )
+        }
+
+        categoryTitle = categoryTitle.replace(' ', '_')
+        return categoryTitle.lowercase()
+    }
 }
 
 enum class CategoryType {
