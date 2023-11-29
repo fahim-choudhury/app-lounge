@@ -29,21 +29,6 @@ interface ApplicationApi {
 
     fun getApplicationCategoryPreference(): List<String>
 
-    /*
-        * Return three elements from the function.
-        * - List<FusedCategory> : List of categories.
-        * - String : String of application type - By default it is the value in preferences.
-        * In case there is any failure, for a specific type in handleAllSourcesCategories(),
-        * the string value is of that type.
-        * - ResultStatus : ResultStatus - by default is ResultStatus.OK. But in case there is a failure in
-        * any application category type, then it takes value of that failure.
-        *
-        * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
-        */
-    suspend fun getCategoriesList(
-        type: CategoryType,
-    ): Triple<List<Category>, String, ResultStatus>
-
     /**
      * Fetches search results from cleanAPK and GPlay servers and returns them
      * @param query Query
@@ -76,10 +61,6 @@ interface ApplicationApi {
     )
 
     suspend fun getOSSDownloadInfo(id: String, version: String?): Response<Download>
-
-    suspend fun getPWAApps(category: String): ResultSupreme<Pair<List<Application>, String>>
-
-    suspend fun getOpenSourceApps(category: String): ResultSupreme<Pair<List<Application>, String>>
 
     /*
         * Function to search cleanapk using package name.
@@ -148,5 +129,4 @@ interface ApplicationApi {
     fun isAnyAppInstallStatusChanged(currentList: List<Application>): Boolean
     fun isOpenSourceSelected(): Boolean
 
-    suspend fun getGplayAppsByCategory(authData: AuthData, category: String, pageUrl: String?): ResultSupreme<Pair<List<Application>, String>>
 }

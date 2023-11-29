@@ -22,6 +22,7 @@ import android.content.Context
 import android.text.format.Formatter
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Artwork
+import com.aurora.gplayapi.data.models.Category
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.Ratings
 import foundation.e.apps.data.enums.Origin
@@ -58,6 +59,16 @@ fun App.transformToApplication(context: Context): Application {
         restriction = this.restriction,
     )
     return app
+}
+
+ fun Category.transformToFusedCategory(): foundation.e.apps.data.application.data.Category {
+    val id = this.browseUrl.substringAfter("cat=").substringBefore("&c=")
+    return foundation.e.apps.data.application.data.Category(
+        id = id.lowercase(),
+        title = this.title,
+        browseUrl = this.browseUrl,
+        imageUrl = this.imageUrl,
+    )
 }
 
 private fun MutableList<Artwork>.transformToList(): List<String> {
