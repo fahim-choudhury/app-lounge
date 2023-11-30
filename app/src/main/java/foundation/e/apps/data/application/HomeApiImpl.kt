@@ -27,7 +27,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.data.Home
-import foundation.e.apps.data.application.utils.transformToApplication
+import foundation.e.apps.data.application.utils.toApplication
 import foundation.e.apps.data.cleanapk.data.home.HomeScreen
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.ResultStatus
@@ -135,7 +135,10 @@ class HomeApiImpl @Inject constructor(
         return ResultSupreme.create(result.getResultStatus(), priorList)
     }
 
-    private suspend fun handleCleanApkHomes(priorList: MutableList<Home>, appType: String): MutableList<Home> {
+    private suspend fun handleCleanApkHomes(
+        priorList: MutableList<Home>,
+        appType: String
+    ): MutableList<Home> {
         val response = if (appType == ApplicationApi.APP_TYPE_OPEN) {
             (cleanApkAppsRepository.getHomeScreenData() as Response<HomeScreen>).body()
         } else {
@@ -219,12 +222,15 @@ class HomeApiImpl @Inject constructor(
         }
     }
 
-    private suspend fun fetchGPlayHome(authData: AuthData, priorList: MutableList<Home>): List<Home> {
+    private suspend fun fetchGPlayHome(
+        authData: AuthData,
+        priorList: MutableList<Home>
+    ): List<Home> {
         val list = mutableListOf<Home>()
         val gplayHomeData = gplayRepository.getHomeScreenData() as Map<String, List<App>>
         gplayHomeData.map {
             val fusedApps = it.value.map { app ->
-                app.transformToApplication (context).apply {
+                app.toApplication(context).apply {
                     applicationDataManager.updateStatus(this)
                     applicationDataManager.updateFilterLevel(authData, this)
                 }
@@ -241,8 +247,8 @@ class HomeApiImpl @Inject constructor(
 
     private fun handleLimitedResult(homeList: List<Home>) {
         val gplayHomes = homeList.filter { fusedHome -> fusedHome.source.isEmpty() }
-        val hasGplayLimitedResult = gplayHomes.any {
-                fusedHome -> fusedHome.list.size < THRESHOLD_LIMITED_RESULT_HOME_PAGE
+        val hasGplayLimitedResult = gplayHomes.any { fusedHome ->
+            fusedHome.list.size < THRESHOLD_LIMITED_RESULT_HOME_PAGE
         }
 
         if (hasGplayLimitedResult) {

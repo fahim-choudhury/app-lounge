@@ -29,8 +29,8 @@ import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.Category
 import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.application.utils.CategoryUtils
-import foundation.e.apps.data.application.utils.transformToApplication
-import foundation.e.apps.data.application.utils.transformToFusedCategory
+import foundation.e.apps.data.application.utils.toApplication
+import foundation.e.apps.data.application.utils.toCategory
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.AppTag
@@ -134,7 +134,7 @@ class CategoryApiImpl @Inject constructor(
         val categoryList = mutableListOf<Category>()
         val result = handleNetworkResult {
             val playResponse = gplayRepository.getCategories(type).map { app ->
-                val category = app.transformToFusedCategory()
+                val category = app.toCategory()
                 category.drawable =
                     CategoryUtils.provideAppsCategoryIconResource(
                         CategoryUtils.getCategoryIconName(category)
@@ -239,13 +239,13 @@ class CategoryApiImpl @Inject constructor(
         return handleNetworkResult {
             appList.forEach {
                 val filter = applicationDataManager.getAppFilterLevel(
-                    it.transformToApplication(context),
+                    it.toApplication(context),
                     authData
                 )
 
                 if (filter.isUnFiltered()) {
                     filteredApplications.add(
-                        it.transformToApplication(context).apply {
+                        it.toApplication(context).apply {
                             this.filterLevel = filter
                         }
                     )
