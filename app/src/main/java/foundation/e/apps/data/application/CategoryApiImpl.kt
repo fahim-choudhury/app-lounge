@@ -52,17 +52,6 @@ class CategoryApiImpl @Inject constructor(
     private val applicationDataManager: ApplicationDataManager
 ) : CategoryApi {
 
-    /*
-     * Return three elements from the function.
-     * - List<FusedCategory> : List of categories.
-     * - String : String of application type - By default it is the value in preferences.
-     * In case there is any failure, for a specific type in handleAllSourcesCategories(),
-     * the string value is of that type.
-     * - ResultStatus : ResultStatus - by default is ResultStatus.OK. But in case there is a failure in
-     * any application category type, then it takes value of that failure.
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
-     */
     override suspend fun getCategoriesList(type: CategoryType): Pair<List<Category>, ResultStatus> {
         val categoriesList = mutableListOf<Category>()
         var apiStatus = handleAllSourcesCategories(categoriesList, type)
@@ -71,32 +60,27 @@ class CategoryApiImpl @Inject constructor(
         return Pair(categoriesList, apiStatus)
     }
 
-    /*
-     * Function to populate a given category list, from all GPlay categories, open source categories,
-     * and PWAs.
-     *
-     * Returns: Pair of:
-     * - ResultStatus - by default ResultStatus.OK, but can be different in case of an error in any category.
-     * - String - Application category type having error. If no error, then blank string.
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
-     */
     private suspend fun handleAllSourcesCategories(
         categoriesList: MutableList<Category>,
         type: CategoryType,
     ): ResultStatus {
         var categoryResult: ResultStatus = ResultStatus.OK
 
+        /** Here, `categoryResult` is updated by fetchCategoryResult()
+        And `fetchCategoryResult()` returns the result of categoryResult based
+        on current categoryResu  lt, if currentCategoryResult != ResultStatus.OK,
+        fetchCategoryResult() doesn't return the latest result to preserve the error.*/
+
         if (preferenceManagerModule.isOpenSourceSelected()) {
-            categoryResult = fetchCategoryResult(categoriesList, type, Source.OPEN)
+            categoryResult = fetchCategoryResult(categoriesList, type, Source.OPEN, categoryResult)
         }
 
         if (preferenceManagerModule.isPWASelected()) {
-            categoryResult = fetchCategoryResult(categoriesList, type, Source.PWA)
+            categoryResult = fetchCategoryResult(categoriesList, type, Source.PWA, categoryResult)
         }
 
         if (preferenceManagerModule.isGplaySelected()) {
-            categoryResult = fetchCategoryResult(categoriesList, type, Source.GPLAY)
+            categoryResult = fetchCategoryResult(categoriesList, type, Source.GPLAY, categoryResult)
         }
 
         return categoryResult
@@ -105,7 +89,8 @@ class CategoryApiImpl @Inject constructor(
     private suspend fun fetchCategoryResult(
         categoriesList: MutableList<Category>,
         type: CategoryType,
-        source: Source
+        source: Source,
+        currentCategoryResult: ResultStatus
     ): ResultStatus {
         val categoryResult = when (source) {
             Source.OPEN -> {
@@ -125,7 +110,8 @@ class CategoryApiImpl @Inject constructor(
             categoriesList.addAll(it.first)
         }
 
-        return categoryResult.second
+        return if (currentCategoryResult == ResultStatus.OK)
+            categoryResult.second else currentCategoryResult
     }
 
     private suspend fun fetchGplayCategories(
@@ -133,8 +119,8 @@ class CategoryApiImpl @Inject constructor(
     ): Pair<List<Category>, ResultStatus> {
         val categoryList = mutableListOf<Category>()
         val result = handleNetworkResult {
-            val playResponse = gplayRepository.getCategories(type).map { app ->
-                val category = app.toCategory()
+            val playResponse = gplayRepository.getCategories(type).map { gplayCategory ->
+                val category = gplayCategory.toCategory()
                 category.drawable =
                     CategoryUtils.provideAppsCategoryIconResource(
                         CategoryUtils.getCategoryIconName(category)
