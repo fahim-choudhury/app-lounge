@@ -64,33 +64,27 @@ class CategoryApiImpl @Inject constructor(
         categoriesList: MutableList<Category>,
         type: CategoryType,
     ): ResultStatus {
-        var categoryResult: ResultStatus = ResultStatus.OK
-
-        /** Here, `categoryResult` is updated by fetchCategoryResult()
-        And `fetchCategoryResult()` returns the result of categoryResult based
-        on current categoryResu  lt, if currentCategoryResult != ResultStatus.OK,
-        fetchCategoryResult() doesn't return the latest result to preserve the error.*/
+        val categoryResults: MutableList<ResultStatus> = mutableListOf()
 
         if (preferenceManagerModule.isOpenSourceSelected()) {
-            categoryResult = fetchCategoryResult(categoriesList, type, Source.OPEN, categoryResult)
+            categoryResults.add(fetchCategoryResult(categoriesList, type, Source.OPEN))
         }
 
         if (preferenceManagerModule.isPWASelected()) {
-            categoryResult = fetchCategoryResult(categoriesList, type, Source.PWA, categoryResult)
+            categoryResults.add(fetchCategoryResult(categoriesList, type, Source.PWA))
         }
 
         if (preferenceManagerModule.isGplaySelected()) {
-            categoryResult = fetchCategoryResult(categoriesList, type, Source.GPLAY, categoryResult)
+            categoryResults.add(fetchCategoryResult(categoriesList, type, Source.GPLAY))
         }
 
-        return categoryResult
+        return categoryResults.find { it != ResultStatus.OK } ?: ResultStatus.OK
     }
 
     private suspend fun fetchCategoryResult(
         categoriesList: MutableList<Category>,
         type: CategoryType,
-        source: Source,
-        currentCategoryResult: ResultStatus
+        source: Source
     ): ResultStatus {
         val categoryResult = when (source) {
             Source.OPEN -> {
@@ -110,8 +104,7 @@ class CategoryApiImpl @Inject constructor(
             categoriesList.addAll(it.first)
         }
 
-        return if (currentCategoryResult == ResultStatus.OK)
-            categoryResult.second else currentCategoryResult
+        return categoryResult.second
     }
 
     private suspend fun fetchGplayCategories(
