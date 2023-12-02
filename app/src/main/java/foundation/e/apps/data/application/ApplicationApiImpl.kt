@@ -39,6 +39,7 @@ import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.application.data.Ratings
 import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.application.utils.CategoryUtils
+import foundation.e.apps.data.application.utils.toApplication
 import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.search.Search
@@ -75,13 +76,13 @@ typealias FusedHomeDeferred = Deferred<ResultSupreme<List<Home>>>
 
 @Singleton
 class ApplicationApiImpl @Inject constructor(
-    private val pkgManagerModule: PkgManagerModule,
-    private val pwaManagerModule: PWAManagerModule,
+    @ApplicationContext private val context: Context,
+    private val appsApi: AppsApi,
     private val preferenceManagerModule: PreferenceManagerModule,
     @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
     @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
     @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository,
-    @ApplicationContext private val context: Context
+    private val applicationDataManager: ApplicationDataManager
 ) : ApplicationApi {
 
     companion object {
@@ -150,9 +151,9 @@ class ApplicationApiImpl @Inject constructor(
             val apps =
                 cleanApkPWARepository.getSearchResult(query).body()?.apps
             apps?.forEach {
-                it.updateStatus()
+                applicationDataManager.updateStatus(it)
                 it.updateType()
-                it.updateSource()
+                it.updateSource(context)
                 pwaApps.add(it)
             }
         }
@@ -287,7 +288,7 @@ class ApplicationApiImpl @Inject constructor(
         authData: AuthData,
     ): Application? {
         try {
-            getApplicationDetails(query, query, authData, Origin.GPLAY).let {
+            appsApi.getApplicationDetails(query, query, authData, Origin.GPLAY).let {
                 if (it.second == ResultStatus.OK && it.first.package_name.isNotEmpty()) {
                     return it.first
                 }
@@ -384,249 +385,17 @@ class ApplicationApiImpl @Inject constructor(
         (cleanApkAppsRepository as CleanApkDownloadInfoFetcher).getDownloadInfo(id, version)
 
     /*
-     * Function to search cleanapk using package name.
-     * Will be used to handle f-droid deeplink.
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5509
-     */
-    override suspend fun getCleanapkAppDetails(packageName: String): Pair<Application, ResultStatus> {
-        var application = Application()
-        val result = handleNetworkResult {
-            val result = cleanApkAppsRepository.getSearchResult(
-                packageName,
-                "package_name"
-            ).body()
-
-            if (result?.apps?.isNotEmpty() == true && result.numberOfResults == 1) {
-                application =
-                    (cleanApkAppsRepository.getAppDetails(result.apps[0]._id) as Response<CleanApkApplication>).body()?.app
-                        ?: Application()
-            }
-            application.updateFilterLevel(null)
-        }
-        return Pair(application, result.getResultStatus())
-    }
-
-    // Warning - GPlay results may not have proper geo-restriction information.
-    override suspend fun getApplicationDetails(
-        packageNameList: List<String>,
-        authData: AuthData,
-        origin: Origin
-    ): Pair<List<Application>, ResultStatus> {
-        val list = mutableListOf<Application>()
-
-        val response: Pair<List<Application>, ResultStatus> =
-            if (origin == Origin.CLEANAPK) {
-                getAppDetailsListFromCleanapk(packageNameList)
-            } else {
-                getAppDetailsListFromGPlay(packageNameList, authData)
-            }
-
-        response.first.forEach {
-            if (it.package_name.isNotBlank()) {
-                it.updateStatus()
-                it.updateType()
-                list.add(it)
-            }
-        }
-
-        return Pair(list, response.second)
-    }
-
-    /*
-     * Get app details of a list of apps from cleanapk.
-     * Returns list of FusedApp and ResultStatus - which will reflect timeout if even one app fails.
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
-     */
-    private suspend fun getAppDetailsListFromCleanapk(
-        packageNameList: List<String>,
-    ): Pair<List<Application>, ResultStatus> {
-        var status = ResultStatus.OK
-        val applicationList = mutableListOf<Application>()
-
-        /*
-         * Fetch result of each cleanapk search with separate timeout,
-         * i.e. check timeout for individual package query.
-         */
-        for (packageName in packageNameList) {
-            val result = handleNetworkResult {
-                cleanApkAppsRepository.getSearchResult(
-                    packageName,
-                    "package_name"
-                ).body()?.run {
-                    if (apps.isNotEmpty() && numberOfResults == 1) {
-                        applicationList.add(
-                            apps[0].apply {
-                                updateFilterLevel(null)
-                            }
-                        )
-                    }
-                }
-            }
-
-            status = result.getResultStatus()
-
-            /*
-             * If status is not ok, immediately return.
-             */
-            if (status != ResultStatus.OK) {
-                return Pair(applicationList, status)
-            }
-        }
-
-        return Pair(applicationList, status)
-    }
-
-    /*
-     * Get app details of a list of apps from Google Play store.
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
-     */
-    private suspend fun getAppDetailsListFromGPlay(
-        packageNameList: List<String>,
-        authData: AuthData,
-    ): Pair<List<Application>, ResultStatus> {
-        val applicationList = mutableListOf<Application>()
-
-        /*
-         * Old code moved from getApplicationDetails()
-         */
-        val result = handleNetworkResult {
-            gplayRepository.getAppsDetails(packageNameList).forEach { app ->
-                /*
-                 * Some apps are restricted to locations. Example "com.skype.m2".
-                 * For restricted apps, check if it is possible to get their specific app info.
-                 *
-                 * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5174
-                 */
-                val filter = getAppFilterLevel(app, authData)
-                if (filter.isUnFiltered()) {
-                    applicationList.add(
-                        app.transformToFusedApp().apply {
-                            filterLevel = filter
-                        }
-                    )
-                }
-            }
-        }
-
-        return Pair(applicationList, result.getResultStatus())
-    }
-
-    /**
-     * Filter out apps which are restricted, whose details cannot be fetched.
-     * If an app is restricted, we do try to fetch the app details inside a
-     * try-catch block. If that fails, we remove the app, else we keep it even
-     * if it is restricted.
-     *
-     * Popular example: "com.skype.m2"
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5174
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
-     */
-    override suspend fun filterRestrictedGPlayApps(
-        authData: AuthData,
-        appList: List<App>,
-    ): ResultSupreme<List<Application>> {
-        val filteredApplications = mutableListOf<Application>()
-        return handleNetworkResult {
-            appList.forEach {
-                val filter = getAppFilterLevel(it, authData)
-                if (filter.isUnFiltered()) {
-                    filteredApplications.add(
-                        it.transformToFusedApp().apply {
-                            this.filterLevel = filter
-                        }
-                    )
-                }
-            }
-            filteredApplications
-        }
-    }
-
-    /**
-     * Get different filter levels.
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5720
-     */
-    override suspend fun getAppFilterLevel(application: Application, authData: AuthData?): FilterLevel {
-        return when {
-            application.package_name.isBlank() -> FilterLevel.UNKNOWN
-            !application.isFree && application.price.isBlank() -> FilterLevel.UI
-            application.origin == Origin.CLEANAPK -> FilterLevel.NONE
-            !isRestricted(application) -> FilterLevel.NONE
-            authData == null -> FilterLevel.UNKNOWN // cannot determine for gplay app
-            !isApplicationVisible(application) -> FilterLevel.DATA
-            application.originalSize == 0L -> FilterLevel.UI
-            !isDownloadable(application) -> FilterLevel.UI
-            else -> FilterLevel.NONE
-        }
-    }
-
-    /**
-     * Some apps are simply not visible.
-     * Example: com.skype.m2
-     */
-    private suspend fun isApplicationVisible(application: Application): Boolean {
-        return kotlin.runCatching { gplayRepository.getAppDetails(application.package_name) }.isSuccess
-    }
-
-    /**
-     * Some apps are visible but not downloadable.
-     * Example: com.riotgames.league.wildrift
-     */
-    private suspend fun isDownloadable(application: Application): Boolean {
-        return kotlin.runCatching {
-            gplayRepository.getDownloadInfo(
-                application.package_name,
-                application.latest_version_code,
-                application.offer_type,
-            )
-        }.isSuccess
-    }
-
-    private fun isRestricted(application: Application): Boolean {
-        return application.restriction != Constants.Restriction.NOT_RESTRICTED
-    }
-
-    /*
      * Similar to above method but uses Aurora OSS data class "App".
      */
-    override suspend fun getAppFilterLevel(app: App, authData: AuthData): FilterLevel {
-        return getAppFilterLevel(app.transformToFusedApp(), authData)
+    private suspend fun getAppFilterLevel(app: App, authData: AuthData): FilterLevel {
+        return applicationDataManager.getAppFilterLevel(app.toApplication(context), authData)
     }
 
     /*
      * Handy method to run on an instance of FusedApp to update its filter level.
      */
     suspend fun Application.updateFilterLevel(authData: AuthData?) {
-        this.filterLevel = getAppFilterLevel(this, authData)
-    }
-
-    override suspend fun getApplicationDetails(
-        id: String,
-        packageName: String,
-        authData: AuthData,
-        origin: Origin
-    ): Pair<Application, ResultStatus> {
-
-        var response: Application? = null
-
-        val result = handleNetworkResult {
-            response = if (origin == Origin.CLEANAPK) {
-                (cleanApkAppsRepository.getAppDetails(id) as Response<CleanApkApplication>).body()?.app
-            } else {
-                val app = gplayRepository.getAppDetails(packageName) as App?
-                app?.transformToFusedApp()
-            }
-            response?.let {
-                it.updateStatus()
-                it.updateType()
-                it.updateSource()
-                it.updateFilterLevel(authData)
-            }
-            response
-        }
-
-        return Pair(result.data ?: Application(), result.getResultStatus())
+        this.filterLevel = applicationDataManager.getAppFilterLevel(this, authData)
     }
 
     /*
@@ -641,9 +410,9 @@ class ApplicationApiImpl @Inject constructor(
             cleanApkAppsRepository.getSearchResult(keyword).body()?.apps
 
         response?.forEach {
-            it.updateStatus()
+            applicationDataManager.updateStatus(it)
             it.updateType()
-            it.updateSource()
+            it.updateSource(context)
             list.add(it)
         }
         return list
@@ -691,11 +460,11 @@ class ApplicationApiImpl @Inject constructor(
          * else will show the GPlay app itself.
          */
     private suspend fun replaceWithFDroid(gPlayApp: App): Application {
-        val gPlayFusedApp = gPlayApp.transformToFusedApp()
+        val gPlayFusedApp = gPlayApp.toApplication(context)
         val response = cleanApkAppsRepository.getAppDetails(gPlayApp.packageName)
         if (response != null) {
             val fdroidApp = getCleanApkPackageResult(gPlayFusedApp.package_name)?.apply {
-                updateSource()
+                this.updateSource(context)
                 isGplayReplaced = true
             }
             return fdroidApp ?: gPlayFusedApp
@@ -711,120 +480,4 @@ class ApplicationApiImpl @Inject constructor(
             )
         }
     }
-
-    /*
-     * FusedApp-related internal extensions and functions
-     */
-
-    private fun App.transformToFusedApp(): Application {
-        val app = Application(
-            _id = this.id.toString(),
-            author = this.developerName,
-            category = this.categoryName,
-            description = this.description,
-            perms = this.permissions,
-            icon_image_path = this.iconArtwork.url,
-            last_modified = this.updatedOn,
-            latest_version_code = this.versionCode,
-            latest_version_number = this.versionName,
-            name = this.displayName,
-            other_images_path = this.screenshots.transformToList(),
-            package_name = this.packageName,
-            ratings = Ratings(
-                usageQualityScore =
-                this.labeledRating.run {
-                    if (isNotEmpty()) {
-                        this.replace(",", ".").toDoubleOrNull() ?: -1.0
-                    } else -1.0
-                }
-            ),
-            offer_type = this.offerType,
-            origin = Origin.GPLAY,
-            shareUrl = this.shareUrl,
-            originalSize = this.size,
-            appSize = Formatter.formatFileSize(context, this.size),
-            isFree = this.isFree,
-            price = this.price,
-            restriction = this.restriction,
-        )
-        app.updateStatus()
-        return app
-    }
-
-    /**
-     * Get fused app installation status.
-     * Applicable for both native apps and PWAs.
-     *
-     * Recommended to use this instead of [PkgManagerModule.getPackageStatus].
-     */
-    override fun getFusedAppInstallationStatus(application: Application): Status {
-        return if (application.is_pwa) {
-            pwaManagerModule.getPwaStatus(application)
-        } else {
-            pkgManagerModule.getPackageStatus(application.package_name, application.latest_version_code)
-        }
-    }
-
-    private fun Application.updateStatus() {
-        if (this.status != Status.INSTALLATION_ISSUE) {
-            this.status = getFusedAppInstallationStatus(this)
-        }
-    }
-
-    private fun Application.updateType() {
-        this.type = if (this.is_pwa) Type.PWA else Type.NATIVE
-    }
-
-    private fun Application.updateSource() {
-        this.apply {
-            source = if (origin == Origin.CLEANAPK && is_pwa) context.getString(R.string.pwa)
-            else if (origin == Origin.CLEANAPK) context.getString(R.string.open_source)
-            else ""
-        }
-    }
-
-    private fun MutableList<Artwork>.transformToList(): List<String> {
-        val list = mutableListOf<String>()
-        this.forEach {
-            list.add(it.url)
-        }
-        return list
-    }
-
-    /**
-     * @return returns true if there is changes in data, otherwise false
-     */
-    override fun isAnyFusedAppUpdated(
-        newApplications: List<Application>,
-        oldApplications: List<Application>
-    ): Boolean {
-        val fusedAppDiffUtil = ApplicationDiffUtil()
-        if (newApplications.size != oldApplications.size) {
-            return true
-        }
-
-        newApplications.forEach {
-            val indexOfNewFusedApp = newApplications.indexOf(it)
-            if (!fusedAppDiffUtil.areContentsTheSame(it, oldApplications[indexOfNewFusedApp])) {
-                return true
-            }
-        }
-        return false
-    }
-
-    override fun isAnyAppInstallStatusChanged(currentList: List<Application>): Boolean {
-        currentList.forEach {
-            if (it.status == Status.INSTALLATION_ISSUE) {
-                return@forEach
-            }
-            val currentAppStatus =
-                getFusedAppInstallationStatus(it)
-            if (it.status != currentAppStatus) {
-                return true
-            }
-        }
-        return false
-    }
-
-    override fun isOpenSourceSelected() = preferenceManagerModule.isOpenSourceSelected()
 }
