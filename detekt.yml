@@ -13,3 +13,9 @@ style:
 
   ForbiddenComment:
     active: false
+
+# Complexity rules
+complexity:
+
+  TooManyFunctions:
+    ignorePrivate: true
