@@ -169,33 +169,20 @@
     <ID>TooGenericExceptionThrown:AnonymousLoginManager.kt$AnonymousLoginManager$throw Exception( "Error fetching Anonymous credentials\n" + "Network code: ${response.code}\n" + "Success: ${response.isSuccessful}" + response.errorString.run { if (isNotBlank()) "\nError message: $this" else "" } )</ID>
     <ID>TooGenericExceptionThrown:PlayStoreLoginWrapper.kt$PlayStoreLoginWrapper$throw Exception("Validation network code: ${response.code}")</ID>
     <ID>TooGenericExceptionThrown:PlayStoreLoginWrapper.kt$PlayStoreLoginWrapper$throw Exception(error)</ID>
-    <ID>TooManyFunctions:AppInstallProcessor.kt$AppInstallProcessor</ID>
-    <ID>TooManyFunctions:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl : IAppPrivacyInfoRepository</ID>
     <ID>TooManyFunctions:ApplicationApi.kt$ApplicationApi</ID>
     <ID>TooManyFunctions:ApplicationApiImpl.kt$ApplicationApiImpl : ApplicationApi</ID>
-    <ID>TooManyFunctions:ApplicationFragment.kt$ApplicationFragment : TimeoutFragment</ID>
     <ID>TooManyFunctions:ApplicationListFragment.kt$ApplicationListFragment : TimeoutFragmentApplicationInstaller</ID>
-    <ID>TooManyFunctions:ApplicationListRVAdapter.kt$ApplicationListRVAdapter : ListAdapter</ID>
     <ID>TooManyFunctions:ApplicationRepository.kt$ApplicationRepository</ID>
-    <ID>TooManyFunctions:DownloadManager.kt$DownloadManager</ID>
     <ID>TooManyFunctions:FusedManagerImpl.kt$FusedManagerImpl : IFusedManager</ID>
     <ID>TooManyFunctions:FusedManagerRepository.kt$FusedManagerRepository</ID>
-    <ID>TooManyFunctions:GPlayHttpClient.kt$GPlayHttpClient : IHttpClient</ID>
-    <ID>TooManyFunctions:HomeChildRVAdapter.kt$HomeChildRVAdapter : ListAdapter</ID>
     <ID>TooManyFunctions:HomeFragment.kt$HomeFragment : TimeoutFragmentApplicationInstaller</ID>
     <ID>TooManyFunctions:IFusedManager.kt$IFusedManager</ID>
     <ID>TooManyFunctions:LoginData.kt$LoginData</ID>
-    <ID>TooManyFunctions:MainActivity.kt$MainActivity : AppCompatActivity</ID>
     <ID>TooManyFunctions:MainActivityViewModel.kt$MainActivityViewModel : ViewModel</ID>
     <ID>TooManyFunctions:PkgManagerModule.kt$PkgManagerModule</ID>
-    <ID>TooManyFunctions:PlayStoreAuthenticator.kt$PlayStoreAuthenticator : StoreAuthenticatorAuthDataValidator</ID>
-    <ID>TooManyFunctions:PlayStoreRepositoryImpl.kt$PlayStoreRepositoryImpl : PlayStoreRepository</ID>
-    <ID>TooManyFunctions:RetrofitModule.kt$RetrofitModule</ID>
     <ID>TooManyFunctions:SearchFragment.kt$SearchFragment : TimeoutFragmentOnQueryTextListenerOnSuggestionListenerApplicationInstaller</ID>
     <ID>TooManyFunctions:TimeoutFragment.kt$TimeoutFragment : Fragment</ID>
     <ID>TooManyFunctions:UpdatesFragment.kt$UpdatesFragment : TimeoutFragmentApplicationInstaller</ID>
-    <ID>TooManyFunctions:UpdatesManagerImpl.kt$UpdatesManagerImpl</ID>
-    <ID>TooManyFunctions:UpdatesWorker.kt$UpdatesWorker : CoroutineWorker</ID>
     <ID>UnusedParameter:SearchViewModel.kt$SearchViewModel$lifecycleOwner: LifecycleOwner</ID>
   </CurrentIssues>
 </SmellBaseline>
