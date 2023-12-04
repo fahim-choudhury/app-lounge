@@ -4,9 +4,10 @@ import android.content.Context
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
-import foundation.e.apps.R
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.cleanapk.data.app.Application as CleanApkApplication
 import foundation.e.apps.data.application.utils.toApplication
+import foundation.e.apps.data.cleanapk.data.search.Search
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
@@ -30,22 +31,27 @@ class AppsApiImpl @Inject constructor(
     private val preferenceManagerModule: PreferenceManagerModule,
     @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
     @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
-    @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository,
     private val applicationDataManager: ApplicationDataManager
 ) : AppsApi {
+
+    companion object {
+        private const val KEY_SEARCH_PACKAGE_NAME = "package_name"
+    }
+
     override suspend fun getCleanapkAppDetails(packageName: String): Pair<Application, ResultStatus> {
         var application = Application()
         val result = handleNetworkResult {
             val result = cleanApkAppsRepository.getSearchResult(
                 packageName,
-                "package_name"
+                KEY_SEARCH_PACKAGE_NAME
             ).body()
 
-            if (result?.apps?.isNotEmpty() == true && result.numberOfResults == 1) {
+            if (result?.hasSingleResult() == true) {
                 application =
-                    (cleanApkAppsRepository.getAppDetails(result.apps[0]._id) as Response<foundation.e.apps.data.cleanapk.data.app.Application>).body()?.app
+                    (cleanApkAppsRepository.getAppDetails(result.apps[0]._id) as Response<CleanApkApplication>).body()?.app
                         ?: Application()
             }
+
             application.updateFilterLevel(null)
         }
         return Pair(application, result.getResultStatus())
@@ -54,7 +60,7 @@ class AppsApiImpl @Inject constructor(
     /*
      * Handy method to run on an instance of FusedApp to update its filter level.
      */
-    suspend fun Application.updateFilterLevel(authData: AuthData?) {
+    private suspend fun Application.updateFilterLevel(authData: AuthData?) {
         this.filterLevel = applicationDataManager.getAppFilterLevel(this, authData)
     }
 
@@ -67,7 +73,7 @@ class AppsApiImpl @Inject constructor(
 
         val response: Pair<List<Application>, ResultStatus> =
             if (origin == Origin.CLEANAPK) {
-                getAppDetailsListFromCleanapk(packageNameList)
+                getAppDetailsListFromCleanApk(packageNameList)
             } else {
                 getAppDetailsListFromGPlay(packageNameList, authData)
             }
@@ -85,27 +91,19 @@ class AppsApiImpl @Inject constructor(
 
     /*
      * Get app details of a list of apps from cleanapk.
-     * Returns list of FusedApp and ResultStatus - which will reflect timeout if even one app fails.
+     * Returns list of FusedApp and ResultStatus - which will reflect error if even one app fails.
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
-    private suspend fun getAppDetailsListFromCleanapk(
+    private suspend fun getAppDetailsListFromCleanApk(
         packageNameList: List<String>,
     ): Pair<List<Application>, ResultStatus> {
         var status = ResultStatus.OK
         val applicationList = mutableListOf<Application>()
 
-        /*
-         * Fetch result of each cleanapk search with separate timeout,
-         * i.e. check timeout for individual package query.
-         */
         for (packageName in packageNameList) {
             val result = getCleanApkSearchResultByPackageName(packageName, applicationList)
-
             status = result.getResultStatus()
 
-            /*
-             * If status is not ok, immediately return.
-             */
             if (status != ResultStatus.OK) {
                 return Pair(applicationList, status)
             }
@@ -114,39 +112,40 @@ class AppsApiImpl @Inject constructor(
         return Pair(applicationList, status)
     }
 
-    /*
-     * Get app details of a list of apps from Google Play store.
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
-     */
     private suspend fun getAppDetailsListFromGPlay(
         packageNameList: List<String>,
         authData: AuthData,
     ): Pair<List<Application>, ResultStatus> {
         val applicationList = mutableListOf<Application>()
 
-        /*
-         * Old code moved from getApplicationDetails()
-         */
         val result = handleNetworkResult {
             gplayRepository.getAppsDetails(packageNameList).forEach { app ->
-                /*
-                 * Some apps are restricted to locations. Example "com.skype.m2".
-                 * For restricted apps, check if it is possible to get their specific app info.
-                 *
-                 * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5174
-                 */
-                val filter = applicationDataManager.getAppFilterLevel(app.toApplication(context), authData)
-                if (filter.isUnFiltered()) {
-                    applicationList.add(
-                        app.toApplication(context).apply {
-                            filterLevel = filter
-                        }
-                    )
-                }
+                handleFilteredApps(app, authData, applicationList)
             }
         }
 
         return Pair(applicationList, result.getResultStatus())
+    }
+
+    /*
+     * Some apps are restricted to locations. Example "com.skype.m2".
+     * For restricted apps, check if it is possible to get their specific app info.
+     *
+     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5174
+     */
+    private suspend fun handleFilteredApps(
+        app: App,
+        authData: AuthData,
+        applicationList: MutableList<Application>
+    ) {
+        val filter = applicationDataManager.getAppFilterLevel(app.toApplication(context), authData)
+        if (filter.isUnFiltered()) {
+            applicationList.add(
+                app.toApplication(context).apply {
+                    filterLevel = filter
+                }
+            )
+        }
     }
 
     private suspend fun getCleanApkSearchResultByPackageName(
@@ -155,17 +154,26 @@ class AppsApiImpl @Inject constructor(
     ) = handleNetworkResult {
         cleanApkAppsRepository.getSearchResult(
             packageName,
-            "package_name"
+            KEY_SEARCH_PACKAGE_NAME
         ).body()?.run {
-            if (apps.isNotEmpty() && numberOfResults == 1) {
-                applicationList.add(
-                    apps[0].apply {
-                        updateFilterLevel(null)
-                    }
-                )
-            }
+            handleCleanApkSearch(applicationList)
         }
     }
+
+    private suspend fun Search.handleCleanApkSearch(
+        applicationList: MutableList<Application>
+    ) {
+        if (hasSingleResult()) {
+            applicationList.add(
+                apps[0].apply {
+                    updateFilterLevel(null)
+                }
+            )
+        }
+    }
+
+    private fun Search.hasSingleResult() =
+        apps.isNotEmpty() && numberOfResults == 1
 
     override suspend fun getApplicationDetails(
         id: String,
@@ -173,22 +181,23 @@ class AppsApiImpl @Inject constructor(
         authData: AuthData,
         origin: Origin
     ): Pair<Application, ResultStatus> {
-        var response: Application? = null
+        var application: Application?
 
         val result = handleNetworkResult {
-            response = if (origin == Origin.CLEANAPK) {
-                (cleanApkAppsRepository.getAppDetails(id) as Response<foundation.e.apps.data.cleanapk.data.app.Application>).body()?.app
+            application = if (origin == Origin.CLEANAPK) {
+                (cleanApkAppsRepository.getAppDetails(id) as Response<CleanApkApplication>).body()?.app
             } else {
                 val app = gplayRepository.getAppDetails(packageName) as App?
                 app?.toApplication(context)
             }
-            response?.let {
+
+            application?.let {
                 applicationDataManager.updateStatus(it)
                 it.updateType()
                 it.updateSource(context)
                 it.updateFilterLevel(authData)
             }
-            response
+            application
         }
 
         return Pair(result.data ?: Application(), result.getResultStatus())
@@ -198,7 +207,10 @@ class AppsApiImpl @Inject constructor(
         return if (application.is_pwa) {
             pwaManagerModule.getPwaStatus(application)
         } else {
-            pkgManagerModule.getPackageStatus(application.package_name, application.latest_version_code)
+            pkgManagerModule.getPackageStatus(
+                application.package_name,
+                application.latest_version_code
+            )
         }
     }
 
@@ -213,11 +225,18 @@ class AppsApiImpl @Inject constructor(
         newApplications: List<Application>,
         oldApplications: List<Application>
     ): Boolean {
-        val fusedAppDiffUtil = ApplicationDiffUtil()
         if (newApplications.size != oldApplications.size) {
             return true
         }
 
+        return areApplicationsChanged(newApplications, oldApplications)
+    }
+
+    private fun areApplicationsChanged(
+        newApplications: List<Application>,
+        oldApplications: List<Application>
+    ): Boolean {
+        val fusedAppDiffUtil = ApplicationDiffUtil()
         newApplications.forEach {
             val indexOfNewFusedApp = newApplications.indexOf(it)
             if (!fusedAppDiffUtil.areContentsTheSame(it, oldApplications[indexOfNewFusedApp])) {
@@ -232,8 +251,8 @@ class AppsApiImpl @Inject constructor(
             if (it.status == Status.INSTALLATION_ISSUE) {
                 return@forEach
             }
-            val currentAppStatus =
-                getFusedAppInstallationStatus(it)
+
+            val currentAppStatus = getFusedAppInstallationStatus(it)
             if (it.status != currentAppStatus) {
                 return true
             }

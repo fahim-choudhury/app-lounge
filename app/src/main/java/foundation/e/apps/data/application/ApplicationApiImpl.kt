@@ -109,11 +109,6 @@ class ApplicationApiImpl @Inject constructor(
         query: String,
         authData: AuthData
     ): ResultSupreme<Pair<List<Application>, Boolean>> {
-        /*
-         * Returning livedata to improve performance, so that we do not have to wait forever
-         * for all results to be fetched from network before showing them.
-         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
-         */
         val packageSpecificResults = ArrayList<Application>()
         var finalSearchResult: ResultSupreme<Pair<List<Application>, Boolean>> = ResultSupreme.Error()
 
