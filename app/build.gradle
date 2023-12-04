@@ -159,8 +159,10 @@ allOpen {
 
 dependencies {
 
+    implementation project(':auth-data-lib')
     implementation project(':parental-control-data')
-// TODO: Add splitinstall-lib to a repo https://gitlab.e.foundation/e/os/backlog/-/issues/628
+
+    // TODO: Add splitinstall-lib to a repo https://gitlab.e.foundation/e/os/backlog/-/issues/628
     api files('libs/splitinstall-lib.jar')
 
     implementation 'foundation.e.lib:telemetry:0.0.11-alpha'

@@ -63,3 +63,4 @@ dependencyResolutionManagement {
 rootProject.name = "App Lounge"
 include ':app'
 include ':parental-control-data'
+include ':auth-data-lib'

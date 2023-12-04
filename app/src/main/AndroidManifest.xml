@@ -20,6 +20,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <permission
+        android:name="foundation.e.apps.permission.AUTH_DATA_PROVIDER"
+        android:protectionLevel="signature" />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_TASKS" />
@@ -167,6 +171,13 @@
         <receiver
             android:name=".install.splitinstall.SplitInstallBinder$SignInReceiver"
             android:exported="false" />
+
+        <provider
+            android:name="${applicationId}.microg.AuthDataProvider"
+            android:authorities="${applicationId}.authdata.provider"
+            android:readPermission="${applicationId}.permission.AUTH_DATA_PROVIDER"
+            android:exported="true"/>
+
     </application>
 
 </manifest>

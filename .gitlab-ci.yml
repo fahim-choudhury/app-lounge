@@ -122,6 +122,18 @@ lintRelease:
       - app/build/reports/
       - build/reports/
 
+
+publish-authdatalib:
+  stage: publish
+  needs: ["buildRelease"]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+  script:
+    - ./gradlew :auth-data-lib:build
+    - ./gradlew :auth-data-lib:publish
+
+
 pushToPrebuilt:
   stage: publish
   needs: ["buildRelease"]
