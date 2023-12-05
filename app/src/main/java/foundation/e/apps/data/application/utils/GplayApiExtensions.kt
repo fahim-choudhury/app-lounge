@@ -23,7 +23,7 @@ import android.text.format.Formatter
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Artwork
 import com.aurora.gplayapi.data.models.Category
-import foundation.e.apps.data.application.data.Category as AppLoungeCategroy
+import foundation.e.apps.data.application.data.Category as AppLoungeCategory
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.Ratings
 import foundation.e.apps.data.enums.Origin
@@ -62,9 +62,9 @@ fun App.toApplication(context: Context): Application {
     return app
 }
 
-fun Category.toCategory(): AppLoungeCategroy {
+fun Category.toCategory(): AppLoungeCategory {
     val id = this.browseUrl.substringAfter("cat=").substringBefore("&c=")
-    return AppLoungeCategroy(
+    return AppLoungeCategory(
         id = id.lowercase(),
         title = this.title,
         browseUrl = this.browseUrl,
