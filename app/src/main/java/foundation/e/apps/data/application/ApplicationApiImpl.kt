@@ -85,9 +85,6 @@ class ApplicationApiImpl @Inject constructor(
 ) : ApplicationApi {
 
     companion object {
-        private const val CATEGORY_TITLE_REPLACEABLE_CONJUNCTION = "&"
-        private const val CATEGORY_OPEN_GAMES_ID = "game_open_games"
-        private const val CATEGORY_OPEN_GAMES_TITLE = "Open games"
         private const val KEYWORD_TEST_SEARCH = "facebook"
     }
 
@@ -97,35 +94,6 @@ class ApplicationApiImpl @Inject constructor(
         if (preferenceManagerModule.isOpenSourceSelected()) prefs.add(APP_TYPE_OPEN)
         if (preferenceManagerModule.isPWASelected()) prefs.add(APP_TYPE_PWA)
         return prefs
-    }
-
-    /*
-     * Return three elements from the function.
-     * - List<FusedCategory> : List of categories.
-     * - String : String of application type - By default it is the value in preferences.
-     * In case there is any failure, for a specific type in handleAllSourcesCategories(),
-     * the string value is of that type.
-     * - ResultStatus : ResultStatus - by default is ResultStatus.OK. But in case there is a failure in
-     * any application category type, then it takes value of that failure.
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
-     */
-    override suspend fun getCategoriesList(
-        type: CategoryType,
-    ): Triple<List<Category>, String, ResultStatus> {
-        val categoriesList = mutableListOf<Category>()
-        val preferredApplicationType = preferenceManagerModule.preferredApplicationType()
-        var apiStatus: ResultStatus = ResultStatus.OK
-        var applicationCategoryType = preferredApplicationType
-
-        handleAllSourcesCategories(categoriesList, type).run {
-            if (first != ResultStatus.OK) {
-                apiStatus = first
-                applicationCategoryType = second
-            }
-        }
-        categoriesList.sortBy { item -> item.title.lowercase() }
-        return Triple(categoriesList, applicationCategoryType, apiStatus)
     }
 
     /**
@@ -415,34 +383,6 @@ class ApplicationApiImpl @Inject constructor(
     override suspend fun getOSSDownloadInfo(id: String, version: String?) =
         (cleanApkAppsRepository as CleanApkDownloadInfoFetcher).getDownloadInfo(id, version)
 
-    override suspend fun getPWAApps(category: String): ResultSupreme<Pair<List<Application>, String>> {
-        val list = mutableListOf<Application>()
-        val result = handleNetworkResult {
-            val response = getPWAAppsResponse(category)
-            response?.apps?.forEach {
-                it.updateStatus()
-                it.updateType()
-                it.updateFilterLevel(null)
-                list.add(it)
-            }
-        }
-        return ResultSupreme.create(result.getResultStatus(), Pair(list, ""))
-    }
-
-    override suspend fun getOpenSourceApps(category: String): ResultSupreme<Pair<List<Application>, String>> {
-        val list = mutableListOf<Application>()
-        val result = handleNetworkResult {
-            val response = getOpenSourceAppsResponse(category)
-            response?.apps?.forEach {
-                it.updateStatus()
-                it.updateType()
-                it.updateFilterLevel(null)
-                list.add(it)
-            }
-        }
-        return ResultSupreme.create(result.getResultStatus(), Pair(list, ""))
-    }
-
     /*
      * Function to search cleanapk using package name.
      * Will be used to handle f-droid deeplink.
@@ -690,208 +630,6 @@ class ApplicationApiImpl @Inject constructor(
     }
 
     /*
-     * Function to populate a given category list, from all GPlay categories, open source categories,
-     * and PWAs.
-     *
-     * Returns: Pair of:
-     * - ResultStatus - by default ResultStatus.OK, but can be different in case of an error in any category.
-     * - String - Application category type having error. If no error, then blank string.
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
-     */
-    private suspend fun handleAllSourcesCategories(
-        categoriesList: MutableList<Category>,
-        type: CategoryType,
-    ): Pair<ResultStatus, String> {
-        var apiStatus = ResultStatus.OK
-        var errorApplicationCategory = ""
-
-        if (preferenceManagerModule.isOpenSourceSelected()) {
-            val openSourceCategoryResult = fetchOpenSourceCategories(type)
-            categoriesList.addAll(openSourceCategoryResult.second)
-            apiStatus = openSourceCategoryResult.first
-            errorApplicationCategory = openSourceCategoryResult.third
-        }
-
-        if (preferenceManagerModule.isPWASelected()) {
-            val pwaCategoriesResult = fetchPWACategories(type)
-            categoriesList.addAll(pwaCategoriesResult.second)
-            apiStatus = pwaCategoriesResult.first
-            errorApplicationCategory = pwaCategoriesResult.third
-        }
-
-        if (preferenceManagerModule.isGplaySelected()) {
-            val gplayCategoryResult = fetchGplayCategories(
-                type,
-            )
-            categoriesList.addAll(gplayCategoryResult.data ?: listOf())
-            apiStatus = gplayCategoryResult.getResultStatus()
-            errorApplicationCategory = APP_TYPE_ANY
-        }
-
-        return Pair(apiStatus, errorApplicationCategory)
-    }
-
-    private suspend fun fetchGplayCategories(
-        type: CategoryType,
-    ): ResultSupreme<List<Category>> {
-        val categoryList = mutableListOf<Category>()
-
-        return handleNetworkResult {
-            val playResponse = gplayRepository.getCategories(type).map { app ->
-                val category = app.transformToFusedCategory()
-                updateCategoryDrawable(category)
-                category
-            }
-            categoryList.addAll(playResponse)
-            categoryList
-        }
-    }
-
-    private suspend fun fetchPWACategories(
-        type: CategoryType,
-    ): Triple<ResultStatus, List<Category>, String> {
-        val fusedCategoriesList = mutableListOf<Category>()
-        val result = handleNetworkResult {
-            getPWAsCategories()?.let {
-                fusedCategoriesList.addAll(
-                    getFusedCategoryBasedOnCategoryType(
-                        it, type, AppTag.PWA(context.getString(R.string.pwa))
-                    )
-                )
-            }
-        }
-
-        return Triple(result.getResultStatus(), fusedCategoriesList, APP_TYPE_PWA)
-    }
-
-    private suspend fun fetchOpenSourceCategories(
-        type: CategoryType,
-    ): Triple<ResultStatus, List<Category>, String> {
-        val categoryList = mutableListOf<Category>()
-        val result = handleNetworkResult {
-            getOpenSourceCategories()?.let {
-                categoryList.addAll(
-                    getFusedCategoryBasedOnCategoryType(
-                        it,
-                        type,
-                        AppTag.OpenSource(context.getString(R.string.open_source))
-                    )
-                )
-            }
-        }
-
-        return Triple(result.getResultStatus(), categoryList, APP_TYPE_OPEN)
-    }
-
-    private fun updateCategoryDrawable(
-        category: Category,
-    ) {
-        category.drawable =
-            getCategoryIconResource(getCategoryIconName(category))
-    }
-
-    private fun getCategoryIconName(category: Category): String {
-        var categoryTitle = if (category.tag.getOperationalTag().contentEquals(AppTag.GPlay().getOperationalTag()))
-            category.id else category.title
-
-        if (categoryTitle.contains(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION)) {
-            categoryTitle = categoryTitle.replace(CATEGORY_TITLE_REPLACEABLE_CONJUNCTION, "and")
-        }
-        categoryTitle = categoryTitle.replace(' ', '_')
-        return categoryTitle.lowercase()
-    }
-
-    private fun getFusedCategoryBasedOnCategoryType(
-        categories: Categories,
-        categoryType: CategoryType,
-        tag: AppTag
-    ): List<Category> {
-        return when (categoryType) {
-            CategoryType.APPLICATION -> {
-                getAppsCategoriesAsFusedCategory(categories, tag)
-            }
-
-            CategoryType.GAMES -> {
-                getGamesCategoriesAsFusedCategory(categories, tag)
-            }
-        }
-    }
-
-    private fun getAppsCategoriesAsFusedCategory(
-        categories: Categories,
-        tag: AppTag
-    ): List<Category> {
-        return categories.apps.map { category ->
-            createFusedCategoryFromCategory(category, categories, tag)
-        }
-    }
-
-    private fun getGamesCategoriesAsFusedCategory(
-        categories: Categories,
-        tag: AppTag
-    ): List<Category> {
-        return categories.games.map { category ->
-            createFusedCategoryFromCategory(category, categories, tag)
-        }
-    }
-
-    private fun createFusedCategoryFromCategory(
-        category: String,
-        categories: Categories,
-        tag: AppTag
-    ): Category {
-        return Category(
-            id = category,
-            title = getCategoryTitle(category, categories),
-            drawable = getCategoryIconResource(category),
-            tag = tag
-        )
-    }
-
-    private fun getCategoryIconResource(category: String): Int {
-        return CategoryUtils.provideAppsCategoryIconResource(category)
-    }
-
-    private fun getCategoryTitle(category: String, categories: Categories): String {
-        return if (category.contentEquals(CATEGORY_OPEN_GAMES_ID)) {
-            CATEGORY_OPEN_GAMES_TITLE
-        } else {
-            categories.translations.getOrDefault(category, "")
-        }
-    }
-
-    private suspend fun getPWAsCategories(): Categories? {
-        return cleanApkPWARepository.getCategories().body()
-    }
-
-    private suspend fun getOpenSourceCategories(): Categories? {
-        return cleanApkAppsRepository.getCategories().body()
-    }
-
-    private suspend fun getOpenSourceAppsResponse(category: String): Search? {
-        return cleanApkAppsRepository.getAppsByCategory(
-            category,
-        ).body()
-    }
-
-    private suspend fun getPWAAppsResponse(category: String): Search? {
-        return cleanApkPWARepository.getAppsByCategory(
-            category,
-        ).body()
-    }
-
-    private fun GplayapiCategory.transformToFusedCategory(): Category {
-        val id = this.browseUrl.substringAfter("cat=").substringBefore("&c=")
-        return Category(
-            id = id.lowercase(),
-            title = this.title,
-            browseUrl = this.browseUrl,
-            imageUrl = this.imageUrl,
-        )
-    }
-
-    /*
      * Search-related internal functions
      */
 
@@ -1089,28 +827,4 @@ class ApplicationApiImpl @Inject constructor(
     }
 
     override fun isOpenSourceSelected() = preferenceManagerModule.isOpenSourceSelected()
-    override suspend fun getGplayAppsByCategory(
-        authData: AuthData,
-        category: String,
-        pageUrl: String?
-    ): ResultSupreme<Pair<List<Application>, String>> {
-        var applicationList: MutableList<Application> = mutableListOf()
-        var nextPageUrl = ""
-
-        return handleNetworkResult {
-            val streamCluster =
-                gplayRepository.getAppsByCategory(category, pageUrl) as StreamCluster
-
-            val filteredAppList = filterRestrictedGPlayApps(authData, streamCluster.clusterAppList)
-            filteredAppList.data?.let {
-                applicationList = it.toMutableList()
-            }
-
-            nextPageUrl = streamCluster.clusterNextPageUrl
-            if (!nextPageUrl.isNullOrEmpty()) {
-                applicationList.add(Application(isPlaceHolder = true))
-            }
-            Pair(applicationList, nextPageUrl)
-        }
-    }
 }

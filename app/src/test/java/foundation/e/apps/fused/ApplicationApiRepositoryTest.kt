@@ -19,6 +19,7 @@ package foundation.e.apps.fused
 
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.ApplicationApiImpl
+import foundation.e.apps.data.application.CategoryApi
 import foundation.e.apps.data.application.HomeApi
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -34,11 +35,13 @@ class ApplicationApiRepositoryTest {
     private lateinit var fusedAPIImpl: ApplicationApiImpl
     @Mock
     private lateinit var homeApi: HomeApi
+    @Mock
+    private lateinit var categoryApi: CategoryApi
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        applicationRepository = ApplicationRepository(fusedAPIImpl, homeApi)
+        applicationRepository = ApplicationRepository(fusedAPIImpl, homeApi, categoryApi)
     }
 
     @Test

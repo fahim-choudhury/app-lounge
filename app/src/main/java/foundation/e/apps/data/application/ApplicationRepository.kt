@@ -39,7 +39,8 @@ import javax.inject.Singleton
 @Singleton
 class ApplicationRepository @Inject constructor(
     private val applicationAPIImpl: ApplicationApi,
-    private val homeApi: HomeApi
+    private val homeApi: HomeApi,
+    private val categoryApi: CategoryApi
 ) {
 
     suspend fun getHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<Home>>> {
@@ -99,8 +100,8 @@ class ApplicationRepository @Inject constructor(
 
     suspend fun getCategoriesList(
         type: CategoryType,
-    ): Triple<List<Category>, String, ResultStatus> {
-        return applicationAPIImpl.getCategoriesList(type)
+    ): Pair<List<Category>, ResultStatus> {
+        return categoryApi.getCategoriesList(type)
     }
 
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
@@ -128,9 +129,9 @@ class ApplicationRepository @Inject constructor(
         source: Source
     ): ResultSupreme<Pair<List<Application>, String>> {
         return when (source) {
-            Source.OPEN -> applicationAPIImpl.getOpenSourceApps(category)
-            Source.PWA -> applicationAPIImpl.getPWAApps(category)
-            else -> applicationAPIImpl.getGplayAppsByCategory(authData, category, pageUrl)
+            Source.OPEN -> categoryApi.getCleanApkAppsByCategory(category, Source.OPEN)
+            Source.PWA -> categoryApi.getCleanApkAppsByCategory(category, Source.PWA)
+            else -> categoryApi.getGplayAppsByCategory(authData, category, pageUrl)
         }
     }
 

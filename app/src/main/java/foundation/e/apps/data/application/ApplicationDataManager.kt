@@ -57,7 +57,7 @@ class ApplicationDataManager @Inject constructor(
         }
     }
 
-    private suspend fun getAppFilterLevel(application: Application, authData: AuthData?): FilterLevel {
+    suspend fun getAppFilterLevel(application: Application, authData: AuthData?): FilterLevel {
         return when {
             application.package_name.isBlank() -> FilterLevel.UNKNOWN
             !application.isFree && application.price.isBlank() -> FilterLevel.UI
@@ -116,5 +116,4 @@ class ApplicationDataManager @Inject constructor(
             pkgManagerModule.getPackageStatus(application.package_name, application.latest_version_code)
         }
     }
-
 }

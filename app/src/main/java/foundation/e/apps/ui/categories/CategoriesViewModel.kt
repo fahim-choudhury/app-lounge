@@ -38,7 +38,7 @@ class CategoriesViewModel @Inject constructor(
     private val applicationRepository: ApplicationRepository
 ) : LoadingViewModel() {
 
-    val categoriesList: MutableLiveData<Triple<List<Category>, String, ResultStatus>> =
+    val categoriesList: MutableLiveData<Pair<List<Category>, ResultStatus>> =
         MutableLiveData()
 
     fun loadData(
@@ -65,17 +65,17 @@ class CategoriesViewModel @Inject constructor(
             val categoriesData = applicationRepository.getCategoriesList(type)
             categoriesList.postValue(categoriesData)
 
-            val status = categoriesData.third
+            val status = categoriesData.second
 
             if (status != ResultStatus.OK) {
                 val exception =
                     if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
                         GPlayException(
-                            categoriesData.third == ResultStatus.TIMEOUT,
+                            categoriesData.second == ResultStatus.TIMEOUT,
                             status.message.ifBlank { "Data load error" }
                         )
                     else CleanApkException(
-                        categoriesData.third == ResultStatus.TIMEOUT,
+                        categoriesData.second == ResultStatus.TIMEOUT,
                         status.message.ifBlank { "Data load error" }
                     )
 
