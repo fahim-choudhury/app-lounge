@@ -17,8 +17,6 @@ import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.PreferenceManagerModule
-import foundation.e.apps.install.pkg.PWAManagerModule
-import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
 import retrofit2.Response
 import javax.inject.Inject
@@ -26,8 +24,6 @@ import javax.inject.Named
 
 class AppsApiImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val pwaManagerModule: PWAManagerModule,
-    private val pkgManagerModule: PkgManagerModule,
     private val preferenceManagerModule: PreferenceManagerModule,
     @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
     @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
@@ -204,14 +200,7 @@ class AppsApiImpl @Inject constructor(
     }
 
     override fun getFusedAppInstallationStatus(application: Application): Status {
-        return if (application.is_pwa) {
-            pwaManagerModule.getPwaStatus(application)
-        } else {
-            pkgManagerModule.getPackageStatus(
-                application.package_name,
-                application.latest_version_code
-            )
-        }
+        return applicationDataManager.getFusedAppInstallationStatus(application)
     }
 
     override suspend fun getAppFilterLevel(
