@@ -19,6 +19,7 @@ package foundation.e.apps.fused
 
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.ApplicationApiImpl
+import foundation.e.apps.data.application.AppsApi
 import foundation.e.apps.data.application.CategoryApi
 import foundation.e.apps.data.application.HomeApi
 import org.junit.Assert.assertTrue
@@ -33,27 +34,32 @@ class ApplicationApiRepositoryTest {
     private lateinit var applicationRepository: ApplicationRepository
     @Mock
     private lateinit var fusedAPIImpl: ApplicationApiImpl
+
     @Mock
     private lateinit var homeApi: HomeApi
+
     @Mock
     private lateinit var categoryApi: CategoryApi
+
+    @Mock
+    private lateinit var appsApi: AppsApi
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        applicationRepository = ApplicationRepository(fusedAPIImpl, homeApi, categoryApi)
+        applicationRepository = ApplicationRepository(fusedAPIImpl, homeApi, categoryApi, appsApi)
     }
 
     @Test
     fun isAnyAppUpdated_ReturnsTrue() {
-        Mockito.`when`(fusedAPIImpl.isAnyFusedAppUpdated(any(), any())).thenReturn(true)
+        Mockito.`when`(appsApi.isAnyFusedAppUpdated(any(), any())).thenReturn(true)
         val isAnyAppUpdated = applicationRepository.isAnyFusedAppUpdated(listOf(), listOf())
         assertTrue("isAnyAppUpdated", isAnyAppUpdated)
     }
 
     @Test
     fun isAnyInstallStatusChanged_ReturnsTrue() {
-        Mockito.`when`(fusedAPIImpl.isAnyAppInstallStatusChanged(any())).thenReturn(true)
+        Mockito.`when`(appsApi.isAnyAppInstallStatusChanged(any())).thenReturn(true)
         val isAnyAppUpdated = applicationRepository.isAnyAppInstallStatusChanged(listOf())
         assertTrue("isAnyAppUpdated", isAnyAppUpdated)
     }

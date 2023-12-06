@@ -19,58 +19,36 @@
 package foundation.e.apps.data.application
 
 import android.content.Context
-import android.text.format.Formatter
-import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
-import com.aurora.gplayapi.data.models.Artwork
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.SearchBundle
-import com.aurora.gplayapi.data.models.StreamCluster
 import dagger.hilt.android.qualifiers.ApplicationContext
-import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.ApplicationApi.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.application.ApplicationApi.Companion.APP_TYPE_OPEN
 import foundation.e.apps.data.application.ApplicationApi.Companion.APP_TYPE_PWA
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.application.data.Category
 import foundation.e.apps.data.application.data.Home
-import foundation.e.apps.data.application.data.Ratings
-import foundation.e.apps.data.application.utils.CategoryType
-import foundation.e.apps.data.application.utils.CategoryUtils
 import foundation.e.apps.data.application.utils.toApplication
 import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
-import foundation.e.apps.data.cleanapk.data.categories.Categories
-import foundation.e.apps.data.cleanapk.data.search.Search
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
-import foundation.e.apps.data.enums.AppTag
-import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
-import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.enums.Type
-import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.PreferenceManagerModule
-import foundation.e.apps.install.pkg.PWAManagerModule
-import foundation.e.apps.install.pkg.PkgManagerModule
-import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import retrofit2.Response
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
-import com.aurora.gplayapi.data.models.Category as GplayapiCategory
-import foundation.e.apps.data.cleanapk.data.app.Application as CleanApkApplication
 
 typealias FusedHomeDeferred = Deferred<ResultSupreme<List<Home>>>
 
