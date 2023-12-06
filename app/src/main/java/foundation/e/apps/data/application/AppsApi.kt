@@ -50,5 +50,4 @@ interface AppsApi {
 
     fun isAnyAppInstallStatusChanged(currentList: List<Application>): Boolean
     fun isOpenSourceSelected(): Boolean
-
 }

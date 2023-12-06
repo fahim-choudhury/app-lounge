@@ -44,8 +44,8 @@ class AppsApiImpl @Inject constructor(
 
             if (result?.hasSingleResult() == true) {
                 application =
-                    (cleanApkAppsRepository.getAppDetails(result.apps[0]._id) as Response<CleanApkApplication>).body()?.app
-                        ?: Application()
+                    (cleanApkAppsRepository.getAppDetails(result.apps[0]._id) as Response<CleanApkApplication>)
+                        .body()?.app ?: Application()
             }
 
             application.updateFilterLevel(null)

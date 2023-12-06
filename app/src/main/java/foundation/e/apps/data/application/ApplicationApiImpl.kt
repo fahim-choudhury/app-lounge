@@ -76,7 +76,6 @@ typealias FusedHomeDeferred = Deferred<ResultSupreme<List<Home>>>
 
 @Singleton
 class ApplicationApiImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
     private val appsApi: AppsApi,
     private val preferenceManagerModule: PreferenceManagerModule,
     @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
@@ -84,6 +83,9 @@ class ApplicationApiImpl @Inject constructor(
     @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository,
     private val applicationDataManager: ApplicationDataManager
 ) : ApplicationApi {
+
+    @Inject
+    @ApplicationContext lateinit var context: Context
 
     companion object {
         private const val KEYWORD_TEST_SEARCH = "facebook"
@@ -378,20 +380,6 @@ class ApplicationApiImpl @Inject constructor(
 
     override suspend fun getOSSDownloadInfo(id: String, version: String?) =
         (cleanApkAppsRepository as CleanApkDownloadInfoFetcher).getDownloadInfo(id, version)
-
-    /*
-     * Similar to above method but uses Aurora OSS data class "App".
-     */
-    private suspend fun getAppFilterLevel(app: App, authData: AuthData): FilterLevel {
-        return applicationDataManager.getAppFilterLevel(app.toApplication(context), authData)
-    }
-
-    /*
-     * Handy method to run on an instance of FusedApp to update its filter level.
-     */
-    suspend fun Application.updateFilterLevel(authData: AuthData?) {
-        this.filterLevel = applicationDataManager.getAppFilterLevel(this, authData)
-    }
 
     /*
      * Search-related internal functions
