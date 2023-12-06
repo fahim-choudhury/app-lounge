@@ -10,11 +10,9 @@ import foundation.e.apps.data.enums.Status
 interface AppsApi {
 
     /*
-            * Function to search cleanapk using package name.
-            * Will be used to handle f-droid deeplink.
-            *
-            * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5509
-            */
+     * Function to search cleanapk using package name.
+     * Will be used to handle f-droid deeplink.
+     */
     suspend fun getCleanapkAppDetails(packageName: String): Pair<Application, ResultStatus>
 
     suspend fun getApplicationDetails(

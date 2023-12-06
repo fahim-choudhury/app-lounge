@@ -102,9 +102,9 @@ data class Application(
 
     fun updateSource(context: Context) {
         this.apply {
-            source = if (origin == Origin.CLEANAPK && is_pwa) context.getString(R.string.pwa)
-            else if (origin == Origin.CLEANAPK) context.getString(R.string.open_source)
-            else ""
+            source = if (origin != Origin.CLEANAPK) ""
+            else if (is_pwa) context.getString(R.string.pwa)
+            else context.getString(R.string.open_source)
         }
     }
 }
