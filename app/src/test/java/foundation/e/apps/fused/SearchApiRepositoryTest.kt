@@ -18,7 +18,7 @@
 package foundation.e.apps.fused
 
 import foundation.e.apps.data.application.ApplicationRepository
-import foundation.e.apps.data.application.ApplicationApiImpl
+import foundation.e.apps.data.application.SearchApiImpl
 import foundation.e.apps.data.application.AppsApi
 import foundation.e.apps.data.application.CategoryApi
 import foundation.e.apps.data.application.HomeApi
@@ -30,10 +30,10 @@ import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 
-class ApplicationApiRepositoryTest {
+class SearchApiRepositoryTest {
     private lateinit var applicationRepository: ApplicationRepository
     @Mock
-    private lateinit var fusedAPIImpl: ApplicationApiImpl
+    private lateinit var fusedAPIImpl: SearchApiImpl
 
     @Mock
     private lateinit var homeApi: HomeApi

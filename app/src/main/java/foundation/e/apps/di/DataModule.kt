@@ -26,8 +26,12 @@ import foundation.e.apps.data.application.AppsApi
 import foundation.e.apps.data.application.AppsApiImpl
 import foundation.e.apps.data.application.CategoryApi
 import foundation.e.apps.data.application.CategoryApiImpl
+import foundation.e.apps.data.application.DownloadInfoApi
+import foundation.e.apps.data.application.DownloadInfoApiImpl
 import foundation.e.apps.data.application.HomeApi
 import foundation.e.apps.data.application.HomeApiImpl
+import foundation.e.apps.data.application.SearchApi
+import foundation.e.apps.data.application.SearchApiImpl
 import javax.inject.Singleton
 
 @Module
@@ -45,4 +49,12 @@ interface DataModule {
     @Singleton
     @Binds
     fun getAppsApi(appsApiImpl: AppsApiImpl): AppsApi
+
+    @Singleton
+    @Binds
+    fun getSearchApi(searchApi: SearchApiImpl): SearchApi
+
+    @Singleton
+    @Binds
+    fun getDownloadInfoApi(downloadInfoApi: DownloadInfoApiImpl): DownloadInfoApi
 }

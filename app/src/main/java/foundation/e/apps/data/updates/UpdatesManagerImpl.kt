@@ -31,7 +31,7 @@ import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.application.ApplicationRepository
-import foundation.e.apps.data.application.ApplicationApi.Companion.APP_TYPE_ANY
+import foundation.e.apps.data.application.SearchApi.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.preference.PreferenceManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule

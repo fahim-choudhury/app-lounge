@@ -20,31 +20,23 @@ package foundation.e.apps.fused
 import android.content.Context
 import android.text.format.Formatter
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.SearchBundle
 import foundation.e.apps.FakePreferenceModule
-import foundation.e.apps.R
-import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.search.Search
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
-import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
-import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.application.ApplicationApiImpl
+import foundation.e.apps.data.application.SearchApiImpl
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.AppsApi
 import foundation.e.apps.data.application.AppsApiImpl
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.util.MainCoroutineRule
-import foundation.e.apps.util.getOrAwaitValue
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -54,8 +46,6 @@ import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
@@ -70,7 +60,7 @@ import org.mockito.kotlin.eq
 import retrofit2.Response
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class ApplicationApiImplTest {
+class SearchApiImplTest {
 
     // Run tasks synchronously
     @Rule
@@ -82,7 +72,7 @@ class ApplicationApiImplTest {
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
-    private lateinit var fusedAPIImpl: ApplicationApiImpl
+    private lateinit var fusedAPIImpl: SearchApiImpl
 
     @Mock
     private lateinit var pwaManagerModule: PWAManagerModule
@@ -130,7 +120,7 @@ class ApplicationApiImplTest {
             applicationDataManager,
         )
 
-        fusedAPIImpl = ApplicationApiImpl(
+        fusedAPIImpl = SearchApiImpl(
             appsApi,
             preferenceManagerModule,
             gPlayAPIRepository,

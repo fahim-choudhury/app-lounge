@@ -38,10 +38,11 @@ import javax.inject.Singleton
 
 @Singleton
 class ApplicationRepository @Inject constructor(
-    private val applicationAPIImpl: ApplicationApi,
+    private val searchAPIImpl: SearchApi,
     private val homeApi: HomeApi,
     private val categoryApi: CategoryApi,
     private val appsApi: AppsApi,
+    private val downloadInfoApi: DownloadInfoApi
 ) {
 
     suspend fun getHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<Home>>> {
@@ -49,7 +50,7 @@ class ApplicationRepository @Inject constructor(
     }
 
     fun getApplicationCategoryPreference(): List<String> {
-        return applicationAPIImpl.getApplicationCategoryPreference()
+        return searchAPIImpl.getApplicationCategoryPreference()
     }
 
     suspend fun getApplicationDetails(
@@ -81,14 +82,14 @@ class ApplicationRepository @Inject constructor(
         origin: Origin,
         fusedDownload: FusedDownload
     ) {
-        applicationAPIImpl.updateFusedDownloadWithDownloadingInfo(
+        downloadInfoApi.updateFusedDownloadWithDownloadingInfo(
             origin,
             fusedDownload
         )
     }
 
     suspend fun getOSSDownloadInfo(id: String, version: String? = null) =
-        applicationAPIImpl.getOSSDownloadInfo(id, version)
+        downloadInfoApi.getOSSDownloadInfo(id, version)
 
     suspend fun getOnDemandModule(
         packageName: String,
@@ -96,7 +97,7 @@ class ApplicationRepository @Inject constructor(
         versionCode: Int,
         offerType: Int
     ): String? {
-        return applicationAPIImpl.getOnDemandModule(packageName, moduleName, versionCode, offerType)
+        return downloadInfoApi.getOnDemandModule(packageName, moduleName, versionCode, offerType)
     }
 
     suspend fun getCategoriesList(
@@ -106,21 +107,21 @@ class ApplicationRepository @Inject constructor(
     }
 
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
-        return applicationAPIImpl.getSearchSuggestions(query)
+        return searchAPIImpl.getSearchSuggestions(query)
     }
 
     suspend fun getCleanApkSearchResults(
         query: String,
         authData: AuthData
     ): ResultSupreme<Pair<List<Application>, Boolean>> {
-        return applicationAPIImpl.getCleanApkSearchResults(query, authData)
+        return searchAPIImpl.getCleanApkSearchResults(query, authData)
     }
 
     suspend fun getGplaySearchResults(
         query: String,
         nextPageSubBundle: Set<SearchBundle.SubBundle>?
     ): GplaySearchResult {
-        return applicationAPIImpl.getGplaySearchResult(query, nextPageSubBundle)
+        return searchAPIImpl.getGplaySearchResult(query, nextPageSubBundle)
     }
 
     suspend fun getAppsListBasedOnCategory(

@@ -115,19 +115,19 @@ class HomeApiImpl @Inject constructor(
             }
 
             Source.OPEN -> handleNetworkResult {
-                handleCleanApkHomes(priorList, ApplicationApi.APP_TYPE_OPEN)
+                handleCleanApkHomes(priorList, SearchApi.APP_TYPE_OPEN)
             }
 
             Source.PWA -> handleNetworkResult {
-                handleCleanApkHomes(priorList, ApplicationApi.APP_TYPE_PWA)
+                handleCleanApkHomes(priorList, SearchApi.APP_TYPE_PWA)
             }
         }
 
         setHomeErrorMessage(result.getResultStatus(), source)
         priorList.sortBy {
             when (it.source) {
-                ApplicationApi.APP_TYPE_OPEN -> AppSourceWeight.OPEN_SOURCE.ordinal
-                ApplicationApi.APP_TYPE_PWA -> AppSourceWeight.PWA.ordinal
+                SearchApi.APP_TYPE_OPEN -> AppSourceWeight.OPEN_SOURCE.ordinal
+                SearchApi.APP_TYPE_PWA -> AppSourceWeight.PWA.ordinal
                 else -> AppSourceWeight.GPLAY.ordinal
             }
         }
@@ -139,7 +139,7 @@ class HomeApiImpl @Inject constructor(
         priorList: MutableList<Home>,
         appType: String
     ): MutableList<Home> {
-        val response = if (appType == ApplicationApi.APP_TYPE_OPEN) {
+        val response = if (appType == SearchApi.APP_TYPE_OPEN) {
             (cleanApkAppsRepository.getHomeScreenData() as Response<HomeScreen>).body()
         } else {
             (cleanApkPWARepository.getHomeScreenData() as Response<HomeScreen>).body()
@@ -154,7 +154,7 @@ class HomeApiImpl @Inject constructor(
 
     private suspend fun generateCleanAPKHome(home: CleanApkHome, appType: String): List<Home> {
         val list = mutableListOf<Home>()
-        val headings = if (appType == ApplicationApi.APP_TYPE_OPEN) {
+        val headings = if (appType == SearchApi.APP_TYPE_OPEN) {
             getOpenSourceHomeCategories()
         } else {
             getPWAHomeCategories()
