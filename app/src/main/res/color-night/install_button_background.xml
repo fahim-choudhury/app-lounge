@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
+SPDX-FileCopyrightText: 2023 E FOUNDATION <https://gitlab.e.foundation/e/apps/apps/-/wikis/home>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:color="@color/colorAccent" android:state_enabled="true" />
 

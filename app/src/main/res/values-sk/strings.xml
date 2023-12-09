@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
+SPDX-FileCopyrightText: 2023 E FOUNDATION <https://gitlab.e.foundation/e/apps/apps/-/wikis/home>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 <resources>
     <string name="preference_update_notify_available_title">Zobraziť dostupné aktualizácie</string>
     <string name="preference_update_install_automatically_description">Stiahnutie a inštalácia aktualizácií aplikácií na pozadí</string>

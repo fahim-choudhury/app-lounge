@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 E FOUNDATION <https://gitlab.e.foundation/e/apps/apps/-/wikis/home>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 <vector android:height="33dp" android:viewportHeight="33"
     android:viewportWidth="33" android:width="33dp" xmlns:android="http://schemas.android.com/apk/res/android">
     <path android:fillColor="@color/colorAccent" android:pathData="M16.1057,5.3838C10.2775,5.3838 5.5421,10.169 5.5421,16.0326C5.5421,21.8961 10.2775,26.6743 16.1057,26.6743C21.9339,26.6743 26.6693,21.8961 26.6693,16.0326C26.6693,10.169 21.9339,5.3838 16.1057,5.3838ZM16.1057,7.3077C20.8858,7.3077 24.7454,11.2 24.7454,16.0326C24.7454,20.8652 20.8858,24.7504 16.1057,24.7504C11.3256,24.7504 7.466,20.8652 7.466,16.0326C7.466,11.2 11.3256,7.3077 16.1057,7.3077Z"/>

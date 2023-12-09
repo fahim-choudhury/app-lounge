@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
+SPDX-FileCopyrightText: 2023 E FOUNDATION <https://gitlab.e.foundation/e/apps/apps/-/wikis/home>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 <resources xmlns:tools="http://schemas.android.com/tools">
     <integer name="design_snackbar_text_max_lines" tools:ignore="UnusedResources" tools:override="true">
         5
