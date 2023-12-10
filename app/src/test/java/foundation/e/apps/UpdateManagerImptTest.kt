@@ -331,7 +331,7 @@ class UpdateManagerImptTest {
             )
         ).thenReturn(openSourceUpdates)
 
-        Mockito.`when`(applicationRepository.getApplicationCategoryPreference())
+        Mockito.`when`(applicationRepository.getSelectedAppTypes())
             .thenReturn(selectedApplicationSources)
 
         if (gplayUpdates.first.isNotEmpty()) {

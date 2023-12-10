@@ -49,8 +49,8 @@ class ApplicationRepository @Inject constructor(
         return homeApi.fetchHomeScreenData(authData)
     }
 
-    fun getApplicationCategoryPreference(): List<String> {
-        return searchAPIImpl.getApplicationCategoryPreference()
+    fun getSelectedAppTypes(): List<String> {
+        return searchAPIImpl.getSelectedAppTypes()
     }
 
     suspend fun getApplicationDetails(

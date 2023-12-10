@@ -25,11 +25,13 @@ class DownloadInfoApiImpl @Inject constructor(
             versionCode,
             offerType,
         )
+
         for (element in list) {
             if (element.name == "$moduleName.apk") {
                 return element.url
             }
         }
+
         return null
     }
 
@@ -40,27 +42,41 @@ class DownloadInfoApiImpl @Inject constructor(
         val list = mutableListOf<String>()
         when (origin) {
             Origin.CLEANAPK -> {
-                val downloadInfo =
-                    (cleanApkAppsRepository as CleanApkDownloadInfoFetcher).getDownloadInfo(
-                        fusedDownload.id
-                    )
-                        .body()
-                downloadInfo?.download_data?.download_link?.let { list.add(it) }
-                fusedDownload.signature = downloadInfo?.download_data?.signature ?: ""
+                updateDownloadInfoFromCleanApk(fusedDownload, list)
             }
 
             Origin.GPLAY -> {
-                val downloadList =
-                    gplayRepository.getDownloadInfo(
-                        fusedDownload.packageName,
-                        fusedDownload.versionCode,
-                        fusedDownload.offerType
-                    )
-                fusedDownload.files = downloadList
-                list.addAll(downloadList.map { it.url })
+                updateDownloadInfoFromGplay(fusedDownload, list)
             }
         }
+
         fusedDownload.downloadURLList = list
+    }
+
+    private suspend fun updateDownloadInfoFromGplay(
+        fusedDownload: FusedDownload,
+        list: MutableList<String>
+    ) {
+        val downloadList =
+            gplayRepository.getDownloadInfo(
+                fusedDownload.packageName,
+                fusedDownload.versionCode,
+                fusedDownload.offerType
+            )
+        fusedDownload.files = downloadList
+        list.addAll(downloadList.map { it.url })
+    }
+
+    private suspend fun updateDownloadInfoFromCleanApk(
+        fusedDownload: FusedDownload,
+        list: MutableList<String>
+    ) {
+        val downloadInfo =
+            (cleanApkAppsRepository as CleanApkDownloadInfoFetcher).getDownloadInfo(
+                fusedDownload.id
+            ).body()
+        downloadInfo?.download_data?.download_link?.let { list.add(it) }
+        fusedDownload.signature = downloadInfo?.download_data?.signature ?: ""
     }
 
     override suspend fun getOSSDownloadInfo(id: String, version: String?) =

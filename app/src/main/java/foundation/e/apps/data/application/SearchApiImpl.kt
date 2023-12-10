@@ -61,43 +61,42 @@ class SearchApiImpl @Inject constructor(
 ) : SearchApi {
 
     @Inject
-    @ApplicationContext lateinit var context: Context
+    @ApplicationContext
+    lateinit var context: Context
 
     companion object {
         private const val KEYWORD_TEST_SEARCH = "facebook"
     }
 
-    override fun getApplicationCategoryPreference(): List<String> {
-        val prefs = mutableListOf<String>()
-        if (preferenceManagerModule.isGplaySelected()) prefs.add(APP_TYPE_ANY)
-        if (preferenceManagerModule.isOpenSourceSelected()) prefs.add(APP_TYPE_OPEN)
-        if (preferenceManagerModule.isPWASelected()) prefs.add(APP_TYPE_PWA)
-        return prefs
+    override fun getSelectedAppTypes(): List<String> {
+        val selectedAppTypes = mutableListOf<String>()
+        if (preferenceManagerModule.isGplaySelected()) selectedAppTypes.add(APP_TYPE_ANY)
+        if (preferenceManagerModule.isOpenSourceSelected()) selectedAppTypes.add(APP_TYPE_OPEN)
+        if (preferenceManagerModule.isPWASelected()) selectedAppTypes.add(APP_TYPE_PWA)
+
+        return selectedAppTypes
     }
 
     /**
-     * Fetches search results from cleanAPK and GPlay servers and returns them
+     * Fetches search results from cleanAPK and returns them
      * @param query Query
      * @param authData [AuthData]
-     * @return A livedata Pair of list of non-nullable [Application] and
+     * @return A ResultSupreme with Pair of list of non-nullable [Application] and
      * a Boolean signifying if more search results are being loaded.
-     * Observe this livedata to display new apps as they are fetched from the network.
      */
     override suspend fun getCleanApkSearchResults(
         query: String,
         authData: AuthData
     ): ResultSupreme<Pair<List<Application>, Boolean>> {
-        val packageSpecificResults = ArrayList<Application>()
-        var finalSearchResult: ResultSupreme<Pair<List<Application>, Boolean>> = ResultSupreme.Error()
+        var finalSearchResult: ResultSupreme<Pair<List<Application>, Boolean>> =
+            ResultSupreme.Error()
 
-        fetchPackageSpecificResult(authData, query, packageSpecificResults)
+        val packageSpecificResults =
+            fetchPackageSpecificResult(authData, query).data?.first ?: emptyList()
 
         val searchResult = mutableListOf<Application>()
-        val cleanApkResults = mutableListOf<Application>()
-
         if (preferenceManagerModule.isOpenSourceSelected()) {
             finalSearchResult = fetchOpenSourceSearchResult(
-                cleanApkResults,
                 query,
                 searchResult,
                 packageSpecificResults
@@ -111,13 +110,14 @@ class SearchApiImpl @Inject constructor(
                 packageSpecificResults
             )
         }
+
         return finalSearchResult
     }
 
     private suspend fun fetchPWASearchResult(
         query: String,
         searchResult: MutableList<Application>,
-        packageSpecificResults: ArrayList<Application>
+        packageSpecificResults: List<Application>
     ): ResultSupreme<Pair<List<Application>, Boolean>> {
         val pwaApps: MutableList<Application> = mutableListOf()
         val result = handleNetworkResult {
@@ -149,11 +149,12 @@ class SearchApiImpl @Inject constructor(
     }
 
     private suspend fun fetchOpenSourceSearchResult(
-        cleanApkResults: MutableList<Application>,
         query: String,
         searchResult: MutableList<Application>,
-        packageSpecificResults: ArrayList<Application>
+        packageSpecificResults: List<Application>
     ): ResultSupreme<Pair<List<Application>, Boolean>> {
+        val cleanApkResults = mutableListOf<Application>()
+
         val result = handleNetworkResult {
             cleanApkResults.addAll(getCleanAPKSearchResults(query))
             cleanApkResults
@@ -179,8 +180,8 @@ class SearchApiImpl @Inject constructor(
     private suspend fun fetchPackageSpecificResult(
         authData: AuthData,
         query: String,
-        packageSpecificResults: MutableList<Application>
     ): ResultSupreme<Pair<List<Application>, Boolean>> {
+        val packageSpecificResults: MutableList<Application> = mutableListOf()
         var gplayPackageResult: Application? = null
         var cleanapkPackageResult: Application? = null
 
@@ -196,8 +197,6 @@ class SearchApiImpl @Inject constructor(
 
         /*
          * Currently only show open source package result if exists in both fdroid and gplay.
-         * This is temporary.
-         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5783
          */
         cleanapkPackageResult?.let { packageSpecificResults.add(it) } ?: run {
             gplayPackageResult?.let { packageSpecificResults.add(it) }
@@ -207,27 +206,24 @@ class SearchApiImpl @Inject constructor(
             packageSpecificResults.add(Application(isPlaceHolder = true))
         }
 
-        /*
-         * If there was a timeout, return it and don't try to fetch anything else.
-         * Also send true in the pair to signal more results being loaded.
-         */
         if (result.getResultStatus() != ResultStatus.OK) {
             return ResultSupreme.create(
                 result.getResultStatus(),
                 Pair(packageSpecificResults, false)
             )
         }
+
         return ResultSupreme.create(result.getResultStatus(), Pair(packageSpecificResults, true))
     }
 
     /*
-             * The list packageSpecificResults may contain apps with duplicate package names.
-             * Example, "org.telegram.messenger" will result in "Telegram" app from Play Store
-             * and "Telegram FOSS" from F-droid. We show both of them at the top.
-             *
-             * But for the other keyword related search results, we do not allow duplicate package names.
-             * We also filter out apps which are already present in packageSpecificResults list.
-             */
+     * The list packageSpecificResults may contain apps with duplicate package names.
+     * Example, "org.telegram.messenger" will result in "Telegram" app from Play Store
+     * and "Telegram FOSS" from F-droid. We show both of them at the top.
+     *
+     * But for the other keyword related search results, we do not allow duplicate package names.
+     * We also filter out apps which are already present in packageSpecificResults list.
+     */
     private fun filterWithKeywordSearch(
         list: List<Application>,
         packageSpecificResults: List<Application>,
@@ -248,11 +244,12 @@ class SearchApiImpl @Inject constructor(
     private suspend fun getCleanApkPackageResult(
         query: String,
     ): Application? {
-        getCleanapkSearchResult(query).let {
+        getCleanApkSearchResult(query).let {
             if (it.isSuccess() && it.data!!.package_name.isNotBlank()) {
                 return it.data!!
             }
         }
+
         return null
     }
 
@@ -269,6 +266,7 @@ class SearchApiImpl @Inject constructor(
         } catch (e: Exception) {
             Timber.e(e)
         }
+
         return null
     }
 
@@ -278,9 +276,8 @@ class SearchApiImpl @Inject constructor(
      * DO NOT use this to show info on ApplicationFragment as it will not have all the required
      * information to show for an app.
      *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/2629
      */
-    private suspend fun getCleanapkSearchResult(packageName: String): ResultSupreme<Application> {
+    private suspend fun getCleanApkSearchResult(packageName: String): ResultSupreme<Application> {
         var application = Application()
         val result = handleNetworkResult {
             val result = cleanApkAppsRepository.getSearchResult(
@@ -292,6 +289,7 @@ class SearchApiImpl @Inject constructor(
                 application = result.apps[0]
             }
         }
+
         return ResultSupreme.create(result.getResultStatus(), application)
     }
 
@@ -303,10 +301,6 @@ class SearchApiImpl @Inject constructor(
 
         return searchSuggesions
     }
-
-    /*
-     * Search-related internal functions
-     */
 
     private suspend fun getCleanAPKSearchResults(
         keyword: String
@@ -321,6 +315,7 @@ class SearchApiImpl @Inject constructor(
             it.updateSource(context)
             list.add(it)
         }
+
         return list
     }
 
@@ -333,7 +328,10 @@ class SearchApiImpl @Inject constructor(
                 gplayRepository.getSearchResult(query, nextPageSubBundle?.toMutableSet())
 
             if (!preferenceManagerModule.isGplaySelected()) {
-                return@handleNetworkResult Pair(listOf<Application>(), setOf<SearchBundle.SubBundle>())
+                return@handleNetworkResult Pair(
+                    listOf<Application>(),
+                    setOf<SearchBundle.SubBundle>()
+                )
             }
 
             val fusedAppList =
@@ -362,9 +360,9 @@ class SearchApiImpl @Inject constructor(
     }
 
     /*
-         * This function will replace a GPlay app with F-Droid app if exists,
-         * else will show the GPlay app itself.
-         */
+     * This function will replace a GPlay app with F-Droid app if exists,
+     * else will show the GPlay app itself.
+     */
     private suspend fun replaceWithFDroid(gPlayApp: App): Application {
         val gPlayFusedApp = gPlayApp.toApplication(context)
         val response = cleanApkAppsRepository.getAppDetails(gPlayApp.packageName)
@@ -373,6 +371,7 @@ class SearchApiImpl @Inject constructor(
                 this.updateSource(context)
                 isGplayReplaced = true
             }
+
             return fdroidApp ?: gPlayFusedApp
         }
 

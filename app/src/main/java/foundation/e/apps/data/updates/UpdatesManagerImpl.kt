@@ -377,6 +377,6 @@ class UpdatesManagerImpl @Inject constructor(
     }
 
     fun getApplicationCategoryPreference(): List<String> {
-        return applicationRepository.getApplicationCategoryPreference()
+        return applicationRepository.getSelectedAppTypes()
     }
 }

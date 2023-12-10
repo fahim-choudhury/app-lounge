@@ -15,7 +15,7 @@ interface SearchApi {
         const val APP_TYPE_PWA = "pwa"
     }
 
-    fun getApplicationCategoryPreference(): List<String>
+    fun getSelectedAppTypes(): List<String>
 
     /**
      * Fetches search results from cleanAPK and GPlay servers and returns them
