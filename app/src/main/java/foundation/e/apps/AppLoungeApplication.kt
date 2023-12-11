@@ -43,6 +43,8 @@ import timber.log.Timber
 import timber.log.Timber.Forest.plant
 import java.util.concurrent.Executors
 import javax.inject.Inject
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 @HiltAndroidApp
 @DelicateCoroutinesApi
@@ -74,7 +76,7 @@ class AppLoungeApplication : Application(), Configuration.Provider {
         val pkgManagerBR = object : PkgManagerBR() {}
         registerReceiver(pkgManagerBR, pkgManagerModule.getFilter(), RECEIVER_EXPORTED)
 
-        val currentVersion = dataStoreModule.getTOSVersion()
+        val currentVersion = runBlocking { dataStoreModule.tosVersion.first() }
         if (!currentVersion.contentEquals(TOS_VERSION)) {
             MainScope().launch {
                 dataStoreModule.saveTOCStatus(false, "")

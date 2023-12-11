@@ -18,11 +18,11 @@
 package foundation.e.apps.fused
 
 import foundation.e.apps.data.application.ApplicationRepository
-import foundation.e.apps.data.application.SearchApiImpl
 import foundation.e.apps.data.application.AppsApi
 import foundation.e.apps.data.application.CategoryApi
 import foundation.e.apps.data.application.DownloadInfoApi
 import foundation.e.apps.data.application.HomeApi
+import foundation.e.apps.data.application.SearchApi
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -35,7 +35,7 @@ class SearchApiRepositoryTest {
     private lateinit var applicationRepository: ApplicationRepository
 
     @Mock
-    private lateinit var fusedAPIImpl: SearchApiImpl
+    private lateinit var fusedAPIImpl: SearchApi
 
     @Mock
     private lateinit var homeApi: HomeApi

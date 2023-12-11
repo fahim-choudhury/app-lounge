@@ -19,6 +19,8 @@ package foundation.e.apps.data.login
 
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.User
+import foundation.e.apps.data.preference.DataStoreModule
+import foundation.e.apps.data.preference.PreferenceManagerModule
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,11 +30,12 @@ import javax.inject.Singleton
  */
 @Singleton
 class CleanApkAuthenticator @Inject constructor(
-    val loginData: LoginData,
+    private val dataStoreModule: DataStoreModule,
+    private val preferenceManagerModule: PreferenceManagerModule,
 ) : StoreAuthenticator {
 
     private val user: User
-        get() = loginData.getUserType()
+        get() = dataStoreModule.getUserType()
 
     override fun isStoreActive(): Boolean {
         if (user == User.UNAVAILABLE) {
@@ -41,7 +44,7 @@ class CleanApkAuthenticator @Inject constructor(
              */
             return false
         }
-        return loginData.isOpenSourceSelected() || loginData.isPWASelected()
+        return preferenceManagerModule.isOpenSourceSelected() || preferenceManagerModule.isPWASelected()
     }
 
     override suspend fun login(): AuthObject.CleanApk {

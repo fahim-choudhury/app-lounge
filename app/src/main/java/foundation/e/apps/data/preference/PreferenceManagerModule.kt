@@ -67,4 +67,12 @@ class PreferenceManagerModule @Inject constructor(
         context.getString(R.string.update_apps_from_other_stores),
         true
     )
+
+    fun setSource(source: String, value: Boolean) {
+        val editor = preferenceManager.edit()
+        editor.run {
+            this.putBoolean(source, value)
+        }
+        editor.apply()
+    }
 }

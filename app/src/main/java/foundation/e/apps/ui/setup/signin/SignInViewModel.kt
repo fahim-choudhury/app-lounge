@@ -21,18 +21,4 @@ class SignInViewModel @Inject constructor(
 
     private val _authLiveData: MutableLiveData<AuthData> = MutableLiveData()
     val authLiveData: LiveData<AuthData> = _authLiveData
-    fun saveUserType(user: User) {
-        viewModelScope.launch {
-            dataStoreModule.saveUserType(user)
-            if (user == User.UNAVAILABLE) {
-                dataStoreModule.destroyCredentials()
-            }
-        }
-    }
-
-    fun saveEmailToken(email: String, token: String) {
-        viewModelScope.launch {
-            dataStoreModule.saveEmail(email, token)
-        }
-    }
 }
