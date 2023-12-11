@@ -32,6 +32,24 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+
+/**
+ * Difference between [OAUTHTOKEN] and [AASTOKEN]:
+ *
+ * These two are used only for Google login, not for Anonymous login.
+ * OAuthToken is obtained from the Google Login web page, from the cookies.
+ * This OAuthToken is then used by AC2DMTask in GPlayAPIImpl class
+ * to generate AasToken.
+ *
+ * To get Google Play Store data, we need to create an AuthData instance.
+ * For Google user, this can only be done using AasToken, not OAuthToken.
+ *
+ * Very important: AasToken can be generated only ONCE from one OAuthToken.
+ * We cannot get AasToken again from the same OAuthToken. Thus it is
+ * important to safely store the AasToken to regenerate AuthData if needed.
+ * If AasToken is not stored, user has to logout and login again.
+ */
 
 @Singleton
 class DataStoreModule @Inject constructor(
@@ -48,13 +66,15 @@ class DataStoreModule @Inject constructor(
     private val AUTHDATA = stringPreferencesKey("authData")
     private val EMAIL = stringPreferencesKey("email")
     private val OAUTHTOKEN = stringPreferencesKey("oauthtoken")
+    private val AASTOKEN = stringPreferencesKey("aasToken")
     private val USERTYPE = stringPreferencesKey("userType")
     private val TOCSTATUS = booleanPreferencesKey("tocStatus")
     private val TOSVERSION = stringPreferencesKey("tosversion")
 
     val authData = context.dataStore.data.map { it[AUTHDATA] ?: "" }
     val emailData = context.dataStore.data.map { it[EMAIL] ?: "" }
-    val aasToken = context.dataStore.data.map { it[OAUTHTOKEN] ?: "" }
+    val oauthToken = context.dataStore.data.map { it[OAUTHTOKEN] ?: "" }
+    val aasToken = context.dataStore.data.map { it[AASTOKEN] ?: "" }
     val userType = context.dataStore.data.map { it[USERTYPE] ?: "" }
     val tocStatus = context.dataStore.data.map { it[TOCSTATUS] ?: false }
     val tosVersion = context.dataStore.data.map { it[TOSVERSION] ?: "" }
@@ -62,9 +82,10 @@ class DataStoreModule @Inject constructor(
     /**
      * Allows to save gplay API token data into datastore
      */
-    suspend fun saveCredentials(authData: AuthData) {
+    suspend fun saveAuthData(authData: AuthData?) {
         context.dataStore.edit {
-            it[AUTHDATA] = gson.toJson(authData)
+            if (authData == null) it.remove(AUTHDATA)
+            else it[AUTHDATA] = gson.toJson(authData)
         }
     }
 
@@ -73,19 +94,14 @@ class DataStoreModule @Inject constructor(
      *
      * Modification for issue: https://gitlab.e.foundation/e/backlog/-/issues/5168
      * Previously this method would also remove [USERTYPE].
-     * To clear this value, call [clearUserType].
+     * To clear this value, call [saveUserType] with null.
      */
     suspend fun destroyCredentials() {
         context.dataStore.edit {
             it.remove(AUTHDATA)
             it.remove(EMAIL)
             it.remove(OAUTHTOKEN)
-        }
-    }
-
-    suspend fun clearUserType() {
-        context.dataStore.edit {
-            it.remove(USERTYPE)
+            it.remove(AASTOKEN)
         }
     }
 
@@ -99,37 +115,13 @@ class DataStoreModule @Inject constructor(
         }
     }
 
-    fun getTOSVersion(): String {
-        return runBlocking {
-            tosVersion.first()
-        }
-    }
-
     /**
      * User auth type
      */
-    suspend fun saveUserType(user: User) {
+    suspend fun saveUserType(user: User?) {
         context.dataStore.edit {
-            it[USERTYPE] = user.name
-        }
-    }
-
-    fun getAuthDataSync(): String {
-        return runBlocking {
-            authData.first()
-        }
-    }
-
-    suspend fun saveEmail(email: String, token: String) {
-        context.dataStore.edit {
-            it[EMAIL] = email
-            it[OAUTHTOKEN] = token
-        }
-    }
-
-    fun getEmail(): String {
-        return runBlocking {
-            emailData.first()
+            if (user == null) it.remove(USERTYPE)
+            else it[USERTYPE] = user.name
         }
     }
 
@@ -141,5 +133,24 @@ class DataStoreModule @Inject constructor(
                 else User.valueOf(this)
             }
         }
+    }
+
+    suspend fun saveAasToken(aasToken: String) {
+        context.dataStore.edit {
+            it[AASTOKEN] = aasToken
+        }
+    }
+
+    suspend fun saveGoogleLogin(email: String, token: String) {
+        context.dataStore.edit {
+            it[EMAIL] = email
+            it[OAUTHTOKEN] = token
+        }
+    }
+}
+
+fun Flow<String>.getSync(): String {
+    return runBlocking {
+        this@getSync.first()
     }
 }

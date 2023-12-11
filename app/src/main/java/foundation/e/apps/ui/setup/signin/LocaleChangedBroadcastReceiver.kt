@@ -25,6 +25,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.preference.DataStoreModule
+import foundation.e.apps.data.preference.getSync
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -52,10 +53,10 @@ class LocaleChangedBroadcastReceiver : BroadcastReceiver() {
         }
         GlobalScope.launch {
             try {
-                val authDataJson = dataStoreModule.getAuthDataSync()
+                val authDataJson = dataStoreModule.authData.getSync()
                 val authData = gson.fromJson(authDataJson, AuthData::class.java)
                 authData.locale = context.resources.configuration.locales[0]
-                dataStoreModule.saveCredentials(authData)
+                dataStoreModule.saveAuthData(authData)
                 withContext(Dispatchers.IO) {
                     cache.evictAll()
                 }

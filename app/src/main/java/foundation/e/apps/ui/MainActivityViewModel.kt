@@ -49,6 +49,7 @@ import foundation.e.apps.data.preference.DataStoreModule
 import foundation.e.apps.install.pkg.PWAManagerModule
 import foundation.e.apps.install.pkg.PkgManagerModule
 import foundation.e.apps.install.workmanager.AppInstallProcessor
+import foundation.e.apps.data.preference.getSync
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
@@ -91,7 +92,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun getUserEmail(): String {
-        return dataStoreModule.getEmail()
+        return dataStoreModule.emailData.getSync()
     }
 
     fun uploadFaultyTokenToEcloud(email: String, description: String = "") {
