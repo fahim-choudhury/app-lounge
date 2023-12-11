@@ -18,7 +18,9 @@
 
 package foundation.e.apps.data.application.data
 
+import android.content.Context
 import com.aurora.gplayapi.Constants.Restriction
+import foundation.e.apps.R
 import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
@@ -96,5 +98,13 @@ data class Application(
 ) {
     fun updateType() {
         this.type = if (this.is_pwa) Type.PWA else Type.NATIVE
+    }
+
+    fun updateSource(context: Context) {
+        this.apply {
+            source = if (origin != Origin.CLEANAPK) ""
+            else if (is_pwa) context.getString(R.string.pwa)
+            else context.getString(R.string.open_source)
+        }
     }
 }

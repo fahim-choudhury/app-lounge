@@ -35,6 +35,9 @@ import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.application.ApplicationApiImpl
+import foundation.e.apps.data.application.ApplicationDataManager
+import foundation.e.apps.data.application.AppsApi
+import foundation.e.apps.data.application.AppsApiImpl
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.playstore.PlayStoreRepository
@@ -99,6 +102,10 @@ class ApplicationApiImplTest {
     @Mock
     private lateinit var gPlayAPIRepository: PlayStoreRepository
 
+    private lateinit var appsApi: AppsApi
+
+    private lateinit var applicationDataManager: ApplicationDataManager
+
     private lateinit var preferenceManagerModule: FakePreferenceModule
 
     private lateinit var formatterMocked: MockedStatic<Formatter>
@@ -112,289 +119,30 @@ class ApplicationApiImplTest {
         MockitoAnnotations.openMocks(this)
         formatterMocked = Mockito.mockStatic(Formatter::class.java)
         preferenceManagerModule = FakePreferenceModule(context)
+        applicationDataManager =
+            ApplicationDataManager(gPlayAPIRepository, pkgManagerModule, pwaManagerModule)
+
+        appsApi = AppsApiImpl(
+            context,
+            preferenceManagerModule,
+            gPlayAPIRepository,
+            cleanApkAppsRepository,
+            applicationDataManager,
+        )
+
         fusedAPIImpl = ApplicationApiImpl(
-            pkgManagerModule,
-            pwaManagerModule,
+            appsApi,
             preferenceManagerModule,
             gPlayAPIRepository,
             cleanApkAppsRepository,
             cleanApkPWARepository,
-            context
+            applicationDataManager
         )
     }
 
     @After
     fun after() {
         formatterMocked.close()
-    }
-
-    @Test
-    fun `is any app updated when new list is empty`() {
-        val oldAppList = mutableListOf<Application>(
-            Application(
-                _id = "111",
-                status = Status.UNAVAILABLE,
-                name = "Demo One",
-                package_name = "foundation.e.demoone"
-            ),
-            Application(
-                _id = "112",
-                status = Status.INSTALLED,
-                name = "Demo Two",
-                package_name = "foundation.e.demotwo"
-            ),
-            Application(
-                _id = "113",
-                status = Status.UNAVAILABLE,
-                name = "Demo Three",
-                package_name = "foundation.e.demothree"
-            )
-        )
-
-        val newAppList = mutableListOf<Application>()
-        val isFusedAppUpdated = fusedAPIImpl.isAnyFusedAppUpdated(newAppList, oldAppList)
-        assertTrue("isAnyAppUpdated", isFusedAppUpdated)
-    }
-
-    @Test
-    fun `is any app updated when both list are empty`() {
-        val isFusedAppUpdated = fusedAPIImpl.isAnyFusedAppUpdated(listOf(), listOf())
-        assertFalse("isAnyAppUpdated", isFusedAppUpdated)
-    }
-
-    @Test
-    fun `is any app updated when any app is uninstalled`() {
-        val oldAppList = mutableListOf<Application>(
-            Application(
-                _id = "111",
-                status = Status.UNAVAILABLE,
-                name = "Demo One",
-                package_name = "foundation.e.demoone"
-            ),
-            Application(
-                _id = "112",
-                status = Status.INSTALLED,
-                name = "Demo Two",
-                package_name = "foundation.e.demotwo"
-            ),
-            Application(
-                _id = "113",
-                status = Status.UNAVAILABLE,
-                name = "Demo Three",
-                package_name = "foundation.e.demothree"
-            )
-        )
-
-        val newAppList = mutableListOf<Application>(
-            Application(
-                _id = "111",
-                status = Status.UNAVAILABLE,
-                name = "Demo One",
-                package_name = "foundation.e.demoone"
-            ),
-            Application(
-                _id = "112",
-                status = Status.UNAVAILABLE,
-                name = "Demo Two",
-                package_name = "foundation.e.demotwo"
-            ),
-            Application(
-                _id = "113",
-                status = Status.UNAVAILABLE,
-                name = "Demo Three",
-                package_name = "foundation.e.demothree"
-            )
-        )
-
-        val isFusedAppUpdated = fusedAPIImpl.isAnyFusedAppUpdated(newAppList, oldAppList)
-        assertTrue("isAnyFusedAppUpdated", isFusedAppUpdated)
-    }
-
-    @Test
-    fun `has any app install status changed when changed`() {
-        val oldAppList = mutableListOf<Application>(
-            Application(
-                _id = "111",
-                status = Status.UNAVAILABLE,
-                name = "Demo One",
-                package_name = "foundation.e.demoone",
-                latest_version_code = 123
-            ),
-            Application(
-                _id = "112",
-                status = Status.INSTALLED,
-                name = "Demo Two",
-                package_name = "foundation.e.demotwo",
-                latest_version_code = 123
-            ),
-            Application(
-                _id = "113",
-                status = Status.UNAVAILABLE,
-                name = "Demo Three",
-                package_name = "foundation.e.demothree",
-                latest_version_code = 123
-            )
-        )
-
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demoone"), eq(123)))
-            .thenReturn(
-                Status.UNAVAILABLE
-            )
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demotwo"), eq(123)))
-            .thenReturn(
-                Status.UNAVAILABLE
-            )
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demothree"), eq(123)))
-            .thenReturn(
-                Status.UNAVAILABLE
-            )
-
-        val isAppStatusUpdated = fusedAPIImpl.isAnyAppInstallStatusChanged(oldAppList)
-        assertTrue("hasInstallStatusUpdated", isAppStatusUpdated)
-    }
-
-    @Test
-    fun `has any app install status changed when not changed`() {
-        val oldAppList = mutableListOf<Application>(
-            Application(
-                _id = "111",
-                status = Status.UNAVAILABLE,
-                name = "Demo One",
-                package_name = "foundation.e.demoone",
-                latest_version_code = 123
-            ),
-            Application(
-                _id = "112",
-                status = Status.INSTALLED,
-                name = "Demo Two",
-                package_name = "foundation.e.demotwo",
-                latest_version_code = 123
-            ),
-            Application(
-                _id = "113",
-                status = Status.UNAVAILABLE,
-                name = "Demo Three",
-                package_name = "foundation.e.demothree",
-                latest_version_code = 123
-            )
-        )
-
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demoone"), eq(123)))
-            .thenReturn(
-                Status.UNAVAILABLE
-            )
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demotwo"), eq(123)))
-            .thenReturn(
-                Status.INSTALLED
-            )
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demothree"), eq(123)))
-            .thenReturn(
-                Status.UNAVAILABLE
-            )
-
-        val isAppStatusUpdated = fusedAPIImpl.isAnyAppInstallStatusChanged(oldAppList)
-        assertFalse("hasInstallStatusUpdated", isAppStatusUpdated)
-    }
-
-    @Test
-    fun `has any app install status changed when installation_issue`() {
-        val oldAppList = mutableListOf<Application>(
-            Application(
-                _id = "111",
-                status = Status.INSTALLATION_ISSUE,
-                name = "Demo One",
-                package_name = "foundation.e.demoone",
-                latest_version_code = 123
-            ),
-            Application(
-                _id = "112",
-                status = Status.INSTALLED,
-                name = "Demo Two",
-                package_name = "foundation.e.demotwo",
-                latest_version_code = 123
-            ),
-            Application(
-                _id = "113",
-                status = Status.UNAVAILABLE,
-                name = "Demo Three",
-                package_name = "foundation.e.demothree",
-                latest_version_code = 123
-            )
-        )
-
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demoone"), eq(123)))
-            .thenReturn(
-                Status.UNAVAILABLE
-            )
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demotwo"), eq(123)))
-            .thenReturn(
-                Status.INSTALLED
-            )
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demothree"), eq(123)))
-            .thenReturn(
-                Status.UNAVAILABLE
-            )
-
-        val isAppStatusUpdated = fusedAPIImpl.isAnyAppInstallStatusChanged(oldAppList)
-        assertFalse("hasInstallStatusUpdated", isAppStatusUpdated)
-    }
-
-
-    @Test
-    fun getFusedAppInstallationStatusWhenPWA() {
-        val application = Application(
-            _id = "113",
-            status = Status.UNAVAILABLE,
-            name = "Demo Three",
-            package_name = "foundation.e.demothree",
-            latest_version_code = 123,
-            is_pwa = true
-        )
-
-        Mockito.`when`(pwaManagerModule.getPwaStatus(application)).thenReturn(application.status)
-
-        val installationStatus = fusedAPIImpl.getFusedAppInstallationStatus(application)
-        assertEquals("getFusedAppInstallationStatusWhenPWA", application.status, installationStatus)
-    }
-
-    @Test
-    fun getFusedAppInstallationStatus() {
-        val application = Application(
-            _id = "113",
-            name = "Demo Three",
-            package_name = "foundation.e.demothree",
-            latest_version_code = 123,
-        )
-
-        Mockito.`when`(
-            pkgManagerModule.getPackageStatus(
-                application.package_name, application.latest_version_code
-            )
-        ).thenReturn(Status.INSTALLED)
-
-        val installationStatus = fusedAPIImpl.getFusedAppInstallationStatus(application)
-        assertEquals("getFusedAppInstallationStatusWhenPWA", Status.INSTALLED, installationStatus)
-    }
-
-    @Test
-    fun `getAppFilterLevel when package name is empty`() = runTest {
-        val application = Application(
-            _id = "113",
-            name = "Demo Three",
-            package_name = "",
-            latest_version_code = 123,
-        )
-
-        val filterLevel = fusedAPIImpl.getAppFilterLevel(application, AUTH_DATA)
-        assertEquals("getAppFilterLevel", FilterLevel.UNKNOWN, filterLevel)
-    }
-
-    @Test
-    fun `getAppFilterLevel when app is CleanApk`() = runTest {
-        val fusedApp = getFusedAppForFilterLevelTest()
-
-        val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, AUTH_DATA)
-        assertEquals("getAppFilterLevel", FilterLevel.NONE, filterLevel)
     }
 
     private fun getFusedAppForFilterLevelTest(isFree: Boolean = true) = Application(
@@ -407,99 +155,6 @@ class ApplicationApiImplTest {
         isFree = isFree,
         price = ""
     )
-
-    @Test
-    fun `getAppFilterLevel when Authdata is NULL`() = runTest {
-        val fusedApp = getFusedAppForFilterLevelTest()
-
-        val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, null)
-        assertEquals("getAppFilterLevel", FilterLevel.NONE, filterLevel)
-    }
-
-    @Test
-    fun `getAppFilterLevel when app is restricted and paid and no price`() = runTest {
-        val fusedApp = getFusedAppForFilterLevelTest(false).apply {
-            this.origin = Origin.GPLAY
-            this.restriction = Constants.Restriction.UNKNOWN
-        }
-
-        val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, AUTH_DATA)
-        assertEquals("getAppFilterLevel", FilterLevel.UI, filterLevel)
-    }
-
-    @Test
-    fun `getAppFilterLevel when app is not_restricted and paid and no price`() = runTest {
-        val fusedApp = getFusedAppForFilterLevelTest(false).apply {
-            this.origin = Origin.GPLAY
-            this.restriction = Constants.Restriction.NOT_RESTRICTED
-        }
-
-        val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, AUTH_DATA)
-        assertEquals("getAppFilterLevel", FilterLevel.UI, filterLevel)
-    }
-
-    @Test
-    fun `getAppFilterLevel when app is restricted and getAppDetails and getDownloadDetails returns success`() =
-        runTest {
-            val fusedApp = getFusedAppForFilterLevelTest().apply {
-                this.origin = Origin.GPLAY
-                this.restriction = Constants.Restriction.UNKNOWN
-            }
-
-            Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name))
-                .thenReturn(App(fusedApp.package_name))
-
-            Mockito.`when`(
-                gPlayAPIRepository.getDownloadInfo(
-                    fusedApp.package_name,
-                    fusedApp.latest_version_code,
-                    fusedApp.offer_type,
-                )
-            ).thenReturn(listOf())
-
-            val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, AUTH_DATA)
-            assertEquals("getAppFilterLevel", FilterLevel.NONE, filterLevel)
-        }
-
-    @Test
-    fun `getAppFilterLevel when app is restricted and getAppDetails throws exception`() = runTest {
-        val fusedApp = getFusedAppForFilterLevelTest().apply {
-            this.origin = Origin.GPLAY
-            this.restriction = Constants.Restriction.UNKNOWN
-        }
-
-        Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name))
-            .thenThrow(RuntimeException())
-
-        Mockito.`when`(
-            gPlayAPIRepository.getDownloadInfo(
-                fusedApp.package_name, fusedApp.latest_version_code, fusedApp.offer_type
-            )
-        ).thenReturn(listOf())
-
-        val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, AUTH_DATA)
-        assertEquals("getAppFilterLevel", FilterLevel.DATA, filterLevel)
-    }
-
-    @Test
-    fun `getAppFilterLevel when app is restricted and getDownoadInfo throws exception`() = runTest {
-        val fusedApp = getFusedAppForFilterLevelTest().apply {
-            this.origin = Origin.GPLAY
-            this.restriction = Constants.Restriction.UNKNOWN
-        }
-
-        Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name))
-            .thenReturn(App(fusedApp.package_name))
-
-        Mockito.`when`(
-            gPlayAPIRepository.getDownloadInfo(
-                fusedApp.package_name, fusedApp.latest_version_code, fusedApp.offer_type
-            )
-        ).thenThrow(RuntimeException())
-
-        val filterLevel = fusedAPIImpl.getAppFilterLevel(fusedApp, AUTH_DATA)
-        assertEquals("getAppFilterLevel", FilterLevel.UI, filterLevel)
-    }
 
     @Ignore("Dependencies are not mockable")
     @Test
@@ -647,7 +302,8 @@ class ApplicationApiImplTest {
     fun testSearchResultWhenDataIsLimited() = runTest {
         preferenceManagerModule.isGplaySelectedFake = true
         formatterMocked.`when`<String> { Formatter.formatFileSize(any(), any()) }.thenReturn("15MB")
-        Mockito.`when`(gPlayAPIRepository.getSearchResult(anyString(), eq(null))).thenReturn(Pair(emptyList(), mutableSetOf()))
+        Mockito.`when`(gPlayAPIRepository.getSearchResult(anyString(), eq(null)))
+            .thenReturn(Pair(emptyList(), mutableSetOf()))
         Mockito.`when`(cleanApkAppsRepository.getAppDetails(any())).thenReturn(null)
 
         var isEventBusTriggered = false

@@ -40,7 +40,8 @@ import javax.inject.Singleton
 class ApplicationRepository @Inject constructor(
     private val applicationAPIImpl: ApplicationApi,
     private val homeApi: HomeApi,
-    private val categoryApi: CategoryApi
+    private val categoryApi: CategoryApi,
+    private val appsApi: AppsApi,
 ) {
 
     suspend fun getHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<Home>>> {
@@ -56,11 +57,11 @@ class ApplicationRepository @Inject constructor(
         authData: AuthData,
         origin: Origin
     ): Pair<List<Application>, ResultStatus> {
-        return applicationAPIImpl.getApplicationDetails(packageNameList, authData, origin)
+        return appsApi.getApplicationDetails(packageNameList, authData, origin)
     }
 
     suspend fun getAppFilterLevel(application: Application, authData: AuthData?): FilterLevel {
-        return applicationAPIImpl.getAppFilterLevel(application, authData)
+        return appsApi.getAppFilterLevel(application, authData)
     }
 
     suspend fun getApplicationDetails(
@@ -69,11 +70,11 @@ class ApplicationRepository @Inject constructor(
         authData: AuthData,
         origin: Origin
     ): Pair<Application, ResultStatus> {
-        return applicationAPIImpl.getApplicationDetails(id, packageName, authData, origin)
+        return appsApi.getApplicationDetails(id, packageName, authData, origin)
     }
 
     suspend fun getCleanapkAppDetails(packageName: String): Pair<Application, ResultStatus> {
-        return applicationAPIImpl.getCleanapkAppDetails(packageName)
+        return appsApi.getCleanapkAppDetails(packageName)
     }
 
     suspend fun updateFusedDownloadWithDownloadingInfo(
@@ -136,16 +137,16 @@ class ApplicationRepository @Inject constructor(
     }
 
     fun getFusedAppInstallationStatus(application: Application): Status {
-        return applicationAPIImpl.getFusedAppInstallationStatus(application)
+        return appsApi.getFusedAppInstallationStatus(application)
     }
 
     fun isAnyFusedAppUpdated(
         newApplications: List<Application>,
         oldApplications: List<Application>
-    ) = applicationAPIImpl.isAnyFusedAppUpdated(newApplications, oldApplications)
+    ) = appsApi.isAnyFusedAppUpdated(newApplications, oldApplications)
 
     fun isAnyAppInstallStatusChanged(currentList: List<Application>) =
-        applicationAPIImpl.isAnyAppInstallStatusChanged(currentList)
+        appsApi.isAnyAppInstallStatusChanged(currentList)
 
-    fun isOpenSourceSelected() = applicationAPIImpl.isOpenSourceSelected()
+    fun isOpenSourceSelected() = appsApi.isOpenSourceSelected()
 }
