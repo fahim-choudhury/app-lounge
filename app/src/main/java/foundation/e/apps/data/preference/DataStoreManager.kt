@@ -32,15 +32,11 @@ class DataStoreManager @Inject constructor() {
     lateinit var gson: Gson
 
     fun getAuthData(): AuthData {
-        val authDataJson = dataStoreModule.getAuthDataSync()
+        val authDataJson = dataStoreModule.authData.getSync()
         return gson.fromJson(authDataJson, AuthData::class.java) ?: AuthData("", "")
     }
 
     fun getUserType(): User {
         return dataStoreModule.getUserType()
-    }
-
-    fun getAuthDataJson(): String {
-        return dataStoreModule.getAuthDataSync()
     }
 }

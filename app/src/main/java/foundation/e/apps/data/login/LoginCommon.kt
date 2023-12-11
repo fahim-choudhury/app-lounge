@@ -19,6 +19,8 @@ package foundation.e.apps.data.login
 
 import foundation.e.apps.data.Constants
 import foundation.e.apps.data.enums.User
+import foundation.e.apps.data.preference.DataStoreModule
+import foundation.e.apps.data.preference.PreferenceManagerModule
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,33 +32,34 @@ import javax.inject.Singleton
  */
 @Singleton
 class LoginCommon @Inject constructor(
-    private val loginData: LoginData,
+    private val dataStoreModule: DataStoreModule,
+    private val preferenceManagerModule: PreferenceManagerModule,
 ) {
     suspend fun saveUserType(user: User) {
-        loginData.saveUserType(user)
+        dataStoreModule.saveUserType(user)
     }
 
     fun getUserType(): User {
-        return loginData.getUserType()
+        return dataStoreModule.getUserType()
     }
 
     suspend fun saveGoogleLogin(email: String, oauth: String) {
-        loginData.saveGoogleLogin(email, oauth)
+        dataStoreModule.saveGoogleLogin(email, oauth)
     }
 
     suspend fun setNoGoogleMode() {
-        loginData.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
-        loginData.setSource(Constants.PREFERENCE_SHOW_PWA, true)
-        loginData.setSource(Constants.PREFERENCE_SHOW_GPLAY, false)
-        loginData.saveUserType(User.NO_GOOGLE)
+        preferenceManagerModule.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
+        preferenceManagerModule.setSource(Constants.PREFERENCE_SHOW_PWA, true)
+        preferenceManagerModule.setSource(Constants.PREFERENCE_SHOW_GPLAY, false)
+        dataStoreModule.saveUserType(User.NO_GOOGLE)
     }
 
     suspend fun logout() {
-        loginData.destroyCredentials()
-        loginData.clearUserType()
+        dataStoreModule.destroyCredentials()
+        dataStoreModule.saveUserType(null)
         // reset app source preferences on logout.
-        loginData.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
-        loginData.setSource(Constants.PREFERENCE_SHOW_PWA, true)
-        loginData.setSource(Constants.PREFERENCE_SHOW_GPLAY, true)
+        preferenceManagerModule.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
+        preferenceManagerModule.setSource(Constants.PREFERENCE_SHOW_PWA, true)
+        preferenceManagerModule.setSource(Constants.PREFERENCE_SHOW_GPLAY, true)
     }
 }
