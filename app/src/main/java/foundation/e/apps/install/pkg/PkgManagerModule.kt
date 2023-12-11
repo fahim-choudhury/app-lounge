@@ -34,7 +34,7 @@ import foundation.e.apps.OpenForTesting
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
-import foundation.e.apps.data.application.SearchApi
+import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import kotlinx.coroutines.DelicateCoroutinesApi
 import timber.log.Timber

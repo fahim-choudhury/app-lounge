@@ -28,7 +28,7 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.application.ApplicationRepository
-import foundation.e.apps.data.application.SearchApi
+import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.updates.UpdatesManagerImpl
 import foundation.e.apps.util.MainCoroutineRule

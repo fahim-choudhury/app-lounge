@@ -18,11 +18,11 @@
 package foundation.e.apps.fused
 
 import foundation.e.apps.data.application.ApplicationRepository
-import foundation.e.apps.data.application.AppsApi
-import foundation.e.apps.data.application.CategoryApi
-import foundation.e.apps.data.application.DownloadInfoApi
-import foundation.e.apps.data.application.HomeApi
-import foundation.e.apps.data.application.SearchApi
+import foundation.e.apps.data.application.apps.AppsApi
+import foundation.e.apps.data.application.category.CategoryApi
+import foundation.e.apps.data.application.downloadInfo.DownloadInfoApi
+import foundation.e.apps.data.application.home.HomeApi
+import foundation.e.apps.data.application.search.SearchApi
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test

@@ -23,6 +23,8 @@ import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.SearchBundle
 import foundation.e.apps.data.ResultSupreme
+import foundation.e.apps.data.application.apps.AppsApi
+import foundation.e.apps.data.application.category.CategoryApi
 import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
@@ -31,6 +33,10 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.Category
 import foundation.e.apps.data.application.data.Home
+import foundation.e.apps.data.application.downloadInfo.DownloadInfoApi
+import foundation.e.apps.data.application.home.HomeApi
+import foundation.e.apps.data.application.search.GplaySearchResult
+import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import javax.inject.Inject

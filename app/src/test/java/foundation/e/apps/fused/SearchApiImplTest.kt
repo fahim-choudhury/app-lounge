@@ -28,10 +28,10 @@ import foundation.e.apps.data.cleanapk.data.search.Search
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.application.SearchApiImpl
+import foundation.e.apps.data.application.search.SearchApiImpl
 import foundation.e.apps.data.application.ApplicationDataManager
-import foundation.e.apps.data.application.AppsApi
-import foundation.e.apps.data.application.AppsApiImpl
+import foundation.e.apps.data.application.apps.AppsApi
+import foundation.e.apps.data.application.apps.AppsApiImpl
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PWAManagerModule

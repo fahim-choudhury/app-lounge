@@ -27,7 +27,7 @@ import com.aurora.gplayapi.data.models.SearchBundle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.ApplicationRepository
-import foundation.e.apps.data.application.GplaySearchResult
+import foundation.e.apps.data.application.search.GplaySearchResult
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException

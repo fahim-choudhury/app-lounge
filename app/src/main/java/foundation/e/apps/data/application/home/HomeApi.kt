@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.application
+package foundation.e.apps.data.application.home
 
 import androidx.lifecycle.LiveData
 import com.aurora.gplayapi.data.models.AuthData

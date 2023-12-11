@@ -25,8 +25,8 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.FakePreferenceModule
 import foundation.e.apps.data.application.ApplicationDataManager
-import foundation.e.apps.data.application.HomeApi
-import foundation.e.apps.data.application.HomeApiImpl
+import foundation.e.apps.data.application.home.HomeApi
+import foundation.e.apps.data.application.home.HomeApiImpl
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.playstore.PlayStoreRepository
