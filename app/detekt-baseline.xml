@@ -12,9 +12,7 @@
     <ID>ImplicitDefaultLocale:UpdatesFragment.kt$UpdatesFragment$String.format("%d%%", progress)</ID>
     <ID>InstanceOfCheckForException:GPlayHttpClient.kt$GPlayHttpClient$e is SocketTimeoutException</ID>
     <ID>InvalidPackageDeclaration:Trackers.kt$package foundation.e.apps.data.exodus</ID>
-    <ID>LargeClass:ApplicationApiImpl.kt$ApplicationApiImpl : ApplicationApi</ID>
     <ID>LargeClass:ApplicationFragment.kt$ApplicationFragment : TimeoutFragment</ID>
-    <ID>LongParameterList:ApplicationApiImpl.kt$ApplicationApiImpl$( private val pkgManagerModule: PkgManagerModule, private val pwaManagerModule: PWAManagerModule, private val preferenceManagerModule: PreferenceManagerModule, @Named("gplayRepository") private val gplayRepository: PlayStoreRepository, @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository, @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository, @ApplicationContext private val context: Context )</ID>
     <ID>LongParameterList:ApplicationDialogFragment.kt$ApplicationDialogFragment$( drawable: Int = -1, title: String, message: String, positiveButtonText: String = "", positiveButtonAction: (() -&gt; Unit)? = null, cancelButtonText: String = "", cancelButtonAction: (() -&gt; Unit)? = null, cancellable: Boolean = true, onDismissListener: (() -&gt; Unit)? = null, )</ID>
     <ID>LongParameterList:ApplicationListRVAdapter.kt$ApplicationListRVAdapter$( private val applicationInstaller: ApplicationInstaller, private val privacyInfoViewModel: PrivacyInfoViewModel, private val appInfoFetchViewModel: AppInfoFetchViewModel, private val mainActivityViewModel: MainActivityViewModel, private val currentDestinationId: Int, private var lifecycleOwner: LifecycleOwner?, private var paidAppHandler: ((Application) -&gt; Unit)? = null )</ID>
     <ID>LongParameterList:ApplicationViewModel.kt$ApplicationViewModel$( id: String, packageName: String, origin: Origin, isFdroidLink: Boolean, authObjectList: List&lt;AuthObject&gt;, retryBlock: (failedObjects: List&lt;AuthObject&gt;) -&gt; Boolean, )</ID>
@@ -71,8 +69,6 @@
     <ID>MaxLineLength:AppInstallProcessor.kt$AppInstallProcessor$"Enqueuing App install work is failed for ${fusedDownload.packageName} exception: ${e.localizedMessage}"</ID>
     <ID>MaxLineLength:AppInstallProcessor.kt$AppInstallProcessor$fusedDownload.areFilesDownloaded() &amp;&amp; (!fusedManagerRepository.isFusedDownloadInstalled(fusedDownload) || fusedDownload.status == Status.INSTALLING)</ID>
     <ID>MaxLineLength:AppPrivacyInfo.kt$AppPrivacyInfo</ID>
-    <ID>MaxLineLength:ApplicationApi.kt$ApplicationApi$suspend fun getGplayAppsByCategory(authData: AuthData, category: String, pageUrl: String?): ResultSupreme&lt;Pair&lt;List&lt;Application&gt;, String&gt;&gt;</ID>
-    <ID>MaxLineLength:ApplicationApiImpl.kt$ApplicationApiImpl$(cleanApkAppsRepository.getAppDetails(result.apps[0]._id) as Response&lt;CleanApkApplication&gt;).body()?.app</ID>
     <ID>MaxLineLength:ApplicationFragment.kt$ApplicationFragment.Companion$"https://gitlab.e.foundation/e/os/apps/-/blob/main/app/src/main/java/foundation/e/apps/data/exodus/repositories/PrivacyScoreRepositoryImpl.kt"</ID>
     <ID>MaxLineLength:CommonUtilsModule.kt$CommonUtilsModule$*</ID>
     <ID>MaxLineLength:DownloadManager.kt$DownloadManager$Timber.e("Download Issue: $downloadId : DownloadManager returns status: $status but the failed because: reason: $reason")</ID>
@@ -113,7 +109,6 @@
     <ID>ReturnCount:AppInstallProcessor.kt$AppInstallProcessor$suspend fun enqueueFusedDownload( fusedDownload: FusedDownload, isAnUpdate: Boolean = false )</ID>
     <ID>ReturnCount:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl$override suspend fun getAppPrivacyInfo( application: Application, appHandle: String ): Result&lt;AppPrivacyInfo&gt;</ID>
     <ID>ReturnCount:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl$private fun getAppPrivacyInfo( application: Application, appTrackerData: List&lt;Report&gt;, ): AppPrivacyInfo</ID>
-    <ID>ReturnCount:ApplicationApiImpl.kt$ApplicationApiImpl$override fun isAnyFusedAppUpdated( newApplications: List&lt;Application&gt;, oldApplications: List&lt;Application&gt; ): Boolean</ID>
     <ID>ReturnCount:DownloadManager.kt$DownloadManager$fun getSizeRequired(downloadId: Long): Long</ID>
     <ID>ReturnCount:DownloadManager.kt$DownloadManager$private fun sanitizeStatus(downloadId: Long, status: Int, reason: Int): Int</ID>
     <ID>ReturnCount:Extensions.kt$fun Context.isNetworkAvailable(): Boolean</ID>
@@ -141,7 +136,6 @@
     <ID>TooGenericExceptionCaught:ApkSignatureManager.kt$ApkSignatureManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AppInfoFetchViewModel.kt$AppInfoFetchViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AppInstallProcessor.kt$AppInstallProcessor$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:ApplicationApiImpl.kt$ApplicationApiImpl$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ApplicationViewModel.kt$ApplicationViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:BlockedAppRepository.kt$BlockedAppRepository$exception: Exception</ID>
     <ID>TooGenericExceptionCaught:CommonUtilsModule.kt$CommonUtilsModule$e: Exception</ID>
@@ -169,15 +163,12 @@
     <ID>TooGenericExceptionThrown:AnonymousLoginManager.kt$AnonymousLoginManager$throw Exception( "Error fetching Anonymous credentials\n" + "Network code: ${response.code}\n" + "Success: ${response.isSuccessful}" + response.errorString.run { if (isNotBlank()) "\nError message: $this" else "" } )</ID>
     <ID>TooGenericExceptionThrown:PlayStoreLoginWrapper.kt$PlayStoreLoginWrapper$throw Exception("Validation network code: ${response.code}")</ID>
     <ID>TooGenericExceptionThrown:PlayStoreLoginWrapper.kt$PlayStoreLoginWrapper$throw Exception(error)</ID>
-    <ID>TooManyFunctions:ApplicationApi.kt$ApplicationApi</ID>
-    <ID>TooManyFunctions:ApplicationApiImpl.kt$ApplicationApiImpl : ApplicationApi</ID>
     <ID>TooManyFunctions:ApplicationListFragment.kt$ApplicationListFragment : TimeoutFragmentApplicationInstaller</ID>
     <ID>TooManyFunctions:ApplicationRepository.kt$ApplicationRepository</ID>
     <ID>TooManyFunctions:FusedManagerImpl.kt$FusedManagerImpl : IFusedManager</ID>
     <ID>TooManyFunctions:FusedManagerRepository.kt$FusedManagerRepository</ID>
     <ID>TooManyFunctions:HomeFragment.kt$HomeFragment : TimeoutFragmentApplicationInstaller</ID>
     <ID>TooManyFunctions:IFusedManager.kt$IFusedManager</ID>
-    <ID>TooManyFunctions:LoginData.kt$LoginData</ID>
     <ID>TooManyFunctions:MainActivityViewModel.kt$MainActivityViewModel : ViewModel</ID>
     <ID>TooManyFunctions:PkgManagerModule.kt$PkgManagerModule</ID>
     <ID>TooManyFunctions:SearchFragment.kt$SearchFragment : TimeoutFragmentOnQueryTextListenerOnSuggestionListenerApplicationInstaller</ID>
