@@ -16,12 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.application
+package foundation.e.apps.data.application.apps
 
 import android.content.Context
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.cleanapk.data.app.Application as CleanApkApplication
 import foundation.e.apps.data.application.utils.toApplication

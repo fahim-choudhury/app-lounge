@@ -18,10 +18,11 @@
 package foundation.e.apps.fused
 
 import foundation.e.apps.data.application.ApplicationRepository
-import foundation.e.apps.data.application.ApplicationApiImpl
-import foundation.e.apps.data.application.AppsApi
-import foundation.e.apps.data.application.CategoryApi
-import foundation.e.apps.data.application.HomeApi
+import foundation.e.apps.data.application.apps.AppsApi
+import foundation.e.apps.data.application.category.CategoryApi
+import foundation.e.apps.data.application.downloadInfo.DownloadInfoApi
+import foundation.e.apps.data.application.home.HomeApi
+import foundation.e.apps.data.application.search.SearchApi
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -30,10 +31,11 @@ import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 
-class ApplicationApiRepositoryTest {
+class SearchApiRepositoryTest {
     private lateinit var applicationRepository: ApplicationRepository
+
     @Mock
-    private lateinit var fusedAPIImpl: ApplicationApiImpl
+    private lateinit var fusedAPIImpl: SearchApi
 
     @Mock
     private lateinit var homeApi: HomeApi
@@ -44,10 +46,14 @@ class ApplicationApiRepositoryTest {
     @Mock
     private lateinit var appsApi: AppsApi
 
+    @Mock
+    private lateinit var downloadInfoApi: DownloadInfoApi
+
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        applicationRepository = ApplicationRepository(fusedAPIImpl, homeApi, categoryApi, appsApi)
+        applicationRepository =
+            ApplicationRepository(fusedAPIImpl, homeApi, categoryApi, appsApi, downloadInfoApi)
     }
 
     @Test

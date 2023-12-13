@@ -1,6 +1,6 @@
 /*
+ * Copyright MURENA SAS 2023
  * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2021  E FOUNDATION
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.application
+package foundation.e.apps.data.application.search
 
 import android.content.Context
 import com.aurora.gplayapi.SearchSuggestEntry
@@ -25,17 +25,17 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.SearchBundle
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.ResultSupreme
-import foundation.e.apps.data.application.ApplicationApi.Companion.APP_TYPE_ANY
-import foundation.e.apps.data.application.ApplicationApi.Companion.APP_TYPE_OPEN
-import foundation.e.apps.data.application.ApplicationApi.Companion.APP_TYPE_PWA
+import foundation.e.apps.data.application.ApplicationDataManager
+import foundation.e.apps.data.application.apps.AppsApi
+import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_ANY
+import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_OPEN
+import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_PWA
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.application.utils.toApplication
-import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.playstore.PlayStoreRepository
@@ -53,53 +53,52 @@ import javax.inject.Singleton
 typealias FusedHomeDeferred = Deferred<ResultSupreme<List<Home>>>
 
 @Singleton
-class ApplicationApiImpl @Inject constructor(
+class SearchApiImpl @Inject constructor(
     private val appsApi: AppsApi,
     private val preferenceManagerModule: PreferenceManagerModule,
     @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
     @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
     @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository,
     private val applicationDataManager: ApplicationDataManager
-) : ApplicationApi {
+) : SearchApi {
 
     @Inject
-    @ApplicationContext lateinit var context: Context
+    @ApplicationContext
+    lateinit var context: Context
 
     companion object {
         private const val KEYWORD_TEST_SEARCH = "facebook"
     }
 
-    override fun getApplicationCategoryPreference(): List<String> {
-        val prefs = mutableListOf<String>()
-        if (preferenceManagerModule.isGplaySelected()) prefs.add(APP_TYPE_ANY)
-        if (preferenceManagerModule.isOpenSourceSelected()) prefs.add(APP_TYPE_OPEN)
-        if (preferenceManagerModule.isPWASelected()) prefs.add(APP_TYPE_PWA)
-        return prefs
+    override fun getSelectedAppTypes(): List<String> {
+        val selectedAppTypes = mutableListOf<String>()
+        if (preferenceManagerModule.isGplaySelected()) selectedAppTypes.add(APP_TYPE_ANY)
+        if (preferenceManagerModule.isOpenSourceSelected()) selectedAppTypes.add(APP_TYPE_OPEN)
+        if (preferenceManagerModule.isPWASelected()) selectedAppTypes.add(APP_TYPE_PWA)
+
+        return selectedAppTypes
     }
 
     /**
-     * Fetches search results from cleanAPK and GPlay servers and returns them
+     * Fetches search results from cleanAPK and returns them
      * @param query Query
      * @param authData [AuthData]
-     * @return A livedata Pair of list of non-nullable [Application] and
+     * @return A ResultSupreme with Pair of list of non-nullable [Application] and
      * a Boolean signifying if more search results are being loaded.
-     * Observe this livedata to display new apps as they are fetched from the network.
      */
     override suspend fun getCleanApkSearchResults(
         query: String,
         authData: AuthData
     ): ResultSupreme<Pair<List<Application>, Boolean>> {
-        val packageSpecificResults = ArrayList<Application>()
-        var finalSearchResult: ResultSupreme<Pair<List<Application>, Boolean>> = ResultSupreme.Error()
+        var finalSearchResult: ResultSupreme<Pair<List<Application>, Boolean>> =
+            ResultSupreme.Error()
 
-        fetchPackageSpecificResult(authData, query, packageSpecificResults)
+        val packageSpecificResults =
+            fetchPackageSpecificResult(authData, query).data?.first ?: emptyList()
 
         val searchResult = mutableListOf<Application>()
-        val cleanApkResults = mutableListOf<Application>()
-
         if (preferenceManagerModule.isOpenSourceSelected()) {
             finalSearchResult = fetchOpenSourceSearchResult(
-                cleanApkResults,
                 query,
                 searchResult,
                 packageSpecificResults
@@ -113,13 +112,14 @@ class ApplicationApiImpl @Inject constructor(
                 packageSpecificResults
             )
         }
+
         return finalSearchResult
     }
 
     private suspend fun fetchPWASearchResult(
         query: String,
         searchResult: MutableList<Application>,
-        packageSpecificResults: ArrayList<Application>
+        packageSpecificResults: List<Application>
     ): ResultSupreme<Pair<List<Application>, Boolean>> {
         val pwaApps: MutableList<Application> = mutableListOf()
         val result = handleNetworkResult {
@@ -151,11 +151,12 @@ class ApplicationApiImpl @Inject constructor(
     }
 
     private suspend fun fetchOpenSourceSearchResult(
-        cleanApkResults: MutableList<Application>,
         query: String,
         searchResult: MutableList<Application>,
-        packageSpecificResults: ArrayList<Application>
+        packageSpecificResults: List<Application>
     ): ResultSupreme<Pair<List<Application>, Boolean>> {
+        val cleanApkResults = mutableListOf<Application>()
+
         val result = handleNetworkResult {
             cleanApkResults.addAll(getCleanAPKSearchResults(query))
             cleanApkResults
@@ -181,8 +182,8 @@ class ApplicationApiImpl @Inject constructor(
     private suspend fun fetchPackageSpecificResult(
         authData: AuthData,
         query: String,
-        packageSpecificResults: MutableList<Application>
     ): ResultSupreme<Pair<List<Application>, Boolean>> {
+        val packageSpecificResults: MutableList<Application> = mutableListOf()
         var gplayPackageResult: Application? = null
         var cleanapkPackageResult: Application? = null
 
@@ -198,8 +199,6 @@ class ApplicationApiImpl @Inject constructor(
 
         /*
          * Currently only show open source package result if exists in both fdroid and gplay.
-         * This is temporary.
-         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5783
          */
         cleanapkPackageResult?.let { packageSpecificResults.add(it) } ?: run {
             gplayPackageResult?.let { packageSpecificResults.add(it) }
@@ -209,27 +208,24 @@ class ApplicationApiImpl @Inject constructor(
             packageSpecificResults.add(Application(isPlaceHolder = true))
         }
 
-        /*
-         * If there was a timeout, return it and don't try to fetch anything else.
-         * Also send true in the pair to signal more results being loaded.
-         */
         if (result.getResultStatus() != ResultStatus.OK) {
             return ResultSupreme.create(
                 result.getResultStatus(),
                 Pair(packageSpecificResults, false)
             )
         }
+
         return ResultSupreme.create(result.getResultStatus(), Pair(packageSpecificResults, true))
     }
 
     /*
-             * The list packageSpecificResults may contain apps with duplicate package names.
-             * Example, "org.telegram.messenger" will result in "Telegram" app from Play Store
-             * and "Telegram FOSS" from F-droid. We show both of them at the top.
-             *
-             * But for the other keyword related search results, we do not allow duplicate package names.
-             * We also filter out apps which are already present in packageSpecificResults list.
-             */
+     * The list packageSpecificResults may contain apps with duplicate package names.
+     * Example, "org.telegram.messenger" will result in "Telegram" app from Play Store
+     * and "Telegram FOSS" from F-droid. We show both of them at the top.
+     *
+     * But for the other keyword related search results, we do not allow duplicate package names.
+     * We also filter out apps which are already present in packageSpecificResults list.
+     */
     private fun filterWithKeywordSearch(
         list: List<Application>,
         packageSpecificResults: List<Application>,
@@ -250,11 +246,12 @@ class ApplicationApiImpl @Inject constructor(
     private suspend fun getCleanApkPackageResult(
         query: String,
     ): Application? {
-        getCleanapkSearchResult(query).let {
+        getCleanApkSearchResult(query).let {
             if (it.isSuccess() && it.data!!.package_name.isNotBlank()) {
                 return it.data!!
             }
         }
+
         return null
     }
 
@@ -262,15 +259,12 @@ class ApplicationApiImpl @Inject constructor(
         query: String,
         authData: AuthData,
     ): Application? {
-        try {
-            appsApi.getApplicationDetails(query, query, authData, Origin.GPLAY).let {
-                if (it.second == ResultStatus.OK && it.first.package_name.isNotEmpty()) {
-                    return it.first
-                }
+        appsApi.getApplicationDetails(query, query, authData, Origin.GPLAY).let {
+            if (it.second == ResultStatus.OK && it.first.package_name.isNotEmpty()) {
+                return it.first
             }
-        } catch (e: Exception) {
-            Timber.e(e)
         }
+
         return null
     }
 
@@ -280,9 +274,8 @@ class ApplicationApiImpl @Inject constructor(
      * DO NOT use this to show info on ApplicationFragment as it will not have all the required
      * information to show for an app.
      *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/2629
      */
-    private suspend fun getCleanapkSearchResult(packageName: String): ResultSupreme<Application> {
+    private suspend fun getCleanApkSearchResult(packageName: String): ResultSupreme<Application> {
         var application = Application()
         val result = handleNetworkResult {
             val result = cleanApkAppsRepository.getSearchResult(
@@ -294,6 +287,7 @@ class ApplicationApiImpl @Inject constructor(
                 application = result.apps[0]
             }
         }
+
         return ResultSupreme.create(result.getResultStatus(), application)
     }
 
@@ -305,63 +299,6 @@ class ApplicationApiImpl @Inject constructor(
 
         return searchSuggesions
     }
-
-    override suspend fun getOnDemandModule(
-        packageName: String,
-        moduleName: String,
-        versionCode: Int,
-        offerType: Int
-    ): String? {
-        val list = gplayRepository.getOnDemandModule(
-            packageName,
-            moduleName,
-            versionCode,
-            offerType,
-        )
-        for (element in list) {
-            if (element.name == "$moduleName.apk") {
-                return element.url
-            }
-        }
-        return null
-    }
-
-    override suspend fun updateFusedDownloadWithDownloadingInfo(
-        origin: Origin,
-        fusedDownload: FusedDownload
-    ) {
-        val list = mutableListOf<String>()
-        when (origin) {
-            Origin.CLEANAPK -> {
-                val downloadInfo =
-                    (cleanApkAppsRepository as CleanApkDownloadInfoFetcher).getDownloadInfo(
-                        fusedDownload.id
-                    )
-                        .body()
-                downloadInfo?.download_data?.download_link?.let { list.add(it) }
-                fusedDownload.signature = downloadInfo?.download_data?.signature ?: ""
-            }
-
-            Origin.GPLAY -> {
-                val downloadList =
-                    gplayRepository.getDownloadInfo(
-                        fusedDownload.packageName,
-                        fusedDownload.versionCode,
-                        fusedDownload.offerType
-                    )
-                fusedDownload.files = downloadList
-                list.addAll(downloadList.map { it.url })
-            }
-        }
-        fusedDownload.downloadURLList = list
-    }
-
-    override suspend fun getOSSDownloadInfo(id: String, version: String?) =
-        (cleanApkAppsRepository as CleanApkDownloadInfoFetcher).getDownloadInfo(id, version)
-
-    /*
-     * Search-related internal functions
-     */
 
     private suspend fun getCleanAPKSearchResults(
         keyword: String
@@ -376,6 +313,7 @@ class ApplicationApiImpl @Inject constructor(
             it.updateSource(context)
             list.add(it)
         }
+
         return list
     }
 
@@ -388,7 +326,10 @@ class ApplicationApiImpl @Inject constructor(
                 gplayRepository.getSearchResult(query, nextPageSubBundle?.toMutableSet())
 
             if (!preferenceManagerModule.isGplaySelected()) {
-                return@handleNetworkResult Pair(listOf<Application>(), setOf<SearchBundle.SubBundle>())
+                return@handleNetworkResult Pair(
+                    listOf<Application>(),
+                    setOf<SearchBundle.SubBundle>()
+                )
             }
 
             val fusedAppList =
@@ -417,9 +358,9 @@ class ApplicationApiImpl @Inject constructor(
     }
 
     /*
-         * This function will replace a GPlay app with F-Droid app if exists,
-         * else will show the GPlay app itself.
-         */
+     * This function will replace a GPlay app with F-Droid app if exists,
+     * else will show the GPlay app itself.
+     */
     private suspend fun replaceWithFDroid(gPlayApp: App): Application {
         val gPlayFusedApp = gPlayApp.toApplication(context)
         val response = cleanApkAppsRepository.getAppDetails(gPlayApp.packageName)
@@ -428,6 +369,7 @@ class ApplicationApiImpl @Inject constructor(
                 this.updateSource(context)
                 isGplayReplaced = true
             }
+
             return fdroidApp ?: gPlayFusedApp
         }
 

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.application
+package foundation.e.apps.data.application.home
 
 import android.content.Context
 import androidx.lifecycle.LiveData
@@ -26,7 +26,10 @@ import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
+import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Home
+import foundation.e.apps.data.application.search.FusedHomeDeferred
+import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.application.utils.toApplication
 import foundation.e.apps.data.cleanapk.data.home.HomeScreen
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
@@ -115,19 +118,19 @@ class HomeApiImpl @Inject constructor(
             }
 
             Source.OPEN -> handleNetworkResult {
-                handleCleanApkHomes(priorList, ApplicationApi.APP_TYPE_OPEN)
+                handleCleanApkHomes(priorList, SearchApi.APP_TYPE_OPEN)
             }
 
             Source.PWA -> handleNetworkResult {
-                handleCleanApkHomes(priorList, ApplicationApi.APP_TYPE_PWA)
+                handleCleanApkHomes(priorList, SearchApi.APP_TYPE_PWA)
             }
         }
 
         setHomeErrorMessage(result.getResultStatus(), source)
         priorList.sortBy {
             when (it.source) {
-                ApplicationApi.APP_TYPE_OPEN -> AppSourceWeight.OPEN_SOURCE.ordinal
-                ApplicationApi.APP_TYPE_PWA -> AppSourceWeight.PWA.ordinal
+                SearchApi.APP_TYPE_OPEN -> AppSourceWeight.OPEN_SOURCE.ordinal
+                SearchApi.APP_TYPE_PWA -> AppSourceWeight.PWA.ordinal
                 else -> AppSourceWeight.GPLAY.ordinal
             }
         }
@@ -139,7 +142,7 @@ class HomeApiImpl @Inject constructor(
         priorList: MutableList<Home>,
         appType: String
     ): MutableList<Home> {
-        val response = if (appType == ApplicationApi.APP_TYPE_OPEN) {
+        val response = if (appType == SearchApi.APP_TYPE_OPEN) {
             (cleanApkAppsRepository.getHomeScreenData() as Response<HomeScreen>).body()
         } else {
             (cleanApkPWARepository.getHomeScreenData() as Response<HomeScreen>).body()
@@ -154,7 +157,7 @@ class HomeApiImpl @Inject constructor(
 
     private suspend fun generateCleanAPKHome(home: CleanApkHome, appType: String): List<Home> {
         val list = mutableListOf<Home>()
-        val headings = if (appType == ApplicationApi.APP_TYPE_OPEN) {
+        val headings = if (appType == SearchApi.APP_TYPE_OPEN) {
             getOpenSourceHomeCategories()
         } else {
             getPWAHomeCategories()

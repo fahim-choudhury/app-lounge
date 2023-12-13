@@ -30,8 +30,8 @@ import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.application.ApplicationDataManager
-import foundation.e.apps.data.application.AppsApi
-import foundation.e.apps.data.application.AppsApiImpl
+import foundation.e.apps.data.application.apps.AppsApi
+import foundation.e.apps.data.application.apps.AppsApiImpl
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PWAManagerModule

@@ -1,33 +1,39 @@
-package foundation.e.apps.data.application
+/*
+ * Copyright MURENA SAS 2023
+ * Apps  Quickly and easily install Android apps onto your device!
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
-import androidx.lifecycle.LiveData
+package foundation.e.apps.data.application.search
+
 import com.aurora.gplayapi.SearchSuggestEntry
-import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.SearchBundle
 import foundation.e.apps.data.ResultSupreme
-import foundation.e.apps.data.cleanapk.data.download.Download
-import foundation.e.apps.data.enums.FilterLevel
-import foundation.e.apps.data.enums.Origin
-import foundation.e.apps.data.enums.ResultStatus
-import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.application.data.Category
-import foundation.e.apps.data.application.data.Home
-import foundation.e.apps.data.application.utils.CategoryType
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import retrofit2.Response
 
 typealias GplaySearchResult = ResultSupreme<Pair<List<Application>, Set<SearchBundle.SubBundle>>>
 
-interface ApplicationApi {
+interface SearchApi {
     companion object {
         const val APP_TYPE_ANY = "any"
         const val APP_TYPE_OPEN = "open"
         const val APP_TYPE_PWA = "pwa"
     }
 
-    fun getApplicationCategoryPreference(): List<String>
+    fun getSelectedAppTypes(): List<String>
 
     /**
      * Fetches search results from cleanAPK and GPlay servers and returns them
@@ -47,19 +53,4 @@ interface ApplicationApi {
     ): GplaySearchResult
 
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry>
-
-    suspend fun getOnDemandModule(
-        packageName: String,
-        moduleName: String,
-        versionCode: Int,
-        offerType: Int
-    ): String?
-
-    suspend fun updateFusedDownloadWithDownloadingInfo(
-        origin: Origin,
-        fusedDownload: FusedDownload
-    )
-
-    suspend fun getOSSDownloadInfo(id: String, version: String?): Response<Download>
-
 }

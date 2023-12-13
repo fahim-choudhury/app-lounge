@@ -23,6 +23,8 @@ import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.SearchBundle
 import foundation.e.apps.data.ResultSupreme
+import foundation.e.apps.data.application.apps.AppsApi
+import foundation.e.apps.data.application.category.CategoryApi
 import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
@@ -31,6 +33,10 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.Category
 import foundation.e.apps.data.application.data.Home
+import foundation.e.apps.data.application.downloadInfo.DownloadInfoApi
+import foundation.e.apps.data.application.home.HomeApi
+import foundation.e.apps.data.application.search.GplaySearchResult
+import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import javax.inject.Inject
@@ -38,18 +44,19 @@ import javax.inject.Singleton
 
 @Singleton
 class ApplicationRepository @Inject constructor(
-    private val applicationAPIImpl: ApplicationApi,
+    private val searchAPIImpl: SearchApi,
     private val homeApi: HomeApi,
     private val categoryApi: CategoryApi,
     private val appsApi: AppsApi,
+    private val downloadInfoApi: DownloadInfoApi
 ) {
 
     suspend fun getHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<Home>>> {
         return homeApi.fetchHomeScreenData(authData)
     }
 
-    fun getApplicationCategoryPreference(): List<String> {
-        return applicationAPIImpl.getApplicationCategoryPreference()
+    fun getSelectedAppTypes(): List<String> {
+        return searchAPIImpl.getSelectedAppTypes()
     }
 
     suspend fun getApplicationDetails(
@@ -81,14 +88,14 @@ class ApplicationRepository @Inject constructor(
         origin: Origin,
         fusedDownload: FusedDownload
     ) {
-        applicationAPIImpl.updateFusedDownloadWithDownloadingInfo(
+        downloadInfoApi.updateFusedDownloadWithDownloadingInfo(
             origin,
             fusedDownload
         )
     }
 
     suspend fun getOSSDownloadInfo(id: String, version: String? = null) =
-        applicationAPIImpl.getOSSDownloadInfo(id, version)
+        downloadInfoApi.getOSSDownloadInfo(id, version)
 
     suspend fun getOnDemandModule(
         packageName: String,
@@ -96,7 +103,7 @@ class ApplicationRepository @Inject constructor(
         versionCode: Int,
         offerType: Int
     ): String? {
-        return applicationAPIImpl.getOnDemandModule(packageName, moduleName, versionCode, offerType)
+        return downloadInfoApi.getOnDemandModule(packageName, moduleName, versionCode, offerType)
     }
 
     suspend fun getCategoriesList(
@@ -106,21 +113,21 @@ class ApplicationRepository @Inject constructor(
     }
 
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
-        return applicationAPIImpl.getSearchSuggestions(query)
+        return searchAPIImpl.getSearchSuggestions(query)
     }
 
     suspend fun getCleanApkSearchResults(
         query: String,
         authData: AuthData
     ): ResultSupreme<Pair<List<Application>, Boolean>> {
-        return applicationAPIImpl.getCleanApkSearchResults(query, authData)
+        return searchAPIImpl.getCleanApkSearchResults(query, authData)
     }
 
     suspend fun getGplaySearchResults(
         query: String,
         nextPageSubBundle: Set<SearchBundle.SubBundle>?
     ): GplaySearchResult {
-        return applicationAPIImpl.getGplaySearchResult(query, nextPageSubBundle)
+        return searchAPIImpl.getGplaySearchResult(query, nextPageSubBundle)
     }
 
     suspend fun getAppsListBasedOnCategory(

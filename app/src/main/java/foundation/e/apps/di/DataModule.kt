@@ -22,12 +22,16 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import foundation.e.apps.data.application.AppsApi
-import foundation.e.apps.data.application.AppsApiImpl
-import foundation.e.apps.data.application.CategoryApi
-import foundation.e.apps.data.application.CategoryApiImpl
-import foundation.e.apps.data.application.HomeApi
-import foundation.e.apps.data.application.HomeApiImpl
+import foundation.e.apps.data.application.apps.AppsApi
+import foundation.e.apps.data.application.apps.AppsApiImpl
+import foundation.e.apps.data.application.category.CategoryApi
+import foundation.e.apps.data.application.category.CategoryApiImpl
+import foundation.e.apps.data.application.downloadInfo.DownloadInfoApi
+import foundation.e.apps.data.application.downloadInfo.DownloadInfoApiImpl
+import foundation.e.apps.data.application.home.HomeApi
+import foundation.e.apps.data.application.home.HomeApiImpl
+import foundation.e.apps.data.application.search.SearchApi
+import foundation.e.apps.data.application.search.SearchApiImpl
 import javax.inject.Singleton
 
 @Module
@@ -45,4 +49,12 @@ interface DataModule {
     @Singleton
     @Binds
     fun getAppsApi(appsApiImpl: AppsApiImpl): AppsApi
+
+    @Singleton
+    @Binds
+    fun getSearchApi(searchApi: SearchApiImpl): SearchApi
+
+    @Singleton
+    @Binds
+    fun getDownloadInfoApi(downloadInfoApi: DownloadInfoApiImpl): DownloadInfoApi
 }

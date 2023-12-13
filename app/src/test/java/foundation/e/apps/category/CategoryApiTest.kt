@@ -24,8 +24,8 @@ import com.aurora.gplayapi.data.models.Category
 import foundation.e.apps.FakePreferenceModule
 import foundation.e.apps.R
 import foundation.e.apps.data.application.ApplicationDataManager
-import foundation.e.apps.data.application.CategoryApi
-import foundation.e.apps.data.application.CategoryApiImpl
+import foundation.e.apps.data.application.category.CategoryApi
+import foundation.e.apps.data.application.category.CategoryApiImpl
 import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
