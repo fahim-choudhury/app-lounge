@@ -38,7 +38,7 @@ import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.data.preference.PreferenceManagerModule
+import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.MainScope
@@ -53,7 +53,7 @@ import foundation.e.apps.data.cleanapk.data.home.Home as CleanApkHome
 
 class HomeApiImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val preferenceManagerModule: PreferenceManagerModule,
+    private val appLoungePreference: AppLoungePreference,
     @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
     @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
     @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository,
@@ -79,15 +79,15 @@ class HomeApiImpl @Inject constructor(
         return liveData {
             coroutineScope {
 
-                if (preferenceManagerModule.isGplaySelected()) {
+                if (appLoungePreference.isGplaySelected()) {
                     resultGplay = async { loadHomeData(list, Source.GPLAY, authData) }
                 }
 
-                if (preferenceManagerModule.isOpenSourceSelected()) {
+                if (appLoungePreference.isOpenSourceSelected()) {
                     resultOpenSource = async { loadHomeData(list, Source.OPEN, authData) }
                 }
 
-                if (preferenceManagerModule.isPWASelected()) {
+                if (appLoungePreference.isPWASelected()) {
                     resultPWA = async { loadHomeData(list, Source.PWA, authData) }
                 }
 

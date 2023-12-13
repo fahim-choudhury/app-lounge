@@ -21,7 +21,7 @@ package foundation.e.apps.category
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.Category
-import foundation.e.apps.FakePreferenceModule
+import foundation.e.apps.FakeAppLoungePreference
 import foundation.e.apps.R
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.category.CategoryApi
@@ -31,8 +31,8 @@ import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.install.pkg.PWAManagerModule
-import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -63,10 +63,10 @@ class CategoryApiTest {
     private lateinit var context: Context
 
     @Mock
-    private lateinit var pwaManagerModule: PWAManagerModule
+    private lateinit var pwaManager: PWAManager
 
     @Mock
-    private lateinit var pkgManagerModule: PkgManagerModule
+    private lateinit var appLoungePackageManager: AppLoungePackageManager
 
     @Mock
     private lateinit var cleanApkAppsRepository: CleanApkRepository
@@ -77,16 +77,16 @@ class CategoryApiTest {
     @Mock
     private lateinit var gPlayAPIRepository: PlayStoreRepository
 
-    private lateinit var preferenceManagerModule: FakePreferenceModule
+    private lateinit var preferenceManagerModule: FakeAppLoungePreference
 
     private lateinit var categoryApi: CategoryApi
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        preferenceManagerModule = FakePreferenceModule(context)
+        preferenceManagerModule = FakeAppLoungePreference(context)
         val applicationDataManager =
-            ApplicationDataManager(gPlayAPIRepository, pkgManagerModule, pwaManagerModule)
+            ApplicationDataManager(gPlayAPIRepository, appLoungePackageManager, pwaManager)
         categoryApi = CategoryApiImpl(
             context,
             preferenceManagerModule,

@@ -26,8 +26,8 @@ import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.install.pkg.PWAManagerModule
-import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.AppLoungePackageManager
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -35,8 +35,8 @@ import javax.inject.Singleton
 @Singleton
 class ApplicationDataManager @Inject constructor(
     @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
-    private val pkgManagerModule: PkgManagerModule,
-    private val pwaManagerModule: PWAManagerModule
+    private val appLoungePackageManager: AppLoungePackageManager,
+    private val pwaManager: PWAManager
 ) {
     suspend fun updateFilterLevel(authData: AuthData?, application: Application) {
         application.filterLevel = getAppFilterLevel(application, authData)
@@ -107,13 +107,13 @@ class ApplicationDataManager @Inject constructor(
      * Get fused app installation status.
      * Applicable for both native apps and PWAs.
      *
-     * Recommended to use this instead of [PkgManagerModule.getPackageStatus].
+     * Recommended to use this instead of [AppLoungePackageManager.getPackageStatus].
      */
     fun getFusedAppInstallationStatus(application: Application): Status {
         return if (application.is_pwa) {
-            pwaManagerModule.getPwaStatus(application)
+            pwaManager.getPwaStatus(application)
         } else {
-            pkgManagerModule.getPackageStatus(application.package_name, application.latest_version_code)
+            appLoungePackageManager.getPackageStatus(application.package_name, application.latest_version_code)
         }
     }
 }

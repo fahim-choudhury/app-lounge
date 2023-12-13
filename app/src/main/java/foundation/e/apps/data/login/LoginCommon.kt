@@ -19,8 +19,8 @@ package foundation.e.apps.data.login
 
 import foundation.e.apps.data.Constants
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.preference.DataStoreModule
-import foundation.e.apps.data.preference.PreferenceManagerModule
+import foundation.e.apps.data.preference.AppLoungeDataStore
+import foundation.e.apps.data.preference.AppLoungePreference
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,34 +32,34 @@ import javax.inject.Singleton
  */
 @Singleton
 class LoginCommon @Inject constructor(
-    private val dataStoreModule: DataStoreModule,
-    private val preferenceManagerModule: PreferenceManagerModule,
+    private val appLoungeDataStore: AppLoungeDataStore,
+    private val appLoungePreference: AppLoungePreference,
 ) {
     suspend fun saveUserType(user: User) {
-        dataStoreModule.saveUserType(user)
+        appLoungeDataStore.saveUserType(user)
     }
 
     fun getUserType(): User {
-        return dataStoreModule.getUserType()
+        return appLoungeDataStore.getUserType()
     }
 
     suspend fun saveGoogleLogin(email: String, oauth: String) {
-        dataStoreModule.saveGoogleLogin(email, oauth)
+        appLoungeDataStore.saveGoogleLogin(email, oauth)
     }
 
     suspend fun setNoGoogleMode() {
-        preferenceManagerModule.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
-        preferenceManagerModule.setSource(Constants.PREFERENCE_SHOW_PWA, true)
-        preferenceManagerModule.setSource(Constants.PREFERENCE_SHOW_GPLAY, false)
-        dataStoreModule.saveUserType(User.NO_GOOGLE)
+        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
+        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_PWA, true)
+        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_GPLAY, false)
+        appLoungeDataStore.saveUserType(User.NO_GOOGLE)
     }
 
     suspend fun logout() {
-        dataStoreModule.destroyCredentials()
-        dataStoreModule.saveUserType(null)
+        appLoungeDataStore.destroyCredentials()
+        appLoungeDataStore.saveUserType(null)
         // reset app source preferences on logout.
-        preferenceManagerModule.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
-        preferenceManagerModule.setSource(Constants.PREFERENCE_SHOW_PWA, true)
-        preferenceManagerModule.setSource(Constants.PREFERENCE_SHOW_GPLAY, true)
+        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
+        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_PWA, true)
+        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_GPLAY, true)
     }
 }

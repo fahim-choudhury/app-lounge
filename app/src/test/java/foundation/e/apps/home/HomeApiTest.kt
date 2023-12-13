@@ -23,15 +23,15 @@ import android.text.format.Formatter
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
-import foundation.e.apps.FakePreferenceModule
+import foundation.e.apps.FakeAppLoungePreference
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.home.HomeApi
 import foundation.e.apps.data.application.home.HomeApiImpl
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.install.pkg.PWAManagerModule
-import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.util.MainCoroutineRule
 import foundation.e.apps.util.getOrAwaitValue
 import foundation.e.apps.utils.eventBus.EventBus
@@ -66,10 +66,10 @@ class HomeApiTest {
     private lateinit var applicationDataManager: ApplicationDataManager
 
     @Mock
-    private lateinit var pwaManagerModule: PWAManagerModule
+    private lateinit var pwaManager: PWAManager
 
     @Mock
-    private lateinit var pkgManagerModule: PkgManagerModule
+    private lateinit var appLoungePackageManager: AppLoungePackageManager
 
     @Mock
     private lateinit var context: Context
@@ -83,7 +83,7 @@ class HomeApiTest {
     @Mock
     private lateinit var gPlayAPIRepository: PlayStoreRepository
 
-    private lateinit var preferenceManagerModule: FakePreferenceModule
+    private lateinit var preferenceManagerModule: FakeAppLoungePreference
 
     private lateinit var formatterMocked: MockedStatic<Formatter>
 
@@ -95,9 +95,9 @@ class HomeApiTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         formatterMocked = Mockito.mockStatic(Formatter::class.java)
-        preferenceManagerModule = FakePreferenceModule(context)
+        preferenceManagerModule = FakeAppLoungePreference(context)
         applicationDataManager =
-            ApplicationDataManager(gPlayAPIRepository, pkgManagerModule, pwaManagerModule)
+            ApplicationDataManager(gPlayAPIRepository, appLoungePackageManager, pwaManager)
         homeApi = HomeApiImpl(
             context,
             preferenceManagerModule,
@@ -131,7 +131,7 @@ class HomeApiTest {
                 any()
             )
         ).thenReturn(listOf())
-        Mockito.`when`(pkgManagerModule.getPackageStatus(any(), any()))
+        Mockito.`when`(appLoungePackageManager.getPackageStatus(any(), any()))
             .thenReturn(Status.UNAVAILABLE)
 
         var hasLimitedDataFound = false

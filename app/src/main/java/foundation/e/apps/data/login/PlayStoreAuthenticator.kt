@@ -28,8 +28,8 @@ import foundation.e.apps.data.login.api.PlayStoreLoginManagerFactory
 import foundation.e.apps.data.login.api.PlayStoreLoginManager
 import foundation.e.apps.data.login.api.GoogleLoginManager
 import foundation.e.apps.data.login.api.PlayStoreLoginWrapper
-import foundation.e.apps.data.preference.DataStoreModule
-import foundation.e.apps.data.preference.PreferenceManagerModule
+import foundation.e.apps.data.preference.AppLoungeDataStore
+import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.data.retryWithBackoff
 import foundation.e.apps.data.preference.getSync
 import timber.log.Timber
@@ -47,15 +47,15 @@ import javax.inject.Singleton
 class PlayStoreAuthenticator @Inject constructor(
     @ApplicationContext private val context: Context,
     private val gson: Gson,
-    private val dataStoreModule: DataStoreModule,
-    private val preferenceManagerModule: PreferenceManagerModule,
+    private val appLoungeDataStore: AppLoungeDataStore,
+    private val appLoungePreference: AppLoungePreference,
 ) : StoreAuthenticator, AuthDataValidator {
 
     @Inject
     lateinit var loginManagerFactory: PlayStoreLoginManagerFactory
 
     private val user: User
-        get() = dataStoreModule.getUserType()
+        get() = appLoungeDataStore.getUserType()
 
     private val loginManager: PlayStoreLoginManager
         get() = loginManagerFactory.createLoginManager(user)
@@ -73,7 +73,7 @@ class PlayStoreAuthenticator @Inject constructor(
              */
             return false
         }
-        return preferenceManagerModule.isGplaySelected()
+        return appLoungePreference.isGplaySelected()
     }
 
     /**
@@ -110,7 +110,7 @@ class PlayStoreAuthenticator @Inject constructor(
     }
 
     override suspend fun logout() {
-        dataStoreModule.saveAuthData(null)
+        appLoungeDataStore.saveAuthData(null)
     }
 
     /**
@@ -118,7 +118,7 @@ class PlayStoreAuthenticator @Inject constructor(
      * Returns null if nothing is saved.
      */
     private fun getSavedAuthData(): AuthData? {
-        val authJson = dataStoreModule.authData.getSync()
+        val authJson = appLoungeDataStore.authData.getSync()
         return if (authJson.isBlank()) null
         else try {
             gson.fromJson(authJson, AuthData::class.java)
@@ -129,14 +129,14 @@ class PlayStoreAuthenticator @Inject constructor(
     }
 
     private suspend fun saveAuthData(authData: AuthData) {
-        dataStoreModule.saveAuthData(authData)
+        appLoungeDataStore.saveAuthData(authData)
     }
 
     /**
      * Generate new AuthData based on the user type.
      */
     private suspend fun generateAuthData(): ResultSupreme<AuthData?> {
-        return when (dataStoreModule.getUserType()) {
+        return when (appLoungeDataStore.getUserType()) {
             User.ANONYMOUS -> getAuthDataAnonymously()
             User.GOOGLE -> getAuthDataWithGoogleAccount()
             else -> ResultSupreme.Error("User type not ANONYMOUS or GOOGLE")
@@ -161,9 +161,9 @@ class PlayStoreAuthenticator @Inject constructor(
 
     private suspend fun getAuthDataWithGoogleAccount(): ResultSupreme<AuthData?> {
 
-        val email = dataStoreModule.emailData.getSync()
-        val oauthToken = dataStoreModule.oauthToken.getSync()
-        val aasToken = dataStoreModule.aasToken.getSync()
+        val email = appLoungeDataStore.emailData.getSync()
+        val oauthToken = appLoungeDataStore.oauthToken.getSync()
+        val aasToken = appLoungeDataStore.aasToken.getSync()
         /*
          * If aasToken is not blank, means it was stored successfully from a previous Google login.
          * Use it to fetch auth data.
@@ -199,7 +199,7 @@ class PlayStoreAuthenticator @Inject constructor(
         /*
          * Finally save the aasToken and create auth data.
          */
-        dataStoreModule.saveAasToken(aasTokenFetched)
+        appLoungeDataStore.saveAasToken(aasTokenFetched)
         return loginWrapper.login(locale).run {
             if (isSuccess()) ResultSupreme.Success(formatAuthData(this.data!!))
             else this

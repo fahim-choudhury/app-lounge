@@ -44,7 +44,7 @@ import javax.inject.Singleton
 
 @Singleton
 @OpenForTesting
-class PkgManagerModule @Inject constructor(
+class AppLoungePackageManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     companion object {
@@ -126,7 +126,7 @@ class PkgManagerModule @Inject constructor(
                     packageManager.setInstallerPackageName(targetPackage, FAKE_STORE_PACKAGE_NAME)
                     Timber.d("Changed installer to $FAKE_STORE_PACKAGE_NAME for $targetPackage")
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Timber.w(e)
                 }
             }
         }

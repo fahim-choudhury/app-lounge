@@ -63,12 +63,12 @@ class UpdateManagerImptTest {
     @Mock
     private lateinit var context: Context
 
-    private lateinit var pkgManagerModule: FakePkgManagerModule
+    private lateinit var pkgManagerModule: FakeAppLoungePackageManager
 
     @Mock
     private lateinit var applicationRepository: ApplicationRepository
 
-    private lateinit var preferenceModule: FakePreferenceModule
+    private lateinit var preferenceModule: FakeAppLoungePreference
 
     private lateinit var faultyAppRepository: FaultyAppRepository
 
@@ -84,8 +84,8 @@ class UpdateManagerImptTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         faultyAppRepository = FaultyAppRepository(FakeFaultyAppDao())
-        preferenceModule = FakePreferenceModule(context)
-        pkgManagerModule = FakePkgManagerModule(context, getGplayApps())
+        preferenceModule = FakeAppLoungePreference(context)
+        pkgManagerModule = FakeAppLoungePackageManager(context, getGplayApps())
         updatesManagerImpl = UpdatesManagerImpl(
             context,
             pkgManagerModule,

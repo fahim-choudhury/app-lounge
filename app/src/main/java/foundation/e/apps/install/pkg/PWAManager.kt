@@ -27,7 +27,7 @@ import javax.inject.Singleton
 
 @Singleton
 @OpenForTesting
-class PWAManagerModule @Inject constructor(
+class PWAManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val fusedDownloadRepository: FusedDownloadRepository,
 ) {
@@ -43,6 +43,10 @@ class PWAManagerModule @Inject constructor(
 
         private const val PWA_PLAYER = "content://foundation.e.pwaplayer.provider/pwa"
         private const val VIEW_PWA = "foundation.e.blisslauncher.VIEW_PWA"
+
+        private const val DELAY_100 = 100L
+        private const val DELAY_500 = 500L
+        private const val BITMAP_QUALITY = 100
     }
 
     /**
@@ -148,7 +152,7 @@ class PWAManagerModule @Inject constructor(
 
     fun Bitmap.toByteArray(): ByteArray {
         val byteArrayOS = ByteArrayOutputStream()
-        this.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOS)
+        this.compress(Bitmap.CompressFormat.PNG, BITMAP_QUALITY, byteArrayOS)
         return byteArrayOS.toByteArray()
     }
 
@@ -178,12 +182,12 @@ class PWAManagerModule @Inject constructor(
         ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null)
 
         // Add a small delay to avoid conflict of button states.
-        delay(100)
+        delay(DELAY_100)
 
         // Update status
         fusedDownload.status = Status.INSTALLED
         fusedDownloadRepository.updateDownload(fusedDownload)
-        delay(500)
+        delay(DELAY_500)
         fusedDownloadRepository.deleteDownload(fusedDownload)
     }
 }

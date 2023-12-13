@@ -23,12 +23,12 @@ import android.content.pm.ApplicationInfo
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.updates.UpdatesManagerImpl.Companion.PACKAGE_NAME_ANDROID_VENDING
 import foundation.e.apps.data.updates.UpdatesManagerImpl.Companion.PACKAGE_NAME_F_DROID
-import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.install.pkg.AppLoungePackageManager
 
-class FakePkgManagerModule(
+class FakeAppLoungePackageManager(
     context: Context,
     val gplayApps: List<Application>,
-) : PkgManagerModule(context) {
+) : AppLoungePackageManager(context) {
 
     val applicationInfo = mutableListOf(
         ApplicationInfo().apply { this.packageName = "foundation.e.demoone" },

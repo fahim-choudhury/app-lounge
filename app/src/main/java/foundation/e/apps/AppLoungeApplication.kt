@@ -27,10 +27,10 @@ import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import dagger.hilt.android.HiltAndroidApp
 import foundation.e.apps.data.Constants.TAG_AUTHDATA_DUMP
-import foundation.e.apps.data.preference.DataStoreModule
-import foundation.e.apps.data.preference.PreferenceManagerModule
+import foundation.e.apps.data.preference.AppLoungeDataStore
+import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.install.pkg.PkgManagerBR
-import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.install.updates.UpdatesWorkManager
 import foundation.e.apps.install.workmanager.InstallWorkManager
 import foundation.e.apps.ui.setup.tos.TOS_VERSION
@@ -51,16 +51,16 @@ import kotlinx.coroutines.runBlocking
 class AppLoungeApplication : Application(), Configuration.Provider {
 
     @Inject
-    lateinit var pkgManagerModule: PkgManagerModule
+    lateinit var appLoungePackageManager: AppLoungePackageManager
 
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
     @Inject
-    lateinit var dataStoreModule: DataStoreModule
+    lateinit var appLoungeDataStore: AppLoungeDataStore
 
     @Inject
-    lateinit var preferenceManagerModule: PreferenceManagerModule
+    lateinit var appLoungePreference: AppLoungePreference
 
     @Inject
     lateinit var uncaughtExceptionHandler: CustomUncaughtExceptionHandler
@@ -74,12 +74,12 @@ class AppLoungeApplication : Application(), Configuration.Provider {
         InstallWorkManager.context = this
         // Register broadcast receiver for package manager
         val pkgManagerBR = object : PkgManagerBR() {}
-        registerReceiver(pkgManagerBR, pkgManagerModule.getFilter(), RECEIVER_EXPORTED)
+        registerReceiver(pkgManagerBR, appLoungePackageManager.getFilter(), RECEIVER_EXPORTED)
 
-        val currentVersion = runBlocking { dataStoreModule.tosVersion.first() }
+        val currentVersion = runBlocking { appLoungeDataStore.tosVersion.first() }
         if (!currentVersion.contentEquals(TOS_VERSION)) {
             MainScope().launch {
-                dataStoreModule.saveTOCStatus(false, "")
+                appLoungeDataStore.saveTOCStatus(false, "")
             }
         }
 
@@ -100,7 +100,7 @@ class AppLoungeApplication : Application(), Configuration.Provider {
 
         UpdatesWorkManager.enqueueWork(
             this,
-            preferenceManagerModule.getUpdateInterval(),
+            appLoungePreference.getUpdateInterval(),
             ExistingPeriodicWorkPolicy.KEEP
         )
     }

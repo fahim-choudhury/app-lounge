@@ -43,7 +43,7 @@ import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.data.login.PlayStoreAuthenticator
 import foundation.e.apps.data.login.exceptions.GPlayValidationException
-import foundation.e.apps.data.preference.PreferenceManagerModule
+import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.databinding.ActivityMainBinding
 import foundation.e.apps.install.updates.UpdatesNotifier
 import foundation.e.apps.ui.MainActivityViewModel
@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainActivityViewModel
 
     @Inject
-    lateinit var preferenceManagerModule: PreferenceManagerModule
+    lateinit var appLoungePreference: AppLoungePreference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

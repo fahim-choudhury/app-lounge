@@ -39,7 +39,7 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.data.preference.PreferenceManagerModule
+import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Deferred
@@ -55,7 +55,7 @@ typealias FusedHomeDeferred = Deferred<ResultSupreme<List<Home>>>
 @Singleton
 class SearchApiImpl @Inject constructor(
     private val appsApi: AppsApi,
-    private val preferenceManagerModule: PreferenceManagerModule,
+    private val appLoungePreference: AppLoungePreference,
     @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
     @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
     @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository,
@@ -72,9 +72,9 @@ class SearchApiImpl @Inject constructor(
 
     override fun getSelectedAppTypes(): List<String> {
         val selectedAppTypes = mutableListOf<String>()
-        if (preferenceManagerModule.isGplaySelected()) selectedAppTypes.add(APP_TYPE_ANY)
-        if (preferenceManagerModule.isOpenSourceSelected()) selectedAppTypes.add(APP_TYPE_OPEN)
-        if (preferenceManagerModule.isPWASelected()) selectedAppTypes.add(APP_TYPE_PWA)
+        if (appLoungePreference.isGplaySelected()) selectedAppTypes.add(APP_TYPE_ANY)
+        if (appLoungePreference.isOpenSourceSelected()) selectedAppTypes.add(APP_TYPE_OPEN)
+        if (appLoungePreference.isPWASelected()) selectedAppTypes.add(APP_TYPE_PWA)
 
         return selectedAppTypes
     }
@@ -97,7 +97,7 @@ class SearchApiImpl @Inject constructor(
             fetchPackageSpecificResult(authData, query).data?.first ?: emptyList()
 
         val searchResult = mutableListOf<Application>()
-        if (preferenceManagerModule.isOpenSourceSelected()) {
+        if (appLoungePreference.isOpenSourceSelected()) {
             finalSearchResult = fetchOpenSourceSearchResult(
                 query,
                 searchResult,
@@ -105,7 +105,7 @@ class SearchApiImpl @Inject constructor(
             )
         }
 
-        if (preferenceManagerModule.isPWASelected()) {
+        if (appLoungePreference.isPWASelected()) {
             finalSearchResult = fetchPWASearchResult(
                 query,
                 searchResult,
@@ -145,7 +145,7 @@ class SearchApiImpl @Inject constructor(
                     packageSpecificResults,
                     query
                 ),
-                preferenceManagerModule.isGplaySelected()
+                appLoungePreference.isGplaySelected()
             )
         )
     }
@@ -174,7 +174,7 @@ class SearchApiImpl @Inject constructor(
                     packageSpecificResults,
                     query
                 ),
-                preferenceManagerModule.isGplaySelected() || preferenceManagerModule.isPWASelected()
+                appLoungePreference.isGplaySelected() || appLoungePreference.isPWASelected()
             )
         )
     }
@@ -188,11 +188,11 @@ class SearchApiImpl @Inject constructor(
         var cleanapkPackageResult: Application? = null
 
         val result = handleNetworkResult {
-            if (preferenceManagerModule.isGplaySelected()) {
+            if (appLoungePreference.isGplaySelected()) {
                 gplayPackageResult = getGplayPackagResult(query, authData)
             }
 
-            if (preferenceManagerModule.isOpenSourceSelected()) {
+            if (appLoungePreference.isOpenSourceSelected()) {
                 cleanapkPackageResult = getCleanApkPackageResult(query)
             }
         }
@@ -204,7 +204,7 @@ class SearchApiImpl @Inject constructor(
             gplayPackageResult?.let { packageSpecificResults.add(it) }
         }
 
-        if (preferenceManagerModule.isGplaySelected()) {
+        if (appLoungePreference.isGplaySelected()) {
             packageSpecificResults.add(Application(isPlaceHolder = true))
         }
 
@@ -236,7 +236,7 @@ class SearchApiImpl @Inject constructor(
 
         val finalList = (packageSpecificResults + filteredResults).toMutableList()
         finalList.removeIf { it.isPlaceHolder }
-        if (preferenceManagerModule.isGplaySelected()) {
+        if (appLoungePreference.isGplaySelected()) {
             finalList.add(Application(isPlaceHolder = true))
         }
 
@@ -325,7 +325,7 @@ class SearchApiImpl @Inject constructor(
             val searchResults =
                 gplayRepository.getSearchResult(query, nextPageSubBundle?.toMutableSet())
 
-            if (!preferenceManagerModule.isGplaySelected()) {
+            if (!appLoungePreference.isGplaySelected()) {
                 return@handleNetworkResult Pair(
                     listOf<Application>(),
                     setOf<SearchBundle.SubBundle>()

@@ -39,8 +39,8 @@ import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentApplicationListBinding
 import foundation.e.apps.install.download.data.DownloadProgress
-import foundation.e.apps.install.pkg.PWAManagerModule
-import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.AppProgressViewModel
 import foundation.e.apps.ui.MainActivityViewModel
@@ -59,10 +59,10 @@ class ApplicationListFragment :
     protected val args: ApplicationListFragmentArgs by navArgs()
 
     @Inject
-    lateinit var pkgManagerModule: PkgManagerModule
+    lateinit var appLoungePackageManager: AppLoungePackageManager
 
     @Inject
-    lateinit var pwaManagerModule: PWAManagerModule
+    lateinit var pwaManager: PWAManager
 
     // protected to avoid SyntheticAccessor
     protected val viewModel: ApplicationListViewModel by viewModels()

@@ -18,9 +18,9 @@
 package foundation.e.apps
 
 import android.content.Context
-import foundation.e.apps.data.preference.PreferenceManagerModule
+import foundation.e.apps.data.preference.AppLoungePreference
 
-class FakePreferenceModule(context: Context) : PreferenceManagerModule(context) {
+class FakeAppLoungePreference(context: Context) : AppLoungePreference(context) {
     var isPWASelectedFake = false
     var isOpenSourceelectedFake = false
     var isGplaySelectedFake = false

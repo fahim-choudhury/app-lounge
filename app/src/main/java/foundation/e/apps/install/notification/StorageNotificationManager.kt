@@ -30,6 +30,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.DownloadManager
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.di.NotificationManagerModule
 import foundation.e.apps.utils.StorageComputer
 import javax.inject.Inject
 

@@ -23,7 +23,7 @@ import com.aurora.gplayapi.helpers.AuthHelper
 import foundation.e.apps.data.playstore.utils.AC2DMTask
 import foundation.e.apps.data.playstore.utils.CustomAuthValidator
 import foundation.e.apps.data.playstore.utils.GPlayHttpClient
-import foundation.e.apps.data.preference.DataStoreModule
+import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.apps.data.preference.getSync
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -33,7 +33,7 @@ class GoogleLoginManager(
     private val gPlayHttpClient: GPlayHttpClient,
     private val nativeDeviceProperty: Properties,
     private val aC2DMTask: AC2DMTask,
-    private val dataStoreModule: DataStoreModule,
+    private val appLoungeDataStore: AppLoungeDataStore,
 ) : PlayStoreLoginManager {
 
     /**
@@ -59,8 +59,8 @@ class GoogleLoginManager(
      * @return authData: authentication data
      */
     override suspend fun login(): AuthData? {
-        val email = dataStoreModule.emailData.getSync()
-        val aasToken = dataStoreModule.aasToken.getSync()
+        val email = appLoungeDataStore.emailData.getSync()
+        val aasToken = appLoungeDataStore.aasToken.getSync()
 
         var authData: AuthData?
         withContext(Dispatchers.IO) {

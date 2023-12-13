@@ -5,20 +5,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import foundation.e.apps.data.preference.DataStoreModule
+import foundation.e.apps.data.preference.AppLoungeDataStore
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class TOSViewModel @Inject constructor(
-    private val dataStoreModule: DataStoreModule
+    private val appLoungeDataStore: AppLoungeDataStore
 ) : ViewModel() {
 
-    val tocStatus: LiveData<Boolean> = dataStoreModule.tocStatus.asLiveData()
+    val tocStatus: LiveData<Boolean> = appLoungeDataStore.tocStatus.asLiveData()
 
     fun saveTOCStatus(status: Boolean) {
         viewModelScope.launch {
-            dataStoreModule.saveTOCStatus(status, TOS_VERSION)
+            appLoungeDataStore.saveTOCStatus(status, TOS_VERSION)
         }
     }
 }

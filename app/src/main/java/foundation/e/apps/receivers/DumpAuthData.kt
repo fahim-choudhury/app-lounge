@@ -23,7 +23,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import foundation.e.apps.data.Constants.ACTION_AUTHDATA_DUMP
 import foundation.e.apps.data.Constants.TAG_AUTHDATA_DUMP
-import foundation.e.apps.data.preference.DataStoreModule
+import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.apps.data.preference.getSync
 import org.json.JSONObject
 import timber.log.Timber
@@ -48,7 +48,7 @@ class DumpAuthData : BroadcastReceiver() {
     private fun getAuthDataDump(context: Context): String {
         val gson = Gson()
         // TODO: replace with context.configuration
-        val authData = DataStoreModule(context, gson).authData.getSync().let {
+        val authData = AppLoungeDataStore(context, gson).authData.getSync().let {
             gson.fromJson(it, AuthData::class.java)
         }
         val filteredData = JSONObject().apply {

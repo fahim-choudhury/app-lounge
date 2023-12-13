@@ -52,7 +52,7 @@ import kotlinx.coroutines.flow.Flow
  */
 
 @Singleton
-class DataStoreModule @Inject constructor(
+class AppLoungeDataStore @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val gson: Gson

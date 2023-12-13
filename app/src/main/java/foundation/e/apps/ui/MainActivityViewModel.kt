@@ -45,9 +45,9 @@ import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.apps.data.preference.DataStoreModule
-import foundation.e.apps.install.pkg.PWAManagerModule
-import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.data.preference.AppLoungeDataStore
+import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.install.workmanager.AppInstallProcessor
 import foundation.e.apps.data.preference.getSync
 import kotlinx.coroutines.channels.ProducerScope
@@ -58,17 +58,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
-    private val dataStoreModule: DataStoreModule,
+    private val appLoungeDataStore: AppLoungeDataStore,
     private val applicationRepository: ApplicationRepository,
     private val fusedManagerRepository: FusedManagerRepository,
-    private val pkgManagerModule: PkgManagerModule,
-    private val pwaManagerModule: PWAManagerModule,
+    private val appLoungePackageManager: AppLoungePackageManager,
+    private val pwaManager: PWAManager,
     private val ecloudRepository: EcloudRepository,
     private val blockedAppRepository: BlockedAppRepository,
     private val appInstallProcessor: AppInstallProcessor
 ) : ViewModel() {
 
-    val tocStatus: LiveData<Boolean> = dataStoreModule.tocStatus.asLiveData()
+    val tocStatus: LiveData<Boolean> = appLoungeDataStore.tocStatus.asLiveData()
 
     private val _purchaseAppLiveData: MutableLiveData<FusedDownload> = MutableLiveData()
     val purchaseAppLiveData: LiveData<FusedDownload> = _purchaseAppLiveData
@@ -88,11 +88,11 @@ class MainActivityViewModel @Inject constructor(
     lateinit var connectivityManager: ConnectivityManager
 
     fun getUser(): User {
-        return dataStoreModule.getUserType()
+        return appLoungeDataStore.getUserType()
     }
 
     fun getUserEmail(): String {
-        return dataStoreModule.emailData.getSync()
+        return appLoungeDataStore.emailData.getSync()
     }
 
     fun uploadFaultyTokenToEcloud(email: String, description: String = "") {
@@ -295,14 +295,14 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun getAppNameByPackageName(packageName: String): String {
-        return pkgManagerModule.getAppNameFromPackageName(packageName)
+        return appLoungePackageManager.getAppNameFromPackageName(packageName)
     }
 
     fun getLaunchIntentForPackageName(packageName: String): Intent? {
-        return pkgManagerModule.getLaunchIntent(packageName)
+        return appLoungePackageManager.getLaunchIntent(packageName)
     }
 
     fun launchPwa(application: Application) {
-        pwaManagerModule.launchPwa(application)
+        pwaManager.launchPwa(application)
     }
 }

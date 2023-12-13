@@ -29,7 +29,7 @@ import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.DownloadManager
 import foundation.e.apps.data.application.ApplicationRepository
-import foundation.e.apps.data.preference.DataStoreModule
+import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.splitinstall.ISplitInstallService
 import foundation.e.splitinstall.SplitInstall
 import kotlinx.coroutines.launch
@@ -42,7 +42,7 @@ class SplitInstallService : LifecycleService() {
         const val TAG = "SplitInstallService"
     }
 
-    @Inject lateinit var dataStoreModule: DataStoreModule
+    @Inject lateinit var appLoungeDataStore: AppLoungeDataStore
     @Inject lateinit var applicationRepository: ApplicationRepository
     @Inject lateinit var downloadManager: DownloadManager
     @Inject lateinit var gson: Gson
@@ -82,7 +82,7 @@ class SplitInstallService : LifecycleService() {
     }
 
     private suspend fun fetchAuthData() {
-        dataStoreModule.authData.collect {
+        appLoungeDataStore.authData.collect {
             authData = gson.fromJson(it, AuthData::class.java)
         }
     }
