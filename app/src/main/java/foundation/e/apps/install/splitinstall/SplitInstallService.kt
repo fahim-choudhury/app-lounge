@@ -29,6 +29,7 @@ import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.DownloadManager
 import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.preference.DataStoreModule
 import foundation.e.splitinstall.ISplitInstallService
 import foundation.e.splitinstall.SplitInstall
@@ -46,6 +47,7 @@ class SplitInstallService : LifecycleService() {
     @Inject lateinit var applicationRepository: ApplicationRepository
     @Inject lateinit var downloadManager: DownloadManager
     @Inject lateinit var gson: Gson
+    @Inject lateinit var authenticatorRepository: AuthenticatorRepository
     private lateinit var binder: SplitInstallBinder
     private var authData: AuthData? = null
     private var splitInstallSystemService: ISplitInstallService? = null
@@ -67,6 +69,7 @@ class SplitInstallService : LifecycleService() {
         val intent = Intent().apply {
             component = SplitInstall.SPLIT_INSTALL_SYSTEM_SERVICE
         }
+
         bindService(intent, serviceConnection, BIND_AUTO_CREATE)
 
         lifecycleScope.launch {
@@ -94,7 +97,7 @@ class SplitInstallService : LifecycleService() {
             lifecycleScope,
             applicationRepository,
             downloadManager,
-            authData,
+            authenticatorRepository,
             splitInstallSystemService
         )
         return binder

@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package foundation.e.apps;
 
-import com.android.vending.splitinstall.ISplitInstallServiceCallback;
+interface ISplitInstallServiceCallback {
 
-interface ISplitInstallService {
+    void onStartInstall(int sessionId);
 
-    void installSplitModule(String packageName, String moduleName, ISplitInstallServiceCallback callback);
+    void onInstalled(int sessionId);
+
+    void onError(int errorCode);
 }
