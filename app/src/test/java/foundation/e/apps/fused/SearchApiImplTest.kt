@@ -23,7 +23,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.SearchBundle
-import foundation.e.apps.FakePreferenceModule
+import foundation.e.apps.FakeAppLoungePreference
 import foundation.e.apps.data.cleanapk.data.search.Search
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.Origin
@@ -34,8 +34,8 @@ import foundation.e.apps.data.application.apps.AppsApi
 import foundation.e.apps.data.application.apps.AppsApiImpl
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.install.pkg.PWAManagerModule
-import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.util.MainCoroutineRule
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -75,10 +75,10 @@ class SearchApiImplTest {
     private lateinit var fusedAPIImpl: SearchApiImpl
 
     @Mock
-    private lateinit var pwaManagerModule: PWAManagerModule
+    private lateinit var pwaManager: PWAManager
 
     @Mock
-    private lateinit var pkgManagerModule: PkgManagerModule
+    private lateinit var appLoungePackageManager: AppLoungePackageManager
 
     @Mock
     private lateinit var context: Context
@@ -96,7 +96,7 @@ class SearchApiImplTest {
 
     private lateinit var applicationDataManager: ApplicationDataManager
 
-    private lateinit var preferenceManagerModule: FakePreferenceModule
+    private lateinit var preferenceManagerModule: FakeAppLoungePreference
 
     private lateinit var formatterMocked: MockedStatic<Formatter>
 
@@ -108,9 +108,9 @@ class SearchApiImplTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         formatterMocked = Mockito.mockStatic(Formatter::class.java)
-        preferenceManagerModule = FakePreferenceModule(context)
+        preferenceManagerModule = FakeAppLoungePreference(context)
         applicationDataManager =
-            ApplicationDataManager(gPlayAPIRepository, pkgManagerModule, pwaManagerModule)
+            ApplicationDataManager(gPlayAPIRepository, appLoungePackageManager, pwaManager)
 
         appsApi = AppsApiImpl(
             context,
@@ -201,8 +201,8 @@ class SearchApiImplTest {
         gplayLivedata: Pair<List<App>, MutableSet<SearchBundle.SubBundle>>,
         willThrowException: Boolean = false
     ) {
-        Mockito.`when`(pwaManagerModule.getPwaStatus(any())).thenReturn(Status.UNAVAILABLE)
-        Mockito.`when`(pkgManagerModule.getPackageStatus(any(), any()))
+        Mockito.`when`(pwaManager.getPwaStatus(any())).thenReturn(Status.UNAVAILABLE)
+        Mockito.`when`(appLoungePackageManager.getPackageStatus(any(), any()))
             .thenReturn(Status.UNAVAILABLE)
         Mockito.`when`(
             cleanApkAppsRepository.getSearchResult(

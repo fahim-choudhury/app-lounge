@@ -31,7 +31,7 @@ import javax.inject.Singleton
 
 @Singleton
 @OpenForTesting
-class PreferenceManagerModule @Inject constructor(
+class AppLoungePreference @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 

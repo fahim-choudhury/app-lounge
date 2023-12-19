@@ -35,7 +35,7 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.data.preference.PreferenceManagerModule
+import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
 import retrofit2.Response
 import javax.inject.Inject
@@ -43,7 +43,7 @@ import javax.inject.Named
 
 class AppsApiImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val preferenceManagerModule: PreferenceManagerModule,
+    private val appLoungePreference: AppLoungePreference,
     @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
     @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
     private val applicationDataManager: ApplicationDataManager
@@ -271,5 +271,5 @@ class AppsApiImpl @Inject constructor(
         return false
     }
 
-    override fun isOpenSourceSelected() = preferenceManagerModule.isOpenSourceSelected()
+    override fun isOpenSourceSelected() = appLoungePreference.isOpenSourceSelected()
 }

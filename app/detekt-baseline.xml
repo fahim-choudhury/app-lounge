@@ -18,9 +18,9 @@
     <ID>LongParameterList:ApplicationViewModel.kt$ApplicationViewModel$( id: String, packageName: String, origin: Origin, isFdroidLink: Boolean, authObjectList: List&lt;AuthObject&gt;, retryBlock: (failedObjects: List&lt;AuthObject&gt;) -&gt; Boolean, )</ID>
     <ID>LongParameterList:CleanApkRetrofit.kt$CleanApkRetrofit$( @Query("keyword") keyword: String, @Query("source") source: String = APP_SOURCE_FOSS, @Query("type") type: String = APP_TYPE_ANY, @Query("nres") nres: Int = 20, @Query("page") page: Int = 1, @Query("by") by: String? = null, )</ID>
     <ID>LongParameterList:EglExtensionProvider.kt$EglExtensionProvider$( egl10: EGL10, eglDisplay: EGLDisplay, eglConfig: EGLConfig?, ai: IntArray, ai1: IntArray?, set: MutableSet&lt;String&gt; )</ID>
-    <ID>LongParameterList:FusedManagerImpl.kt$FusedManagerImpl$( @Named("cacheDir") private val cacheDir: String, private val downloadManager: DownloadManager, private val notificationManager: NotificationManager, private val fusedDownloadRepository: FusedDownloadRepository, private val pwaManagerModule: PWAManagerModule, private val pkgManagerModule: PkgManagerModule, @Named("download") private val downloadNotificationChannel: NotificationChannel, @Named("update") private val updateNotificationChannel: NotificationChannel, @ApplicationContext private val context: Context )</ID>
-    <ID>LongParameterList:MainActivityViewModel.kt$MainActivityViewModel$( private val dataStoreModule: DataStoreModule, private val applicationRepository: ApplicationRepository, private val fusedManagerRepository: FusedManagerRepository, private val pkgManagerModule: PkgManagerModule, private val pwaManagerModule: PWAManagerModule, private val ecloudRepository: EcloudRepository, private val blockedAppRepository: BlockedAppRepository, private val appInstallProcessor: AppInstallProcessor )</ID>
-    <ID>LongParameterList:UpdatesManagerImpl.kt$UpdatesManagerImpl$( @ApplicationContext private val context: Context, private val pkgManagerModule: PkgManagerModule, private val applicationRepository: ApplicationRepository, private val faultyAppRepository: FaultyAppRepository, private val preferenceManagerModule: PreferenceManagerModule, private val fdroidRepository: FdroidRepository, private val blockedAppRepository: BlockedAppRepository, )</ID>
+    <ID>LongParameterList:FusedManagerImpl.kt$FusedManagerImpl$( @Named("cacheDir") private val cacheDir: String, private val downloadManager: DownloadManager, private val notificationManager: NotificationManager, private val fusedDownloadRepository: FusedDownloadRepository, private val pwaManager: PWAManager, private val appLoungePackageManager: AppLoungePackageManager, @Named("download") private val downloadNotificationChannel: NotificationChannel, @Named("update") private val updateNotificationChannel: NotificationChannel, @ApplicationContext private val context: Context )</ID>
+    <ID>LongParameterList:MainActivityViewModel.kt$MainActivityViewModel$( private val appLoungeDataStore: AppLoungeDataStore, private val applicationRepository: ApplicationRepository, private val fusedManagerRepository: FusedManagerRepository, private val appLoungePackageManager: AppLoungePackageManager, private val pwaManager: PWAManager, private val ecloudRepository: EcloudRepository, private val blockedAppRepository: BlockedAppRepository, private val appInstallProcessor: AppInstallProcessor )</ID>
+    <ID>LongParameterList:UpdatesManagerImpl.kt$UpdatesManagerImpl$( @ApplicationContext private val context: Context, private val appLoungePackageManager: AppLoungePackageManager, private val applicationRepository: ApplicationRepository, private val faultyAppRepository: FaultyAppRepository, private val appLoungePreference: AppLoungePreference, private val fdroidRepository: FdroidRepository, private val blockedAppRepository: BlockedAppRepository, )</ID>
     <ID>LongParameterList:UpdatesWorker.kt$UpdatesWorker$( @Assisted private val context: Context, @Assisted private val params: WorkerParameters, private val updatesManagerRepository: UpdatesManagerRepository, private val dataStoreManager: DataStoreManager, private val authenticatorRepository: AuthenticatorRepository, private val appInstallProcessor: AppInstallProcessor, private val blockedAppRepository: BlockedAppRepository, )</ID>
     <ID>MagicNumber:AnonymousLoginManager.kt$AnonymousLoginManager$200</ID>
     <ID>MagicNumber:ApkSignatureManager.kt$ApkSignatureManager$1024</ID>
@@ -53,8 +53,6 @@
     <ID>MagicNumber:HomeChildRVAdapter.kt$HomeChildRVAdapter$500</ID>
     <ID>MagicNumber:InstallerService.kt$InstallerService$69</ID>
     <ID>MagicNumber:NativeDeviceInfoProviderModule.kt$NativeDeviceInfoProviderModule$15</ID>
-    <ID>MagicNumber:PWAManagerModule.kt$PWAManagerModule$100</ID>
-    <ID>MagicNumber:PWAManagerModule.kt$PWAManagerModule$500</ID>
     <ID>MagicNumber:PackageInstallerService.kt$PackageInstallerService$69</ID>
     <ID>MagicNumber:PkgManagerBR.kt$PkgManagerBR$69</ID>
     <ID>MagicNumber:PlayStoreLoginWrapper.kt$PlayStoreLoginWrapper$200</ID>
@@ -96,7 +94,7 @@
     <ID>PrintStackTrace:CommonUtilsModule.kt$CommonUtilsModule$e</ID>
     <ID>PrintStackTrace:EcloudRepository.kt$EcloudRepository$e</ID>
     <ID>PrintStackTrace:InstallWorkManager.kt$InstallWorkManager$e</ID>
-    <ID>PrintStackTrace:PkgManagerModule.kt$PkgManagerModule$e</ID>
+    <ID>PrintStackTrace:AppLoungePackageManager.kt$PkgManagerModule$e</ID>
     <ID>PrintStackTrace:PlayStoreAuthenticator.kt$PlayStoreAuthenticator$e</ID>
     <ID>PrintStackTrace:SystemInfoProvider.kt$SystemInfoProvider$e</ID>
     <ID>ProtectedMemberInFinalClass:ApplicationListFragment.kt$ApplicationListFragment$// protected to avoid SyntheticAccessor protected val args: ApplicationListFragmentArgs by navArgs()</ID>
@@ -129,7 +127,7 @@
     <ID>SwallowedException:GPlayHttpClient.kt$GPlayHttpClient$e: Exception</ID>
     <ID>SwallowedException:NativeDeviceInfoProviderModule.kt$NativeDeviceInfoProviderModule$e: Exception</ID>
     <ID>SwallowedException:NativeGsfVersionProvider.kt$NativeGsfVersionProvider$e: PackageManager.NameNotFoundException</ID>
-    <ID>SwallowedException:PkgManagerModule.kt$PkgManagerModule$e: PackageManager.NameNotFoundException</ID>
+    <ID>SwallowedException:AppLoungePackageManager.kt$AppLoungePackageManager$e: PackageManager.NameNotFoundException</ID>
     <ID>SwallowedException:UpdatesManagerImpl.kt$UpdatesManagerImpl$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AnonymousLoginManager.kt$AnonymousLoginManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ApiCaller.kt$e: Exception</ID>
@@ -152,9 +150,9 @@
     <ID>TooGenericExceptionCaught:LocaleChangedBroadcastReceiver.kt$LocaleChangedBroadcastReceiver$ex: Exception</ID>
     <ID>TooGenericExceptionCaught:NativeDeviceInfoProviderModule.kt$NativeDeviceInfoProviderModule$e: Exception</ID>
     <ID>TooGenericExceptionCaught:NetworkHandler.kt$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:PWAManagerModule.kt$PWAManagerModule$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PWAManager.kt$PWAManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:PWAPlayerStatusReceiver.kt$PWAPlayerStatusReceiver$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:PkgManagerModule.kt$PkgManagerModule$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AppLoungePackageManager.kt$AppLoungePackageManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:PlayStoreAuthenticator.kt$PlayStoreAuthenticator$e: Exception</ID>
     <ID>TooGenericExceptionCaught:RetrofitModule.kt$RetrofitModule$e: Exception</ID>
     <ID>TooGenericExceptionCaught:SystemInfoProvider.kt$SystemInfoProvider$e: Exception</ID>
@@ -170,7 +168,7 @@
     <ID>TooManyFunctions:HomeFragment.kt$HomeFragment : TimeoutFragmentApplicationInstaller</ID>
     <ID>TooManyFunctions:IFusedManager.kt$IFusedManager</ID>
     <ID>TooManyFunctions:MainActivityViewModel.kt$MainActivityViewModel : ViewModel</ID>
-    <ID>TooManyFunctions:PkgManagerModule.kt$PkgManagerModule</ID>
+    <ID>TooManyFunctions:AppLoungePackageManager.kt$AppLoungePackageManager</ID>
     <ID>TooManyFunctions:SearchFragment.kt$SearchFragment : TimeoutFragmentOnQueryTextListenerOnSuggestionListenerApplicationInstaller</ID>
     <ID>TooManyFunctions:TimeoutFragment.kt$TimeoutFragment : Fragment</ID>
     <ID>TooManyFunctions:UpdatesFragment.kt$UpdatesFragment : TimeoutFragmentApplicationInstaller</ID>

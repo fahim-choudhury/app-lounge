@@ -59,8 +59,8 @@ import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentApplicationBinding
 import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.install.download.data.DownloadProgress
-import foundation.e.apps.install.pkg.PWAManagerModule
-import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.PrivacyInfoViewModel
@@ -112,10 +112,10 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     private lateinit var screenshotsRVAdapter: ApplicationScreenshotsRVAdapter
 
     @Inject
-    lateinit var pkgManagerModule: PkgManagerModule
+    lateinit var appLoungePackageManager: AppLoungePackageManager
 
     @Inject
-    lateinit var pwaManagerModule: PWAManagerModule
+    lateinit var pwaManager: PWAManager
 
     private val applicationViewModel: ApplicationViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()
@@ -778,9 +778,9 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
                 if (application.is_pwa) {
-                    pwaManagerModule.launchPwa(application)
+                    pwaManager.launchPwa(application)
                 } else {
-                    val launchIntent = pkgManagerModule.getLaunchIntent(application.package_name)
+                    val launchIntent = appLoungePackageManager.getLaunchIntent(application.package_name)
                     launchIntent?.run { startActivity(this) }
                 }
             }

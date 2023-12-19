@@ -40,13 +40,13 @@ import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.data.preference.PreferenceManagerModule
+import foundation.e.apps.data.preference.AppLoungePreference
 import javax.inject.Inject
 import javax.inject.Named
 
 class CategoryApiImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val preferenceManagerModule: PreferenceManagerModule,
+    private val appLoungePreference: AppLoungePreference,
     @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
     @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
     @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository,
@@ -67,15 +67,15 @@ class CategoryApiImpl @Inject constructor(
     ): ResultStatus {
         val categoryResults: MutableList<ResultStatus> = mutableListOf()
 
-        if (preferenceManagerModule.isOpenSourceSelected()) {
+        if (appLoungePreference.isOpenSourceSelected()) {
             categoryResults.add(fetchCategoryResult(categoriesList, type, Source.OPEN))
         }
 
-        if (preferenceManagerModule.isPWASelected()) {
+        if (appLoungePreference.isPWASelected()) {
             categoryResults.add(fetchCategoryResult(categoriesList, type, Source.PWA))
         }
 
-        if (preferenceManagerModule.isGplaySelected()) {
+        if (appLoungePreference.isGplaySelected()) {
             categoryResults.add(fetchCategoryResult(categoriesList, type, Source.GPLAY))
         }
 

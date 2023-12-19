@@ -30,7 +30,7 @@ import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
-import foundation.e.apps.data.preference.PreferenceManagerModule
+import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.data.updates.UpdatesManagerRepository
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
@@ -40,7 +40,7 @@ import javax.inject.Inject
 class UpdatesViewModel @Inject constructor(
     private val updatesManagerRepository: UpdatesManagerRepository,
     private val applicationRepository: ApplicationRepository,
-    private val preferenceManagerModule: PreferenceManagerModule
+    private val appLoungePreference: AppLoungePreference
 ) : LoadingViewModel() {
 
     val updatesList: MutableLiveData<Pair<List<Application>, ResultStatus?>> = MutableLiveData()
@@ -132,5 +132,5 @@ class UpdatesViewModel @Inject constructor(
         return updatesList.value?.first?.any { pendingStatesForUpdate.contains(it.status) } == true
     }
 
-    fun getUpdateInterval() = preferenceManagerModule.getUpdateInterval()
+    fun getUpdateInterval() = appLoungePreference.getUpdateInterval()
 }

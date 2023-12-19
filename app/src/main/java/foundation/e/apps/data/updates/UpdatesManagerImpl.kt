@@ -33,8 +33,8 @@ import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.preference.PreferenceManagerModule
-import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.data.preference.AppLoungePreference
+import foundation.e.apps.install.pkg.AppLoungePackageManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -45,10 +45,10 @@ import javax.inject.Inject
 
 class UpdatesManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val pkgManagerModule: PkgManagerModule,
+    private val appLoungePackageManager: AppLoungePackageManager,
     private val applicationRepository: ApplicationRepository,
     private val faultyAppRepository: FaultyAppRepository,
-    private val preferenceManagerModule: PreferenceManagerModule,
+    private val appLoungePreference: AppLoungePreference,
     private val fdroidRepository: FdroidRepository,
     private val blockedAppRepository: BlockedAppRepository,
 ) {
@@ -60,7 +60,7 @@ class UpdatesManagerImpl @Inject constructor(
     }
 
     private val userApplications: List<ApplicationInfo>
-        get() = pkgManagerModule.getAllUserApps()
+        get() = appLoungePackageManager.getAllUserApps()
 
     suspend fun getUpdates(authData: AuthData): Pair<List<Application>, ResultStatus> {
         val updateList = mutableListOf<Application>()
@@ -69,7 +69,7 @@ class UpdatesManagerImpl @Inject constructor(
         val openSourceInstalledApps = getOpenSourceInstalledApps().toMutableList()
         val gPlayInstalledApps = getGPlayInstalledApps().toMutableList()
 
-        if (preferenceManagerModule.shouldUpdateAppsFromOtherStores()) {
+        if (appLoungePreference.shouldUpdateAppsFromOtherStores()) {
             withContext(Dispatchers.IO) {
                 val otherStoresInstalledApps = getAppsFromOtherStores().toMutableList()
 
@@ -131,7 +131,7 @@ class UpdatesManagerImpl @Inject constructor(
 
         val openSourceInstalledApps = getOpenSourceInstalledApps().toMutableList()
 
-        if (preferenceManagerModule.shouldUpdateAppsFromOtherStores()) {
+        if (appLoungePreference.shouldUpdateAppsFromOtherStores()) {
             val otherStoresInstalledApps = getAppsFromOtherStores().toMutableList()
 
             // This list is based on app signatures
@@ -166,7 +166,7 @@ class UpdatesManagerImpl @Inject constructor(
      */
     private fun getOpenSourceInstalledApps(): List<String> {
         return userApplications.filter {
-            pkgManagerModule.getInstallerName(it.packageName) in listOf(
+            appLoungePackageManager.getInstallerName(it.packageName) in listOf(
                 context.packageName,
                 PACKAGE_NAME_F_DROID,
                 PACKAGE_NAME_F_DROID_PRIVILEGED,
@@ -182,7 +182,7 @@ class UpdatesManagerImpl @Inject constructor(
      */
     private fun getGPlayInstalledApps(): List<String> {
         return userApplications.filter {
-            pkgManagerModule.getInstallerName(it.packageName) in listOf(
+            appLoungePackageManager.getInstallerName(it.packageName) in listOf(
                 PACKAGE_NAME_ANDROID_VENDING,
             )
         }.map { it.packageName }
@@ -315,7 +315,7 @@ class UpdatesManagerImpl @Inject constructor(
 
         val fDroidUpdatablePackageNames = fDroidAppsAndSignatures.filter {
             // For each installed app also present on F-droid, check signature of base APK.
-            val baseApkPath = pkgManagerModule.getBaseApkPath(it.key)
+            val baseApkPath = appLoungePackageManager.getBaseApkPath(it.key)
             ApkSignatureManager.verifyFdroidSignature(context, baseApkPath, it.value, it.key)
         }.map { it.key }
 
@@ -345,8 +345,8 @@ class UpdatesManagerImpl @Inject constructor(
 
         Timber.i("Latest signature version for $packageName : $latestSignatureVersion")
 
-        val installedVersionCode = pkgManagerModule.getVersionCode(packageName)
-        val installedVersionName = pkgManagerModule.getVersionName(packageName)
+        val installedVersionCode = appLoungePackageManager.getVersionCode(packageName)
+        val installedVersionName = appLoungePackageManager.getVersionName(packageName)
 
         Timber.i("Calculate signature for $packageName : $installedVersionCode, $installedVersionName")
 

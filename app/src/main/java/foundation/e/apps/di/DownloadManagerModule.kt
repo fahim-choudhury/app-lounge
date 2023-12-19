@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.install.download
+package foundation.e.apps.di
 
 import android.app.DownloadManager
 import android.content.Context

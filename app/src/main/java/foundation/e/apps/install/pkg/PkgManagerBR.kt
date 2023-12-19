@@ -42,7 +42,7 @@ open class PkgManagerBR : BroadcastReceiver() {
     lateinit var fusedManagerRepository: FusedManagerRepository
 
     @Inject
-    lateinit var pkgManagerModule: PkgManagerModule
+    lateinit var appLoungePackageManager: AppLoungePackageManager
 
     @Inject
     lateinit var faultyAppRepository: FaultyAppRepository
@@ -86,7 +86,7 @@ open class PkgManagerBR : BroadcastReceiver() {
                     removeFaultyAppByPackageName(pkgName)
                 }
 
-                PkgManagerModule.ERROR_PACKAGE_INSTALL -> {
+                AppLoungePackageManager.ERROR_PACKAGE_INSTALL -> {
                     Timber.e("Installation failed due to error: $extra")
                     updateInstallationIssue(pkgName)
                 }
@@ -114,7 +114,7 @@ open class PkgManagerBR : BroadcastReceiver() {
         }
         GlobalScope.launch {
             val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)
-            pkgManagerModule.setFakeStoreAsInstallerIfNeeded(fusedDownload)
+            appLoungePackageManager.setFakeStoreAsInstallerIfNeeded(fusedDownload)
             fusedManagerRepository.updateDownloadStatus(fusedDownload, Status.INSTALLED)
         }
     }

@@ -21,7 +21,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.work.ExistingPeriodicWorkPolicy
-import foundation.e.apps.data.preference.PreferenceManagerModule
+import foundation.e.apps.data.preference.AppLoungePreference
 import timber.log.Timber
 
 class UpdatesBroadcastReceiver : BroadcastReceiver() {
@@ -29,8 +29,8 @@ class UpdatesBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         Timber.d("onReceive: ${intent.action}")
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            val preferenceManagerModule = PreferenceManagerModule(context)
-            val interval = preferenceManagerModule.getUpdateInterval()
+            val appLoungePreference = AppLoungePreference(context)
+            val interval = appLoungePreference.getUpdateInterval()
             UpdatesWorkManager.enqueueWork(context, interval, ExistingPeriodicWorkPolicy.REPLACE)
         }
     }

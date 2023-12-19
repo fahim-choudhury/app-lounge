@@ -21,7 +21,7 @@ import com.google.gson.Gson
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.playstore.utils.AC2DMTask
 import foundation.e.apps.data.playstore.utils.GPlayHttpClient
-import foundation.e.apps.data.preference.DataStoreModule
+import foundation.e.apps.data.preference.AppLoungeDataStore
 import java.util.Properties
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,12 +32,12 @@ class PlayStoreLoginManagerFactory @Inject constructor(
     private val nativeDeviceProperty: Properties,
     private val aC2DMTask: AC2DMTask,
     private val gson: Gson,
-    private val dataStoreModule: DataStoreModule,
+    private val appLoungeDataStore: AppLoungeDataStore,
 ) {
 
     fun createLoginManager(user: User): PlayStoreLoginManager {
         return when (user) {
-            User.GOOGLE -> GoogleLoginManager(gPlayHttpClient, nativeDeviceProperty, aC2DMTask, dataStoreModule)
+            User.GOOGLE -> GoogleLoginManager(gPlayHttpClient, nativeDeviceProperty, aC2DMTask, appLoungeDataStore)
             else -> AnonymousLoginManager(gPlayHttpClient, nativeDeviceProperty, gson)
         }
     }

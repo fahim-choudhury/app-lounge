@@ -33,8 +33,8 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.install.download.data.DownloadProgressLD
-import foundation.e.apps.install.pkg.PWAManagerModule
-import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.AppLoungePackageManager
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -51,8 +51,8 @@ class FusedManagerImpl @Inject constructor(
     private val downloadManager: DownloadManager,
     private val notificationManager: NotificationManager,
     private val fusedDownloadRepository: FusedDownloadRepository,
-    private val pwaManagerModule: PWAManagerModule,
-    private val pkgManagerModule: PkgManagerModule,
+    private val pwaManager: PWAManager,
+    private val appLoungePackageManager: AppLoungePackageManager,
     @Named("download") private val downloadNotificationChannel: NotificationChannel,
     @Named("update") private val updateNotificationChannel: NotificationChannel,
     @ApplicationContext private val context: Context
@@ -103,7 +103,7 @@ class FusedManagerImpl @Inject constructor(
         mutex.withLock {
             when (fusedDownload.type) {
                 Type.NATIVE -> downloadNativeApp(fusedDownload)
-                Type.PWA -> pwaManagerModule.installPWAApp(fusedDownload)
+                Type.PWA -> pwaManager.installPWAApp(fusedDownload)
             }
         }
     }
@@ -119,7 +119,7 @@ class FusedManagerImpl @Inject constructor(
                 if (list.size != 0) {
                     try {
                         Timber.i("installApp: STARTED ${fusedDownload.name} ${list.size}")
-                        pkgManagerModule.installApplication(list, fusedDownload.packageName)
+                        appLoungePackageManager.installApplication(list, fusedDownload.packageName)
                         Timber.i("installApp: ENDED ${fusedDownload.name} ${list.size}")
                     } catch (e: Exception) {
                         Timber.i(">>> installApp app failed ")
@@ -278,10 +278,10 @@ class FusedManagerImpl @Inject constructor(
     }
 
     override fun isFusedDownloadInstalled(fusedDownload: FusedDownload): Boolean {
-        return pkgManagerModule.isInstalled(fusedDownload.packageName)
+        return appLoungePackageManager.isInstalled(fusedDownload.packageName)
     }
 
     override fun getFusedDownloadInstallationStatus(fusedApp: FusedDownload): Status {
-        return pkgManagerModule.getPackageStatus(fusedApp.packageName, fusedApp.versionCode)
+        return appLoungePackageManager.getPackageStatus(fusedApp.packageName, fusedApp.versionCode)
     }
 }

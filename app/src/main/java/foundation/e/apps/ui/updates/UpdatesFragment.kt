@@ -45,7 +45,7 @@ import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentUpdatesBinding
 import foundation.e.apps.di.CommonUtilsModule.safeNavigate
 import foundation.e.apps.install.download.data.DownloadProgress
-import foundation.e.apps.install.pkg.PWAManagerModule
+import foundation.e.apps.install.pkg.PWAManager
 import foundation.e.apps.install.updates.UpdatesWorkManager
 import foundation.e.apps.install.workmanager.InstallWorkManager.INSTALL_WORK_NAME
 import foundation.e.apps.ui.AppInfoFetchViewModel
@@ -71,7 +71,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
     private val binding get() = _binding!!
 
     @Inject
-    lateinit var pwaManagerModule: PWAManagerModule
+    lateinit var pwaManager: PWAManager
 
     private val updatesViewModel: UpdatesViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()

@@ -24,7 +24,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
-import foundation.e.apps.FakePreferenceModule
+import foundation.e.apps.FakeAppLoungePreference
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
@@ -34,8 +34,8 @@ import foundation.e.apps.data.application.apps.AppsApi
 import foundation.e.apps.data.application.apps.AppsApiImpl
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.install.pkg.PWAManagerModule
-import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -66,10 +66,10 @@ class AppsApiTest {
     var mainCoroutineRule = MainCoroutineRule()
 
     @Mock
-    private lateinit var pwaManagerModule: PWAManagerModule
+    private lateinit var pwaManager: PWAManager
 
     @Mock
-    private lateinit var pkgManagerModule: PkgManagerModule
+    private lateinit var appLoungePackageManager: AppLoungePackageManager
 
     @Mock
     private lateinit var context: Context
@@ -84,7 +84,7 @@ class AppsApiTest {
 
     private lateinit var applicationDataManager: ApplicationDataManager
 
-    private lateinit var preferenceManagerModule: FakePreferenceModule
+    private lateinit var preferenceManagerModule: FakeAppLoungePreference
 
     private lateinit var formatterMocked: MockedStatic<Formatter>
 
@@ -96,9 +96,9 @@ class AppsApiTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         formatterMocked = Mockito.mockStatic(Formatter::class.java)
-        preferenceManagerModule = FakePreferenceModule(context)
+        preferenceManagerModule = FakeAppLoungePreference(context)
         applicationDataManager =
-            ApplicationDataManager(gPlayAPIRepository, pkgManagerModule, pwaManagerModule)
+            ApplicationDataManager(gPlayAPIRepository, appLoungePackageManager, pwaManager)
 
         appsApi = AppsApiImpl(
             context,
@@ -222,15 +222,15 @@ class AppsApiTest {
             )
         )
 
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demoone"), eq(123)))
+        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demoone"), eq(123)))
             .thenReturn(
                 Status.UNAVAILABLE
             )
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demotwo"), eq(123)))
+        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demotwo"), eq(123)))
             .thenReturn(
                 Status.UNAVAILABLE
             )
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demothree"), eq(123)))
+        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demothree"), eq(123)))
             .thenReturn(
                 Status.UNAVAILABLE
             )
@@ -265,15 +265,15 @@ class AppsApiTest {
             )
         )
 
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demoone"), eq(123)))
+        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demoone"), eq(123)))
             .thenReturn(
                 Status.UNAVAILABLE
             )
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demotwo"), eq(123)))
+        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demotwo"), eq(123)))
             .thenReturn(
                 Status.INSTALLED
             )
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demothree"), eq(123)))
+        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demothree"), eq(123)))
             .thenReturn(
                 Status.UNAVAILABLE
             )
@@ -308,15 +308,15 @@ class AppsApiTest {
             )
         )
 
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demoone"), eq(123)))
+        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demoone"), eq(123)))
             .thenReturn(
                 Status.UNAVAILABLE
             )
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demotwo"), eq(123)))
+        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demotwo"), eq(123)))
             .thenReturn(
                 Status.INSTALLED
             )
-        Mockito.`when`(pkgManagerModule.getPackageStatus(eq("foundation.e.demothree"), eq(123)))
+        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demothree"), eq(123)))
             .thenReturn(
                 Status.UNAVAILABLE
             )
@@ -337,7 +337,7 @@ class AppsApiTest {
             is_pwa = true
         )
 
-        Mockito.`when`(pwaManagerModule.getPwaStatus(application)).thenReturn(application.status)
+        Mockito.`when`(pwaManager.getPwaStatus(application)).thenReturn(application.status)
 
         val installationStatus = appsApi.getFusedAppInstallationStatus(application)
         assertEquals("getFusedAppInstallationStatusWhenPWA", application.status, installationStatus)
@@ -353,7 +353,7 @@ class AppsApiTest {
         )
 
         Mockito.`when`(
-            pkgManagerModule.getPackageStatus(
+            appLoungePackageManager.getPackageStatus(
                 application.package_name, application.latest_version_code
             )
         ).thenReturn(Status.INSTALLED)

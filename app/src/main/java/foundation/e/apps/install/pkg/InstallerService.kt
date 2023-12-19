@@ -42,7 +42,7 @@ class InstallerService : Service() {
     lateinit var fusedManagerRepository: FusedManagerRepository
 
     @Inject
-    lateinit var pkgManagerModule: PkgManagerModule
+    lateinit var appLoungePackageManager: AppLoungePackageManager
 
     @Inject
     lateinit var faultyAppRepository: FaultyAppRepository
@@ -60,9 +60,9 @@ class InstallerService : Service() {
         /**
          There is some error case where package name from PackageInstaller remains
          empty (example: INSTALL_PARSE_FAILED_NOT_APK).
-         the packageName from PkgManagerModule will be used in this error case.
+         the packageName from AppLoungePackageManager will be used in this error case.
          */
-        val packageNamePackageManagerModule = intent.getStringExtra(PkgManagerModule.PACKAGE_NAME)
+        val packageNamePackageManagerModule = intent.getStringExtra(AppLoungePackageManager.PACKAGE_NAME)
 
         packageName = packageName ?: packageNamePackageManagerModule
         postStatus(status, packageName, extra)
