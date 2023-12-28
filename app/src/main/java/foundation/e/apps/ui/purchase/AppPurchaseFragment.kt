@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
+import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -27,6 +28,10 @@ class AppPurchaseFragment : Fragment() {
 
     private var isAppPurchased = false
     private var packageName = ""
+
+    companion object {
+        private const val URL_SCHEME_INTENT = "intent"
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -77,6 +82,17 @@ class AppPurchaseFragment : Fragment() {
                 }
 
                 return true
+            }
+
+            override fun shouldOverrideUrlLoading(
+                view: WebView?,
+                request: WebResourceRequest?
+            ): Boolean {
+                if (request?.url.toString().contains(URL_SCHEME_INTENT)) {
+                    return true
+                }
+
+                return false
             }
         }
 
