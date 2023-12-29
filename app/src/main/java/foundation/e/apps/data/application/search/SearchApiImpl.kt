@@ -113,11 +113,11 @@ class SearchApiImpl @Inject constructor(
             )
         }
 
-        if (!preferenceManagerModule.isOpenSourceSelected() && !preferenceManagerModule.isPWASelected()) {
+        if (!appLoungePreference.isOpenSourceSelected() && !appLoungePreference.isPWASelected()) {
             finalSearchResult = ResultSupreme.Success(
                 Pair(
                     packageSpecificResults,
-                    preferenceManagerModule.isGplaySelected()
+                    appLoungePreference.isGplaySelected()
                 )
             )
         }
