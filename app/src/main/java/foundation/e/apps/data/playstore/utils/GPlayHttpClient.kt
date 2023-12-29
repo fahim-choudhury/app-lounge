@@ -58,6 +58,7 @@ class GPlayHttpClient @Inject constructor(
         private const val STATUS_CODE_OK = 200
         private const val STATUS_CODE_UNAUTHORIZED = 401
         private const val STATUS_CODE_TOO_MANY_REQUESTS = 429
+        private const val URL_SUBSTRING_PURCHASE = "purchase"
         const val STATUS_CODE_TIMEOUT = 408
     }
 
@@ -187,7 +188,8 @@ class GPlayHttpClient @Inject constructor(
         return PlayResponse().apply {
             isSuccessful = response.isSuccessful
             code = response.code
-            Timber.d("$TAG: Url: ${response.request.url}\nStatus: $code")
+            val url = response.request.url
+            Timber.d("$TAG: Url: $url\nStatus: $code")
 
             when (code) {
                 STATUS_CODE_UNAUTHORIZED -> MainScope().launch {
@@ -198,7 +200,7 @@ class GPlayHttpClient @Inject constructor(
 
                 STATUS_CODE_TOO_MANY_REQUESTS -> MainScope().launch {
                     cache.evictAll()
-                    if (response.request.url.toString().contains(SEARCH_SUGGEST)) {
+                    if (url.toString().contains(SEARCH_SUGGEST)) {
                         return@launch
                     }
 
@@ -208,7 +210,11 @@ class GPlayHttpClient @Inject constructor(
                 }
             }
 
-            if (code !in listOf(STATUS_CODE_OK, STATUS_CODE_UNAUTHORIZED)) {
+            if (!url.toString().contains(URL_SUBSTRING_PURCHASE) && code !in listOf(
+                    STATUS_CODE_OK,
+                    STATUS_CODE_UNAUTHORIZED
+                )
+            ) {
                 throw GplayHttpRequestException(code, response.message)
             }
 
