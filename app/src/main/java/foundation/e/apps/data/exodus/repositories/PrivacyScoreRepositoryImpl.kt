@@ -19,6 +19,7 @@
 package foundation.e.apps.data.exodus.repositories
 
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.di.CommonUtilsModule
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -26,9 +27,15 @@ import kotlin.math.ceil
 import kotlin.math.round
 
 @Singleton
-class PrivacyScoreRepositoryImpl @Inject constructor() : PrivacyScoreRepository {
+class PrivacyScoreRepositoryImpl @Inject constructor(
+    private val blockedAppRepository: BlockedAppRepository
+) : PrivacyScoreRepository {
 
     override fun calculatePrivacyScore(application: Application): Int {
+        if (blockedAppRepository.isPrivacyScoreZero(application.package_name)) {
+            return 0
+        }
+
         if (application.permsFromExodus == CommonUtilsModule.LIST_OF_NULL) {
             return -1
         }

@@ -50,6 +50,9 @@ class BlockedAppRepository @Inject constructor(
     fun isBlockedApp(packageName: String) =
         blockedAppInfoList?.notWorkingApps?.contains(packageName) ?: false
 
+    fun isPrivacyScoreZero(packageName: String) =
+        blockedAppInfoList?.zeroPrivacyApps?.contains(packageName) ?: false
+
     suspend fun fetchUpdateOfAppWarningList(): Boolean =
         suspendCancellableCoroutine { continuation ->
             downloadManager.downloadFileInCache(
@@ -75,7 +78,7 @@ class BlockedAppRepository @Inject constructor(
             gson.fromJson(blockedAppInfoJson, AppWarningInfo::class.java)
         } catch (exception: Exception) {
             Timber.e(exception.localizedMessage ?: "", exception)
-            AppWarningInfo(listOf())
+            AppWarningInfo(listOf(), listOf())
         }
     }
 }
