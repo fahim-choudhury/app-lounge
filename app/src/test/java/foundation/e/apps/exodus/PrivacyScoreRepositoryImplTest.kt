@@ -21,18 +21,27 @@ package foundation.e.apps.exodus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepositoryImpl
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.di.CommonUtilsModule
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mock
+import org.mockito.Mockito
+import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.any
 
 class PrivacyScoreRepositoryImplTest {
 
     private lateinit var privacyScoreRepository: PrivacyScoreRepositoryImpl
 
+    @Mock
+    private lateinit var blockedAppRepository: BlockedAppRepository
+
     @Before
     fun setup() {
-        privacyScoreRepository = PrivacyScoreRepositoryImpl()
+        MockitoAnnotations.openMocks(this)
+        privacyScoreRepository = PrivacyScoreRepositoryImpl(blockedAppRepository)
     }
 
     @Test

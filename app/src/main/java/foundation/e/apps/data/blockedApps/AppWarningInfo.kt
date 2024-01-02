@@ -20,4 +20,7 @@ package foundation.e.apps.data.blockedApps
 
 import com.google.gson.annotations.SerializedName
 
-data class AppWarningInfo(@SerializedName("not_working_apps") val notWorkingApps: List<String>)
+data class AppWarningInfo(
+    @SerializedName("not_working_apps") val notWorkingApps: List<String>,
+    @SerializedName("zero_privacy_apps") val zeroPrivacyApps: List<String>
+)
