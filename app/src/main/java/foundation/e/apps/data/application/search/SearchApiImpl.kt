@@ -24,6 +24,7 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.SearchBundle
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.apps.AppsApi
@@ -56,9 +57,7 @@ typealias FusedHomeDeferred = Deferred<ResultSupreme<List<Home>>>
 class SearchApiImpl @Inject constructor(
     private val appsApi: AppsApi,
     private val appLoungePreference: AppLoungePreference,
-    @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
-    @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
-    @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository,
+    private val appSourcesContainer: AppSourcesContainer,
     private val applicationDataManager: ApplicationDataManager
 ) : SearchApi {
 
@@ -133,7 +132,7 @@ class SearchApiImpl @Inject constructor(
         val pwaApps: MutableList<Application> = mutableListOf()
         val result = handleNetworkResult {
             val apps =
-                cleanApkPWARepository.getSearchResult(query).body()?.apps
+                appSourcesContainer.cleanApkPWARepository.getSearchResult(query).body()?.apps
             apps?.forEach {
                 applicationDataManager.updateStatus(it)
                 it.updateType()
@@ -287,7 +286,7 @@ class SearchApiImpl @Inject constructor(
     private suspend fun getCleanApkSearchResult(packageName: String): ResultSupreme<Application> {
         var application = Application()
         val result = handleNetworkResult {
-            val result = cleanApkAppsRepository.getSearchResult(
+            val result = appSourcesContainer.cleanApkAppsRepository.getSearchResult(
                 packageName,
                 "package_name"
             ).body()
@@ -303,7 +302,7 @@ class SearchApiImpl @Inject constructor(
     override suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
         var searchSuggesions = listOf<SearchSuggestEntry>()
         handleNetworkResult {
-            searchSuggesions = gplayRepository.getSearchSuggestions(query)
+            searchSuggesions = appSourcesContainer.gplayRepository.getSearchSuggestions(query)
         }
 
         return searchSuggesions
@@ -314,7 +313,7 @@ class SearchApiImpl @Inject constructor(
     ): List<Application> {
         val list = mutableListOf<Application>()
         val response =
-            cleanApkAppsRepository.getSearchResult(keyword).body()?.apps
+            appSourcesContainer.cleanApkAppsRepository.getSearchResult(keyword).body()?.apps
 
         response?.forEach {
             applicationDataManager.updateStatus(it)
@@ -332,7 +331,7 @@ class SearchApiImpl @Inject constructor(
     ): GplaySearchResult {
         return handleNetworkResult {
             val searchResults =
-                gplayRepository.getSearchResult(query, nextPageSubBundle?.toMutableSet())
+                appSourcesContainer.gplayRepository.getSearchResult(query, nextPageSubBundle?.toMutableSet())
 
             if (!appLoungePreference.isGplaySelected()) {
                 return@handleNetworkResult Pair(
@@ -358,7 +357,7 @@ class SearchApiImpl @Inject constructor(
         if (appList.isNullOrEmpty()) {
             // Call search api with a common keyword (ex: facebook)
             // to ensure Gplay is returning empty as search result for other keywords as well
-            val searchResult = gplayRepository.getSearchResult(KEYWORD_TEST_SEARCH, null)
+            val searchResult = appSourcesContainer.gplayRepository.getSearchResult(KEYWORD_TEST_SEARCH, null)
             if (searchResult.first.isEmpty()) {
                 Timber.w("Limited result for search is found...")
                 refreshToken()
@@ -372,7 +371,7 @@ class SearchApiImpl @Inject constructor(
      */
     private suspend fun replaceWithFDroid(gPlayApp: App): Application {
         val gPlayFusedApp = gPlayApp.toApplication(context)
-        val response = cleanApkAppsRepository.getAppDetails(gPlayApp.packageName)
+        val response = appSourcesContainer.cleanApkAppsRepository.getAppDetails(gPlayApp.packageName)
         if (response != null) {
             val fdroidApp = getCleanApkPackageResult(gPlayFusedApp.package_name)?.apply {
                 this.updateSource(context)

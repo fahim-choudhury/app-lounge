@@ -22,6 +22,7 @@ import android.content.Context
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.cleanapk.data.app.Application as CleanApkApplication
@@ -44,8 +45,7 @@ import javax.inject.Named
 class AppsApiImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appLoungePreference: AppLoungePreference,
-    @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
-    @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
+    private val appSourcesContainer: AppSourcesContainer,
     private val applicationDataManager: ApplicationDataManager
 ) : AppsApi {
 
@@ -56,15 +56,15 @@ class AppsApiImpl @Inject constructor(
     override suspend fun getCleanapkAppDetails(packageName: String): Pair<Application, ResultStatus> {
         var application = Application()
         val result = handleNetworkResult {
-            val result = cleanApkAppsRepository.getSearchResult(
+            val result = appSourcesContainer.cleanApkAppsRepository.getSearchResult(
                 packageName,
                 KEY_SEARCH_PACKAGE_NAME
             ).body()
 
             if (result?.hasSingleResult() == true) {
                 application =
-                    (cleanApkAppsRepository.getAppDetails(result.apps[0]._id) as Response<CleanApkApplication>)
-                        .body()?.app ?: Application()
+                    (appSourcesContainer.cleanApkAppsRepository.getAppDetails(result.apps[0]._id)
+                            as Response<CleanApkApplication>).body()?.app ?: Application()
             }
 
             application.updateFilterLevel(null)
@@ -135,7 +135,7 @@ class AppsApiImpl @Inject constructor(
         val applicationList = mutableListOf<Application>()
 
         val result = handleNetworkResult {
-            gplayRepository.getAppsDetails(packageNameList).forEach { app ->
+            appSourcesContainer.gplayRepository.getAppsDetails(packageNameList).forEach { app ->
                 handleFilteredApps(app, authData, applicationList)
             }
         }
@@ -168,7 +168,7 @@ class AppsApiImpl @Inject constructor(
         packageName: String,
         applicationList: MutableList<Application>
     ) = handleNetworkResult {
-        cleanApkAppsRepository.getSearchResult(
+        appSourcesContainer.cleanApkAppsRepository.getSearchResult(
             packageName,
             KEY_SEARCH_PACKAGE_NAME
         ).body()?.run {
@@ -201,9 +201,10 @@ class AppsApiImpl @Inject constructor(
 
         val result = handleNetworkResult {
             application = if (origin == Origin.CLEANAPK) {
-                (cleanApkAppsRepository.getAppDetails(id) as Response<CleanApkApplication>).body()?.app
+                (appSourcesContainer.cleanApkAppsRepository.getAppDetails(id)
+                        as Response<CleanApkApplication>).body()?.app
             } else {
-                val app = gplayRepository.getAppDetails(packageName) as App?
+                val app = appSourcesContainer.gplayRepository.getAppDetails(packageName) as App?
                 app?.toApplication(context)
             }
 

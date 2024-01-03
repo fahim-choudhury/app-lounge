@@ -25,6 +25,7 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
+import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Home
@@ -54,9 +55,7 @@ import foundation.e.apps.data.cleanapk.data.home.Home as CleanApkHome
 class HomeApiImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appLoungePreference: AppLoungePreference,
-    @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
-    @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
-    @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository,
+    private val appSourcesContainer: AppSourcesContainer,
     private val applicationDataManager: ApplicationDataManager
 ) : HomeApi {
 
@@ -143,9 +142,9 @@ class HomeApiImpl @Inject constructor(
         appType: String
     ): MutableList<Home> {
         val response = if (appType == SearchApi.APP_TYPE_OPEN) {
-            (cleanApkAppsRepository.getHomeScreenData() as Response<HomeScreen>).body()
+            (appSourcesContainer.cleanApkAppsRepository.getHomeScreenData() as Response<HomeScreen>).body()
         } else {
-            (cleanApkPWARepository.getHomeScreenData() as Response<HomeScreen>).body()
+            (appSourcesContainer.cleanApkPWARepository.getHomeScreenData() as Response<HomeScreen>).body()
         }
 
         response?.home?.let {
@@ -182,11 +181,19 @@ class HomeApiImpl @Inject constructor(
                 }
 
                 "popular_apps_in_last_24_hours" -> {
-                    applicationDataManager.prepareApps(home.popular_apps_in_last_24_hours, list, value)
+                    applicationDataManager.prepareApps(
+                        home.popular_apps_in_last_24_hours,
+                        list,
+                        value
+                    )
                 }
 
                 "popular_games_in_last_24_hours" -> {
-                    applicationDataManager.prepareApps(home.popular_games_in_last_24_hours, list, value)
+                    applicationDataManager.prepareApps(
+                        home.popular_games_in_last_24_hours,
+                        list,
+                        value
+                    )
                 }
 
                 "discover" -> {
@@ -230,7 +237,8 @@ class HomeApiImpl @Inject constructor(
         priorList: MutableList<Home>
     ): List<Home> {
         val list = mutableListOf<Home>()
-        val gplayHomeData = gplayRepository.getHomeScreenData() as Map<String, List<App>>
+        val gplayHomeData =
+            appSourcesContainer.gplayRepository.getHomeScreenData() as Map<String, List<App>>
         gplayHomeData.map {
             val fusedApps = it.value.map { app ->
                 app.toApplication(context).apply {

@@ -23,6 +23,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.Category
 import foundation.e.apps.FakeAppLoungePreference
 import foundation.e.apps.R
+import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.category.CategoryApi
 import foundation.e.apps.data.application.category.CategoryApiImpl
@@ -87,12 +88,12 @@ class CategoryApiTest {
         preferenceManagerModule = FakeAppLoungePreference(context)
         val applicationDataManager =
             ApplicationDataManager(gPlayAPIRepository, appLoungePackageManager, pwaManager)
+        val appSourcesContainer =
+            AppSourcesContainer(gPlayAPIRepository, cleanApkAppsRepository, cleanApkPWARepository)
         categoryApi = CategoryApiImpl(
             context,
             preferenceManagerModule,
-            gPlayAPIRepository,
-            cleanApkAppsRepository,
-            cleanApkPWARepository,
+            appSourcesContainer,
             applicationDataManager
         )
     }

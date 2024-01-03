@@ -25,6 +25,7 @@ import com.aurora.gplayapi.Constants
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.FakeAppLoungePreference
+import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
@@ -78,6 +79,9 @@ class AppsApiTest {
     private lateinit var cleanApkAppsRepository: CleanApkRepository
 
     @Mock
+    private lateinit var cleanApkPWARepository: CleanApkRepository
+
+    @Mock
     private lateinit var gPlayAPIRepository: PlayStoreRepository
 
     private lateinit var appsApi: AppsApi
@@ -99,13 +103,13 @@ class AppsApiTest {
         preferenceManagerModule = FakeAppLoungePreference(context)
         applicationDataManager =
             ApplicationDataManager(gPlayAPIRepository, appLoungePackageManager, pwaManager)
-
+        val appSourcesContainer =
+            AppSourcesContainer(gPlayAPIRepository, cleanApkAppsRepository, cleanApkPWARepository)
         appsApi = AppsApiImpl(
             context,
             preferenceManagerModule,
-            gPlayAPIRepository,
-            cleanApkAppsRepository,
-            applicationDataManager,
+            appSourcesContainer,
+            applicationDataManager
         )
     }
 
@@ -222,15 +226,30 @@ class AppsApiTest {
             )
         )
 
-        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demoone"), eq(123)))
+        Mockito.`when`(
+            appLoungePackageManager.getPackageStatus(
+                eq("foundation.e.demoone"),
+                eq(123)
+            )
+        )
             .thenReturn(
                 Status.UNAVAILABLE
             )
-        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demotwo"), eq(123)))
+        Mockito.`when`(
+            appLoungePackageManager.getPackageStatus(
+                eq("foundation.e.demotwo"),
+                eq(123)
+            )
+        )
             .thenReturn(
                 Status.UNAVAILABLE
             )
-        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demothree"), eq(123)))
+        Mockito.`when`(
+            appLoungePackageManager.getPackageStatus(
+                eq("foundation.e.demothree"),
+                eq(123)
+            )
+        )
             .thenReturn(
                 Status.UNAVAILABLE
             )
@@ -265,15 +284,30 @@ class AppsApiTest {
             )
         )
 
-        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demoone"), eq(123)))
+        Mockito.`when`(
+            appLoungePackageManager.getPackageStatus(
+                eq("foundation.e.demoone"),
+                eq(123)
+            )
+        )
             .thenReturn(
                 Status.UNAVAILABLE
             )
-        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demotwo"), eq(123)))
+        Mockito.`when`(
+            appLoungePackageManager.getPackageStatus(
+                eq("foundation.e.demotwo"),
+                eq(123)
+            )
+        )
             .thenReturn(
                 Status.INSTALLED
             )
-        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demothree"), eq(123)))
+        Mockito.`when`(
+            appLoungePackageManager.getPackageStatus(
+                eq("foundation.e.demothree"),
+                eq(123)
+            )
+        )
             .thenReturn(
                 Status.UNAVAILABLE
             )
@@ -308,15 +342,30 @@ class AppsApiTest {
             )
         )
 
-        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demoone"), eq(123)))
+        Mockito.`when`(
+            appLoungePackageManager.getPackageStatus(
+                eq("foundation.e.demoone"),
+                eq(123)
+            )
+        )
             .thenReturn(
                 Status.UNAVAILABLE
             )
-        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demotwo"), eq(123)))
+        Mockito.`when`(
+            appLoungePackageManager.getPackageStatus(
+                eq("foundation.e.demotwo"),
+                eq(123)
+            )
+        )
             .thenReturn(
                 Status.INSTALLED
             )
-        Mockito.`when`(appLoungePackageManager.getPackageStatus(eq("foundation.e.demothree"), eq(123)))
+        Mockito.`when`(
+            appLoungePackageManager.getPackageStatus(
+                eq("foundation.e.demothree"),
+                eq(123)
+            )
+        )
             .thenReturn(
                 Status.UNAVAILABLE
             )
