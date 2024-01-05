@@ -33,12 +33,10 @@ import foundation.e.apps.data.application.search.FusedHomeDeferred
 import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.application.utils.toApplication
 import foundation.e.apps.data.cleanapk.data.home.HomeScreen
-import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
@@ -49,13 +47,12 @@ import kotlinx.coroutines.launch
 import retrofit2.Response
 import timber.log.Timber
 import javax.inject.Inject
-import javax.inject.Named
 import foundation.e.apps.data.cleanapk.data.home.Home as CleanApkHome
 
 class HomeApiImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appLoungePreference: AppLoungePreference,
-    private val appSourcesContainer: AppSourcesContainer,
+    private val appSources: AppSourcesContainer,
     private val applicationDataManager: ApplicationDataManager
 ) : HomeApi {
 
@@ -142,9 +139,9 @@ class HomeApiImpl @Inject constructor(
         appType: String
     ): MutableList<Home> {
         val response = if (appType == SearchApi.APP_TYPE_OPEN) {
-            (appSourcesContainer.cleanApkAppsRepository.getHomeScreenData() as Response<HomeScreen>).body()
+            (appSources.cleanApkAppsRepo.getHomeScreenData() as Response<HomeScreen>).body()
         } else {
-            (appSourcesContainer.cleanApkPWARepository.getHomeScreenData() as Response<HomeScreen>).body()
+            (appSources.cleanApkPWARepo.getHomeScreenData() as Response<HomeScreen>).body()
         }
 
         response?.home?.let {
@@ -238,7 +235,7 @@ class HomeApiImpl @Inject constructor(
     ): List<Home> {
         val list = mutableListOf<Home>()
         val gplayHomeData =
-            appSourcesContainer.gplayRepository.getHomeScreenData() as Map<String, List<App>>
+            appSources.gplayRepo.getHomeScreenData() as Map<String, List<App>>
         gplayHomeData.map {
             val fusedApps = it.value.map { app ->
                 app.toApplication(context).apply {

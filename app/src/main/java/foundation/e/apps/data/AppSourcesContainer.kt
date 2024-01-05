@@ -27,7 +27,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AppSourcesContainer @Inject constructor(
-    @Named("gplayRepository") val gplayRepository: PlayStoreRepository,
-    @Named("cleanApkAppsRepository") val cleanApkAppsRepository: CleanApkRepository,
-    @Named("cleanApkPWARepository") val cleanApkPWARepository: CleanApkRepository
+    @Named("gplayRepository") val gplayRepo: PlayStoreRepository,
+    @Named("cleanApkAppsRepository") val cleanApkAppsRepo: CleanApkRepository,
+    @Named("cleanApkPWARepository") val cleanApkPWARepo: CleanApkRepository
 )
