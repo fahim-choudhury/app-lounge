@@ -519,11 +519,9 @@ class ApplicationListRVAdapter(
                 if (searchApp.is_pwa) {
                     mainActivityViewModel.launchPwa(searchApp)
                 } else {
-                    context.startActivity(
-                        mainActivityViewModel.getLaunchIntentForPackageName(
-                            searchApp.package_name
-                        )
-                    )
+                    mainActivityViewModel.getLaunchIntentForPackageName(searchApp.package_name)?.let {
+                        context.startActivity(it)
+                    }
                 }
             }
         }

@@ -237,11 +237,9 @@ class HomeChildRVAdapter(
                 if (homeApp.is_pwa) {
                     mainActivityViewModel.launchPwa(homeApp)
                 } else {
-                    context.startActivity(
-                        mainActivityViewModel.getLaunchIntentForPackageName(
-                            homeApp.package_name
-                        )
-                    )
+                    mainActivityViewModel.getLaunchIntentForPackageName(homeApp.package_name)?.let {
+                        context.startActivity(it)
+                    }
                 }
             }
         }
