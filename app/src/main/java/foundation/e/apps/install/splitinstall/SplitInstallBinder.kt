@@ -20,10 +20,11 @@ package foundation.e.apps.install.splitinstall
 
 import android.content.Context
 import androidx.core.content.pm.PackageInfoCompat
-import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.ISplitInstallService
 import foundation.e.apps.data.DownloadManager
 import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.login.AuthenticatorRepository
+import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,7 +36,7 @@ class SplitInstallBinder(
     private val coroutineScope: CoroutineScope,
     val applicationRepository: ApplicationRepository,
     val downloadManager: DownloadManager,
-    val authData: AuthData?,
+    val authenticatorRepository: AuthenticatorRepository,
     private var splitInstallSystemService: foundation.e.splitinstall.ISplitInstallService?
 ) : ISplitInstallService.Stub() {
 
@@ -43,16 +44,21 @@ class SplitInstallBinder(
 
     companion object {
         const val TAG = "SplitInstallerBinder"
+        const val AUTH_DATA_ERROR_MESSAGE = "Could not get auth data"
     }
 
     override fun installSplitModule(packageName: String, moduleName: String) {
-        if (authData == null) {
-            Timber.i("No authentication data. Could not install on demand module")
-            return
-        }
+        try {
+            if (authenticatorRepository.gplayAuth == null) {
+                Timber.w(AUTH_DATA_ERROR_MESSAGE)
+                return
+            }
 
-        coroutineScope.launch {
-            downloadModule(packageName, moduleName)
+            coroutineScope.launch {
+                downloadModule(packageName, moduleName)
+            }
+        } catch (exception: GPlayLoginException) {
+            Timber.w("$AUTH_DATA_ERROR_MESSAGE $exception")
         }
     }
 
