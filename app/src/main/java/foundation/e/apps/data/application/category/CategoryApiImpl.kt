@@ -24,6 +24,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.StreamCluster
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
+import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Application
@@ -33,23 +34,18 @@ import foundation.e.apps.data.application.utils.CategoryUtils
 import foundation.e.apps.data.application.utils.toApplication
 import foundation.e.apps.data.application.utils.toCategory
 import foundation.e.apps.data.cleanapk.data.categories.Categories
-import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.AppTag
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.handleNetworkResult
-import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.AppLoungePreference
 import javax.inject.Inject
-import javax.inject.Named
 
 class CategoryApiImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appLoungePreference: AppLoungePreference,
-    @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
-    @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
-    @Named("cleanApkPWARepository") private val cleanApkPWARepository: CleanApkRepository,
+    private val appSources: AppSourcesContainer,
     private val applicationDataManager: ApplicationDataManager
 ) : CategoryApi {
 
@@ -113,7 +109,7 @@ class CategoryApiImpl @Inject constructor(
     ): Pair<List<Category>, ResultStatus> {
         val categoryList = mutableListOf<Category>()
         val result = handleNetworkResult {
-            val playResponse = gplayRepository.getCategories(type).map { gplayCategory ->
+            val playResponse = appSources.gplayRepo.getCategories(type).map { gplayCategory ->
                 val category = gplayCategory.toCategory()
                 category.drawable =
                     CategoryUtils.provideAppsCategoryIconResource(
@@ -140,12 +136,12 @@ class CategoryApiImpl @Inject constructor(
             val categories = when (source) {
                 Source.OPEN -> {
                     tag = AppTag.OpenSource(context.getString(R.string.open_source))
-                    cleanApkAppsRepository.getCategories().body()
+                    appSources.cleanApkAppsRepo.getCategories().body()
                 }
 
                 Source.PWA -> {
                     tag = AppTag.PWA(context.getString(R.string.pwa))
-                    cleanApkPWARepository.getCategories().body()
+                    appSources.cleanApkPWARepo.getCategories().body()
                 }
 
                 else -> null
@@ -185,7 +181,7 @@ class CategoryApiImpl @Inject constructor(
 
         return handleNetworkResult {
             val streamCluster =
-                gplayRepository.getAppsByCategory(category, pageUrl) as StreamCluster
+                appSources.gplayRepo.getAppsByCategory(category, pageUrl) as StreamCluster
 
             val filteredAppList = filterRestrictedGPlayApps(authData, streamCluster.clusterAppList)
             filteredAppList.data?.let {
@@ -258,11 +254,11 @@ class CategoryApiImpl @Inject constructor(
         category: String
     ) = when (source) {
         Source.OPEN -> {
-            cleanApkAppsRepository.getAppsByCategory(category).body()
+            appSources.cleanApkAppsRepo.getAppsByCategory(category).body()
         }
 
         Source.PWA -> {
-            cleanApkPWARepository.getAppsByCategory(category).body()
+            appSources.cleanApkPWARepo.getAppsByCategory(category).body()
         }
 
         else -> null

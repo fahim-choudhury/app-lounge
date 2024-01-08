@@ -24,6 +24,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.FakeAppLoungePreference
+import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.home.HomeApi
 import foundation.e.apps.data.application.home.HomeApiImpl
@@ -98,12 +99,12 @@ class HomeApiTest {
         preferenceManagerModule = FakeAppLoungePreference(context)
         applicationDataManager =
             ApplicationDataManager(gPlayAPIRepository, appLoungePackageManager, pwaManager)
+        val appSourcesContainer =
+            AppSourcesContainer(gPlayAPIRepository, cleanApkAppsRepository, cleanApkPWARepository)
         homeApi = HomeApiImpl(
             context,
             preferenceManagerModule,
-            gPlayAPIRepository,
-            cleanApkAppsRepository,
-            cleanApkPWARepository,
+            appSourcesContainer,
             applicationDataManager
         )
     }

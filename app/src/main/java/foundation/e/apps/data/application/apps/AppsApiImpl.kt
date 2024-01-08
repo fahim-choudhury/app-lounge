@@ -22,30 +22,27 @@ import android.content.Context
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.cleanapk.data.app.Application as CleanApkApplication
 import foundation.e.apps.data.application.utils.toApplication
 import foundation.e.apps.data.cleanapk.data.search.Search
-import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.handleNetworkResult
-import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
 import retrofit2.Response
 import javax.inject.Inject
-import javax.inject.Named
+import foundation.e.apps.data.cleanapk.data.app.Application as CleanApkApplication
 
 class AppsApiImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appLoungePreference: AppLoungePreference,
-    @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
-    @Named("cleanApkAppsRepository") private val cleanApkAppsRepository: CleanApkRepository,
+    private val appSources: AppSourcesContainer,
     private val applicationDataManager: ApplicationDataManager
 ) : AppsApi {
 
@@ -56,15 +53,15 @@ class AppsApiImpl @Inject constructor(
     override suspend fun getCleanapkAppDetails(packageName: String): Pair<Application, ResultStatus> {
         var application = Application()
         val result = handleNetworkResult {
-            val result = cleanApkAppsRepository.getSearchResult(
+            val result = appSources.cleanApkAppsRepo.getSearchResult(
                 packageName,
                 KEY_SEARCH_PACKAGE_NAME
             ).body()
 
             if (result?.hasSingleResult() == true) {
                 application =
-                    (cleanApkAppsRepository.getAppDetails(result.apps[0]._id) as Response<CleanApkApplication>)
-                        .body()?.app ?: Application()
+                    (appSources.cleanApkAppsRepo.getAppDetails(result.apps[0]._id)
+                            as Response<CleanApkApplication>).body()?.app ?: Application()
             }
 
             application.updateFilterLevel(null)
@@ -135,7 +132,7 @@ class AppsApiImpl @Inject constructor(
         val applicationList = mutableListOf<Application>()
 
         val result = handleNetworkResult {
-            gplayRepository.getAppsDetails(packageNameList).forEach { app ->
+            appSources.gplayRepo.getAppsDetails(packageNameList).forEach { app ->
                 handleFilteredApps(app, authData, applicationList)
             }
         }
@@ -168,7 +165,7 @@ class AppsApiImpl @Inject constructor(
         packageName: String,
         applicationList: MutableList<Application>
     ) = handleNetworkResult {
-        cleanApkAppsRepository.getSearchResult(
+        appSources.cleanApkAppsRepo.getSearchResult(
             packageName,
             KEY_SEARCH_PACKAGE_NAME
         ).body()?.run {
@@ -201,9 +198,10 @@ class AppsApiImpl @Inject constructor(
 
         val result = handleNetworkResult {
             application = if (origin == Origin.CLEANAPK) {
-                (cleanApkAppsRepository.getAppDetails(id) as Response<CleanApkApplication>).body()?.app
+                (appSources.cleanApkAppsRepo.getAppDetails(id)
+                        as Response<CleanApkApplication>).body()?.app
             } else {
-                val app = gplayRepository.getAppDetails(packageName) as App?
+                val app = appSources.gplayRepo.getAppDetails(packageName) as App?
                 app?.toApplication(context)
             }
 

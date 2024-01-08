@@ -24,6 +24,7 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.SearchBundle
 import foundation.e.apps.FakeAppLoungePreference
+import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.cleanapk.data.search.Search
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.Origin
@@ -111,21 +112,19 @@ class SearchApiImplTest {
         preferenceManagerModule = FakeAppLoungePreference(context)
         applicationDataManager =
             ApplicationDataManager(gPlayAPIRepository, appLoungePackageManager, pwaManager)
-
+        val appSourcesContainer =
+            AppSourcesContainer(gPlayAPIRepository, cleanApkAppsRepository, cleanApkPWARepository)
         appsApi = AppsApiImpl(
             context,
             preferenceManagerModule,
-            gPlayAPIRepository,
-            cleanApkAppsRepository,
+            appSourcesContainer,
             applicationDataManager,
         )
 
         fusedAPIImpl = SearchApiImpl(
             appsApi,
             preferenceManagerModule,
-            gPlayAPIRepository,
-            cleanApkAppsRepository,
-            cleanApkPWARepository,
+            appSourcesContainer,
             applicationDataManager
         )
     }
