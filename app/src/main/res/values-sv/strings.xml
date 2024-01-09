@@ -156,4 +156,6 @@
     <string name="anonymous_login_failed_desc">Detta kan bero på att igenkänningstecknet inte kunde genereras/verifieras eller andra anledningar.
 \n
 \nTryck Försök igen för att försöka igen.</string>
+    <string name="this_app_may_not_work_properly">Denna appen kanske inte fungerar korrekt!</string>
+    <string name="unsupported_app_unreleased">Appen %s stöds för närvarande inte. Detta kan bero på att appen inte publicerats på flera ställen eller att det är något annat fel.</string>
 </resources>
