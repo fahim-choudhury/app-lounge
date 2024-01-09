@@ -148,4 +148,12 @@
     <string name="movers_shakers_games">Topplista: Speltrender</string>
     <string name="timeout_title">Timeout vid hämtning av applikationer!</string>
     <string name="topgrossing_games">Topplista: Betalspel</string>
+    <string name="download_automatically_message">Din app kommer hämtas automatiskt på denna enhet</string>
+    <string name="purchase_error">Fel vid köp!</string>
+    <string name="sign_in_failed_desc">På grund av ett nätverksfel kunde inte App Lounge hämta Google-inloggningsdata.</string>
+    <string name="purchase_complete">Köp genomfört!</string>
+    <string name="paid_app_anonymous_message">Betalappar kan inte installeras i anonymt läge. Vänligen logga in med ditt Google-konto för att installera betalappar.</string>
+    <string name="anonymous_login_failed_desc">Detta kan bero på att igenkänningstecknet inte kunde genereras/verifieras eller andra anledningar.
+\n
+\nTryck Försök igen för att försöka igen.</string>
 </resources>
