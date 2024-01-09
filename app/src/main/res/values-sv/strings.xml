@@ -131,4 +131,5 @@
     <string name="topselling_free_apps" weblate_ctx="home">Topplista: Gratisappar</string>
     <string name="topselling_free_games" weblate_ctx="home">Topplista: Gratisspel</string>
     <string name="topgrossing_apps" weblate_ctx="home">Topplista: Betalappar</string>
+    <string name="error_signature_mismatch">Uppdateringen kan inte appliceras på grund av att signaturen inte stämmer överens mellan uppdateringen av %1$s och versionen som är installerad på telefonen. För att åtgärda detta kan du avinstallera %1$s och installera appen igen från App Lounge. <br/><br/> OBS! Detta meddelande kommer inte visas igen.</string>
 </resources>
