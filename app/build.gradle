@@ -7,6 +7,7 @@ plugins {
     id 'androidx.navigation.safeargs.kotlin'
     id 'com.google.dagger.hilt.android'
     id 'kotlin-allopen'
+    id 'org.jetbrains.kotlin.android'
 }
 
 def versionMajor = 2
@@ -42,7 +43,7 @@ def getSentryDsn = { ->
 }
 
 android {
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "foundation.e.apps"
@@ -120,6 +121,12 @@ android {
     buildFeatures {
         viewBinding true
         aidl true
+    }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion "1.4.1"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -217,6 +224,16 @@ dependencies {
     def navigation_version = "2.6.0"
     implementation "androidx.navigation:navigation-fragment-ktx:$navigation_version"
     implementation "androidx.navigation:navigation-ui-ktx:$navigation_version"
+
+    // Compose
+    def composeBom = platform('androidx.compose:compose-bom:2023.01.00')
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+    implementation "androidx.compose.ui:ui"
+    implementation "androidx.compose.ui:ui-tooling-preview"
+    implementation 'androidx.compose.material3:material3'
+    implementation "androidx.compose.material:material-icons-extended"
+    implementation 'androidx.activity:activity-compose:1.8.2'
 
     // Hilt
     def hilt_version = '2.40.5'
