@@ -185,7 +185,7 @@ object RetrofitModule {
     ): Response {
         Timber.e("buildErrorResponse: ${e.localizedMessage}")
         return Response.Builder()
-            .code(999)
+            .code(403)
             .message(e.localizedMessage ?: "Unknown error")
             .request(chain.request())
             .protocol(Protocol.HTTP_1_1)
