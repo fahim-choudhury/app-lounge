@@ -23,6 +23,5 @@ import foundation.e.apps.data.application.data.Application
 data class Search(
     val apps: List<Application> = emptyList(),
     val numberOfResults: Int = -1,
-    val pages: Int = -1,
     val success: Boolean = false
 )

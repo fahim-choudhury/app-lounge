@@ -30,4 +30,5 @@ interface CleanApkRepository : StoreRepository {
     suspend fun getSearchResult(query: String, searchBy: String? = null): Response<Search>
     suspend fun getAppsByCategory(category: String, paginationParameter: Any? = null): Response<Search>
     suspend fun getCategories(): Response<Categories>
+    suspend fun checkAvailablePackages(packageNames: List<String>): Response<Search>
 }

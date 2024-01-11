@@ -77,6 +77,12 @@ interface CleanApkRetrofit {
         @Query("page") page: Int = 1,
     ): Response<Search>
 
+    @GET("apps?action=list_apps")
+    suspend fun checkAvailablePackages(
+        @Query("package_names[]") packages: List<String>,
+        @Query("source") source: String = "open",
+    ): Response<Search>
+
     @GET("apps?action=download")
     suspend fun getDownloadInfo(
         @Query("app_id") id: String,
