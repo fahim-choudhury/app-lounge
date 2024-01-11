@@ -173,6 +173,12 @@ class DownloadManager @Inject constructor(
         }
     }
 
+    /**
+     * Checks download is successful or not.
+     * @param downloadId is the id of a particular download request
+     * @return Pair<Boolean, Int>, Where first represents success/failure,
+     * second represents status.
+     */
     fun isDownloadSuccessful(downloadId: Long): Pair<Boolean, Int> {
         val downloadStatus = getDownloadStatus(downloadId)
         val isSuccessFul = downloadStatus == DownloadManager.STATUS_SUCCESSFUL
@@ -180,8 +186,7 @@ class DownloadManager @Inject constructor(
     }
 
     fun hasDownloadFailed(downloadId: Long): Boolean {
-        val downloadStatus = getDownloadStatus(downloadId)
-        return downloadStatus == DownloadManager.STATUS_FAILED
+        return getDownloadStatus(downloadId) == DownloadManager.STATUS_FAILED
     }
 
     fun getSizeRequired(downloadId: Long): Long {

@@ -108,6 +108,7 @@ class DownloadManagerUtils @Inject constructor(
         downloadId: Long
     ): Boolean {
         val isDownloadSuccessful = downloadManager.isDownloadSuccessful(downloadId)
+        // if download status code is unknown (-1), consider installation is failed.
         if (isDownloadSuccessful.second == -1) {
             handleDownloadFailed(fusedDownload, downloadId)
         }
