@@ -169,28 +169,9 @@ object RetrofitModule {
                 "User-Agent",
                 "Dalvik/2.1.0 (Linux; U; Android ${Build.VERSION.RELEASE};)"
             ).header("Accept-Language", Locale.getDefault().language)
-            try {
-                return@Interceptor chain.proceed(builder.build())
-            } catch (e: ConnectException) {
-                return@Interceptor buildErrorResponse(e, chain)
-            } catch (e: Exception) {
-                return@Interceptor buildErrorResponse(e, chain)
-            }
-        }
-    }
 
-    private fun buildErrorResponse(
-        e: Exception,
-        chain: Interceptor.Chain
-    ): Response {
-        Timber.e("buildErrorResponse: ${e.localizedMessage}")
-        return Response.Builder()
-            .code(403)
-            .message(e.localizedMessage ?: "Unknown error")
-            .request(chain.request())
-            .protocol(Protocol.HTTP_1_1)
-            .body("{}".toResponseBody("application/json; charset=utf-8".toMediaTypeOrNull()))
-            .build()
+            return@Interceptor chain.proceed(builder.build())
+        }
     }
 
     @Singleton

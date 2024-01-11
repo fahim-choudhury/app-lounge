@@ -299,11 +299,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun getLaunchIntentForPackageName(packageName: String): Intent? {
-        return try {
-            appLoungePackageManager.getLaunchIntent(packageName)
-        } catch (e: Exception) {
-            null
-        }
+        return appLoungePackageManager.getLaunchIntent(packageName)
     }
 
     fun launchPwa(application: Application) {
