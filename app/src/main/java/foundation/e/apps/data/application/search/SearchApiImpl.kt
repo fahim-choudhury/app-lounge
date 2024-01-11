@@ -337,8 +337,7 @@ class SearchApiImpl @Inject constructor(
                 )
             }
 
-            val fusedAppList =
-                searchResults.first.map { app -> replaceWithFDroid(app) }.toMutableList()
+            val fusedAppList = replaceWithFDroid(searchResults.first).toMutableList()
 
             handleLimitedResult(fusedAppList)
 
@@ -366,19 +365,21 @@ class SearchApiImpl @Inject constructor(
      * This function will replace a GPlay app with F-Droid app if exists,
      * else will show the GPlay app itself.
      */
-    private suspend fun replaceWithFDroid(gPlayApp: App): Application {
-        val gPlayFusedApp = gPlayApp.toApplication(context)
-        val response = appSources.cleanApkAppsRepo.getAppDetails(gPlayApp.packageName)
-        if (response != null) {
-            val fdroidApp = getCleanApkPackageResult(gPlayFusedApp.package_name)?.apply {
-                this.updateSource(context)
+    private suspend fun replaceWithFDroid(gPlayApps: List<App>): List<Application> {
+
+        if (gPlayApps.isEmpty()) return emptyList()
+
+        val packageNames = gPlayApps.map { it.packageName }
+        val response = appSources.cleanApkAppsRepo.checkAvailablePackages(packageNames)
+
+        val availableApps = response.body()?.apps ?: emptyList()
+
+        return gPlayApps.map { gPlayApp ->
+            availableApps.find { it.package_name == gPlayApp.packageName }?.apply {
                 isGplayReplaced = true
-            }
-
-            return fdroidApp ?: gPlayFusedApp
+                updateSource(context)
+            } ?: gPlayApp.toApplication(context)
         }
-
-        return gPlayFusedApp
     }
 
     private fun refreshToken() {
