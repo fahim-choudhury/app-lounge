@@ -106,9 +106,18 @@ class DownloadManagerUtils @Inject constructor(
         numberOfDownloadedItems: Int,
         fusedDownload: FusedDownload,
         downloadId: Long
-    ) = downloadManager.isDownloadSuccessful(downloadId) && areAllFilesDownloaded(
-        numberOfDownloadedItems, fusedDownload
-    ) && checkCleanApkSignatureOK(fusedDownload)
+    ): Boolean {
+        val isDownloadSuccessful = downloadManager.isDownloadSuccessful(downloadId)
+        // if download status code is unknown (-1), consider installation is failed.
+        if (isDownloadSuccessful.second == -1) {
+            handleDownloadFailed(fusedDownload, downloadId)
+        }
+
+        return isDownloadSuccessful.first && areAllFilesDownloaded(
+            numberOfDownloadedItems, fusedDownload
+        ) && checkCleanApkSignatureOK(fusedDownload)
+
+    }
 
     private fun areAllFilesDownloaded(
         numberOfDownloadedItems: Int,

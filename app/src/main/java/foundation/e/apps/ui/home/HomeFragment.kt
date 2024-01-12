@@ -204,8 +204,9 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
             viewHolder?.let { parentViewHolder ->
                 val childRV =
                     (parentViewHolder as HomeParentRVAdapter.ViewHolder).binding.childRV
-                val adapter = childRV.adapter as HomeChildRVAdapter
-                findDownloadingItemsToShowProgress(adapter, downloadProgress, childRV)
+                (childRV.adapter as HomeChildRVAdapter?)?.let {
+                    findDownloadingItemsToShowProgress(it, downloadProgress, childRV)
+                }
             }
         }
     }
