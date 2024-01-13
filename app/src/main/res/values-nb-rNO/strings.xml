@@ -55,7 +55,7 @@
     <string name="not_enough_storage">Der er ikke nok tilgjengelig lagringsplass for å laste ned denne applikasjonen!</string>
     <string name="unknown_error">Ukjent feil!</string>
     <string name="message_app_available_later">Denne applikasjonen vil bli tilgjengelig senere!</string>
-    <string name="install_blocked_anonymous">Applikasjoner som koster penger kan ikke installeres i anonym modus. Logg på din Google-konto for å installere betalte applikasjoner.</string>
+    <string name="install_blocked_anonymous">Applikasjoner som koster penger kan ikke installeres i anonym modus. Logg inn på din Google-konto for å installere betalte applikasjoner.</string>
     <string name="package_name">Pakkenavn: <xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="license">Lisens: <xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="min_android_version">Krever: <xliff:g id="version_code">%1$s</xliff:g></string>
@@ -66,7 +66,7 @@
     <string name="permissions">Tillatelser</string>
     <string name="privacy_analyses">Personvernsanalyser</string>
     <string name="privacy">Personvern</string>
-    <string name="rating_description">Poeng ut av 5. Utregnet fra brukernes vurderinger av applikasjonen.</string>
+    <string name="rating_description">Score ut av 5. Beregnet ut fra brukernes vurderinger av applikasjonen.</string>
     <string name="update">Oppdater</string>
     <string name="more">Mer</string>
     <string name="close">Lukk</string>
@@ -131,4 +131,5 @@
     <string name="logged_out">Logget ut</string>
     <string name="app_version_label">App Lounge versjon</string>
     <string name="rating">Vurdering</string>
+    <string name="privacy_description">Personvernscoren beregnes automatisk ut fra tillatelser og sporere som oppdages i applikasjoner. Det gir en idé om hvor mye en applikasjon sannsynligvis vil mikromålrette brukerne.&lt;br /&gt;&lt;br /&gt;Kildekoden til dataalgoritmen &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;finner du her&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Deteksjon av sporere utføres ved hjelp av &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus personvernverktøy&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Score ut av 10.&lt;br /&gt;&lt;br /&gt;Finn ut mer om hvordan personvernscoren beregnes, dens begrensninger og hvordan du kan beskytte deg selv mot mikromålretting &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;på denne siden&lt;/a&gt;.</string>
 </resources>
