@@ -51,7 +51,7 @@
     <string name="why_open_source_version">Hvorfor ser jeg åpen kildekode-versjonen\?</string>
     <string name="gplay_data_for_oss">Kan ikke vise Google Play-applikasjoner når kun åpen kildekode-applikasjoner er tillatt.</string>
     <string name="show_more">Vis mer</string>
-    <string name="app_not_found">Applikasjonen den ble ikke funnet.</string>
+    <string name="app_not_found">Applikasjonen ble ikke funnet.</string>
     <string name="not_enough_storage">Der er ikke nok tilgjengelig lagringsplass for å laste ned denne applikasjonen!</string>
     <string name="unknown_error">Ukjent feil!</string>
     <string name="message_app_available_later">Denne applikasjonen vil bli tilgjengelig senere!</string>
@@ -87,7 +87,7 @@
     <string name="menu_search">Søk</string>
     <string name="menu_categories">Kategorier</string>
     <string name="menu_home">Hjem</string>
-    <string name="sign_in_desc">Logg på App Lounge med din Google-konto, eller velg anonym modus for å logge på privat.</string>
+    <string name="sign_in_desc">Logg inn på App Lounge med din Google-konto, eller velg anonym modus for å logge på privat.</string>
     <string name="user_anonymous">Anonym</string>
     <string name="terms_services">Bruksvilkår</string>
     <string name="account">Konto</string>
@@ -112,7 +112,7 @@
     <string name="pwa_and_open_source_apps">PWA- og åpen kildekode-applikasjoner</string>
     <string name="or">Eller vis bare</string>
     <string name="sign_in_anonymous">Anonym modus</string>
-    <string name="sign_in_google">Logg på med Google</string>
+    <string name="sign_in_google">Logg inn med Google</string>
     <string name="sign_in_title">Velkommen</string>
     <string name="pwa">PWA</string>
     <string name="open_source">Åpen kildekode</string>
