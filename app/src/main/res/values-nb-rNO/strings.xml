@@ -79,7 +79,7 @@
     <string name="ok">OK</string>
     <string name="description">Beskrivelse</string>
     <string name="login">Logg inn</string>
-    <string name="select_one_source_of_applications">Velg minst én applikasjonskilde.</string>
+    <string name="select_one_source_of_applications">Vennligst velg minst én applikasjonskilde.</string>
     <string name="logout">Logg ut</string>
     <string name="search_hint">Søk etter applikasjon</string>
     <string name="menu_settings">Innstillinger</string>
@@ -92,7 +92,7 @@
     <string name="terms_services">Bruksvilkår</string>
     <string name="account">Konto</string>
     <string name="copied">Kopiert</string>
-    <string name="os_version">/e/ OS-versjon</string>
+    <string name="os_version">/e/OS versjon</string>
     <string name="about">Om</string>
     <string name="show_only_pwa_apps">Vis PWAer</string>
     <string name="show_only_open_source_apps">Vis åpen kildekode-applikasjoner</string>
@@ -125,4 +125,10 @@
     <string name="preference_update_apps_from_other_stores_description">Oppdater applikasjoner som er installert fra andre app-butikker.
 \nSlike applikasjoner vil bli forsøkt oppdatert fra vanlige applikasjoner og kategorien åpen kildekode.</string>
     <string name="Show_common_apps">Vis vanlige applikasjoner</string>
+    <string name="login_to_see_gplay_apps">Du må logge inn for å kunne se vanlige applikasjoner.</string>
+    <string name="privacy_score">Personvernscore</string>
+    <string name="ratings">Vurderinger</string>
+    <string name="logged_out">Logget ut</string>
+    <string name="app_version_label">App Lounge versjon</string>
+    <string name="rating">Vurdering</string>
 </resources>
