@@ -120,4 +120,5 @@
     <string name="games">Spill</string>
     <string name="apps">Applikasjoner</string>
     <string name="no_apps_found">Ingen applikasjoner ble funnet…</string>
+    <string name="preference_update_interval_title" weblate_ctx="settings">Frekvens for oppdateringssjekk</string>
 </resources>
