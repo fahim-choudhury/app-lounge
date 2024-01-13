@@ -97,8 +97,8 @@
     <string name="show_only_pwa_apps">Vis PWAer</string>
     <string name="show_only_open_source_apps">Vis åpen kildekode-applikasjoner</string>
     <string name="Show_applications">Vis applikasjoner:</string>
-    <string name="preference_update_notify_available_description">Vi en notifikasjon når en applikasjonsoppdatering er tilgjengelig</string>
-    <string name="preference_update_notify_available_title">Vil tilgjengelige oppdateringer</string>
+    <string name="preference_update_notify_available_description">Vis en notifikasjon når en applikasjonsoppdatering er tilgjengelig</string>
+    <string name="preference_update_notify_available_title">Vis tilgjengelige oppdateringer</string>
     <string name="preference_update_install_automatically_description">Last ned og installer applikasjonsoppdateringer i bakgrunnen</string>
     <string name="preference_update_install_automatically_title">Installer oppdateringer automatisk</string>
     <string name="preference_update_wifi_only_title">Kun på ubegrensede nettverk</string>
@@ -121,4 +121,7 @@
     <string name="apps">Applikasjoner</string>
     <string name="no_apps_found">Ingen applikasjoner ble funnet…</string>
     <string name="preference_update_interval_title" weblate_ctx="settings">Frekvens for oppdateringssjekk</string>
+    <string name="preference_update_apps_from_other_stores_title">Oppdater applikasjoner installert av andre butikker</string>
+    <string name="preference_update_apps_from_other_stores_description">Oppdater applikasjoner som er installert fra andre app-butikker.
+\nSlike applikasjoner vil bli forsøkt oppdatert fra vanlige applikasjoner og kategorien åpen kildekode.</string>
 </resources>
