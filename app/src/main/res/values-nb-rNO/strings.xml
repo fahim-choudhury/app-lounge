@@ -39,7 +39,7 @@
     <string name="discover_pwa">Oppdag PWA</string>
     <string name="discover">Oppdag</string>
     <string name="message_update_failure_single_app">%1$s sin oppdatering har feilet på grunn av en regel for støtte (posisjon, operativsystemversjon…).</string>
-    <string name="message_update_failed">På gunn av forbigående feil kan ikke alle dine applikasjoner bli oppdaterte. Prøv igjen senere.</string>
+    <string name="message_update_failed">På gunn av midlertidig feil kan ikke alle dine applikasjoner bli oppdatert. Prøv igjen senere.</string>
     <string name="update_error">Oppdateringsfeil!</string>
     <string name="all_apps_updated">Alle applikasjoner er oppdaterte</string>
     <plurals name="updates_notification_title">
@@ -140,4 +140,5 @@
     <string name="having_troubles">Trenger du hjelp?</string>
     <string name="duplicate_app_from_sources">Noen proprietære applikasjoner kan også ha en åpen kildekode-versjon. Når dette skjer, viser App Lounge kun åpen kildekode-versjonen, for å unngå duplikater.</string>
     <string name="additional_file_for">Tilleggsfil for %s</string>
+    <string name="message_retry">Forsøk på å oppdatere alt har mislyktes. Prøver på nytt automatisk.</string>
 </resources>
