@@ -124,4 +124,5 @@
     <string name="preference_update_apps_from_other_stores_title">Oppdater applikasjoner installert av andre butikker</string>
     <string name="preference_update_apps_from_other_stores_description">Oppdater applikasjoner som er installert fra andre app-butikker.
 \nSlike applikasjoner vil bli forsøkt oppdatert fra vanlige applikasjoner og kategorien åpen kildekode.</string>
+    <string name="Show_common_apps">Vis vanlige applikasjoner</string>
 </resources>
