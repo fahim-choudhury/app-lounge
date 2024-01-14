@@ -38,10 +38,10 @@
     <string name="downloads">Nedlastinger</string>
     <string name="discover_pwa">Oppdag PWA</string>
     <string name="discover">Oppdag</string>
-    <string name="message_update_failure_single_app">%1$s sin oppdatering har feilet på grunn av en regel for støtte (posisjon, operativsystemversjon…).</string>
+    <string name="message_update_failure_single_app">%1$s sin oppdatering har mislyktes på grunn av et misforhold (posisjon, operativsystemversjon…).</string>
     <string name="message_update_failed">På gunn av midlertidig feil kan ikke alle dine applikasjoner bli oppdatert. Prøv igjen senere.</string>
     <string name="update_error">Oppdateringsfeil!</string>
-    <string name="all_apps_updated">Alle applikasjoner er oppdaterte</string>
+    <string name="all_apps_updated">Alle applikasjoner er oppdatert</string>
     <plurals name="updates_notification_title">
         <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> applikasjonsoppdatering er tilgjengelig</item>
         <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> applikasjonsoppdateringer er tilgjengelige</item>
@@ -141,4 +141,16 @@
     <string name="duplicate_app_from_sources">Noen proprietære applikasjoner kan også ha en åpen kildekode-versjon. Når dette skjer, viser App Lounge kun åpen kildekode-versjonen, for å unngå duplikater.</string>
     <string name="additional_file_for">Tilleggsfil for %s</string>
     <string name="message_retry">Forsøk på å oppdatere alt har mislyktes. Prøver på nytt automatisk.</string>
+    <string name="top_updated_games">Topp åpen kildekode oppdaterte spill</string>
+    <string name="movers_shakers_apps">Mest populære applikasjoner</string>
+    <string name="popular_apps">Populære PWA applikasjoner</string>
+    <string name="top_updated_apps">Topp åpen kildekode oppdaterte applikasjoner</string>
+    <string name="topselling_free_apps" weblate_ctx="home">Topp gratis applikasjoner</string>
+    <string name="movers_shakers_games">Mest populære spill</string>
+    <string name="topselling_free_games" weblate_ctx="home">Topp gratis spill</string>
+    <string name="popular_apps_in_last_24_hours">Populære åpen kildekode-applikasjoner de siste 24 timer</string>
+    <string name="popular_games">Populære PWA spill</string>
+    <string name="popular_games_in_last_24_hours">Populære åpen kildekode-spill de siste 24 timer</string>
+    <string name="topgrossing_apps" weblate_ctx="home">Mest innbringende applikasjoner</string>
+    <string name="topgrossing_games">Mest innbringende spill</string>
 </resources>
