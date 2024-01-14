@@ -3,10 +3,10 @@
     <string name="monthly">Månedlig</string>
     <string name="weekly">Ukentlig</string>
     <string name="daily">Daglig</string>
-    <string name="may_not_work_warning_message">Å tvinge gjennom installering vil gjøre deg istand til å laste ned og installere den, men den vil ikke garantere at den vil fungere.<br/><br/>Forsøk på å installere ustøttede applikasjoner kan føre til systemkrasj eller tregere system.<br/><br/>Vi jobber med å forbedre kompabiliteten med denne applikasjonen i nær framtid.</string>
+    <string name="may_not_work_warning_message">Å tvinge gjennom installering vil gjøre deg istand til å laste ned og installere den, men det vil ikke garantere at den vil fungere.<br/><br/>Forsøk på å installere ustøttede applikasjoner kan føre til systemkrasj eller tregere system.<br/><br/>Vi jobber med å forbedre kompabiliteten med denne applikasjonen i nær framtid.</string>
     <string name="this_app_may_not_work_properly">Denne applikasjonen kan potensielt ikke fungere som den skal!</string>
     <string name="install_anyway">Installer allikevel</string>
-    <string name="unsupported_app_unreleased">Applikasjonen %s er for øyeblikket ikke støttet. Dette kan være fordi applikasjonen ikke er tilgjengelig for alle, eller der er en annen feil.</string>
+    <string name="unsupported_app_unreleased">Applikasjonen %s er for øyeblikket ikke støttet. Dette kan være fordi applikasjonen ikke er tilgjengelig for alle, eller at det er en annen feil.</string>
     <string name="unsupported_app_title">Applikasjon støttes ikke!</string>
     <string name="download_automatically_message">Applikasjonen din vil bli lastet ned automatisk på denne enheten</string>
     <string name="purchase_complete">Kjøp fullført!</string>
@@ -162,4 +162,10 @@
     <string name="dialog_paidapp_message">Når du klikker på Bekreft, vil den ta deg til Google Play-siden for applikasjonen for å fullføre kjøpet i nettleseren din. Klikk bekreft for å kjøpe %1$s for %2$s.</string>
     <string name="paid_app_anonymous_message">Applikasjoner som koster penger kan ikke installeres i anonym modus. Logg inn på Google-kontoen din for å installere betalte applikasjoner.</string>
     <string name="dialog_confirm">BEKREFT</string>
+    <string name="request_exodus_report">Be om Exodus-rapport</string>
+    <string name="proceed_to_google_login">Fortsett til Google-pålogging</string>
+    <string name="google_login_alert_message">Vi anbefaler å bruke en dedikert Google-konto for å:
+\n
+\n\t• redusere mikromålretting
+\n\t• begrense effekten i tilfelle denne kontoen er begrenset av Google</string>
 </resources>
