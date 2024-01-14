@@ -158,4 +158,8 @@
     <string name="too_many_requests_desc">Den anonyme kontoen du bruker er utilgjengelig. Vennligst oppdater økten for å få en ny.</string>
     <string name="refresh_session">OPPDATER ØKTEN</string>
     <string name="no_tracker_found">Ingen sporer funnet!</string>
+    <string name="purchase_error">Feil ved kjøp!</string>
+    <string name="dialog_paidapp_message">Når du klikker på Bekreft, vil den ta deg til Google Play-siden for applikasjonen for å fullføre kjøpet i nettleseren din. Klikk bekreft for å kjøpe %1$s for %2$s.</string>
+    <string name="paid_app_anonymous_message">Applikasjoner som koster penger kan ikke installeres i anonym modus. Logg inn på Google-kontoen din for å installere betalte applikasjoner.</string>
+    <string name="dialog_confirm">BEKREFT</string>
 </resources>
