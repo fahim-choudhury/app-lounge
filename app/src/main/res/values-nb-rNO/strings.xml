@@ -11,7 +11,7 @@
     <string name="download_automatically_message">Applikasjonen din vil bli lastet ned automatisk på denne enheten</string>
     <string name="purchase_complete">Kjøp fullført!</string>
     <string name="dialog_title_paid_app">Kjøp <b>%1$s</b></string>
-    <string name="anonymous_login_failed_desc">Dette kan være fordi symbol ikke kunne genereres/verifiseres eller av andre grunner.
+    <string name="anonymous_login_failed_desc">Dette kan være fordi tokenet ikke kunne genereres/verifiseres eller av andre grunner.
 \n
 \nTrykk Prøv igjen for å prøve igjen.</string>
     <string name="anonymous_login_failed">Anonym pålogging mislyktes!</string>
