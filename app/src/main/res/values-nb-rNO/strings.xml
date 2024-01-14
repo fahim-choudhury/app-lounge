@@ -17,10 +17,10 @@
     <string name="anonymous_login_failed">Anonym pålogging mislyktes!</string>
     <string name="sign_in_failed_desc">På gunn av en nettverksfeil kunne ikke App Lounge hente Google-påloggingsdata.</string>
     <string name="sign_in_failed_title">Google-pålogging mislyktes!</string>
-    <string name="data_load_error_desc">Dette kan være fordi tjener ikke svarer eller andre tjenerfeil.
+    <string name="data_load_error_desc">Dette kan være fordi tjeneren ikke svarer eller andre tjenerfeil.
 \n
 \nPrøv igjen nå, eller prøv igjen senere.</string>
-    <string name="data_load_error">Feil oppstod ved applikasjonslasting.</string>
+    <string name="data_load_error">En feil oppstod ved applikasjonslasting.</string>
     <string name="more_info"><u>Mer informasjon</u></string>
     <string name="open_settings">Åpne innstillinger</string>
     <string name="timeout_desc_cleanapk">Nettverksproblem forhindrer henting av alle applikasjoner.</string>
@@ -29,7 +29,7 @@
 \nÅpne instillinger for å kun se etter åpen kildekode-applikasjoner eller PWAer.</string>
     <string name="timeout_title">Tidsavbrudd ved henting av applikasjoner!</string>
     <string name="no_internet_message">Kan ikke koble til! Kontroller internettilgangen og prøv igjen</string>
-    <string name="privacy_computed_using_text">Utregnet med &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus Privacy-analyse</string>
+    <string name="privacy_computed_using_text">Utregnet med &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus personvernanalyse</string>
     <string name="message_last_update_triggered">Oppdatering av %1$s applikasjoner ble fullført %2$s.</string>
     <string name="updates_notification_unmetered_network_warning">Venter på ubegrenset nettverk</string>
     <string name="manually_install_updates_notification_text">Applikasjonsoppdateringer vil ikke bli installert automatisk</string>
@@ -153,4 +153,9 @@
     <string name="popular_games_in_last_24_hours">Populære åpen kildekode-spill de siste 24 timer</string>
     <string name="topgrossing_apps" weblate_ctx="home">Mest innbringende applikasjoner</string>
     <string name="topgrossing_games">Mest innbringende spill</string>
+    <string name="tracker_information_not_found">Ingen sporingsinformasjon tilgjengelig for denne applikasjonen.</string>
+    <string name="no_permission_found">Ingen runtime Android-tillatelse funnet!</string>
+    <string name="too_many_requests_desc">Den anonyme kontoen du bruker er utilgjengelig. Vennligst oppdater økten for å få en ny.</string>
+    <string name="refresh_session">OPPDATER ØKTEN</string>
+    <string name="no_tracker_found">Ingen sporer funnet!</string>
 </resources>
