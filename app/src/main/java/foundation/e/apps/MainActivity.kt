@@ -80,8 +80,6 @@ class MainActivity : AppCompatActivity() {
 
         val (bottomNavigationView, navController) = setupBootomNav()
 
-        var hasInternet = true
-
         setupViewModels()
 
         setupNavigations(navController)
@@ -94,13 +92,14 @@ class MainActivity : AppCompatActivity() {
             viewModel.createNotificationChannels()
         }
 
+
         viewModel.setupConnectivityManager(this.applicationContext)
 
-        hasInternet = observeInternetConnections(hasInternet)
+        observeInternetConnections()
 
         observeAuthObjects(navController)
 
-        setupDestinationChangedListener(navController, hasInternet, bottomNavigationView)
+        setupDestinationChangedListener(navController, bottomNavigationView)
 
         observePurchaseAppPage()
 
@@ -120,6 +119,7 @@ class MainActivity : AppCompatActivity() {
 
         observeEvents()
     }
+
 
     private fun setupNavigations(navController: NavController) {
         val navOptions = NavOptions.Builder()
@@ -207,25 +207,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun observeInternetConnections(hasInternet: Boolean): Boolean {
-        var mutableHasInternet = hasInternet
-        viewModel.internetConnection.observe(this) { isInternetAvailable ->
-            mutableHasInternet = isInternetAvailable
+    private fun observeInternetConnections() {
+        viewModel.internetConnection.distinctUntilChanged().observe(this) { isInternetAvailable ->
+            Timber.d("Observe internetConnection: $isInternetAvailable")
             if (isInternetAvailable) {
                 binding.noInternet.visibility = View.GONE
                 binding.fragment.visibility = View.VISIBLE
             }
         }
-        return mutableHasInternet
     }
 
     private fun setupDestinationChangedListener(
         navController: NavController,
-        hasInternet: Boolean,
         bottomNavigationView: BottomNavigationView
     ) {
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            if (!hasInternet) {
+            if (viewModel.internetConnection.value == false) {
                 showNoInternet()
             }
             when (destination.id) {
