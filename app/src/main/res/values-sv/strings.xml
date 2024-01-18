@@ -170,4 +170,5 @@
 \n\t• mitigate micro-målinriktning
 \n\t• minska effekten om detta konto skulle begränsas av Google</string>
     <string name="may_not_work_warning_message">Att tvinga en installation tillåter dig att hämta och installera men det är inte garanterat att fungera.<br/><br/>Försök att installera appar som inte stöds kan orsaka krascher eller göra systemet långsammare.<br/><br/>Vi arbetar med att göra det mer kompatibelt med denna applikation i en nära framtid.</string>
+    <string name="request_exodus_report_confirm_dialog">Genom att trycka på \"<xliff:g id="ok">%1$s</xliff:g>\" kommer en flik öppnas i din webbläsare med appens paketnamn förifyllt.&lt;br /&gt;&lt;br /&gt;Tryck på \"Perform analysis\" för att starta analysen av Exodus.&lt;br /&gt;&lt;br /&gt; När knappen \"See the report\" visas (det kan ta ett tag beroende på appen) kan du stänga fliken och gå tillbaka till appbeskrivningen i <xliff:g id="app_name">%2$s</xliff:g> där du bör se integritetspoängen. Ibland kan Exodus misslyckas med att analysera appen. &lt;br /&gt;&lt;br /&gt;OBS! Det kan ta upp till 10 min innan poängen visas i appbeskrivningen.</string>
 </resources>
