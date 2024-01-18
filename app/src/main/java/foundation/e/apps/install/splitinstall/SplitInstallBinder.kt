@@ -18,9 +18,23 @@
 
 package foundation.e.apps.install.splitinstall
 
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.pm.PackageInfoCompat
 import foundation.e.apps.ISplitInstallService
+import foundation.e.apps.MainActivity
+import foundation.e.apps.R
 import foundation.e.apps.data.DownloadManager
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.login.AuthenticatorRepository
@@ -45,12 +59,19 @@ class SplitInstallBinder(
     companion object {
         const val TAG = "SplitInstallerBinder"
         const val AUTH_DATA_ERROR_MESSAGE = "Could not get auth data"
+        const val NOTIFICATION_CHANNEL = "SplitInstallAppLounge"
+        const val NOTIFICATION_ID_KEY = "notification_id_key"
     }
 
     override fun installSplitModule(packageName: String, moduleName: String) {
         try {
+            coroutineScope.launch {
+                authenticatorRepository.getValidatedAuthData()
+            }
+
             if (authenticatorRepository.gplayAuth == null) {
                 Timber.w(AUTH_DATA_ERROR_MESSAGE)
+                handleError(packageName)
                 return
             }
 
@@ -59,7 +80,104 @@ class SplitInstallBinder(
             }
         } catch (exception: GPlayLoginException) {
             Timber.w("$AUTH_DATA_ERROR_MESSAGE $exception")
+            handleError(packageName)
         }
+    }
+
+    private fun handleError(packageName: String) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return
+        }
+
+        createNotificationChannel(context)
+        showErrorNotification(context, packageName)
+    }
+
+    private fun createNotificationChannel(context: Context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return
+        }
+
+        val descriptionText = context.getString(R.string.notification_channel_desc)
+        val notificationChannel = NotificationChannel(
+            NOTIFICATION_CHANNEL,
+            NOTIFICATION_CHANNEL,
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = descriptionText
+        }
+
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        notificationManager.createNotificationChannel(notificationChannel)
+    }
+
+    private fun showErrorNotification(context: Context, packageName: String) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
+        val appInfo = context.packageManager.getPackageInfo(packageName, 0).applicationInfo
+        val appLabel = context.packageManager.getApplicationLabel(appInfo)
+        val callerUid = appInfo.uid
+        val contentText = context.getString(
+            R.string.split_install_warning_text,
+            appLabel
+        )
+
+        val notificationBuilder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
+            .setSmallIcon(R.drawable.app_lounge_notification_icon)
+            .setContentTitle(context.getString(R.string.split_install_warning_title, appLabel))
+            .setContentText(contentText)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
+            .addAction(
+                NotificationCompat.Action.Builder(
+                    null,
+                    context.getString(R.string.sign_in),
+                    buildSignInPendingIntent(callerUid)
+                ).build()
+            )
+            .addAction(
+                NotificationCompat.Action.Builder(
+                    null,
+                    context.getString(R.string.ignore),
+                    buildIgnorePendingIntent(callerUid)
+                ).build()
+            )
+
+        with(NotificationManagerCompat.from(context)) {
+            notify(callerUid, notificationBuilder.build())
+        }
+    }
+
+    private fun buildIgnorePendingIntent(callerUid: Int): PendingIntent {
+        val ignoreIntent = Intent(context, IgnoreReceiver::class.java).apply {
+            putExtra(NOTIFICATION_ID_KEY, callerUid)
+        }
+
+        return PendingIntent.getBroadcast(
+            context,
+            callerUid,
+            ignoreIntent,
+            PendingIntent.FLAG_MUTABLE
+        )
+    }
+
+    private fun buildSignInPendingIntent(callerUid: Int): PendingIntent {
+        val signInIntent = Intent(context, SignInReceiver::class.java).apply {
+            putExtra(NOTIFICATION_ID_KEY, callerUid)
+        }
+
+        return PendingIntent.getBroadcast(
+            context,
+            callerUid,
+            signInIntent,
+            PendingIntent.FLAG_MUTABLE
+        )
     }
 
     fun setService(service: foundation.e.splitinstall.ISplitInstallService) {
@@ -121,6 +239,36 @@ class SplitInstallBinder(
         for (module in modulesToInstall.keys) {
             val packageName = modulesToInstall[module]
             splitInstallSystemService?.installSplitModule(packageName, module)
+        }
+    }
+
+    class IgnoreReceiver: BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (context == null || intent == null) {
+                return
+            }
+
+            NotificationManagerCompat.from(context).cancel(
+                intent.getIntExtra(NOTIFICATION_ID_KEY, -1)
+            )
+        }
+    }
+
+    class SignInReceiver: BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (context == null || intent == null) {
+                return
+            }
+
+            NotificationManagerCompat.from(context).cancel(
+                intent.getIntExtra(NOTIFICATION_ID_KEY, -1)
+            )
+
+            val launchAppLoungeIntent = Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+
+            context.startActivity(launchAppLoungeIntent)
         }
     }
 }

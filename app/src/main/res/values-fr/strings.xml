@@ -168,4 +168,9 @@
     <string name="free_space_for_update">Libérez %1$s sur votre téléphone afin de bénéficier des dernières mises à jour.</string>
     <string name="notification_content_full_db">Merci de libérer de l\'espace sur votre téléphone pour qu\'App Lounge puisse fonctionner correctement.</string>
     <string name="checking_updates">Vérification des mises à jour...</string>
+    <string name="split_install_warning_title">Avertissement concernant %s</string>
+    <string name="split_install_warning_text">%s souhaite installer des modules supplémentaires. Vous devez vous reconnecter à AppLounge pour pouvoir les installer.</string>
+    <string name="notification_channel_desc">Canal d\'installation fractionnée</string>
+    <string name="sign_in">Connexion</string>
+    <string name="ignore">Ignorer</string>
 </resources>
