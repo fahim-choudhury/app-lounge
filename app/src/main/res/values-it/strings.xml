@@ -168,4 +168,9 @@
     <string name="free_space_for_update">Per scaricare l\'aggiornamento, devi liberare %1$s di spazio sullo smartphone.</string>
 
     <string name="notification_content_full_db">Ti invitiamo a liberare un pò di spazio sul telefono in modo che App Lounge possa funzionare correttamente.</string>
+    <string name="split_install_warning_title">Avviso riguardante %s</string>
+    <string name="split_install_warning_text">%s vuole installare moduli aggiuntivi. Devi accedere nuovamente ad AppLounge per poterli installare.</string>
+    <string name="notification_channel_desc">Canale di installazione frazionata</string>
+    <string name="sign_in">Login</string>
+    <string name="ignore">Ignorare</string>
 </resources>

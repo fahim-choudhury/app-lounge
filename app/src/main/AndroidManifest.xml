@@ -118,6 +118,14 @@
             android:name=".install.splitinstall.SplitInstallService"
             tools:ignore="ExportedService"
             android:exported="true" />
+
+        <receiver
+            android:name=".install.splitinstall.SplitInstallBinder$IgnoreReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".install.splitinstall.SplitInstallBinder$SignInReceiver"
+            android:exported="false" />
     </application>
 
 </manifest>
