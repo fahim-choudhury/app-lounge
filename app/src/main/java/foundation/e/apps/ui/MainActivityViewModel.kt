@@ -21,9 +21,6 @@ package foundation.e.apps.ui
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
@@ -31,7 +28,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,9 +46,7 @@ import foundation.e.apps.install.pkg.PWAManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.install.workmanager.AppInstallProcessor
 import foundation.e.apps.data.preference.getSync
-import kotlinx.coroutines.channels.ProducerScope
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.callbackFlow
+import foundation.e.apps.utils.NetworkStatusManager
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -74,6 +68,7 @@ class MainActivityViewModel @Inject constructor(
     val purchaseAppLiveData: LiveData<FusedDownload> = _purchaseAppLiveData
     val isAppPurchased: MutableLiveData<String> = MutableLiveData()
     val purchaseDeclined: MutableLiveData<String> = MutableLiveData()
+    lateinit var internetConnection: LiveData<Boolean>
 
     var gPlayAuthData = AuthData("", "")
 
@@ -210,69 +205,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun setupConnectivityManager(context: Context) {
-        connectivityManager =
-            context.getSystemService(ConnectivityManager::class.java) as ConnectivityManager
-    }
-
-    val internetConnection =
-        callbackFlow {
-            if (!this@MainActivityViewModel::connectivityManager.isInitialized) {
-                awaitClose { }
-                return@callbackFlow
-            }
-
-            sendInternetStatus(connectivityManager)
-            val networkCallback = getNetworkCallback(this)
-            connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
-
-            awaitClose {
-                connectivityManager.unregisterNetworkCallback(networkCallback)
-            }
-        }.asLiveData().distinctUntilChanged()
-
-    private val networkRequest = NetworkRequest.Builder()
-        .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-        .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-        .build()
-
-    private fun getNetworkCallback(
-        callbackFlowScope: ProducerScope<Boolean>,
-    ): ConnectivityManager.NetworkCallback {
-        return object : ConnectivityManager.NetworkCallback() {
-
-            override fun onAvailable(network: Network) {
-                super.onAvailable(network)
-                callbackFlowScope.sendInternetStatus(connectivityManager)
-            }
-
-            override fun onCapabilitiesChanged(
-                network: Network,
-                networkCapabilities: NetworkCapabilities
-            ) {
-                super.onCapabilitiesChanged(network, networkCapabilities)
-                callbackFlowScope.sendInternetStatus(connectivityManager)
-            }
-
-            override fun onLost(network: Network) {
-                super.onLost(network)
-                callbackFlowScope.sendInternetStatus(connectivityManager)
-            }
-        }
-    }
-
-    // protected to avoid SyntheticAccessor
-    protected fun ProducerScope<Boolean>.sendInternetStatus(connectivityManager: ConnectivityManager) {
-
-        val capabilities =
-            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-
-        val hasInternet =
-            capabilities != null &&
-                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-
-        trySend(hasInternet)
+        internetConnection = NetworkStatusManager.init(context)
     }
 
     fun updateStatusOfFusedApps(
