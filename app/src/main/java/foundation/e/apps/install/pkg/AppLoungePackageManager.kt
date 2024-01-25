@@ -27,6 +27,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller.Session
 import android.content.pm.PackageInstaller.SessionParams
 import android.content.pm.PackageManager
+import android.content.pm.PackageManager.NameNotFoundException
 import android.os.Build
 import androidx.core.content.pm.PackageInfoCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -39,6 +40,7 @@ import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import kotlinx.coroutines.DelicateCoroutinesApi
 import timber.log.Timber
 import java.io.File
+import java.lang.IllegalArgumentException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -51,7 +53,9 @@ class AppLoungePackageManager @Inject constructor(
         const val ERROR_PACKAGE_INSTALL = "ERROR_PACKAGE_INSTALL"
         const val PACKAGE_NAME = "packageName"
         const val FAKE_STORE_PACKAGE_NAME = "com.android.vending"
+        private const val UNKNOWN_VALUE = ""
     }
+
     private val packageManager = context.packageManager
 
     fun isInstalled(packageName: String): Boolean {
@@ -69,15 +73,8 @@ class AppLoungePackageManager @Inject constructor(
     }
 
     private fun isUpdatable(packageName: String, versionCode: Int): Boolean {
-        return try {
-            val packageInfo = getPackageInfo(packageName)
-            packageInfo?.let {
-                return versionCode.toLong() > PackageInfoCompat.getLongVersionCode(it)
-            }
-            true
-        } catch (e: PackageManager.NameNotFoundException) {
-            false
-        }
+        val packageInfo = getPackageInfo(packageName) ?: return false
+        return versionCode.toLong() > PackageInfoCompat.getLongVersionCode(packageInfo)
     }
 
     fun getLaunchIntent(packageName: String): Intent? {
@@ -85,7 +82,12 @@ class AppLoungePackageManager @Inject constructor(
     }
 
     private fun getPackageInfo(packageName: String): PackageInfo? {
-        return packageManager.getPackageInfo(packageName, 0)
+        return try {
+            packageManager.getPackageInfo(packageName, 0)
+        } catch (e: NameNotFoundException) {
+            Timber.e("getPackageInfo: ${e.localizedMessage}")
+            null
+        }
     }
 
     /**
@@ -133,11 +135,19 @@ class AppLoungePackageManager @Inject constructor(
     }
 
     fun getInstallerName(packageName: String): String {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val installerInfo = packageManager.getInstallSourceInfo(packageName)
-            installerInfo.originatingPackageName ?: installerInfo.installingPackageName ?: ""
-        } else {
-            packageManager.getInstallerPackageName(packageName) ?: ""
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val installerInfo = packageManager.getInstallSourceInfo(packageName)
+                installerInfo.originatingPackageName ?: installerInfo.installingPackageName ?: UNKNOWN_VALUE
+            } else {
+                packageManager.getInstallerPackageName(packageName) ?: UNKNOWN_VALUE
+            }
+        } catch (e: NameNotFoundException) {
+            Timber.e("getInstallerName -> $packageName : ${e.localizedMessage}")
+            UNKNOWN_VALUE
+        } catch (e: IllegalArgumentException) {
+            Timber.e("getInstallerName -> $packageName : ${e.localizedMessage}")
+            UNKNOWN_VALUE
         }
     }
 
@@ -146,22 +156,22 @@ class AppLoungePackageManager @Inject constructor(
      */
     fun getBaseApkPath(packageName: String): String {
         val packageInfo = getPackageInfo(packageName)
-        return packageInfo?.applicationInfo?.publicSourceDir ?: ""
+        return packageInfo?.applicationInfo?.publicSourceDir ?: UNKNOWN_VALUE
     }
 
     fun getVersionCode(packageName: String): String {
         val packageInfo = getPackageInfo(packageName)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            packageInfo?.longVersionCode?.toString() ?: ""
+            packageInfo?.longVersionCode?.toString() ?: UNKNOWN_VALUE
         } else {
             @Suppress("DEPRECATION")
-            packageInfo?.versionCode?.toString() ?: ""
+            packageInfo?.versionCode?.toString() ?: UNKNOWN_VALUE
         }
     }
 
     fun getVersionName(packageName: String): String {
         val packageInfo = getPackageInfo(packageName)
-        return packageInfo?.versionName?.toString() ?: ""
+        return packageInfo?.versionName?.toString() ?: UNKNOWN_VALUE
     }
 
     /**
@@ -194,7 +204,10 @@ class AppLoungePackageManager @Inject constructor(
             )
             session.commit(servicePendingIntent.intentSender)
         } catch (e: Exception) {
-            Timber.e("Initiating Install Failed for $packageName exception: ${e.localizedMessage}", e)
+            Timber.e(
+                "Initiating Install Failed for $packageName exception: ${e.localizedMessage}",
+                e
+            )
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 sessionId,

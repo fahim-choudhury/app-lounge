@@ -50,8 +50,11 @@ class DownloadManager @Inject constructor(
 ) {
     private val downloadsMaps = HashMap<Long, Boolean>()
 
-    private val SDCARD_PATH = Environment.getExternalStorageDirectory().absolutePath
-    val EXTERNAL_STORAGE_TEMP_CACHE_DIR = "$SDCARD_PATH/Download/AppLounge/SplitInstallApks"
+    companion object {
+        private val SDCARD_PATH = Environment.getExternalStorageDirectory().absolutePath
+        val EXTERNAL_STORAGE_TEMP_CACHE_DIR = "$SDCARD_PATH/Download/AppLounge/SplitInstallApks"
+        private const val UNKNOWN_ERROR_OR_REASON = -1
+    }
 
     fun downloadFileInCache(
         url: String,
@@ -186,7 +189,8 @@ class DownloadManager @Inject constructor(
     }
 
     fun hasDownloadFailed(downloadId: Long): Boolean {
-        return getDownloadStatus(downloadId) == DownloadManager.STATUS_FAILED
+        return listOf(DownloadManager.STATUS_FAILED, UNKNOWN_ERROR_OR_REASON)
+            .contains(getDownloadStatus(downloadId))
     }
 
     fun getSizeRequired(downloadId: Long): Long {
@@ -218,8 +222,8 @@ class DownloadManager @Inject constructor(
     }
 
     private fun getDownloadStatus(downloadId: Long): Int {
-        var status = -1
-        var reason = -1
+        var status = UNKNOWN_ERROR_OR_REASON
+        var reason = UNKNOWN_ERROR_OR_REASON
         try {
             downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
                 .use { cursor ->
@@ -261,7 +265,7 @@ class DownloadManager @Inject constructor(
     }
 
     fun getDownloadFailureReason(downloadId: Long): Int {
-        var reason = -1
+        var reason = UNKNOWN_ERROR_OR_REASON
         try {
             downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
                 .use { cursor ->

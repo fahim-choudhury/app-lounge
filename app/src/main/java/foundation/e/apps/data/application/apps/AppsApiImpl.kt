@@ -114,11 +114,8 @@ class AppsApiImpl @Inject constructor(
         val applicationList = mutableListOf<Application>()
 
         for (packageName in packageNameList) {
-            val result = getCleanApkSearchResultByPackageName(packageName, applicationList)
-            status = result.getResultStatus()
-
-            if (status != ResultStatus.OK) {
-                return Pair(applicationList, status)
+            getCleanApkSearchResultByPackageName(packageName).data?.run {
+                handleCleanApkSearch(applicationList)
             }
         }
 
@@ -151,10 +148,11 @@ class AppsApiImpl @Inject constructor(
         authData: AuthData,
         applicationList: MutableList<Application>
     ) {
-        val filter = applicationDataManager.getAppFilterLevel(app.toApplication(context), authData)
+        val application = app.toApplication(context)
+        val filter = applicationDataManager.getAppFilterLevel(application, authData)
         if (filter.isUnFiltered()) {
             applicationList.add(
-                app.toApplication(context).apply {
+                application.apply {
                     filterLevel = filter
                 }
             )
@@ -163,14 +161,11 @@ class AppsApiImpl @Inject constructor(
 
     private suspend fun getCleanApkSearchResultByPackageName(
         packageName: String,
-        applicationList: MutableList<Application>
     ) = handleNetworkResult {
         appSources.cleanApkAppsRepo.getSearchResult(
             packageName,
             KEY_SEARCH_PACKAGE_NAME
-        ).body()?.run {
-            handleCleanApkSearch(applicationList)
-        }
+        ).body()
     }
 
     private suspend fun Search.handleCleanApkSearch(

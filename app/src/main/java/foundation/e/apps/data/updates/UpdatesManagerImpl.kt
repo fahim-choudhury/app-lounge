@@ -30,9 +30,11 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.fdroid.FdroidRepository
+import foundation.e.apps.data.playstore.PlayStoreRepositoryImpl
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import kotlinx.coroutines.Dispatchers
@@ -196,8 +198,9 @@ class UpdatesManagerImpl @Inject constructor(
      * Aurora Store, Apk mirror, apps installed from browser, apps from ADB etc.
      */
     private fun getAppsFromOtherStores(): List<String> {
+        val gplayAndOpenSourceInstalledApps = getGPlayInstalledApps() + getOpenSourceInstalledApps()
         return userApplications.filter {
-            it.packageName !in (getGPlayInstalledApps() + getOpenSourceInstalledApps())
+            it.packageName !in gplayAndOpenSourceInstalledApps
         }.map { it.packageName }
     }
 
@@ -225,8 +228,8 @@ class UpdatesManagerImpl @Inject constructor(
     }
 
     /**
-     * Bulk info from gplay api is not providing correct geo restriction status of apps.
-     * So we get all individual app information asynchronously.
+     * Bulk info from gplay api [PlayStoreRepositoryImpl.getAppsDetails] is not providing correct
+     * geo restriction status of apps. So we get all individual app information asynchronously.
      * Example: in.startv.hotstar.dplus
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/7135
      */
@@ -250,7 +253,7 @@ class UpdatesManagerImpl @Inject constructor(
         }
 
         val status = appsResults.find { it.second != ResultStatus.OK }?.second ?: ResultStatus.OK
-        val appsList = appsResults.map { it.first }
+        val appsList = appsResults.filter { it.first.package_name.isNotEmpty() }.map { it.first }
 
         return Pair(appsList, status)
     }
@@ -273,32 +276,40 @@ class UpdatesManagerImpl @Inject constructor(
     private suspend fun getFDroidAppsAndSignatures(installedPackageNames: List<String>): Map<String, String> {
         val appsAndSignatures = hashMapOf<String, String>()
         for (packageName in installedPackageNames) {
-            val cleanApkFusedApp = applicationRepository.getCleanapkAppDetails(packageName).first
-            if (cleanApkFusedApp.package_name.isBlank()) {
-                continue
-            }
-            appsAndSignatures[packageName] = getPgpSignature(cleanApkFusedApp)
+            updateAppsWithPGPSignature(packageName, appsAndSignatures)
         }
         return appsAndSignatures
+    }
+
+    private suspend fun updateAppsWithPGPSignature(
+        packageName: String,
+        appsAndSignatures: HashMap<String, String>
+    ) {
+            val cleanApkFusedApp = applicationRepository.getCleanapkAppDetails(packageName).first
+            if (cleanApkFusedApp.package_name.isBlank()) {
+                return
+            }
+            appsAndSignatures[packageName] = getPgpSignature(cleanApkFusedApp)
     }
 
     private suspend fun getPgpSignature(cleanApkApplication: Application): String {
         val installedVersionSignature = calculateSignatureVersion(cleanApkApplication)
 
-        val downloadInfo =
+        val downloadInfoResult = handleNetworkResult {
             applicationRepository
                 .getOSSDownloadInfo(cleanApkApplication._id, installedVersionSignature)
                 .body()?.download_data
+        }
 
-        val pgpSignature = downloadInfo?.signature ?: ""
+        val pgpSignature = downloadInfoResult.data?.signature ?: ""
 
         Timber.i(
             "Signature calculated for : ${cleanApkApplication.package_name}, " +
-                "signature version: $installedVersionSignature, " +
-                "is sig blank: ${pgpSignature.isBlank()}"
+                    "signature version: $installedVersionSignature, " +
+                    "is sig blank: ${pgpSignature.isBlank()}"
         )
 
-        return downloadInfo?.signature ?: ""
+        return pgpSignature
     }
 
     /**
@@ -314,8 +325,12 @@ class UpdatesManagerImpl @Inject constructor(
         val fDroidAppsAndSignatures = getFDroidAppsAndSignatures(installedPackageNames)
 
         val fDroidUpdatablePackageNames = fDroidAppsAndSignatures.filter {
+            if (it.value.isEmpty()) return@filter false
+
             // For each installed app also present on F-droid, check signature of base APK.
             val baseApkPath = appLoungePackageManager.getBaseApkPath(it.key)
+            if (baseApkPath.isEmpty()) return@filter false
+
             ApkSignatureManager.verifyFdroidSignature(context, baseApkPath, it.value, it.key)
         }.map { it.key }
 
@@ -358,9 +373,11 @@ class UpdatesManagerImpl @Inject constructor(
 
         // Received list has build info of the latest version at the bottom.
         // We want it at the top.
-        val builds = fdroidRepository.getBuildVersionInfo(packageName)?.asReversed() ?: return ""
+        val builds = handleNetworkResult {
+            fdroidRepository.getBuildVersionInfo(packageName)?.asReversed() ?: listOf()
+        }.data
 
-        val matchingIndex = builds.find {
+        val matchingIndex = builds?.find {
             it.versionCode == installedVersionCode && it.versionName == installedVersionName
         }?.run {
             builds.indexOf(this)
