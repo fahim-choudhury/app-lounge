@@ -32,6 +32,7 @@ import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.playstore.utils.GplayHttpRequestException
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.install.notification.StorageNotificationManager
 import foundation.e.apps.install.updates.UpdatesNotifier
@@ -155,21 +156,37 @@ class AppInstallProcessor @Inject constructor(
             fusedManagerRepository.addFusedDownloadPurchaseNeeded(fusedDownload)
             EventBus.invokeEvent(AppEvent.AppPurchaseEvent(fusedDownload))
             return false
-        } catch (e: Exception) {
-            Timber.e(
-                "Updating download Urls failed for ${fusedDownload.packageName} exception: ${e.localizedMessage}",
+        } catch (e: GplayHttpRequestException) {
+            handleUpdateDownloadError(
+                fusedDownload,
+                "${fusedDownload.packageName} code: ${e.status} exception: ${e.localizedMessage}",
                 e
             )
-            EventBus.invokeEvent(
-                AppEvent.UpdateEvent(
-                    ResultSupreme.WorkError(
-                        ResultStatus.UNKNOWN, fusedDownload
-                    )
-                )
+            return false
+        } catch (e: Exception) {
+            handleUpdateDownloadError(
+                fusedDownload,
+                "${fusedDownload.packageName} exception: ${e.localizedMessage}",
+                e
             )
             return false
         }
         return true
+    }
+
+    private suspend fun handleUpdateDownloadError(
+        fusedDownload: FusedDownload,
+        message: String,
+        e: Exception
+    ) {
+        Timber.e("Updating download Urls failed for $message", e)
+        EventBus.invokeEvent(
+            AppEvent.UpdateEvent(
+                ResultSupreme.WorkError(
+                    ResultStatus.UNKNOWN, fusedDownload
+                )
+            )
+        )
     }
 
     private suspend fun updateFusedDownloadWithAppDownloadLink(
@@ -232,7 +249,9 @@ class AppInstallProcessor @Inject constructor(
     }
 
     private fun areFilesDownloadedButNotInstalled(fusedDownload: FusedDownload) =
-        fusedDownload.areFilesDownloaded() && (!fusedManagerRepository.isFusedDownloadInstalled(fusedDownload) || fusedDownload.status == Status.INSTALLING)
+        fusedDownload.areFilesDownloaded() && (!fusedManagerRepository.isFusedDownloadInstalled(
+            fusedDownload
+        ) || fusedDownload.status == Status.INSTALLING)
 
     private suspend fun checkUpdateWork(
         fusedDownload: FusedDownload?

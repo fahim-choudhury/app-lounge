@@ -138,7 +138,7 @@ class UpdatesWorker @AssistedInject constructor(
         }
 
         if (resultStatus != ResultStatus.OK) {
-            manageRetry()
+            manageRetry(resultStatus.toString())
         } else {
             /*
              * Show notification only if enabled.
@@ -162,7 +162,7 @@ class UpdatesWorker @AssistedInject constructor(
         }
     }
 
-    private suspend fun manageRetry() {
+    private suspend fun manageRetry(extraMessage: String) {
         retryCount++
         if (retryCount == 1) {
             EventBus.invokeEvent(AppEvent.UpdateEvent(ResultSupreme.WorkError(ResultStatus.RETRY)))
@@ -172,7 +172,7 @@ class UpdatesWorker @AssistedInject constructor(
             delay(DELAY_FOR_RETRY)
             checkForUpdates()
         } else {
-            val message = "Update is aborted after trying for $MAX_RETRY_COUNT times!"
+            val message = "Update is aborted after trying for $MAX_RETRY_COUNT times! message: $extraMessage"
             Timber.e(message)
             EventBus.invokeEvent(AppEvent.UpdateEvent(ResultSupreme.WorkError(ResultStatus.UNKNOWN)))
         }
