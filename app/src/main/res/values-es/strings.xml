@@ -9,7 +9,7 @@
     <string name="trackers_title">Rastreadores</string>
     <string name="information">Información</string>
     <string name="version">Versión: <xliff:g id="version_code">%1$s</xliff:g></string>
-    <string name="updated_on">Actualizado en: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="updated_on">Ùltima actualización: <xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="min_android_version">Requiere: <xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="license">Licencia: <xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="package_name">Nombre del paquete: <xliff:g id="version_code">%1$s</xliff:g></string>
@@ -38,7 +38,7 @@
     <string name="Show_applications">Mostrar aplicaciones:</string>
     <string name="Show_common_apps">Mostrar aplicaciones comunes</string>
     <string name="show_only_open_source_apps">Mostrar aplicaciones de código abierto</string>
-    <string name="show_only_pwa_apps">Mostrar las PWA</string>
+    <string name="show_only_pwa_apps">Mostrar PWA</string>
     <string name="account">Cuenta</string>
     <string name="terms_services">Condiciones de Servicio</string>
     <string name="user_anonymous">Anónimo</string>
@@ -52,23 +52,23 @@
     <string name="retry">Reintentar</string>
     <string name="more">Más</string>
     <string name="category_icon">Icono de categoría</string>
-    <string name="preference_update_wifi_only_title">Sólo en redes sin datos móviles</string>
-    <string name="install_blocked_google">Las aplicaciones de pago aún no son compatibles con App Lounge. Tenga un poco más de paciencia, pronto será posible.</string>
+    <string name="preference_update_wifi_only_title">Sólo en redes sin contador</string>
+    <string name="install_blocked_google">Las aplicaciones de pago aún no son compatibles con App Lounge. Ten un poco más de paciencia, pronto será posible.</string>
     <string name="message_app_available_later">¡Esta aplicación estará disponible pronto!</string>
     <string name="unknown_error">¡Error desconocido!</string>
     <string name="update_all">Actualizar todas</string>
     <string name="discover">Explorar</string>
     <string name="top_updated_apps">Aplicaciones de código abierto más actualizadas</string>
     <string name="top_updated_games">Juegos de código abierto más actualizados</string>
-    <string name="popular_games_in_last_24_hours">Juegos de código abierto populares en las últimas 24 horas</string>
-    <string name="popular_apps_in_last_24_hours">Aplicaciones de código abierto populares en las últimas 24 horas</string>
-    <string name="popular_apps">Aplicaciones populares PWA</string>
-    <string name="popular_games">Juegos populares PWA</string>
+    <string name="popular_games_in_last_24_hours">Juegos de código abierto más populares en las últimas 24 horas</string>
+    <string name="popular_apps_in_last_24_hours">Aplicaciones de código abierto más populares en las últimas 24 horas</string>
+    <string name="popular_apps">Aplicaciones PWA populares</string>
+    <string name="popular_games">Juegos PWA populares</string>
     <string name="topselling_free_apps">Las mejores aplicaciones gratuitas</string>
     <string name="topselling_free_games">Los mejores juegos gratuitos</string>
-    <string name="topgrossing_apps">Aplicaciones más taquilleras</string>
-    <string name="movers_shakers_apps">Aplicaciones más populares</string>
-    <string name="movers_shakers_games">Juegos más populares</string>
+    <string name="topgrossing_apps">Las aplicaciones más taquilleras</string>
+    <string name="movers_shakers_apps">Las aplicaciones más vistas</string>
+    <string name="movers_shakers_games">Los juegos más populares</string>
     <string name="downloads">Descargas</string>
     <string name="updates">Actualizaciones</string>
     <string name="manually_install_updates_notification_text">Actualizaciones no se instalarán automáticamente</string>
@@ -78,11 +78,11 @@
     <string name="updates_notification_unmetered_network_warning">Esperando una red sin datos móviles</string>
     <string name="menu_home">Inicio</string>
     <string name="apps">Aplicaciones</string>
-    <string name="sign_in_desc">Acceder con cuenta de Google o con modo anónimo para acceder de forma privada.</string>
+    <string name="sign_in_desc">Inicia sesión con tu cuenta de Google o en modo anónimo para acceder de forma privada.</string>
     <string name="preference_update_notify_available_description">Mostrar una notificación cuando hayan actualizaciones disponibles</string>
     <string name="preference_update_wifi_only_description">Actualizar las aplicaciones automáticamente solo en redes sin datos móviles como el WI-FI</string>
     <string name="update">Actualizar</string>
-    <string name="rating_description">Puntuación sobre 5. Calculada usando las valoraciones de los usuarios de la aplicación.</string>
+    <string name="rating_description">Puntuación sobre 5. Calculado usando las calificaciones dadas por los usuarios de la aplicación.</string>
     <string name="privacy_description">El nivel de privacidad se calcula automáticamente a partir de los permisos y rastreadores detectados en las aplicaciones. Da una idea hasta qué punto es posible que una aplicación esté rastreando sus usuarios..&lt;br /&gt;&lt;br /&gt;El código fuente de su algoritmo de cálculo puede ser &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;se encontrado aquí&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;La detección de rastreadores se realiza mediante &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Privacy tools&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Puntuación sobre 10.&lt;br /&gt;&lt;br /&gt;Aprende más sobre cómo se calcula el nivel de Privacidad, sus limitaciones y cómo puedes protegerte del rastreo &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;on this page&lt;/a&gt;.</string>
     <string name="install_blocked_anonymous">Las aplicaciones de pago no se pueden instalar en modo anónimo. Inicia sesión en tu cuenta de Google para instalar aplicaciones de pago.</string>
     <plurals name="updates_notification_title">
@@ -90,7 +90,7 @@
         <item quantity="many"><xliff:g id="version_code">%1$d</xliff:g> actualizaciones disponibles</item>
         <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> actualizaciones disponibles</item>
     </plurals>
-    <string name="topgrossing_games">Juegos más taquilleros</string>
+    <string name="topgrossing_games">Los juegos más taquilleros</string>
     <string name="automatically_install_updates_notification_text">Actualizaciones se instalarán automáticamente</string>
     <string name="privacy_computed_using_text">Calculado usando &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Análisis de Privacidad Exodus</string>
     <string name="all_apps_updated">Todas las aplicaciones están actualizadas</string>
@@ -130,24 +130,24 @@
     <string name="message_last_update_triggered">Actualización de %1$s aplicaciones completada en %2$s.</string>
     <string name="discover_pwa">Explorar PWA</string>
     <string name="message_update_failure_single_app">La actualización de %1$s ha fallado debido a una regla de soporte (ubicación, versión del sistema operativo...).</string>
-    <string name="message_update_failed">Debido a un fallo temporal, no se pueden actualizar sus aplicaciones. Vuelva a intentarlo más tarde.</string>
+    <string name="message_update_failed">Debido a un fallo temporal, no se pueden actualizar todas tus aplicaciones. Vuelve a intentarlo más tarde.</string>
     <string name="message_retry">Actualizar todo ha fallado. Se harán reintentos automáticos.</string>
     <string name="update_error">¡Error de actualización!</string>
-    <string name="error_signature_mismatch">La actualización no se puede aplicar porque hay una incompatibilidad de firmas entre la actualización de %1$s y la versión instalada en su teléfono. Para solucionarlo puede desinstalar la aplicación %1$s y reinstalarla desde App Lounge. <br/><br/> Nota: Este mensaje no volverá a aparecer.</string>
+    <string name="error_signature_mismatch">La actualización no se puede aplicar porque hay una incompatibilidad de firmas entre la actualización de %1$s y la versión instalada en tu teléfono. Para solucionarlo puedes desinstalar la aplicación %1$s y reinstalarla desde App Lounge. <br/><br/> Nota: Este mensaje no volverá a aparecer.</string>
     <string name="duplicate_app_from_sources">Algunas aplicaciones propietarias pueden tener también una versión de código abierto. En ese caso, App Lounge sólo muestra la versión de código abierto, para evitar duplicados.</string>
     <string name="open_source_apps">Aplicaciones de código abierto</string>
-    <string name="why_open_source_version">¿Por qué veo la versión de código abierto\?</string>
-    <string name="gplay_data_for_oss">Google Play no se puede mostrar cuando sólo se permiten aplicaciones de código abierto.</string>
+    <string name="why_open_source_version">¿Por qué veo la versión de código abierto?</string>
+    <string name="gplay_data_for_oss">Aplicaciones de Google Play no se puede mostrar cuando sólo se permiten aplicaciones de código abierto.</string>
     <string name="show_more">Mostrar más</string>
     <string name="something_went_wrong">¡Algo salió mal!</string>
-    <string name="app_not_found">Su aplicación no fue encontrada.</string>
+    <string name="app_not_found">Tu aplicación no fue encontrada.</string>
     <string name="not_enough_storage">¡No hay suficiente espacio disponible para descargar esta aplicación!</string>
     <string name="close">Cerrar</string>
     <string name="installing">Instalando</string>
     <string name="logged_out">Desconectado</string>
     <string name="login">Iniciar sesión</string>
-    <string name="login_to_see_gplay_apps">Es necesario iniciar sesión para ver las aplicaciones comunes.</string>
-    <string name="select_one_source_of_applications">Seleccione por lo menos una fuente de aplicaciones.</string>
+    <string name="login_to_see_gplay_apps">Necesitas iniciar sesión para ver aplicaciones comunes.</string>
+    <string name="select_one_source_of_applications">Por favor selecciona por lo menos una fuente de aplicaciones.</string>
     <string name="copied">Copiado</string>
     <string name="os_version">Versión de /e/OS</string>
     <string name="app_version_label">Versión del App Lounge</string>
