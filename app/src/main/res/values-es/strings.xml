@@ -71,11 +71,11 @@
     <string name="movers_shakers_games">Los juegos más populares</string>
     <string name="downloads">Descargas</string>
     <string name="updates">Actualizaciones</string>
-    <string name="manually_install_updates_notification_text">Actualizaciones no se instalarán automáticamente</string>
+    <string name="manually_install_updates_notification_text">Las actualizaciones no se instalarán automáticamente</string>
     <string name="no_permission_found">¡No se encontró ningún permiso de ejecución de Android!</string>
     <string name="no_tracker_found">¡No se encontraron rastreadores!</string>
     <string name="no_internet_message">¡No se pudo conectar! Compruebe su conexión a internet e inténtelo de nuevo</string>
-    <string name="updates_notification_unmetered_network_warning">Esperando una red sin datos móviles</string>
+    <string name="updates_notification_unmetered_network_warning">Esperando una red sin contador</string>
     <string name="menu_home">Inicio</string>
     <string name="apps">Aplicaciones</string>
     <string name="sign_in_desc">Inicia sesión con tu cuenta de Google o en modo anónimo para acceder de forma privada.</string>
@@ -91,7 +91,7 @@
         <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> actualizaciones disponibles</item>
     </plurals>
     <string name="topgrossing_games">Los juegos más taquilleros</string>
-    <string name="automatically_install_updates_notification_text">Actualizaciones se instalarán automáticamente</string>
+    <string name="automatically_install_updates_notification_text">Las actualizaciones se instalarán automáticamente</string>
     <string name="privacy_computed_using_text">Calculado usando &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Análisis de Privacidad Exodus</string>
     <string name="all_apps_updated">Todas las aplicaciones están actualizadas</string>
     <string name="monthly">Mensual</string>
