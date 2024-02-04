@@ -74,7 +74,7 @@
     <string name="manually_install_updates_notification_text">Las actualizaciones no se instalarán automáticamente</string>
     <string name="no_permission_found">¡No se encontró ningún permiso de ejecución de Android!</string>
     <string name="no_tracker_found">¡No se encontraron rastreadores!</string>
-    <string name="no_internet_message">¡No se pudo conectar! Compruebe su conexión a internet e inténtelo de nuevo</string>
+    <string name="no_internet_message">¡No se pudo conectar! Chequea tu conexión a internet e inténtalo de nuevo</string>
     <string name="updates_notification_unmetered_network_warning">Esperando una red sin contador</string>
     <string name="menu_home">Inicio</string>
     <string name="apps">Aplicaciones</string>
@@ -96,35 +96,35 @@
     <string name="all_apps_updated">Todas las aplicaciones están actualizadas</string>
     <string name="monthly">Mensual</string>
     <string name="weekly">Semanal</string>
-    <string name="daily">Diario</string>
-    <string name="may_not_work_warning_message">Forzar la instalación permitirá la descarga e instalación, pero no le garantizará que funcione.<br/><br/>Intentar instalar aplicaciones no compatibles puede provocar fallos o ralentizar el sistema.<br/><br/>Estamos trabajando para mejorar la compatibilidad con esta aplicación en un futuro próximo.</string>
+    <string name="daily">A diario</string>
+    <string name="may_not_work_warning_message">Forzar la instalación permitirá la descarga e instalación, pero no garantiza que funcione.<br/><br/>Intentar instalar aplicaciones no compatibles puede provocar fallos o ralentizar el sistema.<br/><br/>Estamos trabajando para mejorar la compatibilidad con esta aplicación en un futuro cercano.</string>
     <string name="this_app_may_not_work_properly">¡Es posible que esta aplicación no funcione correctamente!</string>
     <string name="install_anyway">Instalar de todos modos</string>
-    <string name="unsupported_app_unreleased">La aplicación %s no es compatible actualmente. Esto puede deberse a que la aplicación aún no se ha lanzado de forma generalizada o a algún otro error.</string>
+    <string name="unsupported_app_unreleased">La aplicación %s no es compatible actualmente. Esto puede deberse a que la aplicación aún no se ha difundido ampliamente o a algún otro error.</string>
     <string name="unsupported_app_title">¡Aplicación no compatible!</string>
     <string name="purchase_error">¡Error de compra!</string>
-    <string name="download_automatically_message">Su aplicación se descargará automáticamente en este dispositivo</string>
+    <string name="download_automatically_message">Tu aplicación se descargará automáticamente en este dispositivo</string>
     <string name="purchase_complete">¡Compra completa!</string>
     <string name="paid_app_anonymous_message">Las aplicaciones de pago no se pueden instalar en modo anónimo. Inicia sesión en tu cuenta de Google para instalar aplicaciones de pago.</string>
     <string name="dialog_confirm">CONFIRMAR</string>
-    <string name="dialog_paidapp_message">Al hacer clic en confirmar, se le llevará a la página de Google Play para completar la compra de la aplicaicón a través de su navegador. Haga clic en confirmar para comprar %1$s por %2$s.</string>
+    <string name="dialog_paidapp_message">Al hacer clic en confirmar, se te llevará a la página de Google Play para completar la compra de la aplicación a través de tu navegador. Haz clic en confirmar para comprar %1$s por %2$s.</string>
     <string name="dialog_title_paid_app">Comprar <b>%1$s</b></string>
-    <string name="anonymous_login_failed_desc">Esto puede deberse a que el token no pudo ser generado / verificado u otras razones.
+    <string name="anonymous_login_failed_desc">Esto puede deberse a que el autentificador no pudo ser generado / verificado u otras razones.
 \n
-\nPulse Reintentar para probar otra vez.</string>
+\nPulsa reintentar para probar otra vez.</string>
     <string name="anonymous_login_failed">¡Error de inicio de sesión anónimo!</string>
-    <string name="sign_in_failed_desc">Debido a un error de red, App Lounge no ha podido obtener los datos de inicio de sesión de Google.</string>
+    <string name="sign_in_failed_desc">Debido a un error de red, App Lounge no pudo obtener los datos de inicio de sesión de Google.</string>
     <string name="sign_in_failed_title">¡Error en el inicio de sesión de Google!</string>
     <string name="data_load_error_desc">Esto puede deberse a que el servidor no responde o a otro error del servidor.
 \n
-\nVuelva a intentarlo o inténtelo más tarde.</string>
-    <string name="data_load_error">Ha ocurrido un error al cargar aplicaciones.</string>
+\nPrueba otra vez o inténtalo más tarde.</string>
+    <string name="data_load_error">Ocurrió un error al cargar aplicaciones.</string>
     <string name="more_info"><u>Más información</u></string>
     <string name="open_settings">Abrir ajustes</string>
     <string name="timeout_desc_cleanapk">Un problema de red está impidiendo la obtención de aplicaciones.</string>
     <string name="timeout_desc_gplay">Un problema de red está impidiendo la obtención de aplicaciones.
 \n
-\nAbra la configuración para buscar solo aplicaciones de código abierto o PWA.</string>
+\nAbre ajustes para buscar solo aplicaciones de código abierto o PWA.</string>
     <string name="timeout_title">¡Límite de tiempo buscando aplicaciones!</string>
     <string name="tracker_information_not_found">No hay información de rastreo disponible para esta aplicación.</string>
     <string name="message_last_update_triggered">Actualización de %1$s aplicaciones completada en %2$s.</string>
@@ -157,8 +157,24 @@
     <string name="free_space_for_update">Libera %1$s en tu teléfono para recibir las últimas actualizaciones.</string>
     <string name="notification_content_full_db">Por favor, libera algo de espacio en tu teléfono para que App Lounge funcione correctamente.</string>
     <string name="split_install_warning_title">Advertencia sobre %s</string>
-    <string name="split_install_warning_text">%s quiere instalar módulos adicionales. Debes iniciar sesión nuevamente en AppLounge para poder instalarlos.</string>
-    <string name="notification_channel_desc">Canal de instalación dividida</string>
-    <string name="sign_in">Acceder</string>
+    <string name="split_install_warning_text">%s quiere instalar módulos adicionales. Debes iniciar sesión en AppLounge nuevamente para poder instalarlos.</string>
+    <string name="notification_channel_desc">Canal de instalación dividido</string>
+    <string name="sign_in">Iniciar sesión</string>
     <string name="ignore">Ignorar</string>
+    <string name="downloading">Descargando…</string>
+    <string name="checking_updates">Comprobando actualizaciones...</string>
+    <string name="preference_update_apps_from_other_stores_title">Actualizar aplicaciones instaladas por otras tiendas</string>
+    <string name="request_exodus_report">Solicitar informe Exodus</string>
+    <string name="proceed_to_google_login">Acceder a Google</string>
+    <string name="request_exodus_report_confirm_dialog">Al hacer clic en \"<xliff:g id="ok">%1$s</xliff:g>\" se abrirá una nueva pestaña en tu navegador con el nombre del paquete de la aplicación ya precargado.&lt;br /&gt;&lt;br /&gt;Haz clic en \"Realizar análisis\" para iniciar el análisis por parte de Exodus. &lt;br /&gt;&lt;br /&gt;Cuando aparezca el botón \"Ver el informe\" (puede tardar un poco dependiendo de la aplicación) puedes cerrar la pestaña y volver a la descripción de la aplicación en <xliff:g id="app_name">%2$s</xliff:g> donde aparecerá la puntuación de privacidad. Algunas veces Exodus puede fallar al analizar una aplicación.&lt;br /&gt;&lt;br /&gt;Nota: la puntuación puede tardar hasta 10 min en aparecer en la descripción.</string>
+    <string name="too_many_requests_desc">La cuenta anónima que estás utilizando no está disponible. Por favor, actualiza tu sesión para obtener otra.</string>
+    <string name="having_troubles">¿Tienes problemas?</string>
+    <string name="refresh_session">ACTUALIZAR SESSION</string>
+    <string name="preference_update_apps_from_other_stores_description">Actualizar aplicaciones instaladas desde otras tiendas de aplicaciones. 
+\nSe intentará actualizar dichas aplicaciones desde la categoría de aplicaciones comunes y de código abierto.</string>
+    <string name="google_login_alert_message">"Recomendamos utilizar una cuenta de Google dedicada para:
+\n
+\n\t- mitigar el microtargeting  
+\n        - limitar el impacto en caso de que esta cuenta sea restringida por Google."</string>
+    <string name="additional_file_for">Archivo adicional para %s</string>
 </resources>
