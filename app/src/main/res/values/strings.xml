@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Apps  Quickly and easily install Android apps onto your device!
   ~ Copyright (C) 2023 MURENA SAS
@@ -15,34 +16,26 @@
   ~
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
-  -->
-
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  --><resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" translatable="false">App Lounge</string>
-
     <string name="basic_notification_channel_id" translatable="false">applounge_notification</string>
-
     <string name="warning_notification_channel_id" translatable="false">applounge_warning_notification</string>
     <string name="warning_notification_channel_title" translatable="false">Warning</string>
-
     <!-- Bottom Navigation Bar -->
     <string name="menu_home" weblate_ctx="home">Home</string>
     <string name="menu_categories" weblate_ctx="home">Categories</string>
     <string name="menu_search" weblate_ctx="home">Search</string>
     <string name="menu_updates" weblate_ctx="home">Updates</string>
     <string name="menu_settings" weblate_ctx="home">Settings</string>
-
     <!-- Search Fragment -->
     <string name="search_hint" weblate_ctx="search">Search for an app</string>
     <string name="no_apps_found">No apps found…</string>
-
     <!-- Categories Fragment -->
     <string name="apps" weblate_ctx="categories_applications">Applications</string>
     <string name="games" weblate_ctx="categories_games">Games</string>
     <string name="category_icon" weblate_ctx="categories_applications">Category Icon</string>
     <string name="open_source" weblate_ctx="categories_applications">Open Source</string>
     <string name="pwa" weblate_ctx="categories_applications">PWA</string>
-
     <!-- SignIn Fragment -->
     <string name="sign_in_title" weblate_ctx="welcome">Welcome</string>
     <string name="sign_in_desc" weblate_ctx="welcome">Sign in to App Lounge using your Google account, or select the Anonymous mode to sign in privately.</string>
@@ -50,13 +43,11 @@
     <string name="sign_in_anonymous" weblate_ctx="welcome">Anonymous mode</string>
     <string name="or" weblate_ctx="welcome">Or show only</string>
     <string name="pwa_and_open_source_apps" weblate_ctx="welcome">PWA and Open Source apps</string>
-
     <!-- TOS Fragment -->
     <string name="tos_agree" weblate_ctx="tos">Accept</string>
     <string name="tos_disagree" weblate_ctx="tos">Reject</string>
     <string name="tos_agree_date">Accepted</string>
     <string name="tos_warning" weblate_ctx="tos">Before we can proceed you must read and agree to the Terms of Service.</string>
-
     <!-- Settings Fragment -->
     <string name="preference_updates_title" weblate_ctx="settings">Updates</string>
     <string name="preference_update_interval_default">24</string>
@@ -85,7 +76,6 @@
     <string name="login_to_see_gplay_apps">You need to log in to see common apps.</string>
     <string name="login">Login</string>
     <string name="logged_out">Logged out</string>
-
     <!-- Application -->
     <string name="description">Description</string>
     <string name="ok">OK</string>
@@ -132,7 +122,6 @@
     <string name="additional_file_for">Additional file for %s</string>
     <string name="having_troubles">Having troubles?</string>
     <string name="troubleshootURL" translatable="false">https://doc.e.foundation/support-topics/app_lounge_troubleshooting</string>
-
     <!-- Updates Fragment -->
     <string name="update_all">Update All</string>
     <string name="checking_updates">Checking Updates...</string>
@@ -146,7 +135,6 @@
     <string name="message_retry">Update all has failed. Automatic retries are in progress.</string>
     <string name="message_update_failed">Due to temporary failure, your apps cannot be all updated. Please try again later.</string>
     <string name="message_update_failure_single_app">%1$s\'s update has failed due to a support rule (location, OS version…).</string>
-
     <!-- Home Fragment -->
     <string name="discover">Discover</string>
     <string name="discover_pwa">Discover PWA</string>
@@ -156,14 +144,12 @@
     <string name="popular_games_in_last_24_hours">Open Source Popular Games In Last 24 Hours</string>
     <string name="popular_apps">PWA Popular Apps</string>
     <string name="popular_games">PWA Popular Games</string>
-
     <string name="topselling_free_apps" weblate_ctx="home">Top Free Apps</string>
     <string name="topselling_free_games" weblate_ctx="home">Top Free Games</string>
     <string name="topgrossing_apps" weblate_ctx="home">Top Grossing Apps</string>
     <string name="topgrossing_games">Top Grossing Games</string>
     <string name="movers_shakers_apps">Top Trending Apps</string>
     <string name="movers_shakers_games">Top Trending Games</string>
-
     <!-- Notification -->
     <string name="downloads">Downloads</string>
     <string name="updates">Updates</string>
@@ -171,23 +157,19 @@
     <string name="manually_install_updates_notification_text">App updates will not be installed automatically</string>
     <string name="updates_notification_unmetered_network_warning">Waiting for un-metered network</string>
     <string name="message_last_update_triggered">Update of %1$s apps completed on %2$s.</string>
-
     <!-- Trackers & Permission Dialog-->
     <string name="no_permission_found">No runtime android permission found!</string>
     <string name="privacy_computed_using_text">Computed using &lt;a href="<xliff:g id="exodus">%1$s</xliff:g>"&gt; Exodus Privacy Analysis</string>
     <string name="no_tracker_found">No Tracker Found!</string>
     <string name="tracker_information_not_found">No tracker information available for this app.</string>
-
     <!-- Settings Preferences-->
     <string name="update_check_intervals" translatable="false">updateCheckIntervals</string>
     <string name="updateNotify" translatable="false">updateNotify</string>
     <string name="auto_install_enabled" translatable="false">updateInstallAuto</string>
     <string name="only_unmetered_network" translatable="false">updateUnmeteredOnly</string>
     <string name="update_apps_from_other_stores" translatable="false">updateAppsFromOtherStores</string>
-
     <!-- No Internet Fragment -->
     <string name="no_internet_message">Can\'t connect! Please check your internet connection and try again</string>
-
     <!--Timeout-->
     <string name="timeout_title">Timeout fetching applications!</string>
     <string name="timeout_desc_gplay">Some network issue is preventing fetching all applications.
@@ -196,21 +178,17 @@
     <string name="timeout_desc_cleanapk">Some network issue is preventing fetching all applications.</string>
     <string name="open_settings">Open Settings</string>
     <string name="more_info"><u>More info</u></string>
-
     <!--Too many request-->
     <string name="too_many_requests_desc">The anonymous account you\'re currently using is unavailable. Please refresh the session to get another one.</string>
     <string name="refresh_session">REFRESH SESSION</string>
-
     <!--Data load error-->
     <string name="data_load_error">Error occurred while loading apps.</string>
     <string name="data_load_error_desc">This can be because server is not responding or other server error.\n\nPlease retry to try again, or try later.</string>
-
     <!--Sign in failure-->
     <string name="sign_in_failed_title">Google sign in failed!</string>
     <string name="sign_in_failed_desc">Due to a network error, App Lounge was not able to get Google sign-in data.</string>
     <string name="anonymous_login_failed">Anonymous login failed!</string>
     <string name="anonymous_login_failed_desc">This can be because token could not be generated / verified or other reasons.\n\nPress Retry to try again.</string>
-
     <!--    paid app message-->
     <string name="dialog_title_paid_app"><![CDATA[Purchase <b>%1$s</b>]]></string>
     <string name="dialog_paidapp_message">When clicked confirm, it will take you to Google Play page for the app to complete the purchase using your browser. Click confirm to purchase %1$s for %2$s.</string>
@@ -220,28 +198,21 @@
     <string name="purchase_complete">Purchase complete!</string>
     <string name="download_automatically_message">Your app will automatically be downloaded in this device</string>
     <string name="purchase_error">Purchase error!</string>
-
     <!--Unsupported app-->
     <string name="unsupported_app_title">Unsupported app!</string>
     <string name="unsupported_app_unreleased">The app %s is currently unsupported. This can be because the app is not yet widely released, or there is some other error.</string>
     <string name="install_anyway">Install anyway</string>
     <string name="this_app_may_not_work_properly">This app may not work properly!</string>
-    <string name="may_not_work_warning_message">Forcing installation will allow you to download and install it, but it won\'t guarantee that it will work.&lt;br /&gt;&lt;br /&gt;Attempting to install unsupported apps may cause crashes or slow down the system.&lt;br /&gt;&lt;br /&gt;We\'re working on improving compatiblity with this application in a near future.</string>
-
+    <string name="may_not_work_warning_message">Forcing installation will allow you to download and install it, but it won\'t guarantee that it will work.<br/><br/>Attempting to install unsupported apps may cause crashes or slow down the system.<br/><br/>We\'re working on improving compatibility with this application in a near future.</string>
     <string name="daily">Daily</string>
     <string name="weekly">Weekly</string>
     <string name="monthly">Monthly</string>
-
     <string name="google_login_alert_message">We recommend using a dedicated Google account to:\n\n\t\u2022 mitigate micro-targeting\n\t\u2022 limit impact in case this account is restricted by Google</string>
     <string name="proceed_to_google_login">Proceed to Google login</string>
-
     <string name="request_exodus_report">Request Exodus report</string>
     <string name="request_exodus_report_confirm_dialog">Clicking on \"<xliff:g id="ok">%1$s</xliff:g>\" will open a tab in your browser with the app\'s package name prefilled.&lt;br /&gt;&lt;br /&gt;Click on \"Perform analysis\" to start the analysis by Exodus.&lt;br /&gt;&lt;br /&gt;When the button \"See the report\" is displayed (it can take a while depending on the app) you can close the tab and go back to the app description in <xliff:g id="app_name">%2$s</xliff:g> where you should see the Privacy Score. Sometimes Exodus can fail to analyze the app.&lt;br /&gt;&lt;br /&gt;NB: it can take up to 10 min for the score to be displayed in the app description.</string>
-
     <string name="free_space_for_update">Free up %1$s on your phone to get the latest updates.</string>
-
     <string name="notification_content_full_db">Please free up some space on your phone so App Lounge can work properly.</string>
-
     <!--Split install-->
     <string name="split_install_warning_title">Warning regarding %s</string>
     <string name="split_install_warning_text">%s wants to install extra modules. You must sign in again to AppLounge to be able to install them.</string>
