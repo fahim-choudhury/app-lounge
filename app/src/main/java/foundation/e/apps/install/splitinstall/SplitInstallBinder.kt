@@ -60,7 +60,7 @@ class SplitInstallBinder(
     companion object {
         const val TAG = "SplitInstallerBinder"
         const val AUTH_DATA_ERROR_MESSAGE = "Could not get auth data"
-        const val NOTIFICATION_CHANNEL = "SplitInstallAppLounge"
+        const val NOTIFICATION_CHANNEL = "Dynamic module install"
         const val NOTIFICATION_ID_KEY = "notification_id_key"
         const val PACKAGE_NAME_KEY = "package_name_key"
         const val PREFERENCES_FILE_NAME = "packages_to_ignore"
