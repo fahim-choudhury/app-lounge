@@ -26,7 +26,6 @@ import androidx.core.content.pm.PackageInfoCompat
 class NativeGsfVersionProvider(context: Context) {
     private var gsfVersionCode = 0
     private var vendingVersionCode = 0
-    private var vendingVersionString = ""
     private val packageManager = context.packageManager
 
     init {
@@ -39,7 +38,6 @@ class NativeGsfVersionProvider(context: Context) {
         try {
             val vendingPkgInfo = packageManager.getPackageInfo(GOOGLE_VENDING_PACKAGE_ID, 0)
             vendingVersionCode = PackageInfoCompat.getLongVersionCode(vendingPkgInfo).toInt()
-            vendingVersionString = vendingPkgInfo.versionName
         } catch (e: PackageManager.NameNotFoundException) {
             // com.android.vending not found
         }
@@ -59,11 +57,8 @@ class NativeGsfVersionProvider(context: Context) {
             vendingVersionCode
     }
 
-    fun getVendingVersionString(defaultIfNotFound: Boolean): String {
-        return if (defaultIfNotFound && vendingVersionCode < GOOGLE_VENDING_VERSION_CODE)
-            GOOGLE_VENDING_VERSION_STRING
-        else
-            vendingVersionString
+    fun getVendingVersionString(): String {
+        return GOOGLE_VENDING_VERSION_STRING
     }
 
     companion object {
