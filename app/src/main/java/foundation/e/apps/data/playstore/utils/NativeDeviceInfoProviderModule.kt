@@ -65,7 +65,7 @@ object NativeDeviceInfoProviderModule {
         setProperty("Client", "android-google")
         setProperty("GSF.version", "${gsfVersionProvider.getGsfVersionCode(true)}")
         setProperty("Vending.version", "${gsfVersionProvider.getVendingVersionCode(true)}")
-        setProperty("Vending.versionString", gsfVersionProvider.getVendingVersionString(true))
+        setProperty("Vending.versionString", gsfVersionProvider.getVendingVersionString())
     }
 
     private fun Properties.setGLExtensions(context: Context) {
