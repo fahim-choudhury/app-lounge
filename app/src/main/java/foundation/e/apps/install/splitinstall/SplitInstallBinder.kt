@@ -27,7 +27,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -44,6 +43,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Collections
+import java.util.TreeSet
 
 class SplitInstallBinder(
     val context: Context,
@@ -59,8 +60,11 @@ class SplitInstallBinder(
     companion object {
         const val TAG = "SplitInstallerBinder"
         const val AUTH_DATA_ERROR_MESSAGE = "Could not get auth data"
-        const val NOTIFICATION_CHANNEL = "SplitInstallAppLounge"
+        const val NOTIFICATION_CHANNEL = "Dynamic module install"
         const val NOTIFICATION_ID_KEY = "notification_id_key"
+        const val PACKAGE_NAME_KEY = "package_name_key"
+        const val PREFERENCES_FILE_NAME = "packages_to_ignore"
+        const val PACKAGES_LIST_KEY = "packages_list_key"
     }
 
     override fun installSplitModule(packageName: String, moduleName: String) {
@@ -120,6 +124,10 @@ class SplitInstallBinder(
             return
         }
 
+        val preferences = context.getSharedPreferences(PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
+        val ignoreList = preferences.getStringSet(PACKAGES_LIST_KEY, Collections.emptySet())
+        if (ignoreList != null && packageName in ignoreList) return
+
         val appInfo = context.packageManager.getPackageInfo(packageName, 0).applicationInfo
         val appLabel = context.packageManager.getApplicationLabel(appInfo)
         val callerUid = appInfo.uid
@@ -145,7 +153,7 @@ class SplitInstallBinder(
                 NotificationCompat.Action.Builder(
                     null,
                     context.getString(R.string.ignore),
-                    buildIgnorePendingIntent(callerUid)
+                    buildIgnorePendingIntent(callerUid, packageName)
                 ).build()
             )
 
@@ -154,9 +162,11 @@ class SplitInstallBinder(
         }
     }
 
-    private fun buildIgnorePendingIntent(callerUid: Int): PendingIntent {
+    private fun buildIgnorePendingIntent(callerUid: Int, packageName: String): PendingIntent {
+
         val ignoreIntent = Intent(context, IgnoreReceiver::class.java).apply {
             putExtra(NOTIFICATION_ID_KEY, callerUid)
+            putExtra(PACKAGE_NAME_KEY, packageName)
         }
 
         return PendingIntent.getBroadcast(
@@ -243,6 +253,7 @@ class SplitInstallBinder(
     }
 
     class IgnoreReceiver: BroadcastReceiver() {
+
         override fun onReceive(context: Context?, intent: Intent?) {
             if (context == null || intent == null) {
                 return
@@ -251,6 +262,19 @@ class SplitInstallBinder(
             NotificationManagerCompat.from(context).cancel(
                 intent.getIntExtra(NOTIFICATION_ID_KEY, -1)
             )
+
+            val packageName = intent.getStringExtra(PACKAGE_NAME_KEY) ?: return
+            val preferences = context.getSharedPreferences(
+                PREFERENCES_FILE_NAME,
+                Context.MODE_PRIVATE
+            )
+
+            val ignoreList = preferences.getStringSet(PACKAGES_LIST_KEY, Collections.emptySet())
+                ?: Collections.emptySet()
+            
+            val newList = TreeSet(ignoreList)
+            newList.add(packageName)
+            preferences.edit().putStringSet(PACKAGES_LIST_KEY, newList).apply()
         }
     }
 
