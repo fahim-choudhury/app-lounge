@@ -72,7 +72,7 @@
     <string name="close">Lukk</string>
     <string name="retry">Prøv igjen</string>
     <string name="open">Åpen</string>
-    <string name="app_icon">Applikasjon-ikon</string>
+    <string name="app_icon">Applikasjonsikon</string>
     <string name="cancel">Avbryt</string>
     <string name="installing">Installerer</string>
     <string name="install">Installer</string>
@@ -81,7 +81,7 @@
     <string name="login">Logg inn</string>
     <string name="select_one_source_of_applications">Vennligst velg minst én applikasjonskilde.</string>
     <string name="logout">Logg ut</string>
-    <string name="search_hint">Søk etter applikasjon</string>
+    <string name="search_hint">Søk etter en applikasjon</string>
     <string name="menu_settings">Innstillinger</string>
     <string name="menu_updates">Oppdateringer</string>
     <string name="menu_search">Søk</string>
@@ -102,7 +102,7 @@
     <string name="preference_update_install_automatically_description">Last ned og installer applikasjonsoppdateringer i bakgrunnen</string>
     <string name="preference_update_install_automatically_title">Installer oppdateringer automatisk</string>
     <string name="preference_update_wifi_only_title">Kun på ubegrensede nettverk</string>
-    <string name="preference_update_wifi_only_description">Oppdater applikasjoner kun på ubegrensede nettverk som f.eks. Wi-Fi</string>
+    <string name="preference_update_wifi_only_description">Oppdater applikasjoner kun på ubegrensede nettverk som f.eks. WiFi</string>
     <string name="preference_update_interval_default">24</string>
     <string name="preference_updates_title">Oppdateringer</string>
     <string name="tos_warning">Før vi kan gå videre må du lese og godta bruksvilkårene.</string>
