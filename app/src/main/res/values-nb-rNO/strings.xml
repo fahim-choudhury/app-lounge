@@ -6,8 +6,8 @@
     <string name="may_not_work_warning_message">Å tvinge gjennom installering vil gjøre deg istand til å laste ned og installere den, men det vil ikke garantere at den vil fungere.<br/><br/>Forsøk på å installere ustøttede applikasjoner kan føre til systemkrasj eller tregere system.<br/><br/>Vi jobber med å forbedre kompabiliteten med denne applikasjonen i nær framtid.</string>
     <string name="this_app_may_not_work_properly">Denne applikasjonen kan potensielt ikke fungere som den skal!</string>
     <string name="install_anyway">Installer allikevel</string>
-    <string name="unsupported_app_unreleased">Applikasjonen %s er for øyeblikket ikke støttet. Dette kan være fordi applikasjonen ikke er tilgjengelig for alle, eller at det er en annen feil.</string>
-    <string name="unsupported_app_title">Applikasjon støttes ikke!</string>
+    <string name="unsupported_app_unreleased">Applikasjonen %s er for øyeblikket ikke støttet. Dette kan være fordi applikasjonen ikke er tilgjengelig for alle ennå, eller at det er en annen feil.</string>
+    <string name="unsupported_app_title">Applikasjonen støttes ikke!</string>
     <string name="download_automatically_message">Applikasjonen din vil bli lastet ned automatisk på denne enheten</string>
     <string name="purchase_complete">Kjøp fullført!</string>
     <string name="dialog_title_paid_app">Kjøp <b>%1$s</b></string>
@@ -38,8 +38,8 @@
     <string name="downloads">Nedlastinger</string>
     <string name="discover_pwa">Oppdag PWA</string>
     <string name="discover">Oppdag</string>
-    <string name="message_update_failure_single_app">%1$s sin oppdatering har mislyktes på grunn av et misforhold (posisjon, operativsystemversjon…).</string>
-    <string name="message_update_failed">På gunn av midlertidig feil kan ikke alle dine applikasjoner bli oppdatert. Prøv igjen senere.</string>
+    <string name="message_update_failure_single_app">%1$s sin oppdatering har mislyktes på grunn av et misforhold (lokasjon, operativsystemversjon…).</string>
+    <string name="message_update_failed">På gunn av en midlertidig feil kan ikke alle dine applikasjoner bli oppdatert. Prøv igjen senere.</string>
     <string name="update_error">Oppdateringsfeil!</string>
     <string name="all_apps_updated">Alle applikasjoner er oppdatert</string>
     <plurals name="updates_notification_title">
@@ -166,9 +166,14 @@
     <string name="proceed_to_google_login">Fortsett til Google-pålogging</string>
     <string name="google_login_alert_message">Vi anbefaler å bruke en dedikert Google-konto for å:
 \n
-\n\t• redusere mikromålretting
-\n\t• begrense effekten i tilfelle denne kontoen er begrenset av Google</string>
+\n\t• redusere risikoen for kartlegging av din aktivitet
+\n\t• begrense effekten i tilfelle denne kontoen blir begrenset av Google</string>
     <string name="free_space_for_update">Frigjør %1$s på telefonen for å kunne få de nyeste oppdateringene.</string>
     <string name="notification_content_full_db">Vennligst frigjør litt plass på telefonen din slik at App Lounge kan fungere som den skal.</string>
-    <string name="request_exodus_report_confirm_dialog">Ved å klikke på \"<xliff:g id="ok">%1$s</xliff:g>\" åpnes det en fane i nettleseren din med applikasjonens pakkenavn forhåndsutfylt.&lt;br /&gt;&lt;br /&gt;Klikk på \"Utfør analyse\" for å starte analysen i Exodus.&lt;br /&gt;&lt;br /&gt;Når knappen \"Se rapport\" vises (det kan ta en stund avhengig av applikasjon) kan du lukke fanen og gå tilbake til appbeskrivelsen i <xliff:g id="app_name">%2$s</xliff:g> hvor du skulle se personvernscoren. Noen ganger kan Exodus mislykkes i å analysere applikasjonen.&lt;br /&gt;&lt;br /&gt;NB: det kan ta opptil 10 minutter før personvernscoren vises i appbeskrivelsen.</string>
+    <string name="request_exodus_report_confirm_dialog">Ved å klikke på \"<xliff:g id="ok">%1$s</xliff:g>\" åpnes det en fane i nettleseren din med applikasjonens pakkenavn forhåndsutfylt.&lt;br /&gt;&lt;br /&gt;Klikk på \"Utfør analyse\" for å starte analysen i Exodus.&lt;br /&gt;&lt;br /&gt;Når knappen \"Se rapport\" vises (det kan ta en stund avhengig av applikasjon) kan du lukke fanen og gå tilbake til appbeskrivelsen i <xliff:g id="app_name">%2$s</xliff:g> hvor du skulle se personvernscoren. Noen ganger kan Exodus mislykkes i å analysere applikasjonen.&lt;br /&gt;&lt;br /&gt;Merk: det kan ta opptil 10 minutter før personvernscoren vises i appbeskrivelsen.</string>
+    <string name="ignore">Ignorer</string>
+    <string name="notification_channel_desc">Delt installasjonskanal</string>
+    <string name="split_install_warning_title">Advarsel angående %s</string>
+    <string name="split_install_warning_text">%s vil installere ekstra moduler. Du må logge inn på App Lounge på nytt for å kunne installere dem.</string>
+    <string name="sign_in">Logg inn</string>
 </resources>
