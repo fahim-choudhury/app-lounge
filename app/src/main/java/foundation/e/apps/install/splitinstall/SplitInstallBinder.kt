@@ -106,7 +106,7 @@ class SplitInstallBinder(
         val notificationChannel = NotificationChannel(
             NOTIFICATION_CHANNEL,
             NOTIFICATION_CHANNEL,
-            NotificationManager.IMPORTANCE_HIGH
+            NotificationManager.IMPORTANCE_LOW
         ).apply {
             description = descriptionText
         }
@@ -140,7 +140,6 @@ class SplitInstallBinder(
             .setSmallIcon(R.drawable.app_lounge_notification_icon)
             .setContentTitle(context.getString(R.string.split_install_warning_title, appLabel))
             .setContentText(contentText)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
             .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
             .addAction(
                 NotificationCompat.Action.Builder(
