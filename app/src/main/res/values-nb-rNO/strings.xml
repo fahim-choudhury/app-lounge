@@ -62,7 +62,7 @@
     <string name="updated_on">Oppdatert: <xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="version">Versjon: <xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="information">Informasjon</string>
-    <string name="trackers_title">Sporere</string>
+    <string name="trackers_title">Spioner</string>
     <string name="permissions">Tillatelser</string>
     <string name="privacy_analyses">Personvernsanalyser</string>
     <string name="privacy">Personvern</string>
