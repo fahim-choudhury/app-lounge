@@ -64,7 +64,7 @@ object NativeDeviceInfoProviderModule {
         val gsfVersionProvider = NativeGsfVersionProvider(context)
         setProperty("Client", "android-google")
         setProperty("GSF.version", "${gsfVersionProvider.getGsfVersionCode(true)}")
-        setProperty("Vending.version", "${gsfVersionProvider.getVendingVersionCode(true)}")
+        setProperty("Vending.version", "${gsfVersionProvider.getVendingVersionCode()}")
         setProperty("Vending.versionString", gsfVersionProvider.getVendingVersionString())
     }
 
