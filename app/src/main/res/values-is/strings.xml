@@ -171,9 +171,4 @@
     <string name="free_space_for_update">Losaðu um %1$s pláss á símanum þínum til að fá nýjustu uppfærslur.</string>
     <string name="checking_updates">Athuga með uppfærslur...</string>
     <string name="notification_content_full_db">Losaðu um svolítið pláss á símanum þínum svo App Lounge geti virkað eðlilega.</string>
-    <string name="ignore">Hunsa</string>
-    <string name="notification_channel_desc">Skipta upp uppsetningarás</string>
-    <string name="split_install_warning_title">Aðvörun viðkomandi %s</string>
-    <string name="split_install_warning_text">%s vill fá að setja upp viðbótareiningar.Þú þarft að skrá þig aftur inn í AppLounge til að geta sett þær inn.</string>
-    <string name="sign_in">Skrá inn</string>
 </resources>

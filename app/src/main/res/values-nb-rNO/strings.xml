@@ -171,9 +171,4 @@
     <string name="free_space_for_update">Frigjør %1$s på telefonen for å kunne få de nyeste oppdateringene.</string>
     <string name="notification_content_full_db">Vennligst frigjør litt plass på telefonen din slik at App Lounge kan fungere som den skal.</string>
     <string name="request_exodus_report_confirm_dialog">Ved å klikke på \"<xliff:g id="ok">%1$s</xliff:g>\" åpnes det en fane i nettleseren din med applikasjonens pakkenavn forhåndsutfylt.&lt;br /&gt;&lt;br /&gt;Klikk på \"Utfør analyse\" for å starte analysen i Exodus.&lt;br /&gt;&lt;br /&gt;Når knappen \"Se rapport\" vises (det kan ta en stund avhengig av applikasjon) kan du lukke fanen og gå tilbake til appbeskrivelsen i <xliff:g id="app_name">%2$s</xliff:g> hvor du skulle se personvernscoren. Noen ganger kan Exodus mislykkes i å analysere applikasjonen.&lt;br /&gt;&lt;br /&gt;Merk: det kan ta opptil 10 minutter før personvernscoren vises i appbeskrivelsen.</string>
-    <string name="ignore">Ignorer</string>
-    <string name="notification_channel_desc">Delt installasjonskanal</string>
-    <string name="split_install_warning_title">Advarsel angående %s</string>
-    <string name="split_install_warning_text">%s vil installere ekstra moduler. Du må logge inn på App Lounge på nytt for å kunne installere dem.</string>
-    <string name="sign_in">Logg inn</string>
 </resources>
