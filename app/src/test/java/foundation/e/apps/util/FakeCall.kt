@@ -29,6 +29,7 @@ import okio.Timeout
 class FakeCall : Call {
 
     var willThrow401 = false
+    var willThrow429 = false
 
     companion object {
         const val FAKE_URL = "https://abc.abc"
@@ -48,16 +49,18 @@ class FakeCall : Call {
     }
 
     override fun execute(): Response {
+        val builder = Response.Builder()
+            .request(fakeRequest)
+            .protocol(Protocol.HTTP_2)
+            .message("")
+            .code(401)
+            .body("".toResponseBody())
         if (willThrow401) {
-            return Response.Builder()
-                .request(fakeRequest)
-                .protocol(Protocol.HTTP_2)
-                .message("")
-                .code(401)
-                .body("".toResponseBody())
-                .build()
+            builder.code(401)
+        } else if (willThrow429) {
+            builder.code(429)
         }
-        return Response.Builder().build()
+        return builder.build()
     }
 
     override fun isCanceled(): Boolean {

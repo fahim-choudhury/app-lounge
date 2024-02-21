@@ -56,8 +56,8 @@ class GPlayHttpClient @Inject constructor(
         private const val HTTP_TIMEOUT_IN_SECOND = 10L
         private const val SEARCH_SUGGEST = "searchSuggest"
         private const val STATUS_CODE_OK = 200
-        private const val STATUS_CODE_UNAUTHORIZED = 401
-        private const val STATUS_CODE_TOO_MANY_REQUESTS = 429
+        const val STATUS_CODE_UNAUTHORIZED = 401
+        const val STATUS_CODE_TOO_MANY_REQUESTS = 429
         private const val URL_SUBSTRING_PURCHASE = "purchase"
         const val STATUS_CODE_TIMEOUT = 408
     }
