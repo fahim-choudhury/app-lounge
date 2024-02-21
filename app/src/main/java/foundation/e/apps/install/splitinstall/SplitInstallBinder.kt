@@ -71,15 +71,11 @@ class SplitInstallBinder(
         try {
             coroutineScope.launch {
                 authenticatorRepository.getValidatedAuthData()
-            }
-
-            if (authenticatorRepository.gplayAuth == null) {
-                Timber.w(AUTH_DATA_ERROR_MESSAGE)
-                handleError(packageName)
-                return
-            }
-
-            coroutineScope.launch {
+                if (authenticatorRepository.gplayAuth == null) {
+                    Timber.w(AUTH_DATA_ERROR_MESSAGE)
+                    handleError(packageName)
+                    return@launch
+                }
                 downloadModule(packageName, moduleName)
             }
         } catch (exception: GPlayLoginException) {
