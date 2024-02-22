@@ -115,7 +115,7 @@ class GplyHttpClientTest {
     @Test
     fun testPostAuthFailedWhenStatus401() = runTest {
         initMocksForStatus401()
-        val response = gPlayHttpClient.postAuth("http://abc.abc", "".toByteArray())
+        val response = gPlayHttpClient.postAuth(FakeCall.FAKE_URL, "".toByteArray())
         assertResponse(response)
     }
 
@@ -123,7 +123,7 @@ class GplyHttpClientTest {
     fun testPostAuthFailedWhenStatus429() = runTest {
         initMocksForStatus429()
         try {
-            gPlayHttpClient.postAuth("http://abc.abc", "".toByteArray())
+            gPlayHttpClient.postAuth(FakeCall.FAKE_URL, "".toByteArray())
         } catch (e: Exception) {
             assert429(e)
         }

@@ -32,7 +32,7 @@ class FakeCall : Call {
     var willThrow429 = false
 
     companion object {
-        const val FAKE_URL = "https://abc.abc"
+        const val FAKE_URL = "https://murena.test"
     }
 
     private val fakeRequest = Request.Builder().url(FAKE_URL).build()
@@ -55,11 +55,13 @@ class FakeCall : Call {
             .message("")
             .code(401)
             .body("".toResponseBody())
+
         if (willThrow401) {
             builder.code(401)
         } else if (willThrow429) {
             builder.code(429)
         }
+
         return builder.build()
     }
 
