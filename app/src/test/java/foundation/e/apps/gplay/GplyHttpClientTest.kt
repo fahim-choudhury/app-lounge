@@ -21,6 +21,7 @@ package foundation.e.apps.gplay
 import com.aurora.gplayapi.data.models.PlayResponse
 import foundation.e.apps.data.playstore.utils.GPlayHttpClient
 import foundation.e.apps.data.login.AuthObject
+import foundation.e.apps.data.playstore.utils.GplayHttpRequestException
 import foundation.e.apps.util.FakeCall
 import foundation.e.apps.util.MainCoroutineRule
 import foundation.e.apps.utils.SystemInfoProvider
@@ -71,62 +72,109 @@ class GplyHttpClientTest {
 
     @Test
     fun testPostWithMapFailedWhenStatus401() = runTest {
-        initMocks()
+        initMocksForStatus401()
         val response = gPlayHttpClient.post("http://abc.abc", mapOf(), mapOf())
         assertResponse(response)
     }
 
     @Test
     fun testPostWithRequestBodyFailedWhenStatus401() = runTest {
-        initMocks()
+        initMocksForStatus401()
         val response = gPlayHttpClient.post("http://abc.abc", mapOf(), "".toRequestBody())
         assertResponse(response)
     }
 
     @Test
     fun testPostWithByteArrayFailedWhenStatus401() = runTest {
-        initMocks()
+        initMocksForStatus401()
         val response = gPlayHttpClient.post("http://abc.abc", mapOf(), "".toByteArray())
         assertResponse(response)
     }
 
     @Test
     fun testGetWithoutParamsFailedWhenStatus401() = runTest {
-        initMocks()
+        initMocksForStatus401()
         val response = gPlayHttpClient.get(FakeCall.FAKE_URL, mapOf())
         assertResponse(response)
     }
 
     @Test
     fun testGetWithStringParamsFailedWhenStatus401() = runTest {
-        initMocks()
+        initMocksForStatus401()
         val response = gPlayHttpClient.get(FakeCall.FAKE_URL, mapOf(), "")
         assertResponse(response)
     }
 
     @Test
     fun testGetWithMapParamsFailedWhenStatus401() = runTest {
-        initMocks()
+        initMocksForStatus401()
         val response = gPlayHttpClient.get(FakeCall.FAKE_URL, mapOf(), mapOf())
         assertResponse(response)
     }
 
     @Test
     fun testPostAuthFailedWhenStatus401() = runTest {
-        initMocks()
-        val response = gPlayHttpClient.postAuth("http://abc.abc", "".toByteArray())
+        initMocksForStatus401()
+        val response = gPlayHttpClient.postAuth(FakeCall.FAKE_URL, "".toByteArray())
         assertResponse(response)
     }
 
-    private fun initMocks() {
+    @Test
+    fun testPostAuthFailedWhenStatus429() = runTest {
+        initMocksForStatus429()
+        try {
+            gPlayHttpClient.postAuth(FakeCall.FAKE_URL, "".toByteArray())
+        } catch (e: Exception) {
+            assert429(e)
+        }
+    }
+
+    @Test
+    fun testGetWithMapParamsFailedWhenStatus429() = runTest {
+        initMocksForStatus429()
+        try {
+            gPlayHttpClient.get(FakeCall.FAKE_URL, mapOf(), mapOf())
+        } catch (e: Exception) {
+            assert429(e)
+        }
+    }
+
+    @Test
+    fun testGetWithStringParamsFailedWhenStatus429() = runTest {
+        initMocksForStatus429()
+        try {
+            gPlayHttpClient.get(FakeCall.FAKE_URL, mapOf(), "")
+        } catch (e: Exception) {
+            assert429(e)
+        }
+    }
+
+    private fun initMocksForStatus401() {
         call.willThrow401 = true
         mockkObject(SystemInfoProvider)
         every { SystemInfoProvider.getAppBuildInfo() } returns ""
         Mockito.`when`(okHttpClient.newCall(any())).thenReturn(call)
     }
-    private suspend fun assertResponse(response: PlayResponse) {
+
+    private suspend fun assert429(e: Exception) {
+        assertTrue(
+            "Status429",
+            e is GplayHttpRequestException && e.status == GPlayHttpClient.STATUS_CODE_TOO_MANY_REQUESTS
+        )
+        val event = EventBus.events.first()
+        assertTrue(event is AppEvent.TooManyRequests)
+    }
+
+    private fun initMocksForStatus429() {
+        call.willThrow429 = true
+        mockkObject(SystemInfoProvider)
+        every { SystemInfoProvider.getAppBuildInfo() } returns ""
+        Mockito.`when`(okHttpClient.newCall(any())).thenReturn(call)
+    }
+
+    private suspend fun assertResponse(response: PlayResponse, statusValue: Int = 401) {
         assertFalse(response.isSuccessful)
-        assertTrue(response.code == 401)
+        assertTrue(response.code == statusValue)
         val event = EventBus.events.first()
         assertTrue(event is AppEvent.InvalidAuthEvent)
         assertTrue(event.data is String)
