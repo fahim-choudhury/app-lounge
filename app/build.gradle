@@ -234,9 +234,11 @@ dependencies {
 
     // Coroutines
     def coroutines_version = "1.6.0"
+    def test_kotlin_version = "1.6.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$test_kotlin_version"
 
     // Room
     def roomVersion = "2.4.1"

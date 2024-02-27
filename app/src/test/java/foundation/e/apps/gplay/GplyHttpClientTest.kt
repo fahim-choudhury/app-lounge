@@ -44,6 +44,7 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
+import kotlin.test.assertFailsWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class GplyHttpClientTest {
@@ -122,31 +123,28 @@ class GplyHttpClientTest {
     @Test
     fun testPostAuthFailedWhenStatus429() = runTest {
         initMocksForStatus429()
-        try {
-            gPlayHttpClient.postAuth(FakeCall.FAKE_URL, "".toByteArray())
-        } catch (e: Exception) {
-            assert429(e)
+        val exception = assertFailsWith<GplayHttpRequestException> {
+            gPlayHttpClient.get(FakeCall.FAKE_URL, mapOf(), mapOf())
         }
+        assert429(exception)
     }
 
     @Test
     fun testGetWithMapParamsFailedWhenStatus429() = runTest {
         initMocksForStatus429()
-        try {
+        val exception = assertFailsWith<GplayHttpRequestException> {
             gPlayHttpClient.get(FakeCall.FAKE_URL, mapOf(), mapOf())
-        } catch (e: Exception) {
-            assert429(e)
         }
+        assert429(exception)
     }
 
     @Test
     fun testGetWithStringParamsFailedWhenStatus429() = runTest {
         initMocksForStatus429()
-        try {
-            gPlayHttpClient.get(FakeCall.FAKE_URL, mapOf(), "")
-        } catch (e: Exception) {
-            assert429(e)
+        val exception = assertFailsWith<GplayHttpRequestException> {
+            gPlayHttpClient.get(FakeCall.FAKE_URL, mapOf(), mapOf())
         }
+        assert429(exception)
     }
 
     private fun initMocksForStatus401() {
@@ -157,10 +155,7 @@ class GplyHttpClientTest {
     }
 
     private suspend fun assert429(e: Exception) {
-        assertTrue(
-            "Status429",
-            e is GplayHttpRequestException && e.status == GPlayHttpClient.STATUS_CODE_TOO_MANY_REQUESTS
-        )
+        assertTrue(e is GplayHttpRequestException && e.status == GPlayHttpClient.STATUS_CODE_TOO_MANY_REQUESTS)
         val event = EventBus.events.first()
         assertTrue(event is AppEvent.TooManyRequests)
     }
