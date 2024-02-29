@@ -43,6 +43,9 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class GPlayHttpClient @Inject constructor(
     private val cache: Cache,
@@ -60,7 +63,13 @@ class GPlayHttpClient @Inject constructor(
         const val STATUS_CODE_TOO_MANY_REQUESTS = 429
         private const val URL_SUBSTRING_PURCHASE = "purchase"
         const val STATUS_CODE_TIMEOUT = 408
+        private const val INITIAL_RESPONSE_CODE = 100
     }
+
+
+    private val _responseCode = MutableStateFlow(INITIAL_RESPONSE_CODE)
+    override val responseCode: StateFlow<Int>
+        get() = _responseCode.asStateFlow()
 
     @VisibleForTesting
     var okHttpClient = OkHttpClient().newBuilder()
@@ -161,6 +170,8 @@ class GPlayHttpClient @Inject constructor(
     }
 
     private fun processRequest(request: Request): PlayResponse {
+        // Reset response code as flow doesn't sends the same value twice
+        _responseCode.value = 0
         var response: Response? = null
         return try {
             val call = okHttpClient.newCall(request)
@@ -225,6 +236,8 @@ class GPlayHttpClient @Inject constructor(
             if (!isSuccessful) {
                 errorString = response.message
             }
+
+            _responseCode.value = response.code
         }
     }
 }
