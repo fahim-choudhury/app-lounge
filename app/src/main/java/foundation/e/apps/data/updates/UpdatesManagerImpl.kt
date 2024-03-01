@@ -185,7 +185,7 @@ class UpdatesManagerImpl @Inject constructor(
                 return@forEach
             }
 
-            if (!pkgManagerModule.isInstalled(it.packageName)) {
+            if (!appLoungePackageManager.isInstalled(it.packageName)) {
                 // Don't install for system apps which are removed (by root or otherwise)
                 return@forEach
             }

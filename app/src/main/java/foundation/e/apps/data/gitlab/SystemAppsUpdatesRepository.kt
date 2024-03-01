@@ -17,7 +17,7 @@
 
 package foundation.e.apps.data.gitlab
 
-import foundation.e.apps.data.application.ApplicationApi
+import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.gitlab.models.EligibleSystemApps
 import foundation.e.apps.data.gitlab.models.toApplication
@@ -28,7 +28,7 @@ import timber.log.Timber
 @Singleton
 class SystemAppsUpdatesRepository @Inject constructor(
     private val systemAppsUpdatesApi: SystemAppsUpdatesApi,
-    private val applicationApi: ApplicationApi,
+    private val applicationDataManager: ApplicationDataManager,
 ) {
 
     suspend fun getAllEligibleApps(): List<EligibleSystemApps>? {
@@ -72,7 +72,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
             }
             else -> {
                 val app = updateDef.toApplication()
-                app.status = applicationApi.getFusedAppInstallationStatus(app)
+                app.status = applicationDataManager.getFusedAppInstallationStatus(app)
                 app
             }
         }
