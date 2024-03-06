@@ -126,15 +126,19 @@ class UpdatesManagerImpl @Inject constructor(
             status = if (status == ResultStatus.OK) status else gplayStatus
         }
 
-        val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
+        val systemApps = mutableListOf<Application>()
 
         getUpdatesFromApi({
-            val systemApps = getSystemUpdates().toMutableList()
-            putAppLoungeAtLast(systemApps)
-            Pair(systemApps, ResultStatus.OK)
-        }, updateList)
+            getSystemUpdates().toMutableList().let {
+                Pair(it, ResultStatus.OK)
+            }
+        }, systemApps)
 
-        return Pair(nonFaultyUpdateList, status)
+        val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
+
+        arrangeWithSystemApps(updateList, nonFaultyUpdateList, systemApps)
+
+        return Pair(updateList, status)
     }
 
     suspend fun getUpdatesOSS(): Pair<List<Application>, ResultStatus> {
@@ -167,18 +171,34 @@ class UpdatesManagerImpl @Inject constructor(
             }, updateList)
         }
 
-        val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
+        val systemApps = mutableListOf<Application>()
 
         getUpdatesFromApi({
-            val systemApps = getSystemUpdates().toMutableList()
-            putAppLoungeAtLast(systemApps)
-            Pair(systemApps, ResultStatus.OK)
-        }, updateList)
+            getSystemUpdates().toMutableList().let {
+                Pair(it, ResultStatus.OK)
+            }
+        }, systemApps)
 
-        return Pair(nonFaultyUpdateList, status)
+        val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
+
+        arrangeWithSystemApps(updateList, nonFaultyUpdateList, systemApps)
+
+        return Pair(updateList, status)
     }
 
     suspend fun getSystemUpdates(): List<Application> = applicationRepository.getSystemUpdates()
+
+    private fun arrangeWithSystemApps(
+        updateList: MutableList<Application>,
+        nonFaultyApps: List<Application>,
+        systemApps: List<Application>,
+    ) {
+        updateList.clear()
+        updateList.addAll(nonFaultyApps)
+        updateList.addAll(systemApps)
+
+        putAppLoungeAtLast(updateList)
+    }
 
     private fun putAppLoungeAtLast(updateList: MutableList<Application>) {
         val appLoungeItem = updateList.find { it.isSystemApp && it.package_name == context.packageName }
