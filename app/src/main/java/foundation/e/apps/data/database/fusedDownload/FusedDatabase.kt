@@ -9,7 +9,7 @@ import foundation.e.apps.data.database.AppDatabase
 import foundation.e.apps.data.fusedDownload.FusedDownloadDAO
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 
-@Database(entities = [FusedDownload::class], version = 4, exportSchema = false)
+@Database(entities = [FusedDownload::class], version = 5, exportSchema = false)
 @TypeConverters(FusedConverter::class)
 abstract class FusedDatabase : RoomDatabase() {
     abstract fun fusedDownloadDao(): FusedDownloadDAO
