@@ -20,6 +20,7 @@ package foundation.e.apps.data.gitlab.models
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.squareup.moshi.Json
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.enums.FilterLevel
 import java.util.UUID
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -47,5 +48,6 @@ fun UpdateDefinition.toApplication(): Application {
         originalSize = 1, // so that the app is not filtered out,
         url = downloadUrl,
         isSystemApp = true,
+        filterLevel = FilterLevel.NONE,
     )
 }
