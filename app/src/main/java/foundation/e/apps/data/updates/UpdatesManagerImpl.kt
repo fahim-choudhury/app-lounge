@@ -55,7 +55,6 @@ class UpdatesManagerImpl @Inject constructor(
     private val faultyAppRepository: FaultyAppRepository,
     private val appLoungePreference: AppLoungePreference,
     private val fdroidRepository: FdroidRepository,
-    private val systemAppsUpdatesRepository: SystemAppsUpdatesRepository,
     private val blockedAppRepository: BlockedAppRepository,
 ) {
 
@@ -173,56 +172,13 @@ class UpdatesManagerImpl @Inject constructor(
         return Pair(nonFaultyUpdateList + systemApps, status)
     }
 
-    suspend fun getSystemUpdates(onlySelf: Boolean = false): List<Application> {
-        val updateList = mutableListOf<Application>()
-        val releaseType = getSystemReleaseType()
-
-        val eligibleApps = systemAppsUpdatesRepository.getAllEligibleApps()
-        eligibleApps?.forEach {
-            val packageName = it.packageName
-
-            if (onlySelf && packageName != context.packageName) {
-                return@forEach
-            }
-
-            if (!appLoungePackageManager.isInstalled(it.packageName)) {
-                // Don't install for system apps which are removed (by root or otherwise)
-                return@forEach
-            }
-
-            val releaseTypes = it.releaseTypes
-            if (releaseType in releaseTypes) {
-                systemAppsUpdatesRepository.getSystemAppUpdateInfo(
-                    packageName,
-                    releaseType,
-                    getSdkLevel(),
-                    getDevice(),
-                )?.run {
-                    updateList.add(this)
-                }
-            }
-        }
-
-        return updateList
-    }
+    suspend fun getSystemUpdates(): List<Application> = applicationRepository.getSystemUpdates()
 
     private fun putAppLoungeAtLast(updateList: MutableList<Application>) {
         val appLoungeItem = updateList.find { it.isSystemApp && it.package_name == context.packageName }
             ?: return
         updateList.remove(appLoungeItem)
         updateList.add(appLoungeItem)
-    }
-
-    private fun getSdkLevel(): Int {
-        return Build.VERSION.SDK_INT
-    }
-
-    private fun getDevice(): String {
-        return SystemInfoProvider.getSystemProperty(SystemInfoProvider.KEY_LINEAGE_DEVICE) ?: ""
-    }
-
-    private fun getSystemReleaseType(): String {
-        return SystemInfoProvider.getSystemProperty(SystemInfoProvider.KEY_LINEAGE_RELEASE_TYPE) ?: ""
     }
 
     /**

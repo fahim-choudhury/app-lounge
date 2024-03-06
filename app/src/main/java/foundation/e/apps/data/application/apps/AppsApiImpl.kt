@@ -19,6 +19,7 @@
 package foundation.e.apps.data.application.apps
 
 import android.content.Context
+import android.os.Build
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -32,9 +33,12 @@ import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.isUnFiltered
+import foundation.e.apps.data.gitlab.SystemAppsUpdatesRepository
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.preference.AppLoungePreference
+import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
+import foundation.e.apps.utils.SystemInfoProvider
 import retrofit2.Response
 import javax.inject.Inject
 import foundation.e.apps.data.cleanapk.data.app.Application as CleanApkApplication
@@ -43,7 +47,9 @@ class AppsApiImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appLoungePreference: AppLoungePreference,
     private val appSources: AppSourcesContainer,
-    private val applicationDataManager: ApplicationDataManager
+    private val applicationDataManager: ApplicationDataManager,
+    private val systemAppsUpdatesRepository: SystemAppsUpdatesRepository,
+    private val appLoungePackageManager: AppLoungePackageManager,
 ) : AppsApi {
 
     companion object {
@@ -210,6 +216,48 @@ class AppsApiImpl @Inject constructor(
         }
 
         return Pair(result.data ?: Application(), result.getResultStatus())
+    }
+
+    override suspend fun getSystemUpdates(): List<Application> {
+        val updateList = mutableListOf<Application>()
+        val releaseType = getSystemReleaseType()
+
+        val eligibleApps = systemAppsUpdatesRepository.getAllEligibleApps()
+        eligibleApps?.forEach {
+            val packageName = it.packageName
+
+            if (!appLoungePackageManager.isInstalled(it.packageName)) {
+                // Don't install for system apps which are removed (by root or otherwise)
+                return@forEach
+            }
+
+            val releaseTypes = it.releaseTypes
+            if (releaseType in releaseTypes) {
+                systemAppsUpdatesRepository.getSystemAppUpdateInfo(
+                    packageName,
+                    releaseType,
+                    getSdkLevel(),
+                    getDevice(),
+                )?.run {
+                    applicationDataManager.updateStatus(this)
+                    updateList.add(this)
+                }
+            }
+        }
+
+        return updateList
+    }
+
+    private fun getSdkLevel(): Int {
+        return Build.VERSION.SDK_INT
+    }
+
+    private fun getDevice(): String {
+        return SystemInfoProvider.getSystemProperty(SystemInfoProvider.KEY_LINEAGE_DEVICE) ?: ""
+    }
+
+    private fun getSystemReleaseType(): String {
+        return SystemInfoProvider.getSystemProperty(SystemInfoProvider.KEY_LINEAGE_RELEASE_TYPE) ?: ""
     }
 
     override fun getFusedAppInstallationStatus(application: Application): Status {

@@ -48,6 +48,6 @@ class UpdatesManagerRepository @Inject constructor(
     }
 
     suspend fun getSystemUpdates(onlySelf: Boolean = false): List<Application> {
-        return updatesManagerImpl.getSystemUpdates(onlySelf)
+        return updatesManagerImpl.getSystemUpdates()
     }
 }
