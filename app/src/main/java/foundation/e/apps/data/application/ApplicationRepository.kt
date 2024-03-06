@@ -157,4 +157,6 @@ class ApplicationRepository @Inject constructor(
         appsApi.isAnyAppInstallStatusChanged(currentList)
 
     fun isOpenSourceSelected() = appsApi.isOpenSourceSelected()
+
+    suspend fun getSystemUpdates(): List<Application> = appsApi.getSystemUpdates()
 }
