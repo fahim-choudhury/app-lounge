@@ -128,10 +128,13 @@ class UpdatesManagerImpl @Inject constructor(
 
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
 
-        val systemApps = getSystemUpdates(false).toMutableList()
-        putAppLoungeAtLast(systemApps)
+        getUpdatesFromApi({
+            val systemApps = getSystemUpdates().toMutableList()
+            putAppLoungeAtLast(systemApps)
+            Pair(systemApps, ResultStatus.OK)
+        }, updateList)
 
-        return Pair(nonFaultyUpdateList + systemApps, status)
+        return Pair(nonFaultyUpdateList, status)
     }
 
     suspend fun getUpdatesOSS(): Pair<List<Application>, ResultStatus> {
@@ -166,10 +169,13 @@ class UpdatesManagerImpl @Inject constructor(
 
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
 
-        val systemApps = getSystemUpdates(false).toMutableList()
-        putAppLoungeAtLast(systemApps)
+        getUpdatesFromApi({
+            val systemApps = getSystemUpdates().toMutableList()
+            putAppLoungeAtLast(systemApps)
+            Pair(systemApps, ResultStatus.OK)
+        }, updateList)
 
-        return Pair(nonFaultyUpdateList + systemApps, status)
+        return Pair(nonFaultyUpdateList, status)
     }
 
     suspend fun getSystemUpdates(): List<Application> = applicationRepository.getSystemUpdates()
