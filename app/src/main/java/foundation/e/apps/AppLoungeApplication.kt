@@ -26,6 +26,7 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import dagger.hilt.android.HiltAndroidApp
+import foundation.e.apps.data.Constants.TAG_APP_INSTALL_STATE
 import foundation.e.apps.data.Constants.TAG_AUTHDATA_DUMP
 import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.apps.data.preference.AppLoungePreference
@@ -90,7 +91,11 @@ class AppLoungeApplication : Application(), Configuration.Provider {
             Telemetry.init(BuildConfig.SENTRY_DSN, this)
             plant(object : Timber.Tree() {
                 override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-                    if (priority <= Log.WARN && tag != TAG_AUTHDATA_DUMP) {
+                    if (priority <= Log.WARN && !listOf(
+                            TAG_AUTHDATA_DUMP,
+                            TAG_APP_INSTALL_STATE
+                        ).contains(tag)
+                    ) {
                         return
                     }
                     Log.println(priority, tag, message)

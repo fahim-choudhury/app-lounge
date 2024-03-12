@@ -9,4 +9,7 @@ object Constants {
 
     const val ACTION_AUTHDATA_DUMP = "foundation.e.apps.action.DUMP_GACCOUNT_INFO"
     const val TAG_AUTHDATA_DUMP = "AUTHDATA_DUMP"
+
+    const val ACTION_DUMP_APP_INSTALL_STATE = "foundation.e.apps.action.APP_INSTALL_STATE"
+    const val TAG_APP_INSTALL_STATE = "APP_INSTALL_STATE"
 }

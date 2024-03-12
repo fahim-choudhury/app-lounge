@@ -31,7 +31,7 @@ object StorageComputer {
     private fun getRequiredSpace(fusedDownload: FusedDownload) =
         fusedDownload.appSize + (500 * (1000 * 1000))
 
-    private fun calculateAvailableDiskSpace(): Long {
+    fun calculateAvailableDiskSpace(): Long {
         val path = Environment.getDataDirectory().absolutePath
         val statFs = StatFs(path)
         return statFs.availableBytes
