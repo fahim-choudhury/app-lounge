@@ -22,6 +22,7 @@ import android.content.Context
 import com.aurora.gplayapi.exceptions.ApiException
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
+import foundation.e.apps.data.DownloadManager
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
@@ -34,6 +35,7 @@ import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.playstore.utils.GplayHttpRequestException
 import foundation.e.apps.data.preference.DataStoreManager
+import foundation.e.apps.install.download.DownloadManagerUtils
 import foundation.e.apps.install.notification.StorageNotificationManager
 import foundation.e.apps.install.updates.UpdatesNotifier
 import foundation.e.apps.utils.StorageComputer
@@ -41,6 +43,7 @@ import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import foundation.e.apps.utils.getFormattedString
 import foundation.e.apps.utils.isNetworkAvailable
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.flow.transformWhile
 import timber.log.Timber
 import java.text.NumberFormat
@@ -53,8 +56,11 @@ class AppInstallProcessor @Inject constructor(
     private val fusedManagerRepository: FusedManagerRepository,
     private val applicationRepository: ApplicationRepository,
     private val dataStoreManager: DataStoreManager,
-    private val storageNotificationManager: StorageNotificationManager
+    private val storageNotificationManager: StorageNotificationManager,
 ) {
+
+    @Inject
+    lateinit var downloadManager: DownloadManagerUtils
 
     private var isItUpdateWork = false
 
@@ -197,6 +203,7 @@ class AppInstallProcessor @Inject constructor(
         )
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     suspend fun processInstall(
         fusedDownloadId: String,
         isItUpdateWork: Boolean,
@@ -210,6 +217,8 @@ class AppInstallProcessor @Inject constructor(
             Timber.i(">>> dowork started for Fused download name " + fusedDownload?.name + " " + fusedDownloadId)
 
             fusedDownload?.let {
+
+                checkDownloadingState(fusedDownload)
 
                 this.isItUpdateWork =
                     isItUpdateWork && fusedManagerRepository.isFusedDownloadInstalled(fusedDownload)
@@ -246,6 +255,15 @@ class AppInstallProcessor @Inject constructor(
 
         Timber.i("doWork: RESULT SUCCESS: ${fusedDownload?.name}")
         return Result.success(ResultStatus.OK)
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun checkDownloadingState(fusedDownload: FusedDownload) {
+        if (fusedDownload.status == Status.DOWNLOADING) {
+            fusedDownload.downloadIdMap.keys.forEach { downloadId ->
+                downloadManager.updateDownloadStatus(downloadId)
+            }
+        }
     }
 
     private fun areFilesDownloadedButNotInstalled(fusedDownload: FusedDownload) =

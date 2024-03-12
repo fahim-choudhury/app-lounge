@@ -103,6 +103,15 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".receivers.DumpAppInstallStatusReceiver"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="foundation.e.apps.action.APP_INSTALL_STATE"/>
+            </intent-filter>
+        </receiver>
+
         <!-- TODO: ExportedReceiver, suppressing because changes are needed in other apps -->
         <receiver android:name=".install.receiver.PWAPlayerStatusReceiver"
             tools:ignore="ExportedReceiver"
