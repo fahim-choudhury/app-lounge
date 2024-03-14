@@ -1,6 +1,5 @@
 /*
- * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2021  E FOUNDATION
+ * Copyright (C) 2021-2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps
@@ -29,8 +29,8 @@ import dagger.hilt.android.HiltAndroidApp
 import foundation.e.apps.data.Constants.TAG_AUTHDATA_DUMP
 import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.apps.data.preference.AppLoungePreference
-import foundation.e.apps.install.pkg.PkgManagerBR
 import foundation.e.apps.install.pkg.AppLoungePackageManager
+import foundation.e.apps.install.pkg.PkgManagerBR
 import foundation.e.apps.install.updates.UpdatesWorkManager
 import foundation.e.apps.install.workmanager.InstallWorkManager
 import foundation.e.apps.ui.setup.tos.TOS_VERSION
@@ -38,13 +38,13 @@ import foundation.e.apps.utils.CustomUncaughtExceptionHandler
 import foundation.e.lib.telemetry.Telemetry
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import timber.log.Timber.Forest.plant
 import java.util.concurrent.Executors
 import javax.inject.Inject
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 
 @HiltAndroidApp
 @DelicateCoroutinesApi

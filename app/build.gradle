@@ -254,4 +254,8 @@ dependencies {
 
     // elib
     implementation 'foundation.e:elib:0.0.1-alpha11'
+
+    // androidx.activity
+    def activity_version = "1.6.1"
+    implementation("androidx.activity:activity-ktx:$activity_version")
 }

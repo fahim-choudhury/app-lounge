@@ -1,6 +1,5 @@
 /*
- * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2021  E FOUNDATION
+ * Copyright (C) 2021-2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.ui
@@ -32,20 +32,21 @@ import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.R
+import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.ecloud.EcloudRepository
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
 import foundation.e.apps.data.enums.isUnFiltered
-import foundation.e.apps.data.application.ApplicationRepository
-import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.preference.AppLoungeDataStore
-import foundation.e.apps.install.pkg.PWAManager
-import foundation.e.apps.install.pkg.AppLoungePackageManager
-import foundation.e.apps.install.workmanager.AppInstallProcessor
+import foundation.e.apps.data.preference.SessionPreference
 import foundation.e.apps.data.preference.getSync
+import foundation.e.apps.install.pkg.AppLoungePackageManager
+import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.workmanager.AppInstallProcessor
 import foundation.e.apps.utils.NetworkStatusManager
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -59,7 +60,8 @@ class MainActivityViewModel @Inject constructor(
     private val pwaManager: PWAManager,
     private val ecloudRepository: EcloudRepository,
     private val blockedAppRepository: BlockedAppRepository,
-    private val appInstallProcessor: AppInstallProcessor
+    private val appInstallProcessor: AppInstallProcessor,
+    private val sessionPreference: SessionPreference
 ) : ViewModel() {
 
     val tocStatus: LiveData<Boolean> = appLoungeDataStore.tocStatus.asLiveData()
@@ -237,5 +239,13 @@ class MainActivityViewModel @Inject constructor(
 
     fun launchPwa(application: Application) {
         pwaManager.launchPwa(application)
+    }
+
+    fun updateIgnoreRefreshPreference(ignore: Boolean) {
+        sessionPreference.updateIgnoreSessionRefreshPreference(ignore)
+    }
+
+    fun shouldRefreshSession(): Boolean {
+        return !sessionPreference.shouldIgnoreSessionRefresh()
     }
 }
