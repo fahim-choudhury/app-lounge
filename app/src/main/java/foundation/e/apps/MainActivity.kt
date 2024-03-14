@@ -1,6 +1,5 @@
 /*
- * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2021  E FOUNDATION
+ * Copyright (C) 2021-2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,13 +13,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps
 
-import android.os.Build
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.view.View
+import android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -43,7 +45,6 @@ import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.data.login.PlayStoreAuthenticator
 import foundation.e.apps.data.login.exceptions.GPlayValidationException
-import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.databinding.ActivityMainBinding
 import foundation.e.apps.install.updates.UpdatesNotifier
 import foundation.e.apps.ui.MainActivityViewModel
@@ -59,23 +60,25 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var signInViewModel: SignInViewModel
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var binding: ActivityMainBinding
-    private val TAG = MainActivity::class.java.simpleName
     private lateinit var viewModel: MainActivityViewModel
 
-    @Inject
-    lateinit var appLoungePreference: AppLoungePreference
+    companion object {
+        private val TAG = MainActivity::class.java.simpleName
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
+
+        setupBackPressHandlingForTiramisuAndAbove()
+
         setContentView(binding.root)
 
         val (bottomNavigationView, navController) = setupBootomNav()
@@ -88,7 +91,7 @@ class MainActivity : AppCompatActivity() {
             bottomNavigationView.selectedItemId = R.id.updatesFragment
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (VERSION.SDK_INT >= VERSION_CODES.O) {
             viewModel.createNotificationChannels()
         }
 
@@ -120,6 +123,54 @@ class MainActivity : AppCompatActivity() {
         observeEvents()
     }
 
+    override fun onStart() {
+        super.onStart()
+        checkSessionRefresh()
+    }
+
+    private fun checkSessionRefresh() {
+        if (viewModel.shouldRefreshSession()) {
+            refreshSession()
+        }
+    }
+
+    private fun refreshSession() {
+        loginViewModel.startLoginFlow(listOf(PlayStoreAuthenticator::class.java.simpleName))
+    }
+
+    // In Android 12 (API level 32) and lower, onBackPressed is always called,
+    // regardless of any registered instances of OnBackPressedCallback.
+    // https://developer.android.com/guide/navigation/navigation-custom-back#onbackpressed
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (isInitialScreen()) {
+            resetIgnoreStatusForSessionRefresh()
+        }
+        super.onBackPressed()
+    }
+
+    private fun isInitialScreen(): Boolean {
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.fragment) as NavHostFragment
+
+        val navController = navHostFragment.navController
+
+        return navController.currentDestination?.id == navController.graph.startDestinationId
+    }
+
+    private fun resetIgnoreStatusForSessionRefresh() {
+        viewModel.updateIgnoreRefreshPreference(ignore = false)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun setupBackPressHandlingForTiramisuAndAbove() {
+        if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(PRIORITY_DEFAULT) {
+                resetIgnoreStatusForSessionRefresh()
+                super.onBackPressed() // Deprecated for Android 13+
+            }
+        }
+    }
 
     private fun setupNavigations(navController: NavController) {
         val navOptions = NavOptions.Builder()
@@ -355,12 +406,23 @@ class MainActivity : AppCompatActivity() {
         EventBus.events.filter { appEvent ->
             appEvent is AppEvent.TooManyRequests
         }.collectLatest {
-            binding.sessionErrorLayout.visibility = View.VISIBLE
-            binding.retrySessionButton.setOnClickListener {
-                binding.sessionErrorLayout.visibility = View.GONE
-                loginViewModel.startLoginFlow(listOf(PlayStoreAuthenticator::class.java.simpleName))
+            val shouldShowDialog = viewModel.shouldRefreshSession()
+            if (shouldShowDialog) {
+                binding.sessionErrorLayout.visibility = View.VISIBLE
+                binding.retrySessionButton.setOnClickListener { onRefreshSessionClick() }
+                binding.ignoreSessionButton.setOnClickListener { onIgnoreSessionClick() }
             }
         }
+    }
+
+    private fun onIgnoreSessionClick() {
+        viewModel.updateIgnoreRefreshPreference(true)
+        binding.sessionErrorLayout.visibility = View.GONE
+    }
+
+    private fun onRefreshSessionClick() {
+        binding.sessionErrorLayout.visibility = View.GONE
+        refreshSession()
     }
 
     private fun setupBottomNavItemSelectedListener(
