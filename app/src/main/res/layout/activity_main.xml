@@ -27,7 +27,6 @@
         android:id="@+id/sessionErrorLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginTop="20dp"
@@ -68,6 +67,22 @@
                 android:textStyle="bold"
                 android:layout_alignParentEnd="true"
                 android:layout_below="@+id/errorMessageText"
+                />
+            <TextView
+                android:id="@+id/ignoreSessionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="15dp"
+                android:gravity="end"
+                android:text="@string/ignore"
+                android:textColor="@color/e_accent_inverse"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_alignParentEnd="true"
+                android:textAllCaps="true"
+                android:layout_below="@+id/retrySessionButton"
                 />
         </RelativeLayout>
 
