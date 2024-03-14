@@ -82,6 +82,8 @@ class MainActivityViewModel @Inject constructor(
 
     lateinit var connectivityManager: ConnectivityManager
 
+    var shouldShowSessionError = true
+
     fun getUser(): User {
         return appLoungeDataStore.getUserType()
     }

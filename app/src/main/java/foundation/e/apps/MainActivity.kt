@@ -355,10 +355,16 @@ class MainActivity : AppCompatActivity() {
         EventBus.events.filter { appEvent ->
             appEvent is AppEvent.TooManyRequests
         }.collectLatest {
+            if (!viewModel.shouldShowSessionError) return@collectLatest
+
             binding.sessionErrorLayout.visibility = View.VISIBLE
             binding.retrySessionButton.setOnClickListener {
                 binding.sessionErrorLayout.visibility = View.GONE
                 loginViewModel.startLoginFlow(listOf(PlayStoreAuthenticator::class.java.simpleName))
+            }
+            binding.ignoreSessionButton.setOnClickListener {
+                binding.sessionErrorLayout.visibility = View.GONE
+                viewModel.shouldShowSessionError = false
             }
         }
     }
