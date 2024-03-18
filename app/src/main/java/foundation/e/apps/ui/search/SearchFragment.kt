@@ -25,6 +25,7 @@ import android.os.Bundle
 import android.provider.BaseColumns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.CompoundButton.OnCheckedChangeListener
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -40,6 +41,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.facebook.shimmer.ShimmerFrameLayout
+import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
 import foundation.e.apps.data.enums.Status
@@ -90,6 +92,10 @@ class SearchFragment :
     private var searchHintLayout: LinearLayout? = null
     private var noAppsFoundLayout: LinearLayout? = null
 
+    lateinit var filterChipNoTrackers: Chip
+    lateinit var filterChipOpenSource: Chip
+    lateinit var filterChipPWA: Chip
+
     /*
      * Store the string from onQueryTextSubmit() and access it from loadData()
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
@@ -106,13 +112,20 @@ class SearchFragment :
         searchHintLayout = binding.searchHintLayout.root
         noAppsFoundLayout = binding.noAppsFoundLayout.root
 
+        filterChipNoTrackers = binding.filterChipNoTrackers
+        filterChipOpenSource = binding.filterChipOpenSource
+        filterChipPWA = binding.filterChipPWA
+
         setupSearchView()
         setupSearchViewSuggestions()
 
         // Setup Search Results
         val listAdapter = setupSearchResult(view)
 
+        preventLoadingLessResults()
         observeSearchResult(listAdapter)
+
+        setupSearchFilters()
 
         setupListening()
 
@@ -169,6 +182,14 @@ class SearchFragment :
                 }
             }
             observeScrollOfSearchResult(listAdapter)
+        }
+    }
+
+    private fun preventLoadingLessResults() {
+        searchViewModel.gplaySearchLoaded.observe(viewLifecycleOwner) {
+            if (!it) return@observe
+
+            searchViewModel.loadMoreDataIfNeeded(searchText)
         }
     }
 
@@ -253,6 +274,26 @@ class SearchFragment :
         searchViewModel.searchSuggest.observe(viewLifecycleOwner) {
             it?.let { populateSuggestionsAdapter(it) }
         }
+    }
+
+    private fun setupSearchFilters() {
+
+        binding.filterChipGroup.isSingleSelection = true
+
+        val listener = OnCheckedChangeListener { _, _ ->
+            showLoadingUI()
+            searchViewModel.setFilterFlags(
+                flagNoTrackers = filterChipNoTrackers.isChecked,
+                flagOpenSource = filterChipOpenSource.isChecked,
+                flagPWA = filterChipPWA.isChecked,
+            )
+
+            recyclerView?.scrollToPosition(0)
+        }
+
+        filterChipNoTrackers.setOnCheckedChangeListener(listener)
+        filterChipOpenSource.setOnCheckedChangeListener(listener)
+        filterChipPWA.setOnCheckedChangeListener(listener)
     }
 
     private fun setupSearchView() {

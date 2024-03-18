@@ -29,6 +29,10 @@ class PrivacyInfoViewModel @Inject constructor(
         }
     }
 
+    suspend fun getAppPrivacyInfo(application: Application): Result<AppPrivacyInfo> {
+        return fetchEmitAppPrivacyInfo(application)
+    }
+
     fun getSingularAppPrivacyInfoLiveData(application: Application?): LiveData<Result<AppPrivacyInfo>> {
         fetchPrivacyInfo(application)
         return singularAppPrivacyInfoLiveData

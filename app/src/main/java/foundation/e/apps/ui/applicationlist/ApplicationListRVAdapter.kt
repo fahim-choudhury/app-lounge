@@ -535,6 +535,9 @@ class ApplicationListRVAdapter(
         currentList.forEach {
             newList.find { item -> item._id == it._id }?.let { foundItem ->
                 foundItem.privacyScore = it.privacyScore
+                foundItem.trackers = it.trackers
+                foundItem.perms = it.perms
+                foundItem.permsFromExodus = it.permsFromExodus
             }
         }
         this.submitList(newList.map { it.copy() })

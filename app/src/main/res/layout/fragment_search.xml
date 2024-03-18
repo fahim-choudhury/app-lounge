@@ -48,19 +48,55 @@
         android:layout_marginTop="8dp"
         android:background="@color/colorGrey" />
 
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/filterChipGroup"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/filterChipNoTrackers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipIconSize="@dimen/search_filter_chip_icon_size"
+            style="@style/ChipTheme"
+            android:text="@string/no_trackers"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/filterChipOpenSource"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipIconSize="@dimen/search_filter_chip_icon_size"
+            style="@style/ChipTheme"
+            android:text="@string/open_source"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/filterChipPWA"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipIconSize="@dimen/search_filter_chip_icon_size"
+            style="@style/ChipTheme"
+            android:text="@string/pwa"/>
+
+    </com.google.android.material.chip.ChipGroup>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        tools:listitem="@layout/application_list_item"
         android:layout_weight="1" />
 
     <include
         android:id="@+id/searchHintLayout"
+        tools:visibility="gone"
         layout="@layout/fragment_search_hint" />
 
     <include
         android:id="@+id/noAppsFoundLayout"
         android:visibility="invisible"
+        tools:visibility="gone"
         layout="@layout/layout_no_apps_found" />
 
     <com.facebook.shimmer.ShimmerFrameLayout
