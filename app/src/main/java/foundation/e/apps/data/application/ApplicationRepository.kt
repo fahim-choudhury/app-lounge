@@ -39,6 +39,7 @@ import foundation.e.apps.data.application.search.GplaySearchResult
 import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.ui.search.SearchResult
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -119,7 +120,7 @@ class ApplicationRepository @Inject constructor(
     suspend fun getCleanApkSearchResults(
         query: String,
         authData: AuthData
-    ): ResultSupreme<Pair<List<Application>, Boolean>> {
+    ): SearchResult {
         return searchAPIImpl.getCleanApkSearchResults(query, authData)
     }
 

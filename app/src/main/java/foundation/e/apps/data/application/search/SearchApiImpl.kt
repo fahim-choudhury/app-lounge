@@ -39,6 +39,7 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.preference.AppLoungePreference
+import foundation.e.apps.ui.search.SearchResult
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Deferred
@@ -85,9 +86,8 @@ class SearchApiImpl @Inject constructor(
     override suspend fun getCleanApkSearchResults(
         query: String,
         authData: AuthData
-    ): ResultSupreme<Pair<List<Application>, Boolean>> {
-        var finalSearchResult: ResultSupreme<Pair<List<Application>, Boolean>> =
-            ResultSupreme.Error()
+    ): SearchResult {
+        var finalSearchResult: SearchResult = ResultSupreme.Error()
 
         val packageSpecificResults =
             fetchPackageSpecificResult(authData, query).data?.first ?: emptyList()
@@ -125,7 +125,7 @@ class SearchApiImpl @Inject constructor(
         query: String,
         searchResult: MutableList<Application>,
         packageSpecificResults: List<Application>
-    ): ResultSupreme<Pair<List<Application>, Boolean>> {
+    ): SearchResult {
         val pwaApps: MutableList<Application> = mutableListOf()
         val result = handleNetworkResult {
             val apps =
@@ -159,7 +159,7 @@ class SearchApiImpl @Inject constructor(
         query: String,
         searchResult: MutableList<Application>,
         packageSpecificResults: List<Application>
-    ): ResultSupreme<Pair<List<Application>, Boolean>> {
+    ): SearchResult {
         val cleanApkResults = mutableListOf<Application>()
 
         val result = handleNetworkResult {
@@ -187,7 +187,7 @@ class SearchApiImpl @Inject constructor(
     private suspend fun fetchPackageSpecificResult(
         authData: AuthData,
         query: String,
-    ): ResultSupreme<Pair<List<Application>, Boolean>> {
+    ): SearchResult {
         val packageSpecificResults: MutableList<Application> = mutableListOf()
         var gplayPackageResult: Application? = null
         var cleanapkPackageResult: Application? = null

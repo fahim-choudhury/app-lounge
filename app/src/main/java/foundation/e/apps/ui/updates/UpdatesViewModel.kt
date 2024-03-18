@@ -57,7 +57,7 @@ class UpdatesViewModel @Inject constructor(
             }
 
             successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getUpdates(AuthData("", ""))
+                getUpdates(null)
                 return@onLoadData
             }
         }, retryBlock)

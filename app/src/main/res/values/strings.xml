@@ -30,6 +30,8 @@
     <!-- Search Fragment -->
     <string name="search_hint" weblate_ctx="search">Search for an app</string>
     <string name="no_apps_found">No apps found…</string>
+    <string name="no_trackers">No Trackers</string>
+
     <!-- Categories Fragment -->
     <string name="apps" weblate_ctx="categories_applications">Applications</string>
     <string name="games" weblate_ctx="categories_games">Games</string>
