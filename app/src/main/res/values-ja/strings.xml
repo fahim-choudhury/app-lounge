@@ -1,2 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="sign_in_title" weblate_ctx="welcome">ようこそ</string>
+    <string name="menu_home" weblate_ctx="home">ホーム</string>
+    <string name="menu_categories" weblate_ctx="home">カテゴリー</string>
+    <string name="menu_search" weblate_ctx="home">検索</string>
+    <string name="menu_settings" weblate_ctx="home">設定</string>
+    <string name="search_hint" weblate_ctx="search">アプリを検索</string>
+    <string name="no_apps_found">アプリが見つかりませんでした…</string>
+    <string name="apps" weblate_ctx="categories_applications">アプリケーション</string>
+    <string name="games" weblate_ctx="categories_games">ゲーム</string>
+    <string name="category_icon" weblate_ctx="categories_applications">カテゴリーのアイコン</string>
+    <string name="open_source" weblate_ctx="categories_applications">オープンソース</string>
+    <string name="pwa" weblate_ctx="categories_applications">PWA</string>
+    <string name="menu_updates" weblate_ctx="home">更新</string>
+    <string name="sign_in_google" weblate_ctx="welcome">Googleでサインイン</string>
+    <string name="sign_in_anonymous" weblate_ctx="welcome">匿名モード</string>
+    <string name="tos_agree" weblate_ctx="tos">承認</string>
+    <string name="tos_disagree" weblate_ctx="tos">拒否</string>
+    <string name="preference_updates_title" weblate_ctx="settings">更新</string>
+    <string name="preference_update_interval_default">24</string>
+    <string name="preference_update_interval_title" weblate_ctx="settings">アップデートを確認する間隔</string>
+    <string name="preference_update_install_automatically_title" weblate_ctx="settings">アップデートを自動的にインストール</string>
+    <string name="preference_update_install_automatically_description" weblate_ctx="settings">バックグラウンドでアプリのアップデートをダウンロードしてインストール</string>
+    <string name="preference_update_notify_available_title" weblate_ctx="settings">利用可能なアップデートを表示</string>
+    <string name="or" weblate_ctx="welcome">または表示のみ</string>
+    <string name="preference_update_notify_available_description">アプリのアップデートが利用可能になった際に通知を表示</string>
+    <string name="Show_applications" weblate_ctx="settings">表示するアプリケーション：</string>
+    <string name="about">概要</string>
+    <string name="app_version_label">App Loungeのバージョン</string>
+    <string name="os_version">/e/ OS バージョン</string>
+    <string name="copied">コピーしました</string>
+    <string name="account" weblate_ctx="settings">アカウント</string>
+    <string name="terms_services" weblate_ctx="settings">利用規約</string>
+    <string name="user_anonymous" weblate_ctx="settings">匿名</string>
+    <string name="logout" weblate_ctx="settings">ログアウト</string>
+    <string name="login">ログイン</string>
+    <string name="logged_out">ログアウトしました</string>
+    <string name="description">説明</string>
+    <string name="ok">OK</string>
+    <string name="install">インストール</string>
+    <string name="installing">インストールしています</string>
+    <string name="cancel">キャンセル</string>
+    <string name="app_icon">アプリのアイコン</string>
+    <string name="retry">再試行</string>
+    <string name="close">閉じる</string>
+    <string name="more">詳細</string>
+    <string name="update">更新</string>
+    <string name="ratings">評価</string>
+    <string name="rating">評価</string>
+    <string name="privacy">プライバシー</string>
+    <string name="privacy_score">プライバシーの点数</string>
+    <string name="privacy_analyses">プライバシーの分析</string>
+    <string name="permissions">権限</string>
+    <string name="trackers_title">追跡機能</string>
+    <string name="information">情報</string>
+    <string name="version">バージョン：<xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="updated_on">更新日：<xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="license">ライセンス：<xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="package_name">パッケージの名称：<xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="unknown_error">不明なエラーです！</string>
+    <string name="not_enough_storage">このアプリケーションのダウンロードに十分な空き領域がありません！</string>
+    <string name="app_not_found">アプリケーションが見つかりませんでした。</string>
+    <string name="show_more">さらに表示</string>
+    <string name="downloading">ダウンロードしています…</string>
+    <string name="update_all">全て更新</string>
+    <string name="checking_updates">アップデートを確認しています…</string>
+    <string name="having_troubles">問題がありますか？</string>
+    <string name="all_apps_updated" weblate_ctx="updates">全てのアプリは最新です</string>
+    <string name="message_retry">アップデートできませんでした。自動的に再試行しています。</string>
+    <string name="downloads">ダウンロード</string>
+    <string name="open_settings">設定を開く</string>
+    <string name="updates">更新</string>
+    <string name="topselling_free_apps" weblate_ctx="home">上位の無料アプリ</string>
+    <string name="topselling_free_games" weblate_ctx="home">上位の無料ゲーム</string>
+    <string name="no_tracker_found">追跡機能が見つかりませんでした！</string>
+    <string name="more_info"><u>詳細を表示</u></string>
+    <string name="install_anyway">インストール</string>
+    <string name="this_app_may_not_work_properly">このアプリは適切に動作しない可能性があります！</string>
+    <string name="purchase_complete">購入しました！</string>
+    <string name="download_automatically_message">あなたのアプリは自動的にこの端末にダウンロードされます</string>
+    <string name="purchase_error">購入時にエラーが発生しました！</string>
+    <string name="unsupported_app_title">このアプリはサポートしていません！</string>
+    <string name="daily">毎日</string>
+    <string name="weekly">毎週</string>
+    <string name="monthly">毎月</string>
+    <string name="sign_in">サインイン</string>
+    <string name="ignore">無視</string>
+    <string name="sign_in_desc" weblate_ctx="welcome">あなたのGoogleアカウントでApp Loungeにサインインするか、匿名モードでプライベートにApp Loungeにサインインしてください。</string>
+    <string name="open">開く</string>
+    <string name="dialog_confirm">承認</string>
+    <string name="min_android_version">必要なバージョン：<xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="something_went_wrong">問題が発生しました！</string>
+</resources>
