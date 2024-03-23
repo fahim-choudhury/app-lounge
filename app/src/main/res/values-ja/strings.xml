@@ -28,7 +28,7 @@
     <string name="Show_applications" weblate_ctx="settings">表示するアプリケーション：</string>
     <string name="about">概要</string>
     <string name="app_version_label">App Loungeのバージョン</string>
-    <string name="os_version">/e/ OS バージョン</string>
+    <string name="os_version">/e/OSのバージョン</string>
     <string name="copied">コピーしました</string>
     <string name="account" weblate_ctx="settings">アカウント</string>
     <string name="terms_services" weblate_ctx="settings">利用規約</string>
