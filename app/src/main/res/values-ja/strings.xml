@@ -91,4 +91,19 @@
     <string name="dialog_confirm">承認</string>
     <string name="min_android_version">必要なバージョン：<xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="something_went_wrong">問題が発生しました！</string>
+    <string name="pwa_and_open_source_apps" weblate_ctx="welcome">PWAとオープンソースのアプリ</string>
+    <string name="tos_agree_date">承認済</string>
+    <string name="tos_warning" weblate_ctx="tos">続行するには利用規約の確認と同意が必要です。</string>
+    <string name="preference_update_wifi_only_title" weblate_ctx="settings">従量制課金ではないネットワークに限定</string>
+    <string name="preference_update_wifi_only_description" weblate_ctx="settings">Wi-Fiなど、従量制課金ではないネットワークのみでアプリを自動的にアップデート</string>
+    <string name="preference_update_apps_from_other_stores_title">他のストアによりインストールされたアプリをアップデート</string>
+    <string name="show_only_open_source_apps">オープンソースのアプリを表示</string>
+    <string name="show_only_pwa_apps">PWA（プログレッシブウェブアプリ）を表示</string>
+    <string name="rating_description">5点満点のスコア。アプリのユーザー評価を使用して計算。</string>
+    <string name="install_blocked_anonymous">匿名モードで購入済アプリをインストールすることはできません。インストールするにはGoogleアカウントにログインしてください。</string>
+    <string name="refresh_session">セッションを更新</string>
+    <string name="data_load_error">アプリを読み込む際にエラーが発生しました。</string>
+    <string name="sign_in_failed_title">Googleにサインインできませんでした！</string>
+    <string name="dialog_title_paid_app"><b>%1$s</b>を購入</string>
+    <string name="paid_app_anonymous_message">匿名モードで購入済アプリをインストールすることはできません。インストールするにはGoogleアカウントにログインしてください。</string>
 </resources>
