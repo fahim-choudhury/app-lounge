@@ -168,7 +168,7 @@
     <string name="select_one_source_of_applications">Por favor selecciona por lo menos una fuente de aplicaciones.</string>
     <string name="copied">Copiado</string>
     <string name="os_version">Versión de /e/OS</string>
-    <string name="app_version_label">Versión del App Lounge</string>
+    <string name="app_version_label">Versión de App Lounge</string>
     <string name="about">Acerca de</string>
     <string name="pwa_and_open_source_apps">PWA y aplicaciones de código abierto</string>
     <string name="or">O mostrar sólo</string>
@@ -188,7 +188,7 @@
     <string name="too_many_requests_desc">La cuenta anónima que estás utilizando no está disponible. Por favor, actualiza tu sesión para obtener otra.</string>
     <string name="having_troubles">¿Tienes problemas?</string>
     <string name="refresh_session">ACTUALIZAR SESSION</string>
-    <string name="preference_update_apps_from_other_stores_description">Actualizar aplicaciones instaladas desde otras tiendas de aplicaciones. 
+    <string name="preference_update_apps_from_other_stores_description">Actualizar aplicaciones instaladas desde otras tiendas. 
 \nSe intentará actualizar dichas aplicaciones desde la categoría de aplicaciones comunes y de código abierto.</string>
     <string name="google_login_alert_message">"Recomendamos utilizar una cuenta de Google dedicada para:
 \n
