@@ -48,6 +48,7 @@ class DumpAppInstallStatusReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var downloadManager: DownloadManager
+
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == null) {
             return
@@ -56,38 +57,40 @@ class DumpAppInstallStatusReceiver : BroadcastReceiver() {
         MainScope().launch {
             val gson = Gson()
             val appList = fusedDownloadRepository.getDownloadList()
-            Timber.tag(Constants.TAG_APP_INSTALL_STATE)
-                .i("App install status: ${gson.toJson(appList)}")
+            val appInstallStatusLog = "App install status: ${gson.toJson(appList)}"
+            val deviceStatusLog = logDeviceStatus(context)
+            val downloadStatusLog = logDownloadStatusFromDownloadManager(appList)
 
-            logDownloadStatusFromDownloadManager(appList)
-            logDeviceStatus(context)
+            Timber.tag(Constants.TAG_APP_INSTALL_STATE)
+                .e("%s\n\n%s\n\n%s", deviceStatusLog, appInstallStatusLog, downloadStatusLog)
         }
     }
 
-    private fun logDeviceStatus(context: Context?) {
+    private fun logDeviceStatus(context: Context?): String? {
         context?.let {
             val bm = context.getSystemService(BATTERY_SERVICE) as BatteryManager
             val batteryLevel = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
 
-            Timber.tag(Constants.TAG_APP_INSTALL_STATE)
-                .i(
-                    "Available Space: ${StorageComputer.calculateAvailableDiskSpace()}" +
-                            "\nInternet: ${
-                                NetworkStatusManager.init(context).value
-                            }\nBattery level: $batteryLevel"
-                )
+            return "Available Space: ${StorageComputer.calculateAvailableDiskSpace()}" +
+                    "\nInternet: ${
+                        NetworkStatusManager.init(context).value
+                    }\nBattery level: $batteryLevel"
         }
+
+        return null
     }
 
-    private fun logDownloadStatusFromDownloadManager(appList: List<FusedDownload>) {
+    private fun logDownloadStatusFromDownloadManager(appList: List<FusedDownload>): String {
+        var downloadStatusLog = ""
         appList.forEach {
             if (listOf(Status.DOWNLOADING, Status.DOWNLOADED).contains(it.status)) {
                 it.downloadIdMap.keys.forEach { downloadId ->
                     val downloadStatus = downloadManager.isDownloadSuccessful(downloadId)
-                    Timber.tag(Constants.TAG_APP_INSTALL_STATE)
-                        .i("DownloadStatus: ${it.name}: Id: $downloadId: ${downloadStatus.second}")
+                    downloadStatusLog += "DownloadStatus: ${it.name}: Id: $downloadId: ${downloadStatus.second}\n"
                 }
             }
         }
+
+        return downloadStatusLog
     }
 }

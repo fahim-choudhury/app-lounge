@@ -123,9 +123,9 @@ class DownloadManagerUtils @Inject constructor(
 
         val numberOfDownloadedItems =
             fusedDownload.downloadIdMap.values.filter { it }.size
+
         Timber.d("===> updateDownloadStatus: ${fusedDownload.name}: $downloadId: $numberOfDownloadedItems/${fusedDownload.downloadIdMap.size}")
 
-        // if download status code is unknown (-1), consider installation is failed.
         val areAllFilesDownloaded = areAllFilesDownloaded(
             numberOfDownloadedItems,
             fusedDownload
