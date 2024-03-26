@@ -42,7 +42,6 @@ import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.preference.AppLoungeDataStore
-import foundation.e.apps.data.preference.SessionPreference
 import foundation.e.apps.data.preference.getSync
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.install.pkg.PWAManager
@@ -61,7 +60,6 @@ class MainActivityViewModel @Inject constructor(
     private val ecloudRepository: EcloudRepository,
     private val blockedAppRepository: BlockedAppRepository,
     private val appInstallProcessor: AppInstallProcessor,
-    private val sessionPreference: SessionPreference
 ) : ViewModel() {
 
     val tocStatus: LiveData<Boolean> = appLoungeDataStore.tocStatus.asLiveData()
@@ -83,6 +81,8 @@ class MainActivityViewModel @Inject constructor(
     val errorMessageStringResource: LiveData<Int> = _errorMessageStringResource
 
     lateinit var connectivityManager: ConnectivityManager
+
+    var shouldIgnoreSessionError = false
 
     fun getUser(): User {
         return appLoungeDataStore.getUserType()
@@ -239,13 +239,5 @@ class MainActivityViewModel @Inject constructor(
 
     fun launchPwa(application: Application) {
         pwaManager.launchPwa(application)
-    }
-
-    fun updateIgnoreRefreshPreference(ignore: Boolean) {
-        sessionPreference.updateIgnoreSessionRefreshPreference(ignore)
-    }
-
-    fun shouldRefreshSession(): Boolean {
-        return !sessionPreference.shouldIgnoreSessionRefresh()
     }
 }

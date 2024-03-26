@@ -176,4 +176,5 @@
     <string name="split_install_warning_title">Advarsel angående %s</string>
     <string name="split_install_warning_text">%s vil installere ekstra moduler. Du må logge inn på App Lounge på nytt for å kunne installere dem.</string>
     <string name="sign_in">Logg inn</string>
+    <string name="account_unavailable">Konto utilgjengelig</string>
 </resources>

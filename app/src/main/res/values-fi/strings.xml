@@ -153,4 +153,5 @@
     <string name="login">Kirjaudu sisään</string>
     <string name="login_to_see_gplay_apps">Sinun on kirjauduttava sisään nähdäksesi yleiset sovellukset.</string>
     <string name="pwa_and_open_source_apps">PWA ja avoimen lähdekoodin sovellukset</string>
+    <string name="account_unavailable">Tili ei ole käytettävissä</string>
 </resources>

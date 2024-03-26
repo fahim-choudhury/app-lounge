@@ -42,7 +42,7 @@ class ApplicationDialogFragment() : DialogFragment() {
     private var positiveButtonAction: (() -> Unit)? = null
     private var cancelButtonText: String? = null
     private var cancelButtonAction: (() -> Unit)? = null
-    private var cancellable: Boolean = true
+    private var cancelable: Boolean = true
     private var onDismissListener: (() -> Unit)? = null
 
     constructor(
@@ -53,7 +53,7 @@ class ApplicationDialogFragment() : DialogFragment() {
         positiveButtonAction: (() -> Unit)? = null,
         cancelButtonText: String = "",
         cancelButtonAction: (() -> Unit)? = null,
-        cancellable: Boolean = true,
+        cancelable: Boolean = true,
         onDismissListener: (() -> Unit)? = null,
     ) : this() {
         this.drawable = drawable
@@ -63,8 +63,9 @@ class ApplicationDialogFragment() : DialogFragment() {
         this.positiveButtonAction = positiveButtonAction
         this.cancelButtonText = cancelButtonText
         this.cancelButtonAction = cancelButtonAction
-        this.cancellable = cancellable
         this.onDismissListener = onDismissListener
+        this.cancelable = cancelable
+        isCancelable = cancelable
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -77,7 +78,6 @@ class ApplicationDialogFragment() : DialogFragment() {
                 positiveButtonAction?.invoke()
                 this.dismiss()
             }
-            .setCancelable(cancellable)
         if (cancelButtonText?.isNotEmpty() == true) {
             materialAlertDialogBuilder.setNegativeButton(cancelButtonText) { _, _ ->
                 cancelButtonAction?.invoke()

@@ -156,4 +156,5 @@
 \n
 \nНатисніть «Повторити спробу» щоб спробувати знову.</string>
     <string name="sign_in">Зареєструватися</string>
+    <string name="account_unavailable">Обліковий запис недоступний</string>
 </resources>

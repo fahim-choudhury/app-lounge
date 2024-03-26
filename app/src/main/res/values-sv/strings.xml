@@ -176,4 +176,5 @@
     <string name="split_install_warning_title">Varning gällande %s</string>
     <string name="split_install_warning_text">%s vill installera extra moduler. Du måste logga in till AppLounge igen för att kunna installera dom.</string>
     <string name="sign_in">Logga in</string>
+    <string name="account_unavailable">Konto otillgängligt</string>
 </resources>

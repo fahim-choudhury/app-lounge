@@ -25,4 +25,5 @@
     <string name="menu_search">Hľadať</string>
     <string name="menu_categories">Kategórie</string>
     <string name="menu_home">Domov</string>
+    <string name="account_unavailable">Účet nedostupný</string>
 </resources>

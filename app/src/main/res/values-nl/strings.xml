@@ -156,4 +156,5 @@
     <string name="downloading">Downloaden…</string>
     <string name="additional_file_for">Aanvullend bestand voor %s</string>
     <string name="preference_update_apps_from_other_stores_title">Update apps geïnstalleerd door andere app-stores</string>
+    <string name="account_unavailable">Account niet beschikbaar</string>
 </resources>

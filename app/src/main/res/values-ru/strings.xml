@@ -155,4 +155,5 @@
     <string name="login_to_see_gplay_apps">Необходимо войти в систему, чтобы увидеть обычные приложения.</string>
     <string name="select_one_source_of_applications">Пожалуйста, выберите хотя бы один источник приложений.</string>
     <string name="logout">Выйти из системы</string>
+    <string name="account_unavailable">Аккаунт недоступен</string>
 </resources>
