@@ -176,4 +176,5 @@
     <string name="split_install_warning_title">Aðvörun viðkomandi %s</string>
     <string name="split_install_warning_text">%s vill fá að setja upp viðbótareiningar.Þú þarft að skrá þig aftur inn í AppLounge til að geta sett þær inn.</string>
     <string name="sign_in">Skrá inn</string>
+    <string name="account_unavailable">Reikningur ekki í boði</string>
 </resources>

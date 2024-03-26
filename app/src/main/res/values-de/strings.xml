@@ -177,4 +177,5 @@
     <string name="notification_channel_desc">Split-Installationskanal</string>
     <string name="sign_in">Einloggen</string>
     <string name="ignore">Ignorieren</string>
+    <string name="account_unavailable">Konto nicht verfügbar</string>
 </resources>

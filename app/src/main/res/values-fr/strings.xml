@@ -173,4 +173,5 @@
     <string name="notification_channel_desc">Canal d\'installation fractionnée</string>
     <string name="sign_in">Connexion</string>
     <string name="ignore">Ignorer</string>
+    <string name="account_unavailable">Compte indisponible</string>
 </resources>

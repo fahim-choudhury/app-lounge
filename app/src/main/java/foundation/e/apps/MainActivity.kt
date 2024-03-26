@@ -70,6 +70,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private val TAG = MainActivity::class.java.simpleName
+        private const val SESSION_DIALOG_TAG = "session_dialog"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -123,17 +124,6 @@ class MainActivity : AppCompatActivity() {
         observeEvents()
     }
 
-    override fun onStart() {
-        super.onStart()
-        checkSessionRefresh()
-    }
-
-    private fun checkSessionRefresh() {
-        if (viewModel.shouldRefreshSession()) {
-            refreshSession()
-        }
-    }
-
     private fun refreshSession() {
         loginViewModel.startLoginFlow(listOf(PlayStoreAuthenticator::class.java.simpleName))
     }
@@ -145,6 +135,7 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
         if (isInitialScreen()) {
             resetIgnoreStatusForSessionRefresh()
+            finish()
         }
         super.onBackPressed()
     }
@@ -159,7 +150,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun resetIgnoreStatusForSessionRefresh() {
-        viewModel.updateIgnoreRefreshPreference(ignore = false)
+        viewModel.shouldIgnoreSessionError = false
     }
 
     @Suppress("DEPRECATION")
@@ -167,7 +158,7 @@ class MainActivity : AppCompatActivity() {
         if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
             onBackInvokedDispatcher.registerOnBackInvokedCallback(PRIORITY_DEFAULT) {
                 resetIgnoreStatusForSessionRefresh()
-                super.onBackPressed() // Deprecated for Android 13+
+                finish()
             }
         }
     }
@@ -406,23 +397,37 @@ class MainActivity : AppCompatActivity() {
         EventBus.events.filter { appEvent ->
             appEvent is AppEvent.TooManyRequests
         }.collectLatest {
-            val shouldShowDialog = viewModel.shouldRefreshSession()
-            if (shouldShowDialog) {
-                binding.sessionErrorLayout.visibility = View.VISIBLE
-                binding.retrySessionButton.setOnClickListener { onRefreshSessionClick() }
-                binding.ignoreSessionButton.setOnClickListener { onIgnoreSessionClick() }
-            }
+            handleRefreshSessionEvent()
         }
     }
 
-    private fun onIgnoreSessionClick() {
-        viewModel.updateIgnoreRefreshPreference(true)
-        binding.sessionErrorLayout.visibility = View.GONE
+    private fun handleRefreshSessionEvent() {
+        val shouldShowDialog = !viewModel.shouldIgnoreSessionError
+        val isDialogShowing = supportFragmentManager.findFragmentByTag(SESSION_DIALOG_TAG) != null
+        if (shouldShowDialog && !isDialogShowing) {
+            showRefreshSessionDialog()
+        }
     }
 
-    private fun onRefreshSessionClick() {
-        binding.sessionErrorLayout.visibility = View.GONE
-        refreshSession()
+    private fun showRefreshSessionDialog() {
+        ApplicationDialogFragment(
+            title = getString(R.string.account_unavailable),
+            message = getString(R.string.too_many_requests_desc),
+            drawable = R.drawable.ic_warning,
+            positiveButtonText = getString(R.string.refresh_session),
+            positiveButtonAction = {
+                refreshSession()
+            },
+            cancelButtonText = getString(R.string.ignore).uppercase(),
+            cancelButtonAction = {
+                onIgnoreSessionClick()
+            },
+            cancelable = true,
+        ).show(supportFragmentManager, SESSION_DIALOG_TAG)
+    }
+
+    private fun onIgnoreSessionClick() {
+        viewModel.shouldIgnoreSessionError = true
     }
 
     private fun setupBottomNavItemSelectedListener(

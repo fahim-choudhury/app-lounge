@@ -30,6 +30,4 @@ object Constants {
 
     const val ACTION_DUMP_APP_INSTALL_STATE = "foundation.e.apps.action.APP_INSTALL_STATE"
     const val TAG_APP_INSTALL_STATE = "APP_INSTALL_STATE"
-
-    const val PREFERENCE_IGNORE_SESSION_REFRESH = "ignoreSessionRefresh"
 }
