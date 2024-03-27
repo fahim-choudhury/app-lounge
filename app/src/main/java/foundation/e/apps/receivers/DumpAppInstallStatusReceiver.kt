@@ -31,7 +31,6 @@ import foundation.e.apps.data.DownloadManager
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.apps.install.download.DownloadManagerUtils
 import foundation.e.apps.utils.NetworkStatusManager
 import foundation.e.apps.utils.StorageComputer
 import kotlinx.coroutines.MainScope
@@ -58,15 +57,15 @@ class DumpAppInstallStatusReceiver : BroadcastReceiver() {
             val gson = Gson()
             val appList = fusedDownloadRepository.getDownloadList()
             val appInstallStatusLog = "App install status: ${gson.toJson(appList)}"
-            val deviceStatusLog = logDeviceStatus(context)
-            val downloadStatusLog = logDownloadStatusFromDownloadManager(appList)
+            val deviceStatusLog = getDeviceInfo(context)
+            val downloadStatusLog = getDownloadStatus(appList)
 
             Timber.tag(Constants.TAG_APP_INSTALL_STATE)
                 .e("%s\n\n%s\n\n%s", deviceStatusLog, appInstallStatusLog, downloadStatusLog)
         }
     }
 
-    private fun logDeviceStatus(context: Context?): String? {
+    private fun getDeviceInfo(context: Context?): String? {
         context?.let {
             val bm = context.getSystemService(BATTERY_SERVICE) as BatteryManager
             val batteryLevel = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
@@ -80,7 +79,7 @@ class DumpAppInstallStatusReceiver : BroadcastReceiver() {
         return null
     }
 
-    private fun logDownloadStatusFromDownloadManager(appList: List<FusedDownload>): String {
+    private fun getDownloadStatus(appList: List<FusedDownload>): String {
         var downloadStatusLog = ""
         appList.forEach {
             if (listOf(Status.DOWNLOADING, Status.DOWNLOADED).contains(it.status)) {
