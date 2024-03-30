@@ -106,4 +106,5 @@
     <string name="sign_in_failed_title">Googleにサインインできませんでした！</string>
     <string name="dialog_title_paid_app"><b>%1$s</b>を購入</string>
     <string name="paid_app_anonymous_message">匿名モードで購入済アプリをインストールすることはできません。インストールするにはGoogleアカウントにログインしてください。</string>
+    <string name="update_error">アップデートの際にエラーが発生しました！</string>
 </resources>
