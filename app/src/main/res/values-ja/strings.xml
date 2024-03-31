@@ -15,7 +15,7 @@
     <string name="menu_updates" weblate_ctx="home">更新</string>
     <string name="sign_in_google" weblate_ctx="welcome">Googleでサインイン</string>
     <string name="sign_in_anonymous" weblate_ctx="welcome">匿名モード</string>
-    <string name="tos_agree" weblate_ctx="tos">承認</string>
+    <string name="tos_agree" weblate_ctx="tos">承諾</string>
     <string name="tos_disagree" weblate_ctx="tos">拒否</string>
     <string name="preference_updates_title" weblate_ctx="settings">更新</string>
     <string name="preference_update_interval_default">24</string>
@@ -23,7 +23,7 @@
     <string name="preference_update_install_automatically_title" weblate_ctx="settings">アップデートを自動的にインストール</string>
     <string name="preference_update_install_automatically_description" weblate_ctx="settings">バックグラウンドでアプリのアップデートをダウンロードしてインストール</string>
     <string name="preference_update_notify_available_title" weblate_ctx="settings">利用可能なアップデートを表示</string>
-    <string name="or" weblate_ctx="welcome">または表示のみ</string>
+    <string name="or" weblate_ctx="welcome">表示のみ</string>
     <string name="preference_update_notify_available_description">アプリのアップデートが利用可能になった際に通知を表示</string>
     <string name="Show_applications" weblate_ctx="settings">表示するアプリケーション：</string>
     <string name="about">概要</string>
@@ -88,11 +88,11 @@
     <string name="ignore">無視</string>
     <string name="sign_in_desc" weblate_ctx="welcome">あなたのGoogleアカウントでApp Loungeにサインインするか、匿名モードでプライベートにApp Loungeにサインインしてください。</string>
     <string name="open">開く</string>
-    <string name="dialog_confirm">承認</string>
+    <string name="dialog_confirm">承諾</string>
     <string name="min_android_version">必要なバージョン：<xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="something_went_wrong">問題が発生しました！</string>
     <string name="pwa_and_open_source_apps" weblate_ctx="welcome">PWAとオープンソースのアプリ</string>
-    <string name="tos_agree_date">承認済</string>
+    <string name="tos_agree_date">承諾済</string>
     <string name="tos_warning" weblate_ctx="tos">続行するには利用規約の確認と同意が必要です。</string>
     <string name="preference_update_wifi_only_title" weblate_ctx="settings">従量制課金ではないネットワークに限定</string>
     <string name="preference_update_wifi_only_description" weblate_ctx="settings">Wi-Fiなど、従量制課金ではないネットワークのみでアプリを自動的にアップデート</string>
@@ -107,4 +107,10 @@
     <string name="dialog_title_paid_app"><b>%1$s</b>を購入</string>
     <string name="paid_app_anonymous_message">匿名モードで購入済アプリをインストールすることはできません。インストールするにはGoogleアカウントにログインしてください。</string>
     <string name="update_error">アップデートの際にエラーが発生しました！</string>
+    <string name="open_source_apps">オープンソースのアプリ</string>
+    <string name="topgrossing_apps" weblate_ctx="home">売上が上位のアプリ</string>
+    <string name="topgrossing_games">売上が上位のゲーム</string>
+    <string name="movers_shakers_apps">トレンド上位のアプリ</string>
+    <string name="movers_shakers_games">トレンド上位のゲーム</string>
+    <string name="Show_common_apps">一般的なアプリを表示</string>
 </resources>
