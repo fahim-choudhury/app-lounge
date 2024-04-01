@@ -113,4 +113,27 @@
     <string name="movers_shakers_apps">トレンド上位のアプリ</string>
     <string name="movers_shakers_games">トレンド上位のゲーム</string>
     <string name="Show_common_apps">一般的なアプリを表示</string>
+    <string name="login_to_see_gplay_apps">一般的なアプリを表示するにはログインが必要です。</string>
+    <string name="message_app_available_later">このアプリは後で利用可能になります！</string>
+    <string name="gplay_data_for_oss">オープンソースのアプリのみが許可されている間はGoogle Playのアプリは表示できません。</string>
+    <string name="why_open_source_version">オープンソースのバージョンが表示されている理由</string>
+    <string name="duplicate_app_from_sources">プロプライエタリーなアプリの中には、オープンソースのバージョンもある場合があります。その場合、App Loungeは重複を避けるため、オープンソースのバージョンのみを表示します。</string>
+    <plurals name="updates_notification_title">
+        <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g>個のアプリのアップデートが利用できます</item>
+    </plurals>
+    <string name="message_update_failed">一時的な問題のため、一部のアプリをアップデートできません。後ほど再度試してください。</string>
+    <string name="additional_file_for">%sの追加のファイル</string>
+    <string name="popular_apps">PWAの人気アプリ</string>
+    <string name="popular_games">PWAの人気ゲーム</string>
+    <string name="tracker_information_not_found">このアプリの追跡機能に関する情報はありません。</string>
+    <string name="no_internet_message">接続できません！インターネットの接続を確認して、再度試してください</string>
+    <string name="message_last_update_triggered">%1$sのアップデートが%2$sに完了しました。</string>
+    <string name="automatically_install_updates_notification_text">アプリのアップデートは自動的にインストールされます</string>
+    <string name="manually_install_updates_notification_text">アプリのアップデートは自動的にインストールされません</string>
+    <string name="timeout_desc_cleanapk">ネットワークの問題のため、全てのアプリケーションを取得できません。</string>
+    <string name="too_many_requests_desc">現在使用している匿名のアカウントは利用できません。セッションを更新して新しいセッションを取得してください。</string>
+    <string name="anonymous_login_failed">匿名ログインに失敗しました！</string>
+    <string name="proceed_to_google_login">Googleログインに進む</string>
+    <string name="free_space_for_update">アップデートを取得するために%1$sの空き領域を設定してください。</string>
+    <string name="split_install_warning_title">%sに関する警告</string>
 </resources>
