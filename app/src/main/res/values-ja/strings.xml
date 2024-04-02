@@ -136,4 +136,20 @@
     <string name="proceed_to_google_login">Googleログインに進む</string>
     <string name="free_space_for_update">アップデートを取得するために%1$sの空き領域を設定してください。</string>
     <string name="split_install_warning_title">%sに関する警告</string>
+    <string name="preference_update_apps_from_other_stores_description">他のアプリストア経由でインストールしたアプリをアップデート。
+\n一般的なアプリと、オープンソースのカテゴリーからのアップデートを試みます。</string>
+    <string name="select_one_source_of_applications">最低1つのアプリケーションのインストール元を選択してください。</string>
+    <string name="timeout_title">アプリケーションを時間内に取得できませんでした！</string>
+    <string name="sign_in_failed_desc">ネットワークのエラーのため、App LoungeはGoogleのサインインのデータを取得できませんでした。</string>
+    <string name="data_load_error_desc">サーバーが応答していないか、サーバーの他のエラーが原因の可能性があります。
+\n
+\n再度お試しください。</string>
+    <string name="anonymous_login_failed_desc">トークンを生成できなかったか、または検証できなかったことなどが原因の可能性があります。
+\n
+\n「再試行」を押して再度試してください。</string>
+    <string name="request_exodus_report">Exodusのレポートを請求</string>
+    <string name="request_exodus_report_confirm_dialog">\"<xliff:g id="ok">%1$s</xliff:g>\"を押すと、アプリのパッケージ名が記入されたタブをブラウザーで開きます。&lt;br /&gt;&lt;br /&gt;「Perform analysis」（分析を実行） をクリックすると、Exodusが分析を開始します。&lt;br /&gt;&lt;br /&gt;「See the report」（レポートを閲覧）のボタンが表示されたら（アプリによってはしばらく時間がかかる可能性があります）、タブを閉じて<xliff:g id="app_name">%2$s</xliff:g>のアプリの説明欄に戻ると、プライバシーの点数が表示されているはずです。ただし、Exodusにはアプリを分析できない場合があります。&lt;br /&gt;&lt;br /&gt;注意：アプリの説明欄に点数が表示されるまで、最大で10分掛かる場合があります。</string>
+    <string name="notification_content_full_db">App Loungeが適切に機能するよう、電話の空き領域を設定してください。</string>
+    <string name="unsupported_app_unreleased">アプリ %s は現在サポートされていません。アプリがまだ公開されていないか、別のエラーによる可能性があります。</string>
+    <string name="split_install_warning_text">%sが追加のモジュールをインストールしようとしています。インストールを実行するには、App Loungeに再度サインインする必要があります。</string>
 </resources>
