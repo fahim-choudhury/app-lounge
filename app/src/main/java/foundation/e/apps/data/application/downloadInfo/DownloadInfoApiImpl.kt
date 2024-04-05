@@ -22,6 +22,7 @@ import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.handleNetworkResult
 import javax.inject.Inject
 
 class DownloadInfoApiImpl @Inject constructor(
@@ -34,16 +35,20 @@ class DownloadInfoApiImpl @Inject constructor(
         versionCode: Int,
         offerType: Int
     ): String? {
-        val list = appSources.gplayRepo.getOnDemandModule(
-            packageName,
-            moduleName,
-            versionCode,
-            offerType,
-        )
+        val result = handleNetworkResult {
+            appSources.gplayRepo.getOnDemandModule(
+                packageName,
+                moduleName,
+                versionCode,
+                offerType,
+            )
+        }
 
-        for (element in list) {
-            if (element.name == "$moduleName.apk") {
-                return element.url
+        if (result.isSuccess()) {
+            for (element in result.data!!) { // isSuccess() checks ensures null safety of data
+                if (element.name == "$moduleName.apk") {
+                    return element.url
+                }
             }
         }
 
