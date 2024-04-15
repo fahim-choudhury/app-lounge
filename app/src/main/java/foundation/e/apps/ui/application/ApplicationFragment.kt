@@ -1,6 +1,5 @@
 /*
- * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2021  E FOUNDATION
+ * Copyright (C) 2021-2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.ui.application
@@ -35,7 +35,9 @@ import androidx.core.graphics.BlendModeCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -47,31 +49,36 @@ import com.google.android.material.textview.MaterialTextView
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.MainActivity
 import foundation.e.apps.R
+import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.application.data.shareUri
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
-import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentApplicationBinding
 import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.install.download.data.DownloadProgress
-import foundation.e.apps.install.pkg.PWAManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
+import foundation.e.apps.install.pkg.PWAManager
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.PrivacyInfoViewModel
+import foundation.e.apps.ui.application.ShareButtonVisibilityState.Hidden
+import foundation.e.apps.ui.application.ShareButtonVisibilityState.Visible
 import foundation.e.apps.ui.application.model.ApplicationScreenshotsRVAdapter
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.parentFragment.TimeoutFragment
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
@@ -218,6 +225,8 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         observeDownloadList()
         observeDownloadStatus(binding.root)
         stopLoadingUI()
+
+        collectShareVisibilityState()
     }
 
     private fun showWarningMessage(it: Application) {
@@ -443,6 +452,27 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         } else {
             binding.toolbar.setNavigationOnClickListener {
                 view.findNavController().navigateUp()
+            }
+        }
+
+        binding.actionShare.setOnClickListener { openShareSheet() }
+    }
+
+    private fun openShareSheet() {
+        val application = applicationViewModel.application.value?.first ?: return
+        val shareIntent = AppShareIntent.create(application.name, application.shareUri)
+        startActivity(Intent.createChooser(shareIntent, null))
+    }
+
+    private fun collectShareVisibilityState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                applicationViewModel.shareButtonVisibilityState.collectLatest { state ->
+                    when (state) {
+                        Hidden -> binding.actionShare.visibility = View.GONE
+                        Visible -> binding.actionShare.visibility = View.VISIBLE
+                    }
+                }
             }
         }
     }
@@ -780,7 +810,8 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 if (application.is_pwa) {
                     pwaManager.launchPwa(application)
                 } else {
-                    val launchIntent = appLoungePackageManager.getLaunchIntent(application.package_name)
+                    val launchIntent =
+                        appLoungePackageManager.getLaunchIntent(application.package_name)
                     launchIntent?.run { startActivity(this) }
                 }
             }
@@ -795,7 +826,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             return
         }
         val downloadedSize = "${
-        Formatter.formatFileSize(requireContext(), progressResult.second).substringBefore(" MB")
+            Formatter.formatFileSize(requireContext(), progressResult.second).substringBefore(" MB")
         }/${Formatter.formatFileSize(requireContext(), progressResult.first)}"
         val progressPercentage =
             ((progressResult.second / progressResult.first.toDouble()) * 100f).toInt()
