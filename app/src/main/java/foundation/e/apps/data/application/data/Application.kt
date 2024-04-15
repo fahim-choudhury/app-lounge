@@ -1,6 +1,5 @@
 /*
- * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2021  E FOUNDATION
+ * Copyright (C) 2021-2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,17 +13,22 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.data.application.data
 
 import android.content.Context
+import android.net.Uri
 import com.aurora.gplayapi.Constants.Restriction
+import com.google.gson.annotations.SerializedName
 import foundation.e.apps.R
 import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
+import foundation.e.apps.data.enums.Type.NATIVE
+import foundation.e.apps.data.enums.Type.PWA
 import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 
 data class Application(
@@ -57,7 +61,7 @@ data class Application(
     val is_pwa: Boolean = false,
     var pwaPlayerDbId: Long = -1,
     val url: String = String(),
-    var type: Type = Type.NATIVE,
+    var type: Type = NATIVE,
     var privacyScore: Int = -1,
     var isPurchased: Boolean = false,
 
@@ -94,10 +98,12 @@ data class Application(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5720
      */
     var filterLevel: FilterLevel = FilterLevel.UNKNOWN,
-    var isGplayReplaced: Boolean = false
+    var isGplayReplaced: Boolean = false,
+    @SerializedName(value = "on_fdroid")
+    val isFDroidApp: Boolean = false
 ) {
     fun updateType() {
-        this.type = if (this.is_pwa) Type.PWA else Type.NATIVE
+        this.type = if (this.is_pwa) PWA else NATIVE
     }
 
     fun updateSource(context: Context) {
@@ -107,4 +113,22 @@ data class Application(
             else context.getString(R.string.open_source)
         }
     }
+}
+
+val Application.shareUri: Uri
+    get() = when (type) {
+        PWA -> Uri.parse(url)
+        NATIVE -> when {
+            isFDroidApp -> buildFDroidUri(package_name)
+            else -> Uri.parse(shareUrl)
+        }
+    }
+
+private fun buildFDroidUri(packageName: String): Uri {
+    return Uri.Builder()
+        .scheme("https")
+        .authority("f-droid.org")
+        .appendPath("packages")
+        .appendPath(packageName)
+        .build()
 }

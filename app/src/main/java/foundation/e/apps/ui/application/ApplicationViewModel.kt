@@ -1,6 +1,5 @@
 /*
- * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2021  E FOUNDATION
+ * Copyright (C) 2021-2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.ui.application
@@ -24,11 +24,12 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.exceptions.ApiException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.R
+import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.application.data.shareUri
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.application.ApplicationRepository
-import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.AuthObject
@@ -36,8 +37,12 @@ import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.download.data.DownloadProgressLD
+import foundation.e.apps.ui.application.ShareButtonVisibilityState.Hidden
+import foundation.e.apps.ui.application.ShareButtonVisibilityState.Visible
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -53,6 +58,9 @@ class ApplicationViewModel @Inject constructor(
     val downloadProgress = downloadProgressLD
     private val _errorMessageLiveData: MutableLiveData<Int> = MutableLiveData()
     val errorMessageLiveData: MutableLiveData<Int> = _errorMessageLiveData
+
+    private val _shareButtonVisibilityState = MutableStateFlow<ShareButtonVisibilityState>(Hidden)
+    val shareButtonVisibilityState = _shareButtonVisibilityState.asStateFlow()
 
     fun loadData(
         id: String,
@@ -105,6 +113,8 @@ class ApplicationViewModel @Inject constructor(
                     )
                 application.postValue(appData)
 
+                updateShareVisibilityState(appData.first.shareUri.toString())
+
                 val status = appData.second
 
                 if (appData.second != ResultStatus.OK) {
@@ -130,6 +140,11 @@ class ApplicationViewModel @Inject constructor(
         }
     }
 
+    private fun updateShareVisibilityState(shareUri: String) {
+        val isValidUri = shareUri.isNotBlank()
+        _shareButtonVisibilityState.value = if (isValidUri) Visible else Hidden
+    }
+
     /*
      * Dedicated method to get app details from cleanapk using package name.
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5509
@@ -142,6 +157,7 @@ class ApplicationViewModel @Inject constructor(
                         _errorMessageLiveData.postValue(R.string.app_not_found)
                     } else {
                         application.postValue(this)
+                        updateShareVisibilityState(first.shareUri.toString())
                     }
                 }
             } catch (e: Exception) {
@@ -170,12 +186,16 @@ class ApplicationViewModel @Inject constructor(
     fun getFusedApp(): Application? {
         return application.value?.first
     }
+
     fun handleRatingFormat(rating: Double): String {
         return fusedManagerRepository.handleRatingFormat(rating)
     }
 
     suspend fun calculateProgress(progress: DownloadProgress): Pair<Long, Long> {
-        return fusedManagerRepository.getCalculateProgressWithTotalSize(application.value?.first, progress)
+        return fusedManagerRepository.getCalculateProgressWithTotalSize(
+            application.value?.first,
+            progress
+        )
     }
 
     fun updateApplicationStatus(downloadList: List<FusedDownload>) {
@@ -186,4 +206,9 @@ class ApplicationViewModel @Inject constructor(
     }
 
     fun isOpenSourceSelected() = applicationRepository.isOpenSourceSelected()
+}
+
+sealed class ShareButtonVisibilityState {
+    object Visible : ShareButtonVisibilityState()
+    object Hidden : ShareButtonVisibilityState()
 }
