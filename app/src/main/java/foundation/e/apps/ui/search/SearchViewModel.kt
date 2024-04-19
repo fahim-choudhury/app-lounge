@@ -319,4 +319,13 @@ class SearchViewModel @Inject constructor(
             loadMore(searchText, autoTriggered = true)
         }
     }
+
+    fun shouldIgnoreResults(): Boolean {
+        val appsList = _searchResult.value?.data?.first
+
+        if (appsList.isNullOrEmpty()) return true
+
+        val appPackageNames = appsList.map { it.package_name }
+        return appPackageNames.all { it.isBlank() }
+    }
 }
