@@ -95,7 +95,7 @@
 
     <include
         android:id="@+id/noAppsFoundLayout"
-        android:visibility="invisible"
+        android:visibility="gone"
         tools:visibility="gone"
         layout="@layout/layout_no_apps_found" />
 

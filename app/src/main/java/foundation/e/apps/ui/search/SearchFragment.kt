@@ -132,7 +132,6 @@ class SearchFragment :
         authObjects.observe(viewLifecycleOwner) {
             val currentQuery = searchView?.query?.toString() ?: ""
             if (it == null || shouldIgnore(it, currentQuery)) {
-                showData()
                 return@observe
             }
 
@@ -176,6 +175,8 @@ class SearchFragment :
         searchViewModel.searchResult.observe(viewLifecycleOwner) {
             if (it.data?.first.isNullOrEmpty() && it.data?.second == false) {
                 noAppsFoundLayout?.visibility = View.VISIBLE
+            } else if (searchViewModel.shouldIgnoreResults()) {
+                return@observe
             } else {
                 listAdapter?.let { adapter ->
                     observeDownloadList(adapter)
@@ -367,13 +368,13 @@ class SearchFragment :
     }
 
     override fun showLoadingUI() {
-        binding.shimmerLayout.startShimmer()
-        binding.shimmerLayout.visibility = View.VISIBLE
+        shimmerLayout?.visibility = View.VISIBLE
+        shimmerLayout?.startShimmer()
     }
 
     override fun stopLoadingUI() {
-        binding.shimmerLayout.stopShimmer()
-        binding.shimmerLayout.visibility = View.GONE
+        shimmerLayout?.stopShimmer()
+        shimmerLayout?.visibility = View.GONE
     }
 
     private fun updateProgressOfInstallingApps(downloadProgress: DownloadProgress) {
@@ -440,8 +441,6 @@ class SearchFragment :
 
             view?.requestFocus()
             searchHintLayout?.visibility = View.GONE
-            shimmerLayout?.visibility = View.VISIBLE
-            noAppsFoundLayout?.visibility = View.GONE
             /*
              * Set the search text and call for network result.
              */
