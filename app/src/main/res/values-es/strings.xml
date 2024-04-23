@@ -15,9 +15,7 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   ~
-  -->
-
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  --><resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="ratings">Calificaciones</string>
     <string name="rating">Calificación</string>
     <string name="privacy">Privacidad</string>
@@ -190,10 +188,10 @@
     <string name="refresh_session">ACTUALIZAR SESSION</string>
     <string name="preference_update_apps_from_other_stores_description">Actualizar aplicaciones instaladas desde otras tiendas. 
 \nSe intentará actualizar dichas aplicaciones desde la categoría de aplicaciones comunes y de código abierto.</string>
-    <string name="google_login_alert_message">"Recomendamos utilizar una cuenta de Google dedicada para:
+    <string name="google_login_alert_message">Recomendamos utilizar una cuenta de Google dedicada para:
 \n
-\n\t- mitigar el microtargeting  
-\n        - limitar el impacto en caso de que esta cuenta sea restringida por Google"</string>
+\n- mitigar el microtargeting
+\n- limitar el impacto en caso de que esta cuenta sea restringida por Google</string>
     <string name="additional_file_for">Archivo adicional para %s</string>
     <string name="account_unavailable">Cuenta no disponible</string>
     <string name="share">Compartir</string>
