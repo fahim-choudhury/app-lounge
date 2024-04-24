@@ -19,6 +19,8 @@
 package foundation.e.apps.ui.home
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
@@ -92,6 +94,11 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
             }
 
             homeParentRVAdapter?.setData(it.data!!)
+
+            // scrolling to top 1 second later to give time UI elements to be rendered
+            Handler(Looper.getMainLooper()).postDelayed({
+                binding.parentRV.scrollToPosition(0)
+            }, 1000)
         }
     }
 
