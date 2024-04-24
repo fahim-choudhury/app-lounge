@@ -70,6 +70,10 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
     @Inject
     lateinit var pwaManager: PWAManager
 
+    companion object {
+        private const val DELAY_SCROLL = 1000L
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentHomeBinding.bind(view)
@@ -98,7 +102,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
             // scrolling to top 1 second later to give time UI elements to be rendered
             Handler(Looper.getMainLooper()).postDelayed({
                 binding.parentRV.scrollToPosition(0)
-            }, 1000)
+            }, DELAY_SCROLL)
         }
     }
 
