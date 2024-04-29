@@ -19,8 +19,6 @@
 package foundation.e.apps.ui.home
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
@@ -48,6 +46,7 @@ import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.home.model.HomeChildRVAdapter
 import foundation.e.apps.ui.home.model.HomeParentRVAdapter
 import foundation.e.apps.ui.parentFragment.TimeoutFragment
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -71,7 +70,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
     lateinit var pwaManager: PWAManager
 
     companion object {
-        private const val DELAY_SCROLL = 1000L
+        private const val SCROLL_DELAY_IN_MILLIS = 500L
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -99,10 +98,11 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
 
             homeParentRVAdapter?.setData(it.data!!)
 
-            // scrolling to top 1 second later to give time UI elements to be rendered
-            Handler(Looper.getMainLooper()).postDelayed({
+            // scrolling to top 500 ms later to give time UI elements to be rendered
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(SCROLL_DELAY_IN_MILLIS)
                 binding.parentRV.scrollToPosition(0)
-            }, DELAY_SCROLL)
+            }
         }
     }
 
