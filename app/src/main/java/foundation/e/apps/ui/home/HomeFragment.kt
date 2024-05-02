@@ -46,6 +46,7 @@ import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.home.model.HomeChildRVAdapter
 import foundation.e.apps.ui.home.model.HomeParentRVAdapter
 import foundation.e.apps.ui.parentFragment.TimeoutFragment
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -67,6 +68,10 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
 
     @Inject
     lateinit var pwaManager: PWAManager
+
+    companion object {
+        private const val SCROLL_DELAY_IN_MILLIS = 500L
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -92,6 +97,12 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
             }
 
             homeParentRVAdapter?.setData(it.data!!)
+
+            // scrolling to top 500 ms later to give time UI elements to be rendered
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(SCROLL_DELAY_IN_MILLIS)
+                binding.parentRV.scrollToPosition(0)
+            }
         }
     }
 
