@@ -129,9 +129,7 @@ class UpdatesManagerImpl @Inject constructor(
         val systemApps = mutableListOf<Application>()
 
         getUpdatesFromApi({
-            getSystemUpdates().toMutableList().let {
-                Pair(it, ResultStatus.OK)
-            }
+            Pair(getSystemUpdates().toMutableList(), ResultStatus.OK)
         }, systemApps)
 
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)

@@ -223,25 +223,21 @@ class AppsApiImpl @Inject constructor(
         val releaseType = getSystemReleaseType()
 
         val eligibleApps = systemAppsUpdatesRepository.getAllEligibleApps()
-        eligibleApps?.forEach {
-            val packageName = it.packageName
+        eligibleApps.forEach {
 
-            if (!appLoungePackageManager.isInstalled(it.packageName)) {
+            if (!appLoungePackageManager.isInstalled(it)) {
                 // Don't install for system apps which are removed (by root or otherwise)
                 return@forEach
             }
 
-            val releaseTypes = it.releaseTypes
-            if (releaseType in releaseTypes) {
-                systemAppsUpdatesRepository.getSystemAppUpdateInfo(
-                    packageName,
-                    releaseType,
-                    getSdkLevel(),
-                    getDevice(),
-                )?.run {
-                    applicationDataManager.updateStatus(this)
-                    updateList.add(this)
-                }
+            systemAppsUpdatesRepository.getSystemAppUpdateInfo(
+                it,
+                releaseType,
+                getSdkLevel(),
+                getDevice(),
+            )?.run {
+                applicationDataManager.updateStatus(this)
+                updateList.add(this)
             }
         }
 
