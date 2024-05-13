@@ -41,6 +41,7 @@ import foundation.e.apps.data.enums.isInitialized
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.gitlab.SystemAppsUpdatesRepository
 import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.apps.data.preference.getSync
 import foundation.e.apps.install.pkg.AppLoungePackageManager
@@ -59,6 +60,7 @@ class MainActivityViewModel @Inject constructor(
     private val pwaManager: PWAManager,
     private val ecloudRepository: EcloudRepository,
     private val blockedAppRepository: BlockedAppRepository,
+    private val systemAppsUpdatesRepository: SystemAppsUpdatesRepository,
     private val appInstallProcessor: AppInstallProcessor,
 ) : ViewModel() {
 
@@ -226,6 +228,12 @@ class MainActivityViewModel @Inject constructor(
     fun updateAppWarningList() {
         viewModelScope.launch {
             blockedAppRepository.fetchUpdateOfAppWarningList()
+        }
+    }
+
+    fun updateEligibleSystemAppsList() {
+        viewModelScope.launch {
+            systemAppsUpdatesRepository.fetchAllEligibleApps()
         }
     }
 

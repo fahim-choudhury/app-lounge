@@ -20,6 +20,7 @@ import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.gitlab.SystemAppsUpdatesRepository
 import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.data.updates.UpdatesManagerRepository
@@ -39,6 +40,7 @@ class UpdatesWorker @AssistedInject constructor(
     private val dataStoreManager: DataStoreManager,
     private val authenticatorRepository: AuthenticatorRepository,
     private val appInstallProcessor: AppInstallProcessor,
+    private val systemAppsUpdatesRepository: SystemAppsUpdatesRepository,
     private val blockedAppRepository: BlockedAppRepository,
 ) : CoroutineWorker(context, params) {
 
@@ -62,6 +64,7 @@ class UpdatesWorker @AssistedInject constructor(
             }
 
             refreshBlockedAppList()
+            refreshEligibleSystemApps()
             checkForUpdates()
             Result.success()
         } catch (e: Throwable) {
@@ -77,6 +80,12 @@ class UpdatesWorker @AssistedInject constructor(
     private suspend fun refreshBlockedAppList() {
         if (isAutoUpdate) {
             blockedAppRepository.fetchUpdateOfAppWarningList()
+        }
+    }
+
+    private suspend fun refreshEligibleSystemApps() {
+        if (systemAppsUpdatesRepository.getAllEligibleApps().isEmpty()) {
+            systemAppsUpdatesRepository.fetchAllEligibleApps()
         }
     }
 

@@ -120,6 +120,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.updateAppWarningList()
+        viewModel.updateEligibleSystemAppsList()
 
         observeEvents()
     }
