@@ -33,20 +33,15 @@ import foundation.e.apps.data.cleanapk.data.app.Application
 import foundation.e.apps.data.ecloud.EcloudApiInterface
 import foundation.e.apps.data.exodus.ExodusTrackerApi
 import foundation.e.apps.data.fdroid.FdroidApiInterface
-import foundation.e.apps.data.gitlab.SystemAppsUpdatesApi
+import foundation.e.apps.data.gitlab.EligibleSystemAppsApi
+import foundation.e.apps.data.gitlab.SystemAppDefinitionApi
 import okhttp3.Cache
 import okhttp3.Interceptor
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
-import okhttp3.Protocol
-import okhttp3.Response
-import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.jackson.JacksonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
-import timber.log.Timber
-import java.net.ConnectException
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
@@ -123,16 +118,30 @@ object RetrofitModule {
 
     @Singleton
     @Provides
-    fun provideSystemAppsUpdatesApi(
+    fun provideEligibleSystemAppsApi(
         okHttpClient: OkHttpClient,
         moshi: Moshi,
-    ): SystemAppsUpdatesApi {
+    ): EligibleSystemAppsApi {
         return Retrofit.Builder()
-            .baseUrl(SystemAppsUpdatesApi.BASE_URL)
+            .baseUrl(EligibleSystemAppsApi.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
-            .create(SystemAppsUpdatesApi::class.java)
+            .create(EligibleSystemAppsApi::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideSystemAppDefinitionApi(
+        okHttpClient: OkHttpClient,
+        moshi: Moshi,
+    ): SystemAppDefinitionApi {
+        return Retrofit.Builder()
+            .baseUrl(SystemAppDefinitionApi.BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+            .create(SystemAppDefinitionApi::class.java)
     }
 
     @Singleton
