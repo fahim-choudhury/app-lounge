@@ -18,7 +18,7 @@
 package foundation.e.apps.data.gitlab
 
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.gitlab.models.EligibleSystemApps
+import foundation.e.apps.data.gitlab.models.ProjectIdMapItem
 import foundation.e.apps.data.gitlab.models.toApplication
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -26,13 +26,21 @@ import timber.log.Timber
 
 @Singleton
 class SystemAppsUpdatesRepository @Inject constructor(
-    private val systemAppsUpdatesApi: SystemAppsUpdatesApi,
+    private val eligibleSystemAppsApi: EligibleSystemAppsApi,
+    private val systemAppDefinitionApi: SystemAppDefinitionApi,
 ) {
 
-    suspend fun getAllEligibleApps(): List<EligibleSystemApps>? {
-        val response = systemAppsUpdatesApi.getAllEligibleApps()
-        if (!response.isSuccessful) return emptyList()
-        return response.body()
+    private var projectIdMap = mutableListOf<ProjectIdMapItem>()
+
+    suspend fun fetchAllEligibleApps() {
+        val response = eligibleSystemAppsApi.getAllEligibleApps()
+        if (response.isSuccessful && !response.body().isNullOrEmpty()) {
+            response.body()?.let { projectIdMap.addAll(it) }
+        }
+    }
+
+    fun getAllEligibleApps(): List<String> {
+        return projectIdMap.map { it.packageName }
     }
 
     suspend fun getSystemAppUpdateInfo(
@@ -41,7 +49,11 @@ class SystemAppsUpdatesRepository @Inject constructor(
         sdkLevel: Int,
         device: String,
     ): Application? {
-        val response = systemAppsUpdatesApi.getSystemAppUpdateInfo(packageName, releaseType)
+
+        val projectId =
+            projectIdMap.find { it.packageName == packageName }?.projectId ?: return null
+
+        val response = systemAppDefinitionApi.getSystemAppUpdateInfo(projectId, releaseType)
         if (!response.isSuccessful) {
             Timber.e("Failed to fetch system app update definition for: $packageName, $releaseType")
             return null
@@ -54,15 +66,15 @@ class SystemAppsUpdatesRepository @Inject constructor(
                 Timber.e("Null update definition: $packageName, $releaseType")
                 null
             }
-            !updateDef.eligibleAndroidPlatforms.contains(sdkLevel) -> {
+            updateDef.blacklistedAndroid?.contains(sdkLevel) == true -> {
                 Timber.e("Ineligible sdk level: $packageName, $sdkLevel")
                 null
             }
-            updateDef.blacklistedDevices.contains(device) -> {
+            updateDef.blacklistedDevices?.contains(device) == true -> {
                 Timber.e("blacklisted device: $packageName, $device")
                 null
             }
-            updateDef.blacklistedDevices.contains("${device}@${sdkLevel}") -> {
+            updateDef.blacklistedDevices?.contains("${device}@${sdkLevel}") == true -> {
                 // In case a device on a specific android version is blacklisted.
                 // Eg: "redfin@31" would mean Pixel 5 on Android 12 cannot receive this update.
                 Timber.e("blacklisted device: $packageName, ${device}@${sdkLevel}")

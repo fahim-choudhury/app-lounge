@@ -28,19 +28,19 @@ data class UpdateDefinition(
     val name: String,
     @Json(name = "package_name") val packageName: String,
     @Json(name = "version_code") val versionCode: Int,
+    @Json(name = "min_sdk") val minSdk: Int,
     @Json(name = "version_name") val versionName: String,
-    @Json(name = "desc") val description: String,
-    val priority: Boolean,
-    @Json(name = "eligible_android_platforms") val eligibleAndroidPlatforms: List<Int>,
-    @Json(name = "blacklisted_devices") val blacklistedDevices: List<String>,
     @Json(name = "url") val downloadUrl: String,
+    val priority: Boolean?,
+    @Json(name = "blacklisted_android") val blacklistedAndroid: List<Int>?,
+    @Json(name = "blacklisted_devices") val blacklistedDevices: List<String>?,
 )
 
 fun UpdateDefinition.toApplication(): Application {
     return Application(
         _id = UUID.randomUUID().toString(),
         author = "Murena SAS",
-        description = description,
+        description = "",
         latest_version_code = versionCode,
         latest_version_number = versionName,
         name = name,

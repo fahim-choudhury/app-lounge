@@ -15,13 +15,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.gitlab.models
+package foundation.e.apps.data.gitlab
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.squareup.moshi.Json
+import foundation.e.apps.data.gitlab.models.ProjectIdMapItem
+import retrofit2.Response
+import retrofit2.http.GET
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class EligibleSystemApps(
-    @Json(name = "package_name") val packageName: String,
-    @Json(name = "release_types") val releaseTypes: List<String>,
-)
+interface EligibleSystemAppsApi {
+
+    companion object {
+        const val BASE_URL =
+            "https://gitlab.e.foundation/e/os/blocklist-app-lounge/-/raw/7846-apk_publish_poc/"
+    }
+
+    @GET("updatable_system_apps.json")
+    suspend fun getAllEligibleApps(): Response<List<ProjectIdMapItem>>
+
+}
