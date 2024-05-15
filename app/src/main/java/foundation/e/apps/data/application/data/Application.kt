@@ -21,6 +21,7 @@ package foundation.e.apps.data.application.data
 import android.content.Context
 import android.net.Uri
 import com.aurora.gplayapi.Constants.Restriction
+import com.aurora.gplayapi.data.models.ContentRating
 import com.google.gson.annotations.SerializedName
 import foundation.e.apps.R
 import foundation.e.apps.data.enums.FilterLevel
@@ -100,7 +101,8 @@ data class Application(
     var filterLevel: FilterLevel = FilterLevel.UNKNOWN,
     var isGplayReplaced: Boolean = false,
     @SerializedName(value = "on_fdroid")
-    val isFDroidApp: Boolean = false
+    val isFDroidApp: Boolean = false,
+    val contentRating: ContentRating = ContentRating()
 ) {
     fun updateType() {
         this.type = if (this.is_pwa) PWA else NATIVE

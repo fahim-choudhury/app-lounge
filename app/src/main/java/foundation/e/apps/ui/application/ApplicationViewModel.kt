@@ -21,6 +21,7 @@ package foundation.e.apps.ui.application
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.models.ContentRating
 import com.aurora.gplayapi.exceptions.ApiException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.R
@@ -43,6 +44,7 @@ import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -61,6 +63,9 @@ class ApplicationViewModel @Inject constructor(
 
     private val _shareButtonVisibilityState = MutableStateFlow<ShareButtonVisibilityState>(Hidden)
     val shareButtonVisibilityState = _shareButtonVisibilityState.asStateFlow()
+
+    private val _appContentRating = MutableStateFlow(ContentRating())
+    val appContentRating = _appContentRating.asStateFlow()
 
     fun loadData(
         id: String,
@@ -114,6 +119,7 @@ class ApplicationViewModel @Inject constructor(
                 application.postValue(appData)
 
                 updateShareVisibilityState(appData.first.shareUri.toString())
+                updateAppContentRatingState(appData.first.contentRating)
 
                 val status = appData.second
 
@@ -138,6 +144,10 @@ class ApplicationViewModel @Inject constructor(
                 _errorMessageLiveData.postValue(R.string.unknown_error)
             }
         }
+    }
+
+    private fun updateAppContentRatingState(value: ContentRating) {
+        _appContentRating.update { value }
     }
 
     private fun updateShareVisibilityState(shareUri: String) {

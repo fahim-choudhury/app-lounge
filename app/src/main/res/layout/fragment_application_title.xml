@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Apps  Quickly and easily install Android apps onto your device!
-  ~ Copyright (C) 2021  E FOUNDATION
+  ~ Copyright (C) 2021-2024 MURENA SAS
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
   ~
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  ~
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -26,8 +26,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
         android:orientation="horizontal">
 
@@ -71,6 +71,7 @@
                 android:paddingEnd="2dp"
                 android:textColor="@color/app_info_text_color_grey"
                 android:textSize="16sp" />
+
         </LinearLayout>
     </LinearLayout>
 
@@ -87,6 +88,7 @@
             android:id="@+id/sourceTag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
             android:background="@drawable/bg_tag_rounded"
             android:paddingStart="10dp"
             android:paddingTop="4dp"
@@ -94,7 +96,6 @@
             android:paddingBottom="4dp"
             android:textAllCaps="false"
             android:textColor="#626262"
-            android:layout_marginEnd="10dp"
             android:textSize="14sp"
             android:visibility="gone"
             tools:text="Open Source" />
@@ -103,6 +104,7 @@
             android:id="@+id/categoryTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
             android:background="@drawable/bg_tag_rounded"
             android:paddingStart="10dp"
             android:paddingTop="4dp"
@@ -110,9 +112,8 @@
             android:paddingBottom="4dp"
             android:textAllCaps="false"
             android:textColor="#626262"
-            android:textSize="14sp"
-            android:layout_marginEnd="20dp"
             android:textIsSelectable="false"
+            android:textSize="14sp"
             tools:text="Racing" />
 
     </LinearLayout>
