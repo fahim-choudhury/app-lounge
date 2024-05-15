@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (C) 2021-2024 MURENA SAS
+  ~ Copyright (C) 2024 MURENA SAS
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
   -->
 
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="8dp"
-    android:height="8dp"
-    android:viewportWidth="11"
-    android:viewportHeight="11"
-    android:tint="@color/colorAccent">
-    <path
-        android:pathData="M5.2093,5.8407m-5.0443,0a5.0443,5.0443 0,1 1,10.0885 0a5.0443,5.0443 0,1 1,-10.0885 0"
-        android:fillColor="@color/colorAccent"/>
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+  <path
+      android:pathData="M14.666,6.16L9.873,5.747L8,1.333L6.126,5.753L1.333,6.16L4.973,9.313L3.88,14L8,11.513L12.12,14L11.033,9.313L14.666,6.16ZM8,10.267L5.493,11.78L6.16,8.927L3.946,7.007L6.866,6.753L8,4.067L9.14,6.76L12.06,7.013L9.846,8.933L10.513,11.787L8,10.267Z"
+      android:fillColor="#000000"
+      android:fillAlpha="0.38"
+      android:fillType="evenOdd"/>
 </vector>

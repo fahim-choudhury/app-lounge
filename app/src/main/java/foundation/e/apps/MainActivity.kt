@@ -413,7 +413,7 @@ class MainActivity : AppCompatActivity() {
         ApplicationDialogFragment(
             title = getString(R.string.account_unavailable),
             message = getString(R.string.too_many_requests_desc),
-            drawable = R.drawable.ic_warning,
+            drawableResId = R.drawable.ic_warning,
             positiveButtonText = getString(R.string.refresh_session),
             positiveButtonAction = {
                 refreshSession()

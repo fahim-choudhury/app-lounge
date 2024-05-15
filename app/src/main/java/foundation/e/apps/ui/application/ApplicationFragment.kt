@@ -42,7 +42,11 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import coil.ImageLoader
 import coil.load
+import coil.request.ImageRequest
+import coil.request.SuccessResult
+import com.aurora.gplayapi.data.models.ContentRating
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textview.MaterialTextView
@@ -72,9 +76,11 @@ import foundation.e.apps.ui.application.ShareButtonVisibilityState.Visible
 import foundation.e.apps.ui.application.model.ApplicationScreenshotsRVAdapter
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.parentFragment.TimeoutFragment
+import foundation.e.apps.utils.isValid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
@@ -226,7 +232,12 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         observeDownloadStatus(binding.root)
         stopLoadingUI()
 
+        collectState()
+    }
+
+    private fun collectState() {
         collectShareVisibilityState()
+        collectAppContentRatingState()
     }
 
     private fun showWarningMessage(it: Application) {
@@ -265,9 +276,9 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         binding.privacyInclude.apply {
             appPermissions.setOnClickListener { _ ->
                 ApplicationDialogFragment(
-                    R.drawable.ic_perm,
-                    getString(R.string.permissions),
-                    getPermissionListString()
+                    drawableResId = R.drawable.ic_perm,
+                    title = getString(R.string.permissions),
+                    message = getPermissionListString()
                 ).show(childFragmentManager, TAG)
             }
             appTrackers.setOnClickListener {
@@ -276,9 +287,9 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                     buildTrackersString(fusedApp)
 
                 ApplicationDialogFragment(
-                    R.drawable.ic_tracker,
-                    getString(R.string.trackers_title),
-                    trackers
+                    drawableResId = R.drawable.ic_tracker,
+                    title = getString(R.string.trackers_title),
+                    message = trackers
                 ).show(childFragmentManager, TAG)
             }
         }
@@ -335,15 +346,18 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                     )
 
                 appRating.setCompoundDrawablesWithIntrinsicBounds(
-                    null, null, getRatingDrawable(rating), null
+                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_star_blank),
+                    null,
+                    getRatingDrawable(rating),
+                    null
                 )
                 appRating.compoundDrawablePadding = 15
             }
             appRatingLayout.setOnClickListener {
                 ApplicationDialogFragment(
-                    R.drawable.ic_star,
-                    getString(R.string.rating),
-                    getString(R.string.rating_description)
+                    drawableResId = R.drawable.ic_star_blank,
+                    title = getString(R.string.rating),
+                    message = getString(R.string.rating_description)
                 ).show(childFragmentManager, TAG)
             }
 
@@ -360,15 +374,15 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun showRequestExodusReportDialog() {
         ApplicationDialogFragment(
-            R.drawable.ic_lock,
-            getString(R.string.request_exodus_report),
-            getRequestExodusReportDialogDetailsText(),
-            getString(R.string.ok),
-            {
+            drawableResId = R.drawable.ic_lock,
+            title = getString(R.string.request_exodus_report),
+            message = getRequestExodusReportDialogDetailsText(),
+            positiveButtonText = getString(R.string.ok),
+            positiveButtonAction = {
                 shouldReloadPrivacyInfo = true
                 openRequestExodusReportUrl()
             },
-            getString(R.string.cancel)
+            cancelButtonText = getString(R.string.cancel)
         ).show(childFragmentManager, TAG)
     }
 
@@ -387,9 +401,9 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun showPrivacyScoreCalculationLoginDialog() {
         ApplicationDialogFragment(
-            R.drawable.ic_lock,
-            getString(R.string.privacy_score),
-            getString(
+            drawableResId = R.drawable.ic_lock,
+            title = getString(R.string.privacy_score),
+            message = getString(
                 R.string.privacy_description,
                 PRIVACY_SCORE_SOURCE_CODE_URL,
                 generateExodusUrl(),
@@ -475,6 +489,69 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 }
             }
         }
+    }
+
+    private fun collectAppContentRatingState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                applicationViewModel.appContentRating.collectLatest(::updateContentRatingUi)
+            }
+        }
+    }
+
+    private fun updateContentRatingUi(contentRating: ContentRating) {
+        fun loadContentRating(contentRating: ContentRating) {
+            lifecycleScope.launch {
+                val drawable = loadContentRatingDrawable(contentRating.artwork.url)
+                displayRating(contentRating, drawable)
+            }
+        }
+
+        fun hideContentRating() {
+            binding.ratingsInclude.appContentRatingLayout.visibility = View.GONE
+        }
+
+        if (contentRating.isValid()) {
+            loadContentRating(contentRating)
+        } else {
+            hideContentRating()
+        }
+    }
+
+    private fun displayRating(contentRating: ContentRating, drawable: Drawable?) {
+        binding.ratingsInclude.apply {
+            appContentRatingTitle.text = contentRating.title
+
+            if (drawable != null) {
+                appContentRatingProgress.visibility = View.GONE
+                appContentRatingIcon.setImageDrawable(drawable)
+            }
+
+            appContentRatingLayout.apply {
+                visibility = View.VISIBLE
+
+                setOnClickListener {
+                    openContentRatingDialog(
+                        contentRating.title,
+                        drawable,
+                        contentRating.description
+                    )
+                }
+            }
+        }
+    }
+
+    private suspend fun loadContentRatingDrawable(url: String): Drawable? {
+        return withContext(Dispatchers.IO) {
+            val imageRequest = ImageRequest.Builder(requireContext()).data(url).build()
+            val result = ImageLoader.invoke(requireContext()).execute(imageRequest)
+            if (result is SuccessResult) result.drawable else null
+        }
+    }
+
+    private fun openContentRatingDialog(title: String, iconUrl: Drawable?, recommendation: String) {
+        ApplicationDialogFragment(drawable = iconUrl, title = title, message = recommendation)
+            .show(childFragmentManager, TAG)
     }
 
     override fun loadData(authObjectList: List<AuthObject>) {
@@ -831,7 +908,8 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         val progressPercentage =
             ((progressResult.second / progressResult.first.toDouble()) * 100f).toInt()
         binding.downloadInclude.appInstallPB.progress = progressPercentage
-        binding.downloadInclude.percentage.text = String.format("%d%%", progressPercentage)
+        binding.downloadInclude.percentage.text =
+            String.format(Locale.getDefault(), "%d%%", progressPercentage)
         binding.downloadInclude.downloadedSize.text = downloadedSize
     }
 
@@ -890,7 +968,10 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             )
 
             appPrivacyScore.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                null, null, getPrivacyDrawable(privacyScore.toString()), null
+                ContextCompat.getDrawable(requireContext(), R.drawable.ic_lock_blank),
+                null,
+                getPrivacyDrawable(privacyScore.toString()),
+                null
             )
             appPrivacyScore.compoundDrawablePadding = 15
         }
