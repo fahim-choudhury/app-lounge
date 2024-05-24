@@ -233,6 +233,14 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         stopLoadingUI()
 
         collectState()
+
+        binding.titleInclude.nsfwMessage.setOnClickListener {
+            ApplicationDialogFragment(
+                title = getString(R.string.nsfw_dialog_title),
+                message = getString(R.string.nsfw_dialog_message),
+                drawableResId = R.drawable.visibility_off
+            ).show(childFragmentManager, TAG)
+        }
     }
 
     private fun collectState() {

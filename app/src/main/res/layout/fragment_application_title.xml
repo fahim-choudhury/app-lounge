@@ -74,7 +74,15 @@
 
         </LinearLayout>
     </LinearLayout>
-
+    <TextView
+        android:id="@+id/nsfwMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/message_inappropriate_content"
+        android:textSize="14sp"
+        android:layout_marginStart="12dp"
+        android:textColor="#99000000"
+        app:drawableStartCompat="@drawable/visibility_off" />
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
