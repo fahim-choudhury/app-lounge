@@ -36,6 +36,7 @@ import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
+import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.download.data.DownloadProgressLD
 import foundation.e.apps.ui.application.ShareButtonVisibilityState.Hidden
@@ -53,6 +54,7 @@ class ApplicationViewModel @Inject constructor(
     downloadProgressLD: DownloadProgressLD,
     private val applicationRepository: ApplicationRepository,
     private val fusedManagerRepository: FusedManagerRepository,
+    private val playStoreRepository: PlayStoreRepository,
 ) : LoadingViewModel() {
 
     val application: MutableLiveData<Pair<Application, ResultStatus>> = MutableLiveData()
@@ -64,8 +66,8 @@ class ApplicationViewModel @Inject constructor(
     private val _shareButtonVisibilityState = MutableStateFlow<ShareButtonVisibilityState>(Hidden)
     val shareButtonVisibilityState = _shareButtonVisibilityState.asStateFlow()
 
-    private val _appContentRating = MutableStateFlow(ContentRating())
-    val appContentRating = _appContentRating.asStateFlow()
+    private val _appContentRatingState = MutableStateFlow(ContentRating())
+    val appContentRatingState = _appContentRatingState.asStateFlow()
 
     fun loadData(
         id: String,
@@ -119,7 +121,7 @@ class ApplicationViewModel @Inject constructor(
                 application.postValue(appData)
 
                 updateShareVisibilityState(appData.first.shareUri.toString())
-                updateAppContentRatingState(appData.first.contentRating)
+                updateAppContentRatingState(packageName, appData.first.contentRating)
 
                 val status = appData.second
 
@@ -146,8 +148,17 @@ class ApplicationViewModel @Inject constructor(
         }
     }
 
-    private fun updateAppContentRatingState(value: ContentRating) {
-        _appContentRating.update { value }
+    private suspend fun updateAppContentRatingState(
+        packageName: String,
+        contentRating: ContentRating
+    ) {
+        // Initially update the state without ID to show the UI immediately
+        _appContentRatingState.update { contentRating }
+
+        val ratingWithId = playStoreRepository.updateContentRatingWithId(packageName, contentRating)
+
+        // Later, update with a new rating; no visual change in the UI
+        _appContentRatingState.update { contentRating.copy(id = ratingWithId.id) }
     }
 
     private fun updateShareVisibilityState(shareUri: String) {
