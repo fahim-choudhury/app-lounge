@@ -71,4 +71,17 @@
         <item name="android:textColor">@color/install_button_background</item>
     </style>
 
+    <style name="ChipTheme" parent="Widget.MaterialComponents.Chip.Filter">
+        <item name="checkedIconEnabled">true</item>
+        <item name="checkedIcon">@drawable/ic_close</item>
+        <item name="checkedIconTint">@color/chip_text_color</item>
+        <item name="android:layoutDirection">rtl</item>
+        <item name="chipBackgroundColor">@color/chip_background_color</item>
+        <item name="android:textColor">@color/chip_text_color</item>
+        <item name="chipStrokeColor">@color/chip_border_color</item>
+        <item name="chipStrokeWidth">2dp</item>
+        <item name="chipStartPadding">10dp</item>
+        <item name="chipEndPadding">10dp</item>
+    </style>
+
 </resources>

@@ -26,21 +26,17 @@ import javax.inject.Singleton
 @Singleton
 class DataStoreManager @Inject constructor() {
     @Inject
-    lateinit var dataStoreModule: DataStoreModule
+    lateinit var appLoungeDataStore: AppLoungeDataStore
 
     @Inject
     lateinit var gson: Gson
 
     fun getAuthData(): AuthData {
-        val authDataJson = dataStoreModule.getAuthDataSync()
-        return gson.fromJson(authDataJson, AuthData::class.java)
+        val authDataJson = appLoungeDataStore.authData.getSync()
+        return gson.fromJson(authDataJson, AuthData::class.java) ?: AuthData("", "")
     }
 
     fun getUserType(): User {
-        return dataStoreModule.getUserType()
-    }
-
-    fun getAuthDataJson(): String {
-        return dataStoreModule.getAuthDataSync()
+        return appLoungeDataStore.getUserType()
     }
 }

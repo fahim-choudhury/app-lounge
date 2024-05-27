@@ -18,9 +18,9 @@
 
 package foundation.e.apps.data.cleanapk.data.app
 
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.application.data.Application as AppLoungeApplication
 
 data class Application(
-    val app: FusedApp = FusedApp(),
+    val app: AppLoungeApplication = AppLoungeApplication(),
     val success: Boolean = false
 )

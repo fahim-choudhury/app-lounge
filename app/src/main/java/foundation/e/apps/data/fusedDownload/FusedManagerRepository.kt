@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData
 import foundation.e.apps.OpenForTesting
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FdroidRepository
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.workmanager.InstallWorkManager
@@ -108,10 +108,10 @@ class FusedManagerRepository @Inject constructor(
         fusedDownload.packageName.isNotEmpty() && fusedDownload.downloadURLList.isNotEmpty()
 
     suspend fun calculateProgress(
-        fusedApp: FusedApp?,
+        application: Application?,
         progress: DownloadProgress
     ): Int {
-        fusedApp?.let { app ->
+        application?.let { app ->
             val appDownload = getDownloadList()
                 .singleOrNull { it.id.contentEquals(app._id) && it.packageName.contentEquals(app.package_name) }
                 ?: return 0
@@ -120,7 +120,7 @@ class FusedManagerRepository @Inject constructor(
                 return@let
             }
 
-            if (!isProgressValidForApp(fusedApp, progress)) {
+            if (!isProgressValidForApp(application, progress)) {
                 return -1
             }
 
@@ -142,11 +142,11 @@ class FusedManagerRepository @Inject constructor(
     }
 
     private suspend fun isProgressValidForApp(
-        fusedApp: FusedApp,
+        application: Application,
         downloadProgress: DownloadProgress
     ): Boolean {
         val download = getFusedDownload(downloadProgress.downloadId)
-        return download.id == fusedApp._id
+        return download.id == application._id
     }
 
     fun handleRatingFormat(rating: Double): String {
@@ -157,8 +157,8 @@ class FusedManagerRepository @Inject constructor(
         }
     }
 
-    suspend fun getCalculateProgressWithTotalSize(fusedApp: FusedApp?, progress: DownloadProgress): Pair<Long, Long> {
-        fusedApp?.let { app ->
+    suspend fun getCalculateProgressWithTotalSize(application: Application?, progress: DownloadProgress): Pair<Long, Long> {
+        application?.let { app ->
             val appDownload = getDownloadList()
                 .singleOrNull { it.id.contentEquals(app._id) }
             val downloadingMap = progress.totalSizeBytes.filter { item ->
@@ -174,8 +174,8 @@ class FusedManagerRepository @Inject constructor(
         return Pair(1, 0)
     }
 
-    fun getDownloadingItemStatus(fusedApp: FusedApp?, downloadList: List<FusedDownload>): Status? {
-        fusedApp?.let { app ->
+    fun getDownloadingItemStatus(application: Application?, downloadList: List<FusedDownload>): Status? {
+        application?.let { app ->
             val downloadingItem =
                 downloadList.find { it.origin == app.origin && (it.packageName == app.package_name || it.id == app.package_name) }
             return downloadingItem?.status

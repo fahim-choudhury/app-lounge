@@ -33,13 +33,14 @@ import androidx.preference.Preference.OnPreferenceChangeListener
 import androidx.preference.PreferenceFragmentCompat
 import androidx.work.ExistingPeriodicWorkPolicy
 import coil.load
+import com.aurora.gplayapi.data.models.AuthData
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.BuildConfig
 import foundation.e.apps.R
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.fused.UpdatesDao
+import foundation.e.apps.data.application.UpdatesDao
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.databinding.CustomPreferenceBinding
 import foundation.e.apps.install.updates.UpdatesWorkManager
@@ -166,23 +167,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         mainActivityViewModel.gPlayAuthData.let { authData ->
             mainActivityViewModel.getUser().name.let { user ->
-                when (user) {
-                    User.ANONYMOUS.name -> {
-                        binding.accountType.setText(R.string.user_anonymous)
-                        binding.email.isVisible = false
-                    }
-                    User.GOOGLE.name -> {
-                        if (!authData.isAnonymous) {
-                            binding.accountType.text = authData.userProfile?.name
-                            binding.email.text = mainActivityViewModel.getUserEmail()
-                            binding.avatar.load(authData.userProfile?.artwork?.url)
-                        }
-                    }
-                    User.NO_GOOGLE.name -> {
-                        binding.accountType.setText(R.string.logged_out)
-                        binding.email.isVisible = false
-                    }
-                }
+                handleUser(user, authData)
             }
         }
 
@@ -226,6 +211,28 @@ class SettingsFragment : PreferenceFragmentCompat() {
              */
             binding.logout.apply {
                 setText(R.string.login)
+            }
+        }
+    }
+
+    private fun handleUser(user: String, authData: AuthData) {
+        when (user) {
+            User.ANONYMOUS.name -> {
+                binding.accountType.setText(R.string.user_anonymous)
+                binding.email.isVisible = false
+            }
+
+            User.GOOGLE.name -> {
+                if (!authData.isAnonymous) {
+                    binding.accountType.text = authData.userProfile?.name
+                    binding.email.text = mainActivityViewModel.getUserEmail()
+                    binding.avatar.load(authData.userProfile?.artwork?.url)
+                }
+            }
+
+            User.NO_GOOGLE.name -> {
+                binding.accountType.setText(R.string.logged_out)
+                binding.email.isVisible = false
             }
         }
     }

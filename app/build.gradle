@@ -10,7 +10,7 @@ plugins {
 }
 
 def versionMajor = 2
-def versionMinor = 5
+def versionMinor = 7
 def versionPatch = 5
 
 def getGitHash = { ->
@@ -119,17 +119,19 @@ android {
     }
     buildFeatures {
         viewBinding true
+        aidl true
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = '17'
     }
     lint {
         lintConfig file('lint.xml')
     }
+    namespace 'foundation.e.apps'
     kotlin.sourceSets.all {
         languageSettings.optIn("kotlin.RequiresOptIn")
     }
@@ -150,8 +152,8 @@ dependencies {
     // TODO: Add splitinstall-lib to a repo https://gitlab.e.foundation/e/os/backlog/-/issues/628
     api files('libs/splitinstall-lib.jar')
 
-    implementation 'foundation.e.lib:telemetry:0.0.9-alpha'
-    implementation 'foundation.e:gplayapi:3.0.1-2'
+    implementation 'foundation.e.lib:telemetry:0.0.11-alpha'
+    implementation "foundation.e:gplayapi:3.2.10-2"
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.fragment:fragment-ktx:1.5.6'
@@ -184,7 +186,7 @@ dependencies {
 
     //Protobuf and Gson
     implementation 'com.google.code.gson:gson:2.9.0'
-    implementation "com.google.protobuf:protobuf-java:3.17.2"
+    implementation "com.google.protobuf:protobuf-javalite:3.25.2"
 
     // ViewPager2 and RecyclerView
     implementation "androidx.viewpager2:viewpager2:1.0.0"
@@ -212,7 +214,7 @@ dependencies {
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.2"
 
     // Navigation Components
-    def navigation_version = "2.5.3"
+    def navigation_version = "2.6.0"
     implementation "androidx.navigation:navigation-fragment-ktx:$navigation_version"
     implementation "androidx.navigation:navigation-ui-ktx:$navigation_version"
 
@@ -232,9 +234,11 @@ dependencies {
 
     // Coroutines
     def coroutines_version = "1.6.0"
+    def test_kotlin_version = "1.6.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$test_kotlin_version"
 
     // Room
     def roomVersion = "2.4.1"
@@ -250,4 +254,8 @@ dependencies {
 
     // elib
     implementation 'foundation.e:elib:0.0.1-alpha11'
+
+    // androidx.activity
+    def activity_version = "1.6.1"
+    implementation("androidx.activity:activity-ktx:$activity_version")
 }

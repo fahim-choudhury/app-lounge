@@ -65,6 +65,10 @@ class CleanApkPWARepository(
         )
     }
 
+    override suspend fun checkAvailablePackages(packageNames: List<String>): Response<Search> {
+        return cleanAPKRetrofit.checkAvailablePackages(packageNames)
+    }
+
     override suspend fun getAppDetails(packageNameOrId: String): Response<Application> {
         return cleanApkAppDetailsRetrofit.getAppOrPWADetailsByID(packageNameOrId, null, null)
     }

@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 MURENA SAS
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  ~
+  -->
+
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="ok">ОК</string>
     <string name="close">Закрыть</string>
@@ -44,7 +62,6 @@
     <string name="menu_search">Поиск</string>
     <string name="menu_categories">Категории</string>
     <string name="menu_home">Главная</string>
-    <string name="app_name">App Lounge</string>
     <plurals name="updates_notification_title">
         <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> обновление для приложения доступно</item>
         <item quantity="few"><xliff:g id="version_code">%1$d</xliff:g> обновления для приложения доступно</item>
@@ -64,7 +81,6 @@
     <string name="download_automatically_message">Ваше приложение будет автоматически загружено на это устройство</string>
     <string name="purchase_complete">Покупка совершена!</string>
     <string name="paid_app_anonymous_message">Платные приложения не могут быть установлены в анонимном режиме. Для установки платных приложений войдите в свой аккаунт Google.</string>
-    <string name="dialog_cancel">ОТМЕНА</string>
     <string name="dialog_confirm">ПОДТВЕРДИТЬ</string>
     <string name="dialog_paidapp_message">После нажатия кнопки подтверждения вы перейдете на страницу приложения в Google Play, чтобы завершить покупку через браузер. Нажмите подтвердить, чтобы приобрести %1$s для %2$s.</string>
     <string name="dialog_title_paid_app">Покупка <b>%1$s</b></string>
@@ -157,4 +173,6 @@
     <string name="login_to_see_gplay_apps">Необходимо войти в систему, чтобы увидеть обычные приложения.</string>
     <string name="select_one_source_of_applications">Пожалуйста, выберите хотя бы один источник приложений.</string>
     <string name="logout">Выйти из системы</string>
+    <string name="account_unavailable">Аккаунт недоступен</string>
+    <string name="share">Делиться</string>
 </resources>

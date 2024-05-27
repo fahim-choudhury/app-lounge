@@ -25,12 +25,12 @@ import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
-import foundation.e.apps.data.preference.PreferenceManagerModule
+import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.data.updates.UpdatesManagerRepository
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
@@ -39,11 +39,11 @@ import javax.inject.Inject
 @HiltViewModel
 class UpdatesViewModel @Inject constructor(
     private val updatesManagerRepository: UpdatesManagerRepository,
-    private val fusedAPIRepository: FusedAPIRepository,
-    private val preferenceManagerModule: PreferenceManagerModule
+    private val applicationRepository: ApplicationRepository,
+    private val appLoungePreference: AppLoungePreference
 ) : LoadingViewModel() {
 
-    val updatesList: MutableLiveData<Pair<List<FusedApp>, ResultStatus?>> = MutableLiveData()
+    val updatesList: MutableLiveData<Pair<List<Application>, ResultStatus?>> = MutableLiveData()
 
     fun loadData(
         authObjectList: List<AuthObject>,
@@ -57,7 +57,7 @@ class UpdatesViewModel @Inject constructor(
             }
 
             successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getUpdates(AuthData("", ""))
+                getUpdates(null)
                 return@onLoadData
             }
         }, retryBlock)
@@ -111,7 +111,7 @@ class UpdatesViewModel @Inject constructor(
                 return listOf(
                     Status.INSTALLED,
                     Status.UPDATABLE
-                ).contains(fusedAPIRepository.getFusedAppInstallationStatus(foundApp))
+                ).contains(applicationRepository.getFusedAppInstallationStatus(foundApp))
             }
         }
         return false
@@ -132,5 +132,5 @@ class UpdatesViewModel @Inject constructor(
         return updatesList.value?.first?.any { pendingStatesForUpdate.contains(it.status) } == true
     }
 
-    fun getUpdateInterval() = preferenceManagerModule.getUpdateInterval()
+    fun getUpdateInterval() = appLoungePreference.getUpdateInterval()
 }

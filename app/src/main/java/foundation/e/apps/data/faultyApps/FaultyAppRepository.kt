@@ -21,7 +21,7 @@
 package foundation.e.apps.data.faultyApps
 
 import foundation.e.apps.OpenForTesting
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.application.data.Application
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -42,8 +42,8 @@ class FaultyAppRepository @Inject constructor(private val faultyAppDao: FaultyAp
         faultyAppDao.deleteFaultyAppByPackageName(packageName)
     }
 
-    suspend fun removeFaultyApps(fusedApps: List<FusedApp>): List<FusedApp> {
+    suspend fun removeFaultyApps(applications: List<Application>): List<Application> {
         val faultyAppsPackageNames = getAllFaultyApps().map { it.packageName }
-        return fusedApps.filter { !faultyAppsPackageNames.contains(it.package_name) }
+        return applications.filter { !faultyAppsPackageNames.contains(it.package_name) }
     }
 }

@@ -4,35 +4,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
-import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.preference.DataStoreModule
-import kotlinx.coroutines.launch
+import foundation.e.apps.data.preference.AppLoungeDataStore
 import javax.inject.Inject
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
-    private val dataStoreModule: DataStoreModule,
+    private val appLoungeDataStore: AppLoungeDataStore,
 ) : ViewModel() {
 
-    val userType: LiveData<String> = dataStoreModule.userType.asLiveData()
+    val userType: LiveData<String> = appLoungeDataStore.userType.asLiveData()
 
     private val _authLiveData: MutableLiveData<AuthData> = MutableLiveData()
     val authLiveData: LiveData<AuthData> = _authLiveData
-    fun saveUserType(user: User) {
-        viewModelScope.launch {
-            dataStoreModule.saveUserType(user)
-            if (user == User.UNAVAILABLE) {
-                dataStoreModule.destroyCredentials()
-            }
-        }
-    }
-
-    fun saveEmailToken(email: String, token: String) {
-        viewModelScope.launch {
-            dataStoreModule.saveEmail(email, token)
-        }
-    }
 }

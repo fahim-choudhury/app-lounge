@@ -16,12 +16,11 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
+import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.fusedDownload.FusedManagerRepository
-import foundation.e.apps.data.login.LoginSourceRepository
+import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.data.updates.UpdatesManagerRepository
 import foundation.e.apps.install.workmanager.AppInstallProcessor
@@ -37,11 +36,10 @@ class UpdatesWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted private val params: WorkerParameters,
     private val updatesManagerRepository: UpdatesManagerRepository,
-    private val fusedAPIRepository: FusedAPIRepository,
-    private val fusedManagerRepository: FusedManagerRepository,
     private val dataStoreManager: DataStoreManager,
-    private val loginSourceRepository: LoginSourceRepository,
-    private val appInstallProcessor: AppInstallProcessor
+    private val authenticatorRepository: AuthenticatorRepository,
+    private val appInstallProcessor: AppInstallProcessor,
+    private val blockedAppRepository: BlockedAppRepository,
 ) : CoroutineWorker(context, params) {
 
     companion object {
@@ -50,7 +48,6 @@ class UpdatesWorker @AssistedInject constructor(
         private const val DELAY_FOR_RETRY = 3000L
     }
 
-    val TAG = UpdatesWorker::class.simpleName
     private var shouldShowNotification = true
     private var automaticInstallEnabled = true
     private var onlyOnUnmeteredNetwork = false
@@ -64,6 +61,7 @@ class UpdatesWorker @AssistedInject constructor(
                 return Result.success()
             }
 
+            refreshBlockedAppList()
             checkForUpdates()
             Result.success()
         } catch (e: Throwable) {
@@ -73,6 +71,12 @@ class UpdatesWorker @AssistedInject constructor(
             if (shouldShowNotification && automaticInstallEnabled) {
                 UpdatesNotifier.cancelNotification(context)
             }
+        }
+    }
+
+    private suspend fun refreshBlockedAppList() {
+        if (isAutoUpdate) {
+            blockedAppRepository.fetchUpdateOfAppWarningList()
         }
     }
 
@@ -99,10 +103,10 @@ class UpdatesWorker @AssistedInject constructor(
 
     private suspend fun checkForUpdates() {
         loadSettings()
-        val isConnectedToUnmeteredNetwork = isConnectedToUnmeteredNetwork(applicationContext)
-        val appsNeededToUpdate = mutableListOf<FusedApp>()
+        val isConnectedToUnMeteredNetwork = isConnectedToUnMeteredNetwork(applicationContext)
+        val appsNeededToUpdate = mutableListOf<Application>()
         val user = getUser()
-        val authData = loginSourceRepository.getValidatedAuthData().data
+        val authData = authenticatorRepository.getValidatedAuthData().data
         val resultStatus: ResultStatus
 
         if (user in listOf(User.ANONYMOUS, User.GOOGLE) && authData != null) {
@@ -125,16 +129,16 @@ class UpdatesWorker @AssistedInject constructor(
             /*
              * If user in UNAVAILABLE, don't do anything.
              */
-            Timber.w("User is not available! User is required during update!")
+            Timber.e("Update is aborted for unavailable user!")
             return
         }
         Timber.i("Updates found: ${appsNeededToUpdate.size}; $resultStatus")
         if (isAutoUpdate && shouldShowNotification) {
-            handleNotification(appsNeededToUpdate.size, isConnectedToUnmeteredNetwork)
+            handleNotification(appsNeededToUpdate.size, isConnectedToUnMeteredNetwork)
         }
 
         if (resultStatus != ResultStatus.OK) {
-            manageRetry()
+            manageRetry(resultStatus.toString())
         } else {
             /*
              * Show notification only if enabled.
@@ -142,11 +146,11 @@ class UpdatesWorker @AssistedInject constructor(
              */
             retryCount = 0
             if (isAutoUpdate && shouldShowNotification) {
-                handleNotification(appsNeededToUpdate.size, isConnectedToUnmeteredNetwork)
+                handleNotification(appsNeededToUpdate.size, isConnectedToUnMeteredNetwork)
             }
 
             triggerUpdateProcessOnSettings(
-                isConnectedToUnmeteredNetwork,
+                isConnectedToUnMeteredNetwork,
                 appsNeededToUpdate,
                 /*
                  * If authData is null, only cleanApk data will be present
@@ -158,7 +162,7 @@ class UpdatesWorker @AssistedInject constructor(
         }
     }
 
-    private suspend fun manageRetry() {
+    private suspend fun manageRetry(extraMessage: String) {
         retryCount++
         if (retryCount == 1) {
             EventBus.invokeEvent(AppEvent.UpdateEvent(ResultSupreme.WorkError(ResultStatus.RETRY)))
@@ -168,13 +172,15 @@ class UpdatesWorker @AssistedInject constructor(
             delay(DELAY_FOR_RETRY)
             checkForUpdates()
         } else {
+            val message = "Update is aborted after trying for $MAX_RETRY_COUNT times! message: $extraMessage"
+            Timber.e(message)
             EventBus.invokeEvent(AppEvent.UpdateEvent(ResultSupreme.WorkError(ResultStatus.UNKNOWN)))
         }
     }
 
     private suspend fun triggerUpdateProcessOnSettings(
         isConnectedToUnmeteredNetwork: Boolean,
-        appsNeededToUpdate: List<FusedApp>,
+        appsNeededToUpdate: List<Application>,
         authData: AuthData
     ) {
         if ((!isAutoUpdate || automaticInstallEnabled) &&
@@ -204,7 +210,7 @@ class UpdatesWorker @AssistedInject constructor(
     }
 
     private suspend fun startUpdateProcess(
-        appsNeededToUpdate: List<FusedApp>,
+        appsNeededToUpdate: List<Application>,
         authData: AuthData
     ) {
         appsNeededToUpdate.forEach { fusedApp ->
@@ -245,7 +251,7 @@ class UpdatesWorker @AssistedInject constructor(
      * @param context current Context
      * @return returns true if the connections is not metered, false otherwise
      */
-    private fun isConnectedToUnmeteredNetwork(context: Context): Boolean {
+    private fun isConnectedToUnMeteredNetwork(context: Context): Boolean {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val capabilities =

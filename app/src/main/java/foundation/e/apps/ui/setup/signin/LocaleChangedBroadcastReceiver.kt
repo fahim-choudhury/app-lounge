@@ -24,7 +24,8 @@ import android.content.Intent
 import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
-import foundation.e.apps.data.preference.DataStoreModule
+import foundation.e.apps.data.preference.AppLoungeDataStore
+import foundation.e.apps.data.preference.getSync
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -39,7 +40,7 @@ import javax.inject.Inject
 class LocaleChangedBroadcastReceiver : BroadcastReceiver() {
 
     @Inject
-    lateinit var dataStoreModule: DataStoreModule
+    lateinit var appLoungeDataStore: AppLoungeDataStore
     @Inject
     lateinit var gson: Gson
     @Inject
@@ -52,10 +53,10 @@ class LocaleChangedBroadcastReceiver : BroadcastReceiver() {
         }
         GlobalScope.launch {
             try {
-                val authDataJson = dataStoreModule.getAuthDataSync()
+                val authDataJson = appLoungeDataStore.authData.getSync()
                 val authData = gson.fromJson(authDataJson, AuthData::class.java)
                 authData.locale = context.resources.configuration.locales[0]
-                dataStoreModule.saveCredentials(authData)
+                appLoungeDataStore.saveAuthData(authData)
                 withContext(Dispatchers.IO) {
                     cache.evictAll()
                 }

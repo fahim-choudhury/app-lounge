@@ -33,7 +33,7 @@ import androidx.lifecycle.ViewModelProvider
 import foundation.e.apps.R
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.LoginSourceGPlay
+import foundation.e.apps.data.login.PlayStoreAuthenticator
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
@@ -53,6 +53,10 @@ import timber.log.Timber
  * https://gitlab.e.foundation/e/backlog/-/issues/5680
  */
 abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
+
+    companion object {
+        private const val STATUS_TOO_MANY_REQUESTS = "Status: 429"
+    }
 
     val loginViewModel: LoginViewModel by lazy {
         ViewModelProvider(requireActivity())[LoginViewModel::class.java]
@@ -202,7 +206,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      * Clears saved GPlay AuthData and restarts login process to get
      */
     fun clearAndRestartGPlayLogin() {
-        loginViewModel.startLoginFlow(listOf(LoginSourceGPlay::class.java.simpleName))
+        loginViewModel.startLoginFlow(listOf(PlayStoreAuthenticator::class.java.simpleName))
     }
 
     /**
@@ -353,7 +357,6 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      * is shown to the user.
      */
     fun showDataLoadError(exception: Exception) {
-
         val dialogView = DialogErrorLogBinding.inflate(requireActivity().layoutInflater)
         dialogView.apply {
             moreInfo.setOnClickListener {
@@ -405,6 +408,10 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
             this as GPlayException
         }
         val unknownSourceException = exceptions.find { it is UnknownSourceException }
+
+        if (gPlayException?.message?.contains(STATUS_TOO_MANY_REQUESTS) == true) {
+            return
+        }
 
         /*
          * Take caution altering the cases.

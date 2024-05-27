@@ -1,9 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 MURENA SAS
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  ~
+  -->
+
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="rating">Einkunn</string>
     <string name="preference_update_install_automatically_title">Setja uppfærslur upp sjálfkrafa</string>
     <string name="unknown_error">Óþekkt villa!</string>
-    <string name="app_name">App Lounge</string>
     <string name="menu_home">Heim</string>
     <string name="menu_categories">Flokkar</string>
     <string name="menu_search">Leita</string>
@@ -79,7 +96,6 @@
     <string name="anonymous_login_failed">Nafnlaus innskráning mistókst!</string>
     <string name="dialog_title_paid_app">Kaupa <b>%1$s</b></string>
     <string name="dialog_confirm">STAÐFESTA</string>
-    <string name="dialog_cancel">\@android:string/cancel</string>
     <string name="purchase_complete">Kaupum er lokið!</string>
     <string name="purchase_error">Villa í innkaupum!</string>
     <string name="unsupported_app_title">Óstutt forrit!</string>
@@ -154,7 +170,7 @@
 \nÝttu á \'Reyna aftur\' til að athuga hvort þetta hafi lagast.</string>
     <string name="dialog_paidapp_message">Þegar smellt er á staðfestingu, er farið á síðu Google Play fyrir forritið til að ljúka kaupunum í vafra. Smelltu á \'Staðfesta\' til að kaupa %1$s fyrir %2$s.</string>
     <string name="install_blocked_anonymous">Ekki er hægt að setja keypt forrit upp í nafnleysisham. Skráðu þig inn á Google-aðganginn þinn til að setja upp keypt forrit.</string>
-    <string name="install_blocked_google">Keypt forrit eru ekki ennþá studd í App Lounge. Þýndu smá biðlund, það mun koma að því.</string>
+    <string name="install_blocked_google">Keypt forrit eru ekki ennþá studd í App Lounge. Sýndu smá biðlund, það mun koma að því.</string>
     <string name="duplicate_app_from_sources">Ýmis séreignarhugbúnaður gæti einnig átt sér útgáfu með opnu hugbúnaðarleyfi. Þegar slíkt á sér stað, mun App Lounge einungis sýna frjálsu opnu útgáfuna, til að koma í veg fyrir tvítekningar.</string>
     <string name="paid_app_anonymous_message">Ekki er hægt að setja keypt forrit upp í nafnleysisham. Skráðu þig inn á Google-aðganginn þinn til að setja upp keypt forrit.</string>
     <string name="unsupported_app_unreleased">Forritið %s er ekki stutt í augnablikinu. Það gæti verið raunin ef forritið sé ekki enn komið í almenna dreifingu, eða vegna einhverrar villu.</string>
@@ -166,4 +182,18 @@
 \n
 \n\t• minnka líkur á sérsniðnu snuðri (micro-targeting)
 \n\t• minnka áhrifin sem takmörkun reikningsins af hálfu Google myndi hafa</string>
+    <string name="request_exodus_report">Biðja um Exodus-skýrslu</string>
+    <string name="request_exodus_report_confirm_dialog">Með því að smella á \"<xliff:g id="ok">%1$s</xliff:g>\" mun opnast flipi í vafranum þínum mep heiti pakkans forútfylltu.&lt;br /&gt;&lt;br /&gt;Smelltu á \"Perform analysis\" til að hefja greiningu með Exodus.&lt;br /&gt;&lt;br /&gt;Þegar hnappurinn \"See the report\" birtist (tíminn sem það tekur fer eftir forritinu) geturðu lokað flipanum og snúið til baka í lýsingu forritsins á <xliff:g id="app_name">%2$s</xliff:g> þar sem þú ættir að sjá gagnaleyndareinkunnina (Privacy Score). Stundum mistekst Exodus að greina forrit.&lt;br /&gt;&lt;br /&gt;ATH: það getur tekið allt að 10 mínútur fyrir einkunnina að birtast í lýsingunni á forritinu.</string>
+    <string name="refresh_session">ENDURLESA SETU</string>
+    <string name="too_many_requests_desc">Nafnlausi aðgangurinn sem þú ert að nota er ekki tiltækur. Endurlestu setuna til að fá annann.</string>
+    <string name="free_space_for_update">Losaðu um %1$s pláss á símanum þínum til að fá nýjustu uppfærslur.</string>
+    <string name="checking_updates">Athuga með uppfærslur...</string>
+    <string name="notification_content_full_db">Losaðu um svolítið pláss á símanum þínum svo App Lounge geti virkað eðlilega.</string>
+    <string name="ignore">Hunsa</string>
+    <string name="notification_channel_desc">Skipta upp uppsetningarás</string>
+    <string name="split_install_warning_title">Aðvörun viðkomandi %s</string>
+    <string name="split_install_warning_text">%s vill fá að setja upp viðbótareiningar.Þú þarft að skrá þig aftur inn í AppLounge til að geta sett þær inn.</string>
+    <string name="sign_in">Skrá inn</string>
+    <string name="account_unavailable">Reikningur ekki í boði</string>
+    <string name="share">Deila</string>
 </resources>

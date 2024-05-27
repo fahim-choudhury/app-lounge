@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 MURENA SAS
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  ~
+  -->
+
 <resources xmlns:tools="http://schemas.android.com/tools" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="cancel">Annuler</string>
     <string name="open">Ouvrir</string>
@@ -24,7 +42,7 @@
     <string name="user_anonymous">Anonyme</string>
     <string name="logout">Se déconnecter</string>
     <string name="description">Description</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="install">Installer</string>
     <string name="menu_categories">Catégories</string>
     <string name="menu_search">Rechercher</string>
@@ -69,7 +87,6 @@
     <string name="no_permission_found">Aucune permission d\'exécution Android trouvée !</string>
     <string name="no_tracker_found">Aucun pisteur trouvé !</string>
     <string name="no_internet_message">Connexion impossible ! Merci de vérifier votre connexion internet puis réessayer</string>
-    <string name="app_name">App Lounge</string>
     <string name="menu_home">Accueil</string>
     <string name="no_apps_found">Aucune application trouvée…</string>
     <string name="sign_in_google">Connexion Google</string>
@@ -105,7 +122,6 @@
     <string name="download_automatically_message">Votre application sera automatiquement téléchargée sur cet appareil</string>
     <string name="purchase_complete">Achat finalisé !</string>
     <string name="paid_app_anonymous_message">Les applications payantes ne peuvent pas être installées en mode anonyme. Veuillez vous connecter à votre compte Google pour installer les applications payantes.</string>
-    <string name="dialog_cancel">ANNULER</string>
     <string name="dialog_confirm">CONFIRMER</string>
     <string name="dialog_paidapp_message">Quand vous aurez cliqué sur confirmer, vous serez conduit à la page Google Play de l\'application pour terminer l\'achat depuis votre navigateur. Cliquez sur confirmer pour acheter %1$s pour %2$s.</string>
     <string name="dialog_title_paid_app">Achetez <b>%1$s</b></string>
@@ -167,4 +183,14 @@
 \n
 \n\t• limiter le micro-ciblage
 \n\t• limiter les impacts au cas où ce compte serait restreint par Google</string>
+    <string name="free_space_for_update">Libérez %1$s sur votre téléphone afin de bénéficier des dernières mises à jour.</string>
+    <string name="notification_content_full_db">Merci de libérer de l\'espace sur votre téléphone pour qu\'App Lounge puisse fonctionner correctement.</string>
+    <string name="checking_updates">Vérification des mises à jour...</string>
+    <string name="split_install_warning_title">Avertissement concernant %s</string>
+    <string name="split_install_warning_text">%s souhaite installer des modules supplémentaires. Vous devez vous reconnecter à AppLounge pour pouvoir les installer.</string>
+    <string name="notification_channel_desc">Canal d\'installation fractionnée</string>
+    <string name="sign_in">Connexion</string>
+    <string name="ignore">Ignorer</string>
+    <string name="account_unavailable">Compte indisponible</string>
+    <string name="share">Partager</string>
 </resources>

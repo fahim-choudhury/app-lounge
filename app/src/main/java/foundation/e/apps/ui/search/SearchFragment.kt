@@ -25,12 +25,12 @@ import android.os.Bundle
 import android.provider.BaseColumns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.CompoundButton.OnCheckedChangeListener
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.isVisible
 import androidx.cursoradapter.widget.CursorAdapter
 import androidx.cursoradapter.widget.SimpleCursorAdapter
 import androidx.fragment.app.activityViewModels
@@ -41,17 +41,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.facebook.shimmer.ShimmerFrameLayout
+import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.FusedAPIInterface
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.application.ApplicationInstaller
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentSearchBinding
 import foundation.e.apps.install.download.data.DownloadProgress
-import foundation.e.apps.install.pkg.PWAManagerModule
+import foundation.e.apps.install.pkg.PWAManager
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.AppProgressViewModel
 import foundation.e.apps.ui.MainActivityViewModel
@@ -59,6 +60,7 @@ import foundation.e.apps.ui.PrivacyInfoViewModel
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.applicationlist.ApplicationListRVAdapter
 import foundation.e.apps.ui.parentFragment.TimeoutFragment
+import foundation.e.apps.utils.isNetworkAvailable
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -67,15 +69,15 @@ class SearchFragment :
     TimeoutFragment(R.layout.fragment_search),
     SearchView.OnQueryTextListener,
     SearchView.OnSuggestionListener,
-    FusedAPIInterface {
+    ApplicationInstaller {
 
     @Inject
-    lateinit var pwaManagerModule: PWAManagerModule
+    lateinit var pwaManager: PWAManager
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
 
-    private val searchViewModel: SearchViewModel by viewModels()
+    protected val searchViewModel: SearchViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
     override val mainActivityViewModel: MainActivityViewModel by activityViewModels()
@@ -89,6 +91,10 @@ class SearchFragment :
     private var recyclerView: RecyclerView? = null
     private var searchHintLayout: LinearLayout? = null
     private var noAppsFoundLayout: LinearLayout? = null
+
+    lateinit var filterChipNoTrackers: Chip
+    lateinit var filterChipOpenSource: Chip
+    lateinit var filterChipPWA: Chip
 
     /*
      * Store the string from onQueryTextSubmit() and access it from loadData()
@@ -106,37 +112,85 @@ class SearchFragment :
         searchHintLayout = binding.searchHintLayout.root
         noAppsFoundLayout = binding.noAppsFoundLayout.root
 
+        filterChipNoTrackers = binding.filterChipNoTrackers
+        filterChipOpenSource = binding.filterChipOpenSource
+        filterChipPWA = binding.filterChipPWA
+
         setupSearchView()
         setupSearchViewSuggestions()
 
         // Setup Search Results
         val listAdapter = setupSearchResult(view)
 
+        preventLoadingLessResults()
         observeSearchResult(listAdapter)
+
+        setupSearchFilters()
 
         setupListening()
 
         authObjects.observe(viewLifecycleOwner) {
             val currentQuery = searchView?.query?.toString() ?: ""
-            if (it == null || (currentQuery.isNotEmpty() && lastSearch == currentQuery)) return@observe
+            if (it == null || shouldIgnore(it, currentQuery)) {
+                return@observe
+            }
+
+            if (currentQuery.isNotEmpty()) searchText = currentQuery
+
+            val applicationListRVAdapter = recyclerView?.adapter as ApplicationListRVAdapter
+            applicationListRVAdapter.setData(mutableListOf())
+
             loadDataWhenNetworkAvailable(it)
         }
 
         searchViewModel.exceptionsLiveData.observe(viewLifecycleOwner) {
             handleExceptionsCommon(it)
         }
+
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (!recyclerView.canScrollVertically(1)) {
+                    if (!requireContext().isNetworkAvailable()) {
+                        return
+                    }
+
+                    if (authObjects.value?.none { it is AuthObject.GPlayAuth } == true) {
+                        return
+                    }
+
+                    searchViewModel.loadMore(searchText)
+                }
+            }
+        })
     }
+
+    private fun shouldIgnore(
+        authObjectList: List<AuthObject>?,
+        currentQuery: String
+    ) = currentQuery.isNotEmpty() && searchViewModel.isAuthObjectListSame(authObjectList) &&
+        lastSearch == currentQuery
 
     private fun observeSearchResult(listAdapter: ApplicationListRVAdapter?) {
         searchViewModel.searchResult.observe(viewLifecycleOwner) {
             if (it.data?.first.isNullOrEmpty() && it.data?.second == false) {
                 noAppsFoundLayout?.visibility = View.VISIBLE
+            } else if (searchViewModel.shouldIgnoreResults()) {
+                return@observe
             } else {
                 listAdapter?.let { adapter ->
                     observeDownloadList(adapter)
                 }
             }
             observeScrollOfSearchResult(listAdapter)
+        }
+    }
+
+    private fun preventLoadingLessResults() {
+        searchViewModel.gplaySearchLoaded.observe(viewLifecycleOwner) {
+            if (!it) return@observe
+
+            searchViewModel.loadMoreDataIfNeeded(searchText)
         }
     }
 
@@ -168,21 +222,22 @@ class SearchFragment :
      */
     private fun updateSearchResult(
         listAdapter: ApplicationListRVAdapter?,
-        appList: List<FusedApp>?,
-        hasMore: Boolean,
+        appList: List<Application>,
     ): Boolean {
-        binding.loadingProgressBar.isVisible = hasMore
-
         val currentList = listAdapter?.currentList ?: listOf()
-        if (appList != null && !searchViewModel.isAnyAppUpdated(appList, currentList)) {
+        if (!searchViewModel.isAnyAppUpdated(appList, currentList)) {
             return false
         }
 
+        showData()
+        listAdapter?.setData(appList)
+        return true
+    }
+
+    private fun showData() {
         stopLoadingUI()
         noAppsFoundLayout?.visibility = View.GONE
         searchHintLayout?.visibility = View.GONE
-        listAdapter?.setData(appList!!)
-        return true
     }
 
     private fun setupSearchResult(view: View): ApplicationListRVAdapter? {
@@ -222,6 +277,26 @@ class SearchFragment :
         }
     }
 
+    private fun setupSearchFilters() {
+
+        binding.filterChipGroup.isSingleSelection = true
+
+        val listener = OnCheckedChangeListener { _, _ ->
+            showLoadingUI()
+            searchViewModel.setFilterFlags(
+                flagNoTrackers = filterChipNoTrackers.isChecked,
+                flagOpenSource = filterChipOpenSource.isChecked,
+                flagPWA = filterChipPWA.isChecked,
+            )
+
+            recyclerView?.scrollToPosition(0)
+        }
+
+        filterChipNoTrackers.setOnCheckedChangeListener(listener)
+        filterChipOpenSource.setOnCheckedChangeListener(listener)
+        filterChipPWA.setOnCheckedChangeListener(listener)
+    }
+
     private fun setupSearchView() {
         setHasOptionsMenu(true)
         searchView?.setOnSuggestionListener(this)
@@ -229,17 +304,17 @@ class SearchFragment :
         searchView?.let { configureCloseButton(it) }
     }
 
-    private fun showPaidAppMessage(fusedApp: FusedApp) {
+    private fun showPaidAppMessage(application: Application) {
         ApplicationDialogFragment(
-            title = getString(R.string.dialog_title_paid_app, fusedApp.name),
+            title = getString(R.string.dialog_title_paid_app, application.name),
             message = getString(
                 R.string.dialog_paidapp_message,
-                fusedApp.name,
-                fusedApp.price
+                application.name,
+                application.price
             ),
             positiveButtonText = getString(R.string.dialog_confirm),
             positiveButtonAction = {
-                getApplication(fusedApp)
+                installApplication(application)
             },
             cancelButtonText = getString(R.string.dialog_cancel),
         ).show(childFragmentManager, "SearchFragment")
@@ -259,9 +334,8 @@ class SearchFragment :
         val searchList =
             searchViewModel.searchResult.value?.data?.first?.toMutableList() ?: emptyList()
 
-        val hasMoreDataToLoad = searchViewModel.searchResult.value?.data?.second == true
         mainActivityViewModel.updateStatusOfFusedApps(searchList, fusedDownloadList)
-        updateSearchResult(applicationListRVAdapter, searchList, hasMoreDataToLoad)
+        updateSearchResult(applicationListRVAdapter, searchList)
     }
 
     override fun onTimeout(
@@ -294,13 +368,13 @@ class SearchFragment :
     }
 
     override fun showLoadingUI() {
-        binding.shimmerLayout.startShimmer()
-        binding.shimmerLayout.visibility = View.VISIBLE
+        shimmerLayout?.visibility = View.VISIBLE
+        shimmerLayout?.startShimmer()
     }
 
     override fun stopLoadingUI() {
-        binding.shimmerLayout.stopShimmer()
-        binding.shimmerLayout.visibility = View.GONE
+        shimmerLayout?.stopShimmer()
+        shimmerLayout?.visibility = View.GONE
     }
 
     private fun updateProgressOfInstallingApps(downloadProgress: DownloadProgress) {
@@ -364,16 +438,13 @@ class SearchFragment :
             if (text.isNotEmpty()) {
                 hideKeyboard(activity as Activity)
             }
+
             view?.requestFocus()
             searchHintLayout?.visibility = View.GONE
-            shimmerLayout?.visibility = View.VISIBLE
-            noAppsFoundLayout?.visibility = View.GONE
             /*
              * Set the search text and call for network result.
              */
             searchText = text
-            val applicationListRVAdapter = recyclerView?.adapter as ApplicationListRVAdapter
-            applicationListRVAdapter.setData(mutableListOf())
             repostAuthObjects()
         }
         return false
@@ -427,10 +498,11 @@ class SearchFragment :
     }
 
     private fun showKeyboard() {
-        val inputMethodManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val inputMethodManager =
+            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         searchView?.javaClass?.getDeclaredField("mSearchSrcTextView")?.runCatching {
             isAccessible = true
-            get(searchView)as EditText
+            get(searchView) as EditText
         }?.onSuccess {
             inputMethodManager.showSoftInput(it, InputMethodManager.SHOW_FORCED)
         }
@@ -446,11 +518,11 @@ class SearchFragment :
         searchView?.suggestionsAdapter?.changeCursor(cursor)
     }
 
-    override fun getApplication(app: FusedApp, appIcon: ImageView?) {
+    override fun installApplication(app: Application) {
         mainActivityViewModel.getApplication(app)
     }
 
-    override fun cancelDownload(app: FusedApp) {
+    override fun cancelDownload(app: Application) {
         mainActivityViewModel.cancelDownload(app)
     }
 }

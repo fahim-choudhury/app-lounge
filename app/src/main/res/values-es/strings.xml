@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 MURENA SAS
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  ~
+  -->
+
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="ratings">Calificaciones</string>
     <string name="rating">Calificación</string>
@@ -9,7 +27,7 @@
     <string name="trackers_title">Rastreadores</string>
     <string name="information">Información</string>
     <string name="version">Versión: <xliff:g id="version_code">%1$s</xliff:g></string>
-    <string name="updated_on">Actualizado en: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="updated_on">Ùltima actualización: <xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="min_android_version">Requiere: <xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="license">Licencia: <xliff:g id="version_code">%1$s</xliff:g></string>
     <string name="package_name">Nombre del paquete: <xliff:g id="version_code">%1$s</xliff:g></string>
@@ -38,52 +56,51 @@
     <string name="Show_applications">Mostrar aplicaciones:</string>
     <string name="Show_common_apps">Mostrar aplicaciones comunes</string>
     <string name="show_only_open_source_apps">Mostrar aplicaciones de código abierto</string>
-    <string name="show_only_pwa_apps">Mostrar las PWA</string>
+    <string name="show_only_pwa_apps">Mostrar PWA</string>
     <string name="account">Cuenta</string>
     <string name="terms_services">Condiciones de Servicio</string>
     <string name="user_anonymous">Anónimo</string>
     <string name="logout">Cerrar sesión</string>
     <string name="description">Descripción</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="install">Instalar</string>
-    <string name="cancel">Cancelar</string>
+    <string name="cancel">Cancelado</string>
     <string name="app_icon">Icono de aplicación</string>
     <string name="open">Abrir</string>
     <string name="retry">Reintentar</string>
     <string name="more">Más</string>
     <string name="category_icon">Icono de categoría</string>
-    <string name="preference_update_wifi_only_title">Sólo en redes sin datos móviles</string>
-    <string name="install_blocked_google">Las aplicaciones de pago aún no son compatibles con App Lounge. Tenga un poco más de paciencia, pronto será posible.</string>
+    <string name="preference_update_wifi_only_title">Sólo en redes sin contador</string>
+    <string name="install_blocked_google">Las aplicaciones de pago aún no son compatibles con App Lounge. Ten un poco más de paciencia, pronto será posible.</string>
     <string name="message_app_available_later">¡Esta aplicación estará disponible pronto!</string>
     <string name="unknown_error">¡Error desconocido!</string>
     <string name="update_all">Actualizar todas</string>
     <string name="discover">Explorar</string>
     <string name="top_updated_apps">Aplicaciones de código abierto más actualizadas</string>
     <string name="top_updated_games">Juegos de código abierto más actualizados</string>
-    <string name="popular_games_in_last_24_hours">Juegos de código abierto populares en las últimas 24 horas</string>
-    <string name="popular_apps_in_last_24_hours">Aplicaciones de código abierto populares en las últimas 24 horas</string>
-    <string name="popular_apps">Aplicaciones populares PWA</string>
-    <string name="popular_games">Juegos populares PWA</string>
+    <string name="popular_games_in_last_24_hours">Juegos de código abierto más populares en las últimas 24 horas</string>
+    <string name="popular_apps_in_last_24_hours">Aplicaciones de código abierto más populares en las últimas 24 horas</string>
+    <string name="popular_apps">Aplicaciones PWA populares</string>
+    <string name="popular_games">Juegos PWA populares</string>
     <string name="topselling_free_apps">Las mejores aplicaciones gratuitas</string>
     <string name="topselling_free_games">Los mejores juegos gratuitos</string>
-    <string name="topgrossing_apps">Aplicaciones más taquilleras</string>
-    <string name="movers_shakers_apps">Aplicaciones más populares</string>
-    <string name="movers_shakers_games">Juegos más populares</string>
+    <string name="topgrossing_apps">Las aplicaciones más taquilleras</string>
+    <string name="movers_shakers_apps">Las aplicaciones más vistas</string>
+    <string name="movers_shakers_games">Los juegos más populares</string>
     <string name="downloads">Descargas</string>
     <string name="updates">Actualizaciones</string>
-    <string name="manually_install_updates_notification_text">Actualizaciones no se instalarán automáticamente</string>
+    <string name="manually_install_updates_notification_text">Las actualizaciones no se instalarán automáticamente</string>
     <string name="no_permission_found">¡No se encontró ningún permiso de ejecución de Android!</string>
     <string name="no_tracker_found">¡No se encontraron rastreadores!</string>
-    <string name="no_internet_message">¡No se pudo conectar! Compruebe su conexión a internet e inténtelo de nuevo</string>
-    <string name="updates_notification_unmetered_network_warning">Esperando una red sin datos móviles</string>
-    <string name="app_name">App Lounge</string>
+    <string name="no_internet_message">¡No se pudo conectar! Chequea tu conexión a internet e inténtalo de nuevo</string>
+    <string name="updates_notification_unmetered_network_warning">Esperando una red sin contador</string>
     <string name="menu_home">Inicio</string>
     <string name="apps">Aplicaciones</string>
-    <string name="sign_in_desc">Acceder con cuenta de Google o con modo anónimo para acceder de forma privada.</string>
+    <string name="sign_in_desc">Inicia sesión con tu cuenta de Google o en modo anónimo para acceder de forma privada.</string>
     <string name="preference_update_notify_available_description">Mostrar una notificación cuando hayan actualizaciones disponibles</string>
     <string name="preference_update_wifi_only_description">Actualizar las aplicaciones automáticamente solo en redes sin datos móviles como el WI-FI</string>
     <string name="update">Actualizar</string>
-    <string name="rating_description">Puntuación sobre 5. Calculada usando las valoraciones de los usuarios de la aplicación.</string>
+    <string name="rating_description">Puntuación sobre 5. Calculado usando las calificaciones dadas por los usuarios de la aplicación.</string>
     <string name="privacy_description">El nivel de privacidad se calcula automáticamente a partir de los permisos y rastreadores detectados en las aplicaciones. Da una idea hasta qué punto es posible que una aplicación esté rastreando sus usuarios..&lt;br /&gt;&lt;br /&gt;El código fuente de su algoritmo de cálculo puede ser &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;se encontrado aquí&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;La detección de rastreadores se realiza mediante &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Privacy tools&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Puntuación sobre 10.&lt;br /&gt;&lt;br /&gt;Aprende más sobre cómo se calcula el nivel de Privacidad, sus limitaciones y cómo puedes protegerte del rastreo &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;on this page&lt;/a&gt;.</string>
     <string name="install_blocked_anonymous">Las aplicaciones de pago no se pueden instalar en modo anónimo. Inicia sesión en tu cuenta de Google para instalar aplicaciones de pago.</string>
     <plurals name="updates_notification_title">
@@ -91,69 +108,93 @@
         <item quantity="many"><xliff:g id="version_code">%1$d</xliff:g> actualizaciones disponibles</item>
         <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> actualizaciones disponibles</item>
     </plurals>
-    <string name="topgrossing_games">Juegos más taquilleros</string>
-    <string name="automatically_install_updates_notification_text">Actualizaciones se instalarán automáticamente</string>
+    <string name="topgrossing_games">Los juegos más taquilleros</string>
+    <string name="automatically_install_updates_notification_text">Las actualizaciones se instalarán automáticamente</string>
     <string name="privacy_computed_using_text">Calculado usando &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Análisis de Privacidad Exodus</string>
     <string name="all_apps_updated">Todas las aplicaciones están actualizadas</string>
     <string name="monthly">Mensual</string>
     <string name="weekly">Semanal</string>
-    <string name="daily">Diario</string>
-    <string name="may_not_work_warning_message">Forzar la instalación permitirá la descarga e instalación, pero no le garantizará que funcione.<br/><br/>Intentar instalar aplicaciones no compatibles puede provocar fallos o ralentizar el sistema.<br/><br/>Estamos trabajando para mejorar la compatibilidad con esta aplicación en un futuro próximo.</string>
+    <string name="daily">A diario</string>
+    <string name="may_not_work_warning_message">Forzar la instalación permitirá la descarga e instalación, pero no garantiza que funcione.<br/><br/>Intentar instalar aplicaciones no compatibles puede provocar fallos o ralentizar el sistema.<br/><br/>Estamos trabajando para mejorar la compatibilidad con esta aplicación en un futuro cercano.</string>
     <string name="this_app_may_not_work_properly">¡Es posible que esta aplicación no funcione correctamente!</string>
     <string name="install_anyway">Instalar de todos modos</string>
-    <string name="unsupported_app_unreleased">La aplicación %s no es compatible actualmente. Esto puede deberse a que la aplicación aún no se ha lanzado de forma generalizada o a algún otro error.</string>
+    <string name="unsupported_app_unreleased">La aplicación %s no es compatible actualmente. Esto puede deberse a que la aplicación aún no se ha difundido ampliamente o a algún otro error.</string>
     <string name="unsupported_app_title">¡Aplicación no compatible!</string>
     <string name="purchase_error">¡Error de compra!</string>
-    <string name="download_automatically_message">Su aplicación se descargará automáticamente en este dispositivo</string>
+    <string name="download_automatically_message">Tu aplicación se descargará automáticamente en este dispositivo</string>
     <string name="purchase_complete">¡Compra completa!</string>
     <string name="paid_app_anonymous_message">Las aplicaciones de pago no se pueden instalar en modo anónimo. Inicia sesión en tu cuenta de Google para instalar aplicaciones de pago.</string>
-    <string name="dialog_cancel">CANCELAR</string>
     <string name="dialog_confirm">CONFIRMAR</string>
-    <string name="dialog_paidapp_message">Al hacer clic en confirmar, se le llevará a la página de Google Play para completar la compra de la aplicaicón a través de su navegador. Haga clic en confirmar para comprar %1$s por %2$s.</string>
+    <string name="dialog_paidapp_message">Al hacer clic en confirmar, se te llevará a la página de Google Play para completar la compra de la aplicación a través de tu navegador. Haz clic en confirmar para comprar %1$s por %2$s.</string>
     <string name="dialog_title_paid_app">Comprar <b>%1$s</b></string>
-    <string name="anonymous_login_failed_desc">Esto puede deberse a que el token no pudo ser generado / verificado u otras razones.
+    <string name="anonymous_login_failed_desc">Esto puede deberse a que el autentificador no pudo ser generado / verificado u otras razones.
 \n
-\nPulse Reintentar para probar otra vez.</string>
+\nPulsa reintentar para probar otra vez.</string>
     <string name="anonymous_login_failed">¡Error de inicio de sesión anónimo!</string>
-    <string name="sign_in_failed_desc">Debido a un error de red, App Lounge no ha podido obtener los datos de inicio de sesión de Google.</string>
+    <string name="sign_in_failed_desc">Debido a un error de red, App Lounge no pudo obtener los datos de inicio de sesión de Google.</string>
     <string name="sign_in_failed_title">¡Error en el inicio de sesión de Google!</string>
     <string name="data_load_error_desc">Esto puede deberse a que el servidor no responde o a otro error del servidor.
 \n
-\nVuelva a intentarlo o inténtelo más tarde.</string>
-    <string name="data_load_error">Ha ocurrido un error al cargar aplicaciones.</string>
+\nPrueba otra vez o inténtalo más tarde.</string>
+    <string name="data_load_error">Ocurrió un error al cargar aplicaciones.</string>
     <string name="more_info"><u>Más información</u></string>
     <string name="open_settings">Abrir ajustes</string>
     <string name="timeout_desc_cleanapk">Un problema de red está impidiendo la obtención de aplicaciones.</string>
     <string name="timeout_desc_gplay">Un problema de red está impidiendo la obtención de aplicaciones.
 \n
-\nAbra la configuración para buscar solo aplicaciones de código abierto o PWA.</string>
+\nAbre ajustes para buscar solo aplicaciones de código abierto o PWA.</string>
     <string name="timeout_title">¡Límite de tiempo buscando aplicaciones!</string>
     <string name="tracker_information_not_found">No hay información de rastreo disponible para esta aplicación.</string>
     <string name="message_last_update_triggered">Actualización de %1$s aplicaciones completada en %2$s.</string>
     <string name="discover_pwa">Explorar PWA</string>
     <string name="message_update_failure_single_app">La actualización de %1$s ha fallado debido a una regla de soporte (ubicación, versión del sistema operativo...).</string>
-    <string name="message_update_failed">Debido a un fallo temporal, no se pueden actualizar sus aplicaciones. Vuelva a intentarlo más tarde.</string>
+    <string name="message_update_failed">Debido a un fallo temporal, no se pueden actualizar todas tus aplicaciones. Vuelve a intentarlo más tarde.</string>
     <string name="message_retry">Actualizar todo ha fallado. Se harán reintentos automáticos.</string>
     <string name="update_error">¡Error de actualización!</string>
-    <string name="error_signature_mismatch">La actualización no se puede aplicar porque hay una incompatibilidad de firmas entre la actualización de %1$s y la versión instalada en su teléfono. Para solucionarlo puede desinstalar la aplicación %1$s y reinstalarla desde App Lounge. <br/><br/> Nota: Este mensaje no volverá a aparecer.</string>
+    <string name="error_signature_mismatch">La actualización no se puede aplicar porque hay una incompatibilidad de firmas entre la actualización de %1$s y la versión instalada en tu teléfono. Para solucionarlo puedes desinstalar la aplicación %1$s y reinstalarla desde App Lounge. <br/><br/> Nota: Este mensaje no volverá a aparecer.</string>
     <string name="duplicate_app_from_sources">Algunas aplicaciones propietarias pueden tener también una versión de código abierto. En ese caso, App Lounge sólo muestra la versión de código abierto, para evitar duplicados.</string>
     <string name="open_source_apps">Aplicaciones de código abierto</string>
-    <string name="why_open_source_version">¿Por qué veo la versión de código abierto\?</string>
-    <string name="gplay_data_for_oss">Google Play no se puede mostrar cuando sólo se permiten aplicaciones de código abierto.</string>
+    <string name="why_open_source_version">¿Por qué veo la versión de código abierto?</string>
+    <string name="gplay_data_for_oss">Aplicaciones de Google Play no se puede mostrar cuando sólo se permiten aplicaciones de código abierto.</string>
     <string name="show_more">Mostrar más</string>
     <string name="something_went_wrong">¡Algo salió mal!</string>
-    <string name="app_not_found">Su aplicación no fue encontrada.</string>
+    <string name="app_not_found">Tu aplicación no fue encontrada.</string>
     <string name="not_enough_storage">¡No hay suficiente espacio disponible para descargar esta aplicación!</string>
     <string name="close">Cerrar</string>
     <string name="installing">Instalando</string>
     <string name="logged_out">Desconectado</string>
     <string name="login">Iniciar sesión</string>
-    <string name="login_to_see_gplay_apps">Es necesario iniciar sesión para ver las aplicaciones comunes.</string>
-    <string name="select_one_source_of_applications">Seleccione por lo menos una fuente de aplicaciones.</string>
+    <string name="login_to_see_gplay_apps">Necesitas iniciar sesión para ver aplicaciones comunes.</string>
+    <string name="select_one_source_of_applications">Por favor selecciona por lo menos una fuente de aplicaciones.</string>
     <string name="copied">Copiado</string>
     <string name="os_version">Versión de /e/OS</string>
     <string name="app_version_label">Versión del App Lounge</string>
     <string name="about">Acerca de</string>
     <string name="pwa_and_open_source_apps">PWA y aplicaciones de código abierto</string>
     <string name="or">O mostrar sólo</string>
+    <string name="free_space_for_update">Libera %1$s en tu teléfono para recibir las últimas actualizaciones.</string>
+    <string name="notification_content_full_db">Por favor, libera algo de espacio en tu teléfono para que App Lounge funcione correctamente.</string>
+    <string name="split_install_warning_title">Advertencia sobre %s</string>
+    <string name="split_install_warning_text">%s quiere instalar módulos adicionales. Debes iniciar sesión en AppLounge nuevamente para poder instalarlos.</string>
+    <string name="notification_channel_desc">Canal de instalación dividido</string>
+    <string name="sign_in">Iniciar sesión</string>
+    <string name="ignore">Ignorar</string>
+    <string name="downloading">Descargando…</string>
+    <string name="checking_updates">Comprobando actualizaciones...</string>
+    <string name="preference_update_apps_from_other_stores_title">Actualizar aplicaciones instaladas por otras tiendas</string>
+    <string name="request_exodus_report">Solicitar informe Exodus</string>
+    <string name="proceed_to_google_login">Acceder a Google</string>
+    <string name="request_exodus_report_confirm_dialog">Al hacer clic en \"<xliff:g id="ok">%1$s</xliff:g>\" se abrirá una nueva pestaña en tu navegador con el nombre del paquete de la aplicación ya precargado.&lt;br /&gt;&lt;br /&gt;Haz clic en \"Realizar análisis\" para iniciar el análisis por parte de Exodus. &lt;br /&gt;&lt;br /&gt;Cuando aparezca el botón \"Ver el informe\" (puede tardar un poco dependiendo de la aplicación) puedes cerrar la pestaña y volver a la descripción de la aplicación en <xliff:g id="app_name">%2$s</xliff:g> donde aparecerá la puntuación de privacidad. Algunas veces Exodus puede fallar al analizar una aplicación.&lt;br /&gt;&lt;br /&gt;Nota: la puntuación puede tardar hasta 10 min en aparecer en la descripción.</string>
+    <string name="too_many_requests_desc">La cuenta anónima que estás utilizando no está disponible. Por favor, actualiza tu sesión para obtener otra.</string>
+    <string name="having_troubles">¿Tienes problemas?</string>
+    <string name="refresh_session">ACTUALIZAR SESSION</string>
+    <string name="preference_update_apps_from_other_stores_description">Actualizar aplicaciones instaladas desde otras tiendas de aplicaciones. 
+\nSe intentará actualizar dichas aplicaciones desde la categoría de aplicaciones comunes y de código abierto.</string>
+    <string name="google_login_alert_message">"Recomendamos utilizar una cuenta de Google dedicada para:
+\n
+\n\t- mitigar el microtargeting  
+\n        - limitar el impacto en caso de que esta cuenta sea restringida por Google"</string>
+    <string name="additional_file_for">Archivo adicional para %s</string>
+    <string name="account_unavailable">Cuenta no disponible</string>
+    <string name="share">Compartir</string>
 </resources>

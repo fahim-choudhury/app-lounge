@@ -1,0 +1,21 @@
+# Naming rules
+naming:
+
+  ConstructorParameterNaming:
+    active: false
+
+  VariableNaming:
+    active: false
+
+
+# Style rules
+style:
+
+  ForbiddenComment:
+    active: false
+
+# Complexity rules
+complexity:
+
+  TooManyFunctions:
+    ignorePrivate: true

@@ -19,6 +19,8 @@ package foundation.e.apps.data.login
 
 import foundation.e.apps.data.Constants
 import foundation.e.apps.data.enums.User
+import foundation.e.apps.data.preference.AppLoungeDataStore
+import foundation.e.apps.data.preference.AppLoungePreference
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,29 +32,34 @@ import javax.inject.Singleton
  */
 @Singleton
 class LoginCommon @Inject constructor(
-    private val loginDataStore: LoginDataStore,
+    private val appLoungeDataStore: AppLoungeDataStore,
+    private val appLoungePreference: AppLoungePreference,
 ) {
     suspend fun saveUserType(user: User) {
-        loginDataStore.saveUserType(user)
+        appLoungeDataStore.saveUserType(user)
+    }
+
+    fun getUserType(): User {
+        return appLoungeDataStore.getUserType()
     }
 
     suspend fun saveGoogleLogin(email: String, oauth: String) {
-        loginDataStore.saveGoogleLogin(email, oauth)
+        appLoungeDataStore.saveGoogleLogin(email, oauth)
     }
 
     suspend fun setNoGoogleMode() {
-        loginDataStore.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
-        loginDataStore.setSource(Constants.PREFERENCE_SHOW_PWA, true)
-        loginDataStore.setSource(Constants.PREFERENCE_SHOW_GPLAY, false)
-        loginDataStore.saveUserType(User.NO_GOOGLE)
+        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
+        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_PWA, true)
+        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_GPLAY, false)
+        appLoungeDataStore.saveUserType(User.NO_GOOGLE)
     }
 
     suspend fun logout() {
-        loginDataStore.destroyCredentials()
-        loginDataStore.clearUserType()
+        appLoungeDataStore.destroyCredentials()
+        appLoungeDataStore.saveUserType(null)
         // reset app source preferences on logout.
-        loginDataStore.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
-        loginDataStore.setSource(Constants.PREFERENCE_SHOW_PWA, true)
-        loginDataStore.setSource(Constants.PREFERENCE_SHOW_GPLAY, true)
+        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
+        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_PWA, true)
+        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_GPLAY, true)
     }
 }

@@ -24,15 +24,14 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
-import com.aurora.gplayapi.data.models.AuthData
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.DownloadManager
-import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.preference.DataStoreModule
+import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.login.AuthenticatorRepository
+import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.splitinstall.ISplitInstallService
 import foundation.e.splitinstall.SplitInstall
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -42,12 +41,12 @@ class SplitInstallService : LifecycleService() {
         const val TAG = "SplitInstallService"
     }
 
-    @Inject lateinit var dataStoreModule: DataStoreModule
-    @Inject lateinit var fusedAPIRepository: FusedAPIRepository
+    @Inject lateinit var appLoungeDataStore: AppLoungeDataStore
+    @Inject lateinit var applicationRepository: ApplicationRepository
     @Inject lateinit var downloadManager: DownloadManager
     @Inject lateinit var gson: Gson
+    @Inject lateinit var authenticatorRepository: AuthenticatorRepository
     private lateinit var binder: SplitInstallBinder
-    private var authData: AuthData? = null
     private var splitInstallSystemService: ISplitInstallService? = null
 
     private val serviceConnection = object : ServiceConnection {
@@ -68,10 +67,6 @@ class SplitInstallService : LifecycleService() {
             component = SplitInstall.SPLIT_INSTALL_SYSTEM_SERVICE
         }
         bindService(intent, serviceConnection, BIND_AUTO_CREATE)
-
-        lifecycleScope.launch {
-            fetchAuthData()
-        }
     }
 
     override fun onDestroy() {
@@ -81,20 +76,14 @@ class SplitInstallService : LifecycleService() {
         super.onDestroy()
     }
 
-    private suspend fun fetchAuthData() {
-        dataStoreModule.authData.collect {
-            authData = gson.fromJson(it, AuthData::class.java)
-        }
-    }
-
     override fun onBind(intent: Intent): IBinder {
         super.onBind(intent)
         binder = SplitInstallBinder(
             applicationContext,
             lifecycleScope,
-            fusedAPIRepository,
+            applicationRepository,
             downloadManager,
-            authData,
+            authenticatorRepository,
             splitInstallSystemService
         )
         return binder

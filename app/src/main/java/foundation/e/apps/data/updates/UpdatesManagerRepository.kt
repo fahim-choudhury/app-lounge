@@ -20,15 +20,15 @@ package foundation.e.apps.data.updates
 
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.enums.ResultStatus
-import foundation.e.apps.data.fused.UpdatesDao
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.application.UpdatesDao
+import foundation.e.apps.data.application.data.Application
 import javax.inject.Inject
 
 class UpdatesManagerRepository @Inject constructor(
     private val updatesManagerImpl: UpdatesManagerImpl
 ) {
 
-    suspend fun getUpdates(authData: AuthData): Pair<List<FusedApp>, ResultStatus> {
+    suspend fun getUpdates(authData: AuthData): Pair<List<Application>, ResultStatus> {
         if (UpdatesDao.hasAnyAppsForUpdate()) {
             return Pair(UpdatesDao.appsAwaitingForUpdate, ResultStatus.OK)
         }
@@ -39,7 +39,7 @@ class UpdatesManagerRepository @Inject constructor(
         }
     }
 
-    suspend fun getUpdatesOSS(): Pair<List<FusedApp>, ResultStatus> {
+    suspend fun getUpdatesOSS(): Pair<List<Application>, ResultStatus> {
         return updatesManagerImpl.getUpdatesOSS()
     }
 

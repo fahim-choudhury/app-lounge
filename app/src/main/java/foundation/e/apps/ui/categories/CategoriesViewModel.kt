@@ -23,9 +23,9 @@ import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.enums.ResultStatus
-import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.fused.data.FusedCategory
-import foundation.e.apps.data.fused.utils.CategoryType
+import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.application.data.Category
+import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
@@ -35,10 +35,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CategoriesViewModel @Inject constructor(
-    private val fusedAPIRepository: FusedAPIRepository
+    private val applicationRepository: ApplicationRepository
 ) : LoadingViewModel() {
 
-    val categoriesList: MutableLiveData<Triple<List<FusedCategory>, String, ResultStatus>> =
+    val categoriesList: MutableLiveData<Pair<List<Category>, ResultStatus>> =
         MutableLiveData()
 
     fun loadData(
@@ -62,20 +62,20 @@ class CategoriesViewModel @Inject constructor(
 
     fun getCategoriesList(type: CategoryType, authData: AuthData) {
         viewModelScope.launch {
-            val categoriesData = fusedAPIRepository.getCategoriesList(type)
+            val categoriesData = applicationRepository.getCategoriesList(type)
             categoriesList.postValue(categoriesData)
 
-            val status = categoriesData.third
+            val status = categoriesData.second
 
             if (status != ResultStatus.OK) {
                 val exception =
                     if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
                         GPlayException(
-                            categoriesData.third == ResultStatus.TIMEOUT,
+                            categoriesData.second == ResultStatus.TIMEOUT,
                             status.message.ifBlank { "Data load error" }
                         )
                     else CleanApkException(
-                        categoriesData.third == ResultStatus.TIMEOUT,
+                        categoriesData.second == ResultStatus.TIMEOUT,
                         status.message.ifBlank { "Data load error" }
                     )
 

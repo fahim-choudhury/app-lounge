@@ -20,68 +20,97 @@ package foundation.e.apps.exodus
 
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepositoryImpl
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.di.CommonUtilsModule
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mock
+import org.mockito.Mockito
+import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 
 class PrivacyScoreRepositoryImplTest {
 
     private lateinit var privacyScoreRepository: PrivacyScoreRepositoryImpl
 
+    @Mock
+    private lateinit var blockedAppRepository: BlockedAppRepository
+
     @Before
     fun setup() {
-        privacyScoreRepository = PrivacyScoreRepositoryImpl()
+        MockitoAnnotations.openMocks(this)
+        privacyScoreRepository = PrivacyScoreRepositoryImpl(blockedAppRepository)
     }
 
     @Test
     fun calculatePrivacyScoreWhenNoTrackers() {
-        val fusedApp = FusedApp(
+        val application = Application(
             _id = "113",
             status = Status.UNAVAILABLE,
             name = "Demo Three",
-            package_name = "a.b.c",
+            package_name = "com.test.fakePackage",
             latest_version_code = 123,
             is_pwa = true,
             permsFromExodus = listOf(),
             perms = listOf(),
             trackers = listOf()
         )
-        val privacyScore = privacyScoreRepository.calculatePrivacyScore(fusedApp)
+        val privacyScore = privacyScoreRepository.calculatePrivacyScore(application)
         Assert.assertEquals("failed to retrieve valid privacy score", 10, privacyScore)
     }
 
     @Test
     fun calculatePrivacyScoreWhenPermsAreNotAvailable() {
-        val fusedApp = FusedApp(
+        val application = Application(
             _id = "113",
             status = Status.UNAVAILABLE,
             name = "Demo Three",
-            package_name = "a.b.c",
+            package_name = "com.test.fakePackage",
             latest_version_code = 123,
             is_pwa = true,
             perms = listOf(),
             trackers = listOf()
         )
-        val privacyScore = privacyScoreRepository.calculatePrivacyScore(fusedApp)
+        val privacyScore = privacyScoreRepository.calculatePrivacyScore(application)
         Assert.assertEquals("failed to retrieve valid privacy score", -1, privacyScore)
     }
 
     @Test
     fun calculatePrivacyScoreWhenTrackersAreNotAvailable() {
-        val fusedApp = FusedApp(
+        val application = Application(
             _id = "113",
             status = Status.UNAVAILABLE,
             name = "Demo Three",
-            package_name = "a.b.c",
+            package_name = "com.test.fakePackage",
             latest_version_code = 123,
             is_pwa = true,
             permsFromExodus = listOf(),
             perms = listOf(),
             trackers = CommonUtilsModule.LIST_OF_NULL
         )
-        val privacyScore = privacyScoreRepository.calculatePrivacyScore(fusedApp)
+        val privacyScore = privacyScoreRepository.calculatePrivacyScore(application)
         Assert.assertEquals("failed to retrieve valid privacy score", 9, privacyScore)
+    }
+
+    @Test
+    fun `test calculate privacyScore for the app are available in privacyScoreZero applist`() {
+        val application = Application(
+            _id = "113",
+            status = Status.UNAVAILABLE,
+            name = "Demo Three",
+            package_name = "com.test.fakePackage.privacyZero",
+            latest_version_code = 123,
+            is_pwa = true,
+            permsFromExodus = listOf(),
+            perms = listOf(),
+            trackers = CommonUtilsModule.LIST_OF_NULL
+        )
+        Mockito.`when`(blockedAppRepository.isPrivacyScoreZero(eq("com.test.fakePackage.privacyZero"))).thenReturn(true)
+
+        val privacyScore = privacyScoreRepository.calculatePrivacyScore(application)
+        Assert.assertEquals("privacy score zero", 0, privacyScore)
     }
 }

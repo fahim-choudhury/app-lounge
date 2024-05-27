@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 MURENA SAS
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  ~
+  -->
+
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="not_enough_storage">Недостатньо доступного місця для завантаження цього застосунку!</string>
     <string name="unknown_error">Непередбачувана помилка!</string>
@@ -43,7 +61,6 @@
     <string name="menu_settings">Налаштування</string>
     <string name="menu_categories">Категорії</string>
     <string name="menu_home">Домівка</string>
-    <string name="app_name">Магазин</string>
     <string name="message_update_failed">Із-за тимчасової помилки, Ваші додатки не можуть бути оновлені. Будь-ласка, спробуйте пізніше.</string>
     <string name="update_error">Помилка оновлення!</string>
     <string name="all_apps_updated">Всі додатки мають останню версію</string>
@@ -150,11 +167,13 @@
     <string name="download_automatically_message">Ваш додаток буде автоматично завантажений на цей пристрій</string>
     <string name="purchase_complete">Покупка завершена успішно!</string>
     <string name="paid_app_anonymous_message">Платні додатки не можуть бути встановлені з анонімного режиму. Будь ласка, увійдіть в ваш аккаунт Google щоб встановлювати платні додатки.</string>
-    <string name="dialog_cancel">Скасувати</string>
     <string name="dialog_confirm">Підтвердити</string>
     <string name="dialog_paidapp_message">Коли натиснуто «Підтвердити», застосунок перенесе Вас до сторінки Google Play для завершення вашої покупки, використовуючи Ваш браузер. Натисніть «Підтвердити» щоб купити %1$s за %2$s.</string>
     <string name="dialog_title_paid_app">Покупка <b>%1$s</b></string>
     <string name="anonymous_login_failed_desc">Це може бути тому, що токен не міг бути згенерований / підтверджений, або за інших причин.
 \n
 \nНатисніть «Повторити спробу» щоб спробувати знову.</string>
+    <string name="sign_in">Зареєструватися</string>
+    <string name="account_unavailable">Обліковий запис недоступний</string>
+    <string name="share">Поділитися</string>
 </resources>

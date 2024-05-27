@@ -31,7 +31,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
-import foundation.e.apps.data.gplay.utils.AC2DMUtil
+import foundation.e.apps.data.playstore.utils.AC2DMUtil
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.databinding.FragmentGoogleSigninBinding
 import foundation.e.apps.di.CommonUtilsModule.safeNavigate
@@ -47,8 +47,7 @@ class GoogleSignInFragment : Fragment(R.layout.fragment_google_signin) {
     }
 
     companion object {
-        private const val EMBEDDED_SETUP_URL =
-            "https://accounts.google.com/EmbeddedSetup/identifier?flowName=EmbeddedSetupAndroid"
+        private const val EMBEDDED_SETUP_URL = "https://accounts.google.com/EmbeddedSetup"
         private const val AUTH_TOKEN = "oauth_token"
     }
 

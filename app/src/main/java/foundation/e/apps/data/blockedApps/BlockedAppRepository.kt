@@ -20,21 +20,19 @@ package foundation.e.apps.data.blockedApps
 import com.google.gson.Gson
 import foundation.e.apps.data.DownloadManager
 import foundation.e.apps.data.fusedDownload.FileManager
-import foundation.e.lib.telemetry.Telemetry
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
+import kotlin.coroutines.resume
 
 @Singleton
 class BlockedAppRepository @Inject constructor(
     private val downloadManager: DownloadManager,
     private val gson: Gson,
     @Named("cacheDir") private val cacheDir: String,
-    @Named("ioCoroutineScope") private val coroutineScope: CoroutineScope
 ) {
 
     companion object {
@@ -49,32 +47,38 @@ class BlockedAppRepository @Inject constructor(
         return blockedAppInfoList?.notWorkingApps ?: listOf()
     }
 
-    fun fetchUpdateOfAppWarningList() {
-        downloadManager.downloadFileInCache(
-            APP_WARNING_LIST_FILE_URL,
-            fileName = WARNING_LIST_FILE_NAME
-        ) { success, _ ->
-            if (success) {
-                parseBlockedAppDataFromFile()
+    fun isBlockedApp(packageName: String) =
+        blockedAppInfoList?.notWorkingApps?.contains(packageName) ?: false
+
+    fun isPrivacyScoreZero(packageName: String) =
+        blockedAppInfoList?.zeroPrivacyApps?.contains(packageName) ?: false
+
+    suspend fun fetchUpdateOfAppWarningList(): Boolean =
+        suspendCancellableCoroutine { continuation ->
+            downloadManager.downloadFileInCache(
+                APP_WARNING_LIST_FILE_URL,
+                fileName = WARNING_LIST_FILE_NAME
+            ) { success, _ ->
+                if (success) {
+                    parseBlockedAppDataFromFile()
+                }
+
+                continuation.resume(true)
             }
         }
-    }
 
     private fun parseBlockedAppDataFromFile() {
-        coroutineScope.launch {
-            blockedAppInfoList = try {
-                val outputPath = "$cacheDir/warning_list/"
-                FileManager.moveFile("$cacheDir/", WARNING_LIST_FILE_NAME, outputPath)
-                val downloadedFile = File(outputPath + WARNING_LIST_FILE_NAME)
-                Timber.i("Blocked list file exists: ${downloadedFile.exists()}")
-                val blockedAppInfoJson = String(downloadedFile.inputStream().readBytes())
-                Timber.i("Blocked list file contents: $blockedAppInfoJson")
-                gson.fromJson(blockedAppInfoJson, AppWarningInfo::class.java)
-            } catch (exception: Exception) {
-                exception.printStackTrace()
-                Telemetry.reportException(exception)
-                AppWarningInfo(listOf())
-            }
+        blockedAppInfoList = try {
+            val outputPath = "$cacheDir/warning_list/"
+            FileManager.moveFile("$cacheDir/", WARNING_LIST_FILE_NAME, outputPath)
+            val downloadedFile = File(outputPath + WARNING_LIST_FILE_NAME)
+            Timber.d("Blocked list file exists: ${downloadedFile.exists()}")
+            val blockedAppInfoJson = String(downloadedFile.inputStream().readBytes())
+            Timber.d("Blocked list file contents: $blockedAppInfoJson")
+            gson.fromJson(blockedAppInfoJson, AppWarningInfo::class.java)
+        } catch (exception: Exception) {
+            Timber.e(exception.localizedMessage ?: "", exception)
+            AppWarningInfo(listOf(), listOf())
         }
     }
 }

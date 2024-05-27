@@ -72,24 +72,26 @@ class InstallAppWorker @AssistedInject constructor(
     private fun createForegroundInfo(progress: String): ForegroundInfo {
         val title = applicationContext.getString(R.string.app_name)
         val cancel = applicationContext.getString(R.string.cancel)
+        val channelId = context.getString(R.string.basic_notification_channel_id)
+
         // This PendingIntent can be used to cancel the worker
         val intent = WorkManager.getInstance(applicationContext)
-            .createCancelPendingIntent(getId())
+            .createCancelPendingIntent(id)
 
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as
-                NotificationManager
+                    NotificationManager
         // Create a Notification channel if necessary
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val mChannel = NotificationChannel(
-                "applounge_notification",
+                channelId,
                 title,
                 NotificationManager.IMPORTANCE_LOW
             )
             notificationManager.createNotificationChannel(mChannel)
         }
 
-        val notification = NotificationCompat.Builder(applicationContext, "applounge_notification")
+        val notification = NotificationCompat.Builder(applicationContext, channelId)
             .setContentTitle(title)
             .setTicker(title)
             .setContentText(progress)

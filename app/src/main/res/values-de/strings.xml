@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 MURENA SAS
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  ~
+  -->
+
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="menu_categories">Kategorien</string>
     <string name="menu_search">Suche</string>
@@ -31,7 +49,7 @@
     <string name="user_anonymous">Anonym</string>
     <string name="logout">Abmelden</string>
     <string name="description">Beschreibung</string>
-    <string name="ok">ok</string>
+    <string name="ok">OK</string>
     <string name="install">Installieren</string>
     <string name="cancel">Abbrechen</string>
     <string name="app_icon">App-Symbol</string>
@@ -90,14 +108,12 @@
     </plurals>
     <string name="automatically_install_updates_notification_text">App-Aktualisierungen werden automatisch installiert</string>
     <string name="preference_update_wifi_only_description">Aktualisierungen von Apps nur in unlimitierten Netzwerken wie WLAN</string>
-    <string name="app_name">App Lounge</string>
     <string name="privacy_computed_using_text">Berechnet aus &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus Datenschutz-Analyse</string>
     <string name="all_apps_updated">Alle Apps sind aktuell</string>
     <string name="or">Oder nur anzeigen</string>
     <string name="dialog_title_paid_app"><b>%1$s</b> kaufen</string>
     <string name="dialog_paidapp_message">Wenn du auf die Bestätigung tippst, wirst du zur Google Play Seite weitergeleitet, um den Bezahlvorgang für die App im Browser abzuschließen. Tippe zur Bestätigung des Kaufes von %1$s für %2$s.</string>
     <string name="dialog_confirm">BESTÄTIGUNG</string>
-    <string name="dialog_cancel">\@android:string/cancel</string>
     <string name="privacy_description">Die Datenschutz-Bewertung wird automatisch berechnet aus den Berechtigungen und den Trackern, die in den Anwendungen aufgespürt werden. Es gibt einen Überblick darüber, wie sehr die App Benutzer ausspioniert. &lt;br /&gt;&lt;br /&gt;Die Quelle für den Berechnungsalgorithmus kann &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;hier gefunden werden&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Die Tracker-Aufspürung wird durchgeführt mit &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Privacy Werkzeuge&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Bewertung von 1-10.&lt;br /&gt;&lt;br /&gt;Wenn du mehr erfahren willst, wie die Datenschutzbewertung berechnet wird, und wie du dich vor dem Ausspionieren schützen kannst, &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;besuche dieses Seite&lt;/a&gt;.</string>
     <string name="not_enough_storage">Es ist nicht genügend Speicher vorhanden, um diese App herunterzuladen!</string>
     <string name="paid_app_anonymous_message">Bezahl-Apps können nicht im anonymen Modus installiert werden. Bitte melde dich mit deinem Google-Konto an.</string>
@@ -159,6 +175,26 @@
     <string name="downloading">Herunterladen …</string>
     <string name="preference_update_apps_from_other_stores_title">Apps aktualisieren, die von anderen App-Stores aus installiert wurden</string>
     <string name="preference_update_apps_from_other_stores_description">Aktualisiere Apps, die von anderen Stores installiert wurden.
-\nSolche App</string>
+\nEs wird versucht, diese Apps aus den Kategorien „Häufig benutzt“ und „Quelloffen“ zu aktualisieren.</string>
     <string name="having_troubles">Ein Problem\?</string>
+    <string name="request_exodus_report">Einen Exodus-Report anfordern</string>
+    <string name="proceed_to_google_login">Weiter zur Google-Anmeldung</string>
+    <string name="google_login_alert_message">Wir empfehlen, ein spezielles Google-Konto zu benutzen, um:
+\n
+\n\t• Micro-Targeting abzuschwächen
+\n\t• die Auswirkungen zu begrenzen, falls dieses Konto von Google eingeschränkt wird</string>
+    <string name="free_space_for_update">Bitte %1$s Speicherplatz auf diesem Gerät freimachen, damtit die neueste Aktualisierung installiert werden kann.</string>
+    <string name="checking_updates">Aktualisierungen werden überprüft …</string>
+    <string name="too_many_requests_desc">Das anonyme Konto, das von Ihnen genutzt wird, ist nicht verfügbar. Bitte erneuern (refresh) Sie die Sitzung, um ein neues anonymes Konto zu erhalten.</string>
+    <string name="refresh_session">SITZUNG ERNEUERN</string>
+    <string name="notification_content_full_db">Bitte etwas Platz auf dem Telefon freimachen, damit die App Lounge ordnungsgemäß funktionieren kann.</string>
+
+    <!--Split install-->
+    <string name="split_install_warning_title">Warnung bezüglich %s</string>
+    <string name="split_install_warning_text">%s möchte zusätzliche Module installieren. Sie müssen sich erneut bei AppLounge anmelden, um sie installieren zu können.</string>
+    <string name="notification_channel_desc">Split-Installationskanal</string>
+    <string name="sign_in">Einloggen</string>
+    <string name="ignore">Ignorieren</string>
+    <string name="account_unavailable">Konto nicht verfügbar</string>
+    <string name="share">Teilen</string>
 </resources>

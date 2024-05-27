@@ -19,6 +19,7 @@ package foundation.e.apps.data
 
 import android.app.DownloadManager
 import android.content.Context
+import android.database.Cursor
 import android.net.Uri
 import android.os.Environment
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -35,6 +36,7 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
+import kotlin.math.abs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -48,8 +50,11 @@ class DownloadManager @Inject constructor(
 ) {
     private val downloadsMaps = HashMap<Long, Boolean>()
 
-    private val SDCARD_PATH = Environment.getExternalStorageDirectory().absolutePath
-    val EXTERNAL_STORAGE_TEMP_CACHE_DIR = "$SDCARD_PATH/Download/AppLounge/SplitInstallApks"
+    companion object {
+        private val SDCARD_PATH = Environment.getExternalStorageDirectory().absolutePath
+        val EXTERNAL_STORAGE_TEMP_CACHE_DIR = "$SDCARD_PATH/Download/AppLounge/SplitInstallApks"
+        private const val UNKNOWN_ERROR_OR_REASON = -1
+    }
 
     fun downloadFileInCache(
         url: String,
@@ -121,28 +126,41 @@ class DownloadManager @Inject constructor(
         downloadCompleted: ((Boolean, String) -> Unit)?
     ) {
         try {
-            downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
-                .use { cursor ->
-                    if (cursor.moveToFirst()) {
-                        val status =
-                            cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
-                        val totalSizeBytes =
-                            cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-                        val bytesDownloadedSoFar =
-                            cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
-                        if (status == DownloadManager.STATUS_FAILED) {
-                            Timber.d("Download Failed: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status")
-                            downloadsMaps[downloadId] = false
-                            downloadCompleted?.invoke(false, filePath)
-                        } else if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                            Timber.d("Download Successful: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status")
-                            downloadsMaps[downloadId] = false
-                            downloadCompleted?.invoke(true, filePath)
-                        }
-                    }
+            downloadManager.query(downloadManagerQuery.setFilterById(downloadId)).use { cursor ->
+                if (cursor.moveToFirst()) {
+                    handleDownloadStatus(cursor, downloadId, filePath, downloadCompleted)
                 }
+            }
         } catch (e: Exception) {
             Timber.e(e)
+        }
+    }
+
+    private fun handleDownloadStatus(
+        cursor: Cursor,
+        downloadId: Long,
+        filePath: String,
+        downloadCompleted: ((Boolean, String) -> Unit)?
+    ) {
+        var status =
+            cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+        val totalSizeBytes =
+            getLong(cursor, DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
+        val bytesDownloadedSoFar =
+            getLong(cursor, DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
+        val reason =
+            cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON))
+
+        status = sanitizeStatus(downloadId, status, reason)
+
+        if (status == DownloadManager.STATUS_FAILED) {
+            Timber.d("Download Failed: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status")
+            downloadsMaps[downloadId] = false
+            downloadCompleted?.invoke(false, filePath)
+        } else if (status == DownloadManager.STATUS_SUCCESSFUL) {
+            Timber.d("Download Successful: $filePath=> $bytesDownloadedSoFar/$totalSizeBytes $status")
+            downloadsMaps[downloadId] = false
+            downloadCompleted?.invoke(true, filePath)
         }
     }
 
@@ -158,28 +176,110 @@ class DownloadManager @Inject constructor(
         }
     }
 
-    fun isDownloadSuccessful(downloadId: Long): Boolean {
-        return getDownloadStatus(downloadId) == DownloadManager.STATUS_SUCCESSFUL
+    /**
+     * Checks download is successful or not.
+     * @param downloadId is the id of a particular download request
+     * @return Pair<Boolean, Int>, Where first represents success/failure,
+     * second represents status.
+     */
+    fun isDownloadSuccessful(downloadId: Long): Pair<Boolean, Int> {
+        val downloadStatus = getDownloadStatus(downloadId)
+        val isSuccessFul = downloadStatus == DownloadManager.STATUS_SUCCESSFUL
+        return Pair(isSuccessFul, downloadStatus)
     }
 
     fun hasDownloadFailed(downloadId: Long): Boolean {
-        return getDownloadStatus(downloadId) == DownloadManager.STATUS_FAILED
+        return listOf(DownloadManager.STATUS_FAILED, UNKNOWN_ERROR_OR_REASON)
+            .contains(getDownloadStatus(downloadId))
     }
 
-    private fun getDownloadStatus(downloadId: Long): Int {
+    fun getSizeRequired(downloadId: Long): Long {
+        var totalSizeBytes = -1L
+        var bytesDownloadedSoFar = -1L
+
         try {
             downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
                 .use { cursor ->
                     if (cursor.moveToFirst()) {
-                        val status =
+                        totalSizeBytes = getLong(cursor, DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
+                        bytesDownloadedSoFar =
+                            getLong(cursor, DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
+                    }
+                }
+        } catch (e: RuntimeException) {
+            Timber.e(e, "runtime exception on retrieving download file size.")
+        }
+
+        if (totalSizeBytes <= 0) {
+            return 0
+        }
+
+        if (bytesDownloadedSoFar <= 0) {
+            return totalSizeBytes
+        }
+
+        return abs(totalSizeBytes - bytesDownloadedSoFar)
+    }
+
+    private fun getDownloadStatus(downloadId: Long): Int {
+        var status = UNKNOWN_ERROR_OR_REASON
+        var reason = UNKNOWN_ERROR_OR_REASON
+        try {
+            downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
+                .use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        status =
                             cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+                        reason =
+                            cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON))
                         Timber.d("Download Status: downloadId: $downloadId $status")
-                        return status
                     }
                 }
         } catch (e: Exception) {
             Timber.e(e)
         }
+
+        if (status != DownloadManager.STATUS_SUCCESSFUL) {
+            Timber.e("Download Issue: $downloadId status: $status reason: $reason")
+        }
+
+        return sanitizeStatus(downloadId, status, reason)
+    }
+
+    private fun sanitizeStatus(downloadId: Long, status: Int, reason: Int): Int {
+        if (reason <= 0) {
+            return status
+        }
+
+        if (status in listOf(DownloadManager.STATUS_FAILED, DownloadManager.STATUS_PAUSED)) {
+            return status
+        }
+
+        Timber.e("Download Issue: $downloadId : DownloadManager returns status: $status but the failed because: reason: $reason")
+
+        if (reason <= DownloadManager.PAUSED_UNKNOWN) {
+            return DownloadManager.STATUS_PAUSED
+        }
+
         return DownloadManager.STATUS_FAILED
     }
+
+    fun getDownloadFailureReason(downloadId: Long): Int {
+        var reason = UNKNOWN_ERROR_OR_REASON
+        try {
+            downloadManager.query(downloadManagerQuery.setFilterById(downloadId))
+                .use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        reason =
+                            cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON))
+                    }
+                }
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
+        return reason
+    }
+
+    private fun getLong(cursor: Cursor, column: String) =
+        cursor.getLong(cursor.getColumnIndexOrThrow(column))
 }

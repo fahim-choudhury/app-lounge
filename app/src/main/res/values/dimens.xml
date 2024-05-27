@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="search_filter_chip_icon_size">16dp</dimen>
+</resources>

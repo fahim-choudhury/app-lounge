@@ -24,7 +24,7 @@ import android.content.pm.PackageInstaller
 import android.os.IBinder
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
-import foundation.e.apps.data.fused.UpdatesDao
+import foundation.e.apps.data.application.UpdatesDao
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
@@ -42,7 +42,7 @@ class InstallerService : Service() {
     lateinit var fusedManagerRepository: FusedManagerRepository
 
     @Inject
-    lateinit var pkgManagerModule: PkgManagerModule
+    lateinit var appLoungePackageManager: AppLoungePackageManager
 
     @Inject
     lateinit var faultyAppRepository: FaultyAppRepository
@@ -60,9 +60,9 @@ class InstallerService : Service() {
         /**
          There is some error case where package name from PackageInstaller remains
          empty (example: INSTALL_PARSE_FAILED_NOT_APK).
-         the packageName from PkgManagerModule will be used in this error case.
+         the packageName from AppLoungePackageManager will be used in this error case.
          */
-        val packageNamePackageManagerModule = intent.getStringExtra(PkgManagerModule.PACKAGE_NAME)
+        val packageNamePackageManagerModule = intent.getStringExtra(AppLoungePackageManager.PACKAGE_NAME)
 
         packageName = packageName ?: packageNamePackageManagerModule
         postStatus(status, packageName, extra)
@@ -77,6 +77,7 @@ class InstallerService : Service() {
             return
         }
 
+        Timber.e("App install is failed for: $packageName status: $status extra: $extra")
         updateInstallationIssue(packageName ?: "")
         if (status == PackageInstaller.STATUS_FAILURE_CONFLICT && extra?.contains(
                 INSTALL_FAILED_UPDATE_INCOMPATIBLE

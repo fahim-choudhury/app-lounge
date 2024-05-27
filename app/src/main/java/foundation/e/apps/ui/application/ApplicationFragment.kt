@@ -1,6 +1,5 @@
 /*
- * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2021  E FOUNDATION
+ * Copyright (C) 2021-2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +13,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.ui.application
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.text.Html
 import android.text.format.Formatter
@@ -33,43 +35,56 @@ import androidx.core.graphics.BlendModeCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import coil.ImageLoader
 import coil.load
+import coil.request.ImageRequest
+import coil.request.SuccessResult
+import com.aurora.gplayapi.data.models.ContentRating
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textview.MaterialTextView
 import dagger.hilt.android.AndroidEntryPoint
+import foundation.e.apps.MainActivity
 import foundation.e.apps.R
+import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.application.data.shareUri
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
-import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentApplicationBinding
 import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.install.download.data.DownloadProgress
-import foundation.e.apps.install.pkg.PWAManagerModule
-import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.install.pkg.AppLoungePackageManager
+import foundation.e.apps.install.pkg.PWAManager
 import foundation.e.apps.ui.AppInfoFetchViewModel
-import foundation.e.apps.ui.MainActivity
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.PrivacyInfoViewModel
+import foundation.e.apps.ui.application.ShareButtonVisibilityState.Hidden
+import foundation.e.apps.ui.application.ShareButtonVisibilityState.Visible
 import foundation.e.apps.ui.application.model.ApplicationScreenshotsRVAdapter
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.parentFragment.TimeoutFragment
+import foundation.e.apps.utils.isValid
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
@@ -110,10 +125,10 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     private lateinit var screenshotsRVAdapter: ApplicationScreenshotsRVAdapter
 
     @Inject
-    lateinit var pkgManagerModule: PkgManagerModule
+    lateinit var appLoungePackageManager: AppLoungePackageManager
 
     @Inject
-    lateinit var pwaManagerModule: PWAManagerModule
+    lateinit var pwaManager: PWAManager
 
     private val applicationViewModel: ApplicationViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()
@@ -122,12 +137,16 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private var applicationIcon: ImageView? = null
 
+    private var shouldReloadPrivacyInfo = false
+
     companion object {
         private const val PRIVACY_SCORE_SOURCE_CODE_URL =
             "https://gitlab.e.foundation/e/os/apps/-/blob/main/app/src/main/java/foundation/e/apps/data/exodus/repositories/PrivacyScoreRepositoryImpl.kt"
         private const val EXODUS_URL = "https://exodus-privacy.eu.org"
         private const val EXODUS_REPORT_URL = "https://reports.exodus-privacy.eu.org/"
         private const val PRIVACY_GUIDELINE_URL = "https://doc.e.foundation/privacy_score"
+        private const val REQUEST_EXODUS_REPORT_URL =
+            "https://reports.exodus-privacy.eu.org/en/analysis/submit#"
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -151,7 +170,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
         binding.applicationLayout.visibility = View.INVISIBLE
 
-        applicationViewModel.fusedApp.observe(viewLifecycleOwner) { resultPair ->
+        applicationViewModel.application.observe(viewLifecycleOwner) { resultPair ->
             updateUi(resultPair)
         }
 
@@ -161,7 +180,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun updateUi(
-        resultPair: Pair<FusedApp, ResultStatus>,
+        resultPair: Pair<Application, ResultStatus>,
     ) {
         if (resultPair.second != ResultStatus.OK) {
             return
@@ -212,9 +231,16 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         observeDownloadList()
         observeDownloadStatus(binding.root)
         stopLoadingUI()
+
+        collectState()
     }
 
-    private fun showWarningMessage(it: FusedApp) {
+    private fun collectState() {
+        collectShareVisibilityState()
+        collectAppContentRatingState()
+    }
+
+    private fun showWarningMessage(it: Application) {
         if (appInfoFetchViewModel.isAppInBlockedList(it)) {
             binding.snackbarLayout.visibility = View.VISIBLE
         } else if (args.isGplayReplaced && !applicationViewModel.isOpenSourceSelected()) {
@@ -235,7 +261,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
     }
 
-    private fun updateAppDescriptionText(it: FusedApp) {
+    private fun updateAppDescriptionText(it: Application) {
         binding.appDescription.text =
             Html.fromHtml(it.description, Html.FROM_HTML_MODE_COMPACT)
 
@@ -250,9 +276,9 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         binding.privacyInclude.apply {
             appPermissions.setOnClickListener { _ ->
                 ApplicationDialogFragment(
-                    R.drawable.ic_perm,
-                    getString(R.string.permissions),
-                    getPermissionListString()
+                    drawableResId = R.drawable.ic_perm,
+                    title = getString(R.string.permissions),
+                    message = getPermissionListString()
                 ).show(childFragmentManager, TAG)
             }
             appTrackers.setOnClickListener {
@@ -261,19 +287,19 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                     buildTrackersString(fusedApp)
 
                 ApplicationDialogFragment(
-                    R.drawable.ic_tracker,
-                    getString(R.string.trackers_title),
-                    trackers
+                    drawableResId = R.drawable.ic_tracker,
+                    title = getString(R.string.trackers_title),
+                    message = trackers
                 ).show(childFragmentManager, TAG)
             }
         }
     }
 
-    private fun buildTrackersString(fusedApp: FusedApp?): String {
+    private fun buildTrackersString(application: Application?): String {
         var trackers =
-            privacyInfoViewModel.getTrackerListText(fusedApp)
+            privacyInfoViewModel.getTrackerListText(application)
 
-        if (fusedApp?.trackers == LIST_OF_NULL) {
+        if (application?.trackers == LIST_OF_NULL) {
             trackers = getString(R.string.tracker_information_not_found)
         } else if (trackers.isNotEmpty()) {
             trackers += "<br /> <br />" + getString(
@@ -288,7 +314,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun updateAppInformation(
-        it: FusedApp,
+        it: Application,
     ) {
         binding.infoInclude.apply {
             appUpdatedOn.text = getString(
@@ -309,7 +335,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
     }
 
-    private fun updateAppRating(it: FusedApp) {
+    private fun updateAppRating(it: Application) {
         binding.ratingsInclude.apply {
             if (it.ratings.usageQualityScore != -1.0) {
                 val rating =
@@ -320,35 +346,73 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                     )
 
                 appRating.setCompoundDrawablesWithIntrinsicBounds(
-                    null, null, getRatingDrawable(rating), null
+                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_star_blank),
+                    null,
+                    getRatingDrawable(rating),
+                    null
                 )
                 appRating.compoundDrawablePadding = 15
             }
             appRatingLayout.setOnClickListener {
                 ApplicationDialogFragment(
-                    R.drawable.ic_star,
-                    getString(R.string.rating),
-                    getString(R.string.rating_description)
+                    drawableResId = R.drawable.ic_star_blank,
+                    title = getString(R.string.rating),
+                    message = getString(R.string.rating_description)
                 ).show(childFragmentManager, TAG)
             }
 
             appPrivacyScoreLayout.setOnClickListener {
+                if (privacyInfoViewModel.shouldRequestExodusReport(applicationViewModel.getFusedApp())) {
+                    showRequestExodusReportDialog()
+                    return@setOnClickListener
+                }
 
-                ApplicationDialogFragment(
-                    R.drawable.ic_lock,
-                    getString(R.string.privacy_score),
-                    getString(
-                        R.string.privacy_description,
-                        PRIVACY_SCORE_SOURCE_CODE_URL,
-                        generateExodusUrl(),
-                        PRIVACY_GUIDELINE_URL
-                    )
-                ).show(childFragmentManager, TAG)
+                showPrivacyScoreCalculationLoginDialog()
             }
         }
     }
 
-    private fun updateAppTitlePanel(it: FusedApp) {
+    private fun showRequestExodusReportDialog() {
+        ApplicationDialogFragment(
+            drawableResId = R.drawable.ic_lock,
+            title = getString(R.string.request_exodus_report),
+            message = getRequestExodusReportDialogDetailsText(),
+            positiveButtonText = getString(R.string.ok),
+            positiveButtonAction = {
+                shouldReloadPrivacyInfo = true
+                openRequestExodusReportUrl()
+            },
+            cancelButtonText = getString(R.string.cancel)
+        ).show(childFragmentManager, TAG)
+    }
+
+    private fun getRequestExodusReportDialogDetailsText() = getString(
+        R.string.request_exodus_report_confirm_dialog,
+        getString(R.string.ok),
+        getString(R.string.app_name)
+    )
+
+    private fun openRequestExodusReportUrl() {
+        val openUrlIntent = Intent(Intent.ACTION_VIEW)
+        openUrlIntent.data =
+            Uri.parse("${REQUEST_EXODUS_REPORT_URL}${applicationViewModel.getFusedApp()?.package_name}")
+        startActivity(openUrlIntent)
+    }
+
+    private fun showPrivacyScoreCalculationLoginDialog() {
+        ApplicationDialogFragment(
+            drawableResId = R.drawable.ic_lock,
+            title = getString(R.string.privacy_score),
+            message = getString(
+                R.string.privacy_description,
+                PRIVACY_SCORE_SOURCE_CODE_URL,
+                generateExodusUrl(),
+                PRIVACY_GUIDELINE_URL
+            )
+        ).show(childFragmentManager, TAG)
+    }
+
+    private fun updateAppTitlePanel(it: Application) {
         binding.titleInclude.apply {
             applicationIcon = appIcon
             appName.text = it.name
@@ -370,7 +434,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
     }
 
-    private fun updateCategoryTitle(app: FusedApp) {
+    private fun updateCategoryTitle(app: Application) {
         binding.titleInclude.apply {
             var catText = app.category.ifBlank { args.category }
             when {
@@ -404,6 +468,90 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 view.findNavController().navigateUp()
             }
         }
+
+        binding.actionShare.setOnClickListener { openShareSheet() }
+    }
+
+    private fun openShareSheet() {
+        val application = applicationViewModel.application.value?.first ?: return
+        val shareIntent = AppShareIntent.create(application.name, application.shareUri)
+        startActivity(Intent.createChooser(shareIntent, null))
+    }
+
+    private fun collectShareVisibilityState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                applicationViewModel.shareButtonVisibilityState.collectLatest { state ->
+                    when (state) {
+                        Hidden -> binding.actionShare.visibility = View.GONE
+                        Visible -> binding.actionShare.visibility = View.VISIBLE
+                    }
+                }
+            }
+        }
+    }
+
+    private fun collectAppContentRatingState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                applicationViewModel.appContentRating.collectLatest(::updateContentRatingUi)
+            }
+        }
+    }
+
+    private fun updateContentRatingUi(contentRating: ContentRating) {
+        fun loadContentRating(contentRating: ContentRating) {
+            lifecycleScope.launch {
+                val drawable = loadContentRatingDrawable(contentRating.artwork.url)
+                displayRating(contentRating, drawable)
+            }
+        }
+
+        fun hideContentRating() {
+            binding.ratingsInclude.appContentRatingLayout.visibility = View.GONE
+        }
+
+        if (contentRating.isValid()) {
+            loadContentRating(contentRating)
+        } else {
+            hideContentRating()
+        }
+    }
+
+    private fun displayRating(contentRating: ContentRating, drawable: Drawable?) {
+        binding.ratingsInclude.apply {
+            appContentRatingTitle.text = contentRating.title
+
+            if (drawable != null) {
+                appContentRatingProgress.visibility = View.GONE
+                appContentRatingIcon.setImageDrawable(drawable)
+            }
+
+            appContentRatingLayout.apply {
+                visibility = View.VISIBLE
+
+                setOnClickListener {
+                    openContentRatingDialog(
+                        contentRating.title,
+                        drawable,
+                        contentRating.description
+                    )
+                }
+            }
+        }
+    }
+
+    private suspend fun loadContentRatingDrawable(url: String): Drawable? {
+        return withContext(Dispatchers.IO) {
+            val imageRequest = ImageRequest.Builder(requireContext()).data(url).build()
+            val result = ImageLoader.invoke(requireContext()).execute(imageRequest)
+            if (result is SuccessResult) result.drawable else null
+        }
+    }
+
+    private fun openContentRatingDialog(title: String, iconUrl: Drawable?, recommendation: String) {
+        ApplicationDialogFragment(drawable = iconUrl, title = title, message = recommendation)
+            .show(childFragmentManager, TAG)
     }
 
     override fun loadData(authObjectList: List<AuthObject>) {
@@ -448,71 +596,87 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun observeDownloadStatus(view: View) {
         applicationViewModel.appStatus.observe(viewLifecycleOwner) { status ->
-            val installButton = binding.downloadInclude.installButton
-            val downloadPB = binding.downloadInclude.progressLayout
-            val appSize = binding.downloadInclude.appSize
-            val fusedApp = applicationViewModel.getFusedApp() ?: FusedApp()
-
-            mainActivityViewModel.verifyUiFilter(fusedApp) {
-                if (!fusedApp.filterLevel.isInitialized()) {
+            val application = applicationViewModel.getFusedApp() ?: Application()
+            mainActivityViewModel.verifyUiFilter(application) {
+                if (!application.filterLevel.isInitialized()) {
                     return@verifyUiFilter
                 }
-                when (status) {
-                    Status.INSTALLED -> handleInstalled(
-                        installButton,
-                        view,
-                        fusedApp,
-                        downloadPB,
-                        appSize
-                    )
-                    Status.UPDATABLE -> handleUpdatable(
-                        installButton,
-                        view,
-                        fusedApp,
-                        downloadPB,
-                        appSize
-                    )
-                    Status.UNAVAILABLE -> handleUnavaiable(
-                        installButton,
-                        fusedApp,
-                        downloadPB,
-                        appSize
-                    )
-                    Status.QUEUED, Status.AWAITING, Status.DOWNLOADED -> handleQueued(
-                        installButton,
-                        fusedApp,
-                        downloadPB,
-                        appSize
-                    )
-                    Status.DOWNLOADING -> handleDownloading(
-                        installButton,
-                        fusedApp,
-                        downloadPB,
-                        appSize
-                    )
-                    Status.INSTALLING -> handleInstalling(
-                        installButton,
-                        downloadPB,
-                        appSize
-                    )
-                    Status.BLOCKED -> handleBlocked(installButton, view)
-                    Status.INSTALLATION_ISSUE -> handleInstallingIssue(
-                        installButton,
-                        fusedApp,
-                        downloadPB,
-                        appSize
-                    )
-                    else -> {
-                        Timber.d("Unknown status: $status")
-                    }
-                }
+
+                handleInstallStatus(status, view, application)
+            }
+        }
+    }
+
+    private fun handleInstallStatus(
+        status: Status?,
+        view: View,
+        application: Application,
+    ) {
+        val installButton = binding.downloadInclude.installButton
+        val downloadPB = binding.downloadInclude.progressLayout
+        val appSize = binding.downloadInclude.appSize
+
+        when (status) {
+            Status.INSTALLED -> handleInstalled(
+                installButton,
+                view,
+                application,
+                downloadPB,
+                appSize
+            )
+
+            Status.UPDATABLE -> handleUpdatable(
+                installButton,
+                view,
+                application,
+                downloadPB,
+                appSize
+            )
+
+            Status.UNAVAILABLE -> handleUnavaiable(
+                installButton,
+                application,
+                downloadPB,
+                appSize
+            )
+
+            Status.QUEUED, Status.AWAITING, Status.DOWNLOADED -> handleQueued(
+                installButton,
+                application,
+                downloadPB,
+                appSize
+            )
+
+            Status.DOWNLOADING -> handleDownloading(
+                installButton,
+                application,
+                downloadPB,
+                appSize
+            )
+
+            Status.INSTALLING -> handleInstalling(
+                installButton,
+                downloadPB,
+                appSize
+            )
+
+            Status.BLOCKED -> handleBlocked(installButton, view)
+            Status.INSTALLATION_ISSUE -> handleInstallingIssue(
+                installButton,
+                application,
+                downloadPB,
+                appSize
+            )
+
+            else -> {
+                Timber.d("Unknown status: $status")
             }
         }
     }
 
     private fun handleInstallingIssue(
         installButton: MaterialButton,
-        fusedApp: FusedApp,
+        application: Application,
         downloadPB: RelativeLayout,
         appSize: MaterialTextView
     ) {
@@ -520,7 +684,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             enableInstallButton(R.string.retry)
             setOnClickListener {
                 applicationIcon?.let {
-                    mainActivityViewModel.getApplication(fusedApp)
+                    mainActivityViewModel.getApplication(application)
                 }
             }
         }
@@ -537,6 +701,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 User.ANONYMOUS,
                 User.NO_GOOGLE,
                 User.UNAVAILABLE -> getString(R.string.install_blocked_anonymous)
+
                 User.GOOGLE -> getString(R.string.install_blocked_google)
             }
             if (errorMsg.isNotBlank()) {
@@ -557,7 +722,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun handleDownloading(
         installButton: MaterialButton,
-        fusedApp: FusedApp,
+        application: Application,
         downloadPB: RelativeLayout,
         appSize: MaterialTextView
     ) {
@@ -565,7 +730,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             enableInstallButton(R.string.cancel)
             text = getString(R.string.cancel)
             setOnClickListener {
-                mainActivityViewModel.cancelDownload(fusedApp)
+                mainActivityViewModel.cancelDownload(application)
             }
         }
         downloadPB.visibility = View.VISIBLE
@@ -579,7 +744,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun handleQueued(
         installButton: MaterialButton,
-        fusedApp: FusedApp,
+        application: Application,
         downloadPB: RelativeLayout,
         appSize: MaterialTextView
     ) {
@@ -589,45 +754,46 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             enableInstallButton(R.string.cancel)
             text = getString(R.string.cancel)
             setOnClickListener {
-                mainActivityViewModel.cancelDownload(fusedApp)
+                mainActivityViewModel.cancelDownload(application)
             }
         }
     }
 
     private fun handleUnavaiable(
         installButton: MaterialButton,
-        fusedApp: FusedApp,
+        application: Application,
         downloadPB: RelativeLayout,
         appSize: MaterialTextView
     ) {
         installButton.apply {
             enableInstallButton(R.string.install)
             text = when {
-                mainActivityViewModel.checkUnsupportedApplication(fusedApp) ->
+                mainActivityViewModel.checkUnsupportedApplication(application) ->
                     getString(R.string.not_available)
-                fusedApp.isFree -> getString(R.string.install)
-                else -> fusedApp.price
+
+                application.isFree -> getString(R.string.install)
+                else -> application.price
             }
             setOnClickListener {
-                if (mainActivityViewModel.checkUnsupportedApplication(fusedApp, activity)) {
+                if (mainActivityViewModel.checkUnsupportedApplication(application, activity)) {
                     return@setOnClickListener
                 }
                 applicationIcon?.let {
-                    if (fusedApp.isFree) {
+                    if (application.isFree) {
                         disableInstallButton(R.string.cancel)
-                        installApplication(fusedApp, it)
+                        installApplication(application)
                     } else {
-                        if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(fusedApp)) {
+                        if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(application)) {
                             ApplicationDialogFragment(
-                                title = getString(R.string.dialog_title_paid_app, fusedApp.name),
+                                title = getString(R.string.dialog_title_paid_app, application.name),
                                 message = getString(
                                     R.string.dialog_paidapp_message,
-                                    fusedApp.name,
-                                    fusedApp.price
+                                    application.name,
+                                    application.price
                                 ),
                                 positiveButtonText = getString(R.string.dialog_confirm),
                                 positiveButtonAction = {
-                                    installApplication(fusedApp, it)
+                                    installApplication(application)
                                 },
                                 cancelButtonText = getString(R.string.dialog_cancel),
                             ).show(childFragmentManager, "ApplicationFragment")
@@ -659,44 +825,43 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun installApplication(
-        fusedApp: FusedApp,
-        it: ImageView
+        application: Application
     ) {
-        if (appInfoFetchViewModel.isAppInBlockedList(fusedApp)) {
+        if (appInfoFetchViewModel.isAppInBlockedList(application)) {
             ApplicationDialogFragment(
                 title = getString(R.string.this_app_may_not_work_properly),
                 message = getString(R.string.may_not_work_warning_message),
                 positiveButtonText = getString(R.string.install_anyway),
                 positiveButtonAction = {
-                    mainActivityViewModel.getApplication(fusedApp)
+                    mainActivityViewModel.getApplication(application)
                 }
             ).show(childFragmentManager, "ApplicationFragment")
         } else {
-            mainActivityViewModel.getApplication(fusedApp)
+            mainActivityViewModel.getApplication(application)
         }
     }
 
     private fun handleUpdatable(
         installButton: MaterialButton,
         view: View,
-        fusedApp: FusedApp,
+        application: Application,
         downloadPB: RelativeLayout,
         appSize: MaterialTextView
     ) {
         installButton.apply {
             enableInstallButton(R.string.not_available)
-            text = if (mainActivityViewModel.checkUnsupportedApplication(fusedApp))
+            text = if (mainActivityViewModel.checkUnsupportedApplication(application))
                 getString(R.string.not_available)
             else getString(R.string.update)
             setTextColor(Color.WHITE)
             backgroundTintList =
                 ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
-                if (mainActivityViewModel.checkUnsupportedApplication(fusedApp, activity)) {
+                if (mainActivityViewModel.checkUnsupportedApplication(application, activity)) {
                     return@setOnClickListener
                 }
                 applicationIcon?.let {
-                    mainActivityViewModel.getApplication(fusedApp)
+                    mainActivityViewModel.getApplication(application)
                 }
             }
         }
@@ -707,7 +872,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     private fun handleInstalled(
         installButton: MaterialButton,
         view: View,
-        fusedApp: FusedApp,
+        application: Application,
         downloadPB: RelativeLayout,
         appSize: MaterialTextView
     ) {
@@ -719,10 +884,12 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             backgroundTintList =
                 ContextCompat.getColorStateList(view.context, R.color.colorAccent)
             setOnClickListener {
-                if (fusedApp.is_pwa) {
-                    pwaManagerModule.launchPwa(fusedApp)
+                if (application.is_pwa) {
+                    pwaManager.launchPwa(application)
                 } else {
-                    startActivity(pkgManagerModule.getLaunchIntent(fusedApp.package_name))
+                    val launchIntent =
+                        appLoungePackageManager.getLaunchIntent(application.package_name)
+                    launchIntent?.run { startActivity(this) }
                 }
             }
         }
@@ -736,12 +903,13 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             return
         }
         val downloadedSize = "${
-        Formatter.formatFileSize(requireContext(), progressResult.second).substringBefore(" MB")
+            Formatter.formatFileSize(requireContext(), progressResult.second).substringBefore(" MB")
         }/${Formatter.formatFileSize(requireContext(), progressResult.first)}"
         val progressPercentage =
             ((progressResult.second / progressResult.first.toDouble()) * 100f).toInt()
         binding.downloadInclude.appInstallPB.progress = progressPercentage
-        binding.downloadInclude.percentage.text = String.format("%d%%", progressPercentage)
+        binding.downloadInclude.percentage.text =
+            String.format(Locale.getDefault(), "%d%%", progressPercentage)
         binding.downloadInclude.downloadedSize.text = downloadedSize
     }
 
@@ -768,14 +936,15 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             return EXODUS_URL
         }
 
-        val reportId = applicationViewModel.fusedApp.value!!.first.reportId
+        val reportId = applicationViewModel.application.value!!.first.reportId
         return "$EXODUS_REPORT_URL${Locale.getDefault().language}/reports/$reportId"
     }
 
-    private fun fetchAppTracker(fusedApp: FusedApp) {
-        privacyInfoViewModel.getAppPrivacyInfoLiveData(fusedApp).observe(viewLifecycleOwner) {
-            updatePrivacyScore()
-        }
+    private fun fetchAppTracker(application: Application) {
+        privacyInfoViewModel.getSingularAppPrivacyInfoLiveData(application)
+            .observe(viewLifecycleOwner) {
+                updatePrivacyScore()
+            }
     }
 
     override fun showLoadingUI() {
@@ -799,7 +968,10 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             )
 
             appPrivacyScore.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                null, null, getPrivacyDrawable(privacyScore.toString()), null
+                ContextCompat.getDrawable(requireContext(), R.drawable.ic_lock_blank),
+                null,
+                getPrivacyDrawable(privacyScore.toString()),
+                null
             )
             appPrivacyScore.compoundDrawablePadding = 15
         }
@@ -814,12 +986,37 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             loadingBar.isVisible = !visible
         }
         binding.ratingsInclude.loadingBar.isVisible = !visible
-        binding.ratingsInclude.appPrivacyScore.visibility = visibility
+
+        togglePrivacyScoreVisibility(visible)
+    }
+
+    private fun togglePrivacyScoreVisibility(visible: Boolean) {
+        var isRequestReportVisible = false
+        var privacyScoreVisibility = if (visible) View.VISIBLE else View.INVISIBLE
+
+        if (visible) {
+            isRequestReportVisible =
+                privacyInfoViewModel.shouldRequestExodusReport(applicationViewModel.getFusedApp())
+            privacyScoreVisibility = if (isRequestReportVisible) View.INVISIBLE else View.VISIBLE
+        }
+
+        binding.ratingsInclude.appPrivacyScore.visibility = privacyScoreVisibility
+        binding.ratingsInclude.requestExodusReport.isVisible = isRequestReportVisible
     }
 
     override fun onResume() {
         super.onResume()
         observeDownloadList()
+        reloadPrivacyInfo()
+    }
+
+    private fun reloadPrivacyInfo() {
+        if (shouldReloadPrivacyInfo) {
+            togglePrivacyInfoVisibility(false)
+            privacyInfoViewModel.refreshAppPrivacyInfo(applicationViewModel.getFusedApp())
+        }
+
+        shouldReloadPrivacyInfo = false
     }
 
     override fun onDestroyView() {

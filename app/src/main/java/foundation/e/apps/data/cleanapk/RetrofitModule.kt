@@ -33,7 +33,6 @@ import foundation.e.apps.data.cleanapk.data.app.Application
 import foundation.e.apps.data.ecloud.EcloudApiInterface
 import foundation.e.apps.data.exodus.ExodusTrackerApi
 import foundation.e.apps.data.fdroid.FdroidApiInterface
-import foundation.e.apps.data.fdroid.FdroidWebInterface
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -48,12 +47,15 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import timber.log.Timber
 import java.net.ConnectException
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object RetrofitModule {
+
+    private const val HTTP_TIMEOUT_IN_SECOND = 10L
 
     /**
      * Provides an instance of Retrofit to work with CleanAPK API
@@ -120,18 +122,6 @@ object RetrofitModule {
 
     @Singleton
     @Provides
-    fun provideFdroidWebApi(
-        okHttpClient: OkHttpClient,
-    ): FdroidWebInterface {
-        return Retrofit.Builder()
-            .baseUrl(FdroidWebInterface.BASE_URL)
-            .client(okHttpClient)
-            .build()
-            .create(FdroidWebInterface::class.java)
-    }
-
-    @Singleton
-    @Provides
     fun provideEcloudApi(okHttpClient: OkHttpClient, moshi: Moshi): EcloudApiInterface {
         return Retrofit.Builder()
             .baseUrl(EcloudApiInterface.BASE_URL)
@@ -179,28 +169,9 @@ object RetrofitModule {
                 "User-Agent",
                 "Dalvik/2.1.0 (Linux; U; Android ${Build.VERSION.RELEASE};)"
             ).header("Accept-Language", Locale.getDefault().language)
-            try {
-                return@Interceptor chain.proceed(builder.build())
-            } catch (e: ConnectException) {
-                return@Interceptor buildErrorResponse(e, chain)
-            } catch (e: Exception) {
-                return@Interceptor buildErrorResponse(e, chain)
-            }
-        }
-    }
 
-    private fun buildErrorResponse(
-        e: Exception,
-        chain: Interceptor.Chain
-    ): Response {
-        Timber.e("buildErrorResponse: ${e.localizedMessage}")
-        return Response.Builder()
-            .code(999)
-            .message(e.localizedMessage ?: "Unknown error")
-            .request(chain.request())
-            .protocol(Protocol.HTTP_1_1)
-            .body("{}".toResponseBody("application/json; charset=utf-8".toMediaTypeOrNull()))
-            .build()
+            return@Interceptor chain.proceed(builder.build())
+        }
     }
 
     @Singleton
@@ -208,6 +179,7 @@ object RetrofitModule {
     fun provideOkHttpClient(cache: Cache, interceptor: Interceptor): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(interceptor)
+            .callTimeout(HTTP_TIMEOUT_IN_SECOND, TimeUnit.SECONDS)
             .cache(cache)
             .build()
     }

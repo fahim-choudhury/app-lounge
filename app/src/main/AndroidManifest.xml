@@ -1,7 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021-2024 MURENA SAS
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  ~
+  -->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="foundation.e.apps">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -43,10 +60,12 @@
         android:restoreNeedsApplication="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.Apps"
-        android:usesCleartextTraffic="true">
+        android:enableOnBackInvokedCallback="true"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="tiramisu">
 
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -72,6 +91,24 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        
+        <receiver android:name=".receivers.DumpAuthData"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="foundation.e.apps.action.DUMP_GACCOUNT_INFO"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".receivers.DumpAppInstallStatusReceiver"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="foundation.e.apps.action.APP_INSTALL_STATE"/>
             </intent-filter>
         </receiver>
 
@@ -110,6 +147,14 @@
             android:name=".install.splitinstall.SplitInstallService"
             tools:ignore="ExportedService"
             android:exported="true" />
+
+        <receiver
+            android:name=".install.splitinstall.SplitInstallBinder$IgnoreReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".install.splitinstall.SplitInstallBinder$SignInReceiver"
+            android:exported="false" />
     </application>
 
 </manifest>

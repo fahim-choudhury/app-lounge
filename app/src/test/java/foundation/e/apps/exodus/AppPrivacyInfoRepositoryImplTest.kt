@@ -21,7 +21,7 @@ package foundation.e.apps.exodus
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.exodus.repositories.AppPrivacyInfoRepositoryImpl
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -57,7 +57,7 @@ class AppPrivacyInfoRepositoryImplTest {
 
     @Test
     fun getAppPrivacyInfoWhenSuccess() = runTest {
-        val fusedApp = FusedApp(
+        val application = Application(
             _id = "113",
             status = Status.UNAVAILABLE,
             name = "Demo Three",
@@ -65,14 +65,14 @@ class AppPrivacyInfoRepositoryImplTest {
             latest_version_code = 123,
             is_pwa = true,
         )
-        val result = appPrivacyInfoRepository.getAppPrivacyInfo(fusedApp, fusedApp.package_name)
+        val result = appPrivacyInfoRepository.getAppPrivacyInfo(application, application.package_name)
         assertEquals("getAppPrivacyInfo", true, result.isSuccess())
         assertEquals("getAppPrivacyInfo", 3, result.data?.trackerList?.size)
     }
 
     @Test
     fun getAppPrivacyInfoWhenError() = runTest {
-        val fusedApp = FusedApp(
+        val application = Application(
             _id = "113",
             status = Status.UNAVAILABLE,
             name = "Demo Three",
@@ -80,13 +80,13 @@ class AppPrivacyInfoRepositoryImplTest {
             latest_version_code = 123,
             is_pwa = true,
         )
-        val result = appPrivacyInfoRepository.getAppPrivacyInfo(fusedApp, fusedApp.package_name)
+        val result = appPrivacyInfoRepository.getAppPrivacyInfo(application, application.package_name)
         assertEquals("getAppPrivacyInfo", false, result.isSuccess())
     }
 
     @Test
     fun getAppPrivacyInfoWhenTrackerDaoIsEmpty() = runTest {
-        val fusedApp = FusedApp(
+        val application = Application(
             _id = "113",
             status = Status.UNAVAILABLE,
             name = "Demo Three",
@@ -95,7 +95,7 @@ class AppPrivacyInfoRepositoryImplTest {
             is_pwa = true,
         )
         fakeTrackerDao.trackers.clear()
-        val result = appPrivacyInfoRepository.getAppPrivacyInfo(fusedApp, fusedApp.package_name)
+        val result = appPrivacyInfoRepository.getAppPrivacyInfo(application, application.package_name)
         assertEquals("getAppPrivacyInfo", 2, result.data?.trackerList?.size)
     }
 }

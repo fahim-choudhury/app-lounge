@@ -1,6 +1,5 @@
 /*
- * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2021  E FOUNDATION
+ * Copyright (C) 2021-2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.ui
@@ -21,9 +21,6 @@ package foundation.e.apps.ui
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
@@ -31,48 +28,47 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.R
+import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.ecloud.EcloudRepository
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
 import foundation.e.apps.data.enums.isUnFiltered
-import foundation.e.apps.data.fused.FusedAPIRepository
-import foundation.e.apps.data.fused.data.FusedApp
 import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
-import foundation.e.apps.data.preference.DataStoreModule
-import foundation.e.apps.install.pkg.PWAManagerModule
-import foundation.e.apps.install.pkg.PkgManagerModule
+import foundation.e.apps.data.preference.AppLoungeDataStore
+import foundation.e.apps.data.preference.getSync
+import foundation.e.apps.install.pkg.AppLoungePackageManager
+import foundation.e.apps.install.pkg.PWAManager
 import foundation.e.apps.install.workmanager.AppInstallProcessor
-import kotlinx.coroutines.channels.ProducerScope
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.callbackFlow
+import foundation.e.apps.utils.NetworkStatusManager
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
-    private val dataStoreModule: DataStoreModule,
-    private val fusedAPIRepository: FusedAPIRepository,
+    private val appLoungeDataStore: AppLoungeDataStore,
+    private val applicationRepository: ApplicationRepository,
     private val fusedManagerRepository: FusedManagerRepository,
-    private val pkgManagerModule: PkgManagerModule,
-    private val pwaManagerModule: PWAManagerModule,
+    private val appLoungePackageManager: AppLoungePackageManager,
+    private val pwaManager: PWAManager,
     private val ecloudRepository: EcloudRepository,
     private val blockedAppRepository: BlockedAppRepository,
-    private val appInstallProcessor: AppInstallProcessor
+    private val appInstallProcessor: AppInstallProcessor,
 ) : ViewModel() {
 
-    val tocStatus: LiveData<Boolean> = dataStoreModule.tocStatus.asLiveData()
+    val tocStatus: LiveData<Boolean> = appLoungeDataStore.tocStatus.asLiveData()
 
     private val _purchaseAppLiveData: MutableLiveData<FusedDownload> = MutableLiveData()
     val purchaseAppLiveData: LiveData<FusedDownload> = _purchaseAppLiveData
     val isAppPurchased: MutableLiveData<String> = MutableLiveData()
     val purchaseDeclined: MutableLiveData<String> = MutableLiveData()
+    lateinit var internetConnection: LiveData<Boolean>
 
     var gPlayAuthData = AuthData("", "")
 
@@ -86,16 +82,14 @@ class MainActivityViewModel @Inject constructor(
 
     lateinit var connectivityManager: ConnectivityManager
 
-    companion object {
-        private const val TAG = "MainActivityViewModel"
-    }
+    var shouldIgnoreSessionError = false
 
     fun getUser(): User {
-        return dataStoreModule.getUserType()
+        return appLoungeDataStore.getUserType()
     }
 
     fun getUserEmail(): String {
-        return dataStoreModule.getEmail()
+        return appLoungeDataStore.emailData.getSync()
     }
 
     fun uploadFaultyTokenToEcloud(email: String, description: String = "") {
@@ -123,7 +117,7 @@ class MainActivityViewModel @Inject constructor(
      *
      * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/266
      */
-    fun shouldShowPaidAppsSnackBar(app: FusedApp): Boolean {
+    fun shouldShowPaidAppsSnackBar(app: Application): Boolean {
         if (!app.isFree && gPlayAuthData.isAnonymous) {
             _errorMessageStringResource.value = R.string.paid_app_anonymous_message
             return true
@@ -133,7 +127,7 @@ class MainActivityViewModel @Inject constructor(
 
     /**
      * Handle various cases of unsupported apps here.
-     * Returns true if the [fusedApp] is not supported by App Lounge.
+     * Returns true if the [application] is not supported by App Lounge.
      *
      * Pass [alertDialogContext] as null to prevent an alert dialog from being shown to the user.
      * In that case, this method simply works as a validation.
@@ -141,17 +135,17 @@ class MainActivityViewModel @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/os/backlog/-/issues/178
      */
     fun checkUnsupportedApplication(
-        fusedApp: FusedApp,
+        application: Application,
         alertDialogContext: Context? = null
     ): Boolean {
-        if (!fusedApp.filterLevel.isUnFiltered()) {
+        if (!application.filterLevel.isUnFiltered()) {
             alertDialogContext?.let { context ->
                 AlertDialog.Builder(context).apply {
                     setTitle(R.string.unsupported_app_title)
                     setMessage(
                         context.getString(
                             R.string.unsupported_app_unreleased,
-                            fusedApp.name
+                            application.name
                         )
                     )
                     setPositiveButton(android.R.string.ok, null)
@@ -166,15 +160,15 @@ class MainActivityViewModel @Inject constructor(
      * Fetch the filter level of an app and perform some action.
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5720
      */
-    fun verifyUiFilter(fusedApp: FusedApp, method: () -> Unit) {
+    fun verifyUiFilter(application: Application, method: () -> Unit) {
         viewModelScope.launch {
             val authData = gPlayAuthData
-            if (fusedApp.filterLevel.isInitialized()) {
+            if (application.filterLevel.isInitialized()) {
                 method()
             } else {
-                fusedAPIRepository.getAppFilterLevel(fusedApp, authData).run {
+                applicationRepository.getAppFilterLevel(application, authData).run {
                     if (isInitialized()) {
-                        fusedApp.filterLevel = this
+                        application.filterLevel = this
                         method()
                     }
                 }
@@ -182,7 +176,7 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun getApplication(app: FusedApp) {
+    fun getApplication(app: Application) {
         viewModelScope.launch {
             appInstallProcessor.initAppInstall(app)
         }
@@ -204,7 +198,7 @@ class MainActivityViewModel @Inject constructor(
         fusedManagerRepository.updateUnavailable(fusedDownload)
     }
 
-    fun cancelDownload(app: FusedApp) {
+    fun cancelDownload(app: Application) {
         viewModelScope.launch {
             val fusedDownload =
                 fusedManagerRepository.getFusedDownload(packageName = app.package_name)
@@ -213,97 +207,37 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun setupConnectivityManager(context: Context) {
-        connectivityManager =
-            context.getSystemService(ConnectivityManager::class.java) as ConnectivityManager
-    }
-
-    val internetConnection =
-        callbackFlow {
-            if (!this@MainActivityViewModel::connectivityManager.isInitialized) {
-                awaitClose { }
-                return@callbackFlow
-            }
-
-            sendInternetStatus(connectivityManager)
-            val networkCallback = getNetworkCallback(this)
-            connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
-
-            awaitClose {
-                connectivityManager.unregisterNetworkCallback(networkCallback)
-            }
-        }.asLiveData().distinctUntilChanged()
-
-    private val networkRequest = NetworkRequest.Builder()
-        .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-        .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-        .build()
-
-    private fun getNetworkCallback(
-        callbackFlowScope: ProducerScope<Boolean>,
-    ): ConnectivityManager.NetworkCallback {
-        return object : ConnectivityManager.NetworkCallback() {
-
-            override fun onAvailable(network: Network) {
-                super.onAvailable(network)
-                callbackFlowScope.sendInternetStatus(connectivityManager)
-            }
-
-            override fun onCapabilitiesChanged(
-                network: Network,
-                networkCapabilities: NetworkCapabilities
-            ) {
-                super.onCapabilitiesChanged(network, networkCapabilities)
-                callbackFlowScope.sendInternetStatus(connectivityManager)
-            }
-
-            override fun onLost(network: Network) {
-                super.onLost(network)
-                callbackFlowScope.sendInternetStatus(connectivityManager)
-            }
-        }
-    }
-
-    // protected to avoid SyntheticAccessor
-    protected fun ProducerScope<Boolean>.sendInternetStatus(connectivityManager: ConnectivityManager) {
-
-        val capabilities =
-            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-
-        val hasInternet =
-            capabilities != null &&
-                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-
-        trySend(hasInternet)
+        internetConnection = NetworkStatusManager.init(context)
     }
 
     fun updateStatusOfFusedApps(
-        fusedAppList: List<FusedApp>,
+        applicationList: List<Application>,
         fusedDownloadList: List<FusedDownload>
     ) {
-        fusedAppList.forEach {
+        applicationList.forEach {
             val downloadingItem = fusedDownloadList.find { fusedDownload ->
                 fusedDownload.origin == it.origin && (fusedDownload.packageName == it.package_name || fusedDownload.id == it._id)
             }
             it.status =
-                downloadingItem?.status ?: fusedAPIRepository.getFusedAppInstallationStatus(it)
+                downloadingItem?.status ?: applicationRepository.getFusedAppInstallationStatus(it)
         }
     }
 
     fun updateAppWarningList() {
-        blockedAppRepository.fetchUpdateOfAppWarningList()
+        viewModelScope.launch {
+            blockedAppRepository.fetchUpdateOfAppWarningList()
+        }
     }
 
     fun getAppNameByPackageName(packageName: String): String {
-        return pkgManagerModule.getAppNameFromPackageName(packageName)
+        return appLoungePackageManager.getAppNameFromPackageName(packageName)
     }
 
     fun getLaunchIntentForPackageName(packageName: String): Intent? {
-        return pkgManagerModule.getLaunchIntent(packageName)
+        return appLoungePackageManager.getLaunchIntent(packageName)
     }
 
-    fun launchPwa(fusedApp: FusedApp) {
-        pwaManagerModule.launchPwa(fusedApp)
+    fun launchPwa(application: Application) {
+        pwaManager.launchPwa(application)
     }
 }

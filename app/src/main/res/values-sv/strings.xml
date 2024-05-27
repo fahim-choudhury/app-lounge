@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 MURENA SAS
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  ~
+  -->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="menu_categories" weblate_ctx="home">Kategorier</string>
+    <string name="menu_search" weblate_ctx="home">Sök</string>
+    <string name="menu_updates" weblate_ctx="home">Uppdateringar</string>
+    <string name="menu_settings" weblate_ctx="home">Inställningar</string>
+    <string name="search_hint" weblate_ctx="search">Sök efter en app</string>
+    <string name="no_apps_found">Inga appar hittades …</string>
+    <string name="apps" weblate_ctx="categories_applications">Appar</string>
+    <string name="games" weblate_ctx="categories_games">Spel</string>
+    <string name="open_source" weblate_ctx="categories_applications">Öppen källkod</string>
+    <string name="sign_in_title" weblate_ctx="welcome">Välkommen</string>
+    <string name="sign_in_google" weblate_ctx="welcome">Logga in med Google</string>
+    <string name="sign_in_anonymous" weblate_ctx="welcome">Anonymt läge</string>
+    <string name="tos_agree" weblate_ctx="tos">Godkänn</string>
+    <string name="tos_disagree" weblate_ctx="tos">Neka</string>
+    <string name="tos_agree_date">Godkände</string>
+    <string name="preference_updates_title" weblate_ctx="settings">Uppdateringar</string>
+    <string name="preference_update_interval_default">24</string>
+    <string name="preference_update_install_automatically_title" weblate_ctx="settings">Installera uppdateringar automatiskt</string>
+    <string name="preference_update_install_automatically_description" weblate_ctx="settings">Hämta och installera appuppdateringar i bakgrunden</string>
+    <string name="preference_update_notify_available_title" weblate_ctx="settings">Visa tillgängliga uppdateringar</string>
+    <string name="Show_applications" weblate_ctx="settings">Visa appar:</string>
+    <string name="Show_common_apps">Visa vanliga appar</string>
+    <string name="about">Om</string>
+    <string name="copied">Kopierad</string>
+    <string name="account" weblate_ctx="settings">Konto</string>
+    <string name="terms_services" weblate_ctx="settings">Användarvillkor</string>
+    <string name="user_anonymous" weblate_ctx="settings">Anonym</string>
+    <string name="logout" weblate_ctx="settings">Logga ut</string>
+    <string name="login">Logga in</string>
+    <string name="logged_out">Utloggad</string>
+    <string name="description">Beskrivning</string>
+    <string name="ok">OK</string>
+    <string name="install">Installera</string>
+    <string name="installing">Installerar</string>
+    <string name="cancel">Avbryt</string>
+    <string name="app_icon">Appikon</string>
+    <string name="open">Öppna</string>
+    <string name="retry">Försök igen</string>
+    <string name="close">Stäng</string>
+    <string name="more">Mer</string>
+    <string name="update">Uppdatera</string>
+    <string name="ratings">Betyg</string>
+    <string name="rating">Betyg</string>
+    <string name="privacy">Integritet</string>
+    <string name="privacy_score">Integritetspoäng</string>
+    <string name="permissions">Behörigheter</string>
+    <string name="trackers_title">Spårare</string>
+    <string name="updated_on">Uppdaterades: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="min_android_version">Kräver: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="package_name">Paketnamn: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="install_blocked_anonymous">Betalda appar kan inte installeras i anonymt läge. Logga in med ditt Googlekonto för att installera betalda appar.</string>
+    <string name="message_app_available_later">Denna app kommer att vara tillgänglig senare!</string>
+    <string name="unknown_error">Okänt fel!</string>
+    <string name="app_not_found">Din app hittades inte.</string>
+    <string name="something_went_wrong">Något gick fel!</string>
+    <string name="show_more">Visa mer</string>
+    <string name="gplay_data_for_oss">Kan inte visa Google Play-appar när endast appar med öppen källkod tillåts.</string>
+    <string name="why_open_source_version">Varför visas versionen med öppen källkod\?</string>
+    <string name="open_source_apps">Appar med öppen källkod</string>
+    <string name="downloading">Hämtar …</string>
+    <string name="update_all">Uppdatera alla</string>
+    <string name="all_apps_updated" weblate_ctx="updates">Alla appar är uppdaterade</string>
+    <string name="update_error">Fel vid uppdatering!</string>
+    <string name="message_retry">Uppdatera alla misslyckades. Automatiskt återförsök pågår.</string>
+    <string name="discover">Upptäck</string>
+    <string name="category_icon" weblate_ctx="categories_applications">Kategoriikon</string>
+    <string name="menu_home" weblate_ctx="home">Hem</string>
+    <string name="tos_warning" weblate_ctx="tos">Innan vi kan fortsätta måste du läsa och godkänna användarvillkoren.</string>
+    <string name="preference_update_notify_available_description">Visa en notis när appuppdateringar finns tillgängliga</string>
+    <string name="show_only_open_source_apps">Visa appar med öppen källkod</string>
+    <string name="login_to_see_gplay_apps">Du måste logga in för att kunna se vanliga appar.</string>
+    <string name="information">Information</string>
+    <string name="version">Version: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="license">Licens: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="install_blocked_google">Betalda appar stöds ännu inte i App Lounge. Ha lite tålamod, det kommer snart vara aktuellt.</string>
+    <string name="not_enough_storage">Det finns inte tillräckligt med utrymme för att hämta denna app!</string>
+    <plurals name="updates_notification_title">
+        <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> appuppdatering är tillgänglig</item>
+        <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> appuppdateringar är tillgängliga</item>
+    </plurals>
+    <string name="pwa" weblate_ctx="categories_applications">PWA</string>
+    <string name="sign_in_desc" weblate_ctx="welcome">Logga in i App Lounge med ditt Google-konto eller välj Anonymt läge för att logga in privat.</string>
+    <string name="or" weblate_ctx="welcome">Eller visa endast</string>
+    <string name="pwa_and_open_source_apps" weblate_ctx="welcome">PWA och appar med öppen källkod</string>
+    <string name="preference_update_interval_title" weblate_ctx="settings">Kontrollintervall för uppdateringar</string>
+    <string name="preference_update_apps_from_other_stores_title">Uppdatera appar installerade av andra affärer</string>
+    <string name="preference_update_apps_from_other_stores_description">Uppdatera appar installerade av andra affärer.
+\nDom apparna kommer försöka uppdateras från kategorierna vanliga appar och öppen källkod.</string>
+    <string name="show_only_pwa_apps">Visa PWA</string>
+    <string name="app_version_label">App Lounge version</string>
+    <string name="os_version">/e/OS version</string>
+    <string name="select_one_source_of_applications">Välj åtminstone en källa av applikationer.</string>
+    <string name="privacy_analyses">Integritetsanalys</string>
+    <string name="having_troubles">Har du problem\?</string>
+    <string name="discover_pwa">Upptäck PWA</string>
+    <string name="popular_apps_in_last_24_hours">Populäraste apparna de senaste 24 timmarna med öppen källkod</string>
+    <string name="popular_games_in_last_24_hours">Populäraste spelen de senaste 24 timmarna med öppen källkod</string>
+    <string name="popular_apps">Populära PWA-appar</string>
+    <string name="popular_games">Populära PWA-spel</string>
+    <string name="downloads">Hämtningar</string>
+    <string name="automatically_install_updates_notification_text">Appuppdateringar kommer installera automatiskt</string>
+    <string name="manually_install_updates_notification_text">Appuppdateringar kommer inte att installeras automatiskt</string>
+    <string name="more_info"><u>Mer info</u></string>
+    <string name="no_tracker_found">Ingen spårare hittades!</string>
+    <string name="tracker_information_not_found">Ingen information tillgänglig om spårare för denna app.</string>
+    <string name="no_internet_message">Kan inte ansluta! Kontrollera din internetanslutning och försök igen</string>
+    <string name="open_settings">Öppna inställningar</string>
+    <string name="too_many_requests_desc">Det anonyma kontot du använder är inte tillgängligt. Uppdatera sessionen för att få ett annat.</string>
+    <string name="refresh_session">UPPADATERA SESSIONEN</string>
+    <string name="data_load_error">Ett fel uppstod när appar lästes in.</string>
+    <string name="sign_in_failed_title">Inloggning med Google misslyckades!</string>
+    <string name="dialog_title_paid_app">Köp <b>%1$s</b></string>
+    <string name="dialog_confirm">BEKRÄFTA</string>
+    <string name="unsupported_app_title">Appen stöds ej!</string>
+    <string name="install_anyway">Installera ändå</string>
+    <string name="daily">Varje dag</string>
+    <string name="weekly">Varje vecka</string>
+    <string name="monthly">Varje månad</string>
+    <string name="anonymous_login_failed">Anonym inloggning misslyckades!</string>
+    <string name="preference_update_wifi_only_title" weblate_ctx="settings">Endast på nätverk med obegränsad data</string>
+    <string name="rating_description">Betyg av 5. Beräknad utifrån användares betyg av appen.</string>
+    <string name="preference_update_wifi_only_description" weblate_ctx="settings">Uppdatera endast appar automatiskt på nätverk utan databegränsning som t.ex. Wi-Fi</string>
+    <string name="duplicate_app_from_sources">Vissa proprietära appar kan också ha en version med öppen källkod. När detta händer visar App Lounge endast den version med öppen källkod för att undvika dubbletter.</string>
+    <string name="additional_file_for">Ytterligare filer för %s</string>
+    <string name="privacy_description">Integritetspoängen är automatiskt beräknad utifrån behörigheter och spårare som detekterats i applikationer. Det ger en fingervisning micro-spårar sina användare.&lt;br /&gt;&lt;br /&gt;Algoritmens källkod för beräkningar kan hittas &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;här&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Spårardetektering utförs med &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Privacy tools&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Poäng av 10.&lt;br /&gt;&lt;br /&gt;Läs mer om hur Integritetspoäng beräknas, dess begränsningar och hur du kan skydda dig själv från microspårning &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;på denna sidan&lt;/a&gt;.</string>
+    <string name="updates">Uppdateringar</string>
+    <string name="message_update_failed">På grund av ett tillfälligt fel kan inte alla dina appar uppdateras. Försök igen senare.</string>
+    <string name="checking_updates">Söker efter uppdateringar ...</string>
+    <string name="topselling_free_apps" weblate_ctx="home">Topplista: Gratisappar</string>
+    <string name="topselling_free_games" weblate_ctx="home">Topplista: Gratisspel</string>
+    <string name="topgrossing_apps" weblate_ctx="home">Topplista: Betalappar</string>
+    <string name="error_signature_mismatch">Uppdateringen kan inte appliceras på grund av att signaturen inte stämmer överens mellan uppdateringen av %1$s och versionen som är installerad på telefonen. För att åtgärda detta kan du avinstallera %1$s och installera appen igen från App Lounge. <br/><br/> OBS! Detta meddelande kommer inte visas igen.</string>
+    <string name="top_updated_games">Topplista: Uppdaterade spel med öppen källkod</string>
+    <string name="data_load_error_desc">Detta kan bero på att servern inte svarar eller andra serverproblem.
+\n
+\nFörsök igen eller försök senare.</string>
+    <string name="movers_shakers_apps">Topplista: Apptrender</string>
+    <string name="message_last_update_triggered">Uppdatering av %1$s appar slutfördes på %2$s.</string>
+    <string name="timeout_desc_cleanapk">Nätverksproblem förhindrar hämtning av alla applikationer.</string>
+    <string name="top_updated_apps">Topplista: Uppdaterade appar med öppen källkod</string>
+    <string name="updates_notification_unmetered_network_warning">Väntar på obegränsat nätverk</string>
+    <string name="privacy_computed_using_text">Beräknad med &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus integritetsanalys</string>
+    <string name="timeout_desc_gplay">Nätverksproblem förhindrar hämtning av alla applikationer.
+\n
+\nÖppna inställningar för att endast kolla efter appar med öppen källkod eller PWA.</string>
+    <string name="movers_shakers_games">Topplista: Speltrender</string>
+    <string name="timeout_title">Timeout vid hämtning av applikationer!</string>
+    <string name="topgrossing_games">Topplista: Betalspel</string>
+    <string name="download_automatically_message">Din app kommer hämtas automatiskt på denna enhet</string>
+    <string name="purchase_error">Fel vid köp!</string>
+    <string name="sign_in_failed_desc">På grund av ett nätverksfel kunde inte App Lounge hämta Google-inloggningsdata.</string>
+    <string name="purchase_complete">Köp genomfört!</string>
+    <string name="paid_app_anonymous_message">Betalappar kan inte installeras i anonymt läge. Vänligen logga in med ditt Google-konto för att installera betalappar.</string>
+    <string name="anonymous_login_failed_desc">Detta kan bero på att igenkänningstecknet inte kunde genereras/verifieras eller andra anledningar.
+\n
+\nTryck Försök igen för att försöka igen.</string>
+    <string name="this_app_may_not_work_properly">Denna appen kanske inte fungerar korrekt!</string>
+    <string name="unsupported_app_unreleased">Appen %s stöds för närvarande inte. Detta kan bero på att appen inte publicerats på flera ställen eller att det är något annat fel.</string>
+    <string name="free_space_for_update">Frigör %1$s på telefonen för att kunna hämta senaste uppdateringen.</string>
+    <string name="notification_content_full_db">Frigör utrymme på din telefon så att App Lounge kan fungera korrekt.</string>
+    <string name="request_exodus_report">Begär Exodusrapport</string>
+    <string name="proceed_to_google_login">Fortsätt till Google-inloggning</string>
+    <string name="dialog_paidapp_message">När du tryckt på bekräfta kommer du tas till appens Google Play-sida för att fullborda köpet med din webbläsare. Tryck bekräfta för att köpa %1$s för %2$s.</string>
+    <string name="no_permission_found">Ingen behörighet för androidkörtiden hittades!</string>
+    <string name="message_update_failure_single_app">%1$ss uppdatering misslyckades på grund av en stödregel (plats, OS-verison…).</string>
+    <string name="google_login_alert_message">Vi rekommenderar att använda ett dedikerat Googlekonto för att:
+\n
+\n\t• mitigate micro-målinriktning
+\n\t• minska effekten om detta konto skulle begränsas av Google</string>
+    <string name="may_not_work_warning_message">Att tvinga en installation tillåter dig att hämta och installera men det är inte garanterat att fungera.<br/><br/>Försök att installera appar som inte stöds kan orsaka krascher eller göra systemet långsammare.<br/><br/>Vi arbetar med att göra det mer kompatibelt med denna applikation i en nära framtid.</string>
+    <string name="request_exodus_report_confirm_dialog">Genom att trycka på \"<xliff:g id="ok">%1$s</xliff:g>\" kommer en flik öppnas i din webbläsare med appens paketnamn förifyllt.&lt;br /&gt;&lt;br /&gt;Tryck på \"Perform analysis\" för att starta analysen av Exodus.&lt;br /&gt;&lt;br /&gt; När knappen \"See the report\" visas (det kan ta ett tag beroende på appen) kan du stänga fliken och gå tillbaka till appbeskrivningen i <xliff:g id="app_name">%2$s</xliff:g> där du bör se integritetspoängen. Ibland kan Exodus misslyckas med att analysera appen. &lt;br /&gt;&lt;br /&gt;OBS! Det kan ta upp till 10 min innan poängen visas i appbeskrivningen.</string>
+    <string name="ignore">Ignorera</string>
+    <string name="notification_channel_desc">Kanal för delad installation</string>
+    <string name="split_install_warning_title">Varning gällande %s</string>
+    <string name="split_install_warning_text">%s vill installera extra moduler. Du måste logga in till AppLounge igen för att kunna installera dom.</string>
+    <string name="sign_in">Logga in</string>
+    <string name="account_unavailable">Konto otillgängligt</string>
+    <string name="share">Dela</string>
+</resources>

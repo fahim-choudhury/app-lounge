@@ -18,7 +18,8 @@
 
 package foundation.e.apps.data.exodus.repositories
 
-import foundation.e.apps.data.fused.data.FusedApp
+import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.di.CommonUtilsModule
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -26,26 +27,37 @@ import kotlin.math.ceil
 import kotlin.math.round
 
 @Singleton
-class PrivacyScoreRepositoryImpl @Inject constructor() : PrivacyScoreRepository {
+class PrivacyScoreRepositoryImpl @Inject constructor(
+    private val blockedAppRepository: BlockedAppRepository
+) : PrivacyScoreRepository {
 
-    override fun calculatePrivacyScore(fusedApp: FusedApp): Int {
-        if (fusedApp.permsFromExodus == CommonUtilsModule.LIST_OF_NULL) {
-            return -1
+    override fun calculatePrivacyScore(application: Application): Int {
+        var privacyScore = -1
+        if (blockedAppRepository.isPrivacyScoreZero(application.package_name)) {
+            privacyScore = 0
         }
 
-        val calculateTrackersScore = calculateTrackersScore(fusedApp.trackers.size)
-        val calculatePermissionsScore = calculatePermissionsScore(
-            countAndroidPermissions(fusedApp)
-        )
-        return calculateTrackersScore + calculatePermissionsScore
+        if (application.permsFromExodus == CommonUtilsModule.LIST_OF_NULL) {
+            return privacyScore
+        }
+
+        if (privacyScore != 0) {
+            val calculateTrackersScore = calculateTrackersScore(application.trackers.size)
+            val calculatePermissionsScore = calculatePermissionsScore(
+                countAndroidPermissions(application)
+            )
+            privacyScore = calculateTrackersScore + calculatePermissionsScore
+        }
+
+        return privacyScore
     }
 
     private fun calculateTrackersScore(numberOfTrackers: Int): Int {
         return if (numberOfTrackers > THRESHOLD_OF_NON_ZERO_TRACKER_SCORE) MIN_TRACKER_SCORE else MAX_TRACKER_SCORE - numberOfTrackers
     }
 
-    private fun countAndroidPermissions(fusedApp: FusedApp) =
-        fusedApp.permsFromExodus.filter { it.contains("android.permission") }.size
+    private fun countAndroidPermissions(application: Application) =
+        application.permsFromExodus.filter { it.contains("android.permission") }.size
 
     private fun calculatePermissionsScore(numberOfPermission: Int): Int {
         return if (numberOfPermission > THRESHOLD_OF_NON_ZERO_PERMISSION_SCORE) MIN_PERMISSION_SCORE else round(

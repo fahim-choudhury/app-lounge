@@ -42,7 +42,7 @@ open class PkgManagerBR : BroadcastReceiver() {
     lateinit var fusedManagerRepository: FusedManagerRepository
 
     @Inject
-    lateinit var pkgManagerModule: PkgManagerModule
+    lateinit var appLoungePackageManager: AppLoungePackageManager
 
     @Inject
     lateinit var faultyAppRepository: FaultyAppRepository
@@ -63,21 +63,32 @@ open class PkgManagerBR : BroadcastReceiver() {
 
             Timber.d("onReceive: $packageName $action $extra $status")
             packages?.let { pkgList ->
-                pkgList.forEach { pkgName ->
-                    when (action) {
-                        Intent.ACTION_PACKAGE_ADDED -> {
-                            updateDownloadStatus(pkgName)
-                            removeFaultyAppByPackageName(pkgName)
-                        }
-                        Intent.ACTION_PACKAGE_REMOVED -> {
-                            if (!isUpdating) deleteDownload(pkgName)
-                            removeFaultyAppByPackageName(pkgName)
-                        }
-                        PkgManagerModule.ERROR_PACKAGE_INSTALL -> {
-                            Timber.e("Installation failed due to error: $extra")
-                            updateInstallationIssue(pkgName)
-                        }
-                    }
+                handlePackageList(pkgList, action, isUpdating, extra)
+            }
+        }
+    }
+
+    private fun handlePackageList(
+        pkgList: Array<out String>,
+        action: String,
+        isUpdating: Boolean,
+        extra: String?
+    ) {
+        pkgList.forEach { pkgName ->
+            when (action) {
+                Intent.ACTION_PACKAGE_ADDED -> {
+                    updateDownloadStatus(pkgName)
+                    removeFaultyAppByPackageName(pkgName)
+                }
+
+                Intent.ACTION_PACKAGE_REMOVED -> {
+                    if (!isUpdating) deleteDownload(pkgName)
+                    removeFaultyAppByPackageName(pkgName)
+                }
+
+                AppLoungePackageManager.ERROR_PACKAGE_INSTALL -> {
+                    Timber.e("Installation failed due to error: $extra")
+                    updateInstallationIssue(pkgName)
                 }
             }
         }
@@ -103,7 +114,7 @@ open class PkgManagerBR : BroadcastReceiver() {
         }
         GlobalScope.launch {
             val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)
-            pkgManagerModule.setFakeStoreAsInstallerIfNeeded(fusedDownload)
+            appLoungePackageManager.setFakeStoreAsInstallerIfNeeded(fusedDownload)
             fusedManagerRepository.updateDownloadStatus(fusedDownload, Status.INSTALLED)
         }
     }

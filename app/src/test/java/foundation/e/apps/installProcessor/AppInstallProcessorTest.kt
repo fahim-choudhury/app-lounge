@@ -18,17 +18,17 @@
 
 package foundation.e.apps.installProcessor
 
-import android.app.DownloadManager.Query
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FdroidRepository
-import foundation.e.apps.data.fused.FusedAPIRepository
+import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
 import foundation.e.apps.data.fusedDownload.IFusedManager
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.preference.DataStoreManager
+import foundation.e.apps.install.notification.StorageNotificationManager
 import foundation.e.apps.install.workmanager.AppInstallProcessor
 import foundation.e.apps.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -71,9 +71,12 @@ class AppInstallProcessorTest {
     private lateinit var dataStoreManager: DataStoreManager
 
     @Mock
-    private lateinit var fusedAPIRepository: FusedAPIRepository
+    private lateinit var applicationRepository: ApplicationRepository
 
     private lateinit var appInstallProcessor: AppInstallProcessor
+
+    @Mock
+    private lateinit var storageNotificationManager: StorageNotificationManager
 
     @Before
     fun setup() {
@@ -87,8 +90,9 @@ class AppInstallProcessorTest {
             context,
             fusedDownloadRepository,
             fakeFusedManagerRepository,
-            fusedAPIRepository,
-            dataStoreManager
+            applicationRepository,
+            dataStoreManager,
+            storageNotificationManager
         )
     }
 

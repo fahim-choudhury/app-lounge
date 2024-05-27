@@ -29,8 +29,8 @@ import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import foundation.e.apps.MainActivity
 import foundation.e.apps.R
-import foundation.e.apps.ui.MainActivity
 
 object UpdatesNotifier {
     const val UPDATES_NOTIFICATION_CLICK_EXTRA = "updates_notification_click_extra"
@@ -38,12 +38,12 @@ object UpdatesNotifier {
     private const val UPDATES_NOTIFICATION_CHANNEL_ID = "updates_notification"
     private const val UPDATES_NOTIFICATION_CHANNEL_TITLE = "App updates"
 
-    fun getNotification(
+    private fun getNotification(
         context: Context,
         numberOfApps: Int,
         installAutomatically: Boolean,
-        unmeteredNetworkOnly: Boolean,
-        isConnectedToUnmeteredNetwork: Boolean
+        unMeteredNetworkOnly: Boolean,
+        isConnectedToUnMeteredNetwork: Boolean
     ): Notification {
         val notificationBuilder =
             createNotificationBuilder(context)
@@ -51,7 +51,7 @@ object UpdatesNotifier {
         when (numberOfApps) {
             0 -> {
                 notificationBuilder.setContentTitle(
-                    "Checking Updates..."
+                    context.resources.getString(R.string.checking_updates)
                 )
             }
             1 -> {
@@ -75,7 +75,7 @@ object UpdatesNotifier {
         }
         if (installAutomatically) {
             notificationBuilder.setContentText(context.getString(R.string.automatically_install_updates_notification_text))
-            if (unmeteredNetworkOnly && !isConnectedToUnmeteredNetwork) {
+            if (unMeteredNetworkOnly && !isConnectedToUnMeteredNetwork) {
                 notificationBuilder.setSubText(
                     context
                         .getString(R.string.updates_notification_unmetered_network_warning)
@@ -170,7 +170,7 @@ object UpdatesNotifier {
         }
     }
 
-    fun getNotification(context: Context, title: String, message: String): Notification {
+    private fun getNotification(context: Context, title: String, message: String): Notification {
         val notificationBuilder = createNotificationBuilder(context)
         notificationBuilder.setContentTitle(title)
         notificationBuilder.setContentText(message)

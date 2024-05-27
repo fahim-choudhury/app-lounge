@@ -20,7 +20,6 @@ package foundation.e.apps.ui.home
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -30,18 +29,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
-import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fused.FusedAPIInterface
-import foundation.e.apps.data.fused.data.FusedApp
-import foundation.e.apps.data.fused.data.FusedHome
+import foundation.e.apps.data.application.ApplicationInstaller
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentHomeBinding
 import foundation.e.apps.di.CommonUtilsModule.safeNavigate
 import foundation.e.apps.install.download.data.DownloadProgress
-import foundation.e.apps.install.pkg.PWAManagerModule
+import foundation.e.apps.install.pkg.PWAManager
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.AppProgressViewModel
 import foundation.e.apps.ui.MainActivityViewModel
@@ -49,11 +46,12 @@ import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.home.model.HomeChildRVAdapter
 import foundation.e.apps.ui.home.model.HomeParentRVAdapter
 import foundation.e.apps.ui.parentFragment.TimeoutFragment
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface {
+class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstaller {
 
     /*
      * Make adapter nullable to avoid memory leaks.
@@ -69,7 +67,11 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
 
     @Inject
-    lateinit var pwaManagerModule: PWAManagerModule
+    lateinit var pwaManager: PWAManager
+
+    companion object {
+        private const val SCROLL_DELAY_IN_MILLIS = 500L
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -94,11 +96,13 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
                 return@observe
             }
 
-            if (!isHomeDataUpdated(it)) {
-                return@observe
-            }
-
             homeParentRVAdapter?.setData(it.data!!)
+
+            // scrolling to top 500 ms later to give time UI elements to be rendered
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(SCROLL_DELAY_IN_MILLIS)
+                binding.parentRV.scrollToPosition(0)
+            }
         }
     }
 
@@ -124,27 +128,21 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         }
     }
 
-    private fun showPaidAppMessage(fusedApp: FusedApp) {
+    private fun showPaidAppMessage(application: Application) {
         ApplicationDialogFragment(
-            title = getString(R.string.dialog_title_paid_app, fusedApp.name),
+            title = getString(R.string.dialog_title_paid_app, application.name),
             message = getString(
                 R.string.dialog_paidapp_message,
-                fusedApp.name,
-                fusedApp.price
+                application.name,
+                application.price
             ),
             positiveButtonText = getString(R.string.dialog_confirm),
             positiveButtonAction = {
-                getApplication(fusedApp)
+                installApplication(application)
             },
             cancelButtonText = getString(R.string.dialog_cancel),
         ).show(childFragmentManager, "HomeFragment")
     }
-
-    private fun isHomeDataUpdated(homeScreenResult: ResultSupreme<List<FusedHome>>) =
-        homeParentRVAdapter?.currentList?.isEmpty() == true || homeViewModel.isHomeDataUpdated(
-            homeScreenResult.data!!,
-            homeParentRVAdapter?.currentList as List<FusedHome>
-        )
 
     override fun onTimeout(
         exception: Exception,
@@ -217,8 +215,9 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
             viewHolder?.let { parentViewHolder ->
                 val childRV =
                     (parentViewHolder as HomeParentRVAdapter.ViewHolder).binding.childRV
-                val adapter = childRV.adapter as HomeChildRVAdapter
-                findDownloadingItemsToShowProgress(adapter, downloadProgress, childRV)
+                (childRV.adapter as HomeChildRVAdapter?)?.let {
+                    findDownloadingItemsToShowProgress(it, downloadProgress, childRV)
+                }
             }
         }
     }
@@ -264,9 +263,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
             updateProgressOfDownloadingAppItemViews(homeParentRVAdapter, it)
         }
 
-        if (homeViewModel.isAnyAppInstallStatusChanged(homeParentRVAdapter?.currentList)) {
-            repostAuthObjects()
-        }
+        homeViewModel.checkAnyChangeInAppStatus()
     }
 
     override fun onPause() {
@@ -284,26 +281,12 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), FusedAPIInterface 
         homeParentRVAdapter = null
     }
 
-    override fun getApplication(app: FusedApp, appIcon: ImageView?) {
+    override fun installApplication(app: Application) {
         mainActivityViewModel.getApplication(app)
     }
 
-    override fun cancelDownload(app: FusedApp) {
+    override fun cancelDownload(app: Application) {
         mainActivityViewModel.cancelDownload(app)
-    }
-
-    private fun onTosAccepted(isTosAccepted: Boolean) {
-        if (isTosAccepted) {
-            /*
-             * "safeNavigate" is an extension function, to prevent calling this navigation multiple times.
-             * This is taken from:
-             * https://nezspencer.medium.com/navigation-components-a-fix-for-navigation-action-cannot-be-found-in-the-current-destination-95b63e16152e
-             * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5166
-             * Also related: https://gitlab.e.foundation/ecorp/apps/apps/-/merge_requests/28
-             */
-            view?.findNavController()
-                ?.safeNavigate(R.id.homeFragment, R.id.action_homeFragment_to_signInFragment)
-        }
     }
 
     private fun openSettings() {
