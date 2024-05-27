@@ -6,8 +6,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import foundation.e.apps.data.database.fusedDownload.FusedDatabase
-import foundation.e.apps.data.fusedDownload.FusedDownloadDAO
+import foundation.e.apps.data.database.install.AppInstallDatabase
+import foundation.e.apps.data.install.AppInstallDAO
 import javax.inject.Singleton
 
 @Module
@@ -15,13 +15,13 @@ import javax.inject.Singleton
 object DatabaseModule {
     @Singleton
     @Provides
-    fun provideDatabaseInstance(@ApplicationContext context: Context): FusedDatabase {
-        return FusedDatabase.getInstance(context)
+    fun provideDatabaseInstance(@ApplicationContext context: Context): AppInstallDatabase {
+        return AppInstallDatabase.getInstance(context)
     }
 
     @Singleton
     @Provides
-    fun provideFusedDaoInstance(fusedDatabase: FusedDatabase): FusedDownloadDAO {
-        return fusedDatabase.fusedDownloadDao()
+    fun provideFusedDaoInstance(appInstallDatabase: AppInstallDatabase): AppInstallDAO {
+        return appInstallDatabase.fusedDownloadDao()
     }
 }

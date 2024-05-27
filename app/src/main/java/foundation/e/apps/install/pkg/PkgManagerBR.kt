@@ -25,7 +25,7 @@ import android.content.pm.PackageInstaller
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
-import foundation.e.apps.data.fusedDownload.FusedManagerRepository
+import foundation.e.apps.data.install.AppManagerWrapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -39,7 +39,7 @@ import javax.inject.Named
 open class PkgManagerBR : BroadcastReceiver() {
 
     @Inject
-    lateinit var fusedManagerRepository: FusedManagerRepository
+    lateinit var appManagerWrapper: AppManagerWrapper
 
     @Inject
     lateinit var appLoungePackageManager: AppLoungePackageManager
@@ -102,8 +102,8 @@ open class PkgManagerBR : BroadcastReceiver() {
 
     private fun deleteDownload(pkgName: String) {
         GlobalScope.launch {
-            val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)
-            fusedManagerRepository.cancelDownload(fusedDownload)
+            val fusedDownload = appManagerWrapper.getFusedDownload(packageName = pkgName)
+            appManagerWrapper.cancelDownload(fusedDownload)
         }
     }
 
@@ -113,16 +113,16 @@ open class PkgManagerBR : BroadcastReceiver() {
             Timber.d("updateDownloadStatus: package name should not be empty!")
         }
         GlobalScope.launch {
-            val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)
+            val fusedDownload = appManagerWrapper.getFusedDownload(packageName = pkgName)
             appLoungePackageManager.setFakeStoreAsInstallerIfNeeded(fusedDownload)
-            fusedManagerRepository.updateDownloadStatus(fusedDownload, Status.INSTALLED)
+            appManagerWrapper.updateDownloadStatus(fusedDownload, Status.INSTALLED)
         }
     }
 
     private fun updateInstallationIssue(pkgName: String) {
         GlobalScope.launch {
-            val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)
-            fusedManagerRepository.installationIssue(fusedDownload)
+            val fusedDownload = appManagerWrapper.getFusedDownload(packageName = pkgName)
+            appManagerWrapper.installationIssue(fusedDownload)
         }
     }
 }

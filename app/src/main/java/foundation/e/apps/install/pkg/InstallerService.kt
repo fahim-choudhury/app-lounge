@@ -25,7 +25,7 @@ import android.os.IBinder
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
 import foundation.e.apps.data.application.UpdatesDao
-import foundation.e.apps.data.fusedDownload.FusedManagerRepository
+import foundation.e.apps.data.install.AppManagerWrapper
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -39,7 +39,7 @@ import javax.inject.Inject
 class InstallerService : Service() {
 
     @Inject
-    lateinit var fusedManagerRepository: FusedManagerRepository
+    lateinit var appManagerWrapper: AppManagerWrapper
 
     @Inject
     lateinit var appLoungePackageManager: AppLoungePackageManager
@@ -109,8 +109,8 @@ class InstallerService : Service() {
             Timber.d("updateDownloadStatus: package name should not be empty!")
         }
         GlobalScope.launch {
-            val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)
-            fusedManagerRepository.installationIssue(fusedDownload)
+            val fusedDownload = appManagerWrapper.getFusedDownload(packageName = pkgName)
+            appManagerWrapper.installationIssue(fusedDownload)
         }
     }
 }

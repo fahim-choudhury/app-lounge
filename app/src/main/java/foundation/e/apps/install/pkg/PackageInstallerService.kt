@@ -24,7 +24,7 @@ import android.content.pm.PackageInstaller
 import android.os.IBinder
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fusedDownload.FusedManagerRepository
+import foundation.e.apps.data.install.AppManagerWrapper
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -36,7 +36,7 @@ import javax.inject.Inject
 class PackageInstallerService : Service() {
 
     @Inject
-    lateinit var fusedManagerRepository: FusedManagerRepository
+    lateinit var appManagerWrapper: AppManagerWrapper
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -69)
@@ -63,15 +63,15 @@ class PackageInstallerService : Service() {
     // TODO: FIND A BETTER WAY TO DO THIS
     private fun updateDownloadStatus(pkgName: String) {
         GlobalScope.launch {
-            val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)
-            fusedManagerRepository.updateDownloadStatus(fusedDownload, Status.INSTALLED)
+            val fusedDownload = appManagerWrapper.getFusedDownload(packageName = pkgName)
+            appManagerWrapper.updateDownloadStatus(fusedDownload, Status.INSTALLED)
         }
     }
 
     private fun updateInstallationIssue(pkgName: String) {
         GlobalScope.launch {
-            val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = pkgName)
-            fusedManagerRepository.installationIssue(fusedDownload)
+            val fusedDownload = appManagerWrapper.getFusedDownload(packageName = pkgName)
+            appManagerWrapper.installationIssue(fusedDownload)
         }
     }
 }

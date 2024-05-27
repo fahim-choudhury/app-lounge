@@ -22,10 +22,10 @@ import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FdroidRepository
-import foundation.e.apps.data.fusedDownload.FusedManagerRepository
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.AppManagerWrapper
+import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.install.workmanager.InstallWorkManager
-import foundation.e.apps.installProcessor.FakeFusedDownloadDAO
+import foundation.e.apps.installProcessor.FakeAppInstallDAO
 import foundation.e.apps.util.MainCoroutineRule
 import io.mockk.every
 import io.mockk.mockkObject
@@ -41,7 +41,7 @@ import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class FusedManagerRepositoryTest {
+class AppManagerWrapperTest {
     @Rule
     @JvmField
     val instantExecutorRule = InstantTaskExecutorRule()
@@ -51,8 +51,8 @@ class FusedManagerRepositoryTest {
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
-    private lateinit var fusedDownloadDAO: FakeFusedDownloadDAO
-    private lateinit var fakeFusedManager: FakeFusedManager
+    private lateinit var appInstallDAO: FakeAppInstallDAO
+    private lateinit var fakeAppManager: FakeAppManager
 
     @Mock
     private lateinit var application: Application
@@ -60,27 +60,27 @@ class FusedManagerRepositoryTest {
     @Mock
     private lateinit var fdroidRepository: FdroidRepository
 
-    private lateinit var fusedManagerRepository: FusedManagerRepository
+    private lateinit var appManagerWrapper: AppManagerWrapper
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
         InstallWorkManager.context = application
-        fusedDownloadDAO = FakeFusedDownloadDAO()
-        fakeFusedManager = FakeFusedManager(fusedDownloadDAO)
-        fusedManagerRepository = FusedManagerRepository(fakeFusedManager, fdroidRepository)
+        appInstallDAO = FakeAppInstallDAO()
+        fakeAppManager = FakeAppManager(appInstallDAO)
+        appManagerWrapper = AppManagerWrapper(fakeAppManager, fdroidRepository)
     }
 
     @Test
     fun addDownload() = runTest {
         val fusedDownload = initTest()
 
-        val isSuccessful = fusedManagerRepository.addDownload(fusedDownload)
+        val isSuccessful = appManagerWrapper.addDownload(fusedDownload)
         assertTrue("addDownload", isSuccessful)
-        assertEquals("addDownload", 1, fusedDownloadDAO.getDownloadList().size)
+        assertEquals("addDownload", 1, appInstallDAO.getDownloadList().size)
     }
 
-    private fun initTest(hasAnyExistingWork: Boolean = false): FusedDownload {
+    private fun initTest(hasAnyExistingWork: Boolean = false): AppInstall {
         mockkObject(InstallWorkManager)
         every { InstallWorkManager.checkWorkIsAlreadyAvailable(any()) } returns hasAnyExistingWork
         return createFusedDownload()
@@ -89,9 +89,9 @@ class FusedManagerRepositoryTest {
     @Test
     fun `addDownload when work and FusedDownload Both are available`() = runTest {
         val fusedDownload = initTest(true)
-        fusedDownloadDAO.fusedDownloadList.add(fusedDownload)
+        appInstallDAO.appInstallList.add(fusedDownload)
 
-        val isSuccessful = fusedManagerRepository.addDownload(fusedDownload)
+        val isSuccessful = appManagerWrapper.addDownload(fusedDownload)
         assertFalse("addDownload", isSuccessful)
     }
 
@@ -99,16 +99,16 @@ class FusedManagerRepositoryTest {
     fun `addDownload when only work exists`() = runTest {
         val fusedDownload = initTest(true)
 
-        val isSuccessful = fusedManagerRepository.addDownload(fusedDownload)
+        val isSuccessful = appManagerWrapper.addDownload(fusedDownload)
         assertTrue("addDownload", isSuccessful)
     }
 
     @Test
     fun `addDownload when on FusedDownload exists`() = runTest {
         val fusedDownload = initTest()
-        fusedDownloadDAO.addDownload(fusedDownload)
+        appInstallDAO.addDownload(fusedDownload)
 
-        val isSuccessful = fusedManagerRepository.addDownload(fusedDownload)
+        val isSuccessful = appManagerWrapper.addDownload(fusedDownload)
         assertFalse("addDownload", isSuccessful)
     }
 
@@ -116,16 +116,16 @@ class FusedManagerRepositoryTest {
     fun `addDownload when fusedDownload already exists And has installation issue`() = runTest {
         val fusedDownload = initTest()
         fusedDownload.status = Status.INSTALLATION_ISSUE
-        fusedDownloadDAO.addDownload(fusedDownload)
+        appInstallDAO.addDownload(fusedDownload)
 
-        val isSuccessful = fusedManagerRepository.addDownload(fusedDownload)
+        val isSuccessful = appManagerWrapper.addDownload(fusedDownload)
         assertTrue("addDownload", isSuccessful)
     }
 
     private fun createFusedDownload(
         packageName: String? = null,
         downloadUrlList: MutableList<String>? = null
-    ) = FusedDownload(
+    ) = AppInstall(
         id = "121",
         status = Status.AWAITING,
         downloadURLList = downloadUrlList ?: mutableListOf("apk1", "apk2"),
