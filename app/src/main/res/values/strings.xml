@@ -223,4 +223,5 @@
     <string name="notification_channel_desc">Split Install channel</string>
     <string name="sign_in">Sign in</string>
     <string name="ignore">Ignore</string>
+    <string name="age_rate_limit_message">You are too young to be able to install this app. Please check with your parent your age group is correct or disable Parental Control to be able to install it.</string>
 </resources>

@@ -33,4 +33,6 @@ sealed class AppEvent(val data: Any) {
     class AppPurchaseEvent(fusedDownload: FusedDownload) : AppEvent(fusedDownload)
     class NoInternetEvent(isInternetAvailable: Boolean) : AppEvent(isInternetAvailable)
     class TooManyRequests : AppEvent(Unit)
+
+    class AgeRateLimit(title: String) : AppEvent(String)
 }

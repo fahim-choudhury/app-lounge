@@ -3,6 +3,7 @@ package foundation.e.apps.data.fusedDownload.models
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.aurora.gplayapi.data.models.ContentRating
 import com.aurora.gplayapi.data.models.File
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.enums.Origin
@@ -35,6 +36,9 @@ data class FusedDownload(
         Status.DOWNLOADED,
         Status.INSTALLING
     )
+
+    @Ignore
+    var contentRating: ContentRating? = null
 
     fun isAppInstalling() = installingStatusList.contains(status)
 

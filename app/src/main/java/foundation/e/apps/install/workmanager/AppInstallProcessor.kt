@@ -22,7 +22,6 @@ import android.content.Context
 import com.aurora.gplayapi.exceptions.ApiException
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
-import foundation.e.apps.data.DownloadManager
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
@@ -35,6 +34,7 @@ import foundation.e.apps.data.fusedDownload.FusedManagerRepository
 import foundation.e.apps.data.fusedDownload.models.FusedDownload
 import foundation.e.apps.data.playstore.utils.GplayHttpRequestException
 import foundation.e.apps.data.preference.DataStoreManager
+import foundation.e.apps.domain.CheckAppAgeLimitUseCase
 import foundation.e.apps.install.download.DownloadManagerUtils
 import foundation.e.apps.install.notification.StorageNotificationManager
 import foundation.e.apps.install.updates.UpdatesNotifier
@@ -55,6 +55,7 @@ class AppInstallProcessor @Inject constructor(
     private val fusedDownloadRepository: FusedDownloadRepository,
     private val fusedManagerRepository: FusedManagerRepository,
     private val applicationRepository: ApplicationRepository,
+    private val checkAppAgeLimitUseCase: CheckAppAgeLimitUseCase,
     private val dataStoreManager: DataStoreManager,
     private val storageNotificationManager: StorageNotificationManager,
 ) {
@@ -96,6 +97,8 @@ class AppInstallProcessor @Inject constructor(
             application.originalSize
         )
 
+        fusedDownload.contentRating = application.contentRating
+
         if (fusedDownload.type == Type.PWA) {
             fusedDownload.downloadURLList = mutableListOf(application.url)
         }
@@ -116,6 +119,13 @@ class AppInstallProcessor @Inject constructor(
     ) {
         try {
             val authData = dataStoreManager.getAuthData()
+
+            if (checkAppAgeLimitUseCase.invoke(fusedDownload)) {
+                Timber.i("Content rating is not allowed for: ${fusedDownload.name}")
+                EventBus.invokeEvent(AppEvent.AgeRateLimit(fusedDownload.name))
+                return
+            }
+
             if (!fusedDownload.isFree && authData.isAnonymous) {
                 EventBus.invokeEvent(AppEvent.ErrorMessageEvent(R.string.paid_app_anonymous_message))
                 return

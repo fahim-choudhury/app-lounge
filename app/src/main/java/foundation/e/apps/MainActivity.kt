@@ -120,6 +120,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.updateAppWarningList()
+        viewModel.updateContentRatings()
 
         observeEvents()
     }
@@ -203,6 +204,22 @@ class MainActivity : AppCompatActivity() {
 
                 launch {
                     observeNoInternetEvent()
+                }
+
+                launch {
+                    EventBus.events.filter {
+                        it is AppEvent.AgeRateLimit
+                    }.collectLatest {
+                        ApplicationDialogFragment(
+                            getString(R.string.unknown_error),
+                            getString(R.string.age_rate_limit_message),
+                            positiveButtonText = getString(R.string.ok),
+                            positiveButtonAction = {
+                                findNavController(binding.fragment.id).popBackStack()
+                            }
+                        ).show(supportFragmentManager, TAG)
+
+                    }
                 }
             }
         }
