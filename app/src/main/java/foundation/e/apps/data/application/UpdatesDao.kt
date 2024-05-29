@@ -18,14 +18,14 @@
 package foundation.e.apps.data.application
 
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.models.AppInstall
 
 object UpdatesDao {
     private val _appsAwaitingForUpdate: MutableList<Application> = mutableListOf()
     val appsAwaitingForUpdate: List<Application> = _appsAwaitingForUpdate
 
-    private val _successfulUpdatedApps = mutableListOf<FusedDownload>()
-    val successfulUpdatedApps: List<FusedDownload> = _successfulUpdatedApps
+    private val _successfulUpdatedApps = mutableListOf<AppInstall>()
+    val successfulUpdatedApps: List<AppInstall> = _successfulUpdatedApps
 
     fun addItemsForUpdate(appsNeedUpdate: List<Application>) {
         _appsAwaitingForUpdate.clear()
@@ -36,8 +36,8 @@ object UpdatesDao {
 
     fun removeUpdateIfExists(packageName: String) = _appsAwaitingForUpdate.removeIf { it.package_name == packageName }
 
-    fun addSuccessfullyUpdatedApp(fusedDownload: FusedDownload) {
-        _successfulUpdatedApps.add(fusedDownload)
+    fun addSuccessfullyUpdatedApp(appInstall: AppInstall) {
+        _successfulUpdatedApps.add(appInstall)
     }
 
     fun clearSuccessfullyUpdatedApps() {

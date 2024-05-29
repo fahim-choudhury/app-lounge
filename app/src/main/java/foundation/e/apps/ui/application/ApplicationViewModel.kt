@@ -31,8 +31,8 @@ import foundation.e.apps.data.application.data.shareUri
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fusedDownload.FusedManagerRepository
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.AppManagerWrapper
+import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
@@ -53,8 +53,8 @@ import javax.inject.Inject
 class ApplicationViewModel @Inject constructor(
     downloadProgressLD: DownloadProgressLD,
     private val applicationRepository: ApplicationRepository,
-    private val fusedManagerRepository: FusedManagerRepository,
     private val playStoreRepository: PlayStoreRepository,
+    private val appManagerWrapper: AppManagerWrapper,
 ) : LoadingViewModel() {
 
     val application: MutableLiveData<Pair<Application, ResultStatus>> = MutableLiveData()
@@ -209,19 +209,19 @@ class ApplicationViewModel @Inject constructor(
     }
 
     fun handleRatingFormat(rating: Double): String {
-        return fusedManagerRepository.handleRatingFormat(rating)
+        return appManagerWrapper.handleRatingFormat(rating)
     }
 
     suspend fun calculateProgress(progress: DownloadProgress): Pair<Long, Long> {
-        return fusedManagerRepository.getCalculateProgressWithTotalSize(
+        return appManagerWrapper.getCalculateProgressWithTotalSize(
             application.value?.first,
             progress
         )
     }
 
-    fun updateApplicationStatus(downloadList: List<FusedDownload>) {
+    fun updateApplicationStatus(downloadList: List<AppInstall>) {
         application.value?.first?.let { app ->
-            appStatus.value = fusedManagerRepository.getDownloadingItemStatus(app, downloadList)
+            appStatus.value = appManagerWrapper.getDownloadingItemStatus(app, downloadList)
                 ?: applicationRepository.getFusedAppInstallationStatus(app)
         }
     }

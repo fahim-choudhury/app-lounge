@@ -39,8 +39,8 @@ import foundation.e.apps.data.ecloud.EcloudRepository
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
 import foundation.e.apps.data.enums.isUnFiltered
-import foundation.e.apps.data.fusedDownload.FusedManagerRepository
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.AppManagerWrapper
+import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.apps.data.preference.getSync
 import foundation.e.apps.install.pkg.AppLoungePackageManager
@@ -54,7 +54,7 @@ import javax.inject.Inject
 class MainActivityViewModel @Inject constructor(
     private val appLoungeDataStore: AppLoungeDataStore,
     private val applicationRepository: ApplicationRepository,
-    private val fusedManagerRepository: FusedManagerRepository,
+    private val appManagerWrapper: AppManagerWrapper,
     private val appLoungePackageManager: AppLoungePackageManager,
     private val pwaManager: PWAManager,
     private val ecloudRepository: EcloudRepository,
@@ -64,8 +64,8 @@ class MainActivityViewModel @Inject constructor(
 
     val tocStatus: LiveData<Boolean> = appLoungeDataStore.tocStatus.asLiveData()
 
-    private val _purchaseAppLiveData: MutableLiveData<FusedDownload> = MutableLiveData()
-    val purchaseAppLiveData: LiveData<FusedDownload> = _purchaseAppLiveData
+    private val _purchaseAppLiveData: MutableLiveData<AppInstall> = MutableLiveData()
+    val purchaseAppLiveData: LiveData<AppInstall> = _purchaseAppLiveData
     val isAppPurchased: MutableLiveData<String> = MutableLiveData()
     val purchaseDeclined: MutableLiveData<String> = MutableLiveData()
     lateinit var internetConnection: LiveData<Boolean>
@@ -73,7 +73,7 @@ class MainActivityViewModel @Inject constructor(
     var gPlayAuthData = AuthData("", "")
 
     // Downloads
-    val downloadList = fusedManagerRepository.getDownloadLiveList()
+    val downloadList = appManagerWrapper.getDownloadLiveList()
     private val _errorMessage = MutableLiveData<Exception>()
     val errorMessage: LiveData<Exception> = _errorMessage
 
@@ -104,7 +104,7 @@ class MainActivityViewModel @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun createNotificationChannels() {
-        fusedManagerRepository.createNotificationChannels()
+        appManagerWrapper.createNotificationChannels()
     }
 
     /*
@@ -182,8 +182,8 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    suspend fun updateAwaitingForPurchasedApp(packageName: String): FusedDownload? {
-        val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = packageName)
+    suspend fun updateAwaitingForPurchasedApp(packageName: String): AppInstall? {
+        val fusedDownload = appManagerWrapper.getFusedDownload(packageName = packageName)
         gPlayAuthData.let {
             if (!it.isAnonymous) {
                 appInstallProcessor.enqueueFusedDownload(fusedDownload)
@@ -194,15 +194,15 @@ class MainActivityViewModel @Inject constructor(
     }
 
     suspend fun updateUnavailableForPurchaseDeclined(packageName: String) {
-        val fusedDownload = fusedManagerRepository.getFusedDownload(packageName = packageName)
-        fusedManagerRepository.updateUnavailable(fusedDownload)
+        val fusedDownload = appManagerWrapper.getFusedDownload(packageName = packageName)
+        appManagerWrapper.updateUnavailable(fusedDownload)
     }
 
     fun cancelDownload(app: Application) {
         viewModelScope.launch {
             val fusedDownload =
-                fusedManagerRepository.getFusedDownload(packageName = app.package_name)
-            fusedManagerRepository.cancelDownload(fusedDownload)
+                appManagerWrapper.getFusedDownload(packageName = app.package_name)
+            appManagerWrapper.cancelDownload(fusedDownload)
         }
     }
 
@@ -212,10 +212,10 @@ class MainActivityViewModel @Inject constructor(
 
     fun updateStatusOfFusedApps(
         applicationList: List<Application>,
-        fusedDownloadList: List<FusedDownload>
+        appInstallList: List<AppInstall>
     ) {
         applicationList.forEach {
-            val downloadingItem = fusedDownloadList.find { fusedDownload ->
+            val downloadingItem = appInstallList.find { fusedDownload ->
                 fusedDownload.origin == it.origin && (fusedDownload.packageName == it.package_name || fusedDownload.id == it._id)
             }
             it.status =

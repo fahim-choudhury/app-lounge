@@ -22,7 +22,7 @@ import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
+import foundation.e.apps.data.install.AppInstallRepository
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -47,20 +47,20 @@ class PWAPlayerStatusReceiver : BroadcastReceiver() {
     }
 
     @Inject
-    lateinit var fusedDownloadRepository: FusedDownloadRepository
+    lateinit var appInstallRepository: AppInstallRepository
 
     override fun onReceive(context: Context?, intent: Intent?) {
         GlobalScope.launch {
             try {
                 intent?.getStringExtra("SHORTCUT_ID")?.let { shortcutId ->
-                    fusedDownloadRepository.getDownloadById(shortcutId)?.let { fusedDownload ->
+                    appInstallRepository.getDownloadById(shortcutId)?.let { fusedDownload ->
                         when (intent.action) {
                             ACTION_PWA_ADDED -> {
                                 fusedDownload.status = Status.INSTALLED
-                                fusedDownloadRepository.updateDownload(fusedDownload)
+                                appInstallRepository.updateDownload(fusedDownload)
                             }
                             ACTION_PWA_REMOVED -> {
-                                fusedDownloadRepository.deleteDownload(fusedDownload)
+                                appInstallRepository.deleteDownload(fusedDownload)
                             }
                         }
                     }

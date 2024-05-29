@@ -19,7 +19,7 @@ package foundation.e.apps.data.blockedApps
 
 import com.google.gson.Gson
 import foundation.e.apps.data.DownloadManager
-import foundation.e.apps.data.fusedDownload.FileManager
+import foundation.e.apps.data.install.FileManager
 import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
 import java.io.File

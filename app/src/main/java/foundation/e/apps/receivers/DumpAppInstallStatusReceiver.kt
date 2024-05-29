@@ -29,8 +29,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.Constants
 import foundation.e.apps.data.DownloadManager
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.AppInstallRepository
+import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.utils.NetworkStatusManager
 import foundation.e.apps.utils.StorageComputer
 import kotlinx.coroutines.MainScope
@@ -43,7 +43,7 @@ import javax.inject.Inject
 class DumpAppInstallStatusReceiver : BroadcastReceiver() {
 
     @Inject
-    lateinit var fusedDownloadRepository: FusedDownloadRepository
+    lateinit var appInstallRepository: AppInstallRepository
 
     @Inject
     lateinit var downloadManager: DownloadManager
@@ -55,7 +55,7 @@ class DumpAppInstallStatusReceiver : BroadcastReceiver() {
 
         MainScope().launch {
             val gson = Gson()
-            val appList = fusedDownloadRepository.getDownloadList()
+            val appList = appInstallRepository.getDownloadList()
             val appInstallStatusLog = "App install status: ${gson.toJson(appList)}"
             val deviceStatusLog = getDeviceInfo(context)
             val downloadStatusLog = getDownloadStatus(appList)
@@ -79,7 +79,7 @@ class DumpAppInstallStatusReceiver : BroadcastReceiver() {
         return null
     }
 
-    private fun getDownloadStatus(appList: List<FusedDownload>): String {
+    private fun getDownloadStatus(appList: List<AppInstall>): String {
         var downloadStatusLog = ""
         appList.forEach {
             if (listOf(Status.DOWNLOADING, Status.DOWNLOADED).contains(it.status)) {

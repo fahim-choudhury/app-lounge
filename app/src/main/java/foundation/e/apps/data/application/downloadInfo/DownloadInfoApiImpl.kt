@@ -21,7 +21,7 @@ package foundation.e.apps.data.application.downloadInfo
 import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
 import foundation.e.apps.data.enums.Origin
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.handleNetworkResult
 import javax.inject.Inject
 
@@ -57,45 +57,45 @@ class DownloadInfoApiImpl @Inject constructor(
 
     override suspend fun updateFusedDownloadWithDownloadingInfo(
         origin: Origin,
-        fusedDownload: FusedDownload
+        appInstall: AppInstall
     ) {
         val list = mutableListOf<String>()
         when (origin) {
             Origin.CLEANAPK -> {
-                updateDownloadInfoFromCleanApk(fusedDownload, list)
+                updateDownloadInfoFromCleanApk(appInstall, list)
             }
 
             Origin.GPLAY -> {
-                updateDownloadInfoFromGplay(fusedDownload, list)
+                updateDownloadInfoFromGplay(appInstall, list)
             }
         }
 
-        fusedDownload.downloadURLList = list
+        appInstall.downloadURLList = list
     }
 
     private suspend fun updateDownloadInfoFromGplay(
-        fusedDownload: FusedDownload,
+        appInstall: AppInstall,
         list: MutableList<String>
     ) {
         val downloadList =
             appSources.gplayRepo.getDownloadInfo(
-                fusedDownload.packageName,
-                fusedDownload.versionCode,
-                fusedDownload.offerType
+                appInstall.packageName,
+                appInstall.versionCode,
+                appInstall.offerType
             )
-        fusedDownload.files = downloadList
+        appInstall.files = downloadList
         list.addAll(downloadList.map { it.url })
     }
 
     private suspend fun updateDownloadInfoFromCleanApk(
-        fusedDownload: FusedDownload,
+        appInstall: AppInstall,
         list: MutableList<String>
     ) {
         val downloadInfo =
             (appSources.cleanApkAppsRepo as CleanApkDownloadInfoFetcher)
-                .getDownloadInfo(fusedDownload.id).body()
+                .getDownloadInfo(appInstall.id).body()
         downloadInfo?.download_data?.download_link?.let { list.add(it) }
-        fusedDownload.signature = downloadInfo?.download_data?.signature ?: ""
+        appInstall.signature = downloadInfo?.download_data?.signature ?: ""
     }
 
     override suspend fun getOSSDownloadInfo(id: String, version: String?) =

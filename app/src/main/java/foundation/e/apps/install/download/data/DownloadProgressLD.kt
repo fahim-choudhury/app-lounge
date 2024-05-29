@@ -27,7 +27,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import foundation.e.apps.data.fusedDownload.FusedManagerRepository
+import foundation.e.apps.data.install.AppManagerWrapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -41,7 +41,7 @@ import kotlin.coroutines.CoroutineContext
 class DownloadProgressLD @Inject constructor(
     private val downloadManager: DownloadManager,
     private val downloadManagerQuery: DownloadManager.Query,
-    private val fusedManagerRepository: FusedManagerRepository
+    private val appManagerWrapper: AppManagerWrapper
 ) : LiveData<DownloadProgress>(), CoroutineScope {
 
     private lateinit var job: Job
@@ -55,7 +55,7 @@ class DownloadProgressLD @Inject constructor(
         super.observe(owner, observer)
         launch {
             while (hasActiveObservers() || owner.lifecycle.currentState == Lifecycle.State.RESUMED) {
-                val downloads = fusedManagerRepository.getDownloadList()
+                val downloads = appManagerWrapper.getDownloadList()
                 val downloadingList =
                     downloads.map { it.downloadIdMap }.filter { it.values.contains(false) }
                 val downloadingIds = mutableListOf<Long>()
