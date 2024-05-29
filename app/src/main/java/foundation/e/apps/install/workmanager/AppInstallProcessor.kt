@@ -120,12 +120,6 @@ class AppInstallProcessor @Inject constructor(
         try {
             val authData = dataStoreManager.getAuthData()
 
-            if (checkAppAgeLimitUseCase.invoke(fusedDownload)) {
-                Timber.i("Content rating is not allowed for: ${fusedDownload.name}")
-                EventBus.invokeEvent(AppEvent.AgeRateLimit(fusedDownload.name))
-                return
-            }
-
             if (!fusedDownload.isFree && authData.isAnonymous) {
                 EventBus.invokeEvent(AppEvent.ErrorMessageEvent(R.string.paid_app_anonymous_message))
                 return
@@ -136,6 +130,13 @@ class AppInstallProcessor @Inject constructor(
             val downloadAdded = fusedManagerRepository.addDownload(fusedDownload)
             if (!downloadAdded) {
                 Timber.i("Update adding ABORTED! status: $downloadAdded")
+                return
+            }
+
+            if (checkAppAgeLimitUseCase.invoke(fusedDownload)) {
+                Timber.i("Content rating is not allowed for: ${fusedDownload.name}")
+                EventBus.invokeEvent(AppEvent.AgeRateLimit(fusedDownload.name))
+                fusedManagerRepository.cancelDownload(fusedDownload)
                 return
             }
 

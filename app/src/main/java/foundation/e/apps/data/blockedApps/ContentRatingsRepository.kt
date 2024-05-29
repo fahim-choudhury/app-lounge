@@ -37,7 +37,7 @@ class ContentRatingsRepository @Inject constructor(
 ) {
 
     private var _contentRatings = listOf<ContentRating>()
-    val contentRatingsList: List<ContentRating>
+    val contentRatings: List<ContentRating>
         get() = _contentRatings
 
     companion object {
@@ -63,12 +63,11 @@ class ContentRatingsRepository @Inject constructor(
             FileManager.moveFile("$cacheDir/",
                 CONTENT_RATINGS_FILE_NAME, outputPath)
             val downloadedFile = File(outputPath + CONTENT_RATINGS_FILE_NAME)
-            Timber.d("Blocked list file exists: ${downloadedFile.exists()}")
-            val blockedAppInfoJson = String(downloadedFile.inputStream().readBytes())
-            Timber.d("Blocked list file contents: $blockedAppInfoJson")
+            val contentRatingJson = String(downloadedFile.inputStream().readBytes())
+            Timber.d("ContentRatings file contents: $contentRatingJson")
 
             val contentRatingsListType = object : TypeToken<List<ContentRating>>() {}.type
-            gson.fromJson(blockedAppInfoJson, contentRatingsListType)
+            gson.fromJson(contentRatingJson, contentRatingsListType)
         } catch (exception: Exception) {
             Timber.e(exception.localizedMessage ?: "", exception)
             mutableListOf()

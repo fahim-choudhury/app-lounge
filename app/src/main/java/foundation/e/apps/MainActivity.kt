@@ -214,9 +214,6 @@ class MainActivity : AppCompatActivity() {
                             getString(R.string.unknown_error),
                             getString(R.string.age_rate_limit_message),
                             positiveButtonText = getString(R.string.ok),
-                            positiveButtonAction = {
-                                findNavController(binding.fragment.id).popBackStack()
-                            }
                         ).show(supportFragmentManager, TAG)
 
                     }
