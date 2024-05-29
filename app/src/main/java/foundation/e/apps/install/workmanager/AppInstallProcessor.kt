@@ -135,7 +135,7 @@ class AppInstallProcessor @Inject constructor(
 
             if (checkAppAgeLimitUseCase.invoke(appInstall)) {
                 Timber.i("Content rating is not allowed for: ${appInstall.name}")
-                EventBus.invokeEvent(AppEvent.AgeRateLimit(appInstall.name))
+                EventBus.invokeEvent(AppEvent.AgeLimitRestrictionEvent(appInstall.name))
                 appManagerWrapper.cancelDownload(appInstall)
                 return
             }

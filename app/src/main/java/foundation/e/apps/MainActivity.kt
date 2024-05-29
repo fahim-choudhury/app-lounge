@@ -207,18 +207,21 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 launch {
-                    EventBus.events.filter {
-                        it is AppEvent.AgeRateLimit
-                    }.collectLatest {
-                        ApplicationDialogFragment(
-                            getString(R.string.unknown_error),
-                            getString(R.string.age_rate_limit_message),
-                            positiveButtonText = getString(R.string.ok),
-                        ).show(supportFragmentManager, TAG)
-
-                    }
+                    observeAgeLimitRestrictionEvent()
                 }
             }
+        }
+    }
+
+    private suspend fun observeAgeLimitRestrictionEvent() {
+        EventBus.events.filter {
+            it is AppEvent.AgeLimitRestrictionEvent
+        }.collectLatest {
+            ApplicationDialogFragment(
+                getString(R.string.unknown_error),
+                getString(R.string.age_rate_limit_message),
+                positiveButtonText = getString(R.string.ok),
+            ).show(supportFragmentManager, TAG)
         }
     }
 
