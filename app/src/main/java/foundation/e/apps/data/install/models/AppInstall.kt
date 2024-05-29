@@ -1,4 +1,4 @@
-package foundation.e.apps.data.fusedDownload.models
+package foundation.e.apps.data.install.models
 
 import androidx.room.Entity
 import androidx.room.Ignore
@@ -10,8 +10,8 @@ import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
 
-@Entity
-data class FusedDownload(
+@Entity(tableName = "FusedDownload")
+data class AppInstall(
     @PrimaryKey val id: String = String(),
     val origin: Origin = Origin.CLEANAPK,
     var status: Status = Status.UNAVAILABLE,

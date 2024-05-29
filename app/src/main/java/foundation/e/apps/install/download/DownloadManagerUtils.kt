@@ -24,8 +24,8 @@ import foundation.e.apps.R
 import foundation.e.apps.data.DownloadManager
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fusedDownload.FusedManagerRepository
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.AppManagerWrapper
+import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.install.notification.StorageNotificationManager
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
@@ -44,7 +44,7 @@ import javax.inject.Singleton
 @Singleton
 class DownloadManagerUtils @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val fusedManagerRepository: FusedManagerRepository,
+    private val appManagerWrapper: AppManagerWrapper,
     private val downloadManager: DownloadManager,
     private val storageNotificationManager: StorageNotificationManager,
     @Named("ioCoroutineScope") private val coroutineScope: CoroutineScope
@@ -54,8 +54,8 @@ class DownloadManagerUtils @Inject constructor(
     @DelicateCoroutinesApi
     fun cancelDownload(downloadId: Long) {
         coroutineScope.launch {
-            val fusedDownload = fusedManagerRepository.getFusedDownload(downloadId)
-            fusedManagerRepository.cancelDownload(fusedDownload)
+            val fusedDownload = appManagerWrapper.getFusedDownload(downloadId)
+            appManagerWrapper.cancelDownload(fusedDownload)
         }
     }
 
@@ -64,7 +64,7 @@ class DownloadManagerUtils @Inject constructor(
         coroutineScope.launch {
             mutex.withLock {
                 delay(1500) // Waiting for downloadmanager to publish the progress of last bytes
-                val fusedDownload = fusedManagerRepository.getFusedDownload(downloadId)
+                val fusedDownload = appManagerWrapper.getFusedDownload(downloadId)
                 if (fusedDownload.id.isNotEmpty()) {
 
                     if (downloadManager.hasDownloadFailed(downloadId)) {
@@ -85,28 +85,28 @@ class DownloadManagerUtils @Inject constructor(
         }
     }
 
-    private suspend fun handleDownloadSuccess(fusedDownload: FusedDownload) {
-        Timber.i("===> Download is completed for: ${fusedDownload.name}")
-        fusedManagerRepository.moveOBBFileToOBBDirectory(fusedDownload)
-        if (fusedDownload.status == Status.DOWNLOADING) {
-            fusedDownload.status = Status.DOWNLOADED
-            fusedManagerRepository.updateFusedDownload(fusedDownload)
+    private suspend fun handleDownloadSuccess(appInstall: AppInstall) {
+        Timber.i("===> Download is completed for: ${appInstall.name}")
+        appManagerWrapper.moveOBBFileToOBBDirectory(appInstall)
+        if (appInstall.status == Status.DOWNLOADING) {
+            appInstall.status = Status.DOWNLOADED
+            appManagerWrapper.updateFusedDownload(appInstall)
         }
     }
 
-    private suspend fun handleDownloadFailed(fusedDownload: FusedDownload, downloadId: Long) {
-        fusedManagerRepository.installationIssue(fusedDownload)
-        fusedManagerRepository.cancelDownload(fusedDownload)
-        Timber.w("===> Download failed: ${fusedDownload.name} ${fusedDownload.status}")
+    private suspend fun handleDownloadFailed(appInstall: AppInstall, downloadId: Long) {
+        appManagerWrapper.installationIssue(appInstall)
+        appManagerWrapper.cancelDownload(appInstall)
+        Timber.w("===> Download failed: ${appInstall.name} ${appInstall.status}")
 
         if (downloadManager.getDownloadFailureReason(downloadId) == android.app.DownloadManager.ERROR_INSUFFICIENT_SPACE) {
-            storageNotificationManager.showNotEnoughSpaceNotification(fusedDownload, downloadId)
+            storageNotificationManager.showNotEnoughSpaceNotification(appInstall, downloadId)
             EventBus.invokeEvent(AppEvent.ErrorMessageEvent(R.string.not_enough_storage))
         }
     }
 
     private suspend fun validateDownload(
-        fusedDownload: FusedDownload,
+        appInstall: AppInstall,
         downloadId: Long
     ) {
         val incompleteDownloadState = listOf(
@@ -118,21 +118,21 @@ class DownloadManagerUtils @Inject constructor(
         val isDownloadSuccessful = downloadManager.isDownloadSuccessful(downloadId)
 
         if (isDownloadSuccessful.first) {
-            updateDownloadIdMap(fusedDownload, downloadId)
+            updateDownloadIdMap(appInstall, downloadId)
         }
 
         val numberOfDownloadedItems =
-            fusedDownload.downloadIdMap.values.filter { it }.size
+            appInstall.downloadIdMap.values.filter { it }.size
 
-        Timber.d("===> updateDownloadStatus: ${fusedDownload.name}: $downloadId: $numberOfDownloadedItems/${fusedDownload.downloadIdMap.size}")
+        Timber.d("===> updateDownloadStatus: ${appInstall.name}: $downloadId: $numberOfDownloadedItems/${appInstall.downloadIdMap.size}")
 
         val areAllFilesDownloaded = areAllFilesDownloaded(
             numberOfDownloadedItems,
-            fusedDownload
+            appInstall
         )
 
-        if (isDownloadSuccessful.first && areAllFilesDownloaded && checkCleanApkSignatureOK(fusedDownload)) {
-            handleDownloadSuccess(fusedDownload)
+        if (isDownloadSuccessful.first && areAllFilesDownloaded && checkCleanApkSignatureOK(appInstall)) {
+            handleDownloadSuccess(appInstall)
             return
         }
 
@@ -142,37 +142,37 @@ class DownloadManagerUtils @Inject constructor(
             return
         }
 
-        handleDownloadFailed(fusedDownload, downloadId)
+        handleDownloadFailed(appInstall, downloadId)
         Timber.e(
-            "Download failed for ${fusedDownload.packageName}: " +
+            "Download failed for ${appInstall.packageName}: " +
                     "Download Status: ${isDownloadSuccessful.second}"
         )
     }
 
     private fun areAllFilesDownloaded(
         numberOfDownloadedItems: Int,
-        fusedDownload: FusedDownload
+        appInstall: AppInstall
     ) =
-        numberOfDownloadedItems == fusedDownload.downloadIdMap.size && numberOfDownloadedItems == fusedDownload.downloadURLList.size
+        numberOfDownloadedItems == appInstall.downloadIdMap.size && numberOfDownloadedItems == appInstall.downloadURLList.size
 
     private suspend fun updateDownloadIdMap(
-        fusedDownload: FusedDownload,
+        appInstall: AppInstall,
         downloadId: Long
     ) {
-        fusedDownload.downloadIdMap[downloadId] = true
-        fusedManagerRepository.updateFusedDownload(fusedDownload)
+        appInstall.downloadIdMap[downloadId] = true
+        appManagerWrapper.updateFusedDownload(appInstall)
     }
 
-    private suspend fun checkCleanApkSignatureOK(fusedDownload: FusedDownload): Boolean {
-        if (fusedDownload.origin != Origin.CLEANAPK || fusedManagerRepository.isFdroidApplicationSigned(
-                context, fusedDownload
+    private suspend fun checkCleanApkSignatureOK(appInstall: AppInstall): Boolean {
+        if (appInstall.origin != Origin.CLEANAPK || appManagerWrapper.isFdroidApplicationSigned(
+                context, appInstall
             )
         ) {
             Timber.d("Apk signature is OK")
             return true
         }
-        fusedDownload.status = Status.INSTALLATION_ISSUE
-        fusedManagerRepository.updateFusedDownload(fusedDownload)
+        appInstall.status = Status.INSTALLATION_ISSUE
+        appManagerWrapper.updateFusedDownload(appInstall)
         Timber.w("CleanApk signature is Wrong!")
         return false
     }

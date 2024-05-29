@@ -21,33 +21,33 @@ package foundation.e.apps.installProcessor
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fusedDownload.FusedDownloadDAO
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.AppInstallDAO
+import foundation.e.apps.data.install.models.AppInstall
 import kotlinx.coroutines.flow.flow
 
-class FakeFusedDownloadDAO : FusedDownloadDAO {
-    val fusedDownloadList = mutableListOf<FusedDownload>()
+class FakeAppInstallDAO : AppInstallDAO {
+    val appInstallList = mutableListOf<AppInstall>()
 
-    override suspend fun addDownload(fusedDownload: FusedDownload) {
-        fusedDownloadList.add(fusedDownload)
+    override suspend fun addDownload(appInstall: AppInstall) {
+        appInstallList.add(appInstall)
     }
 
-    override fun getDownloadLiveList(): LiveData<List<FusedDownload>> {
+    override fun getDownloadLiveList(): LiveData<List<AppInstall>> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun getDownloadList(): List<FusedDownload> {
-        return fusedDownloadList
+    override suspend fun getDownloadList(): List<AppInstall> {
+        return appInstallList
     }
 
-    override suspend fun getDownloadById(id: String): FusedDownload? {
-        return fusedDownloadList.find { it.id == id }
+    override suspend fun getDownloadById(id: String): AppInstall? {
+        return appInstallList.find { it.id == id }
     }
 
-    override fun getDownloadFlowById(id: String): LiveData<FusedDownload?> {
+    override fun getDownloadFlowById(id: String): LiveData<AppInstall?> {
         return flow {
             while (true) {
-                val fusedDownload = fusedDownloadList.find { it.id == id }
+                val fusedDownload = appInstallList.find { it.id == id }
                 emit(fusedDownload)
                 if (fusedDownload == null || fusedDownload.status == Status.INSTALLATION_ISSUE) {
                     break
@@ -56,11 +56,11 @@ class FakeFusedDownloadDAO : FusedDownloadDAO {
         }.asLiveData()
     }
 
-    override suspend fun updateDownload(fusedDownload: FusedDownload) {
-        fusedDownloadList.replaceAll { if (it.id == fusedDownload.id) fusedDownload else it }
+    override suspend fun updateDownload(appInstall: AppInstall) {
+        appInstallList.replaceAll { if (it.id == appInstall.id) appInstall else it }
     }
 
-    override suspend fun deleteDownload(fusedDownload: FusedDownload) {
-        fusedDownloadList.remove(fusedDownload)
+    override suspend fun deleteDownload(appInstall: AppInstall) {
+        appInstallList.remove(appInstall)
     }
 }

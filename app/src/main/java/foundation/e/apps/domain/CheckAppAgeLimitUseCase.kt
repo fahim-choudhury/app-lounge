@@ -24,7 +24,7 @@ import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.blockedApps.ContentRatingsRepository
 import foundation.e.apps.data.blockedApps.ParentalControlRepository
 import foundation.e.apps.data.enums.ResultStatus
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.preference.DataStoreManager
 import timber.log.Timber
 import javax.inject.Inject
@@ -36,10 +36,10 @@ class CheckAppAgeLimitUseCase @Inject constructor(
     private val parentalControlRepository: ParentalControlRepository
 ) {
 
-    suspend operator fun invoke(fusedDownload: FusedDownload): Boolean {
+    suspend operator fun invoke(appInstall: AppInstall): Boolean {
         val authData = dataStoreManager.getAuthData()
-        if (fusedDownload.contentRating?.title?.isEmpty() == true) {
-            updateContentRating(fusedDownload, authData)
+        if (appInstall.contentRating?.title?.isEmpty() == true) {
+            updateContentRating(appInstall, authData)
         }
 
         val selectedAgeGroup = parentalControlRepository.getSelectedAgeGroup()
@@ -48,25 +48,25 @@ class CheckAppAgeLimitUseCase @Inject constructor(
         }
 
         Timber.d("Selected age group: $selectedAgeGroup \n" +
-                "Content rating: ${fusedDownload.contentRating?.title} \n" +
+                "Content rating: ${appInstall.contentRating?.title} \n" +
                 "Allowed content rating: $allowedContentRating")
         return selectedAgeGroup != null
-                && fusedDownload.contentRating?.title?.isNotEmpty() == true
-                && allowedContentRating?.ratings?.contains(fusedDownload.contentRating!!.title) == false
+                && appInstall.contentRating?.title?.isNotEmpty() == true
+                && allowedContentRating?.ratings?.contains(appInstall.contentRating!!.title) == false
     }
 
     private suspend fun updateContentRating(
-        fusedDownload: FusedDownload,
+        appInstall: AppInstall,
         authData: AuthData
     ) {
         applicationRepository.getApplicationDetails(
-            fusedDownload.id,
-            fusedDownload.packageName,
+            appInstall.id,
+            appInstall.packageName,
             authData,
-            fusedDownload.origin
+            appInstall.origin
         ).let { (appDetails, resultStatus) ->
             if (resultStatus == ResultStatus.OK) {
-                fusedDownload.contentRating = appDetails.contentRating
+                appInstall.contentRating = appDetails.contentRating
             }
         }
     }

@@ -1,4 +1,4 @@
-package foundation.e.apps.data.fusedDownload
+package foundation.e.apps.data.install
 
 import android.content.Context
 import android.os.Build
@@ -8,7 +8,7 @@ import foundation.e.apps.OpenForTesting
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.workmanager.InstallWorkManager
 import javax.inject.Inject
@@ -16,27 +16,27 @@ import javax.inject.Singleton
 
 @Singleton
 @OpenForTesting
-class FusedManagerRepository @Inject constructor(
-    private val fusedManagerImpl: IFusedManager,
+class AppManagerWrapper @Inject constructor(
+    private val appManager: AppManager,
     private val fdroidRepository: FdroidRepository
 ) {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun createNotificationChannels() {
-        return fusedManagerImpl.createNotificationChannels()
+        return appManager.createNotificationChannels()
     }
 
-    suspend fun downloadApp(fusedDownload: FusedDownload) {
-        return fusedManagerImpl.downloadApp(fusedDownload)
+    suspend fun downloadApp(appInstall: AppInstall) {
+        return appManager.downloadApp(appInstall)
     }
 
-    fun moveOBBFileToOBBDirectory(fusedDownload: FusedDownload) {
-        return fusedManagerImpl.moveOBBFilesToOBBDirectory(fusedDownload)
+    fun moveOBBFileToOBBDirectory(appInstall: AppInstall) {
+        return appManager.moveOBBFilesToOBBDirectory(appInstall)
     }
 
-    suspend fun addDownload(fusedDownload: FusedDownload): Boolean {
-        val existingFusedDownload = fusedManagerImpl.getDownloadById(fusedDownload)
-        if (isInstallWorkRunning(existingFusedDownload, fusedDownload)) {
+    suspend fun addDownload(appInstall: AppInstall): Boolean {
+        val existingFusedDownload = appManager.getDownloadById(appInstall)
+        if (isInstallWorkRunning(existingFusedDownload, appInstall)) {
             return false
         }
 
@@ -45,67 +45,67 @@ class FusedManagerRepository @Inject constructor(
             return false
         }
 
-        fusedManagerImpl.addDownload(fusedDownload)
+        appManager.addDownload(appInstall)
         return true
     }
 
-    private fun isStatusEligibleToInstall(existingFusedDownload: FusedDownload) =
+    private fun isStatusEligibleToInstall(existingAppInstall: AppInstall) =
         listOf(
             Status.UNAVAILABLE,
             Status.INSTALLATION_ISSUE,
             Status.PURCHASE_NEEDED
-        ).contains(existingFusedDownload.status)
+        ).contains(existingAppInstall.status)
 
     private fun isInstallWorkRunning(
-        existingFusedDownload: FusedDownload?,
-        fusedDownload: FusedDownload
+        existingAppInstall: AppInstall?,
+        appInstall: AppInstall
     ) =
-        existingFusedDownload != null && InstallWorkManager.checkWorkIsAlreadyAvailable(
-            fusedDownload.id
+        existingAppInstall != null && InstallWorkManager.checkWorkIsAlreadyAvailable(
+            appInstall.id
         )
 
-    suspend fun addFusedDownloadPurchaseNeeded(fusedDownload: FusedDownload) {
-        fusedManagerImpl.insertFusedDownloadPurchaseNeeded(fusedDownload)
+    suspend fun addFusedDownloadPurchaseNeeded(appInstall: AppInstall) {
+        appManager.insertAppInstallPurchaseNeeded(appInstall)
     }
 
-    suspend fun getDownloadList(): List<FusedDownload> {
-        return fusedManagerImpl.getDownloadList()
+    suspend fun getDownloadList(): List<AppInstall> {
+        return appManager.getDownloadList()
     }
 
-    fun getDownloadLiveList(): LiveData<List<FusedDownload>> {
-        return fusedManagerImpl.getDownloadLiveList()
+    fun getDownloadLiveList(): LiveData<List<AppInstall>> {
+        return appManager.getDownloadLiveList()
     }
 
-    suspend fun getFusedDownload(downloadId: Long = 0, packageName: String = ""): FusedDownload {
-        return fusedManagerImpl.getFusedDownload(downloadId, packageName)
+    suspend fun getFusedDownload(downloadId: Long = 0, packageName: String = ""): AppInstall {
+        return appManager.getFusedDownload(downloadId, packageName)
     }
 
-    suspend fun updateDownloadStatus(fusedDownload: FusedDownload, status: Status) {
-        return fusedManagerImpl.updateDownloadStatus(fusedDownload, status)
+    suspend fun updateDownloadStatus(appInstall: AppInstall, status: Status) {
+        return appManager.updateDownloadStatus(appInstall, status)
     }
 
-    suspend fun cancelDownload(fusedDownload: FusedDownload) {
-        return fusedManagerImpl.cancelDownload(fusedDownload)
+    suspend fun cancelDownload(appInstall: AppInstall) {
+        return appManager.cancelDownload(appInstall)
     }
 
-    suspend fun installationIssue(fusedDownload: FusedDownload) {
-        return fusedManagerImpl.installationIssue(fusedDownload)
+    suspend fun installationIssue(appInstall: AppInstall) {
+        return appManager.installationIssue(appInstall)
     }
 
-    suspend fun updateAwaiting(fusedDownload: FusedDownload) {
-        fusedManagerImpl.updateAwaiting(fusedDownload)
+    suspend fun updateAwaiting(appInstall: AppInstall) {
+        appManager.updateAwaiting(appInstall)
     }
 
-    suspend fun updateUnavailable(fusedDownload: FusedDownload) {
-        fusedManagerImpl.updateUnavailable(fusedDownload)
+    suspend fun updateUnavailable(appInstall: AppInstall) {
+        appManager.updateUnavailable(appInstall)
     }
 
-    suspend fun updateFusedDownload(fusedDownload: FusedDownload) {
-        fusedManagerImpl.updateFusedDownload(fusedDownload)
+    suspend fun updateFusedDownload(appInstall: AppInstall) {
+        appManager.updateAppInstall(appInstall)
     }
 
-    fun validateFusedDownload(fusedDownload: FusedDownload) =
-        fusedDownload.packageName.isNotEmpty() && fusedDownload.downloadURLList.isNotEmpty()
+    fun validateFusedDownload(appInstall: AppInstall) =
+        appInstall.packageName.isNotEmpty() && appInstall.downloadURLList.isNotEmpty()
 
     suspend fun calculateProgress(
         application: Application?,
@@ -174,7 +174,7 @@ class FusedManagerRepository @Inject constructor(
         return Pair(1, 0)
     }
 
-    fun getDownloadingItemStatus(application: Application?, downloadList: List<FusedDownload>): Status? {
+    fun getDownloadingItemStatus(application: Application?, downloadList: List<AppInstall>): Status? {
         application?.let { app ->
             val downloadingItem =
                 downloadList.find { it.origin == app.origin && (it.packageName == app.package_name || it.id == app.package_name) }
@@ -183,16 +183,16 @@ class FusedManagerRepository @Inject constructor(
         return null
     }
 
-    suspend fun isFdroidApplicationSigned(context: Context, fusedDownload: FusedDownload): Boolean {
-        val apkFilePath = fusedManagerImpl.getBaseApkPath(fusedDownload)
-        return fdroidRepository.isFdroidApplicationSigned(context, fusedDownload.packageName, apkFilePath, fusedDownload.signature)
+    suspend fun isFdroidApplicationSigned(context: Context, appInstall: AppInstall): Boolean {
+        val apkFilePath = appManager.getBaseApkPath(appInstall)
+        return fdroidRepository.isFdroidApplicationSigned(context, appInstall.packageName, apkFilePath, appInstall.signature)
     }
 
-    fun isFusedDownloadInstalled(fusedDownload: FusedDownload): Boolean {
-        return fusedManagerImpl.isFusedDownloadInstalled(fusedDownload)
+    fun isFusedDownloadInstalled(appInstall: AppInstall): Boolean {
+        return appManager.isAppInstalled(appInstall)
     }
 
-    fun getFusedDownloadPackageStatus(fusedDownload: FusedDownload): Status {
-        return fusedManagerImpl.getFusedDownloadInstallationStatus(fusedDownload)
+    fun getFusedDownloadPackageStatus(appInstall: AppInstall): Status {
+        return appManager.getInstallationStatus(appInstall)
     }
 }

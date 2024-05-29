@@ -40,7 +40,7 @@ import com.aurora.gplayapi.exceptions.ApiException
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.LoginViewModel
 import foundation.e.apps.data.login.PlayStoreAuthenticator
@@ -359,11 +359,11 @@ class MainActivity : AppCompatActivity() {
         EventBus.events.filter { appEvent ->
             appEvent is AppEvent.AppPurchaseEvent
         }.collectLatest {
-            goToAppPurchaseFragment(it.data as FusedDownload)
+            goToAppPurchaseFragment(it.data as AppInstall)
         }
     }
 
-    private fun goToAppPurchaseFragment(it: FusedDownload) {
+    private fun goToAppPurchaseFragment(it: AppInstall) {
         val action =
             AppPurchaseFragmentDirections.actionGlobalAppPurchaseFragment(it.packageName)
         findNavController(R.id.fragment).navigate(action)

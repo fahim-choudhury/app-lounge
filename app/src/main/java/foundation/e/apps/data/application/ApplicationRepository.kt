@@ -38,7 +38,7 @@ import foundation.e.apps.data.application.home.HomeApi
 import foundation.e.apps.data.application.search.GplaySearchResult
 import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.application.utils.CategoryType
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.ui.search.SearchResult
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -87,11 +87,11 @@ class ApplicationRepository @Inject constructor(
 
     suspend fun updateFusedDownloadWithDownloadingInfo(
         origin: Origin,
-        fusedDownload: FusedDownload
+        appInstall: AppInstall
     ) {
         downloadInfoApi.updateFusedDownloadWithDownloadingInfo(
             origin,
-            fusedDownload
+            appInstall
         )
     }
 

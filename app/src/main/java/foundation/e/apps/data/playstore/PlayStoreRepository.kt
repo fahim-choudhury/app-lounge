@@ -1,6 +1,5 @@
 /*
- * Copyright MURENA SAS 2023
- * Apps  Quickly and easily install Android apps onto your device!
+ * Copyright (C) 2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.data.playstore
@@ -21,6 +21,7 @@ package foundation.e.apps.data.playstore
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Category
+import com.aurora.gplayapi.data.models.ContentRating
 import com.aurora.gplayapi.data.models.File
 import com.aurora.gplayapi.data.models.SearchBundle
 import foundation.e.apps.data.StoreRepository
@@ -43,4 +44,9 @@ interface PlayStoreRepository : StoreRepository {
         versionCode: Int,
         offerType: Int
     ): List<File>
+
+    suspend fun updateContentRatingWithId(
+        appPackage: String,
+        contentRating: ContentRating
+    ): ContentRating
 }

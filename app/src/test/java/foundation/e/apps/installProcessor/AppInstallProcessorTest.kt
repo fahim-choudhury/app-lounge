@@ -24,9 +24,9 @@ import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.application.ApplicationRepository
-import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
-import foundation.e.apps.data.fusedDownload.IFusedManager
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.AppInstallRepository
+import foundation.e.apps.data.install.AppManager
+import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.install.notification.StorageNotificationManager
 import foundation.e.apps.install.workmanager.AppInstallProcessor
@@ -54,12 +54,12 @@ class AppInstallProcessorTest {
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
-    private lateinit var fakeFusedDownloadDAO: FakeFusedDownloadDAO
-    private lateinit var fusedDownloadRepository: FusedDownloadRepository
-    private lateinit var fakeFusedManagerRepository: FakeFusedManagerRepository
+    private lateinit var fakeFusedDownloadDAO: FakeAppInstallDAO
+    private lateinit var appInstallRepository: AppInstallRepository
+    private lateinit var fakeFusedManagerRepository: FakeAppManagerWrapper
 
     @Mock
-    private lateinit var fakeFusedManager: IFusedManager
+    private lateinit var fakeFusedManager: AppManager
 
     @Mock
     private lateinit var fakeFdroidRepository: FdroidRepository
@@ -81,14 +81,14 @@ class AppInstallProcessorTest {
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        fakeFusedDownloadDAO = FakeFusedDownloadDAO()
-        fusedDownloadRepository = FusedDownloadRepository(fakeFusedDownloadDAO)
+        fakeFusedDownloadDAO = FakeAppInstallDAO()
+        appInstallRepository = AppInstallRepository(fakeFusedDownloadDAO)
         fakeFusedManagerRepository =
-            FakeFusedManagerRepository(fakeFusedDownloadDAO, fakeFusedManager, fakeFdroidRepository)
+            FakeAppManagerWrapper(fakeFusedDownloadDAO, fakeFusedManager, fakeFdroidRepository)
 
         appInstallProcessor = AppInstallProcessor(
             context,
-            fusedDownloadRepository,
+            appInstallRepository,
             fakeFusedManagerRepository,
             applicationRepository,
             dataStoreManager,
@@ -107,7 +107,7 @@ class AppInstallProcessorTest {
     private suspend fun initTest(
         packageName: String? = null,
         downloadUrlList: MutableList<String>? = null
-    ): FusedDownload {
+    ): AppInstall {
         val fusedDownload = createFusedDownload(packageName, downloadUrlList)
         fakeFusedDownloadDAO.addDownload(fusedDownload)
         Mockito.`when`(dataStoreManager.getAuthData()).thenReturn(AuthData("", ""))
@@ -176,15 +176,15 @@ class AppInstallProcessorTest {
         assertEquals("processInstall", Status.INSTALLATION_ISSUE, finalFusedDownload?.status)
     }
 
-    private suspend fun runProcessInstall(fusedDownload: FusedDownload): FusedDownload? {
-        appInstallProcessor.processInstall(fusedDownload.id, false)
-        return fakeFusedDownloadDAO.getDownloadById(fusedDownload.id)
+    private suspend fun runProcessInstall(appInstall: AppInstall): AppInstall? {
+        appInstallProcessor.processInstall(appInstall.id, false)
+        return fakeFusedDownloadDAO.getDownloadById(appInstall.id)
     }
 
     private fun createFusedDownload(
         packageName: String? = null,
         downloadUrlList: MutableList<String>? = null
-    ) = FusedDownload(
+    ) = AppInstall(
         id = "121",
         status = Status.AWAITING,
         downloadURLList = downloadUrlList ?: mutableListOf("apk1", "apk2"),

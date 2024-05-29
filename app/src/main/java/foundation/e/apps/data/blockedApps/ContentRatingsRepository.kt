@@ -22,7 +22,7 @@ package foundation.e.apps.data.blockedApps
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import foundation.e.apps.data.DownloadManager
-import foundation.e.apps.data.fusedDownload.FileManager
+import foundation.e.apps.data.install.FileManager
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject

@@ -38,7 +38,7 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.application.ApplicationInstaller
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
@@ -202,11 +202,11 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
             return
         }
 
-        if (event.otherPayload is FusedDownload) {
+        if (event.otherPayload is AppInstall) {
             requireContext().toast(
                 getString(
                     R.string.message_update_failure_single_app,
-                    (event.otherPayload as FusedDownload).name
+                    (event.otherPayload as AppInstall).name
                 )
             )
         }

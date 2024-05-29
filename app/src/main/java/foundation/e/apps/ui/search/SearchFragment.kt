@@ -47,7 +47,7 @@ import foundation.e.apps.R
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.application.ApplicationInstaller
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentSearchBinding
@@ -328,13 +328,13 @@ class SearchFragment :
     }
 
     private fun refreshUI(
-        fusedDownloadList: List<FusedDownload>,
+        appInstallList: List<AppInstall>,
         applicationListRVAdapter: ApplicationListRVAdapter
     ) {
         val searchList =
             searchViewModel.searchResult.value?.data?.first?.toMutableList() ?: emptyList()
 
-        mainActivityViewModel.updateStatusOfFusedApps(searchList, fusedDownloadList)
+        mainActivityViewModel.updateStatusOfFusedApps(searchList, appInstallList)
         updateSearchResult(applicationListRVAdapter, searchList)
     }
 

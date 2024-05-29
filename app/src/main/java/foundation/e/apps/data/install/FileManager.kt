@@ -1,4 +1,4 @@
-package foundation.e.apps.data.fusedDownload
+package foundation.e.apps.data.install
 
 import timber.log.Timber
 import java.io.File
