@@ -21,6 +21,8 @@ package foundation.e.apps.domain
 
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.blockedApps.Ages
+import foundation.e.apps.data.blockedApps.ContentRatingGroup
 import foundation.e.apps.data.blockedApps.ContentRatingsRepository
 import foundation.e.apps.data.blockedApps.ParentalControlRepository
 import foundation.e.apps.data.enums.ResultStatus
@@ -30,7 +32,7 @@ import foundation.e.apps.data.preference.DataStoreManager
 import timber.log.Timber
 import javax.inject.Inject
 
-class CheckAppAgeLimitUseCase @Inject constructor(
+class ValidateAppAgeLimitUseCase @Inject constructor(
     private val applicationRepository: ApplicationRepository,
     private val dataStoreManager: DataStoreManager,
     private val contentRatingRepository: ContentRatingsRepository,
@@ -38,10 +40,12 @@ class CheckAppAgeLimitUseCase @Inject constructor(
     private val playStoreRepository: PlayStoreRepository
 ) {
 
-    suspend operator fun invoke(appInstall: AppInstall): Boolean {
+    suspend operator fun invoke(appInstall: AppInstall): Pair<Boolean, ResultStatus> {
         val authData = dataStoreManager.getAuthData()
 
-        verifyContentRatingExists(appInstall, authData)
+        if (!verifyContentRatingExists(appInstall, authData)) {
+            return Pair(false, ResultStatus.UNKNOWN)
+        }
 
         val selectedAgeGroup = parentalControlRepository.getSelectedAgeGroup()
         val allowedContentRating = contentRatingRepository.contentRatingGroups.find {
@@ -53,34 +57,47 @@ class CheckAppAgeLimitUseCase @Inject constructor(
                     "Content rating: ${appInstall.contentRating.id} \n" +
                     "Allowed content rating: $allowedContentRating"
         )
-        return selectedAgeGroup != null
-                && appInstall.contentRating.id.isNotEmpty()
-                && allowedContentRating?.ratings?.contains(appInstall.contentRating.id) == false
+
+        val isAppAgeLimitedValidated = isParentalControlDisabled(selectedAgeGroup)
+                || isAppAgeRatingValid(appInstall, allowedContentRating)
+        return Pair(isAppAgeLimitedValidated, ResultStatus.OK)
     }
+
+    private fun isAppAgeRatingValid(
+        appInstall: AppInstall,
+        allowedContentRating: ContentRatingGroup?
+    ) = (appInstall.contentRating.id.isNotEmpty()
+            && allowedContentRating?.ratings?.contains(appInstall.contentRating.id) == true)
+
+    private fun isParentalControlDisabled(selectedAgeGroup: Ages?) =
+        selectedAgeGroup == null
 
     private suspend fun verifyContentRatingExists(
         appInstall: AppInstall,
         authData: AuthData
-    ) {
+    ): Boolean {
         if (appInstall.contentRating.title.isEmpty()) {
-            applicationRepository.getApplicationDetails(
-                appInstall.id,
-                appInstall.packageName,
-                authData,
-                appInstall.origin
-            ).let { (appDetails, resultStatus) ->
-                if (resultStatus == ResultStatus.OK) {
-                    appInstall.contentRating = appDetails.contentRating
+            applicationRepository
+                .getApplicationDetails(
+                    appInstall.id, appInstall.packageName, authData, appInstall.origin
+                ).let { (appDetails, resultStatus) ->
+                    if (resultStatus == ResultStatus.OK) {
+                        appInstall.contentRating = appDetails.contentRating
+                    } else {
+                        return false
+                    }
                 }
-                // todo: handle unhappy path and return from this method
-            }
         }
 
         if (appInstall.contentRating.id.isEmpty()) {
-            appInstall.contentRating = playStoreRepository.getContentRatingWithId(
-                appInstall.packageName,
-                appInstall.contentRating
-            )
+            appInstall.contentRating =
+                playStoreRepository.getContentRatingWithId(
+                    appInstall.packageName,
+                    appInstall.contentRating
+                )
         }
+
+        return appInstall.contentRating.title.isNotEmpty() &&
+                appInstall.contentRating.id.isNotEmpty()
     }
 }

@@ -32,7 +32,7 @@ import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.playstore.utils.GplayHttpRequestException
 import foundation.e.apps.data.preference.DataStoreManager
-import foundation.e.apps.domain.CheckAppAgeLimitUseCase
+import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
 import foundation.e.apps.install.AppInstallComponents
 import foundation.e.apps.install.download.DownloadManagerUtils
 import foundation.e.apps.install.notification.StorageNotificationManager
@@ -53,7 +53,7 @@ class AppInstallProcessor @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appInstallComponents: AppInstallComponents,
     private val applicationRepository: ApplicationRepository,
-    private val checkAppAgeLimitUseCase: CheckAppAgeLimitUseCase,
+    private val validateAppAgeLimitUseCase: ValidateAppAgeLimitUseCase,
     private val dataStoreManager: DataStoreManager,
     private val storageNotificationManager: StorageNotificationManager,
 ) {
@@ -131,9 +131,14 @@ class AppInstallProcessor @Inject constructor(
                 return
             }
 
-            if (checkAppAgeLimitUseCase.invoke(appInstall)) {
-                Timber.i("Content rating is not allowed for: ${appInstall.name}")
-                EventBus.invokeEvent(AppEvent.AgeLimitRestrictionEvent())
+            val (isAgeLimitValidated, resultStatus) = validateAppAgeLimitUseCase.invoke(appInstall)
+            if (!isAgeLimitValidated) {
+                if (resultStatus == ResultStatus.OK) {
+                    Timber.i("Content rating is not allowed for: ${appInstall.name}")
+                    EventBus.invokeEvent(AppEvent.AgeLimitRestrictionEvent())
+                } else {
+                    //TODO trigger an error event
+                }
                 appInstallComponents.appManagerWrapper.cancelDownload(appInstall)
                 return
             }

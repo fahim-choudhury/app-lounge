@@ -62,20 +62,30 @@ class ContentRatingsRepository @Inject constructor(
     private fun parseContentRatingData() {
         _contentRatingGroups = try {
             val outputPath = "$cacheDir/warning_list/"
-            FileManager.moveFile("$cacheDir/",
-                CONTENT_RATINGS_FILE_NAME, outputPath)
+            FileManager.moveFile(
+                "$cacheDir/",
+                CONTENT_RATINGS_FILE_NAME, outputPath
+            )
             val downloadedFile = File(outputPath + CONTENT_RATINGS_FILE_NAME)
             val contentRatingJson = String(downloadedFile.inputStream().readBytes())
             Timber.d("ContentRatings file contents: $contentRatingJson")
 
-            val contentRatingsListTypeGroup = object : TypeToken<List<ContentRatingGroup>>() {}.type
-            val contentRatingGroups: List<ContentRatingGroup> = gson.fromJson(contentRatingJson, contentRatingsListTypeGroup)
-            contentRatingGroups.map { 
-                it.ratings = it.ratings.map { rating -> rating.lowercase()}
-                it
-            }
+            parseJsonOfContentRatingGroup(contentRatingJson)
         } catch (exception: JsonSyntaxException) {
             handleException(exception)
+        }
+    }
+
+    private fun parseJsonOfContentRatingGroup(contentRatingJson: String): List<ContentRatingGroup> {
+        val contentRatingsListTypeGroup = object : TypeToken<List<ContentRatingGroup>>() {}.type
+        val contentRatingGroups: List<ContentRatingGroup> =
+            gson.fromJson(contentRatingJson, contentRatingsListTypeGroup)
+
+        return contentRatingGroups.map {
+            it.ratings = it.ratings.map { rating ->
+                rating.lowercase()
+            }
+            it
         }
     }
 
