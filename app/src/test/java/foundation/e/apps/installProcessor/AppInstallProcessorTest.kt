@@ -21,13 +21,17 @@ package foundation.e.apps.installProcessor
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.models.ContentRating
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.install.AppInstallRepository
 import foundation.e.apps.data.install.AppManager
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.preference.DataStoreManager
+import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
+import foundation.e.apps.install.AppInstallComponents
 import foundation.e.apps.install.notification.StorageNotificationManager
 import foundation.e.apps.install.workmanager.AppInstallProcessor
 import foundation.e.apps.util.MainCoroutineRule
@@ -41,6 +45,7 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
+import kotlin.reflect.jvm.internal.ReflectProperties.Val
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppInstallProcessorTest {
@@ -76,6 +81,9 @@ class AppInstallProcessorTest {
     private lateinit var appInstallProcessor: AppInstallProcessor
 
     @Mock
+    private lateinit var validateAppAgeRatingUseCase: ValidateAppAgeLimitUseCase
+
+    @Mock
     private lateinit var storageNotificationManager: StorageNotificationManager
 
     @Before
@@ -85,12 +93,14 @@ class AppInstallProcessorTest {
         appInstallRepository = AppInstallRepository(fakeFusedDownloadDAO)
         fakeFusedManagerRepository =
             FakeAppManagerWrapper(fakeFusedDownloadDAO, fakeFusedManager, fakeFdroidRepository)
+        val appInstallComponents =
+            AppInstallComponents(appInstallRepository, fakeFusedManagerRepository)
 
         appInstallProcessor = AppInstallProcessor(
             context,
-            appInstallRepository,
-            fakeFusedManagerRepository,
+            appInstallComponents,
             applicationRepository,
+            validateAppAgeRatingUseCase,
             dataStoreManager,
             storageNotificationManager
         )
@@ -155,7 +165,10 @@ class AppInstallProcessorTest {
         fakeFusedManagerRepository.forceCrash = true
 
         val finalFusedDownload = runProcessInstall(fusedDownload)
-        assertTrue("processInstall", finalFusedDownload == null || fusedDownload.status == Status.INSTALLATION_ISSUE)
+        assertTrue(
+            "processInstall",
+            finalFusedDownload == null || fusedDownload.status == Status.INSTALLATION_ISSUE
+        )
     }
 
     @Test
@@ -174,6 +187,26 @@ class AppInstallProcessorTest {
 
         val finalFusedDownload = runProcessInstall(fusedDownload)
         assertEquals("processInstall", Status.INSTALLATION_ISSUE, finalFusedDownload?.status)
+    }
+
+    @Test
+    fun `processInstallTest when age limit is satisfied`() = runTest {
+        val fusedDownload = initTest()
+        Mockito.`when`(validateAppAgeRatingUseCase.invoke(fusedDownload))
+            .thenReturn(Pair(false, ResultStatus.OK))
+
+        val finalFusedDownload = runProcessInstall(fusedDownload)
+        assertEquals("processInstall", finalFusedDownload, null)
+    }
+
+    @Test
+    fun `processInstallTest when age limit is not satisfied`() = runTest {
+        val fusedDownload = initTest()
+        Mockito.`when`(validateAppAgeRatingUseCase.invoke(fusedDownload))
+            .thenReturn(Pair(true, ResultStatus.OK))
+
+        val finalFusedDownload = runProcessInstall(fusedDownload)
+        assertEquals("processInstall", finalFusedDownload, null)
     }
 
     private suspend fun runProcessInstall(appInstall: AppInstall): AppInstall? {
