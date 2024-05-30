@@ -6,6 +6,10 @@ import android.content.UriMatcher
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.provider.ProviderConstants.Companion.AGE_RATING
 import foundation.e.apps.provider.ProviderConstants.Companion.AUTHORITY
@@ -13,11 +17,16 @@ import foundation.e.apps.provider.ProviderConstants.Companion.LOGIN_TYPE
 import foundation.e.apps.provider.ProviderConstants.Companion.PACKAGE_NAME
 import foundation.e.apps.provider.ProviderConstants.Companion.PATH_AGE_RATINGS
 import foundation.e.apps.provider.ProviderConstants.Companion.PATH_LOGIN_TYPE
-import javax.inject.Inject
 
-class AgeRatingProvider @Inject constructor(
-    private val authenticatorRepository: AuthenticatorRepository,
-): ContentProvider() {
+class AgeRatingProvider : ContentProvider() {
+
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface ContentProviderEntryPoint {
+        fun getAuthenticationRepository(): AuthenticatorRepository
+    }
+
+    private lateinit var authenticatorRepository: AuthenticatorRepository
 
     private val CODE_LOGIN_TYPE = 1
     private val CODE_AGE_RATING = 2
@@ -55,6 +64,12 @@ class AgeRatingProvider @Inject constructor(
     }
 
     override fun onCreate(): Boolean {
+        val appContext = context?.applicationContext ?: throw IllegalStateException()
+        val hiltEntryPoint =
+            EntryPointAccessors.fromApplication(appContext, ContentProviderEntryPoint::class.java)
+
+        authenticatorRepository = hiltEntryPoint.getAuthenticationRepository()
+
         return true
     }
 
@@ -64,19 +79,23 @@ class AgeRatingProvider @Inject constructor(
         selection: String?,
         selectionArgs: Array<out String>?
     ): Int {
-        return 0
+        throw UnsupportedOperationException("Not supported")
     }
 
-    override fun getType(uri: Uri): String? {
-        return null
+    override fun getType(uri: Uri): String {
+        return when (uriMatcher.match(uri)) {
+            CODE_LOGIN_TYPE -> "vnd.android.cursor.item/${AUTHORITY}.$CODE_LOGIN_TYPE"
+            CODE_AGE_RATING -> "vnd.android.cursor.item/${AUTHORITY}.$CODE_AGE_RATING"
+            else -> throw IllegalArgumentException("Unknown URI: $uri")
+        }
     }
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
-        return null
+        throw UnsupportedOperationException("Not supported")
     }
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
-        return 0
+        throw UnsupportedOperationException("Not supported")
     }
 
 }
