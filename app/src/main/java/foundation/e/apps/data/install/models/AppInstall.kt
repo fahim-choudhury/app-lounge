@@ -38,7 +38,7 @@ data class AppInstall(
     )
 
     @Ignore
-    var contentRating: ContentRating? = null
+    var contentRating: ContentRating = ContentRating()
 
     fun isAppInstalling() = installingStatusList.contains(status)
 

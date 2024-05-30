@@ -57,7 +57,7 @@ class ApplicationViewModel @Inject constructor(
     private val appManagerWrapper: AppManagerWrapper,
 ) : LoadingViewModel() {
 
-    val application: MutableLiveData<Pair<Application, ResultStatus>> = MutableLiveData()
+    val applicationLiveData: MutableLiveData<Pair<Application, ResultStatus>> = MutableLiveData()
     val appStatus: MutableLiveData<Status?> = MutableLiveData()
     val downloadProgress = downloadProgressLD
     private val _errorMessageLiveData: MutableLiveData<Int> = MutableLiveData()
@@ -118,7 +118,7 @@ class ApplicationViewModel @Inject constructor(
                         authData,
                         origin
                     )
-                application.postValue(appData)
+                applicationLiveData.postValue(appData)
 
                 updateShareVisibilityState(appData.first.shareUri.toString())
                 updateAppContentRatingState(packageName, appData.first.contentRating)
@@ -155,10 +155,18 @@ class ApplicationViewModel @Inject constructor(
         // Initially update the state without ID to show the UI immediately
         _appContentRatingState.update { contentRating }
 
-        val ratingWithId = playStoreRepository.updateContentRatingWithId(packageName, contentRating)
+        val ratingWithId = playStoreRepository.getContentRatingWithId(packageName, contentRating)
+
 
         // Later, update with a new rating; no visual change in the UI
-        _appContentRatingState.update { contentRating.copy(id = ratingWithId.id) }
+        val updatedContentRating = contentRating.copy(id = ratingWithId.id)
+        _appContentRatingState.update { updatedContentRating }
+
+        applicationLiveData.value?.copy()?.let {
+            val application = it.first
+            application.contentRating = updatedContentRating
+            applicationLiveData.postValue(it)
+        }
     }
 
     private fun updateShareVisibilityState(shareUri: String) {
@@ -177,7 +185,7 @@ class ApplicationViewModel @Inject constructor(
                     if (this.first.package_name.isBlank()) {
                         _errorMessageLiveData.postValue(R.string.app_not_found)
                     } else {
-                        application.postValue(this)
+                        applicationLiveData.postValue(this)
                         updateShareVisibilityState(first.shareUri.toString())
                     }
                 }
@@ -189,7 +197,7 @@ class ApplicationViewModel @Inject constructor(
 
     fun transformPermsToString(): String {
         var permissionString = ""
-        application.value?.first?.let {
+        applicationLiveData.value?.first?.let {
             // Filter list to only keep platform permissions
             val filteredList = it.perms.filter {
                 it.startsWith("android.permission.")
@@ -205,7 +213,7 @@ class ApplicationViewModel @Inject constructor(
     }
 
     fun getFusedApp(): Application? {
-        return application.value?.first
+        return applicationLiveData.value?.first
     }
 
     fun handleRatingFormat(rating: Double): String {
@@ -214,13 +222,13 @@ class ApplicationViewModel @Inject constructor(
 
     suspend fun calculateProgress(progress: DownloadProgress): Pair<Long, Long> {
         return appManagerWrapper.getCalculateProgressWithTotalSize(
-            application.value?.first,
+            applicationLiveData.value?.first,
             progress
         )
     }
 
     fun updateApplicationStatus(downloadList: List<AppInstall>) {
-        application.value?.first?.let { app ->
+        applicationLiveData.value?.first?.let { app ->
             appStatus.value = appManagerWrapper.getDownloadingItemStatus(app, downloadList)
                 ?: applicationRepository.getFusedAppInstallationStatus(app)
         }

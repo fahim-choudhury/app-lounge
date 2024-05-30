@@ -51,7 +51,7 @@ import javax.inject.Inject
 
 class AppInstallProcessor @Inject constructor(
     @ApplicationContext private val context: Context,
-   private val appInstallComponents: AppInstallComponents,
+    private val appInstallComponents: AppInstallComponents,
     private val applicationRepository: ApplicationRepository,
     private val checkAppAgeLimitUseCase: CheckAppAgeLimitUseCase,
     private val dataStoreManager: DataStoreManager,
@@ -93,9 +93,9 @@ class AppInstallProcessor @Inject constructor(
             application.offer_type,
             application.isFree,
             application.originalSize
-        )
-
-        appInstall.contentRating = application.contentRating
+        ).also {
+            it.contentRating = application.contentRating
+        }
 
         if (appInstall.type == Type.PWA) {
             appInstall.downloadURLList = mutableListOf(application.url)
@@ -230,7 +230,9 @@ class AppInstallProcessor @Inject constructor(
                 checkDownloadingState(appInstall)
 
                 this.isItUpdateWork =
-                    isItUpdateWork && appInstallComponents.appManagerWrapper.isFusedDownloadInstalled(appInstall)
+                    isItUpdateWork && appInstallComponents.appManagerWrapper.isFusedDownloadInstalled(
+                        appInstall
+                    )
 
                 if (!appInstall.isAppInstalling()) {
                     Timber.d("!!! returned")
@@ -245,7 +247,10 @@ class AppInstallProcessor @Inject constructor(
 
                 if (areFilesDownloadedButNotInstalled(appInstall)) {
                     Timber.i("===> Downloaded But not installed ${appInstall.name}")
-                    appInstallComponents.appManagerWrapper.updateDownloadStatus(appInstall, Status.INSTALLING)
+                    appInstallComponents.appManagerWrapper.updateDownloadStatus(
+                        appInstall,
+                        Status.INSTALLING
+                    )
                 }
 
                 runInForeground?.invoke(it.name)
@@ -301,11 +306,12 @@ class AppInstallProcessor @Inject constructor(
     }
 
     private suspend fun isUpdateCompleted(): Boolean {
-        val downloadListWithoutAnyIssue = appInstallComponents.appInstallRepository.getDownloadList().filter {
-            !listOf(
-                Status.INSTALLATION_ISSUE, Status.PURCHASE_NEEDED
-            ).contains(it.status)
-        }
+        val downloadListWithoutAnyIssue =
+            appInstallComponents.appInstallRepository.getDownloadList().filter {
+                !listOf(
+                    Status.INSTALLATION_ISSUE, Status.PURCHASE_NEEDED
+                ).contains(it.status)
+            }
 
         return UpdatesDao.successfulUpdatedApps.isNotEmpty() && downloadListWithoutAnyIssue.isEmpty()
     }
@@ -331,10 +337,11 @@ class AppInstallProcessor @Inject constructor(
             Timber.i("===> doWork: Download started ${appInstall.name} ${appInstall.status}")
         }
 
-        appInstallComponents.appInstallRepository.getDownloadFlowById(appInstall.id).transformWhile {
-            emit(it)
-            isInstallRunning(it)
-        }.collect { latestFusedDownload ->
+        appInstallComponents.appInstallRepository.getDownloadFlowById(appInstall.id)
+            .transformWhile {
+                emit(it)
+                isInstallRunning(it)
+            }.collect { latestFusedDownload ->
             handleFusedDownload(latestFusedDownload, appInstall)
         }
     }
@@ -382,7 +389,10 @@ class AppInstallProcessor @Inject constructor(
             }
 
             Status.DOWNLOADED -> {
-                appInstallComponents.appManagerWrapper.updateDownloadStatus(appInstall, Status.INSTALLING)
+                appInstallComponents.appManagerWrapper.updateDownloadStatus(
+                    appInstall,
+                    Status.INSTALLING
+                )
             }
 
             Status.INSTALLING -> {

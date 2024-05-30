@@ -69,7 +69,11 @@ class ContentRatingsRepository @Inject constructor(
             Timber.d("ContentRatings file contents: $contentRatingJson")
 
             val contentRatingsListTypeGroup = object : TypeToken<List<ContentRatingGroup>>() {}.type
-            gson.fromJson(contentRatingJson, contentRatingsListTypeGroup)
+            val contentRatingGroups: List<ContentRatingGroup> = gson.fromJson(contentRatingJson, contentRatingsListTypeGroup)
+            contentRatingGroups.map { 
+                it.ratings = it.ratings.map { rating -> rating.lowercase()}
+                it
+            }
         } catch (exception: JsonSyntaxException) {
             handleException(exception)
         }

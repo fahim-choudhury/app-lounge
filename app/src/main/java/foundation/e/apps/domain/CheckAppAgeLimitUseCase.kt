@@ -25,6 +25,7 @@ import foundation.e.apps.data.blockedApps.ContentRatingsRepository
 import foundation.e.apps.data.blockedApps.ParentalControlRepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.install.models.AppInstall
+import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.DataStoreManager
 import timber.log.Timber
 import javax.inject.Inject
@@ -33,41 +34,53 @@ class CheckAppAgeLimitUseCase @Inject constructor(
     private val applicationRepository: ApplicationRepository,
     private val dataStoreManager: DataStoreManager,
     private val contentRatingRepository: ContentRatingsRepository,
-    private val parentalControlRepository: ParentalControlRepository
+    private val parentalControlRepository: ParentalControlRepository,
+    private val playStoreRepository: PlayStoreRepository
 ) {
 
     suspend operator fun invoke(appInstall: AppInstall): Boolean {
         val authData = dataStoreManager.getAuthData()
-        if (appInstall.contentRating?.title?.isEmpty() == true) {
-            updateContentRating(appInstall, authData)
-        }
+
+        verifyContentRatingExists(appInstall, authData)
 
         val selectedAgeGroup = parentalControlRepository.getSelectedAgeGroup()
         val allowedContentRating = contentRatingRepository.contentRatingGroups.find {
             it.id == selectedAgeGroup.toString()
         }
 
-        Timber.d("Selected age group: $selectedAgeGroup \n" +
-                "Content rating: ${appInstall.contentRating?.title} \n" +
-                "Allowed content rating: $allowedContentRating")
+        Timber.d(
+            "Selected age group: $selectedAgeGroup \n" +
+                    "Content rating: ${appInstall.contentRating.id} \n" +
+                    "Allowed content rating: $allowedContentRating"
+        )
         return selectedAgeGroup != null
-                && appInstall.contentRating?.title?.isNotEmpty() == true
-                && allowedContentRating?.ratings?.contains(appInstall.contentRating!!.title) == false
+                && appInstall.contentRating.id.isNotEmpty()
+                && allowedContentRating?.ratings?.contains(appInstall.contentRating.id) == false
     }
 
-    private suspend fun updateContentRating(
+    private suspend fun verifyContentRatingExists(
         appInstall: AppInstall,
         authData: AuthData
     ) {
-        applicationRepository.getApplicationDetails(
-            appInstall.id,
-            appInstall.packageName,
-            authData,
-            appInstall.origin
-        ).let { (appDetails, resultStatus) ->
-            if (resultStatus == ResultStatus.OK) {
-                appInstall.contentRating = appDetails.contentRating
+        if (appInstall.contentRating.title.isEmpty()) {
+            applicationRepository.getApplicationDetails(
+                appInstall.id,
+                appInstall.packageName,
+                authData,
+                appInstall.origin
+            ).let { (appDetails, resultStatus) ->
+                if (resultStatus == ResultStatus.OK) {
+                    appInstall.contentRating = appDetails.contentRating
+                }
+                // todo: handle unhappy path and return from this method
             }
+        }
+
+        if (appInstall.contentRating.id.isEmpty()) {
+            appInstall.contentRating = playStoreRepository.getContentRatingWithId(
+                appInstall.packageName,
+                appInstall.contentRating
+            )
         }
     }
 }

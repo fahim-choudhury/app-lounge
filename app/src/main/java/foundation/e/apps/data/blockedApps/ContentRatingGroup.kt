@@ -25,5 +25,5 @@ data class ContentRatingGroup(
     val id: String,
     @SerializedName("age_group")
     val ageGroup: String,
-    val ratings: List<String>
+    var ratings: List<String>
 )
