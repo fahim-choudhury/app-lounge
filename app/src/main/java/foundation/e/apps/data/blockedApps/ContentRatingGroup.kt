@@ -21,7 +21,7 @@ package foundation.e.apps.data.blockedApps
 
 import com.google.gson.annotations.SerializedName
 
-data class ContentRating(
+data class ContentRatingGroup(
     val id: String,
     @SerializedName("age_group")
     val ageGroup: String,

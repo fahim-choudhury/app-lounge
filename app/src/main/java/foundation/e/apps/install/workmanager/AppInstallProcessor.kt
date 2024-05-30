@@ -29,12 +29,11 @@ import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.UpdatesDao
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.install.AppInstallRepository
-import foundation.e.apps.data.install.AppManagerWrapper
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.playstore.utils.GplayHttpRequestException
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.domain.CheckAppAgeLimitUseCase
+import foundation.e.apps.install.AppInstallComponents
 import foundation.e.apps.install.download.DownloadManagerUtils
 import foundation.e.apps.install.notification.StorageNotificationManager
 import foundation.e.apps.install.updates.UpdatesNotifier
@@ -52,8 +51,7 @@ import javax.inject.Inject
 
 class AppInstallProcessor @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val appInstallRepository: AppInstallRepository,
-    private val appManagerWrapper: AppManagerWrapper,
+   private val appInstallComponents: AppInstallComponents,
     private val applicationRepository: ApplicationRepository,
     private val checkAppAgeLimitUseCase: CheckAppAgeLimitUseCase,
     private val dataStoreManager: DataStoreManager,
@@ -127,7 +125,7 @@ class AppInstallProcessor @Inject constructor(
 
             if (appInstall.type != Type.PWA && !updateDownloadUrls(appInstall)) return
 
-            val downloadAdded = appManagerWrapper.addDownload(appInstall)
+            val downloadAdded = appInstallComponents.appManagerWrapper.addDownload(appInstall)
             if (!downloadAdded) {
                 Timber.i("Update adding ABORTED! status: $downloadAdded")
                 return
@@ -135,13 +133,13 @@ class AppInstallProcessor @Inject constructor(
 
             if (checkAppAgeLimitUseCase.invoke(appInstall)) {
                 Timber.i("Content rating is not allowed for: ${appInstall.name}")
-                EventBus.invokeEvent(AppEvent.AgeLimitRestrictionEvent(appInstall.name))
-                appManagerWrapper.cancelDownload(appInstall)
+                EventBus.invokeEvent(AppEvent.AgeLimitRestrictionEvent())
+                appInstallComponents.appManagerWrapper.cancelDownload(appInstall)
                 return
             }
 
             if (!context.isNetworkAvailable()) {
-                appManagerWrapper.installationIssue(appInstall)
+                appInstallComponents.appManagerWrapper.installationIssue(appInstall)
                 EventBus.invokeEvent(AppEvent.NoInternetEvent(false))
                 return
             }
@@ -149,19 +147,19 @@ class AppInstallProcessor @Inject constructor(
             if (StorageComputer.spaceMissing(appInstall) > 0) {
                 Timber.d("Storage is not available for: ${appInstall.name} size: ${appInstall.appSize}")
                 storageNotificationManager.showNotEnoughSpaceNotification(appInstall)
-                appManagerWrapper.installationIssue(appInstall)
+                appInstallComponents.appManagerWrapper.installationIssue(appInstall)
                 EventBus.invokeEvent(AppEvent.ErrorMessageEvent(R.string.not_enough_storage))
                 return
             }
 
-            appManagerWrapper.updateAwaiting(appInstall)
+            appInstallComponents.appManagerWrapper.updateAwaiting(appInstall)
             InstallWorkManager.enqueueWork(appInstall, isAnUpdate)
         } catch (e: Exception) {
             Timber.e(
                 "Enqueuing App install work is failed for ${appInstall.packageName} exception: ${e.localizedMessage}",
                 e
             )
-            appManagerWrapper.installationIssue(appInstall)
+            appInstallComponents.appManagerWrapper.installationIssue(appInstall)
         }
     }
 
@@ -170,7 +168,7 @@ class AppInstallProcessor @Inject constructor(
         try {
             updateFusedDownloadWithAppDownloadLink(appInstall)
         } catch (e: ApiException.AppNotPurchased) {
-            appManagerWrapper.addFusedDownloadPurchaseNeeded(appInstall)
+            appInstallComponents.appManagerWrapper.addFusedDownloadPurchaseNeeded(appInstall)
             EventBus.invokeEvent(AppEvent.AppPurchaseEvent(appInstall))
             return false
         } catch (e: GplayHttpRequestException) {
@@ -224,7 +222,7 @@ class AppInstallProcessor @Inject constructor(
         try {
             Timber.d("Fused download name $fusedDownloadId")
 
-            appInstall = appInstallRepository.getDownloadById(fusedDownloadId)
+            appInstall = appInstallComponents.appInstallRepository.getDownloadById(fusedDownloadId)
             Timber.i(">>> dowork started for Fused download name " + appInstall?.name + " " + fusedDownloadId)
 
             appInstall?.let {
@@ -232,22 +230,22 @@ class AppInstallProcessor @Inject constructor(
                 checkDownloadingState(appInstall)
 
                 this.isItUpdateWork =
-                    isItUpdateWork && appManagerWrapper.isFusedDownloadInstalled(appInstall)
+                    isItUpdateWork && appInstallComponents.appManagerWrapper.isFusedDownloadInstalled(appInstall)
 
                 if (!appInstall.isAppInstalling()) {
                     Timber.d("!!! returned")
                     return@let
                 }
 
-                if (!appManagerWrapper.validateFusedDownload(appInstall)) {
-                    appManagerWrapper.installationIssue(it)
+                if (!appInstallComponents.appManagerWrapper.validateFusedDownload(appInstall)) {
+                    appInstallComponents.appManagerWrapper.installationIssue(it)
                     Timber.d("!!! installationIssue")
                     return@let
                 }
 
                 if (areFilesDownloadedButNotInstalled(appInstall)) {
                     Timber.i("===> Downloaded But not installed ${appInstall.name}")
-                    appManagerWrapper.updateDownloadStatus(appInstall, Status.INSTALLING)
+                    appInstallComponents.appManagerWrapper.updateDownloadStatus(appInstall, Status.INSTALLING)
                 }
 
                 runInForeground?.invoke(it.name)
@@ -260,7 +258,7 @@ class AppInstallProcessor @Inject constructor(
                 e
             )
             appInstall?.let {
-                appManagerWrapper.cancelDownload(appInstall)
+                appInstallComponents.appManagerWrapper.cancelDownload(appInstall)
             }
         }
 
@@ -278,7 +276,7 @@ class AppInstallProcessor @Inject constructor(
     }
 
     private fun areFilesDownloadedButNotInstalled(appInstall: AppInstall) =
-        appInstall.areFilesDownloaded() && (!appManagerWrapper.isFusedDownloadInstalled(
+        appInstall.areFilesDownloaded() && (!appInstallComponents.appManagerWrapper.isFusedDownloadInstalled(
             appInstall
         ) || appInstall.status == Status.INSTALLING)
 
@@ -288,7 +286,7 @@ class AppInstallProcessor @Inject constructor(
         if (isItUpdateWork) {
             appInstall?.let {
                 val packageStatus =
-                    appManagerWrapper.getFusedDownloadPackageStatus(appInstall)
+                    appInstallComponents.appManagerWrapper.getFusedDownloadPackageStatus(appInstall)
 
                 if (packageStatus == Status.INSTALLED) {
                     UpdatesDao.addSuccessfullyUpdatedApp(it)
@@ -303,7 +301,7 @@ class AppInstallProcessor @Inject constructor(
     }
 
     private suspend fun isUpdateCompleted(): Boolean {
-        val downloadListWithoutAnyIssue = appInstallRepository.getDownloadList().filter {
+        val downloadListWithoutAnyIssue = appInstallComponents.appInstallRepository.getDownloadList().filter {
             !listOf(
                 Status.INSTALLATION_ISSUE, Status.PURCHASE_NEEDED
             ).contains(it.status)
@@ -329,11 +327,11 @@ class AppInstallProcessor @Inject constructor(
 
     private suspend fun startAppInstallationProcess(appInstall: AppInstall) {
         if (appInstall.isAwaiting()) {
-            appManagerWrapper.downloadApp(appInstall)
+            appInstallComponents.appManagerWrapper.downloadApp(appInstall)
             Timber.i("===> doWork: Download started ${appInstall.name} ${appInstall.status}")
         }
 
-        appInstallRepository.getDownloadFlowById(appInstall.id).transformWhile {
+        appInstallComponents.appInstallRepository.getDownloadFlowById(appInstall.id).transformWhile {
             emit(it)
             isInstallRunning(it)
         }.collect { latestFusedDownload ->
@@ -373,7 +371,7 @@ class AppInstallProcessor @Inject constructor(
             val message =
                 "Handling install status is failed for ${download.packageName} exception: ${e.localizedMessage}"
             Timber.e(message, e)
-            appManagerWrapper.installationIssue(download)
+            appInstallComponents.appManagerWrapper.installationIssue(download)
             finishInstallation(download)
         }
     }
@@ -384,7 +382,7 @@ class AppInstallProcessor @Inject constructor(
             }
 
             Status.DOWNLOADED -> {
-                appManagerWrapper.updateDownloadStatus(appInstall, Status.INSTALLING)
+                appInstallComponents.appManagerWrapper.updateDownloadStatus(appInstall, Status.INSTALLING)
             }
 
             Status.INSTALLING -> {

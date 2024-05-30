@@ -20,6 +20,7 @@
 package foundation.e.apps.data.blockedApps
 
 import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import foundation.e.apps.data.DownloadManager
 import foundation.e.apps.data.install.FileManager
@@ -36,13 +37,14 @@ class ContentRatingsRepository @Inject constructor(
     @Named("cacheDir") private val cacheDir: String
 ) {
 
-    private var _contentRatings = listOf<ContentRating>()
-    val contentRatings: List<ContentRating>
-        get() = _contentRatings
+    private var _contentRatingGroups = listOf<ContentRatingGroup>()
+    val contentRatingGroups: List<ContentRatingGroup>
+        get() = _contentRatingGroups
 
     companion object {
         private const val CONTENT_RATINGS_FILE_URL =
-            "https://gitlab.e.foundation/e/os/app-lounge-content-ratings/-/raw/main/content_ratings.json?ref_type=heads&inline=false"
+            "https://gitlab.e.foundation/e/os/app-lounge-content-ratings/-/raw/main/" +
+                    "content_ratings.json?ref_type=heads&inline=false"
         private const val CONTENT_RATINGS_FILE_NAME = "content_ratings.json"
     }
 
@@ -58,7 +60,7 @@ class ContentRatingsRepository @Inject constructor(
     }
 
     private fun parseContentRatingData() {
-        _contentRatings = try {
+        _contentRatingGroups = try {
             val outputPath = "$cacheDir/warning_list/"
             FileManager.moveFile("$cacheDir/",
                 CONTENT_RATINGS_FILE_NAME, outputPath)
@@ -66,11 +68,15 @@ class ContentRatingsRepository @Inject constructor(
             val contentRatingJson = String(downloadedFile.inputStream().readBytes())
             Timber.d("ContentRatings file contents: $contentRatingJson")
 
-            val contentRatingsListType = object : TypeToken<List<ContentRating>>() {}.type
-            gson.fromJson(contentRatingJson, contentRatingsListType)
-        } catch (exception: Exception) {
-            Timber.e(exception.localizedMessage ?: "", exception)
-            mutableListOf()
+            val contentRatingsListTypeGroup = object : TypeToken<List<ContentRatingGroup>>() {}.type
+            gson.fromJson(contentRatingJson, contentRatingsListTypeGroup)
+        } catch (exception: JsonSyntaxException) {
+            handleException(exception)
         }
+    }
+
+    private fun handleException(exception: Exception): MutableList<ContentRatingGroup> {
+        Timber.e(exception.localizedMessage ?: "", exception)
+        return mutableListOf()
     }
 }

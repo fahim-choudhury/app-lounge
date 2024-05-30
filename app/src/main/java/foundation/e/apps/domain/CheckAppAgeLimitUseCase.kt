@@ -43,7 +43,7 @@ class CheckAppAgeLimitUseCase @Inject constructor(
         }
 
         val selectedAgeGroup = parentalControlRepository.getSelectedAgeGroup()
-        val allowedContentRating = contentRatingRepository.contentRatings.find {
+        val allowedContentRating = contentRatingRepository.contentRatingGroups.find {
             it.id == selectedAgeGroup.toString()
         }
 
