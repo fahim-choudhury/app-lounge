@@ -22,7 +22,6 @@ import android.content.Context
 import com.aurora.gplayapi.exceptions.ApiException
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
-import foundation.e.apps.data.DownloadManager
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
@@ -30,9 +29,9 @@ import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.UpdatesDao
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
-import foundation.e.apps.data.fusedDownload.FusedManagerRepository
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.AppInstallRepository
+import foundation.e.apps.data.install.AppManagerWrapper
+import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.playstore.utils.GplayHttpRequestException
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.install.download.DownloadManagerUtils
@@ -52,8 +51,8 @@ import javax.inject.Inject
 
 class AppInstallProcessor @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val fusedDownloadRepository: FusedDownloadRepository,
-    private val fusedManagerRepository: FusedManagerRepository,
+    private val appInstallRepository: AppInstallRepository,
+    private val appManagerWrapper: AppManagerWrapper,
     private val applicationRepository: ApplicationRepository,
     private val dataStoreManager: DataStoreManager,
     private val storageNotificationManager: StorageNotificationManager,
@@ -70,7 +69,7 @@ class AppInstallProcessor @Inject constructor(
     }
 
     /**
-     * creates [FusedDownload] from [Application] and enqueues into WorkManager to run install process.
+     * creates [AppInstall] from [Application] and enqueues into WorkManager to run install process.
      * @param application represents the app info which will be installed
      * @param isAnUpdate indicates the app is requested for update or not
      *
@@ -79,7 +78,7 @@ class AppInstallProcessor @Inject constructor(
         application: Application,
         isAnUpdate: Boolean = false
     ) {
-        val fusedDownload = FusedDownload(
+        val appInstall = AppInstall(
             application._id,
             application.origin,
             application.status,
@@ -96,83 +95,83 @@ class AppInstallProcessor @Inject constructor(
             application.originalSize
         )
 
-        if (fusedDownload.type == Type.PWA) {
-            fusedDownload.downloadURLList = mutableListOf(application.url)
+        if (appInstall.type == Type.PWA) {
+            appInstall.downloadURLList = mutableListOf(application.url)
         }
 
-        enqueueFusedDownload(fusedDownload, isAnUpdate)
+        enqueueFusedDownload(appInstall, isAnUpdate)
     }
 
     /**
-     * Enqueues [FusedDownload] into WorkManager to run app install process. Before enqueuing,
+     * Enqueues [AppInstall] into WorkManager to run app install process. Before enqueuing,
      * It validates some corner cases
-     * @param fusedDownload represents the app downloading and installing related info, example- Installing Status,
+     * @param appInstall represents the app downloading and installing related info, example- Installing Status,
      * Url of the APK,OBB files are needed to be downloaded and installed etc.
      * @param isAnUpdate indicates the app is requested for update or not
      */
     suspend fun enqueueFusedDownload(
-        fusedDownload: FusedDownload,
+        appInstall: AppInstall,
         isAnUpdate: Boolean = false
     ) {
         try {
             val authData = dataStoreManager.getAuthData()
-            if (!fusedDownload.isFree && authData.isAnonymous) {
+            if (!appInstall.isFree && authData.isAnonymous) {
                 EventBus.invokeEvent(AppEvent.ErrorMessageEvent(R.string.paid_app_anonymous_message))
                 return
             }
 
-            if (fusedDownload.type != Type.PWA && !updateDownloadUrls(fusedDownload)) return
+            if (appInstall.type != Type.PWA && !updateDownloadUrls(appInstall)) return
 
-            val downloadAdded = fusedManagerRepository.addDownload(fusedDownload)
+            val downloadAdded = appManagerWrapper.addDownload(appInstall)
             if (!downloadAdded) {
                 Timber.i("Update adding ABORTED! status: $downloadAdded")
                 return
             }
 
             if (!context.isNetworkAvailable()) {
-                fusedManagerRepository.installationIssue(fusedDownload)
+                appManagerWrapper.installationIssue(appInstall)
                 EventBus.invokeEvent(AppEvent.NoInternetEvent(false))
                 return
             }
 
-            if (StorageComputer.spaceMissing(fusedDownload) > 0) {
-                Timber.d("Storage is not available for: ${fusedDownload.name} size: ${fusedDownload.appSize}")
-                storageNotificationManager.showNotEnoughSpaceNotification(fusedDownload)
-                fusedManagerRepository.installationIssue(fusedDownload)
+            if (StorageComputer.spaceMissing(appInstall) > 0) {
+                Timber.d("Storage is not available for: ${appInstall.name} size: ${appInstall.appSize}")
+                storageNotificationManager.showNotEnoughSpaceNotification(appInstall)
+                appManagerWrapper.installationIssue(appInstall)
                 EventBus.invokeEvent(AppEvent.ErrorMessageEvent(R.string.not_enough_storage))
                 return
             }
 
-            fusedManagerRepository.updateAwaiting(fusedDownload)
-            InstallWorkManager.enqueueWork(fusedDownload, isAnUpdate)
+            appManagerWrapper.updateAwaiting(appInstall)
+            InstallWorkManager.enqueueWork(appInstall, isAnUpdate)
         } catch (e: Exception) {
             Timber.e(
-                "Enqueuing App install work is failed for ${fusedDownload.packageName} exception: ${e.localizedMessage}",
+                "Enqueuing App install work is failed for ${appInstall.packageName} exception: ${e.localizedMessage}",
                 e
             )
-            fusedManagerRepository.installationIssue(fusedDownload)
+            appManagerWrapper.installationIssue(appInstall)
         }
     }
 
     // returns TRUE if updating urls is successful, otherwise false.
-    private suspend fun updateDownloadUrls(fusedDownload: FusedDownload): Boolean {
+    private suspend fun updateDownloadUrls(appInstall: AppInstall): Boolean {
         try {
-            updateFusedDownloadWithAppDownloadLink(fusedDownload)
+            updateFusedDownloadWithAppDownloadLink(appInstall)
         } catch (e: ApiException.AppNotPurchased) {
-            fusedManagerRepository.addFusedDownloadPurchaseNeeded(fusedDownload)
-            EventBus.invokeEvent(AppEvent.AppPurchaseEvent(fusedDownload))
+            appManagerWrapper.addFusedDownloadPurchaseNeeded(appInstall)
+            EventBus.invokeEvent(AppEvent.AppPurchaseEvent(appInstall))
             return false
         } catch (e: GplayHttpRequestException) {
             handleUpdateDownloadError(
-                fusedDownload,
-                "${fusedDownload.packageName} code: ${e.status} exception: ${e.localizedMessage}",
+                appInstall,
+                "${appInstall.packageName} code: ${e.status} exception: ${e.localizedMessage}",
                 e
             )
             return false
         } catch (e: Exception) {
             handleUpdateDownloadError(
-                fusedDownload,
-                "${fusedDownload.packageName} exception: ${e.localizedMessage}",
+                appInstall,
+                "${appInstall.packageName} exception: ${e.localizedMessage}",
                 e
             )
             return false
@@ -181,7 +180,7 @@ class AppInstallProcessor @Inject constructor(
     }
 
     private suspend fun handleUpdateDownloadError(
-        fusedDownload: FusedDownload,
+        appInstall: AppInstall,
         message: String,
         e: Exception
     ) {
@@ -189,17 +188,17 @@ class AppInstallProcessor @Inject constructor(
         EventBus.invokeEvent(
             AppEvent.UpdateEvent(
                 ResultSupreme.WorkError(
-                    ResultStatus.UNKNOWN, fusedDownload
+                    ResultStatus.UNKNOWN, appInstall
                 )
             )
         )
     }
 
     private suspend fun updateFusedDownloadWithAppDownloadLink(
-        fusedDownload: FusedDownload
+        appInstall: AppInstall
     ) {
         applicationRepository.updateFusedDownloadWithDownloadingInfo(
-            fusedDownload.origin, fusedDownload
+            appInstall.origin, appInstall
         )
     }
 
@@ -209,34 +208,34 @@ class AppInstallProcessor @Inject constructor(
         isItUpdateWork: Boolean,
         runInForeground: (suspend (String) -> Unit)? = null
     ): Result<ResultStatus> {
-        var fusedDownload: FusedDownload? = null
+        var appInstall: AppInstall? = null
         try {
             Timber.d("Fused download name $fusedDownloadId")
 
-            fusedDownload = fusedDownloadRepository.getDownloadById(fusedDownloadId)
-            Timber.i(">>> dowork started for Fused download name " + fusedDownload?.name + " " + fusedDownloadId)
+            appInstall = appInstallRepository.getDownloadById(fusedDownloadId)
+            Timber.i(">>> dowork started for Fused download name " + appInstall?.name + " " + fusedDownloadId)
 
-            fusedDownload?.let {
+            appInstall?.let {
 
-                checkDownloadingState(fusedDownload)
+                checkDownloadingState(appInstall)
 
                 this.isItUpdateWork =
-                    isItUpdateWork && fusedManagerRepository.isFusedDownloadInstalled(fusedDownload)
+                    isItUpdateWork && appManagerWrapper.isFusedDownloadInstalled(appInstall)
 
-                if (!fusedDownload.isAppInstalling()) {
+                if (!appInstall.isAppInstalling()) {
                     Timber.d("!!! returned")
                     return@let
                 }
 
-                if (!fusedManagerRepository.validateFusedDownload(fusedDownload)) {
-                    fusedManagerRepository.installationIssue(it)
+                if (!appManagerWrapper.validateFusedDownload(appInstall)) {
+                    appManagerWrapper.installationIssue(it)
                     Timber.d("!!! installationIssue")
                     return@let
                 }
 
-                if (areFilesDownloadedButNotInstalled(fusedDownload)) {
-                    Timber.i("===> Downloaded But not installed ${fusedDownload.name}")
-                    fusedManagerRepository.updateDownloadStatus(fusedDownload, Status.INSTALLING)
+                if (areFilesDownloadedButNotInstalled(appInstall)) {
+                    Timber.i("===> Downloaded But not installed ${appInstall.name}")
+                    appManagerWrapper.updateDownloadStatus(appInstall, Status.INSTALLING)
                 }
 
                 runInForeground?.invoke(it.name)
@@ -245,39 +244,39 @@ class AppInstallProcessor @Inject constructor(
             }
         } catch (e: Exception) {
             Timber.e(
-                "Install worker is failed for ${fusedDownload?.packageName} exception: ${e.localizedMessage}",
+                "Install worker is failed for ${appInstall?.packageName} exception: ${e.localizedMessage}",
                 e
             )
-            fusedDownload?.let {
-                fusedManagerRepository.cancelDownload(fusedDownload)
+            appInstall?.let {
+                appManagerWrapper.cancelDownload(appInstall)
             }
         }
 
-        Timber.i("doWork: RESULT SUCCESS: ${fusedDownload?.name}")
+        Timber.i("doWork: RESULT SUCCESS: ${appInstall?.name}")
         return Result.success(ResultStatus.OK)
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    private fun checkDownloadingState(fusedDownload: FusedDownload) {
-        if (fusedDownload.status == Status.DOWNLOADING) {
-            fusedDownload.downloadIdMap.keys.forEach { downloadId ->
+    private fun checkDownloadingState(appInstall: AppInstall) {
+        if (appInstall.status == Status.DOWNLOADING) {
+            appInstall.downloadIdMap.keys.forEach { downloadId ->
                 downloadManager.updateDownloadStatus(downloadId)
             }
         }
     }
 
-    private fun areFilesDownloadedButNotInstalled(fusedDownload: FusedDownload) =
-        fusedDownload.areFilesDownloaded() && (!fusedManagerRepository.isFusedDownloadInstalled(
-            fusedDownload
-        ) || fusedDownload.status == Status.INSTALLING)
+    private fun areFilesDownloadedButNotInstalled(appInstall: AppInstall) =
+        appInstall.areFilesDownloaded() && (!appManagerWrapper.isFusedDownloadInstalled(
+            appInstall
+        ) || appInstall.status == Status.INSTALLING)
 
     private suspend fun checkUpdateWork(
-        fusedDownload: FusedDownload?
+        appInstall: AppInstall?
     ) {
         if (isItUpdateWork) {
-            fusedDownload?.let {
+            appInstall?.let {
                 val packageStatus =
-                    fusedManagerRepository.getFusedDownloadPackageStatus(fusedDownload)
+                    appManagerWrapper.getFusedDownloadPackageStatus(appInstall)
 
                 if (packageStatus == Status.INSTALLED) {
                     UpdatesDao.addSuccessfullyUpdatedApp(it)
@@ -292,7 +291,7 @@ class AppInstallProcessor @Inject constructor(
     }
 
     private suspend fun isUpdateCompleted(): Boolean {
-        val downloadListWithoutAnyIssue = fusedDownloadRepository.getDownloadList().filter {
+        val downloadListWithoutAnyIssue = appInstallRepository.getDownloadList().filter {
             !listOf(
                 Status.INSTALLATION_ISSUE, Status.PURCHASE_NEEDED
             ).contains(it.status)
@@ -316,45 +315,45 @@ class AppInstallProcessor @Inject constructor(
         )
     }
 
-    private suspend fun startAppInstallationProcess(fusedDownload: FusedDownload) {
-        if (fusedDownload.isAwaiting()) {
-            fusedManagerRepository.downloadApp(fusedDownload)
-            Timber.i("===> doWork: Download started ${fusedDownload.name} ${fusedDownload.status}")
+    private suspend fun startAppInstallationProcess(appInstall: AppInstall) {
+        if (appInstall.isAwaiting()) {
+            appManagerWrapper.downloadApp(appInstall)
+            Timber.i("===> doWork: Download started ${appInstall.name} ${appInstall.status}")
         }
 
-        fusedDownloadRepository.getDownloadFlowById(fusedDownload.id).transformWhile {
+        appInstallRepository.getDownloadFlowById(appInstall.id).transformWhile {
             emit(it)
             isInstallRunning(it)
         }.collect { latestFusedDownload ->
-            handleFusedDownload(latestFusedDownload, fusedDownload)
+            handleFusedDownload(latestFusedDownload, appInstall)
         }
     }
 
     /**
-     * Takes actions depending on the status of [FusedDownload]
+     * Takes actions depending on the status of [AppInstall]
      *
-     * @param latestFusedDownload comes from Room database when [Status] is updated
-     * @param fusedDownload is the original object when install process isn't started. It's used when [latestFusedDownload]
+     * @param latestAppInstall comes from Room database when [Status] is updated
+     * @param appInstall is the original object when install process isn't started. It's used when [latestAppInstall]
      * becomes null, After installation is completed.
      */
     private suspend fun handleFusedDownload(
-        latestFusedDownload: FusedDownload?,
-        fusedDownload: FusedDownload
+        latestAppInstall: AppInstall?,
+        appInstall: AppInstall
     ) {
-        if (latestFusedDownload == null) {
+        if (latestAppInstall == null) {
             Timber.d("===> download null: finish installation")
-            finishInstallation(fusedDownload)
+            finishInstallation(appInstall)
             return
         }
 
-        handleFusedDownloadStatusCheckingException(latestFusedDownload)
+        handleFusedDownloadStatusCheckingException(latestAppInstall)
     }
 
-    private fun isInstallRunning(it: FusedDownload?) =
+    private fun isInstallRunning(it: AppInstall?) =
         it != null && it.status != Status.INSTALLATION_ISSUE
 
     private suspend fun handleFusedDownloadStatusCheckingException(
-        download: FusedDownload
+        download: AppInstall
     ) {
         try {
             handleFusedDownloadStatus(download)
@@ -362,39 +361,39 @@ class AppInstallProcessor @Inject constructor(
             val message =
                 "Handling install status is failed for ${download.packageName} exception: ${e.localizedMessage}"
             Timber.e(message, e)
-            fusedManagerRepository.installationIssue(download)
+            appManagerWrapper.installationIssue(download)
             finishInstallation(download)
         }
     }
 
-    private suspend fun handleFusedDownloadStatus(fusedDownload: FusedDownload) {
-        when (fusedDownload.status) {
+    private suspend fun handleFusedDownloadStatus(appInstall: AppInstall) {
+        when (appInstall.status) {
             Status.AWAITING, Status.DOWNLOADING -> {
             }
 
             Status.DOWNLOADED -> {
-                fusedManagerRepository.updateDownloadStatus(fusedDownload, Status.INSTALLING)
+                appManagerWrapper.updateDownloadStatus(appInstall, Status.INSTALLING)
             }
 
             Status.INSTALLING -> {
-                Timber.i("===> doWork: Installing ${fusedDownload.name} ${fusedDownload.status}")
+                Timber.i("===> doWork: Installing ${appInstall.name} ${appInstall.status}")
             }
 
             Status.INSTALLED, Status.INSTALLATION_ISSUE -> {
-                Timber.i("===> doWork: Installed/Failed: ${fusedDownload.name} ${fusedDownload.status}")
-                finishInstallation(fusedDownload)
+                Timber.i("===> doWork: Installed/Failed: ${appInstall.name} ${appInstall.status}")
+                finishInstallation(appInstall)
             }
 
             else -> {
                 Timber.wtf(
-                    TAG, "===> ${fusedDownload.name} is in wrong state ${fusedDownload.status}"
+                    TAG, "===> ${appInstall.name} is in wrong state ${appInstall.status}"
                 )
-                finishInstallation(fusedDownload)
+                finishInstallation(appInstall)
             }
         }
     }
 
-    private suspend fun finishInstallation(fusedDownload: FusedDownload) {
-        checkUpdateWork(fusedDownload)
+    private suspend fun finishInstallation(appInstall: AppInstall) {
+        checkUpdateWork(appInstall)
     }
 }

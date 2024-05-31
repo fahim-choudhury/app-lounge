@@ -5,23 +5,23 @@ import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.models.AppInstall
 import java.lang.Exception
 
 object InstallWorkManager {
     const val INSTALL_WORK_NAME = "APP_LOUNGE_INSTALL_APP"
     lateinit var context: Application
 
-    fun enqueueWork(fusedDownload: FusedDownload, isUpdateWork: Boolean = false) {
+    fun enqueueWork(appInstall: AppInstall, isUpdateWork: Boolean = false) {
         WorkManager.getInstance(context).enqueueUniqueWork(
             INSTALL_WORK_NAME,
             ExistingWorkPolicy.APPEND_OR_REPLACE,
             OneTimeWorkRequestBuilder<InstallAppWorker>().setInputData(
                 Data.Builder()
-                    .putString(InstallAppWorker.INPUT_DATA_FUSED_DOWNLOAD, fusedDownload.id)
+                    .putString(InstallAppWorker.INPUT_DATA_FUSED_DOWNLOAD, appInstall.id)
                     .putBoolean(InstallAppWorker.IS_UPDATE_WORK, isUpdateWork)
                     .build()
-            ).addTag(fusedDownload.id)
+            ).addTag(appInstall.id)
                 .build()
         )
     }

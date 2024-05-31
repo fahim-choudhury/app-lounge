@@ -15,8 +15,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.OpenForTesting
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.fusedDownload.FusedDownloadRepository
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.AppInstallRepository
+import foundation.e.apps.data.install.models.AppInstall
 import kotlinx.coroutines.delay
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
@@ -29,7 +29,7 @@ import javax.inject.Singleton
 @OpenForTesting
 class PWAManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val fusedDownloadRepository: FusedDownloadRepository,
+    private val appInstallRepository: AppInstallRepository,
 ) {
 
     companion object {
@@ -111,32 +111,32 @@ class PWAManager @Inject constructor(
         context.startActivity(launchIntent)
     }
 
-    suspend fun installPWAApp(fusedDownload: FusedDownload) {
+    suspend fun installPWAApp(appInstall: AppInstall) {
         // Update status
-        fusedDownload.status = Status.DOWNLOADING
-        fusedDownloadRepository.updateDownload(fusedDownload)
+        appInstall.status = Status.DOWNLOADING
+        appInstallRepository.updateDownload(appInstall)
 
         // Get bitmap and byteArray for icon
-        val iconBitmap = getIconImageBitmap(fusedDownload.getAppIconUrl())
+        val iconBitmap = getIconImageBitmap(appInstall.getAppIconUrl())
 
         if (iconBitmap == null) {
-            fusedDownload.status = Status.INSTALLATION_ISSUE
-            fusedDownloadRepository.updateDownload(fusedDownload)
+            appInstall.status = Status.INSTALLATION_ISSUE
+            appInstallRepository.updateDownload(appInstall)
             return
         }
 
         val iconByteArray = iconBitmap.toByteArray()
         val values = ContentValues()
         values.apply {
-            put(URL, fusedDownload.downloadURLList[0])
-            put(SHORTCUT_ID, fusedDownload.id)
-            put(TITLE, fusedDownload.name)
+            put(URL, appInstall.downloadURLList[0])
+            put(SHORTCUT_ID, appInstall.id)
+            put(TITLE, appInstall.name)
             put(ICON, iconByteArray)
         }
 
         context.contentResolver.insert(Uri.parse(PWA_PLAYER), values)?.let {
             val databaseID = ContentUris.parseId(it)
-            publishShortcut(fusedDownload, iconBitmap, databaseID)
+            publishShortcut(appInstall, iconBitmap, databaseID)
         }
     }
 
@@ -157,25 +157,25 @@ class PWAManager @Inject constructor(
     }
 
     private suspend fun publishShortcut(
-        fusedDownload: FusedDownload,
+        appInstall: AppInstall,
         bitmap: Bitmap,
         databaseID: Long
     ) {
         // Update status
-        fusedDownload.status = Status.INSTALLING
-        fusedDownloadRepository.updateDownload(fusedDownload)
+        appInstall.status = Status.INSTALLING
+        appInstallRepository.updateDownload(appInstall)
 
         val intent = Intent().apply {
             action = VIEW_PWA
-            data = Uri.parse(fusedDownload.downloadURLList[0])
-            putExtra(PWA_NAME, fusedDownload.name)
+            data = Uri.parse(appInstall.downloadURLList[0])
+            putExtra(PWA_NAME, appInstall.name)
             putExtra(PWA_ID, databaseID)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS)
         }
 
-        val shortcutInfo = ShortcutInfoCompat.Builder(context, fusedDownload.id)
-            .setShortLabel(fusedDownload.name)
+        val shortcutInfo = ShortcutInfoCompat.Builder(context, appInstall.id)
+            .setShortLabel(appInstall.name)
             .setIcon(IconCompat.createWithBitmap(bitmap))
             .setIntent(intent)
             .build()
@@ -185,9 +185,9 @@ class PWAManager @Inject constructor(
         delay(DELAY_100)
 
         // Update status
-        fusedDownload.status = Status.INSTALLED
-        fusedDownloadRepository.updateDownload(fusedDownload)
+        appInstall.status = Status.INSTALLED
+        appInstallRepository.updateDownload(appInstall)
         delay(DELAY_500)
-        fusedDownloadRepository.deleteDownload(fusedDownload)
+        appInstallRepository.deleteDownload(appInstall)
     }
 }

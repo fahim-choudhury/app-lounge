@@ -36,7 +36,7 @@ import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.application.search.SearchApi
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.models.AppInstall
 import kotlinx.coroutines.DelicateCoroutinesApi
 import timber.log.Timber
 import java.io.File
@@ -117,13 +117,13 @@ class AppLoungePackageManager @Inject constructor(
      * Surrounded by try-catch to prevent exception is case App Lounge and FakeStore's
      * signing certificate is not the same.
      */
-    fun setFakeStoreAsInstallerIfNeeded(fusedDownload: FusedDownload?) {
-        if (fusedDownload == null || fusedDownload.packageName.isBlank()) {
+    fun setFakeStoreAsInstallerIfNeeded(appInstall: AppInstall?) {
+        if (appInstall == null || appInstall.packageName.isBlank()) {
             return
         }
-        if (fusedDownload.origin == Origin.GPLAY) {
-            if (fusedDownload.type == Type.NATIVE && isInstalled(FAKE_STORE_PACKAGE_NAME)) {
-                val targetPackage = fusedDownload.packageName
+        if (appInstall.origin == Origin.GPLAY) {
+            if (appInstall.type == Type.NATIVE && isInstalled(FAKE_STORE_PACKAGE_NAME)) {
+                val targetPackage = appInstall.packageName
                 try {
                     packageManager.setInstallerPackageName(targetPackage, FAKE_STORE_PACKAGE_NAME)
                     Timber.d("Changed installer to $FAKE_STORE_PACKAGE_NAME for $targetPackage")

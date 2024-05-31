@@ -502,28 +502,27 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     private fun collectAppContentRatingState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                applicationViewModel.appContentRating.collectLatest(::updateContentRatingUi)
+                applicationViewModel.appContentRatingState
+                    .collectLatest(::updateContentRatingUi)
             }
         }
     }
 
-    private fun updateContentRatingUi(contentRating: ContentRating) {
-        fun loadContentRating(contentRating: ContentRating) {
-            lifecycleScope.launch {
-                val drawable = loadContentRatingDrawable(contentRating.artwork.url)
-                displayRating(contentRating, drawable)
-            }
-        }
-
-        fun hideContentRating() {
-            binding.ratingsInclude.appContentRatingLayout.visibility = View.GONE
-        }
-
+    private suspend fun updateContentRatingUi(contentRating: ContentRating) {
         if (contentRating.isValid()) {
             loadContentRating(contentRating)
         } else {
             hideContentRating()
         }
+    }
+
+    private suspend fun loadContentRating(contentRating: ContentRating) {
+        val drawable = loadContentRatingDrawable(contentRating.artwork.url)
+        displayRating(contentRating, drawable)
+    }
+
+    private fun hideContentRating() {
+        binding.ratingsInclude.appContentRatingLayout.visibility = View.GONE
     }
 
     private fun displayRating(contentRating: ContentRating, drawable: Drawable?) {

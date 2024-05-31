@@ -1,6 +1,5 @@
 /*
- * Copyright MURENA SAS 2023
- * Apps  Quickly and easily install Android apps onto your device!
+ * Copyright (C) 2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.data.playstore
@@ -23,6 +23,7 @@ import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
+import com.aurora.gplayapi.data.models.ContentRating
 import com.aurora.gplayapi.data.models.File
 import com.aurora.gplayapi.data.models.SearchBundle
 import com.aurora.gplayapi.data.models.StreamCluster
@@ -30,14 +31,15 @@ import com.aurora.gplayapi.helpers.AppDetailsHelper
 import com.aurora.gplayapi.helpers.CategoryAppsHelper
 import com.aurora.gplayapi.helpers.CategoryHelper
 import com.aurora.gplayapi.helpers.Chart
+import com.aurora.gplayapi.helpers.ContentRatingHelper
 import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.aurora.gplayapi.helpers.SearchHelper
 import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.application.utils.CategoryType
-import foundation.e.apps.data.playstore.utils.GPlayHttpClient
 import foundation.e.apps.data.login.AuthenticatorRepository
+import foundation.e.apps.data.playstore.utils.GPlayHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -78,8 +80,7 @@ class PlayStoreRepositoryImpl @Inject constructor(
         subBundle: MutableSet<SearchBundle.SubBundle>?
     ): Pair<List<App>, MutableSet<SearchBundle.SubBundle>> {
         var authData = authenticatorRepository.gplayAuth!!
-        val searchHelper =
-            SearchHelper(authData).using(gPlayHttpClient)
+        val searchHelper = SearchHelper(authData).using(gPlayHttpClient)
 
         Timber.d("Fetching search result for $query, subBundle: $subBundle")
 
@@ -115,8 +116,7 @@ class PlayStoreRepositoryImpl @Inject constructor(
     override suspend fun getAppsByCategory(category: String, pageUrl: String?): StreamCluster {
         val authData = authenticatorRepository.gplayAuth!!
 
-        val subCategoryHelper =
-            CategoryAppsHelper(authData).using(gPlayHttpClient)
+        val subCategoryHelper = CategoryAppsHelper(authData).using(gPlayHttpClient)
 
         if (!pageUrl.isNullOrEmpty()) {
             return subCategoryHelper.next(pageUrl)
@@ -163,7 +163,8 @@ class PlayStoreRepositoryImpl @Inject constructor(
     }
 
     private fun getCategoryType(type: CategoryType): Category.Type {
-        return if (type == CategoryType.APPLICATION) Category.Type.APPLICATION else Category.Type.GAME
+        return if (type == CategoryType.APPLICATION) Category.Type.APPLICATION
+        else Category.Type.GAME
     }
 
     private suspend fun getTopApps(
@@ -207,14 +208,24 @@ class PlayStoreRepositoryImpl @Inject constructor(
         withContext(Dispatchers.IO) {
             val purchaseHelper = PurchaseHelper(authData).using(gPlayHttpClient)
             downloadData.addAll(
-                purchaseHelper.getOnDemandModule(
-                    packageName,
-                    moduleName,
-                    versionCode,
-                    offerType
-                )
+                purchaseHelper.getOnDemandModule(packageName, moduleName, versionCode, offerType)
             )
         }
         return downloadData
+    }
+
+    override suspend fun updateContentRatingWithId(
+        appPackage: String,
+        contentRating: ContentRating
+    ): ContentRating {
+        val authData = authenticatorRepository.gplayAuth!!
+        val contentRatingHelper = ContentRatingHelper(authData)
+
+        return withContext(Dispatchers.IO) {
+            contentRatingHelper.updateContentRatingWithId(
+                appPackage,
+                contentRating
+            )
+        }
     }
 }

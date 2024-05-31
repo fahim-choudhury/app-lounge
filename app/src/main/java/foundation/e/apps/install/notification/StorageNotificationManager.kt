@@ -29,7 +29,7 @@ import androidx.core.app.NotificationManagerCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.DownloadManager
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.di.NotificationManagerModule
 import foundation.e.apps.utils.StorageComputer
 import javax.inject.Inject
@@ -42,7 +42,7 @@ class StorageNotificationManager @Inject constructor(
         const val NOT_ENOUGH_SPACE_NOTIFICATION_ID = 7874
     }
 
-    fun showNotEnoughSpaceNotification(fusedDownload: FusedDownload, downloadId: Long? = null) {
+    fun showNotEnoughSpaceNotification(appInstall: AppInstall, downloadId: Long? = null) {
 
         with(NotificationManagerCompat.from(context)) {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
@@ -51,7 +51,7 @@ class StorageNotificationManager @Inject constructor(
                 return
             }
 
-            val content = getNotEnoughSpaceNotificationContent(fusedDownload, downloadId)
+            val content = getNotEnoughSpaceNotificationContent(appInstall, downloadId)
 
             notify(
                 NOT_ENOUGH_SPACE_NOTIFICATION_ID,
@@ -61,10 +61,10 @@ class StorageNotificationManager @Inject constructor(
     }
 
     private fun getNotEnoughSpaceNotificationContent(
-        fusedDownload: FusedDownload,
+        appInstall: AppInstall,
         downloadId: Long? = null
     ): String {
-        val requiredInByte = getSpaceMissing(fusedDownload, downloadId)
+        val requiredInByte = getSpaceMissing(appInstall, downloadId)
 
         if (requiredInByte <= 0L) {
             return context.getString(R.string.not_enough_storage)
@@ -76,9 +76,9 @@ class StorageNotificationManager @Inject constructor(
         )
     }
 
-    private fun getSpaceMissing(fusedDownload: FusedDownload, downloadId: Long? = null): Long {
-        if (fusedDownload.appSize > 0L) {
-            return calculateSpaceMissingFromFusedDownload(fusedDownload)
+    private fun getSpaceMissing(appInstall: AppInstall, downloadId: Long? = null): Long {
+        if (appInstall.appSize > 0L) {
+            return calculateSpaceMissingFromFusedDownload(appInstall)
         }
 
         if (downloadId == null) {
@@ -88,10 +88,10 @@ class StorageNotificationManager @Inject constructor(
         return downloadManager.getSizeRequired(downloadId)
     }
 
-    private fun calculateSpaceMissingFromFusedDownload(fusedDownload: FusedDownload): Long {
-        var requiredInByte = StorageComputer.spaceMissing(fusedDownload)
+    private fun calculateSpaceMissingFromFusedDownload(appInstall: AppInstall): Long {
+        var requiredInByte = StorageComputer.spaceMissing(appInstall)
         if (requiredInByte <= 0L) {
-            requiredInByte = fusedDownload.appSize
+            requiredInByte = appInstall.appSize
         }
 
         return requiredInByte

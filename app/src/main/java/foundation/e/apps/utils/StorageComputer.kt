@@ -19,17 +19,17 @@ package foundation.e.apps.utils
 
 import android.os.Environment
 import android.os.StatFs
-import foundation.e.apps.data.fusedDownload.models.FusedDownload
+import foundation.e.apps.data.install.models.AppInstall
 import java.text.CharacterIterator
 import java.text.StringCharacterIterator
 
 object StorageComputer {
-    fun spaceMissing(fusedDownload: FusedDownload): Long {
-        return getRequiredSpace(fusedDownload) - calculateAvailableDiskSpace()
+    fun spaceMissing(appInstall: AppInstall): Long {
+        return getRequiredSpace(appInstall) - calculateAvailableDiskSpace()
     }
 
-    private fun getRequiredSpace(fusedDownload: FusedDownload) =
-        fusedDownload.appSize + (500 * (1000 * 1000))
+    private fun getRequiredSpace(appInstall: AppInstall) =
+        appInstall.appSize + (500 * (1000 * 1000))
 
     fun calculateAvailableDiskSpace(): Long {
         val path = Environment.getDataDirectory().absolutePath
