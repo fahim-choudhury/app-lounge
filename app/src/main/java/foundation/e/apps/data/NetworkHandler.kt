@@ -66,6 +66,7 @@ private fun <T> resultSupremeGplayHttpRequestException(e: GplayHttpRequestExcept
 
 private fun <T> handleOthersException(e: Exception): ResultSupreme.Error<T> {
     val message = extractErrorMessage(e)
+    Timber.d("message: $message exceptoin: $e")
     return ResultSupreme.Error(message, e)
 }
 

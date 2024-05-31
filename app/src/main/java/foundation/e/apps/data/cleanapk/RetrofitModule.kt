@@ -165,12 +165,15 @@ object RetrofitModule {
     fun provideInterceptor(): Interceptor {
         return Interceptor { chain ->
             val builder = chain.request().newBuilder()
+            Timber.d("Request: URL: ${chain.request().url}")
             builder.header(
                 "User-Agent",
                 "Dalvik/2.1.0 (Linux; U; Android ${Build.VERSION.RELEASE};)"
             ).header("Accept-Language", Locale.getDefault().language)
 
-            return@Interceptor chain.proceed(builder.build())
+            val response = chain.proceed(builder.build())
+            Timber.d("Response: Code: ${response.code} message: ${response.message}")
+            return@Interceptor response
         }
     }
 

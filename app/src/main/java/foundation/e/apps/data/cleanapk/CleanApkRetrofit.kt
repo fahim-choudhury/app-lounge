@@ -31,8 +31,8 @@ interface CleanApkRetrofit {
 
     companion object {
         // API endpoints
-        const val BASE_URL = "https://api.cleanapk.org/v2/"
-        const val ASSET_URL = "https://api.cleanapk.org/v2/media/"
+        const val BASE_URL = "https://api.dev.cleanapk.org/v2/"
+        const val ASSET_URL = "https://api.dev.cleanapk.org/v2/media/"
 
         // Application sources
         const val APP_SOURCE_FOSS = "open"

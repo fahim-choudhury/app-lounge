@@ -102,7 +102,9 @@ data class Application(
     var isGplayReplaced: Boolean = false,
     @SerializedName(value = "on_fdroid")
     val isFDroidApp: Boolean = false,
-    val contentRating: ContentRating = ContentRating()
+    val contentRating: ContentRating = ContentRating(),
+    @SerializedName(value = "antifeature")
+    val antiFeatures: Map<String, Map<String,String>> = emptyMap(),
 ) {
     fun updateType() {
         this.type = if (this.is_pwa) PWA else NATIVE
