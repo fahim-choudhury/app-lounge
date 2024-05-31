@@ -95,13 +95,12 @@ class AgeRatingProvider : ContentProvider() {
                         playStoreRepository.updateContentRatingWithId(
                             packagesName,
                             appDetails.first.contentRating
-                        ).apply {
-                        }
+                        )
                     }
                 }
                 val contentsRatings = contentRatingsDeferred.awaitAll()
                 packagesNames.forEachIndexed { index, packageName ->
-                    cursor.addRow(arrayOf(packageName, contentsRatings[index]?.title))
+                    cursor.addRow(arrayOf(packageName, contentsRatings[index]?.id))
                 }
             }
         }
