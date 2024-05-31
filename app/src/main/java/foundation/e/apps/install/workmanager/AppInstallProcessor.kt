@@ -137,8 +137,9 @@ class AppInstallProcessor @Inject constructor(
                     Timber.i("Content rating is not allowed for: ${appInstall.name}")
                     EventBus.invokeEvent(AppEvent.AgeLimitRestrictionEvent())
                 } else {
-                    //TODO trigger an error event
+                    EventBus.invokeEvent(AppEvent.ErrorMessageDialogEvent(R.string.data_load_error_desc))
                 }
+
                 appInstallComponents.appManagerWrapper.cancelDownload(appInstall)
                 return
             }

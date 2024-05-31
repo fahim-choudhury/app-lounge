@@ -30,6 +30,7 @@ sealed class AppEvent(val data: Any) {
 
     class InvalidAuthEvent(authName: String) : AppEvent(authName)
     class ErrorMessageEvent(stringResourceId: Int) : AppEvent(stringResourceId)
+    class ErrorMessageDialogEvent(stringResourceId: Int) : AppEvent(stringResourceId)
     class AppPurchaseEvent(appInstall: AppInstall) : AppEvent(appInstall)
     class NoInternetEvent(isInternetAvailable: Boolean) : AppEvent(isInternetAvailable)
     class TooManyRequests : AppEvent(Unit)

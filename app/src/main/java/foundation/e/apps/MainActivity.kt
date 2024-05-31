@@ -195,7 +195,11 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 launch {
-                    observerErrorEvent()
+                    observeErrorEvent()
+                }
+
+                launch {
+                    observeErrorDialogEvent()
                 }
 
                 launch {
@@ -372,11 +376,22 @@ class MainActivity : AppCompatActivity() {
         findNavController(R.id.fragment).navigate(action)
     }
 
-    private suspend fun observerErrorEvent() {
+    private suspend fun observeErrorEvent() {
         EventBus.events.filter { appEvent ->
             appEvent is AppEvent.ErrorMessageEvent
         }.collectLatest {
             showSnackbarMessage(getString(it.data as Int))
+        }
+    }
+
+    private suspend fun observeErrorDialogEvent() {
+        EventBus.events.filter { appEvent ->
+            appEvent is AppEvent.ErrorMessageDialogEvent
+        }.collectLatest {
+            ApplicationDialogFragment(
+                title = getString(R.string.unknown_error),
+                message = getString(it.data as Int)
+            ).show(supportFragmentManager, TAG)
         }
     }
 
