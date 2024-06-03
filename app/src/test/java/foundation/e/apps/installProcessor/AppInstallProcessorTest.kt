@@ -22,6 +22,7 @@ import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.ContentRating
+import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.application.ApplicationRepository
@@ -193,7 +194,7 @@ class AppInstallProcessorTest {
     fun `processInstallTest when age limit is satisfied`() = runTest {
         val fusedDownload = initTest()
         Mockito.`when`(validateAppAgeRatingUseCase.invoke(fusedDownload))
-            .thenReturn(Pair(false, ResultStatus.OK))
+            .thenReturn(ResultSupreme.create(ResultStatus.OK, true))
 
         val finalFusedDownload = runProcessInstall(fusedDownload)
         assertEquals("processInstall", finalFusedDownload, null)
@@ -203,7 +204,7 @@ class AppInstallProcessorTest {
     fun `processInstallTest when age limit is not satisfied`() = runTest {
         val fusedDownload = initTest()
         Mockito.`when`(validateAppAgeRatingUseCase.invoke(fusedDownload))
-            .thenReturn(Pair(true, ResultStatus.OK))
+            .thenReturn(ResultSupreme.create(ResultStatus.OK, false))
 
         val finalFusedDownload = runProcessInstall(fusedDownload)
         assertEquals("processInstall", finalFusedDownload, null)

@@ -35,25 +35,26 @@ class ParentalControlRepository @Inject constructor(
             "content://foundation.e.parentalcontrol.provider/age"
     }
 
-    fun getSelectedAgeGroup(): Ages? {
+    fun getSelectedAgeGroup(): Age {
         val uri = Uri.parse(URI_PARENTAL_CONTROL_PROVIDER)
         val cursor = context.contentResolver.query(uri, null, null, null, null)
 
         cursor?.use {
             if (it.moveToFirst()) {
                 val ageOrdinal = it.getInt(it.getColumnIndexOrThrow("age"))
-                return Ages.values()[ageOrdinal]
+                return Age.values()[ageOrdinal]
             }
         }
 
-        return null
+        return Age.PARENTAL_CONTROL_DISABLED
     }
 }
 
-enum class Ages {
+enum class Age {
     THREE,
     SIX,
     ELEVEN,
     FIFTEEN,
     SEVENTEEN,
+    PARENTAL_CONTROL_DISABLED
 }

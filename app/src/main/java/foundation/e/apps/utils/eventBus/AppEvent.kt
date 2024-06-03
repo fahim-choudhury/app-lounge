@@ -34,5 +34,5 @@ sealed class AppEvent(val data: Any) {
     class AppPurchaseEvent(appInstall: AppInstall) : AppEvent(appInstall)
     class NoInternetEvent(isInternetAvailable: Boolean) : AppEvent(isInternetAvailable)
     class TooManyRequests : AppEvent(Unit)
-    class AgeLimitRestrictionEvent : AppEvent(Unit)
+    class AgeLimitRestrictionEvent(type: String) : AppEvent(type)
 }

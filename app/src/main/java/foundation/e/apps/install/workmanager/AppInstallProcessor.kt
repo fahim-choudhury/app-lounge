@@ -131,11 +131,11 @@ class AppInstallProcessor @Inject constructor(
                 return
             }
 
-            val (isAgeLimitValidated, resultStatus) = validateAppAgeLimitUseCase.invoke(appInstall)
-            if (!isAgeLimitValidated) {
-                if (resultStatus == ResultStatus.OK) {
+            val ageLimitValidationResult = validateAppAgeLimitUseCase.invoke(appInstall)
+            if (ageLimitValidationResult.data == false) {
+                if (ageLimitValidationResult.isSuccess()) {
                     Timber.i("Content rating is not allowed for: ${appInstall.name}")
-                    EventBus.invokeEvent(AppEvent.AgeLimitRestrictionEvent())
+                    EventBus.invokeEvent(AppEvent.AgeLimitRestrictionEvent(appInstall.name))
                 } else {
                     EventBus.invokeEvent(AppEvent.ErrorMessageDialogEvent(R.string.data_load_error_desc))
                 }

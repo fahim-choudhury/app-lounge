@@ -20,8 +20,9 @@
 package foundation.e.apps.domain
 
 import com.aurora.gplayapi.data.models.AuthData
+import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.ApplicationRepository
-import foundation.e.apps.data.blockedApps.Ages
+import foundation.e.apps.data.blockedApps.Age
 import foundation.e.apps.data.blockedApps.ContentRatingGroup
 import foundation.e.apps.data.blockedApps.ContentRatingsRepository
 import foundation.e.apps.data.blockedApps.ParentalControlRepository
@@ -40,14 +41,17 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
     private val playStoreRepository: PlayStoreRepository
 ) {
 
-    suspend operator fun invoke(appInstall: AppInstall): Pair<Boolean, ResultStatus> {
+    suspend operator fun invoke(appInstall: AppInstall): ResultSupreme<Boolean> {
         val authData = dataStoreManager.getAuthData()
-
-        if (!verifyContentRatingExists(appInstall, authData)) {
-            return Pair(false, ResultStatus.UNKNOWN)
+        val selectedAgeGroup = parentalControlRepository.getSelectedAgeGroup()
+        if (isParentalControlDisabled(selectedAgeGroup)) {
+            return ResultSupreme.Success( true)
         }
 
-        val selectedAgeGroup = parentalControlRepository.getSelectedAgeGroup()
+        if (!verifyContentRatingExists(appInstall, authData)) {
+            return ResultSupreme.Error(false)
+        }
+
         val allowedContentRating = contentRatingRepository.contentRatingGroups.find {
             it.id == selectedAgeGroup.toString()
         }
@@ -58,9 +62,8 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
                     "Allowed content rating: $allowedContentRating"
         )
 
-        val isAppAgeLimitedValidated = isParentalControlDisabled(selectedAgeGroup)
-                || isAppAgeRatingValid(appInstall, allowedContentRating)
-        return Pair(isAppAgeLimitedValidated, ResultStatus.OK)
+        val isAppAgeLimitValid = isAppAgeRatingValid(appInstall, allowedContentRating)
+        return ResultSupreme.Success(isAppAgeLimitValid)
     }
 
     private fun isAppAgeRatingValid(
@@ -69,8 +72,8 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
     ) = (appInstall.contentRating.id.isNotEmpty()
             && allowedContentRating?.ratings?.contains(appInstall.contentRating.id) == true)
 
-    private fun isParentalControlDisabled(selectedAgeGroup: Ages?) =
-        selectedAgeGroup == null
+    private fun isParentalControlDisabled(selectedAgeGroup: Age?) =
+        selectedAgeGroup == Age.PARENTAL_CONTROL_DISABLED
 
     private suspend fun verifyContentRatingExists(
         appInstall: AppInstall,

@@ -222,8 +222,8 @@ class MainActivity : AppCompatActivity() {
             it is AppEvent.AgeLimitRestrictionEvent
         }.collectLatest {
             ApplicationDialogFragment(
-                getString(R.string.unknown_error),
-                getString(R.string.age_rate_limit_message),
+                getString(R.string.restricted_app, it.data as String),
+                getString(R.string.age_rate_limit_message, it.data as String),
                 positiveButtonText = getString(R.string.ok),
             ).show(supportFragmentManager, TAG)
         }
