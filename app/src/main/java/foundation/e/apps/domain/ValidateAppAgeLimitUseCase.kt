@@ -52,14 +52,14 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
     }
 
     private fun validateAgeLimit(
-        selectedAgeGroup: Age,
+        ageGroup: Age,
         app: AppInstall
     ): ResultSupreme.Success<Boolean> {
         val allowedContentRating =
-            contentRatingRepository.contentRatingGroups.find { it.id == selectedAgeGroup.toString() }
+            contentRatingRepository.contentRatingGroups.find { it.id == ageGroup.toString() }
 
         Timber.d(
-            "Selected age group: $selectedAgeGroup \n" +
+            "Selected age group: $ageGroup \n" +
                     "Content rating: ${app.contentRating.id} \n" +
                     "Allowed content rating: $allowedContentRating"
         )
@@ -79,31 +79,31 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
     private fun isParentalControlDisabled(ageGroup: Age) = ageGroup == Age.PARENTAL_CONTROL_DISABLED
 
     private suspend fun verifyContentRatingExists(
-        appInstall: AppInstall,
+        app: AppInstall,
         authData: AuthData
     ): Boolean {
-        if (appInstall.contentRating.title.isEmpty()) {
+        if (app.contentRating.title.isEmpty()) {
             applicationRepository
                 .getApplicationDetails(
-                    appInstall.id, appInstall.packageName, authData, appInstall.origin
+                    app.id, app.packageName, authData, app.origin
                 ).let { (appDetails, resultStatus) ->
                     if (resultStatus == ResultStatus.OK) {
-                        appInstall.contentRating = appDetails.contentRating
+                        app.contentRating = appDetails.contentRating
                     } else {
                         return false
                     }
                 }
         }
 
-        if (appInstall.contentRating.id.isEmpty()) {
-            appInstall.contentRating =
+        if (app.contentRating.id.isEmpty()) {
+            app.contentRating =
                 playStoreRepository.getContentRatingWithId(
-                    appInstall.packageName,
-                    appInstall.contentRating
+                    app.packageName,
+                    app.contentRating
                 )
         }
 
-        return appInstall.contentRating.title.isNotEmpty() &&
-                appInstall.contentRating.id.isNotEmpty()
+        return app.contentRating.title.isNotEmpty() &&
+                app.contentRating.id.isNotEmpty()
     }
 }
