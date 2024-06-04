@@ -41,12 +41,13 @@
 
             <ImageView
                 android:id="@+id/appIcon"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:contentDescription="@string/app_icon"
-                android:scaleType="fitXY" />
+                android:scaleType="fitXY"
+                tools:src="@tools:sample/avatars" />
         </androidx.cardview.widget.CardView>
 
         <LinearLayout
@@ -61,7 +62,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="?android:textColorPrimary"
-                android:textSize="22sp" />
+                android:textSize="22sp"
+                tools:text="@tools:sample/lorem" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/appAuthor"
@@ -70,19 +72,44 @@
                 android:paddingStart="2dp"
                 android:paddingEnd="2dp"
                 android:textColor="@color/app_info_text_color_grey"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                tools:text="@tools:sample/lorem" />
 
         </LinearLayout>
     </LinearLayout>
-    <TextView
-        android:id="@+id/nsfwMessage"
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:id="@+id/antiFeatureInfoLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/message_inappropriate_content"
-        android:textSize="14sp"
-        android:layout_marginStart="12dp"
-        android:textColor="#99000000"
-        app:drawableStartCompat="@drawable/visibility_off" />
+        android:layout_marginHorizontal="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        tools:ignore="UseCompoundDrawables"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_visibility_off"
+            app:tint="@color/color_icon_app_details"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/antiFeatureMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="8dp"
+            android:text="@string/message_inappropriate_content"
+            android:textColor="@color/color_text_app_details"
+            android:textSize="14sp"
+            app:lineHeight="20dp" />
+
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -91,6 +118,24 @@
         android:layout_marginBottom="1dp"
         android:background="@color/colorBackground"
         android:backgroundTint="@color/colorBackground">
+
+        <TextView
+            android:id="@+id/antiFeature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/bg_tag_rounded"
+            android:paddingStart="10dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="4dp"
+            android:textAllCaps="false"
+            android:textColor="#626262"
+            android:textSize="14sp"
+            android:visibility="gone"
+            tools:text="NSFW"
+            tools:visibility="visible" />
+
 
         <TextView
             android:id="@+id/sourceTag"
@@ -106,7 +151,8 @@
             android:textColor="#626262"
             android:textSize="14sp"
             android:visibility="gone"
-            tools:text="Open Source" />
+            tools:text="Open Source"
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/categoryTitle"
@@ -122,7 +168,8 @@
             android:textColor="#626262"
             android:textIsSelectable="false"
             android:textSize="14sp"
-            tools:text="Racing" />
+            tools:text="Racing"
+            tools:visibility="visible" />
 
     </LinearLayout>
 

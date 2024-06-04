@@ -234,13 +234,6 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
         collectState()
 
-        binding.titleInclude.nsfwMessage.setOnClickListener {
-            ApplicationDialogFragment(
-                title = getString(R.string.nsfw_dialog_title),
-                message = getString(R.string.nsfw_dialog_message),
-                drawableResId = R.drawable.visibility_off
-            ).show(childFragmentManager, TAG)
-        }
     }
 
     private fun collectState() {
@@ -440,6 +433,35 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 appIcon.load(it.icon_image_path)
             }
         }
+
+        updateAntiFeaturesUi(it)
+    }
+
+    private fun updateAntiFeaturesUi(app: Application) {
+        val isNsfwApp =
+            app.antiFeatures?.nsfw != null // nsfw can have empty value, so check only for null
+
+        Timber.tag("Anti-features").i("${app.name} has anti-features?: $isNsfwApp")
+
+        if (isNsfwApp) {
+            with(binding.titleInclude) {
+                antiFeature.apply {
+                    isVisible = true
+                    text = getString(R.string.nsfw)
+                }
+
+                antiFeatureInfoLayout.apply {
+                    isVisible = true
+                    setOnClickListener {
+                        ApplicationDialogFragment(
+                            title = getString(R.string.nsfw_dialog_title),
+                            message = getString(R.string.nsfw_dialog_message),
+                            drawableResId = R.drawable.ic_visibility_off
+                        ).show(childFragmentManager, TAG)
+                    }
+                }
+            }
+        }
     }
 
     private fun updateCategoryTitle(app: Application) {
@@ -451,10 +473,13 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 catText == "web_games" -> catText = getString(R.string.games) // PWA games
             }
 
-            catText = catText.replace("_", " ")
+            catText = formatCategoryText(catText)
             categoryTitle.text = catText
         }
     }
+
+    private fun formatCategoryText(catText: String) = catText.replace("_", " ")
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
     private fun setupScreenshotRVAdapter() {
         screenshotsRVAdapter = ApplicationScreenshotsRVAdapter(origin)

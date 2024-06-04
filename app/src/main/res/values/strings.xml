@@ -224,6 +224,7 @@
     <string name="notification_channel_desc">Split Install channel</string>
     <string name="sign_in">Sign in</string>
     <string name="ignore">Ignore</string>
+    <string name="nsfw">NSFW</string>
     <string name="nsfw_dialog_title">Content Warning</string>
     <string name="nsfw_dialog_message">The app may contain nudity, profanity, slurs, violence, intense sexuality, political incorrectness, or other potentially disturbing subject matter. This is especially relevant in environments like workplaces, schools, religious and family settings.</string>
 </resources>
