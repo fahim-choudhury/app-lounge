@@ -1,19 +1,18 @@
 /*
- *  Copyright MURENA SAS 2024
- *  Apps  Quickly and easily install Android apps onto your device!
+ * Copyright (C) 2024 MURENA SAS
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -41,39 +40,43 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
     private val playStoreRepository: PlayStoreRepository
 ) {
 
-    suspend operator fun invoke(appInstall: AppInstall): ResultSupreme<Boolean> {
+    suspend operator fun invoke(app: AppInstall): ResultSupreme<Boolean> {
         val authData = dataStoreManager.getAuthData()
-        val selectedAgeGroup = parentalControlRepository.getSelectedAgeGroup()
-        if (isParentalControlDisabled(selectedAgeGroup)) {
-            return ResultSupreme.Success( true)
-        }
+        val ageGroup = parentalControlRepository.getSelectedAgeGroup()
 
-        if (!verifyContentRatingExists(appInstall, authData)) {
-            return ResultSupreme.Error(false)
+        return when {
+            isParentalControlDisabled(ageGroup) -> ResultSupreme.Success(data = true)
+            hasNoContentRating(app, authData) -> ResultSupreme.Error(data = false)
+            else -> validateAgeLimit(ageGroup, app)
         }
+    }
 
-        val allowedContentRating = contentRatingRepository.contentRatingGroups.find {
-            it.id == selectedAgeGroup.toString()
-        }
+    private fun validateAgeLimit(
+        selectedAgeGroup: Age,
+        app: AppInstall
+    ): ResultSupreme.Success<Boolean> {
+        val allowedContentRating =
+            contentRatingRepository.contentRatingGroups.find { it.id == selectedAgeGroup.toString() }
 
         Timber.d(
             "Selected age group: $selectedAgeGroup \n" +
-                    "Content rating: ${appInstall.contentRating.id} \n" +
+                    "Content rating: ${app.contentRating.id} \n" +
                     "Allowed content rating: $allowedContentRating"
         )
 
-        val isAppAgeLimitValid = isAppAgeRatingValid(appInstall, allowedContentRating)
-        return ResultSupreme.Success(isAppAgeLimitValid)
+        return ResultSupreme.Success(isValidAppAgeRating(app, allowedContentRating))
     }
 
-    private fun isAppAgeRatingValid(
-        appInstall: AppInstall,
-        allowedContentRating: ContentRatingGroup?
-    ) = (appInstall.contentRating.id.isNotEmpty()
-            && allowedContentRating?.ratings?.contains(appInstall.contentRating.id) == true)
+    private suspend fun hasNoContentRating(app: AppInstall, authData: AuthData) =
+        !verifyContentRatingExists(app, authData)
 
-    private fun isParentalControlDisabled(selectedAgeGroup: Age?) =
-        selectedAgeGroup == Age.PARENTAL_CONTROL_DISABLED
+    private fun isValidAppAgeRating(
+        app: AppInstall,
+        allowedContentRating: ContentRatingGroup?
+    ) = (app.contentRating.id.isNotEmpty()
+            && allowedContentRating?.ratings?.contains(app.contentRating.id) == true)
+
+    private fun isParentalControlDisabled(ageGroup: Age) = ageGroup == Age.PARENTAL_CONTROL_DISABLED
 
     private suspend fun verifyContentRatingExists(
         appInstall: AppInstall,
