@@ -102,7 +102,7 @@ data class Application(
     var isGplayReplaced: Boolean = false,
     @SerializedName(value = "on_fdroid")
     val isFDroidApp: Boolean = false,
-    val contentRating: ContentRating = ContentRating(),
+    var contentRating: ContentRating = ContentRating(),
     @SerializedName(value = "antifeatures")
     val antiFeatures: List<Map<String, String>> = emptyList()
 ) {

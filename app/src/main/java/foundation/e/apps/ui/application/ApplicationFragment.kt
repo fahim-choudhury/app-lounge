@@ -171,7 +171,8 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
         binding.applicationLayout.visibility = View.INVISIBLE
 
-        applicationViewModel.application.observe(viewLifecycleOwner) { resultPair ->
+        applicationViewModel.applicationLiveData.observe(viewLifecycleOwner) { resultPair ->
+            Timber.d("ApplicationLiveData: ${resultPair.first.contentRating}")
             updateUi(resultPair)
         }
 
@@ -500,7 +501,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun openShareSheet() {
-        val application = applicationViewModel.application.value?.first ?: return
+        val application = applicationViewModel.applicationLiveData.value?.first ?: return
         val shareIntent = AppShareIntent.create(application.name, application.shareUri)
         startActivity(Intent.createChooser(shareIntent, null))
     }
@@ -962,7 +963,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             return EXODUS_URL
         }
 
-        val reportId = applicationViewModel.application.value!!.first.reportId
+        val reportId = applicationViewModel.applicationLiveData.value!!.first.reportId
         return "$EXODUS_REPORT_URL${Locale.getDefault().language}/reports/$reportId"
     }
 

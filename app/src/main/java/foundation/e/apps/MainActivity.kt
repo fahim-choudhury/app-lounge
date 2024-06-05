@@ -120,6 +120,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.updateAppWarningList()
+        viewModel.updateContentRatings()
 
         observeEvents()
     }
@@ -194,7 +195,11 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 launch {
-                    observerErrorEvent()
+                    observeErrorEvent()
+                }
+
+                launch {
+                    observeErrorDialogEvent()
                 }
 
                 launch {
@@ -204,7 +209,23 @@ class MainActivity : AppCompatActivity() {
                 launch {
                     observeNoInternetEvent()
                 }
+
+                launch {
+                    observeAgeLimitRestrictionEvent()
+                }
             }
+        }
+    }
+
+    private suspend fun observeAgeLimitRestrictionEvent() {
+        EventBus.events.filter {
+            it is AppEvent.AgeLimitRestrictionEvent
+        }.collectLatest {
+            ApplicationDialogFragment(
+                getString(R.string.restricted_app, it.data as String),
+                getString(R.string.age_rate_limit_message, it.data as String),
+                positiveButtonText = getString(R.string.ok),
+            ).show(supportFragmentManager, TAG)
         }
     }
 
@@ -355,11 +376,22 @@ class MainActivity : AppCompatActivity() {
         findNavController(R.id.fragment).navigate(action)
     }
 
-    private suspend fun observerErrorEvent() {
+    private suspend fun observeErrorEvent() {
         EventBus.events.filter { appEvent ->
             appEvent is AppEvent.ErrorMessageEvent
         }.collectLatest {
             showSnackbarMessage(getString(it.data as Int))
+        }
+    }
+
+    private suspend fun observeErrorDialogEvent() {
+        EventBus.events.filter { appEvent ->
+            appEvent is AppEvent.ErrorMessageDialogEvent
+        }.collectLatest {
+            ApplicationDialogFragment(
+                title = getString(R.string.unknown_error),
+                message = getString(it.data as Int)
+            ).show(supportFragmentManager, TAG)
         }
     }
 
