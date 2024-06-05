@@ -63,7 +63,7 @@ class AgeRatingProvider : ContentProvider() {
         val code = uriMatcher.match(uri)
         return when (code) {
             CODE_LOGIN_TYPE -> getLoginType()
-            CODE_AGE_RATING -> getAgeRatings(uri)
+            CODE_AGE_RATING -> getAgeRatings()
             else -> null
         }
     }
@@ -74,7 +74,7 @@ class AgeRatingProvider : ContentProvider() {
         return cursor
     }
 
-    private fun getAgeRatings(uri: Uri): Cursor {
+    private fun getAgeRatings(): Cursor {
         val cursor = MatrixCursor(arrayOf(PACKAGE_NAME, AGE_RATING))
         val packagesNames = appLoungePackageManager.getAllUserApps().map { it.packageName }
         runBlocking {
