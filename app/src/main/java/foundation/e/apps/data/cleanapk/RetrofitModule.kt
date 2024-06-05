@@ -1,6 +1,5 @@
 /*
- * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2021  E FOUNDATION
+ * Copyright (C) 2021-2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.data.cleanapk
@@ -29,33 +29,32 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import foundation.e.apps.BuildConfig
 import foundation.e.apps.data.cleanapk.data.app.Application
 import foundation.e.apps.data.ecloud.EcloudApiInterface
 import foundation.e.apps.data.exodus.ExodusTrackerApi
 import foundation.e.apps.data.fdroid.FdroidApiInterface
 import okhttp3.Cache
 import okhttp3.Interceptor
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
-import okhttp3.Protocol
-import okhttp3.Response
-import okhttp3.ResponseBody.Companion.toResponseBody
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.jackson.JacksonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
-import timber.log.Timber
-import java.net.ConnectException
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
+
 
 @Module
 @InstallIn(SingletonComponent::class)
 object RetrofitModule {
 
     private const val HTTP_TIMEOUT_IN_SECOND = 10L
+    private const val HEADER_USER_AGENT = "User-Agent"
+    private const val HEADER_ACCEPT_LANGUAGE = "Accept-Language"
 
     /**
      * Provides an instance of Retrofit to work with CleanAPK API
@@ -63,7 +62,7 @@ object RetrofitModule {
      */
     @Singleton
     @Provides
-    fun provideCleanAPKInterface(okHttpClient: OkHttpClient, moshi: Moshi): CleanApkRetrofit {
+    fun provideCleanApkInterface(okHttpClient: OkHttpClient, moshi: Moshi): CleanApkRetrofit {
         return Retrofit.Builder()
             .baseUrl(CleanApkRetrofit.BASE_URL)
             .client(okHttpClient)
@@ -78,7 +77,7 @@ object RetrofitModule {
      */
     @Singleton
     @Provides
-    fun provideCleanAPKDetailApi(
+    fun provideCleanApkDetailApi(
         okHttpClient: OkHttpClient,
         @Named("gsonCustomAdapter") gson: Gson
     ): CleanApkAppDetailsRetrofit {
@@ -165,23 +164,40 @@ object RetrofitModule {
     fun provideInterceptor(): Interceptor {
         return Interceptor { chain ->
             val builder = chain.request().newBuilder()
-            Timber.d("Request: URL: ${chain.request().url}")
-            builder.header(
-                "User-Agent",
-                "Dalvik/2.1.0 (Linux; U; Android ${Build.VERSION.RELEASE};)"
-            ).header("Accept-Language", Locale.getDefault().language)
+                .header(
+                    HEADER_USER_AGENT, "Dalvik/2.1.0 (Linux; U; Android ${Build.VERSION.RELEASE};)"
+                )
+                .header(HEADER_ACCEPT_LANGUAGE, Locale.getDefault().language)
 
             val response = chain.proceed(builder.build())
-            Timber.d("Response: Code: ${response.code} message: ${response.message}")
+
             return@Interceptor response
         }
     }
 
+    @Provides
+    @Singleton
+    fun provideLoggingInterceptor(): HttpLoggingInterceptor {
+        val interceptor = HttpLoggingInterceptor()
+
+        interceptor.level = when {
+            BuildConfig.DEBUG -> HttpLoggingInterceptor.Level.BODY
+            else -> HttpLoggingInterceptor.Level.NONE
+        }
+
+        return interceptor
+    }
+
     @Singleton
     @Provides
-    fun provideOkHttpClient(cache: Cache, interceptor: Interceptor): OkHttpClient {
+    fun provideOkHttpClient(
+        cache: Cache,
+        interceptor: Interceptor,
+        httpLoggingInterceptor: HttpLoggingInterceptor
+    ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(interceptor)
+            .addInterceptor(httpLoggingInterceptor) // Put logging interceptor last
             .callTimeout(HTTP_TIMEOUT_IN_SECOND, TimeUnit.SECONDS)
             .cache(cache)
             .build()
