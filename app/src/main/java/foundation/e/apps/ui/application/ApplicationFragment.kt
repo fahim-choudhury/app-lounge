@@ -147,6 +147,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         private const val PRIVACY_GUIDELINE_URL = "https://doc.e.foundation/privacy_score"
         private const val REQUEST_EXODUS_REPORT_URL =
             "https://reports.exodus-privacy.eu.org/en/analysis/submit#"
+        private const val KEY_ANTI_FEATURES_NSFW = "NSFW"
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -284,7 +285,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             }
             appTrackers.setOnClickListener {
                 val fusedApp = applicationViewModel.getFusedApp()
-                var trackers =
+                val trackers =
                     buildTrackersString(fusedApp)
 
                 ApplicationDialogFragment(
@@ -439,17 +440,10 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun updateAntiFeaturesUi(app: Application) {
         val isNsfwApp =
-            app.antiFeatures?.nsfw != null // nsfw can have empty value, so check only for null
-
-        Timber.tag("Anti-features").i("${app.name} has anti-features?: $isNsfwApp")
+            app.antiFeatures.find { antiFeature -> antiFeature.containsKey(KEY_ANTI_FEATURES_NSFW) } != null
 
         if (isNsfwApp) {
             with(binding.titleInclude) {
-                antiFeature.apply {
-                    isVisible = true
-                    text = getString(R.string.nsfw)
-                }
-
                 antiFeatureInfoLayout.apply {
                     isVisible = true
                     setOnClickListener {

@@ -103,8 +103,8 @@ data class Application(
     @SerializedName(value = "on_fdroid")
     val isFDroidApp: Boolean = false,
     val contentRating: ContentRating = ContentRating(),
-    @SerializedName(value = "antifeature")
-    val antiFeatures: AntiFeatures? = null, // FIXME: Update the model to match backend response structure
+    @SerializedName(value = "antifeatures")
+    val antiFeatures: List<Map<String, String>> = emptyList()
 ) {
     fun updateType() {
         this.type = if (this.is_pwa) PWA else NATIVE
@@ -118,20 +118,6 @@ data class Application(
         }
     }
 }
-
-data class AntiFeatures(
-    @SerializedName("NSFW")
-    val nsfw: String?,
-
-    @SerializedName("NonFreeAssets")
-    val nonFreeAssets: String?,
-
-    @SerializedName("NonFreeNet")
-    val nonFreeNet: String?,
-
-    @SerializedName("Tracking")
-    val tracking: String?
-)
 
 val Application.shareUri: Uri
     get() = when (type) {
