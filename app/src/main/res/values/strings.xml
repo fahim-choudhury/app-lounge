@@ -124,6 +124,9 @@
     <string name="having_troubles">Having troubles?</string>
     <string name="troubleshootURL" translatable="false">https://doc.e.foundation/support-topics/app_lounge_troubleshooting</string>
     <string name="share">Share</string>
+    <string name="restricted_app">[%1$s] Restricted App</string>
+    <string name="age_rate_limit_message">You are too young to be able to install %1$s. Please check with your parent your age group is correct or disable Parental Control to be able to install it.</string>
+
 
     <!-- Updates Fragment -->
     <string name="update_all">Update All</string>

@@ -35,6 +35,7 @@ import foundation.e.apps.R
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
+import foundation.e.apps.data.blockedApps.ContentRatingsRepository
 import foundation.e.apps.data.ecloud.EcloudRepository
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
@@ -59,6 +60,7 @@ class MainActivityViewModel @Inject constructor(
     private val pwaManager: PWAManager,
     private val ecloudRepository: EcloudRepository,
     private val blockedAppRepository: BlockedAppRepository,
+    private val contentRatingsRepository: ContentRatingsRepository,
     private val appInstallProcessor: AppInstallProcessor,
 ) : ViewModel() {
 
@@ -226,6 +228,12 @@ class MainActivityViewModel @Inject constructor(
     fun updateAppWarningList() {
         viewModelScope.launch {
             blockedAppRepository.fetchUpdateOfAppWarningList()
+        }
+    }
+
+    fun updateContentRatings() {
+        viewModelScope.launch {
+            contentRatingsRepository.fetchContentRatingData()
         }
     }
 

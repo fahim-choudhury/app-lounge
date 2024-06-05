@@ -214,7 +214,7 @@ class PlayStoreRepositoryImpl @Inject constructor(
         return downloadData
     }
 
-    override suspend fun updateContentRatingWithId(
+    override suspend fun getContentRatingWithId(
         appPackage: String,
         contentRating: ContentRating
     ): ContentRating {

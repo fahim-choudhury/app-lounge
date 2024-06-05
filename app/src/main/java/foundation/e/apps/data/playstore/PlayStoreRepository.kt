@@ -45,7 +45,7 @@ interface PlayStoreRepository : StoreRepository {
         offerType: Int
     ): List<File>
 
-    suspend fun updateContentRatingWithId(
+    suspend fun getContentRatingWithId(
         appPackage: String,
         contentRating: ContentRating
     ): ContentRating
