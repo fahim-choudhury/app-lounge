@@ -92,7 +92,7 @@ class AgeRatingProvider : ContentProvider() {
                                 Origin.GPLAY
                             )
                         if (appDetails.first.package_name.isBlank()) return@async null
-                        playStoreRepository.updateContentRatingWithId(
+                        playStoreRepository.getContentRatingWithId(
                             packagesName,
                             appDetails.first.contentRating
                         )
