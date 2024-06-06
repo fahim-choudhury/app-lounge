@@ -1,23 +1,22 @@
 /*
- *  Copyright MURENA SAS 2024
- *  Apps  Quickly and easily install Android apps onto your device!
+ * Copyright (C) 2024 MURENA SAS
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
-package foundation.e.apps.data.blockedApps
+package foundation.e.apps.data.parentalcontrol.gplayrating
 
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
@@ -29,7 +28,7 @@ import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Named
 
-class ContentRatingParser @Inject constructor(
+class GooglePlayContentRatingParser @Inject constructor(
     private val gson: Gson,
     @Named("cacheDir") private val cacheDir: String
 ) {
@@ -38,7 +37,7 @@ class ContentRatingParser @Inject constructor(
         private const val CONTENT_RATINGS_FILE_NAME = "content_ratings.json"
     }
 
-    fun parseContentRatingData(): List<ContentRatingGroup> {
+    fun parseContentRatingData(): List<GooglePlayContentRatingGroup> {
         return try {
             val outputPath = moveFile()
             val contentRatingJson = readJsonFromFile(outputPath)
@@ -69,9 +68,9 @@ class ContentRatingParser @Inject constructor(
         return outputPath
     }
 
-    private fun parseJsonOfContentRatingGroup(contentRatingJson: String): List<ContentRatingGroup> {
-        val contentRatingsListTypeGroup = object : TypeToken<List<ContentRatingGroup>>() {}.type
-        val contentRatingGroups: List<ContentRatingGroup> =
+    private fun parseJsonOfContentRatingGroup(contentRatingJson: String): List<GooglePlayContentRatingGroup> {
+        val contentRatingsListTypeGroup = object : TypeToken<List<GooglePlayContentRatingGroup>>() {}.type
+        val contentRatingGroups: List<GooglePlayContentRatingGroup> =
             gson.fromJson(contentRatingJson, contentRatingsListTypeGroup)
 
         return contentRatingGroups.map {
@@ -82,7 +81,7 @@ class ContentRatingParser @Inject constructor(
         }
     }
 
-    private fun handleException(exception: Exception): List<ContentRatingGroup> {
+    private fun handleException(exception: Exception): List<GooglePlayContentRatingGroup> {
         Timber.e(exception.localizedMessage ?: "", exception)
         return listOf()
     }

@@ -473,8 +473,13 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
     }
 
-    private fun formatCategoryText(catText: String) = catText.replace("_", " ")
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    private fun formatCategoryText(text: String): String {
+        return text
+            .replace("_", " ")
+            .replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+            } // Capitalize, example: books and reference -> Books and reference
+    }
 
     private fun setupScreenshotRVAdapter() {
         screenshotsRVAdapter = ApplicationScreenshotsRVAdapter(origin)
