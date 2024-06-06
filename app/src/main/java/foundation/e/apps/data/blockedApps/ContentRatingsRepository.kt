@@ -53,7 +53,7 @@ class ContentRatingsRepository @Inject constructor(
             fileName = CONTENT_RATINGS_FILE_NAME
         ) { success, _ ->
             if (success) {
-                contentRatingParser.parseContentRatingData()
+                _contentRatingGroups = contentRatingParser.parseContentRatingData()
             }
         }
     }
