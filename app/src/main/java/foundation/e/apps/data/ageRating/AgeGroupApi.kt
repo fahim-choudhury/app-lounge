@@ -17,25 +17,19 @@
  *
  */
 
-package foundation.e.apps.data.blockedApps
+package foundation.e.apps.data.ageRating
 
-import foundation.e.apps.data.ageRating.AgeGroupApi
-import javax.inject.Inject
-import javax.inject.Singleton
+import foundation.e.apps.data.blockedApps.ContentRatingGroup
+import retrofit2.Response
+import retrofit2.http.GET
 
-@Singleton
-class ContentRatingsRepository @Inject constructor(
-    private val ageGroupApi: AgeGroupApi,
-) {
+interface AgeGroupApi {
 
-    private var _contentRatingGroups = listOf<ContentRatingGroup>()
-    val contentRatingGroups: List<ContentRatingGroup>
-        get() = _contentRatingGroups
-
-    suspend fun fetchContentRatingData() {
-        val response = ageGroupApi.getDefinedAgeGroups()
-        if (response.isSuccessful) {
-            _contentRatingGroups = response.body() ?: emptyList()
-        }
+    companion object {
+        val BASE_URL = "https://gitlab.e.foundation/e/os/app-lounge-content-ratings/-/raw/main/"
     }
+
+    @GET("content_ratings.json?ref_type=heads")
+    suspend fun getDefinedAgeGroups(): Response<List<ContentRatingGroup>>
+
 }

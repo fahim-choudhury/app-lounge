@@ -19,11 +19,11 @@
 
 package foundation.e.apps.data.blockedApps
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
 
 data class ContentRatingGroup(
     val id: String,
-    @SerializedName("age_group")
+    @Json(name = "age_group")
     val ageGroup: String,
     var ratings: List<String>
 )
