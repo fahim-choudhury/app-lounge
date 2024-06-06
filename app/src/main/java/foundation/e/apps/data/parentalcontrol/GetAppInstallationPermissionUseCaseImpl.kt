@@ -52,8 +52,7 @@ constructor(
     }
 
     override suspend operator fun invoke(app: AppInstall): AppInstallationPermissionState {
-        val parentalControl = getParentalControlStateUseCase.getParentalControlState()
-        return when (parentalControl) {
+        return when (val parentalControl = getParentalControlStateUseCase.invoke()) {
             is Disabled -> Allowed
             is AgeGroup ->
                 when {

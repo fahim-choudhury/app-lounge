@@ -21,5 +21,5 @@ package foundation.e.apps.domain.parentalcontrol
 import foundation.e.apps.domain.parentalcontrol.model.ParentalControlState
 
 interface GetParentalControlStateUseCase {
-    fun getParentalControlState(): ParentalControlState
+    suspend operator fun invoke(): ParentalControlState
 }

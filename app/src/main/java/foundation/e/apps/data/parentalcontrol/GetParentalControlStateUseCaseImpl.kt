@@ -36,7 +36,7 @@ class GetParentalControlStateUseCaseImpl @Inject constructor(
             "content://foundation.e.parentalcontrol.provider/age"
     }
 
-    override fun getParentalControlState(): ParentalControlState {
+    override suspend fun invoke(): ParentalControlState {
         val uri = Uri.parse(URI_PARENTAL_CONTROL_PROVIDER)
         context.contentResolver.query(
             uri, null, null, null, null
