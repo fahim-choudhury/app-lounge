@@ -73,8 +73,10 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
     private fun isValidAppAgeRating(
         app: AppInstall,
         allowedContentRating: ContentRatingGroup?
-    ) = (app.contentRating.id.isNotEmpty()
-            && allowedContentRating?.ratings?.contains(app.contentRating.id) == true)
+    ): Boolean {
+        val allowedAgeRatings = allowedContentRating?.ratings?.map { it.lowercase() } ?: emptyList()
+        return app.contentRating.id.isNotEmpty() && allowedAgeRatings.contains(app.contentRating.id)
+    }
 
     private fun isParentalControlDisabled(ageGroup: Age) = ageGroup == Age.PARENTAL_CONTROL_DISABLED
 
