@@ -11,11 +11,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import foundation.e.apps.data.application.ApplicationRepository
+import foundation.e.apps.data.blockedApps.ContentRatingsRepository
 import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.playstore.PlayStoreRepository
+import foundation.e.apps.data.preference.DataStoreManager
+import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
 import foundation.e.apps.install.pkg.AppLoungePackageManager
-import foundation.e.apps.provider.ProviderConstants.Companion.AGE_RATING
 import foundation.e.apps.provider.ProviderConstants.Companion.AUTHORITY
 import foundation.e.apps.provider.ProviderConstants.Companion.LOGIN_TYPE
 import foundation.e.apps.provider.ProviderConstants.Companion.PACKAGE_NAME
@@ -36,12 +39,18 @@ class AgeRatingProvider : ContentProvider() {
         fun getPlayStoreRepository(): PlayStoreRepository
         fun getApplicationRepository(): ApplicationRepository
         fun getPackageManager(): AppLoungePackageManager
+        fun getContentRatingsRepository(): ContentRatingsRepository
+        fun getValidateAppAgeLimitUseCase(): ValidateAppAgeLimitUseCase
+        fun getDataStoreManager(): DataStoreManager
     }
 
     private lateinit var authenticatorRepository: AuthenticatorRepository
     private lateinit var playStoreRepository: PlayStoreRepository
     private lateinit var applicationRepository: ApplicationRepository
     private lateinit var appLoungePackageManager: AppLoungePackageManager
+    private lateinit var contentRatingsRepository: ContentRatingsRepository
+    private lateinit var validateAppAgeLimitUseCase: ValidateAppAgeLimitUseCase
+    private lateinit var dataStoreManager: DataStoreManager
 
     private val CODE_LOGIN_TYPE = 1
     private val CODE_AGE_RATING = 2
@@ -70,37 +79,41 @@ class AgeRatingProvider : ContentProvider() {
 
     private fun getLoginType(): Cursor {
         val cursor = MatrixCursor(arrayOf(LOGIN_TYPE))
-        cursor.addRow(arrayOf(authenticatorRepository.getUserType()))
+        cursor.addRow(arrayOf(dataStoreManager.getUserType()))
         return cursor
     }
 
     private fun getAgeRatings(): Cursor {
-        val cursor = MatrixCursor(arrayOf(PACKAGE_NAME, AGE_RATING))
+        val cursor = MatrixCursor(arrayOf(PACKAGE_NAME))
         val packagesNames = appLoungePackageManager.getAllUserApps().map { it.packageName }
         runBlocking {
             withContext(IO) {
-                val contentRatingsDeferred = packagesNames.map { packagesName ->
+
+                if (contentRatingsRepository.contentRatingGroups.isEmpty()) {
+                    contentRatingsRepository.fetchContentRatingData()
+                }
+
+                val contentRatingsDeferred = packagesNames.map { packageName ->
                     async {
-                        val authData = runCatching {
-                            authenticatorRepository.gplayAuth
-                        }.getOrNull() ?: return@async null
-                        val appDetails =
-                            applicationRepository.getApplicationDetails(
-                                "",
-                                packagesName,
-                                authData,
-                                Origin.GPLAY
-                            )
-                        if (appDetails.first.package_name.isBlank()) return@async null
-                        playStoreRepository.getContentRatingWithId(
-                            packagesName,
-                            appDetails.first.contentRating
+                        val authData = dataStoreManager.getAuthData()
+                        if (authData.email.isBlank() && authData.aasToken.isBlank()) {
+                            return@async null
+                        } else {
+                            authenticatorRepository.gplayAuth = authData
+                        }
+                        val fakeAppInstall = AppInstall(
+                            packageName = packageName,
+                            origin = Origin.GPLAY
                         )
+                        val validateResult = validateAppAgeLimitUseCase(fakeAppInstall)
+                        validateResult.data ?: false
                     }
                 }
                 val contentsRatings = contentRatingsDeferred.awaitAll()
-                packagesNames.forEachIndexed { index, packageName ->
-                    cursor.addRow(arrayOf(packageName, contentsRatings[index]?.id))
+                contentsRatings.forEachIndexed { index: Int, isValid: Boolean? ->
+                    if (isValid == true) {
+                        cursor.addRow(arrayOf(packagesNames[index]))
+                    }
                 }
             }
         }
@@ -116,6 +129,10 @@ class AgeRatingProvider : ContentProvider() {
         playStoreRepository = hiltEntryPoint.getPlayStoreRepository()
         applicationRepository = hiltEntryPoint.getApplicationRepository()
         appLoungePackageManager = hiltEntryPoint.getPackageManager()
+        contentRatingsRepository = hiltEntryPoint.getContentRatingsRepository()
+        validateAppAgeLimitUseCase = hiltEntryPoint.getValidateAppAgeLimitUseCase()
+        dataStoreManager = hiltEntryPoint.getDataStoreManager()
+
 
         return true
     }
