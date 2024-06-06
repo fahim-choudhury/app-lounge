@@ -38,7 +38,6 @@ import foundation.e.apps.domain.parentalcontrol.GetParentalControlStateUseCase
 import foundation.e.apps.domain.parentalcontrol.model.AgeGroupValue
 import foundation.e.apps.domain.parentalcontrol.model.ParentalControlState
 import foundation.e.apps.util.MainCoroutineRule
-import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -47,8 +46,7 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
-
-private const val s = ""
+import kotlin.test.assertEquals
 
 class GetAppInstallationPermissionUseCaseTest {
     // Run tasks synchronously
