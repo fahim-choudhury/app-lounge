@@ -28,6 +28,7 @@ import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Allowed
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Denied
+import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.DeniedOnDataLoadError
 import foundation.e.apps.data.parentalcontrol.GetAppInstallationPermissionUseCaseImpl
 import foundation.e.apps.data.parentalcontrol.gplayrating.GooglePlayContentRatingGroup
 import foundation.e.apps.data.parentalcontrol.gplayrating.GooglePlayContentRatingsRepository
@@ -38,6 +39,7 @@ import foundation.e.apps.domain.parentalcontrol.GetParentalControlStateUseCase
 import foundation.e.apps.domain.parentalcontrol.model.AgeGroupValue
 import foundation.e.apps.domain.parentalcontrol.model.ParentalControlState
 import foundation.e.apps.util.MainCoroutineRule
+import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -46,9 +48,9 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
-import kotlin.test.assertEquals
 
 class GetAppInstallationPermissionUseCaseTest {
+
     // Run tasks synchronously
     @Rule @JvmField val instantExecutorRule = InstantTaskExecutorRule()
 
@@ -285,6 +287,187 @@ class GetAppInstallationPermissionUseCaseTest {
                         authData,
                         appPendingInstallation.origin))
                 .thenReturn(Pair(application, ResultStatus.OK))
+
+            Mockito.`when`(playStoreRepository.getContentRatingWithId(appPackage, contentRating))
+                .thenReturn(contentRatingWithId)
+
+            val installationPermissionState = useCase.invoke(appPendingInstallation)
+
+            assertEquals(Denied, installationPermissionState)
+        }
+    }
+
+    @Test
+    fun `deny app installation on data load error when parental control is enabled and Google Play app has no content rating`() {
+        runTest {
+            val appPackage = "com.unit.test"
+            val contentRatingTitle = ""
+            val contentRatingId = contentRatingTitle.lowercase()
+
+            val googlePlayContentRatingGroup =
+                listOf(
+                    GooglePlayContentRatingGroup(
+                        id = "THREE",
+                        ageGroup = "0-3",
+                        ratings =
+                            listOf("rated for 3+") // ratings will be parsed as lowercase in real
+                        ))
+
+            val email = "test@test.com"
+            val token = "token"
+
+            val contentRating = ContentRating(title = contentRatingTitle)
+            val contentRatingWithId =
+                ContentRating(id = contentRatingId, title = contentRatingTitle)
+
+            val appPendingInstallation: AppInstall =
+                AppInstall(packageName = appPackage).apply {
+                    this.isFDroidApp = false
+                    this.contentRating = contentRating
+                }
+
+            val application = Application(isFDroidApp = false, contentRating = contentRating)
+
+            val authData = AuthData(email, token)
+
+            Mockito.`when`(getParentalControlStateUseCase.invoke())
+                .thenReturn(ParentalControlState.AgeGroup(AgeGroupValue.THREE))
+
+            Mockito.`when`(contentRatingsRepository.contentRatingGroups)
+                .thenReturn(googlePlayContentRatingGroup)
+
+            Mockito.`when`(authenticatorRepository.gplayAuth).thenReturn(authData)
+
+            Mockito.`when`(dataStoreManager.getAuthData()).thenReturn(authData)
+
+            Mockito.`when`(
+                    applicationRepository.getApplicationDetails(
+                        appPendingInstallation.id,
+                        appPendingInstallation.packageName,
+                        authData,
+                        appPendingInstallation.origin))
+                .thenReturn(Pair(application, ResultStatus.OK))
+
+            Mockito.`when`(playStoreRepository.getContentRatingWithId(appPackage, contentRating))
+                .thenReturn(contentRatingWithId)
+
+            val installationPermissionState = useCase.invoke(appPendingInstallation)
+
+            assertEquals(DeniedOnDataLoadError, installationPermissionState)
+        }
+    }
+
+    @Test
+    fun `deny app installation on data load error when parental control is enabled and Google Play app has no content rating and app details can't be loaded`() {
+        runTest {
+            val appPackage = "com.unit.test"
+            val contentRatingTitle = ""
+            val contentRatingId = contentRatingTitle.lowercase()
+
+            val googlePlayContentRatingGroup =
+                listOf(
+                    GooglePlayContentRatingGroup(
+                        id = "THREE",
+                        ageGroup = "0-3",
+                        ratings =
+                            listOf("rated for 3+") // ratings will be parsed as lowercase in real
+                        ))
+
+            val email = "test@test.com"
+            val token = "token"
+
+            val contentRating = ContentRating(title = contentRatingTitle)
+            val contentRatingWithId =
+                ContentRating(id = contentRatingId, title = contentRatingTitle)
+
+            val appPendingInstallation: AppInstall =
+                AppInstall(packageName = appPackage).apply {
+                    this.isFDroidApp = false
+                    this.contentRating = contentRating
+                }
+
+            val application = Application(isFDroidApp = false, contentRating = contentRating)
+
+            val authData = AuthData(email, token)
+
+            Mockito.`when`(getParentalControlStateUseCase.invoke())
+                .thenReturn(ParentalControlState.AgeGroup(AgeGroupValue.THREE))
+
+            Mockito.`when`(contentRatingsRepository.contentRatingGroups)
+                .thenReturn(googlePlayContentRatingGroup)
+
+            Mockito.`when`(authenticatorRepository.gplayAuth).thenReturn(authData)
+
+            Mockito.`when`(dataStoreManager.getAuthData()).thenReturn(authData)
+
+            Mockito.`when`(
+                    applicationRepository.getApplicationDetails(
+                        appPendingInstallation.id,
+                        appPendingInstallation.packageName,
+                        authData,
+                        appPendingInstallation.origin))
+                .thenReturn(Pair(application, ResultStatus.UNKNOWN))
+
+            Mockito.`when`(playStoreRepository.getContentRatingWithId(appPackage, contentRating))
+                .thenReturn(contentRatingWithId)
+
+            val installationPermissionState = useCase.invoke(appPendingInstallation)
+
+            assertEquals(DeniedOnDataLoadError, installationPermissionState)
+        }
+    }
+
+    // Note: This case is unlikely to happen
+    @Test
+    fun `deny app installation when parental control is enabled and parental control state can't match with Google Play content ratings`() {
+        runTest {
+            val appPackage = "com.unit.test"
+            val contentRatingTitle = "Rated for 3+"
+            val contentRatingId = contentRatingTitle.lowercase()
+
+            val googlePlayContentRatingGroup =
+                listOf(
+                    GooglePlayContentRatingGroup(
+                        id = "EIGHTEEN",
+                        ageGroup = "18+",
+                        ratings =
+                            listOf("rated for 18+") // ratings will be parsed as lowercase in real
+                        ))
+
+            val email = "test@test.com"
+            val token = "token"
+
+            val contentRating = ContentRating(title = contentRatingTitle)
+            val contentRatingWithId =
+                ContentRating(id = contentRatingId, title = contentRatingTitle)
+
+            val appPendingInstallation: AppInstall =
+                AppInstall(packageName = appPackage).apply {
+                    this.isFDroidApp = false
+                    this.contentRating = contentRating
+                }
+
+            val application = Application(isFDroidApp = false, contentRating = contentRating)
+
+            val authData = AuthData(email, token)
+
+            Mockito.`when`(getParentalControlStateUseCase.invoke())
+                .thenReturn(ParentalControlState.AgeGroup(AgeGroupValue.THREE))
+
+            Mockito.`when`(contentRatingsRepository.contentRatingGroups)
+                .thenReturn(googlePlayContentRatingGroup)
+
+            Mockito.`when`(authenticatorRepository.gplayAuth).thenReturn(authData)
+
+            Mockito.`when`(dataStoreManager.getAuthData()).thenReturn(authData)
+
+            Mockito.`when`(
+                    applicationRepository.getApplicationDetails(
+                        appPendingInstallation.id,
+                        appPendingInstallation.packageName,
+                        authData,
+                        appPendingInstallation.origin))
+                .thenReturn(Pair(application, ResultStatus.UNKNOWN))
 
             Mockito.`when`(playStoreRepository.getContentRatingWithId(appPackage, contentRating))
                 .thenReturn(contentRatingWithId)

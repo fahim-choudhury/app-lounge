@@ -42,7 +42,7 @@ class GetAppInstallationPermissionUseCaseImpl
 constructor(
     private val applicationRepository: ApplicationRepository,
     private val dataStoreManager: DataStoreManager,
-    private val contentRatingRepository: GooglePlayContentRatingsRepository,
+    private val googlePlayContentRatingsRepository: GooglePlayContentRatingsRepository,
     private val getParentalControlStateUseCase: GetParentalControlStateUseCase,
     private val playStoreRepository: PlayStoreRepository
 ) : GetAppInstallationPermissionUseCase {
@@ -57,7 +57,7 @@ constructor(
             is AgeGroup ->
                 when {
                     isFDroidApp(app) -> validateNsfwAntiFeature(app, parentalControl)
-                    else -> validateAgeLimit(app, parentalControl)
+                    else -> validateGooglePlayContentRating(app, parentalControl)
                 }
         }
     }
@@ -78,19 +78,19 @@ constructor(
     private fun isNsfwFDroidApp(app: AppInstall) =
         app.antiFeatures.any { antiFeature -> antiFeature.containsKey(KEY_ANTI_FEATURES_NSFW) }
 
-    private suspend fun validateAgeLimit(
+    private suspend fun validateGooglePlayContentRating(
         app: AppInstall,
         parentalControlState: AgeGroup
     ): AppInstallationPermissionState {
 
         return when {
-            isGPlayApp(app) && hasNoContentRating(app) -> DeniedOnDataLoadError
-            hasValidAgeLimit(app, parentalControlState) -> Allowed
+            isGooglePlayApp(app) && hasNoContentRating(app) -> DeniedOnDataLoadError
+            hasValidContentRating(app, parentalControlState) -> Allowed
             else -> Denied
         }
     }
 
-    private fun isGPlayApp(app: AppInstall): Boolean {
+    private fun isGooglePlayApp(app: AppInstall): Boolean {
         return !isFDroidApp(app) && app.type != Type.PWA
     }
 
@@ -101,17 +101,21 @@ constructor(
         return !verifyContentRatingExists(app, authData)
     }
 
-    private fun hasValidAgeLimit(
+    private fun hasValidContentRating(
         app: AppInstall,
         parentalControlState: AgeGroup,
     ): Boolean {
-        val allowedContentRatingGroup =
-            contentRatingRepository.contentRatingGroups.find {
-                it.id == parentalControlState.ageGroup.name
-            }
+        return when {
+            app.contentRating.id.isBlank() -> false
+            else -> {
+                val allowedContentRatingGroup =
+                    googlePlayContentRatingsRepository.contentRatingGroups.find {
+                        it.id == parentalControlState.ageGroup.name
+                    } ?: return false
 
-        return (app.contentRating.id.isNotEmpty() &&
-            allowedContentRatingGroup?.ratings?.contains(app.contentRating.id) == true)
+                allowedContentRatingGroup.ratings.contains(app.contentRating.id)
+            }
+        }
     }
 
     private suspend fun verifyContentRatingExists(app: AppInstall, authData: AuthData): Boolean {
