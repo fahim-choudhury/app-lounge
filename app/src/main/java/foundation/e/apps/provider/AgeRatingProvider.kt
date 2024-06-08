@@ -130,7 +130,8 @@ class AgeRatingProvider : ContentProvider() {
                 }
                 val contentsRatings = contentRatingsDeferred.awaitAll()
                 contentsRatings.forEachIndexed { index: Int, isValid: Boolean? ->
-                    if (isValid == true) {
+                    if (isValid == false) {
+                        // Collect package names for blocklist
                         cursor.addRow(arrayOf(packagesNames[index]))
                     }
                 }
