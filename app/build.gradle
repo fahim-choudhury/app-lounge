@@ -54,6 +54,11 @@ android {
         buildConfigField "String", "BUILD_ID", "\"${getGitHash() + "." + getDate()}\""
         buildConfigField("String", "SENTRY_DSN", "\"${getSentryDsn()}\"")
 
+        def parentalControlPkgName = "foundation.e.parentalcontrol"
+
+        manifestPlaceholders = [parentalControlPkgName: parentalControlPkgName]
+        buildConfigField "String", "PACKAGE_NAME_PARENTAL_CONTROL", "\"${parentalControlPkgName}\""
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

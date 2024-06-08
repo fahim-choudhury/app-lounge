@@ -18,6 +18,7 @@
 
 package foundation.e.apps
 
+import android.content.Intent
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
@@ -40,6 +41,7 @@ import com.aurora.gplayapi.exceptions.ApiException
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import foundation.e.apps.data.Constants
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.LoginViewModel
@@ -47,6 +49,7 @@ import foundation.e.apps.data.login.PlayStoreAuthenticator
 import foundation.e.apps.data.login.exceptions.GPlayValidationException
 import foundation.e.apps.databinding.ActivityMainBinding
 import foundation.e.apps.install.updates.UpdatesNotifier
+import foundation.e.apps.provider.ProviderConstants.Companion.LOGIN_TYPE
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.purchase.AppPurchaseFragmentDirections
@@ -320,7 +323,9 @@ class MainActivity : AppCompatActivity() {
                 else -> {}
             }
 
-            it.find { it is AuthObject.GPlayAuth }?.result?.run {
+            val gPlayAuthObject = it.find { it is AuthObject.GPlayAuth }
+
+            gPlayAuthObject?.result?.run {
                 if (isSuccess()) {
                     viewModel.gPlayAuthData = data as AuthData
                 } else if (exception is GPlayValidationException) {
@@ -333,7 +338,20 @@ class MainActivity : AppCompatActivity() {
                     Timber.e(exception, "Login failed! message: ${exception?.localizedMessage}")
                 }
             }
+
+            // Broadcast if not gplay type login or successful gplay login
+            if (gPlayAuthObject == null || gPlayAuthObject.result.isSuccess()) {
+                broadcastGPlayLogin()
+            }
         }
+    }
+
+    private fun broadcastGPlayLogin() {
+        val intent = Intent(Constants.ACTION_PARENTAL_CONTROL_APP_LOUNGE_LOGIN).apply {
+            setPackage(BuildConfig.PACKAGE_NAME_PARENTAL_CONTROL)
+            putExtra(LOGIN_TYPE, viewModel.getUser().name)
+        }
+        sendBroadcast(intent)
     }
 
     private fun setupViewModels() {

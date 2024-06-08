@@ -18,6 +18,8 @@
 
 package foundation.e.apps.data
 
+import foundation.e.apps.BuildConfig
+
 object Constants {
     const val timeoutDurationInMillis: Long = 10000
 
@@ -30,4 +32,7 @@ object Constants {
 
     const val ACTION_DUMP_APP_INSTALL_STATE = "foundation.e.apps.action.APP_INSTALL_STATE"
     const val TAG_APP_INSTALL_STATE = "APP_INSTALL_STATE"
+
+    const val ACTION_PARENTAL_CONTROL_APP_LOUNGE_LOGIN =
+        "${BuildConfig.PACKAGE_NAME_PARENTAL_CONTROL}.action.APP_LOUNGE_LOGIN"
 }
