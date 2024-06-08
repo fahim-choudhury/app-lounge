@@ -318,6 +318,7 @@ class MainActivity : AppCompatActivity() {
                     // Pop back stack to prevent showing TOSFragment on pressing back button.
                     navController.popBackStack()
                     navController.navigate(R.id.signInFragment)
+                    return@observe
                 }
 
                 else -> {}
