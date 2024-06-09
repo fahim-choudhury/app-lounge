@@ -149,7 +149,7 @@ class AppLoungeDataStore @Inject constructor(
     }
 }
 
-fun Flow<String>.getSync(): String {
+fun <T> Flow<T>.getSync(): T {
     return runBlocking {
         this@getSync.first()
     }

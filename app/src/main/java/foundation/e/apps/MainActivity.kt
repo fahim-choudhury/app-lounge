@@ -42,6 +42,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.data.Constants
+import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.LoginViewModel
@@ -75,6 +76,9 @@ class MainActivity : AppCompatActivity() {
         private val TAG = MainActivity::class.java.simpleName
         private const val SESSION_DIALOG_TAG = "session_dialog"
     }
+
+    private var gPlayLoginRequested = false
+    private var closeAfterLogin = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,6 +130,14 @@ class MainActivity : AppCompatActivity() {
         viewModel.updateContentRatings()
 
         observeEvents()
+
+        gPlayLoginRequested = intent.getBooleanExtra(Constants.REQUEST_GPLAY_LOGIN, false)
+
+        if (!gPlayLoginRequested) return
+        if (!viewModel.getTocStatus()) return
+        if (viewModel.getUser() !in listOf(User.GOOGLE, User.ANONYMOUS)) {
+            loginViewModel.logout()
+        }
     }
 
     private fun refreshSession() {
@@ -318,6 +330,7 @@ class MainActivity : AppCompatActivity() {
                     // Pop back stack to prevent showing TOSFragment on pressing back button.
                     navController.popBackStack()
                     navController.navigate(R.id.signInFragment)
+                    if (gPlayLoginRequested) closeAfterLogin = true
                     return@observe
                 }
 
@@ -343,6 +356,10 @@ class MainActivity : AppCompatActivity() {
             // Broadcast if not gplay type login or successful gplay login
             if (gPlayAuthObject == null || gPlayAuthObject.result.isSuccess()) {
                 broadcastGPlayLogin()
+            }
+
+            if (closeAfterLogin && it.isNotEmpty() && it.all { it.result.isSuccess() }) {
+                finishAndRemoveTask()
             }
         }
     }

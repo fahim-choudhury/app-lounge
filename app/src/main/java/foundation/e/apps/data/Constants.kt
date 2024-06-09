@@ -35,4 +35,6 @@ object Constants {
 
     const val ACTION_PARENTAL_CONTROL_APP_LOUNGE_LOGIN =
         "${BuildConfig.PACKAGE_NAME_PARENTAL_CONTROL}.action.APP_LOUNGE_LOGIN"
+
+    const val REQUEST_GPLAY_LOGIN = "request_gplay_login"
 }

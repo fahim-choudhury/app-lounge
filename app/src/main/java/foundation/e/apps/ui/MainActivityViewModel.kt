@@ -86,6 +86,10 @@ class MainActivityViewModel @Inject constructor(
 
     var shouldIgnoreSessionError = false
 
+    fun getTocStatus(): Boolean {
+        return appLoungeDataStore.tocStatus.getSync()
+    }
+
     fun getUser(): User {
         return appLoungeDataStore.getUserType()
     }
