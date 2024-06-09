@@ -15,9 +15,7 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   ~
-  -->
-
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  --><resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="menu_categories" weblate_ctx="home">Kategorier</string>
     <string name="menu_search" weblate_ctx="home">Sök</string>
     <string name="menu_updates" weblate_ctx="home">Uppdateringar</string>
