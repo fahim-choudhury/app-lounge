@@ -1,2 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="menu_categories" weblate_ctx="home">Kategoriler</string>
+    <string name="menu_search" weblate_ctx="home">Arama</string>
+    <string name="menu_updates" weblate_ctx="home">Güncellemeler</string>
+    <string name="apps" weblate_ctx="categories_applications">Uygulamalar</string>
+    <string name="open_source" weblate_ctx="categories_applications">Açık Kaynak</string>
+    <string name="pwa" weblate_ctx="categories_applications">PWA</string>
+    <string name="sign_in_title" weblate_ctx="welcome">Hoş Geldiniz</string>
+    <string name="sign_in_desc" weblate_ctx="welcome">Google hesabınızı kullanarak App Lounge\'da oturum açın veya özel olarak oturum açmak için Anonim modunu seçin.</string>
+    <string name="sign_in_google" weblate_ctx="welcome">Google ile oturum aç</string>
+    <string name="sign_in_anonymous" weblate_ctx="welcome">Anonim mod</string>
+    <string name="or" weblate_ctx="welcome">Yada sadece</string>
+    <string name="pwa_and_open_source_apps" weblate_ctx="welcome">PWA ve Açık Kaynaklı uygulamaları göster</string>
+    <string name="tos_agree" weblate_ctx="tos">Kabul Et</string>
+    <string name="tos_disagree" weblate_ctx="tos">Reddet</string>
+    <string name="tos_agree_date">Kabul Edildi</string>
+    <string name="tos_warning" weblate_ctx="tos">Devam etmeden önce Kullanım Koşullarını okuyup kabul etmelisiniz.</string>
+    <string name="preference_updates_title" weblate_ctx="settings">Güncellemeler</string>
+    <string name="preference_update_interval_default">24</string>
+    <string name="preference_update_interval_title" weblate_ctx="settings">Güncelleme kontrol aralığı</string>
+    <string name="preference_update_wifi_only_title" weblate_ctx="settings">Sadece tarifesiz ağlarda</string>
+    <string name="preference_update_wifi_only_description" weblate_ctx="settings">Uygulamaları yalnızca Wi-Fi gibi tarifesiz ağlarda otomatik olarak güncelleyin</string>
+    <string name="preference_update_apps_from_other_stores_title">Diğer mağazalar tarafından yüklenen uygulamaları güncelle</string>
+    <string name="preference_update_apps_from_other_stores_description">Diğer uygulama mağazalarından yüklenen uygulamaları güncelleyin.
+\nBu tür uygulamalar, yaygın uygulamalar ve açık kaynak kategorisinden güncellenmeye çalışılacaktır.</string>
+    <string name="preference_update_install_automatically_title" weblate_ctx="settings">Güncellemeleri otomatik olarak yükle</string>
+    <string name="preference_update_install_automatically_description" weblate_ctx="settings">Uygulama güncellemelerini arka planda indirin ve yükleyin</string>
+    <string name="Show_applications" weblate_ctx="settings">Uygulamaları Göster:</string>
+    <string name="Show_common_apps">Yaygın uygulamaları göster</string>
+    <string name="show_only_open_source_apps">Açık kaynaklı uygulamaları göster</string>
+    <string name="show_only_pwa_apps">PWA\'ları göster</string>
+    <string name="about">Hakkında</string>
+    <string name="app_version_label">App Lounge Sürümü</string>
+    <string name="os_version">/e/ OS sürümü</string>
+    <string name="copied">Kopyalandı</string>
+    <string name="account" weblate_ctx="settings">Hesap</string>
+    <string name="terms_services" weblate_ctx="settings">Kullanım Koşulları</string>
+    <string name="user_anonymous" weblate_ctx="settings">Anonim</string>
+    <string name="logout" weblate_ctx="settings">Çıkış Yap</string>
+    <string name="select_one_source_of_applications">Lütfen en az bir uygulama kaynağı seçiniz.</string>
+    <string name="description">Açıklama</string>
+    <string name="ok">Tamam</string>
+    <string name="install">Yükle</string>
+    <string name="installing">Yükleniyor</string>
+    <string name="cancel">İptal Et</string>
+    <string name="app_icon">Uygulama simgesi</string>
+    <string name="open">Açık</string>
+    <string name="retry">Yeniden Dene</string>
+    <string name="close">Kapat</string>
+    <string name="more">Daha Fazla</string>
+    <string name="update">Güncelle</string>
+    <string name="ratings">Puanlar</string>
+    <string name="rating">Puan</string>
+    <string name="rating_description">5 üzerinden puan. Kullanıcıların uygulamaya verdiği puanlar kullanılarak hesaplanmıştır.</string>
+    <string name="privacy">Gizlilik</string>
+    <string name="privacy_score">Gizlilik Skoru</string>
+    <string name="privacy_analyses">Gizlilik analizleri</string>
+    <string name="permissions">İzinler</string>
+    <string name="trackers_title">Takipçiler</string>
+    <string name="information">Bilgi</string>
+    <string name="version">Sürüm:<xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="updated_on">Güncelleme:<xliff:g id="version_code">%1$s</xliff:g> yapıldı</string>
+    <string name="min_android_version"><xliff:g id="version_code">%1$s</xliff:g> ihtiyaç duyar</string>
+    <string name="license">Lisans: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="package_name">Paket ismi: <xliff:g id="version_code">%1$s</xliff:g></string>
+    <string name="install_blocked_anonymous">Ücretli uygulamalar anonim modda yüklenemez. Ücretli uygulamaları yüklemek için lütfen Google hesabınıza giriş yapın.</string>
+    <string name="install_blocked_google">Ücretli uygulamalar henüz App Lounge\'da desteklenmiyor. Sadece biraz daha sabır, yakında bizimle olacaklar.</string>
+    <string name="message_app_available_later">Bu uygulama daha sonra kullanıma sunulacak!</string>
+    <string name="unknown_error">Bilinmeyen Hata!</string>
+    <string name="not_enough_storage">Bu uygulamayı indirmek için yeterli alan yok!</string>
+    <string name="app_not_found">Uygulamanız bulunamadı.</string>
+    <string name="something_went_wrong">Birşeyler ters gitti!</string>
+    <string name="show_more">Daha fazla göster</string>
+    <string name="gplay_data_for_oss">Yalnızca açık kaynaklı uygulamalara izin verildiğinde Google Play uygulaması gösterilemiyor.</string>
+    <string name="why_open_source_version">Neden açık kaynaklı sürümü görüyorum?</string>
+    <string name="open_source_apps">Açık Kaynaklı uygulamalar</string>
+    <string name="duplicate_app_from_sources">Bazı tescilli uygulamaların Açık Kaynak sürümü de olabilir. Böyle bir durumda App Lounge, kopyaları önlemek için yalnızca Açık Kaynak sürümünü gösterir.</string>
+    <string name="downloading">İndiriliyor…</string>
+    <string name="additional_file_for">%s için ek dosya</string>
+    <string name="having_troubles">Sorun mu yaşıyorsunuz?</string>
+    <string name="all_apps_updated" weblate_ctx="updates">Tüm uygulamalar güncel</string>
+    <string name="update_error">Güncelleme Hatası!</string>
+    <string name="message_retry">Tümünü güncelle başarısız oldu. Otomatik yeniden denemeler devam ediyor.</string>
+    <string name="message_update_failed">Geçici bir arıza nedeniyle uygulamalarınızın tümü güncellenemiyor. Lütfen daha sonra tekrar deneyin.</string>
+    <string name="message_update_failure_single_app">%1$s güncellemesi bir destek kuralı (konum, işletim sistemi sürümü...) nedeniyle başarısız oldu.</string>
+    <string name="discover">Keşfet</string>
+    <string name="discover_pwa">PWA\'ları keşfedin</string>
+    <string name="top_updated_games">Açık Kaynak En Tutan Güncel Oyunlar</string>
+    <string name="top_updated_apps">Açık Kaynak En Tutan Güncel Uygulamalar</string>
+    <string name="popular_apps_in_last_24_hours">Son 24 Saatte Açık Kaynaklı Popüler Uygulamalar</string>
+    <string name="popular_games_in_last_24_hours">Son 24 Saatin Popüler Açık Kaynak Oyunları</string>
+    <string name="popular_apps">PWA popüler uygulamalar</string>
+    <string name="popular_games">PWA Popüler Uygulamalar</string>
+    <string name="topgrossing_apps" weblate_ctx="home">En Çok Kazanan Uygulamalar</string>
+    <string name="topgrossing_games">En Çok Kazanan Oyunlar</string>
+    <string name="movers_shakers_apps">En Moda Uygulamalar</string>
+    <string name="movers_shakers_games">En Moda Oyunlar</string>
+    <string name="downloads">İndirmeler</string>
+    <string name="manually_install_updates_notification_text">Uygulama güncellemeleri otomatik olarak yüklenmeyecek</string>
+    <string name="updates_notification_unmetered_network_warning">Tarifesiz ağ bekleniyor</string>
+    <string name="message_last_update_triggered">%1$s uygulamanın güncellemesi %2$s zamanında bitti.</string>
+    <string name="no_permission_found">Çalışma zamanı android izni bulunamadı!</string>
+    <string name="no_tracker_found">İzleyici Bulunamadı!</string>
+    <string name="topselling_free_apps" weblate_ctx="home">En İyi Ücretsiz Uygulamalar</string>
+    <string name="topselling_free_games" weblate_ctx="home">En İyi Ücretsiz Oyunlar</string>
+    <string name="menu_home" weblate_ctx="home">Ana Menü</string>
+    <string name="menu_settings" weblate_ctx="home">Ayarlar</string>
+    <string name="search_hint" weblate_ctx="search">Bir uygulama arayın</string>
+    <string name="no_apps_found">Uygulama bulunamadı…</string>
+    <string name="no_trackers">Takipçi Yok</string>
+    <string name="games" weblate_ctx="categories_games">Oyunlar</string>
+    <string name="preference_update_notify_available_title" weblate_ctx="settings">Kullanılabilir güncellemeleri göster</string>
+    <string name="logged_out">Çıkış yapıldı</string>
+    <string name="category_icon" weblate_ctx="categories_applications">Kategori Simgesi</string>
+    <string name="preference_update_notify_available_description">Uygulama güncellemeleri mevcut olduğunda bir bildirim gösterin</string>
+    <string name="login_to_see_gplay_apps">Yaygın uygulamaları görmek için oturum açmanız gerekir.</string>
+    <string name="login">Giriş Yap</string>
+    <string name="update_all">Hepsini Güncelle</string>
+    <string name="privacy_description">Gizlilik Puanı, uygulamalarda tespit edilen izinler ve izleyicilerden otomatik olarak hesaplanır. Bir uygulamanın kullanıcılarını ne kadar mikro hedefleme olasılığı olduğu hakkında bir fikir verir.&lt;br /&gt;&lt;br /&gt;Algoritmasının kaynak kodu &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;bulunabilir&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt; Takipçi algılaması &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Gizlilik Aletleri&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;\'nin 10 üzerinden skoruyla hesaplanmaktadır.&lt;br /&gt;&lt;br /&gt;Gizlilik Puanının nasıl hesaplandığı, sınırlamaları ve kendinizi mikro hedeflemeden nasıl koruyabileceğiniz hakkında daha fazla bilgi edinin &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;bu sayfada&lt;/a&gt;.</string>
+    <string name="share">Paylaş</string>
+    <string name="checking_updates">Güncellemeler Kontrol Ediliyor...</string>
+    <plurals name="updates_notification_title">
+        <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> uygulama güncellemesi mevcut</item>
+        <item quantity="other"><xliff:g id="version_code">%1$d</xliff:g> uygulama güncellemesi mevcut</item>
+    </plurals>
+    <string name="updates">Güncellemeler</string>
+    <string name="automatically_install_updates_notification_text">Uygulama güncellemeleri otomatik olarak yüklenecek</string>
+</resources>
