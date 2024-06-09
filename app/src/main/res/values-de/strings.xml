@@ -15,9 +15,7 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   ~
-  -->
-
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  --><resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="menu_categories">Kategorien</string>
     <string name="menu_search">Suche</string>
     <string name="menu_updates">Aktualisierungen</string>
@@ -188,7 +186,6 @@
     <string name="too_many_requests_desc">Das anonyme Konto, das von Ihnen genutzt wird, ist nicht verfügbar. Bitte erneuern (refresh) Sie die Sitzung, um ein neues anonymes Konto zu erhalten.</string>
     <string name="refresh_session">SITZUNG ERNEUERN</string>
     <string name="notification_content_full_db">Bitte etwas Platz auf dem Telefon freimachen, damit die App Lounge ordnungsgemäß funktionieren kann.</string>
-
     <!--Split install-->
     <string name="split_install_warning_title">Warnung bezüglich %s</string>
     <string name="split_install_warning_text">%s möchte zusätzliche Module installieren. Sie müssen sich erneut bei AppLounge anmelden, um sie installieren zu können.</string>
