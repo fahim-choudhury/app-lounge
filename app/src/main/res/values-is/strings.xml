@@ -15,9 +15,7 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   ~
-  -->
-
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  --><resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="rating">Einkunn</string>
     <string name="preference_update_install_automatically_title">Setja uppfærslur upp sjálfkrafa</string>
     <string name="unknown_error">Óþekkt villa!</string>
