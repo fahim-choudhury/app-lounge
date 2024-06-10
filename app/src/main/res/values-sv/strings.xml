@@ -194,4 +194,5 @@
     <string name="sign_in">Logga in</string>
     <string name="account_unavailable">Konto otillgängligt</string>
     <string name="share">Dela</string>
+    <string name="no_trackers">Inga spårare</string>
 </resources>
