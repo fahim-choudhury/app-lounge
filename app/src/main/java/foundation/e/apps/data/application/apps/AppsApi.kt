@@ -19,6 +19,7 @@
 package foundation.e.apps.data.application.apps
 
 import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.models.ContentRating
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
@@ -66,4 +67,6 @@ interface AppsApi {
 
     fun isAnyAppInstallStatusChanged(currentList: List<Application>): Boolean
     fun isOpenSourceSelected(): Boolean
+
+    suspend fun getEnglishContentRating(packageName: String): ContentRating?
 }

@@ -228,4 +228,13 @@ class PlayStoreRepositoryImpl @Inject constructor(
             )
         }
     }
+
+    override suspend fun getEnglishContentRating(appPackage: String): ContentRating {
+        val authData = authenticatorRepository.gplayAuth!!
+        val contentRatingHelper = ContentRatingHelper(authData)
+
+        return withContext(Dispatchers.IO) {
+            contentRatingHelper.getEnglishContentRating(appPackage)
+        }
+    }
 }
