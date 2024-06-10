@@ -194,4 +194,5 @@
     <string name="ignore">Ignorieren</string>
     <string name="account_unavailable">Konto nicht verfügbar</string>
     <string name="share">Teilen</string>
+    <string name="no_trackers">Keine Verfolger</string>
 </resources>
