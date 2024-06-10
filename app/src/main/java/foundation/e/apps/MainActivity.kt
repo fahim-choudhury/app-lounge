@@ -131,7 +131,17 @@ class MainActivity : AppCompatActivity() {
 
         observeEvents()
 
-        gPlayLoginRequested = intent.getBooleanExtra(Constants.REQUEST_GPLAY_LOGIN, false)
+        checkGPlayLoginRequest(intent)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        checkGPlayLoginRequest(intent)
+    }
+
+    private fun checkGPlayLoginRequest(intent: Intent?) {
+        gPlayLoginRequested =
+            intent?.getBooleanExtra(Constants.REQUEST_GPLAY_LOGIN, false) ?: false
 
         if (!gPlayLoginRequested) return
         if (!viewModel.getTocStatus()) return
