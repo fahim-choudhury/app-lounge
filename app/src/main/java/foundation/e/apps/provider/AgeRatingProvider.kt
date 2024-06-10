@@ -32,6 +32,7 @@ import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthenticatorRepository
+import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Allowed
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Denied
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.DeniedOnDataLoadError
 import foundation.e.apps.data.parentalcontrol.gplayrating.GooglePlayContentRatingsRepository
@@ -138,9 +139,11 @@ class AgeRatingProvider : ContentProvider() {
                             cursor.addRow(arrayOf(packagesNames[index]))
                         }
 
-                        else -> {
+                        Allowed -> {
                             // no-op
                         }
+
+                        else -> error("Invalid application permission state.")
                     }
                 }
             }
