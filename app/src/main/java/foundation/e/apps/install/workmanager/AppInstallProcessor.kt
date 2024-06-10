@@ -33,9 +33,9 @@ import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Allowed
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Denied
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.DeniedOnDataLoadError
-import foundation.e.apps.data.parentalcontrol.GetAppInstallationPermissionUseCaseImpl
 import foundation.e.apps.data.playstore.utils.GplayHttpRequestException
 import foundation.e.apps.data.preference.DataStoreManager
+import foundation.e.apps.domain.parentalcontrol.GetAppInstallationPermissionUseCase
 import foundation.e.apps.install.AppInstallComponents
 import foundation.e.apps.install.download.DownloadManagerUtils
 import foundation.e.apps.install.notification.StorageNotificationManager
@@ -56,7 +56,7 @@ class AppInstallProcessor @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appInstallComponents: AppInstallComponents,
     private val applicationRepository: ApplicationRepository,
-    private val getAppInstallationPermissionUseCaseImpl: GetAppInstallationPermissionUseCaseImpl,
+    private val getAppInstallationPermissionUseCase: GetAppInstallationPermissionUseCase,
     private val dataStoreManager: DataStoreManager,
     private val storageNotificationManager: StorageNotificationManager,
 ) {
@@ -138,25 +138,22 @@ class AppInstallProcessor @Inject constructor(
 
 
             val installationPermission =
-                getAppInstallationPermissionUseCaseImpl.invoke(appInstall)
+                getAppInstallationPermissionUseCase.invoke(appInstall)
             when (installationPermission) {
                 Allowed -> {
-                    Timber.tag("Parental control")
-                        .i("${appInstall.name} is allowed to be installed.")
+                    Timber.i("${appInstall.name} is allowed to be installed.")
                     // no operation, allow installation
                 }
 
                 Denied -> {
-                    Timber.tag("Parental control")
-                        .i("${appInstall.name} can't be installed because of parental control setting.")
+                    Timber.i("${appInstall.name} can't be installed because of parental control setting.")
                     EventBus.invokeEvent(AppEvent.AgeLimitRestrictionEvent(appInstall.name))
                     appInstallComponents.appManagerWrapper.cancelDownload(appInstall)
                     return
                 }
 
                 DeniedOnDataLoadError -> {
-                    Timber.tag("Parental control")
-                        .i("${appInstall.name} can't be installed because of unavailable data.")
+                    Timber.i("${appInstall.name} can't be installed because of unavailable data.")
                     EventBus.invokeEvent(AppEvent.ErrorMessageDialogEvent(R.string.data_load_error_desc))
                     appInstallComponents.appManagerWrapper.cancelDownload(appInstall)
                     return

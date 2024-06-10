@@ -29,7 +29,7 @@ import foundation.e.apps.data.install.AppManager
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState
 import foundation.e.apps.data.preference.DataStoreManager
-import foundation.e.apps.data.parentalcontrol.GetAppInstallationPermissionUseCaseImpl
+import foundation.e.apps.domain.parentalcontrol.GetAppInstallationPermissionUseCase
 import foundation.e.apps.install.AppInstallComponents
 import foundation.e.apps.install.notification.StorageNotificationManager
 import foundation.e.apps.install.workmanager.AppInstallProcessor
@@ -79,7 +79,7 @@ class AppInstallProcessorTest {
     private lateinit var appInstallProcessor: AppInstallProcessor
 
     @Mock
-    private lateinit var getAppInstallationPermissionUseCase: GetAppInstallationPermissionUseCaseImpl
+    private lateinit var getAppInstallationPermissionUseCase: GetAppInstallationPermissionUseCase
 
     @Mock
     private lateinit var storageNotificationManager: StorageNotificationManager

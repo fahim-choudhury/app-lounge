@@ -23,7 +23,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GooglePlayContentRatingsRepository @Inject constructor(
+class GooglePlayContentRatingsRepository
+@Inject
+constructor(
     private val downloadManager: DownloadManager,
     private val googlePlayContentRatingParser: GooglePlayContentRatingParser
 ) {
@@ -35,18 +37,19 @@ class GooglePlayContentRatingsRepository @Inject constructor(
     companion object {
         private const val CONTENT_RATINGS_FILE_URL =
             "https://gitlab.e.foundation/e/os/app-lounge-content-ratings/-/raw/main/" +
-                    "content_ratings.json?ref_type=heads&inline=false"
+                "content_ratings.json?ref_type=heads&inline=false"
         private const val CONTENT_RATINGS_FILE_NAME = "content_ratings.json"
     }
 
     fun fetchContentRatingData() {
         downloadManager.downloadFileInCache(
-            CONTENT_RATINGS_FILE_URL,
-            fileName = CONTENT_RATINGS_FILE_NAME
-        ) { success, _ ->
-            if (success) {
-                googlePlayContentRatingParser.parseContentRatingData()
+            CONTENT_RATINGS_FILE_URL, fileName = CONTENT_RATINGS_FILE_NAME) { success, _ ->
+                _contentRatingGroups =
+                    if (success) {
+                        googlePlayContentRatingParser.parseContentRatingData()
+                    } else {
+                        emptyList()
+                    }
             }
-        }
     }
 }
