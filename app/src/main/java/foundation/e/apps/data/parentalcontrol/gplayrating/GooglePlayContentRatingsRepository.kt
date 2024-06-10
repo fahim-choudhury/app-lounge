@@ -18,38 +18,24 @@
 
 package foundation.e.apps.data.parentalcontrol.gplayrating
 
-import foundation.e.apps.data.DownloadManager
+import foundation.e.apps.data.parentalcontrol.AgeGroupApi
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GooglePlayContentRatingsRepository
-@Inject
-constructor(
-    private val downloadManager: DownloadManager,
-    private val googlePlayContentRatingParser: GooglePlayContentRatingParser
-) {
+class GooglePlayContentRatingsRepository @Inject constructor(private val ageGroupApi: AgeGroupApi) {
 
     private var _contentRatingGroups = listOf<GooglePlayContentRatingGroup>()
     val contentRatingGroups: List<GooglePlayContentRatingGroup>
-        get() = _contentRatingGroups
+        get() =
+            _contentRatingGroups.map { ratingGroup ->
+                ratingGroup.copy(ratings = ratingGroup.ratings.map { rating -> rating.lowercase() })
+            } // Ratings need to be converted to lowercase
 
-    companion object {
-        private const val CONTENT_RATINGS_FILE_URL =
-            "https://gitlab.e.foundation/e/os/app-lounge-content-ratings/-/raw/main/" +
-                "content_ratings.json?ref_type=heads&inline=false"
-        private const val CONTENT_RATINGS_FILE_NAME = "content_ratings.json"
-    }
-
-    fun fetchContentRatingData() {
-        downloadManager.downloadFileInCache(
-            CONTENT_RATINGS_FILE_URL, fileName = CONTENT_RATINGS_FILE_NAME) { success, _ ->
-                _contentRatingGroups =
-                    if (success) {
-                        googlePlayContentRatingParser.parseContentRatingData()
-                    } else {
-                        emptyList()
-                    }
-            }
+    suspend fun fetchContentRatingData() {
+        val response = ageGroupApi.getDefinedAgeGroups()
+        if (response.isSuccessful) {
+            _contentRatingGroups = response.body() ?: emptyList()
+        }
     }
 }

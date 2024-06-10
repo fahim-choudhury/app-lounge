@@ -1,19 +1,18 @@
 /*
- *  Copyright MURENA SAS 2024
- *  Apps  Quickly and easily install Android apps onto your device!
+ * Copyright (C) 2024 MURENA SAS
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -30,13 +29,15 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import foundation.e.apps.data.application.ApplicationRepository
-import foundation.e.apps.data.blockedApps.ContentRatingsRepository
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthenticatorRepository
+import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Denied
+import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.DeniedOnDataLoadError
+import foundation.e.apps.data.parentalcontrol.gplayrating.GooglePlayContentRatingsRepository
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.DataStoreManager
-import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
+import foundation.e.apps.domain.parentalcontrol.GetAppInstallationPermissionUseCase
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.provider.ProviderConstants.Companion.AUTHORITY
 import foundation.e.apps.provider.ProviderConstants.Companion.LOGIN_TYPE
@@ -58,8 +59,8 @@ class AgeRatingProvider : ContentProvider() {
         fun getPlayStoreRepository(): PlayStoreRepository
         fun getApplicationRepository(): ApplicationRepository
         fun getPackageManager(): AppLoungePackageManager
-        fun getContentRatingsRepository(): ContentRatingsRepository
-        fun getValidateAppAgeLimitUseCase(): ValidateAppAgeLimitUseCase
+        fun getContentRatingsRepository(): GooglePlayContentRatingsRepository
+        fun getValidateAppAgeLimitUseCase(): GetAppInstallationPermissionUseCase
         fun getDataStoreManager(): DataStoreManager
     }
 
@@ -67,8 +68,8 @@ class AgeRatingProvider : ContentProvider() {
     private lateinit var playStoreRepository: PlayStoreRepository
     private lateinit var applicationRepository: ApplicationRepository
     private lateinit var appLoungePackageManager: AppLoungePackageManager
-    private lateinit var contentRatingsRepository: ContentRatingsRepository
-    private lateinit var validateAppAgeLimitUseCase: ValidateAppAgeLimitUseCase
+    private lateinit var contentRatingsRepository: GooglePlayContentRatingsRepository
+    private lateinit var getAppInstallationPermissionUseCase: GetAppInstallationPermissionUseCase
     private lateinit var dataStoreManager: DataStoreManager
 
     private val CODE_LOGIN_TYPE = 1
@@ -124,15 +125,22 @@ class AgeRatingProvider : ContentProvider() {
                             packageName = packageName,
                             origin = Origin.GPLAY
                         )
-                        val validateResult = validateAppAgeLimitUseCase(fakeAppInstall)
-                        validateResult.data ?: false
+                        val appInstallationPermissionState =
+                            getAppInstallationPermissionUseCase(fakeAppInstall)
+                        appInstallationPermissionState
                     }
                 }
                 val contentsRatings = contentRatingsDeferred.awaitAll()
-                contentsRatings.forEachIndexed { index: Int, isValid: Boolean? ->
-                    if (isValid == false) {
-                        // Collect package names for blocklist
-                        cursor.addRow(arrayOf(packagesNames[index]))
+                contentsRatings.forEachIndexed { index: Int, permission ->
+                    when (permission) {
+                        is Denied, DeniedOnDataLoadError -> {
+                            // Collect package names for blocklist
+                            cursor.addRow(arrayOf(packagesNames[index]))
+                        }
+
+                        else -> {
+                            // no-op
+                        }
                     }
                 }
             }
@@ -150,7 +158,7 @@ class AgeRatingProvider : ContentProvider() {
         applicationRepository = hiltEntryPoint.getApplicationRepository()
         appLoungePackageManager = hiltEntryPoint.getPackageManager()
         contentRatingsRepository = hiltEntryPoint.getContentRatingsRepository()
-        validateAppAgeLimitUseCase = hiltEntryPoint.getValidateAppAgeLimitUseCase()
+        getAppInstallationPermissionUseCase = hiltEntryPoint.getValidateAppAgeLimitUseCase()
         dataStoreManager = hiltEntryPoint.getDataStoreManager()
 
 

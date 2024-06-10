@@ -101,13 +101,17 @@ constructor(
         return !verifyContentRatingExists(app, authData)
     }
 
-    private fun hasValidContentRating(
+    private suspend fun hasValidContentRating(
         app: AppInstall,
         parentalControlState: AgeGroup,
     ): Boolean {
         return when {
             app.contentRating.id.isBlank() -> false
             else -> {
+                if (googlePlayContentRatingsRepository.contentRatingGroups.isEmpty()) {
+                    googlePlayContentRatingsRepository.fetchContentRatingData()
+                }
+
                 val allowedContentRatingGroup =
                     googlePlayContentRatingsRepository.contentRatingGroups.find {
                         it.id == parentalControlState.ageGroup.name
