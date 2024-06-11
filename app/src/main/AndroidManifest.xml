@@ -55,7 +55,7 @@
         <package android:name="${parentalControlPkgName}" />
     </queries>
 
-    <permission android:name="${applicationId}.provider.READ" android:protectionLevel="signature" />
+    <permission android:name="${applicationId}.permission.PROVIDER_READ" android:protectionLevel="signature" />
 
     <application
         android:name=".AppLoungeApplication"
@@ -152,7 +152,7 @@
             android:authorities="${applicationId}.provider"
             android:name=".provider.AgeRatingProvider"
             android:exported="true"
-            android:readPermission="${applicationId}.provider.READ" />
+            android:readPermission="${applicationId}.permission.PROVIDER_READ" />
 
         <service android:name=".install.pkg.PackageInstallerService" />
 
