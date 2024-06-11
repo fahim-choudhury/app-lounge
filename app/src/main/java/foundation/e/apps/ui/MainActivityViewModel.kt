@@ -82,6 +82,9 @@ class MainActivityViewModel @Inject constructor(
     private val _errorMessageStringResource = MutableLiveData<Int>()
     val errorMessageStringResource: LiveData<Int> = _errorMessageStringResource
 
+    var gPlayLoginRequested = false
+    var closeAfterLogin = false
+
     lateinit var connectivityManager: ConnectivityManager
 
     var shouldIgnoreSessionError = false

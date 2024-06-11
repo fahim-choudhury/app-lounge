@@ -77,9 +77,6 @@ class MainActivity : AppCompatActivity() {
         private const val SESSION_DIALOG_TAG = "session_dialog"
     }
 
-    private var gPlayLoginRequested = false
-    private var closeAfterLogin = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -140,10 +137,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkGPlayLoginRequest(intent: Intent?) {
-        gPlayLoginRequested =
+        viewModel.gPlayLoginRequested =
             intent?.getBooleanExtra(Constants.REQUEST_GPLAY_LOGIN, false) ?: false
 
-        if (!gPlayLoginRequested) return
+        if (!viewModel.gPlayLoginRequested) return
         if (!viewModel.getTocStatus()) return
         if (viewModel.getUser() !in listOf(User.GOOGLE, User.ANONYMOUS)) {
             loginViewModel.logout()
@@ -340,7 +337,7 @@ class MainActivity : AppCompatActivity() {
                     // Pop back stack to prevent showing TOSFragment on pressing back button.
                     navController.popBackStack()
                     navController.navigate(R.id.signInFragment)
-                    if (gPlayLoginRequested) closeAfterLogin = true
+                    if (viewModel.gPlayLoginRequested) viewModel.closeAfterLogin = true
                     return@observe
                 }
 
@@ -368,7 +365,7 @@ class MainActivity : AppCompatActivity() {
                 broadcastGPlayLogin()
             }
 
-            if (closeAfterLogin && it.isNotEmpty() && it.all { it.result.isSuccess() }) {
+            if (viewModel.closeAfterLogin && it.isNotEmpty() && it.all { it.result.isSuccess() }) {
                 finishAndRemoveTask()
             }
         }
