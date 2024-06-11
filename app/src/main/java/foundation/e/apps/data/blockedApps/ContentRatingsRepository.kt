@@ -45,7 +45,7 @@ class ContentRatingsRepository @Inject constructor(
     }
 
     suspend fun getEnglishContentRating(packageName: String): ContentRating? {
-        val authData = authenticatorRepository.gplayAuth!!
+        val authData = authenticatorRepository.gplayAuth ?: return null
         val contentRatingHelper = ContentRatingHelper(authData)
 
         return handleNetworkResult {
