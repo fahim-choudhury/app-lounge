@@ -28,6 +28,6 @@ class ProviderConstants {
 
         const val AUTHORITY = "${BuildConfig.APPLICATION_ID}.provider"
         const val PATH_LOGIN_TYPE = "login_type"
-        const val PATH_AGE_RATINGS = "age_ratings"
+        const val PATH_BLOCKLIST = "block_list"
     }
 }

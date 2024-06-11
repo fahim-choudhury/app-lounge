@@ -41,7 +41,7 @@ import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.provider.ProviderConstants.Companion.AUTHORITY
 import foundation.e.apps.provider.ProviderConstants.Companion.LOGIN_TYPE
 import foundation.e.apps.provider.ProviderConstants.Companion.PACKAGE_NAME
-import foundation.e.apps.provider.ProviderConstants.Companion.PATH_AGE_RATINGS
+import foundation.e.apps.provider.ProviderConstants.Companion.PATH_BLOCKLIST
 import foundation.e.apps.provider.ProviderConstants.Companion.PATH_LOGIN_TYPE
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
@@ -77,7 +77,7 @@ class AgeRatingProvider : ContentProvider() {
     private val uriMatcher by lazy {
         UriMatcher(UriMatcher.NO_MATCH).apply {
             addURI(AUTHORITY, PATH_LOGIN_TYPE, CODE_LOGIN_TYPE)
-            addURI(AUTHORITY, PATH_AGE_RATINGS, CODE_AGE_RATING)
+            addURI(AUTHORITY, PATH_BLOCKLIST, CODE_AGE_RATING)
         }
     }
 
