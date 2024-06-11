@@ -21,13 +21,11 @@ package foundation.e.apps.provider
 
 import foundation.e.apps.BuildConfig
 
-class ProviderConstants {
-    companion object {
-        const val PACKAGE_NAME = "package_name"
-        const val LOGIN_TYPE = "login_type"
+object ProviderConstants {
+    const val PACKAGE_NAME = "package_name"
+    const val LOGIN_TYPE = "login_type"
 
-        const val AUTHORITY = "${BuildConfig.APPLICATION_ID}.provider"
-        const val PATH_LOGIN_TYPE = "login_type"
-        const val PATH_BLOCKLIST = "block_list"
-    }
+    const val AUTHORITY = "${BuildConfig.APPLICATION_ID}.provider"
+    const val PATH_LOGIN_TYPE = "login_type"
+    const val PATH_BLOCKLIST = "block_list"
 }

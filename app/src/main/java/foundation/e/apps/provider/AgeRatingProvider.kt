@@ -38,11 +38,11 @@ import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
 import foundation.e.apps.install.pkg.AppLoungePackageManager
-import foundation.e.apps.provider.ProviderConstants.Companion.AUTHORITY
-import foundation.e.apps.provider.ProviderConstants.Companion.LOGIN_TYPE
-import foundation.e.apps.provider.ProviderConstants.Companion.PACKAGE_NAME
-import foundation.e.apps.provider.ProviderConstants.Companion.PATH_BLOCKLIST
-import foundation.e.apps.provider.ProviderConstants.Companion.PATH_LOGIN_TYPE
+import foundation.e.apps.provider.ProviderConstants.AUTHORITY
+import foundation.e.apps.provider.ProviderConstants.LOGIN_TYPE
+import foundation.e.apps.provider.ProviderConstants.PACKAGE_NAME
+import foundation.e.apps.provider.ProviderConstants.PATH_BLOCKLIST
+import foundation.e.apps.provider.ProviderConstants.PATH_LOGIN_TYPE
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -141,7 +141,7 @@ class AgeRatingProvider : ContentProvider() {
     }
 
     override fun onCreate(): Boolean {
-        val appContext = context?.applicationContext ?: throw IllegalStateException()
+        val appContext = context?.applicationContext ?: error("Null context in ${this::class.java.name}")
         val hiltEntryPoint =
             EntryPointAccessors.fromApplication(appContext, ContentProviderEntryPoint::class.java)
 

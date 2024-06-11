@@ -26,7 +26,7 @@ import retrofit2.http.GET
 interface AgeGroupApi {
 
     companion object {
-        val BASE_URL = "https://gitlab.e.foundation/e/os/app-lounge-content-ratings/-/raw/main/"
+        const val BASE_URL = "https://gitlab.e.foundation/e/os/app-lounge-content-ratings/-/raw/main/"
     }
 
     @GET("content_ratings.json?ref_type=heads")

@@ -50,7 +50,7 @@ import foundation.e.apps.data.login.PlayStoreAuthenticator
 import foundation.e.apps.data.login.exceptions.GPlayValidationException
 import foundation.e.apps.databinding.ActivityMainBinding
 import foundation.e.apps.install.updates.UpdatesNotifier
-import foundation.e.apps.provider.ProviderConstants.Companion.LOGIN_TYPE
+import foundation.e.apps.provider.ProviderConstants.LOGIN_TYPE
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.purchase.AppPurchaseFragmentDirections
