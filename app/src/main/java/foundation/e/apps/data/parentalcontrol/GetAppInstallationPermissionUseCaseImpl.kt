@@ -18,6 +18,8 @@
 
 package foundation.e.apps.data.parentalcontrol
 
+import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Allowed
@@ -32,13 +34,15 @@ import foundation.e.apps.domain.parentalcontrol.model.ParentalControlState.AgeGr
 import foundation.e.apps.domain.parentalcontrol.model.ParentalControlState.Disabled
 import foundation.e.apps.domain.parentalcontrol.model.isEnabled
 import javax.inject.Inject
+import javax.inject.Named
 
 class GetAppInstallationPermissionUseCaseImpl
 @Inject
 constructor(
     private val googlePlayContentRatingsRepository: GooglePlayContentRatingsRepository,
     private val getParentalControlStateUseCase: GetParentalControlStateUseCase,
-    private val playStoreRepository: PlayStoreRepository
+    private val playStoreRepository: PlayStoreRepository,
+    @Named("cleanApkAppsRepository") private val cleanApkRepository: CleanApkRepository
 ) : GetAppInstallationPermissionUseCase {
 
     companion object {
@@ -56,10 +60,21 @@ constructor(
         }
     }
 
-    private fun validateNsfwAntiFeature(
-        app: AppInstall,
+    private suspend fun validateNsfwAntiFeature(
+        appPendingInstallation: AppInstall,
         parentalControl: ParentalControlState
     ): AppInstallationPermissionState {
+        // Need this API call for fetching complete information of F-Droid app.
+        // `appPendingInstallation` doesn't have complete data when installation is called from
+        // screens such as search, category, etc.
+        val app =
+            cleanApkRepository
+                .getAppDetailsById(appPendingInstallation.id)
+                .getOrElse {
+                    return DeniedOnDataLoadError
+                }
+                .app
+
         return when {
             hasNoAntiFeatures(app) -> Allowed
             isNsfwFDroidApp(app) && parentalControl.isEnabled -> Denied
@@ -67,9 +82,9 @@ constructor(
         }
     }
 
-    private fun hasNoAntiFeatures(app: AppInstall) = app.antiFeatures.isEmpty()
+    private fun hasNoAntiFeatures(app: Application) = app.antiFeatures.isEmpty()
 
-    private fun isNsfwFDroidApp(app: AppInstall) =
+    private fun isNsfwFDroidApp(app: Application) =
         app.antiFeatures.any { antiFeature -> antiFeature.containsKey(KEY_ANTI_FEATURES_NSFW) }
 
     private suspend fun validateGooglePlayContentRating(
@@ -89,7 +104,7 @@ constructor(
     }
 
     private fun isFDroidApp(app: AppInstall): Boolean {
-        return app.isFDroidApp // FIXME: From search results, isFDroidApp is absent, so false always
+        return app.isFDroidApp
     }
 
     private suspend fun hasNoContentRating(app: AppInstall): Boolean {

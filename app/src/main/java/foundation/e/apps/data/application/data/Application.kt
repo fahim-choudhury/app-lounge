@@ -101,7 +101,8 @@ data class Application(
     var filterLevel: FilterLevel = FilterLevel.UNKNOWN,
     var isGplayReplaced: Boolean = false,
     @SerializedName(value = "on_fdroid")
-    val isFDroidApp: Boolean = false,
+    private val isFDroidAppBackingField: Boolean? = null,
+    val isFDroidApp: Boolean = isFDroidAppBackingField ?: isFDroid(type, origin),
     var contentRating: ContentRating = ContentRating(),
     @SerializedName(value = "antifeatures")
     val antiFeatures: List<Map<String, String>> = emptyList()
@@ -119,14 +120,8 @@ data class Application(
     }
 }
 
-val Application.shareUri: Uri
-    get() = when (type) {
-        PWA -> Uri.parse(url)
-        NATIVE -> when {
-            isFDroidApp -> buildFDroidUri(package_name)
-            else -> Uri.parse(shareUrl)
-        }
-    }
+private fun isFDroid(type: Type, origin: Origin) =
+    (type == NATIVE && origin == Origin.CLEANAPK)
 
 private fun buildFDroidUri(packageName: String): Uri {
     return Uri.Builder()
@@ -136,3 +131,12 @@ private fun buildFDroidUri(packageName: String): Uri {
         .appendPath(packageName)
         .build()
 }
+
+val Application.shareUri: Uri
+    get() = when (type) {
+        PWA -> Uri.parse(url)
+        NATIVE -> when {
+            isFDroidApp -> buildFDroidUri(package_name)
+            else -> Uri.parse(shareUrl)
+        }
+    }
