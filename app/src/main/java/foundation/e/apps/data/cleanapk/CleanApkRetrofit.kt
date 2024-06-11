@@ -35,8 +35,8 @@ interface CleanApkRetrofit {
         const val ASSET_URL = "https://api.cleanapk.org/v2/media/"
 
         // TODO: Configure dev and prod flavors to auto switch URLs
-        // const val BASE_URL_DEV = "https://api.dev.cleanapk.org/v2/"
-        // const val ASSET_URL_DEV = "https://api.dev.cleanapk.org/v2/media/"
+//         const val BASE_URL = "https://api.dev.cleanapk.org/v2/"
+//         const val ASSET_URL = "https://api.dev.cleanapk.org/v2/media/"
 
         // Application sources
         const val APP_SOURCE_FOSS = "open"

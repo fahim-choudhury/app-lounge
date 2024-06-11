@@ -18,9 +18,6 @@
 
 package foundation.e.apps.data.parentalcontrol
 
-import com.aurora.gplayapi.data.models.AuthData
-import foundation.e.apps.data.application.ApplicationRepository
-import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Allowed
@@ -28,7 +25,6 @@ import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Den
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.DeniedOnDataLoadError
 import foundation.e.apps.data.parentalcontrol.gplayrating.GooglePlayContentRatingsRepository
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.domain.parentalcontrol.GetAppInstallationPermissionUseCase
 import foundation.e.apps.domain.parentalcontrol.GetParentalControlStateUseCase
 import foundation.e.apps.domain.parentalcontrol.model.ParentalControlState
@@ -40,8 +36,6 @@ import javax.inject.Inject
 class GetAppInstallationPermissionUseCaseImpl
 @Inject
 constructor(
-    private val applicationRepository: ApplicationRepository,
-    private val dataStoreManager: DataStoreManager,
     private val googlePlayContentRatingsRepository: GooglePlayContentRatingsRepository,
     private val getParentalControlStateUseCase: GetParentalControlStateUseCase,
     private val playStoreRepository: PlayStoreRepository
@@ -94,11 +88,12 @@ constructor(
         return !isFDroidApp(app) && app.type != Type.PWA
     }
 
-    private fun isFDroidApp(app: AppInstall): Boolean = app.isFDroidApp
+    private fun isFDroidApp(app: AppInstall): Boolean {
+        return app.isFDroidApp // FIXME: From search results, isFDroidApp is absent, so false always
+    }
 
     private suspend fun hasNoContentRating(app: AppInstall): Boolean {
-        val authData = dataStoreManager.getAuthData()
-        return !verifyContentRatingExists(app, authData)
+        return !verifyContentRatingExists(app)
     }
 
     private fun hasValidContentRating(
@@ -118,22 +113,9 @@ constructor(
         }
     }
 
-    private suspend fun verifyContentRatingExists(app: AppInstall, authData: AuthData): Boolean {
-        if (app.contentRating.title.isEmpty()) {
-            applicationRepository
-                .getApplicationDetails(app.id, app.packageName, authData, app.origin)
-                .let { (appDetails, resultStatus) ->
-                    if (resultStatus == ResultStatus.OK) {
-                        app.contentRating = appDetails.contentRating
-                    } else {
-                        return false
-                    }
-                }
-        }
-
-        if (app.contentRating.id.isEmpty()) {
-            app.contentRating =
-                playStoreRepository.getContentRatingWithId(app.packageName, app.contentRating)
+    private suspend fun verifyContentRatingExists(app: AppInstall): Boolean {
+        if (app.contentRating.title.isEmpty() || app.contentRating.id.isEmpty()) {
+            app.contentRating = playStoreRepository.getEnglishContentRating(app.packageName)
         }
 
         return app.contentRating.title.isNotEmpty() && app.contentRating.id.isNotEmpty()

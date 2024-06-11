@@ -39,7 +39,6 @@ import foundation.e.apps.domain.parentalcontrol.GetParentalControlStateUseCase
 import foundation.e.apps.domain.parentalcontrol.model.AgeGroupValue
 import foundation.e.apps.domain.parentalcontrol.model.ParentalControlState
 import foundation.e.apps.util.MainCoroutineRule
-import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -48,6 +47,7 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
+import kotlin.test.assertEquals
 
 class GetAppInstallationPermissionUseCaseTest {
 
@@ -76,11 +76,10 @@ class GetAppInstallationPermissionUseCaseTest {
         MockitoAnnotations.openMocks(this)
         useCase =
             GetAppInstallationPermissionUseCaseImpl(
-                applicationRepository,
-                dataStoreManager,
                 contentRatingsRepository,
                 getParentalControlStateUseCase,
-                playStoreRepository)
+                playStoreRepository
+            )
     }
 
     @Test
@@ -228,7 +227,7 @@ class GetAppInstallationPermissionUseCaseTest {
                         appPendingInstallation.origin))
                 .thenReturn(Pair(application, ResultStatus.OK))
 
-            Mockito.`when`(playStoreRepository.getContentRatingWithId(appPackage, contentRating))
+            Mockito.`when`(playStoreRepository.getEnglishContentRating(appPackage))
                 .thenReturn(contentRatingWithId)
 
             val installationPermissionState = useCase.invoke(appPendingInstallation)
@@ -288,7 +287,7 @@ class GetAppInstallationPermissionUseCaseTest {
                         appPendingInstallation.origin))
                 .thenReturn(Pair(application, ResultStatus.OK))
 
-            Mockito.`when`(playStoreRepository.getContentRatingWithId(appPackage, contentRating))
+            Mockito.`when`(playStoreRepository.getEnglishContentRating(appPackage))
                 .thenReturn(contentRatingWithId)
 
             val installationPermissionState = useCase.invoke(appPendingInstallation)
@@ -348,7 +347,7 @@ class GetAppInstallationPermissionUseCaseTest {
                         appPendingInstallation.origin))
                 .thenReturn(Pair(application, ResultStatus.OK))
 
-            Mockito.`when`(playStoreRepository.getContentRatingWithId(appPackage, contentRating))
+            Mockito.`when`(playStoreRepository.getEnglishContentRating(appPackage))
                 .thenReturn(contentRatingWithId)
 
             val installationPermissionState = useCase.invoke(appPendingInstallation)
@@ -408,7 +407,7 @@ class GetAppInstallationPermissionUseCaseTest {
                         appPendingInstallation.origin))
                 .thenReturn(Pair(application, ResultStatus.UNKNOWN))
 
-            Mockito.`when`(playStoreRepository.getContentRatingWithId(appPackage, contentRating))
+            Mockito.`when`(playStoreRepository.getEnglishContentRating(appPackage))
                 .thenReturn(contentRatingWithId)
 
             val installationPermissionState = useCase.invoke(appPendingInstallation)
@@ -469,7 +468,7 @@ class GetAppInstallationPermissionUseCaseTest {
                         appPendingInstallation.origin))
                 .thenReturn(Pair(application, ResultStatus.UNKNOWN))
 
-            Mockito.`when`(playStoreRepository.getContentRatingWithId(appPackage, contentRating))
+            Mockito.`when`(playStoreRepository.getEnglishContentRating(appPackage))
                 .thenReturn(contentRatingWithId)
 
             val installationPermissionState = useCase.invoke(appPendingInstallation)
