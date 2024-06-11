@@ -47,10 +47,6 @@
     <!-- Updating targetSdk requires further testing and is not the scope of this issue -->
     <issue id="ExpiredTargetSdkVersion" severity="warning" />
 
-    <!-- Suppress error when using ${applicationId}.permission.PROVIDER_READ as permission name -->
-    <!-- This avoids conflict with debug variant while testing -->
-    <issue id="PermissionNamingConvention" severity="warning" />
-
     <issue id="all" severity="error"/>
 </lint>
 
