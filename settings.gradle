@@ -62,4 +62,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "App Lounge"
 include ':app'
-include ':contracts'
+include ':parental_control_data'

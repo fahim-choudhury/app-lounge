@@ -30,11 +30,11 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import foundation.e.apps.BuildConfig
-import foundation.e.apps.contracts.ProviderContracts.COLUMN_LOGIN_TYPE
-import foundation.e.apps.contracts.ProviderContracts.COLUMN_PACKAGE_NAME
-import foundation.e.apps.contracts.ProviderContracts.PATH_BLOCKLIST
-import foundation.e.apps.contracts.ProviderContracts.PATH_LOGIN_TYPE
-import foundation.e.apps.contracts.ProviderContracts.getAppLoungeProviderAuthority
+import foundation.e.apps.contract.ParentalControlContract.COLUMN_LOGIN_TYPE
+import foundation.e.apps.contract.ParentalControlContract.COLUMN_PACKAGE_NAME
+import foundation.e.apps.contract.ParentalControlContract.PATH_BLOCKLIST
+import foundation.e.apps.contract.ParentalControlContract.PATH_LOGIN_TYPE
+import foundation.e.apps.contract.ParentalControlContract.getAppLoungeProviderAuthority
 import foundation.e.apps.data.blockedApps.ContentRatingsRepository
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.install.models.AppInstall

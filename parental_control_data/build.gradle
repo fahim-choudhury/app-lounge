@@ -13,13 +13,13 @@ publishing {
     publications {
         aar(MavenPublication) {
             groupId = 'foundation.e.apps'
-            artifactId = 'contracts'
+            artifactId = 'parental_control_data'
             version = '1.0.0'
 
             artifact("$buildDir/libs/${project.name}.jar")
 
             pom {
-                name = 'Contracts'
+                name = 'ParentalControlContract'
                 description = 'Constants to be used in App Lounge content provider'
 
                 licenses {

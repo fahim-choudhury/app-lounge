@@ -41,7 +41,7 @@ import com.aurora.gplayapi.exceptions.ApiException
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import foundation.e.apps.contracts.ProviderContracts.COLUMN_LOGIN_TYPE
+import foundation.e.apps.contract.ParentalControlContract.COLUMN_LOGIN_TYPE
 import foundation.e.apps.data.Constants
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.install.models.AppInstall

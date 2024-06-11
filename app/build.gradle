@@ -159,8 +159,7 @@ allOpen {
 
 dependencies {
 
-    implementation project(":contracts")
-
+    implementation project(':parental_control_data')
     // TODO: Add splitinstall-lib to a repo https://gitlab.e.foundation/e/os/backlog/-/issues/628
     api files('libs/splitinstall-lib.jar')
 

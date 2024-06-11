@@ -17,9 +17,9 @@
  *
  */
 
-package foundation.e.apps.contracts
+package foundation.e.apps.contract
 
-object ProviderContracts {
+object ParentalControlContract {
     const val COLUMN_PACKAGE_NAME = "package_name"
     const val COLUMN_LOGIN_TYPE = "login_type"
 
