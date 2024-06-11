@@ -55,7 +55,7 @@
         <package android:name="${parentalControlPkgName}" />
     </queries>
 
-    <permission android:name="${applicationId}.provider.READ" />
+    <permission android:name="${applicationId}.provider.READ" android:protectionLevel="signature" />
 
     <application
         android:name=".AppLoungeApplication"
