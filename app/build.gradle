@@ -154,6 +154,8 @@ allOpen {
 
 dependencies {
 
+    implementation project(":contracts")
+
     // TODO: Add splitinstall-lib to a repo https://gitlab.e.foundation/e/os/backlog/-/issues/628
     api files('libs/splitinstall-lib.jar')
 

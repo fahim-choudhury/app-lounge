@@ -29,6 +29,12 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import foundation.e.apps.BuildConfig
+import foundation.e.apps.contracts.ProviderContracts.COLUMN_LOGIN_TYPE
+import foundation.e.apps.contracts.ProviderContracts.COLUMN_PACKAGE_NAME
+import foundation.e.apps.contracts.ProviderContracts.PATH_BLOCKLIST
+import foundation.e.apps.contracts.ProviderContracts.PATH_LOGIN_TYPE
+import foundation.e.apps.contracts.ProviderContracts.getAppLoungeProviderAuthority
 import foundation.e.apps.data.blockedApps.ContentRatingsRepository
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.install.models.AppInstall
@@ -36,11 +42,6 @@ import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
 import foundation.e.apps.install.pkg.AppLoungePackageManager
-import foundation.e.apps.provider.ProviderConstants.AUTHORITY
-import foundation.e.apps.provider.ProviderConstants.LOGIN_TYPE
-import foundation.e.apps.provider.ProviderConstants.PACKAGE_NAME
-import foundation.e.apps.provider.ProviderConstants.PATH_BLOCKLIST
-import foundation.e.apps.provider.ProviderConstants.PATH_LOGIN_TYPE
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -68,6 +69,8 @@ class AgeRatingProvider : ContentProvider() {
     private val CODE_LOGIN_TYPE = 1
     private val CODE_AGE_RATING = 2
 
+    private val AUTHORITY = getAppLoungeProviderAuthority(BuildConfig.DEBUG)
+
     private val uriMatcher by lazy {
         UriMatcher(UriMatcher.NO_MATCH).apply {
             addURI(AUTHORITY, PATH_LOGIN_TYPE, CODE_LOGIN_TYPE)
@@ -91,13 +94,13 @@ class AgeRatingProvider : ContentProvider() {
     }
 
     private fun getLoginType(): Cursor {
-        val cursor = MatrixCursor(arrayOf(LOGIN_TYPE))
+        val cursor = MatrixCursor(arrayOf(COLUMN_LOGIN_TYPE))
         cursor.addRow(arrayOf(dataStoreManager.getUserType()))
         return cursor
     }
 
     private fun getAgeRatings(): Cursor {
-        val cursor = MatrixCursor(arrayOf(PACKAGE_NAME))
+        val cursor = MatrixCursor(arrayOf(COLUMN_PACKAGE_NAME))
         val packagesNames = appLoungePackageManager.getAllUserApps().map { it.packageName }
         runBlocking {
             withContext(IO) {
