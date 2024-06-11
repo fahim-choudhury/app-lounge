@@ -67,6 +67,4 @@ interface AppsApi {
 
     fun isAnyAppInstallStatusChanged(currentList: List<Application>): Boolean
     fun isOpenSourceSelected(): Boolean
-
-    suspend fun getEnglishContentRating(packageName: String): ContentRating?
 }

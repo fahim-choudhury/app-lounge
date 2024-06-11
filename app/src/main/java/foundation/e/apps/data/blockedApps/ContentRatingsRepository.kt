@@ -19,13 +19,18 @@
 
 package foundation.e.apps.data.blockedApps
 
+import com.aurora.gplayapi.data.models.ContentRating
+import com.aurora.gplayapi.helpers.ContentRatingHelper
 import foundation.e.apps.data.ageRating.AgeGroupApi
+import foundation.e.apps.data.handleNetworkResult
+import foundation.e.apps.data.login.AuthenticatorRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ContentRatingsRepository @Inject constructor(
     private val ageGroupApi: AgeGroupApi,
+    private val authenticatorRepository: AuthenticatorRepository,
 ) {
 
     private var _contentRatingGroups = listOf<ContentRatingGroup>()
@@ -37,5 +42,14 @@ class ContentRatingsRepository @Inject constructor(
         if (response.isSuccessful) {
             _contentRatingGroups = response.body() ?: emptyList()
         }
+    }
+
+    suspend fun getEnglishContentRating(packageName: String): ContentRating? {
+        val authData = authenticatorRepository.gplayAuth!!
+        val contentRatingHelper = ContentRatingHelper(authData)
+
+        return handleNetworkResult {
+            contentRatingHelper.getEnglishContentRating(packageName)
+        }.data
     }
 }

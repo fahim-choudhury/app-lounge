@@ -49,8 +49,4 @@ interface PlayStoreRepository : StoreRepository {
         appPackage: String,
         contentRating: ContentRating
     ): ContentRating
-
-    suspend fun getEnglishContentRating(
-        appPackage: String,
-    ): ContentRating
 }

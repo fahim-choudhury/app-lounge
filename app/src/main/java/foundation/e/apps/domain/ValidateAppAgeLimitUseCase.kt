@@ -31,7 +31,6 @@ import javax.inject.Inject
 class ValidateAppAgeLimitUseCase @Inject constructor(
     private val contentRatingRepository: ContentRatingsRepository,
     private val parentalControlRepository: ParentalControlRepository,
-    private val appsApi: AppsApi,
 ) {
 
     suspend operator fun invoke(app: AppInstall): ResultSupreme<Boolean> {
@@ -76,7 +75,7 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
     private suspend fun verifyContentRatingExists(app: AppInstall): Boolean {
 
         if (app.contentRating.id.isEmpty()) {
-            appsApi.getEnglishContentRating(app.packageName)?.run {
+            contentRatingRepository.getEnglishContentRating(app.packageName)?.run {
                 app.contentRating = this
             }
         }

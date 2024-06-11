@@ -266,10 +266,4 @@ class AppsApiImpl @Inject constructor(
     }
 
     override fun isOpenSourceSelected() = appLoungePreference.isOpenSourceSelected()
-
-    override suspend fun getEnglishContentRating(packageName: String): ContentRating? {
-        return handleNetworkResult {
-            appSources.gplayRepo.getEnglishContentRating(packageName)
-        }.data
-    }
 }
