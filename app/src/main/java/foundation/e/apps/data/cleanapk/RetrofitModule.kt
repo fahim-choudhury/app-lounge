@@ -128,17 +128,6 @@ object RetrofitModule {
 
     @Singleton
     @Provides
-    fun provideAgeGroupApi(okHttpClient: OkHttpClient, moshi: Moshi): AgeGroupApi {
-        return Retrofit.Builder()
-            .baseUrl(AgeGroupApi.BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-            .create(AgeGroupApi::class.java)
-    }
-
-    @Singleton
-    @Provides
     fun getMoshi(): Moshi {
         return Moshi.Builder()
             .add(KotlinJsonAdapterFactory())
