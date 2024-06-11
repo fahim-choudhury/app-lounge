@@ -13,7 +13,7 @@ publishing {
     publications {
         aar(MavenPublication) {
             groupId = 'foundation.e.apps'
-            artifactId = 'parental_control_data'
+            artifactId = 'ParentalControlData'
             version = '1.0.0'
 
             artifact("$buildDir/libs/${project.name}.jar")
