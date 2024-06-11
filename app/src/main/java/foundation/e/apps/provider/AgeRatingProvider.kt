@@ -29,12 +29,10 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
-import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.blockedApps.ContentRatingsRepository
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthenticatorRepository
-import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
 import foundation.e.apps.install.pkg.AppLoungePackageManager
@@ -54,18 +52,14 @@ class AgeRatingProvider : ContentProvider() {
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface ContentProviderEntryPoint {
-        fun getAuthenticationRepository(): AuthenticatorRepository
-        fun getPlayStoreRepository(): PlayStoreRepository
-        fun getApplicationRepository(): ApplicationRepository
-        fun getPackageManager(): AppLoungePackageManager
-        fun getContentRatingsRepository(): ContentRatingsRepository
-        fun getValidateAppAgeLimitUseCase(): ValidateAppAgeLimitUseCase
-        fun getDataStoreManager(): DataStoreManager
+        fun provideAuthenticationRepository(): AuthenticatorRepository
+        fun providePackageManager(): AppLoungePackageManager
+        fun provideContentRatingsRepository(): ContentRatingsRepository
+        fun provideValidateAppAgeLimitUseCase(): ValidateAppAgeLimitUseCase
+        fun provideDataStoreManager(): DataStoreManager
     }
 
     private lateinit var authenticatorRepository: AuthenticatorRepository
-    private lateinit var playStoreRepository: PlayStoreRepository
-    private lateinit var applicationRepository: ApplicationRepository
     private lateinit var appLoungePackageManager: AppLoungePackageManager
     private lateinit var contentRatingsRepository: ContentRatingsRepository
     private lateinit var validateAppAgeLimitUseCase: ValidateAppAgeLimitUseCase
@@ -145,13 +139,11 @@ class AgeRatingProvider : ContentProvider() {
         val hiltEntryPoint =
             EntryPointAccessors.fromApplication(appContext, ContentProviderEntryPoint::class.java)
 
-        authenticatorRepository = hiltEntryPoint.getAuthenticationRepository()
-        playStoreRepository = hiltEntryPoint.getPlayStoreRepository()
-        applicationRepository = hiltEntryPoint.getApplicationRepository()
-        appLoungePackageManager = hiltEntryPoint.getPackageManager()
-        contentRatingsRepository = hiltEntryPoint.getContentRatingsRepository()
-        validateAppAgeLimitUseCase = hiltEntryPoint.getValidateAppAgeLimitUseCase()
-        dataStoreManager = hiltEntryPoint.getDataStoreManager()
+        authenticatorRepository = hiltEntryPoint.provideAuthenticationRepository()
+        appLoungePackageManager = hiltEntryPoint.providePackageManager()
+        contentRatingsRepository = hiltEntryPoint.provideContentRatingsRepository()
+        validateAppAgeLimitUseCase = hiltEntryPoint.provideValidateAppAgeLimitUseCase()
+        dataStoreManager = hiltEntryPoint.provideDataStoreManager()
 
 
         return true
