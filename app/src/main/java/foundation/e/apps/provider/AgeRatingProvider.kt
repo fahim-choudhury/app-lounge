@@ -67,18 +67,18 @@ class AgeRatingProvider : ContentProvider() {
     private lateinit var validateAppAgeLimitUseCase: ValidateAppAgeLimitUseCase
     private lateinit var dataStoreManager: DataStoreManager
 
-    private enum class UriCodes(val code: Int) {
-        CODE_LOGIN_TYPE(1),
-        CODE_AGE_RATING(2),
+    private enum class UriCode(val code: Int) {
+        LoginType(1),
+        AgeRating(2),
         ;
     }
 
-    private val AUTHORITY = getAppLoungeProviderAuthority(BuildConfig.DEBUG)
+    private val authority = getAppLoungeProviderAuthority(BuildConfig.DEBUG)
 
     private val uriMatcher by lazy {
         UriMatcher(UriMatcher.NO_MATCH).apply {
-            addURI(AUTHORITY, PATH_LOGIN_TYPE, UriCodes.CODE_LOGIN_TYPE.code)
-            addURI(AUTHORITY, PATH_BLOCKLIST, UriCodes.CODE_AGE_RATING.code)
+            addURI(authority, PATH_LOGIN_TYPE, UriCode.LoginType.code)
+            addURI(authority, PATH_BLOCKLIST, UriCode.AgeRating.code)
         }
     }
 
@@ -91,8 +91,8 @@ class AgeRatingProvider : ContentProvider() {
     ): Cursor? {
         val code = uriMatcher.match(uri)
         return when (code) {
-            UriCodes.CODE_LOGIN_TYPE.code -> getLoginType()
-            UriCodes.CODE_AGE_RATING.code -> getAgeRatings()
+            UriCode.LoginType.code -> getLoginType()
+            UriCode.AgeRating.code -> getAgeRatings()
             else -> null
         }
     }
@@ -196,10 +196,10 @@ class AgeRatingProvider : ContentProvider() {
 
     override fun getType(uri: Uri): String {
         return when (uriMatcher.match(uri)) {
-            UriCodes.CODE_LOGIN_TYPE.code ->
-                "vnd.android.cursor.item/${AUTHORITY}.${UriCodes.CODE_LOGIN_TYPE.code}"
-            UriCodes.CODE_AGE_RATING.code ->
-                "vnd.android.cursor.item/${AUTHORITY}.${UriCodes.CODE_AGE_RATING.code}"
+            UriCode.LoginType.code ->
+                "vnd.android.cursor.item/${authority}.${UriCode.LoginType.code}"
+            UriCode.AgeRating.code ->
+                "vnd.android.cursor.item/${authority}.${UriCode.AgeRating.code}"
             else -> throw IllegalArgumentException("Unknown URI: $uri")
         }
     }
