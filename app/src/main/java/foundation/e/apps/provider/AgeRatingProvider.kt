@@ -47,6 +47,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 class AgeRatingProvider : ContentProvider() {
 
@@ -101,40 +102,69 @@ class AgeRatingProvider : ContentProvider() {
 
     private fun getAgeRatings(): Cursor {
         val cursor = MatrixCursor(arrayOf(COLUMN_PACKAGE_NAME))
-        val packagesNames = appLoungePackageManager.getAllUserApps().map { it.packageName }
+        val packageNames = appLoungePackageManager.getAllUserApps().map { it.packageName }
         runBlocking {
             withContext(IO) {
+                try {
+                    if (packageNames.isEmpty()) return@withContext cursor
 
-                if (contentRatingsRepository.contentRatingGroups.isEmpty()) {
-                    contentRatingsRepository.fetchContentRatingData()
-                }
+                    ensureAgeGroupDataExists()
 
-                val contentRatingsDeferred = packagesNames.map { packageName ->
-                    async {
-                        val authData = dataStoreManager.getAuthData()
-                        if (authData.email.isBlank() && authData.aasToken.isBlank()) {
-                            return@async null
-                        } else {
-                            authenticatorRepository.gplayAuth = authData
+                    val ageValidityDeferred = packageNames.map { packageName ->
+                        async {
+                            if (!setupAuthDataIfExists()) return@async null
+                            getAppAgeValidity(packageName)
                         }
-                        val fakeAppInstall = AppInstall(
-                            packageName = packageName,
-                            origin = Origin.GPLAY
-                        )
-                        val validateResult = validateAppAgeLimitUseCase(fakeAppInstall)
-                        validateResult.data ?: false
                     }
-                }
-                val contentsRatings = contentRatingsDeferred.awaitAll()
-                contentsRatings.forEachIndexed { index: Int, isValid: Boolean? ->
-                    if (isValid == false) {
-                        // Collect package names for blocklist
-                        cursor.addRow(arrayOf(packagesNames[index]))
-                    }
+                    val validityList = ageValidityDeferred.awaitAll()
+                    compileAppBlockList(cursor, validityList, packageNames)
+                } catch (e: Exception) {
+                    Timber.e("AgeRatingProvider", "Error fetching age ratings", e)
                 }
             }
         }
         return cursor
+    }
+
+    private suspend fun ensureAgeGroupDataExists() {
+        if (contentRatingsRepository.contentRatingGroups.isEmpty()) {
+            contentRatingsRepository.fetchContentRatingData()
+        }
+    }
+
+    /**
+     * Return true if valid AuthData could be fetched from data store, false otherwise.
+     */
+    private fun setupAuthDataIfExists(): Boolean {
+        val authData = dataStoreManager.getAuthData()
+        if (authData.email.isNotBlank() || authData.aasToken.isNotBlank()) {
+            authenticatorRepository.gplayAuth = authData
+            return true
+        }
+        Timber.e("Blank AuthData, cannot fetch ratings from provider.")
+        return false
+    }
+
+    private suspend fun getAppAgeValidity(packageName: String): Boolean {
+        val fakeAppInstall = AppInstall(
+            packageName = packageName,
+            origin = Origin.GPLAY
+        )
+        val validateResult = validateAppAgeLimitUseCase(fakeAppInstall)
+        return validateResult.data ?: false
+    }
+
+    private fun compileAppBlockList(
+        cursor: MatrixCursor,
+        validityList: List<Boolean?>,
+        packageNames: List<String>,
+    ) {
+        validityList.forEachIndexed { index: Int, isValid: Boolean? ->
+            if (isValid != true) {
+                // Collect package names for blocklist
+                cursor.addRow(arrayOf(packageNames[index]))
+            }
+        }
     }
 
     override fun onCreate(): Boolean {
