@@ -137,7 +137,7 @@ class AgeRatingProvider : ContentProvider() {
      */
     private fun setupAuthDataIfExists(): Boolean {
         val authData = dataStoreManager.getAuthData()
-        if (authData.email.isNotBlank() || authData.aasToken.isNotBlank()) {
+        if (authData.email.isNotBlank() && authData.authToken.isNotBlank()) {
             authenticatorRepository.gplayAuth = authData
             return true
         }
