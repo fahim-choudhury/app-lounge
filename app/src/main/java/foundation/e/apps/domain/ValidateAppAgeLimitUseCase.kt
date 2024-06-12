@@ -76,6 +76,7 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
 
         if (app.contentRating.id.isEmpty()) {
             contentRatingRepository.getEnglishContentRating(app.packageName)?.run {
+                Timber.d("Updating content rating for package: ${app.packageName}")
                 app.contentRating = this
             }
         }
