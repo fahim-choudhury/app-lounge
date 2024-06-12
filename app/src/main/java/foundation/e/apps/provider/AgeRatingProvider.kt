@@ -190,7 +190,7 @@ class AgeRatingProvider : ContentProvider() {
         selection: String?,
         selectionArgs: Array<out String>?
     ): Int {
-        throw UnsupportedOperationException("Not supported")
+        throw UnsupportedOperationException("Update operation is not supported by AgeRatingProvider")
     }
 
     override fun getType(uri: Uri): String {
@@ -204,11 +204,11 @@ class AgeRatingProvider : ContentProvider() {
     }
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
-        throw UnsupportedOperationException("Not supported")
+        throw UnsupportedOperationException("Insert operation is not supported by AgeRatingProvider")
     }
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
-        throw UnsupportedOperationException("Not supported")
+        throw UnsupportedOperationException("Delete operation is not supported by AgeRatingProvider")
     }
 
 }
