@@ -112,15 +112,9 @@ class AgeRatingProvider : ContentProvider() {
                     if (packageNames.isEmpty()) return@withContext cursor
 
                     ensureAgeGroupDataExists()
+                    if (!setupAuthDataIfExists()) return@withContext null
 
-                    val ageValidityDeferred = packageNames.map { packageName ->
-                        async {
-                            if (!setupAuthDataIfExists()) return@async null
-                            getAppAgeValidity(packageName)
-                        }
-                    }
-                    val validityList = ageValidityDeferred.awaitAll()
-                    compileAppBlockList(cursor, validityList, packageNames)
+                    compileAppBlockList(cursor, packageNames)
                 } catch (e: Exception) {
                     Timber.e("AgeRatingProvider", "Error fetching age ratings", e)
                 }
@@ -157,15 +151,21 @@ class AgeRatingProvider : ContentProvider() {
         return validateResult.data ?: false
     }
 
-    private fun compileAppBlockList(
+    private suspend fun compileAppBlockList(
         cursor: MatrixCursor,
-        validityList: List<Boolean?>,
         packageNames: List<String>,
     ) {
-        validityList.forEachIndexed { index: Int, isValid: Boolean? ->
-            if (isValid != true) {
-                // Collect package names for blocklist
-                cursor.addRow(arrayOf(packageNames[index]))
+        withContext(IO) {
+            val validityList = packageNames.map { packageName ->
+                async {
+                    getAppAgeValidity(packageName)
+                }
+            }.awaitAll()
+            validityList.forEachIndexed { index: Int, isValid: Boolean? ->
+                if (isValid != true) {
+                    // Collect package names for blocklist
+                    cursor.addRow(arrayOf(packageNames[index]))
+                }
             }
         }
     }
