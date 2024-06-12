@@ -168,5 +168,5 @@ publish-contracts:
     - if: '$CI_COMMIT_TAG !~ "/^$/"'
       when: always
   script:
-    - ./gradlew :parental_control_data:build
-    - ./gradlew :parental_control_data:publish
+    - ./gradlew :parental-control-data:build
+    - ./gradlew :parental-control-data:publish
