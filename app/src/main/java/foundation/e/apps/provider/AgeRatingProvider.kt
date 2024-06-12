@@ -181,7 +181,6 @@ class AgeRatingProvider : ContentProvider() {
         validateAppAgeLimitUseCase = hiltEntryPoint.provideValidateAppAgeLimitUseCase()
         dataStoreManager = hiltEntryPoint.provideDataStoreManager()
 
-
         return true
     }
 
