@@ -67,15 +67,18 @@ class AgeRatingProvider : ContentProvider() {
     private lateinit var validateAppAgeLimitUseCase: ValidateAppAgeLimitUseCase
     private lateinit var dataStoreManager: DataStoreManager
 
-    private val CODE_LOGIN_TYPE = 1
-    private val CODE_AGE_RATING = 2
+    private enum class UriCodes(val code: Int) {
+        CODE_LOGIN_TYPE(1),
+        CODE_AGE_RATING(2),
+        ;
+    }
 
     private val AUTHORITY = getAppLoungeProviderAuthority(BuildConfig.DEBUG)
 
     private val uriMatcher by lazy {
         UriMatcher(UriMatcher.NO_MATCH).apply {
-            addURI(AUTHORITY, PATH_LOGIN_TYPE, CODE_LOGIN_TYPE)
-            addURI(AUTHORITY, PATH_BLOCKLIST, CODE_AGE_RATING)
+            addURI(AUTHORITY, PATH_LOGIN_TYPE, UriCodes.CODE_LOGIN_TYPE.code)
+            addURI(AUTHORITY, PATH_BLOCKLIST, UriCodes.CODE_AGE_RATING.code)
         }
     }
 
@@ -88,8 +91,8 @@ class AgeRatingProvider : ContentProvider() {
     ): Cursor? {
         val code = uriMatcher.match(uri)
         return when (code) {
-            CODE_LOGIN_TYPE -> getLoginType()
-            CODE_AGE_RATING -> getAgeRatings()
+            UriCodes.CODE_LOGIN_TYPE.code -> getLoginType()
+            UriCodes.CODE_AGE_RATING.code -> getAgeRatings()
             else -> null
         }
     }
@@ -193,8 +196,10 @@ class AgeRatingProvider : ContentProvider() {
 
     override fun getType(uri: Uri): String {
         return when (uriMatcher.match(uri)) {
-            CODE_LOGIN_TYPE -> "vnd.android.cursor.item/${AUTHORITY}.$CODE_LOGIN_TYPE"
-            CODE_AGE_RATING -> "vnd.android.cursor.item/${AUTHORITY}.$CODE_AGE_RATING"
+            UriCodes.CODE_LOGIN_TYPE.code ->
+                "vnd.android.cursor.item/${AUTHORITY}.${UriCodes.CODE_LOGIN_TYPE.code}"
+            UriCodes.CODE_AGE_RATING.code ->
+                "vnd.android.cursor.item/${AUTHORITY}.${UriCodes.CODE_AGE_RATING.code}"
             else -> throw IllegalArgumentException("Unknown URI: $uri")
         }
     }
