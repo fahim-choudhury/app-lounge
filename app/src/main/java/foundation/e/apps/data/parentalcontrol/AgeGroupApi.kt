@@ -16,23 +16,20 @@
  *
  */
 
-package foundation.e.apps.data.fdroid
+package foundation.e.apps.data.parentalcontrol
 
-import foundation.e.apps.data.fdroid.models.FdroidApiModel
+import foundation.e.apps.data.parentalcontrol.gplayrating.GooglePlayContentRatingGroup
 import retrofit2.Response
 import retrofit2.http.GET
-import retrofit2.http.Path
 
-/**
- * Interface for retrofit calls.
- * Created from [foundation.e.apps.data.cleanapk.RetrofitApiModule.provideFdroidApi].
- */
-interface FdroidApiInterface {
+interface AgeGroupApi {
 
     companion object {
-        const val BASE_URL = "https://gitlab.com/fdroid/fdroiddata/-/raw/master/metadata/"
+        const val BASE_URL =
+            "https://gitlab.e.foundation/e/os/app-lounge-content-ratings/-/raw/main/"
     }
 
-    @GET("{packageName}.yml")
-    suspend fun getFdroidInfoForPackage(@Path("packageName") packageName: String): Response<FdroidApiModel?>
+    @GET("content_ratings.json?ref_type=heads")
+    suspend fun getDefinedAgeGroups(): Response<List<GooglePlayContentRatingGroup>>
+
 }

@@ -218,7 +218,7 @@ class PlayStoreRepositoryImpl @Inject constructor(
         appPackage: String,
         contentRating: ContentRating
     ): ContentRating {
-        val authData = authenticatorRepository.gplayAuth!!
+        val authData = authenticatorRepository.gplayAuth ?: return contentRating
         val contentRatingHelper = ContentRatingHelper(authData)
 
         return withContext(Dispatchers.IO) {
@@ -226,6 +226,16 @@ class PlayStoreRepositoryImpl @Inject constructor(
                 appPackage,
                 contentRating
             )
+        }
+    }
+
+    override suspend fun getEnglishContentRating(appPackage: String): ContentRating {
+        val authData = authenticatorRepository.gplayAuth!!
+        val contentRatingHelper = ContentRatingHelper(authData)
+
+        return withContext(Dispatchers.IO) {
+            runCatching { contentRatingHelper.getEnglishContentRating(appPackage) }
+                .getOrDefault(ContentRating())
         }
     }
 }

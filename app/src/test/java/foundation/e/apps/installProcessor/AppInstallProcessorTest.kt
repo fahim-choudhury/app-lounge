@@ -1,6 +1,5 @@
 /*
- * Copyright MURENA SAS 2023
- * Apps  Quickly and easily install Android apps onto your device!
+ * Copyright (C) 2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.installProcessor
@@ -21,17 +21,15 @@ package foundation.e.apps.installProcessor
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.ContentRating
-import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.application.ApplicationRepository
-import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.install.AppInstallRepository
 import foundation.e.apps.data.install.AppManager
 import foundation.e.apps.data.install.models.AppInstall
+import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState
 import foundation.e.apps.data.preference.DataStoreManager
-import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
+import foundation.e.apps.domain.parentalcontrol.GetAppInstallationPermissionUseCase
 import foundation.e.apps.install.AppInstallComponents
 import foundation.e.apps.install.notification.StorageNotificationManager
 import foundation.e.apps.install.workmanager.AppInstallProcessor
@@ -46,7 +44,6 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
-import kotlin.reflect.jvm.internal.ReflectProperties.Val
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppInstallProcessorTest {
@@ -82,7 +79,7 @@ class AppInstallProcessorTest {
     private lateinit var appInstallProcessor: AppInstallProcessor
 
     @Mock
-    private lateinit var validateAppAgeRatingUseCase: ValidateAppAgeLimitUseCase
+    private lateinit var getAppInstallationPermissionUseCase: GetAppInstallationPermissionUseCase
 
     @Mock
     private lateinit var storageNotificationManager: StorageNotificationManager
@@ -101,7 +98,7 @@ class AppInstallProcessorTest {
             context,
             appInstallComponents,
             applicationRepository,
-            validateAppAgeRatingUseCase,
+            getAppInstallationPermissionUseCase,
             dataStoreManager,
             storageNotificationManager
         )
@@ -193,8 +190,8 @@ class AppInstallProcessorTest {
     @Test
     fun `processInstallTest when age limit is satisfied`() = runTest {
         val fusedDownload = initTest()
-        Mockito.`when`(validateAppAgeRatingUseCase.invoke(fusedDownload))
-            .thenReturn(ResultSupreme.create(ResultStatus.OK, true))
+        Mockito.`when`(getAppInstallationPermissionUseCase.invoke(fusedDownload))
+            .thenReturn(AppInstallationPermissionState.Allowed)
 
         val finalFusedDownload = runProcessInstall(fusedDownload)
         assertEquals("processInstall", finalFusedDownload, null)
@@ -203,8 +200,17 @@ class AppInstallProcessorTest {
     @Test
     fun `processInstallTest when age limit is not satisfied`() = runTest {
         val fusedDownload = initTest()
-        Mockito.`when`(validateAppAgeRatingUseCase.invoke(fusedDownload))
-            .thenReturn(ResultSupreme.create(ResultStatus.OK, false))
+        Mockito.`when`(getAppInstallationPermissionUseCase.invoke(fusedDownload))
+            .thenReturn(AppInstallationPermissionState.Denied)
+
+        val finalFusedDownload = runProcessInstall(fusedDownload)
+        assertEquals("processInstall", finalFusedDownload, null)
+    }
+    @Test
+    fun `processInstallTest when installation denied for data loading error`() = runTest {
+        val fusedDownload = initTest()
+        Mockito.`when`(getAppInstallationPermissionUseCase.invoke(fusedDownload))
+            .thenReturn(AppInstallationPermissionState.DeniedOnDataLoadError)
 
         val finalFusedDownload = runProcessInstall(fusedDownload)
         assertEquals("processInstall", finalFusedDownload, null)

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Apps  Quickly and easily install Android apps onto your device!
-  ~ Copyright (C) 2021  E FOUNDATION
+  ~ Copyright (C) 2021-2024 MURENA SAS
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -15,6 +14,7 @@
   ~
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  ~
   -->
 
 <resources>
@@ -39,5 +39,9 @@
     <color name="colorYellow">#FFEB3B</color>
 
     <color name="colorGrey2">#EDEDED</color>
+
+    <!-- Application details-->
+    <color name="color_text_app_details">#99000000</color>
+    <color name="color_icon_app_details">#000000</color>
 
 </resources>

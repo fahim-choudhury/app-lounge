@@ -147,6 +147,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         private const val PRIVACY_GUIDELINE_URL = "https://doc.e.foundation/privacy_score"
         private const val REQUEST_EXODUS_REPORT_URL =
             "https://reports.exodus-privacy.eu.org/en/analysis/submit#"
+        private const val KEY_ANTI_FEATURES_NSFW = "NSFW"
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -234,6 +235,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         stopLoadingUI()
 
         collectState()
+
     }
 
     private fun collectState() {
@@ -284,7 +286,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             }
             appTrackers.setOnClickListener {
                 val fusedApp = applicationViewModel.getFusedApp()
-                var trackers =
+                val trackers =
                     buildTrackersString(fusedApp)
 
                 ApplicationDialogFragment(
@@ -433,6 +435,28 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 appIcon.load(it.icon_image_path)
             }
         }
+
+        updateAntiFeaturesUi(it)
+    }
+
+    private fun updateAntiFeaturesUi(app: Application) {
+        val isNsfwApp =
+            app.antiFeatures.find { antiFeature -> antiFeature.containsKey(KEY_ANTI_FEATURES_NSFW) } != null
+
+        if (isNsfwApp) {
+            with(binding.titleInclude) {
+                antiFeatureInfoLayout.apply {
+                    isVisible = true
+                    setOnClickListener {
+                        ApplicationDialogFragment(
+                            title = getString(R.string.nsfw_dialog_title),
+                            message = getString(R.string.nsfw_dialog_message),
+                            drawableResId = R.drawable.ic_visibility_off
+                        ).show(childFragmentManager, TAG)
+                    }
+                }
+            }
+        }
     }
 
     private fun updateCategoryTitle(app: Application) {
@@ -444,9 +468,17 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 catText == "web_games" -> catText = getString(R.string.games) // PWA games
             }
 
-            catText = catText.replace("_", " ")
+            catText = formatCategoryText(catText)
             categoryTitle.text = catText
         }
+    }
+
+    private fun formatCategoryText(text: String): String {
+        return text
+            .replace("_", " ")
+            .replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+            } // Capitalize, example: books and reference -> Books and reference
     }
 
     private fun setupScreenshotRVAdapter() {

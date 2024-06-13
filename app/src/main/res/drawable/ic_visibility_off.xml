@@ -1,0 +1,27 @@
+<!--
+  ~ Copyright (C) 2024 MURENA SAS
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  ~
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="25dp"
+    android:viewportWidth="24"
+    android:viewportHeight="25">
+  <path
+      android:pathData="M12,6.475C15.79,6.475 19.17,8.605 20.82,11.975C20.23,13.195 19.4,14.245 18.41,15.095L19.82,16.505C21.21,15.275 22.31,13.735 23,11.975C21.27,7.585 17,4.475 12,4.475C10.73,4.475 9.51,4.675 8.36,5.045L10.01,6.695C10.66,6.565 11.32,6.475 12,6.475ZM10.93,7.615L13,9.685C13.57,9.935 14.03,10.395 14.28,10.965L16.35,13.035C16.43,12.695 16.49,12.335 16.49,11.965C16.5,9.485 14.48,7.475 12,7.475C11.63,7.475 11.28,7.525 10.93,7.615ZM2.01,4.345L4.69,7.025C3.06,8.305 1.77,10.005 1,11.975C2.73,16.365 7,19.475 12,19.475C13.52,19.475 14.98,19.185 16.32,18.655L19.74,22.075L21.15,20.665L3.42,2.925L2.01,4.345ZM9.51,11.845L12.12,14.455C12.08,14.465 12.04,14.475 12,14.475C10.62,14.475 9.5,13.355 9.5,11.975C9.5,11.925 9.51,11.895 9.51,11.845ZM6.11,8.445L7.86,10.195C7.63,10.745 7.5,11.345 7.5,11.975C7.5,14.455 9.52,16.475 12,16.475C12.63,16.475 13.23,16.345 13.77,16.115L14.75,17.095C13.87,17.335 12.95,17.475 12,17.475C8.21,17.475 4.83,15.345 3.18,11.975C3.88,10.545 4.9,9.365 6.11,8.445Z"
+      android:fillColor="@color/color_icon_app_details"/>
+</vector>

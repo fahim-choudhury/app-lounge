@@ -1,6 +1,5 @@
 /*
- * Copyright MURENA SAS 2023
- * Apps  Quickly and easily install Android apps onto your device!
+ * Copyright (C) 2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,11 +13,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.data.cleanapk.repositories
 
 import foundation.e.apps.data.StoreRepository
+import foundation.e.apps.data.cleanapk.data.app.Application
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.search.Search
 import retrofit2.Response
@@ -31,4 +32,5 @@ interface CleanApkRepository : StoreRepository {
     suspend fun getAppsByCategory(category: String, paginationParameter: Any? = null): Response<Search>
     suspend fun getCategories(): Response<Categories>
     suspend fun checkAvailablePackages(packageNames: List<String>): Response<Search>
+    suspend fun getAppDetailsById(appId: String): Result<Application>
 }

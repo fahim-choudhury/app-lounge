@@ -1,6 +1,5 @@
 /*
- * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2021  E FOUNDATION
+ * Copyright (C) 2021-2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.data.cleanapk
@@ -33,6 +33,10 @@ interface CleanApkRetrofit {
         // API endpoints
         const val BASE_URL = "https://api.cleanapk.org/v2/"
         const val ASSET_URL = "https://api.cleanapk.org/v2/media/"
+
+        // TODO: Configure dev and prod flavors to auto switch URLs
+//         const val BASE_URL = "https://api.dev.cleanapk.org/v2/"
+//         const val ASSET_URL = "https://api.dev.cleanapk.org/v2/media/"
 
         // Application sources
         const val APP_SOURCE_FOSS = "open"

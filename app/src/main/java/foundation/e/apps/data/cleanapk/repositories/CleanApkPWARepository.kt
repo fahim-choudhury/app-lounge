@@ -1,6 +1,5 @@
 /*
- * Copyright MURENA SAS 2023
- * Apps  Quickly and easily install Android apps onto your device!
+ * Copyright (C) 2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.data.cleanapk.repositories
@@ -67,6 +67,10 @@ class CleanApkPWARepository(
 
     override suspend fun checkAvailablePackages(packageNames: List<String>): Response<Search> {
         return cleanAPKRetrofit.checkAvailablePackages(packageNames)
+    }
+
+    override suspend fun getAppDetailsById(appId: String): Result<Application> {
+        return runCatching { cleanApkAppDetailsRetrofit.getAppDetails(appId) }
     }
 
     override suspend fun getAppDetails(packageNameOrId: String): Response<Application> {

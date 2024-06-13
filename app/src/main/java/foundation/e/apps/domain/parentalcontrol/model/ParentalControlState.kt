@@ -16,23 +16,13 @@
  *
  */
 
-package foundation.e.apps.data.fdroid
+package foundation.e.apps.domain.parentalcontrol.model
 
-import foundation.e.apps.data.fdroid.models.FdroidApiModel
-import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.Path
+sealed class ParentalControlState {
+    object Disabled : ParentalControlState()
 
-/**
- * Interface for retrofit calls.
- * Created from [foundation.e.apps.data.cleanapk.RetrofitApiModule.provideFdroidApi].
- */
-interface FdroidApiInterface {
-
-    companion object {
-        const val BASE_URL = "https://gitlab.com/fdroid/fdroiddata/-/raw/master/metadata/"
-    }
-
-    @GET("{packageName}.yml")
-    suspend fun getFdroidInfoForPackage(@Path("packageName") packageName: String): Response<FdroidApiModel?>
+    class AgeGroup(val ageGroup: AgeGroupValue) : ParentalControlState()
 }
+
+val ParentalControlState.isEnabled
+    get() = this != ParentalControlState.Disabled && this is ParentalControlState.AgeGroup

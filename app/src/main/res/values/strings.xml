@@ -125,8 +125,9 @@
     <string name="troubleshootURL" translatable="false">https://doc.e.foundation/support-topics/app_lounge_troubleshooting</string>
     <string name="share">Share</string>
     <string name="restricted_app">[%1$s] Restricted App</string>
-    <string name="age_rate_limit_message">You are too young to be able to install %1$s. Please check with your parent your age group is correct or disable Parental Control to be able to install it.</string>
+    <string name="age_rate_limit_message">You are too young to be able to install %1$s. Please check with your parent your age group is correct or disable parental control to be able to install it.</string>
 
+    <string name="message_inappropriate_content">This app may contain inappropriate content.</string>
 
     <!-- Updates Fragment -->
     <string name="update_all">Update All</string>
@@ -226,4 +227,7 @@
     <string name="notification_channel_desc">Split Install channel</string>
     <string name="sign_in">Sign in</string>
     <string name="ignore">Ignore</string>
+    <!-- F-Droid Anti-Features-->
+    <string name="nsfw_dialog_title">Content Warning</string>
+    <string name="nsfw_dialog_message">The app may contain nudity, profanity, slurs, violence, intense sexuality, political incorrectness, or other potentially disturbing subject matter. This is especially relevant in environments like workplaces, schools, religious and family settings.</string>
 </resources>

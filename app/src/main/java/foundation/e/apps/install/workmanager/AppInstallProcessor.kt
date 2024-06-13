@@ -1,6 +1,5 @@
 /*
- * Copyright MURENA SAS 2023
- * Apps  Quickly and easily install Android apps onto your device!
+ * Copyright (C) 2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.install.workmanager
@@ -23,16 +23,19 @@ import com.aurora.gplayapi.exceptions.ApiException
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
-import foundation.e.apps.data.enums.ResultStatus
-import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.UpdatesDao
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.enums.Status
+import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.install.models.AppInstall
+import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Allowed
+import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Denied
+import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.DeniedOnDataLoadError
 import foundation.e.apps.data.playstore.utils.GplayHttpRequestException
 import foundation.e.apps.data.preference.DataStoreManager
-import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
+import foundation.e.apps.domain.parentalcontrol.GetAppInstallationPermissionUseCase
 import foundation.e.apps.install.AppInstallComponents
 import foundation.e.apps.install.download.DownloadManagerUtils
 import foundation.e.apps.install.notification.StorageNotificationManager
@@ -53,7 +56,7 @@ class AppInstallProcessor @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appInstallComponents: AppInstallComponents,
     private val applicationRepository: ApplicationRepository,
-    private val validateAppAgeLimitUseCase: ValidateAppAgeLimitUseCase,
+    private val getAppInstallationPermissionUseCase: GetAppInstallationPermissionUseCase,
     private val dataStoreManager: DataStoreManager,
     private val storageNotificationManager: StorageNotificationManager,
 ) {
@@ -93,8 +96,10 @@ class AppInstallProcessor @Inject constructor(
             application.offer_type,
             application.isFree,
             application.originalSize
-        ).also {
-            it.contentRating = application.contentRating
+        ).apply {
+            this.contentRating = application.contentRating
+            this.isFDroidApp = application.isFDroidApp
+            this.antiFeatures = application.antiFeatures
         }
 
         if (appInstall.type == Type.PWA) {
@@ -131,17 +136,28 @@ class AppInstallProcessor @Inject constructor(
                 return
             }
 
-            val ageLimitValidationResult = validateAppAgeLimitUseCase.invoke(appInstall)
-            if (ageLimitValidationResult.data == false) {
-                if (ageLimitValidationResult.isSuccess()) {
-                    Timber.i("Content rating is not allowed for: ${appInstall.name}")
-                    EventBus.invokeEvent(AppEvent.AgeLimitRestrictionEvent(appInstall.name))
-                } else {
-                    EventBus.invokeEvent(AppEvent.ErrorMessageDialogEvent(R.string.data_load_error_desc))
+
+            val installationPermission =
+                getAppInstallationPermissionUseCase.invoke(appInstall)
+            when (installationPermission) {
+                Allowed -> {
+                    Timber.i("${appInstall.name} is allowed to be installed.")
+                    // no operation, allow installation
                 }
 
-                appInstallComponents.appManagerWrapper.cancelDownload(appInstall)
-                return
+                Denied -> {
+                    Timber.i("${appInstall.name} can't be installed because of parental control setting.")
+                    EventBus.invokeEvent(AppEvent.AgeLimitRestrictionEvent(appInstall.name))
+                    appInstallComponents.appManagerWrapper.cancelDownload(appInstall)
+                    return
+                }
+
+                DeniedOnDataLoadError -> {
+                    Timber.i("${appInstall.name} can't be installed because of unavailable data.")
+                    EventBus.invokeEvent(AppEvent.ErrorMessageDialogEvent(R.string.data_load_error_desc))
+                    appInstallComponents.appManagerWrapper.cancelDownload(appInstall)
+                    return
+                }
             }
 
             if (!context.isNetworkAvailable()) {
