@@ -23,7 +23,6 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.ContentRating
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.cleanapk.data.app.Application as AppLoungeApplication
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.install.models.AppInstall
@@ -41,8 +40,6 @@ import foundation.e.apps.domain.parentalcontrol.GetParentalControlStateUseCase
 import foundation.e.apps.domain.parentalcontrol.model.AgeGroupValue
 import foundation.e.apps.domain.parentalcontrol.model.ParentalControlState
 import foundation.e.apps.util.MainCoroutineRule
-import javax.inject.Named
-import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -51,8 +48,9 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
-import org.mockito.kotlin.any
-import java.lang.Exception
+import javax.inject.Named
+import kotlin.test.assertEquals
+import foundation.e.apps.data.cleanapk.data.app.Application as AppLoungeApplication
 
 class GetAppInstallationPermissionUseCaseTest {
 
