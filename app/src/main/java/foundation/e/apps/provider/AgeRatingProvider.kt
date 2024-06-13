@@ -41,9 +41,9 @@ import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Allowed
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Denied
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.DeniedOnDataLoadError
+import foundation.e.apps.data.parentalcontrol.GetAppInstallationPermissionUseCase
 import foundation.e.apps.data.parentalcontrol.gplayrating.GooglePlayContentRatingsRepository
 import foundation.e.apps.data.preference.DataStoreManager
-import foundation.e.apps.domain.parentalcontrol.GetAppInstallationPermissionUseCase
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async

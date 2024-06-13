@@ -22,20 +22,13 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import foundation.e.apps.data.parentalcontrol.GetAppInstallationPermissionUseCaseImpl
 import foundation.e.apps.data.parentalcontrol.GetParentalControlStateUseCaseImpl
-import foundation.e.apps.domain.parentalcontrol.GetAppInstallationPermissionUseCase
 import foundation.e.apps.domain.parentalcontrol.GetParentalControlStateUseCase
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 interface UseCaseModule {
-    @Singleton
-    @Binds
-    fun bindGetAppInstallationPermissionUseCase(
-        useCase: GetAppInstallationPermissionUseCaseImpl
-    ): GetAppInstallationPermissionUseCase
 
     @Singleton
     @Binds

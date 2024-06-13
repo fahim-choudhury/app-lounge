@@ -30,12 +30,11 @@ import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Allowed
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Denied
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.DeniedOnDataLoadError
-import foundation.e.apps.data.parentalcontrol.GetAppInstallationPermissionUseCaseImpl
+import foundation.e.apps.data.parentalcontrol.GetAppInstallationPermissionUseCase
 import foundation.e.apps.data.parentalcontrol.gplayrating.GooglePlayContentRatingGroup
 import foundation.e.apps.data.parentalcontrol.gplayrating.GooglePlayContentRatingsRepository
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.DataStoreManager
-import foundation.e.apps.domain.parentalcontrol.GetAppInstallationPermissionUseCase
 import foundation.e.apps.domain.parentalcontrol.GetParentalControlStateUseCase
 import foundation.e.apps.domain.parentalcontrol.model.AgeGroupValue
 import foundation.e.apps.domain.parentalcontrol.model.ParentalControlState
@@ -82,7 +81,7 @@ class GetAppInstallationPermissionUseCaseTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         useCase =
-            GetAppInstallationPermissionUseCaseImpl(
+            GetAppInstallationPermissionUseCase(
                 contentRatingsRepository,
                 getParentalControlStateUseCase,
                 playStoreRepository,

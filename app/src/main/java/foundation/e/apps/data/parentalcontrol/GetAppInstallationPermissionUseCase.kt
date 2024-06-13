@@ -27,7 +27,6 @@ import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Den
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.DeniedOnDataLoadError
 import foundation.e.apps.data.parentalcontrol.gplayrating.GooglePlayContentRatingsRepository
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.domain.parentalcontrol.GetAppInstallationPermissionUseCase
 import foundation.e.apps.domain.parentalcontrol.GetParentalControlStateUseCase
 import foundation.e.apps.domain.parentalcontrol.model.ParentalControlState
 import foundation.e.apps.domain.parentalcontrol.model.ParentalControlState.AgeGroup
@@ -36,20 +35,20 @@ import foundation.e.apps.domain.parentalcontrol.model.isEnabled
 import javax.inject.Inject
 import javax.inject.Named
 
-class GetAppInstallationPermissionUseCaseImpl
+class GetAppInstallationPermissionUseCase
 @Inject
 constructor(
     private val googlePlayContentRatingsRepository: GooglePlayContentRatingsRepository,
     private val getParentalControlStateUseCase: GetParentalControlStateUseCase,
     private val playStoreRepository: PlayStoreRepository,
     @Named("cleanApkAppsRepository") private val cleanApkRepository: CleanApkRepository
-) : GetAppInstallationPermissionUseCase {
+) {
 
     companion object {
         private const val KEY_ANTI_FEATURES_NSFW = "NSFW"
     }
 
-    override suspend operator fun invoke(app: AppInstall): AppInstallationPermissionState {
+    suspend operator fun invoke(app: AppInstall): AppInstallationPermissionState {
         return when (val parentalControl = getParentalControlStateUseCase.invoke()) {
             is Disabled -> Allowed
             is AgeGroup ->

@@ -33,9 +33,9 @@ import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Allowed
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Denied
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.DeniedOnDataLoadError
+import foundation.e.apps.data.parentalcontrol.GetAppInstallationPermissionUseCase
 import foundation.e.apps.data.playstore.utils.GplayHttpRequestException
 import foundation.e.apps.data.preference.DataStoreManager
-import foundation.e.apps.domain.parentalcontrol.GetAppInstallationPermissionUseCase
 import foundation.e.apps.install.AppInstallComponents
 import foundation.e.apps.install.download.DownloadManagerUtils
 import foundation.e.apps.install.notification.StorageNotificationManager
@@ -136,10 +136,7 @@ class AppInstallProcessor @Inject constructor(
                 return
             }
 
-
-            val installationPermission =
-                getAppInstallationPermissionUseCase.invoke(appInstall)
-            when (installationPermission) {
+            when (getAppInstallationPermissionUseCase.invoke(appInstall)) {
                 Allowed -> {
                     Timber.i("${appInstall.name} is allowed to be installed.")
                     // no operation, allow installation
