@@ -78,7 +78,7 @@ class AuthenticatorRepository @Inject constructor(
         return validateAuthData
     }
 
-    fun getUserType(): User {
+    private fun getUserType(): User {
         return loginCommon.getUserType()
     }
 }

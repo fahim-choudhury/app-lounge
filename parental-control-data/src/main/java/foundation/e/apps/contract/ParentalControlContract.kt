@@ -16,17 +16,15 @@
  *
  */
 
-package foundation.e.apps.provider
+package foundation.e.apps.contract
 
-import foundation.e.apps.BuildConfig
+object ParentalControlContract {
+    const val COLUMN_PACKAGE_NAME = "package_name"
+    const val COLUMN_LOGIN_TYPE = "login_type"
 
-class ProviderConstants {
-    companion object {
-        const val PACKAGE_NAME = "package_name"
-        const val LOGIN_TYPE = "login_type"
+    const val PATH_LOGIN_TYPE = "login_type"
+    const val PATH_BLOCKLIST = "block_list"
 
-        const val AUTHORITY = "${BuildConfig.APPLICATION_ID}.provider"
-        const val PATH_LOGIN_TYPE = "login_type"
-        const val PATH_BLOCKLIST = "block_list"
-    }
+    fun getAppLoungeProviderAuthority(isDebug: Boolean = false) =
+        "foundation.e.apps${if (isDebug) ".debug" else ""}.provider"
 }

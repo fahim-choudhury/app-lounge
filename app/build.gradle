@@ -85,10 +85,15 @@ android {
     }
 
     sourceSets {
+        debug {
+            manifest.srcFile 'src/debug/AndroidManifest.xml'
+        }
         releaseDev {
+            manifest.srcFile 'src/release/AndroidManifest.xml'
             java.srcDirs = ['src/release/java']
         }
         releaseStable {
+            manifest.srcFile 'src/release/AndroidManifest.xml'
             java.srcDirs = ['src/release/java']
         }
     }
@@ -154,7 +159,8 @@ allOpen {
 
 dependencies {
 
-    // TODO: Add splitinstall-lib to a repo https://gitlab.e.foundation/e/os/backlog/-/issues/628
+    implementation project(':parental-control-data')
+// TODO: Add splitinstall-lib to a repo https://gitlab.e.foundation/e/os/backlog/-/issues/628
     api files('libs/splitinstall-lib.jar')
 
     implementation 'foundation.e.lib:telemetry:0.0.11-alpha'

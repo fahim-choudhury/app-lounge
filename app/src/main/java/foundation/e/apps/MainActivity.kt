@@ -41,6 +41,7 @@ import com.aurora.gplayapi.exceptions.ApiException
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import foundation.e.apps.contract.ParentalControlContract.COLUMN_LOGIN_TYPE
 import foundation.e.apps.data.Constants
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.install.models.AppInstall
@@ -50,7 +51,6 @@ import foundation.e.apps.data.login.PlayStoreAuthenticator
 import foundation.e.apps.data.login.exceptions.GPlayValidationException
 import foundation.e.apps.databinding.ActivityMainBinding
 import foundation.e.apps.install.updates.UpdatesNotifier
-import foundation.e.apps.provider.ProviderConstants.Companion.LOGIN_TYPE
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.purchase.AppPurchaseFragmentDirections
@@ -76,9 +76,6 @@ class MainActivity : AppCompatActivity() {
         private val TAG = MainActivity::class.java.simpleName
         private const val SESSION_DIALOG_TAG = "session_dialog"
     }
-
-    private var gPlayLoginRequested = false
-    private var closeAfterLogin = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -140,10 +137,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkGPlayLoginRequest(intent: Intent?) {
-        gPlayLoginRequested =
+        viewModel.gPlayLoginRequested =
             intent?.getBooleanExtra(Constants.REQUEST_GPLAY_LOGIN, false) ?: false
 
-        if (!gPlayLoginRequested) return
+        if (!viewModel.gPlayLoginRequested) return
         if (!viewModel.getTocStatus()) return
         if (viewModel.getUser() !in listOf(User.GOOGLE, User.ANONYMOUS)) {
             loginViewModel.logout()
@@ -340,7 +337,7 @@ class MainActivity : AppCompatActivity() {
                     // Pop back stack to prevent showing TOSFragment on pressing back button.
                     navController.popBackStack()
                     navController.navigate(R.id.signInFragment)
-                    if (gPlayLoginRequested) closeAfterLogin = true
+                    if (viewModel.gPlayLoginRequested) viewModel.closeAfterLogin = true
                     return@observe
                 }
 
@@ -368,7 +365,7 @@ class MainActivity : AppCompatActivity() {
                 broadcastGPlayLogin()
             }
 
-            if (closeAfterLogin && it.isNotEmpty() && it.all { it.result.isSuccess() }) {
+            if (viewModel.closeAfterLogin && it.isNotEmpty() && it.all { it.result.isSuccess() }) {
                 finishAndRemoveTask()
             }
         }
@@ -377,7 +374,7 @@ class MainActivity : AppCompatActivity() {
     private fun broadcastGPlayLogin() {
         val intent = Intent(Constants.ACTION_PARENTAL_CONTROL_APP_LOUNGE_LOGIN).apply {
             setPackage(BuildConfig.PACKAGE_NAME_PARENTAL_CONTROL)
-            putExtra(LOGIN_TYPE, viewModel.getUser().name)
+            putExtra(COLUMN_LOGIN_TYPE, viewModel.getUser().name)
         }
         sendBroadcast(intent)
     }

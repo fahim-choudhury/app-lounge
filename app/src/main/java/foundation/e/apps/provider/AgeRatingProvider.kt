@@ -28,6 +28,13 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import foundation.e.apps.BuildConfig
+import foundation.e.apps.contract.ParentalControlContract.COLUMN_LOGIN_TYPE
+import foundation.e.apps.contract.ParentalControlContract.COLUMN_PACKAGE_NAME
+import foundation.e.apps.contract.ParentalControlContract.PATH_BLOCKLIST
+import foundation.e.apps.contract.ParentalControlContract.PATH_LOGIN_TYPE
+import foundation.e.apps.contract.ParentalControlContract.getAppLoungeProviderAuthority
+import foundation.e.apps.data.blockedApps.ContentRatingsRepository
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.install.models.AppInstall
@@ -40,46 +47,43 @@ import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.domain.parentalcontrol.GetAppInstallationPermissionUseCase
 import foundation.e.apps.install.pkg.AppLoungePackageManager
-import foundation.e.apps.provider.ProviderConstants.Companion.AUTHORITY
-import foundation.e.apps.provider.ProviderConstants.Companion.LOGIN_TYPE
-import foundation.e.apps.provider.ProviderConstants.Companion.PACKAGE_NAME
-import foundation.e.apps.provider.ProviderConstants.Companion.PATH_BLOCKLIST
-import foundation.e.apps.provider.ProviderConstants.Companion.PATH_LOGIN_TYPE
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 class AgeRatingProvider : ContentProvider() {
 
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface ContentProviderEntryPoint {
-        fun getAuthenticationRepository(): AuthenticatorRepository
-        fun getPlayStoreRepository(): PlayStoreRepository
-        fun getApplicationRepository(): ApplicationRepository
-        fun getPackageManager(): AppLoungePackageManager
-        fun getContentRatingsRepository(): GooglePlayContentRatingsRepository
-        fun getValidateAppAgeLimitUseCase(): GetAppInstallationPermissionUseCase
-        fun getDataStoreManager(): DataStoreManager
+        fun provideAuthenticationRepository(): AuthenticatorRepository
+        fun providePackageManager(): AppLoungePackageManager
+        fun provideContentRatingsRepository(): GooglePlayContentRatingsRepository
+        fun provideValidateAppAgeLimitUseCase(): GetAppInstallationPermissionUseCase
+        fun provideDataStoreManager(): DataStoreManager
     }
 
     private lateinit var authenticatorRepository: AuthenticatorRepository
-    private lateinit var playStoreRepository: PlayStoreRepository
-    private lateinit var applicationRepository: ApplicationRepository
     private lateinit var appLoungePackageManager: AppLoungePackageManager
     private lateinit var contentRatingsRepository: GooglePlayContentRatingsRepository
     private lateinit var getAppInstallationPermissionUseCase: GetAppInstallationPermissionUseCase
     private lateinit var dataStoreManager: DataStoreManager
 
-    private val CODE_LOGIN_TYPE = 1
-    private val CODE_AGE_RATING = 2
+    private enum class UriCode(val code: Int) {
+        LoginType(1),
+        AgeRating(2),
+        ;
+    }
+
+    private val authority = getAppLoungeProviderAuthority(BuildConfig.DEBUG)
 
     private val uriMatcher by lazy {
         UriMatcher(UriMatcher.NO_MATCH).apply {
-            addURI(AUTHORITY, PATH_LOGIN_TYPE, CODE_LOGIN_TYPE)
-            addURI(AUTHORITY, PATH_BLOCKLIST, CODE_AGE_RATING)
+            addURI(authority, PATH_LOGIN_TYPE, UriCode.LoginType.code)
+            addURI(authority, PATH_BLOCKLIST, UriCode.AgeRating.code)
         }
     }
 
@@ -92,78 +96,103 @@ class AgeRatingProvider : ContentProvider() {
     ): Cursor? {
         val code = uriMatcher.match(uri)
         return when (code) {
-            CODE_LOGIN_TYPE -> getLoginType()
-            CODE_AGE_RATING -> getAgeRatings()
+            UriCode.LoginType.code -> getLoginType()
+            UriCode.AgeRating.code -> getAgeRatings()
             else -> null
         }
     }
 
     private fun getLoginType(): Cursor {
-        val cursor = MatrixCursor(arrayOf(LOGIN_TYPE))
+        val cursor = MatrixCursor(arrayOf(COLUMN_LOGIN_TYPE))
         cursor.addRow(arrayOf(dataStoreManager.getUserType()))
         return cursor
     }
 
     private fun getAgeRatings(): Cursor {
-        val cursor = MatrixCursor(arrayOf(PACKAGE_NAME))
-        val packagesNames = appLoungePackageManager.getAllUserApps().map { it.packageName }
+        val cursor = MatrixCursor(arrayOf(COLUMN_PACKAGE_NAME))
+        val packageNames = appLoungePackageManager.getAllUserApps().map { it.packageName }
         runBlocking {
             withContext(IO) {
+                try {
+                    if (packageNames.isEmpty()) return@withContext cursor
 
-                if (contentRatingsRepository.contentRatingGroups.isEmpty()) {
-                    contentRatingsRepository.fetchContentRatingData()
-                }
+                    ensureAgeGroupDataExists()
+                    if (!setupAuthDataIfExists()) return@withContext null
 
-                val contentRatingsDeferred = packagesNames.map { packageName ->
-                    async {
-                        val authData = dataStoreManager.getAuthData()
-                        if (authData.email.isBlank() && authData.aasToken.isBlank()) {
-                            return@async null
-                        } else {
-                            authenticatorRepository.gplayAuth = authData
-                        }
-                        val fakeAppInstall = AppInstall(
-                            packageName = packageName,
-                            origin = Origin.GPLAY
-                        )
-                        val appInstallationPermissionState =
-                            getAppInstallationPermissionUseCase(fakeAppInstall)
-                        appInstallationPermissionState
-                    }
-                }
-                val contentsRatings = contentRatingsDeferred.awaitAll()
-                contentsRatings.forEachIndexed { index: Int, permission ->
-                    when (permission) {
-                        is Denied, DeniedOnDataLoadError -> {
-                            // Collect package names for blocklist
-                            cursor.addRow(arrayOf(packagesNames[index]))
-                        }
-
-                        Allowed -> {
-                            // no-op
-                        }
-
-                        else -> error("Invalid application permission state.")
-                    }
+                    compileAppBlockList(cursor, packageNames)
+                } catch (e: Exception) {
+                    Timber.e("AgeRatingProvider", "Error fetching age ratings", e)
                 }
             }
         }
         return cursor
     }
 
+    private suspend fun ensureAgeGroupDataExists() {
+        if (contentRatingsRepository.contentRatingGroups.isEmpty()) {
+            contentRatingsRepository.fetchContentRatingData()
+        }
+    }
+
+    /**
+     * Return true if valid AuthData could be fetched from data store, false otherwise.
+     */
+    private fun setupAuthDataIfExists(): Boolean {
+        val authData = dataStoreManager.getAuthData()
+        if (authData.email.isNotBlank() && authData.authToken.isNotBlank()) {
+            authenticatorRepository.gplayAuth = authData
+            return true
+        }
+        Timber.e("Blank AuthData, cannot fetch ratings from provider.")
+        return false
+    }
+
+    private suspend fun getAppAgeValidity(packageName: String): Boolean {
+        val fakeAppInstall = AppInstall(
+            packageName = packageName,
+            origin = Origin.GPLAY
+        )
+        val validateResult = validateAppAgeLimitUseCase(fakeAppInstall)
+        return validateResult.data ?: false
+    }
+
+    private suspend fun compileAppBlockList(
+        cursor: MatrixCursor,
+        packageNames: List<String>,
+    ) {
+        withContext(IO) {
+            val validityList = packageNames.map { packageName ->
+                async {
+                    getAppAgeValidity(packageName)
+                }
+            }.awaitAll()
+            validityList.forEachIndexed { index: Int, permission ->
+                when (permission) {
+                    is Denied, DeniedOnDataLoadError -> {
+                        // Collect package names for blocklist
+                        cursor.addRow(arrayOf(packagesNames[index]))
+                    }
+
+                    Allowed -> {
+                        // no-op
+                    }
+
+                    else -> error("Invalid application permission state.")
+                }
+            }
+        }
+    }
+
     override fun onCreate(): Boolean {
-        val appContext = context?.applicationContext ?: throw IllegalStateException()
+        val appContext = context?.applicationContext ?: error("Null context in ${this::class.java.name}")
         val hiltEntryPoint =
             EntryPointAccessors.fromApplication(appContext, ContentProviderEntryPoint::class.java)
 
-        authenticatorRepository = hiltEntryPoint.getAuthenticationRepository()
-        playStoreRepository = hiltEntryPoint.getPlayStoreRepository()
-        applicationRepository = hiltEntryPoint.getApplicationRepository()
-        appLoungePackageManager = hiltEntryPoint.getPackageManager()
-        contentRatingsRepository = hiltEntryPoint.getContentRatingsRepository()
+        authenticatorRepository = hiltEntryPoint.provideAuthenticationRepository()
+        appLoungePackageManager = hiltEntryPoint.providePackageManager()
+        contentRatingsRepository = hiltEntryPoint.provideContentRatingsRepository()
         getAppInstallationPermissionUseCase = hiltEntryPoint.getValidateAppAgeLimitUseCase()
-        dataStoreManager = hiltEntryPoint.getDataStoreManager()
-
+        dataStoreManager = hiltEntryPoint.provideDataStoreManager()
 
         return true
     }
@@ -174,23 +203,25 @@ class AgeRatingProvider : ContentProvider() {
         selection: String?,
         selectionArgs: Array<out String>?
     ): Int {
-        throw UnsupportedOperationException("Not supported")
+        throw UnsupportedOperationException("Update operation is not supported by AgeRatingProvider")
     }
 
     override fun getType(uri: Uri): String {
         return when (uriMatcher.match(uri)) {
-            CODE_LOGIN_TYPE -> "vnd.android.cursor.item/${AUTHORITY}.$CODE_LOGIN_TYPE"
-            CODE_AGE_RATING -> "vnd.android.cursor.item/${AUTHORITY}.$CODE_AGE_RATING"
+            UriCode.LoginType.code ->
+                "vnd.android.cursor.item/${authority}.${UriCode.LoginType.code}"
+            UriCode.AgeRating.code ->
+                "vnd.android.cursor.item/${authority}.${UriCode.AgeRating.code}"
             else -> throw IllegalArgumentException("Unknown URI: $uri")
         }
     }
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
-        throw UnsupportedOperationException("Not supported")
+        throw UnsupportedOperationException("Insert operation is not supported by AgeRatingProvider")
     }
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
-        throw UnsupportedOperationException("Not supported")
+        throw UnsupportedOperationException("Delete operation is not supported by AgeRatingProvider")
     }
 
 }
