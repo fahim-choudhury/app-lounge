@@ -23,6 +23,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.ContentRating
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.cleanapk.data.app.Application as AppLoungeApplication
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.install.models.AppInstall
@@ -50,6 +51,8 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.any
+import java.lang.Exception
 
 class GetAppInstallationPermissionUseCaseTest {
 
@@ -159,9 +162,7 @@ class GetAppInstallationPermissionUseCaseTest {
                 .thenReturn(ParentalControlState.AgeGroup(AgeGroupValue.THREE))
 
             Mockito.`when`(cleanApkRepository.getAppDetailsById(appId))
-                .thenReturn(
-                    Result.success(
-                        foundation.e.apps.data.cleanapk.data.app.Application(app = application)))
+                .thenReturn(Result.success(AppLoungeApplication(app = application)))
 
             val appPendingInstallation =
                 AppInstall(id = appId).apply {
@@ -187,9 +188,7 @@ class GetAppInstallationPermissionUseCaseTest {
                 .thenReturn(ParentalControlState.AgeGroup(AgeGroupValue.THREE))
 
             Mockito.`when`(cleanApkRepository.getAppDetailsById(appId))
-                .thenReturn(
-                    Result.success(
-                        foundation.e.apps.data.cleanapk.data.app.Application(app = application)))
+                .thenReturn(Result.success(AppLoungeApplication(app = application)))
 
             val appPendingInstallation =
                 AppInstall(id = appId).apply {
@@ -203,6 +202,36 @@ class GetAppInstallationPermissionUseCaseTest {
             val installationPermissionState = useCase.invoke(appPendingInstallation)
 
             assertEquals(Denied, installationPermissionState)
+        }
+    }
+
+    @Test
+    fun `deny app installation when parental control is enabled and App Lounge fails to load F-Droid app's data`() {
+        runTest {
+            val appId = "appId"
+            val isFDroidApp = true
+            val antiFeatures = listOf(mapOf("NSFW" to "Shows explicit content."))
+            val application =
+                Application(_id = appId, isFDroidApp = isFDroidApp, antiFeatures = antiFeatures)
+
+            Mockito.`when`(getParentalControlStateUseCase.invoke())
+                .thenReturn(ParentalControlState.AgeGroup(AgeGroupValue.THREE))
+
+            Mockito.`when`(cleanApkRepository.getAppDetailsById(appId))
+                .thenReturn(Result.failure(Exception()))
+
+            val appPendingInstallation =
+                AppInstall(id = appId).apply {
+                    this.isFDroidApp = application.isFDroidApp
+                    this.antiFeatures = application.antiFeatures
+                }
+
+            Mockito.`when`(getParentalControlStateUseCase.invoke())
+                .thenReturn(ParentalControlState.AgeGroup(AgeGroupValue.THREE))
+
+            val installationPermissionState = useCase.invoke(appPendingInstallation)
+
+            assertEquals(DeniedOnDataLoadError, installationPermissionState)
         }
     }
 
