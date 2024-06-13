@@ -19,42 +19,37 @@
 
 package foundation.e.apps.data.blockedApps
 
-import com.google.gson.Gson
-import com.google.gson.JsonSyntaxException
-import com.google.gson.reflect.TypeToken
-import foundation.e.apps.data.DownloadManager
-import foundation.e.apps.data.install.FileManager
-import timber.log.Timber
-import java.io.File
+import com.aurora.gplayapi.data.models.ContentRating
+import com.aurora.gplayapi.helpers.ContentRatingHelper
+import foundation.e.apps.data.ageRating.AgeGroupApi
+import foundation.e.apps.data.handleNetworkResult
+import foundation.e.apps.data.login.AuthenticatorRepository
 import javax.inject.Inject
-import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
 class ContentRatingsRepository @Inject constructor(
-    private val downloadManager: DownloadManager,
-    private val contentRatingParser: ContentRatingParser
+    private val ageGroupApi: AgeGroupApi,
+    private val authenticatorRepository: AuthenticatorRepository,
 ) {
 
     private var _contentRatingGroups = listOf<ContentRatingGroup>()
     val contentRatingGroups: List<ContentRatingGroup>
         get() = _contentRatingGroups
 
-    companion object {
-        private const val CONTENT_RATINGS_FILE_URL =
-            "https://gitlab.e.foundation/e/os/app-lounge-content-ratings/-/raw/main/" +
-                    "content_ratings.json?ref_type=heads&inline=false"
-        private const val CONTENT_RATINGS_FILE_NAME = "content_ratings.json"
+    suspend fun fetchContentRatingData() {
+        val response = ageGroupApi.getDefinedAgeGroups()
+        if (response.isSuccessful) {
+            _contentRatingGroups = response.body() ?: emptyList()
+        }
     }
 
-    fun fetchContentRatingData() {
-        downloadManager.downloadFileInCache(
-            CONTENT_RATINGS_FILE_URL,
-            fileName = CONTENT_RATINGS_FILE_NAME
-        ) { success, _ ->
-            if (success) {
-                contentRatingParser.parseContentRatingData()
-            }
-        }
+    suspend fun getEnglishContentRating(packageName: String): ContentRating? {
+        val authData = authenticatorRepository.gplayAuth ?: return null
+        val contentRatingHelper = ContentRatingHelper(authData)
+
+        return handleNetworkResult {
+            contentRatingHelper.getEnglishContentRating(packageName)
+        }.data
     }
 }

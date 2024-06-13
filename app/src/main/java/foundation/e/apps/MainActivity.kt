@@ -18,6 +18,7 @@
 
 package foundation.e.apps
 
+import android.content.Intent
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
@@ -40,6 +41,9 @@ import com.aurora.gplayapi.exceptions.ApiException
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import foundation.e.apps.contract.ParentalControlContract.COLUMN_LOGIN_TYPE
+import foundation.e.apps.data.Constants
+import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.LoginViewModel
@@ -123,6 +127,24 @@ class MainActivity : AppCompatActivity() {
         viewModel.updateContentRatings()
 
         observeEvents()
+
+        checkGPlayLoginRequest(intent)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        checkGPlayLoginRequest(intent)
+    }
+
+    private fun checkGPlayLoginRequest(intent: Intent?) {
+        viewModel.gPlayLoginRequested =
+            intent?.getBooleanExtra(Constants.REQUEST_GPLAY_LOGIN, false) ?: false
+
+        if (!viewModel.gPlayLoginRequested) return
+        if (!viewModel.getTocStatus()) return
+        if (viewModel.getUser() !in listOf(User.GOOGLE, User.ANONYMOUS)) {
+            loginViewModel.logout()
+        }
     }
 
     private fun refreshSession() {
@@ -315,12 +337,16 @@ class MainActivity : AppCompatActivity() {
                     // Pop back stack to prevent showing TOSFragment on pressing back button.
                     navController.popBackStack()
                     navController.navigate(R.id.signInFragment)
+                    if (viewModel.gPlayLoginRequested) viewModel.closeAfterLogin = true
+                    return@observe
                 }
 
                 else -> {}
             }
 
-            it.find { it is AuthObject.GPlayAuth }?.result?.run {
+            val gPlayAuthObject = it.find { it is AuthObject.GPlayAuth }
+
+            gPlayAuthObject?.result?.run {
                 if (isSuccess()) {
                     viewModel.gPlayAuthData = data as AuthData
                 } else if (exception is GPlayValidationException) {
@@ -333,7 +359,24 @@ class MainActivity : AppCompatActivity() {
                     Timber.e(exception, "Login failed! message: ${exception?.localizedMessage}")
                 }
             }
+
+            // Broadcast if not gplay type login or successful gplay login
+            if (gPlayAuthObject == null || gPlayAuthObject.result.isSuccess()) {
+                broadcastGPlayLogin()
+            }
+
+            if (viewModel.closeAfterLogin && it.isNotEmpty() && it.all { it.result.isSuccess() }) {
+                finishAndRemoveTask()
+            }
         }
+    }
+
+    private fun broadcastGPlayLogin() {
+        val intent = Intent(Constants.ACTION_PARENTAL_CONTROL_APP_LOUNGE_LOGIN).apply {
+            setPackage(BuildConfig.PACKAGE_NAME_PARENTAL_CONTROL)
+            putExtra(COLUMN_LOGIN_TYPE, viewModel.getUser().name)
+        }
+        sendBroadcast(intent)
     }
 
     private fun setupViewModels() {

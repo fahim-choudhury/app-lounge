@@ -125,7 +125,7 @@ class AppLoungeDataStore @Inject constructor(
         }
     }
 
-    fun getUserType(): User {
+    fun getUserType(): User {  // TODO: Rename this to getUser()
         return runBlocking {
             userType.first().run {
                 val userStrings = User.values().map { it.name }
@@ -149,7 +149,7 @@ class AppLoungeDataStore @Inject constructor(
     }
 }
 
-fun Flow<String>.getSync(): String {
+fun <T> Flow<T>.getSync(): T {
     return runBlocking {
         this@getSync.first()
     }

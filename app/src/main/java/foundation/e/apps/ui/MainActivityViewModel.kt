@@ -82,9 +82,16 @@ class MainActivityViewModel @Inject constructor(
     private val _errorMessageStringResource = MutableLiveData<Int>()
     val errorMessageStringResource: LiveData<Int> = _errorMessageStringResource
 
+    var gPlayLoginRequested = false
+    var closeAfterLogin = false
+
     lateinit var connectivityManager: ConnectivityManager
 
     var shouldIgnoreSessionError = false
+
+    fun getTocStatus(): Boolean {
+        return appLoungeDataStore.tocStatus.getSync()
+    }
 
     fun getUser(): User {
         return appLoungeDataStore.getUserType()

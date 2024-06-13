@@ -17,13 +17,19 @@
  *
  */
 
-package foundation.e.apps.data.blockedApps
+package foundation.e.apps.data.ageRating
 
-import com.squareup.moshi.Json
+import foundation.e.apps.data.blockedApps.ContentRatingGroup
+import retrofit2.Response
+import retrofit2.http.GET
 
-data class ContentRatingGroup(
-    val id: String,
-    @Json(name = "age_group")
-    val ageGroup: String,
-    var ratings: List<String>
-)
+interface AgeGroupApi {
+
+    companion object {
+        const val BASE_URL = "https://gitlab.e.foundation/e/os/app-lounge-content-ratings/-/raw/main/"
+    }
+
+    @GET("content_ratings.json?ref_type=heads")
+    suspend fun getDefinedAgeGroups(): Response<List<ContentRatingGroup>>
+
+}
