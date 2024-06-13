@@ -49,6 +49,12 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
+    <uses-permission android:name="${parentalControlPkgName}.broadcast_permission" />
+
+    <queries>
+        <package android:name="${parentalControlPkgName}" />
+    </queries>
+
     <application
         android:name=".AppLoungeApplication"
         android:allowBackup="false"
@@ -139,6 +145,12 @@
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             tools:node="remove" />
+        
+        <provider
+            android:authorities="${applicationId}.provider"
+            android:name=".provider.AgeRatingProvider"
+            android:exported="true"
+            android:readPermission="${applicationId}.permission.PROVIDER_READ" />
 
         <service android:name=".install.pkg.PackageInstallerService" />
 

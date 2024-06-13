@@ -21,6 +21,7 @@ package foundation.e.apps.data.application.apps
 import android.content.Context
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
+import com.aurora.gplayapi.data.models.ContentRating
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.application.ApplicationDataManager

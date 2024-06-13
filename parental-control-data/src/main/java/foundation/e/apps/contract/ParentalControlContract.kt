@@ -17,13 +17,15 @@
  *
  */
 
-package foundation.e.apps.data.blockedApps
+package foundation.e.apps.contract
 
-import com.squareup.moshi.Json
+object ParentalControlContract {
+    const val COLUMN_PACKAGE_NAME = "package_name"
+    const val COLUMN_LOGIN_TYPE = "login_type"
 
-data class ContentRatingGroup(
-    val id: String,
-    @Json(name = "age_group")
-    val ageGroup: String,
-    var ratings: List<String>
-)
+    const val PATH_LOGIN_TYPE = "login_type"
+    const val PATH_BLOCKLIST = "block_list"
+
+    fun getAppLoungeProviderAuthority(isDebug: Boolean = false) =
+        "foundation.e.apps${if (isDebug) ".debug" else ""}.provider"
+}
