@@ -34,16 +34,14 @@ import foundation.e.apps.contract.ParentalControlContract.COLUMN_PACKAGE_NAME
 import foundation.e.apps.contract.ParentalControlContract.PATH_BLOCKLIST
 import foundation.e.apps.contract.ParentalControlContract.PATH_LOGIN_TYPE
 import foundation.e.apps.contract.ParentalControlContract.getAppLoungeProviderAuthority
-import foundation.e.apps.data.blockedApps.ContentRatingsRepository
-import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthenticatorRepository
+import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Allowed
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Denied
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.DeniedOnDataLoadError
 import foundation.e.apps.data.parentalcontrol.gplayrating.GooglePlayContentRatingsRepository
-import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.domain.parentalcontrol.GetAppInstallationPermissionUseCase
 import foundation.e.apps.install.pkg.AppLoungePackageManager
@@ -62,7 +60,7 @@ class AgeRatingProvider : ContentProvider() {
         fun provideAuthenticationRepository(): AuthenticatorRepository
         fun providePackageManager(): AppLoungePackageManager
         fun provideContentRatingsRepository(): GooglePlayContentRatingsRepository
-        fun provideValidateAppAgeLimitUseCase(): GetAppInstallationPermissionUseCase
+        fun provideGetAppInstallationPermissionUseCase(): GetAppInstallationPermissionUseCase
         fun provideDataStoreManager(): DataStoreManager
     }
 
@@ -147,13 +145,13 @@ class AgeRatingProvider : ContentProvider() {
         return false
     }
 
-    private suspend fun getAppAgeValidity(packageName: String): Boolean {
+    private suspend fun getAppAgeValidity(packageName: String): AppInstallationPermissionState {
         val fakeAppInstall = AppInstall(
             packageName = packageName,
             origin = Origin.GPLAY
         )
-        val validateResult = validateAppAgeLimitUseCase(fakeAppInstall)
-        return validateResult.data ?: false
+        val appInstallationPermissionState = getAppInstallationPermissionUseCase(fakeAppInstall)
+        return appInstallationPermissionState
     }
 
     private suspend fun compileAppBlockList(
@@ -162,15 +160,14 @@ class AgeRatingProvider : ContentProvider() {
     ) {
         withContext(IO) {
             val validityList = packageNames.map { packageName ->
-                async {
-                    getAppAgeValidity(packageName)
-                }
+                async { getAppAgeValidity(packageName) }
             }.awaitAll()
-            validityList.forEachIndexed { index: Int, permission ->
+
+            validityList.forEachIndexed { index: Int, permission: AppInstallationPermissionState ->
                 when (permission) {
                     is Denied, DeniedOnDataLoadError -> {
                         // Collect package names for blocklist
-                        cursor.addRow(arrayOf(packagesNames[index]))
+                        cursor.addRow(arrayOf(packageNames[index]))
                     }
 
                     Allowed -> {
@@ -191,7 +188,8 @@ class AgeRatingProvider : ContentProvider() {
         authenticatorRepository = hiltEntryPoint.provideAuthenticationRepository()
         appLoungePackageManager = hiltEntryPoint.providePackageManager()
         contentRatingsRepository = hiltEntryPoint.provideContentRatingsRepository()
-        getAppInstallationPermissionUseCase = hiltEntryPoint.getValidateAppAgeLimitUseCase()
+        getAppInstallationPermissionUseCase =
+            hiltEntryPoint.provideGetAppInstallationPermissionUseCase()
         dataStoreManager = hiltEntryPoint.provideDataStoreManager()
 
         return true

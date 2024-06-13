@@ -23,6 +23,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.ContentRating
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthenticatorRepository
@@ -39,6 +40,8 @@ import foundation.e.apps.domain.parentalcontrol.GetParentalControlStateUseCase
 import foundation.e.apps.domain.parentalcontrol.model.AgeGroupValue
 import foundation.e.apps.domain.parentalcontrol.model.ParentalControlState
 import foundation.e.apps.util.MainCoroutineRule
+import javax.inject.Named
+import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -47,7 +50,6 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
-import kotlin.test.assertEquals
 
 class GetAppInstallationPermissionUseCaseTest {
 
@@ -71,6 +73,10 @@ class GetAppInstallationPermissionUseCaseTest {
 
     @Mock private lateinit var authenticatorRepository: AuthenticatorRepository
 
+    @Mock
+    @Named("cleanApkAppsRepository")
+    private lateinit var cleanApkRepository: CleanApkRepository
+
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
@@ -78,8 +84,8 @@ class GetAppInstallationPermissionUseCaseTest {
             GetAppInstallationPermissionUseCaseImpl(
                 contentRatingsRepository,
                 getParentalControlStateUseCase,
-                playStoreRepository
-            )
+                playStoreRepository,
+                cleanApkRepository)
     }
 
     @Test
@@ -139,19 +145,29 @@ class GetAppInstallationPermissionUseCaseTest {
     @Test
     fun `allow app installation when parental control is enabled and F-Droid app has anti-features other than NSFW`() {
         runTest {
-            val appPendingInstallation =
-                AppInstall().apply {
-                    isFDroidApp = true
-                    antiFeatures =
-                        listOf(
-                            mapOf(
-                                "NonFreeAssets" to
-                                    "Artwork, layouts and prerecorded voices are under a non-commercial license"))
-                }
+            val appId = "appId"
+            val isFDroidApp = true
+            val antiFeatures =
+                listOf(
+                    mapOf(
+                        "NonFreeAssets" to
+                            "Artwork, layouts and prerecorded voices are under a non-commercial license"))
+            val application =
+                Application(_id = appId, isFDroidApp = isFDroidApp, antiFeatures = antiFeatures)
 
             Mockito.`when`(getParentalControlStateUseCase.invoke())
                 .thenReturn(ParentalControlState.AgeGroup(AgeGroupValue.THREE))
 
+            Mockito.`when`(cleanApkRepository.getAppDetailsById(appId))
+                .thenReturn(
+                    Result.success(
+                        foundation.e.apps.data.cleanapk.data.app.Application(app = application)))
+
+            val appPendingInstallation =
+                AppInstall(id = appId).apply {
+                    this.isFDroidApp = application.isFDroidApp
+                    this.antiFeatures = application.antiFeatures
+                }
             val installationPermissionState = useCase.invoke(appPendingInstallation)
 
             assertEquals(Allowed, installationPermissionState)
@@ -161,10 +177,24 @@ class GetAppInstallationPermissionUseCaseTest {
     @Test
     fun `deny app installation when parental control is enabled and F-Droid app has NSFW anti-features`() {
         runTest {
+            val appId = "appId"
+            val isFDroidApp = true
+            val antiFeatures = listOf(mapOf("NSFW" to "Shows explicit content."))
+            val application =
+                Application(_id = appId, isFDroidApp = isFDroidApp, antiFeatures = antiFeatures)
+
+            Mockito.`when`(getParentalControlStateUseCase.invoke())
+                .thenReturn(ParentalControlState.AgeGroup(AgeGroupValue.THREE))
+
+            Mockito.`when`(cleanApkRepository.getAppDetailsById(appId))
+                .thenReturn(
+                    Result.success(
+                        foundation.e.apps.data.cleanapk.data.app.Application(app = application)))
+
             val appPendingInstallation =
-                AppInstall().apply {
-                    isFDroidApp = true
-                    antiFeatures = listOf(mapOf("NSFW" to "Shows explicit content."))
+                AppInstall(id = appId).apply {
+                    this.isFDroidApp = application.isFDroidApp
+                    this.antiFeatures = application.antiFeatures
                 }
 
             Mockito.`when`(getParentalControlStateUseCase.invoke())

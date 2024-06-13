@@ -120,7 +120,7 @@ data class Application(
     }
 }
 
-private fun isFDroid(type: Type, origin: Origin) =
+internal fun isFDroid(type: Type, origin: Origin) =
     (type == NATIVE && origin == Origin.CLEANAPK)
 
 private fun buildFDroidUri(packageName: String): Uri {
