@@ -132,6 +132,7 @@ publish-authdatalib:
   script:
     - ./gradlew :auth-data-lib:build
     - ./gradlew :auth-data-lib:publish
+  allow_failure: true
 
 
 pushToPrebuilt:
@@ -182,3 +183,4 @@ publish-contracts:
   script:
     - ./gradlew :parental-control-data:build
     - ./gradlew :parental-control-data:publish
+  allow_failure: true
