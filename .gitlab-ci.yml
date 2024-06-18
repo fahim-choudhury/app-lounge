@@ -24,7 +24,7 @@ buildDebug:
 test:
   stage: release
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: $CI_MERGE_REQUEST_ID
       when: always
   script:
     - ./gradlew test -PtestAccountName="$testAccountName" -PtestAccountPwd="$testAccountPwd" -PtestServerUrl="$testServerUrl"
@@ -59,7 +59,7 @@ buildRelease:
   stage: release
   allow_failure: false
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: $CI_MERGE_REQUEST_ID 
       when: always
     - if: '$CI_COMMIT_REF_PROTECTED == "true"'
       when: always
@@ -112,7 +112,7 @@ buildReleaseStable:
 lintRelease:
   extends: .lintReleaseDefault
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: $CI_MERGE_REQUEST_ID
       when: always
   script:
     - ./gradlew lintRelease
@@ -127,7 +127,7 @@ publish-authdatalib:
   stage: publish
   needs: ["buildRelease"]
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: $CI_MERGE_REQUEST_ID
       when: manual
   script:
     - ./gradlew :auth-data-lib:build
@@ -176,7 +176,7 @@ publish-contracts:
   stage: publish
   needs: ["buildRelease"]
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: $CI_MERGE_REQUEST_ID
       when: manual
     - if: '$CI_COMMIT_TAG !~ "/^$/"'
       when: always
