@@ -22,6 +22,7 @@ package foundation.e.apps.utils.eventBus
 
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.install.models.AppInstall
 
 sealed class AppEvent(val data: Any) {
@@ -35,4 +36,5 @@ sealed class AppEvent(val data: Any) {
     class NoInternetEvent(isInternetAvailable: Boolean) : AppEvent(isInternetAvailable)
     class TooManyRequests : AppEvent(Unit)
     class AgeLimitRestrictionEvent(type: String) : AppEvent(type)
+    class SuccessfulLogin(user: User): AppEvent(user)
 }

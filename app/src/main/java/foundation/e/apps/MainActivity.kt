@@ -235,6 +235,10 @@ class MainActivity : AppCompatActivity() {
                 launch {
                     observeAgeLimitRestrictionEvent()
                 }
+
+                launch {
+                    observeSuccessfulLogin()
+                }
             }
         }
     }
@@ -360,19 +364,21 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            // Broadcast if not gplay type login or successful gplay login
-            if (gPlayAuthObject == null || gPlayAuthObject.result.isSuccess()) {
-                broadcastGPlayLogin()
-            }
-
             if (viewModel.closeAfterLogin && it.isNotEmpty() && it.all { it.result.isSuccess() }) {
                 finishAndRemoveTask()
             }
         }
     }
 
-    private fun broadcastGPlayLogin() {
-        val user = viewModel.getUser().name
+    private suspend fun observeSuccessfulLogin() {
+        EventBus.events.filter {
+            it is AppEvent.SuccessfulLogin
+        }.collectLatest {
+            broadcastGPlayLogin(it.data as User)
+        }
+    }
+
+    private fun broadcastGPlayLogin(user: User) {
         Timber.d("Sending broadcast with login type - $user")
         val intent = Intent(Constants.ACTION_PARENTAL_CONTROL_APP_LOUNGE_LOGIN).apply {
             setPackage(BuildConfig.PACKAGE_NAME_PARENTAL_CONTROL)
