@@ -240,6 +240,7 @@ class MainActivityViewModel @Inject constructor(
 
     fun updateContentRatings() {
         viewModelScope.launch {
+            contentRatingsRepository.fetchNSFWApps()
             contentRatingsRepository.fetchContentRatingData()
         }
     }

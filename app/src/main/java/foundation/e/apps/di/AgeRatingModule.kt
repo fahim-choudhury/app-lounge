@@ -25,6 +25,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import foundation.e.apps.data.ageRating.AgeGroupApi
+import foundation.e.apps.data.ageRating.FDroidMonitorApi
 import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -43,5 +44,16 @@ object AgeRatingModule {
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
             .create(AgeGroupApi::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideFDroidMonitorApi(okHttpClient: OkHttpClient, moshi: Moshi): FDroidMonitorApi {
+        return Retrofit.Builder()
+            .baseUrl(FDroidMonitorApi.BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+            .create(FDroidMonitorApi::class.java)
     }
 }

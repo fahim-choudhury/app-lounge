@@ -132,7 +132,7 @@ class AppInstallProcessor @Inject constructor(
             }
 
             val ageLimitValidationResult = validateAppAgeLimitUseCase.invoke(appInstall)
-            if (ageLimitValidationResult.data == false) {
+            if (ageLimitValidationResult.data != true) {
                 if (ageLimitValidationResult.isSuccess()) {
                     Timber.i("Content rating is not allowed for: ${appInstall.name}")
                     EventBus.invokeEvent(AppEvent.AgeLimitRestrictionEvent(appInstall.name))

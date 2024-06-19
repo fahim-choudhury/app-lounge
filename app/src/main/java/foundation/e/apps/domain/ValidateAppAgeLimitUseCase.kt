@@ -24,6 +24,8 @@ import foundation.e.apps.data.blockedApps.Age
 import foundation.e.apps.data.blockedApps.ContentRatingGroup
 import foundation.e.apps.data.blockedApps.ContentRatingsRepository
 import foundation.e.apps.data.blockedApps.ParentalControlRepository
+import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.install.models.AppInstall
 import timber.log.Timber
 import javax.inject.Inject
@@ -31,16 +33,47 @@ import javax.inject.Inject
 class ValidateAppAgeLimitUseCase @Inject constructor(
     private val contentRatingRepository: ContentRatingsRepository,
     private val parentalControlRepository: ParentalControlRepository,
+    private val appsApi: AppsApi,
 ) {
+
+    companion object {
+        const val KEY_ANTI_FEATURES_NSFW = "NSFW"
+    }
 
     suspend operator fun invoke(app: AppInstall): ResultSupreme<Boolean> {
         val ageGroup = parentalControlRepository.getSelectedAgeGroup()
 
         return when {
             isParentalControlDisabled(ageGroup) -> ResultSupreme.Success(data = true)
-            hasNoContentRating(app) -> ResultSupreme.Error(data = false)
+            isKnownNsfwApp(app) -> ResultSupreme.Success(data = false)
+            isCleanApkApp(app) -> ResultSupreme.Success(!isNsfwAppByCleanApkApi(app))
+            isWhiteListedCleanApkApp(app) -> ResultSupreme.Success(data = true)
+            // Check for GPlay apps now
+            hasNoContentRatingOnGPlay(app) -> ResultSupreme.Error()
             else -> validateAgeLimit(ageGroup, app)
         }
+    }
+
+    private fun isCleanApkApp(app: AppInstall): Boolean {
+        return app.id.isNotBlank()
+                && app.origin == Origin.CLEANAPK
+                && app.type == Type.NATIVE
+    }
+
+    private fun isWhiteListedCleanApkApp(app: AppInstall): Boolean {
+        return app.origin == Origin.CLEANAPK
+    }
+
+    private suspend fun isNsfwAppByCleanApkApi(app: AppInstall): Boolean {
+        return appsApi.getCleanapkAppDetails(app.packageName).first.let {
+            it.antiFeatures.any { antiFeature ->
+                antiFeature.containsKey(KEY_ANTI_FEATURES_NSFW)
+            }
+        }
+    }
+
+    private fun isKnownNsfwApp(app: AppInstall): Boolean {
+        return app.packageName in contentRatingRepository.fDroidNSFWApps
     }
 
     private fun validateAgeLimit(
@@ -59,7 +92,7 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
         return ResultSupreme.Success(isValidAppAgeRating(app, allowedContentRating))
     }
 
-    private suspend fun hasNoContentRating(app: AppInstall) =
+    private suspend fun hasNoContentRatingOnGPlay(app: AppInstall) =
         !verifyContentRatingExists(app)
 
     private fun isValidAppAgeRating(

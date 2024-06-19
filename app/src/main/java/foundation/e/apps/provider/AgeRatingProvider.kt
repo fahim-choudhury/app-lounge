@@ -107,6 +107,7 @@ class AgeRatingProvider : ContentProvider() {
         val cursor = MatrixCursor(arrayOf(COLUMN_PACKAGE_NAME))
         val packageNames = appLoungePackageManager.getAllUserApps().map { it.packageName }
         runBlocking {
+            Timber.d("Start preparing blocklist from ${packageNames.size} apps.")
             withContext(IO) {
                 try {
                     if (packageNames.isEmpty()) return@withContext cursor
@@ -124,8 +125,18 @@ class AgeRatingProvider : ContentProvider() {
     }
 
     private suspend fun ensureAgeGroupDataExists() {
-        if (contentRatingsRepository.contentRatingGroups.isEmpty()) {
-            contentRatingsRepository.fetchContentRatingData()
+        withContext(IO) {
+            val deferredFetchRatings = async {
+                if (contentRatingsRepository.contentRatingGroups.isEmpty()) {
+                    contentRatingsRepository.fetchContentRatingData()
+                }
+            }
+            val deferredFetchNSFW = async {
+                if (contentRatingsRepository.fDroidNSFWApps.isEmpty()) {
+                    contentRatingsRepository.fetchNSFWApps()
+                }
+            }
+            listOf(deferredFetchRatings, deferredFetchNSFW).awaitAll()
         }
     }
 
@@ -142,13 +153,30 @@ class AgeRatingProvider : ContentProvider() {
         return false
     }
 
-    private suspend fun getAppAgeValidity(packageName: String): Boolean {
+    private suspend fun isAppValidRegardingAge(packageName: String): Boolean? {
         val fakeAppInstall = AppInstall(
             packageName = packageName,
             origin = Origin.GPLAY
         )
-        val validateResult = validateAppAgeLimitUseCase(fakeAppInstall)
+        val validateResult = validateAppAgeLimitUseCase.invoke(fakeAppInstall)
+        return validateResult.data
+    }
+
+    private suspend fun isAppValidRegardingNSWF(packageName: String): Boolean {
+        val fakeAppInstall = AppInstall(
+            packageName = packageName,
+            origin = Origin.CLEANAPK,
+        )
+        val validateResult = validateAppAgeLimitUseCase.invoke(fakeAppInstall)
         return validateResult.data ?: false
+    }
+
+    private suspend fun shouldAllow(packageName: String): Boolean {
+        return when {
+            !isAppValidRegardingNSWF(packageName) -> false
+            isAppValidRegardingAge(packageName) == false -> false
+            else -> true
+        }
     }
 
     private suspend fun compileAppBlockList(
@@ -158,7 +186,7 @@ class AgeRatingProvider : ContentProvider() {
         withContext(IO) {
             val validityList = packageNames.map { packageName ->
                 async {
-                    getAppAgeValidity(packageName)
+                    shouldAllow(packageName)
                 }
             }.awaitAll()
             validityList.forEachIndexed { index: Int, isValid: Boolean? ->
@@ -167,6 +195,7 @@ class AgeRatingProvider : ContentProvider() {
                     cursor.addRow(arrayOf(packageNames[index]))
                 }
             }
+            Timber.d("Finished compiling blocklist - ${cursor.count} apps blocked.")
         }
     }
 

@@ -22,6 +22,7 @@ package foundation.e.apps.data.blockedApps
 import com.aurora.gplayapi.data.models.ContentRating
 import com.aurora.gplayapi.helpers.ContentRatingHelper
 import foundation.e.apps.data.ageRating.AgeGroupApi
+import foundation.e.apps.data.ageRating.FDroidMonitorApi
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.AuthenticatorRepository
 import javax.inject.Inject
@@ -30,6 +31,7 @@ import javax.inject.Singleton
 @Singleton
 class ContentRatingsRepository @Inject constructor(
     private val ageGroupApi: AgeGroupApi,
+    private val fDroidMonitorApi: FDroidMonitorApi,
     private val authenticatorRepository: AuthenticatorRepository,
 ) {
 
@@ -37,11 +39,18 @@ class ContentRatingsRepository @Inject constructor(
     val contentRatingGroups: List<ContentRatingGroup>
         get() = _contentRatingGroups
 
+    var fDroidNSFWApps = listOf<String>()
+        private set
+
     suspend fun fetchContentRatingData() {
         val response = ageGroupApi.getDefinedAgeGroups()
         if (response.isSuccessful) {
             _contentRatingGroups = response.body() ?: emptyList()
         }
+    }
+
+    suspend fun fetchNSFWApps() {
+        fDroidNSFWApps = fDroidMonitorApi.getMonitorData().body()?.getNSFWApps() ?: emptyList()
     }
 
     suspend fun getEnglishContentRating(packageName: String): ContentRating? {

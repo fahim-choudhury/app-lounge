@@ -372,9 +372,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun broadcastGPlayLogin() {
+        val user = viewModel.getUser().name
+        Timber.d("Sending broadcast with login type - $user")
         val intent = Intent(Constants.ACTION_PARENTAL_CONTROL_APP_LOUNGE_LOGIN).apply {
             setPackage(BuildConfig.PACKAGE_NAME_PARENTAL_CONTROL)
-            putExtra(COLUMN_LOGIN_TYPE, viewModel.getUser().name)
+            putExtra(COLUMN_LOGIN_TYPE, user)
         }
         sendBroadcast(intent)
     }
