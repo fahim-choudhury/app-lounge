@@ -173,9 +173,9 @@
             android:exported="false" />
 
         <provider
-            android:name="${applicationId}.microg.AuthDataProvider"
-            android:authorities="${applicationId}.authdata.provider"
-            android:readPermission="${applicationId}.permission.AUTH_DATA_PROVIDER"
+            android:name=".microg.AuthDataProvider"
+            android:authorities="foundation.e.apps.authdata.provider"
+            android:readPermission="foundation.e.apps.permission.AUTH_DATA_PROVIDER"
             android:exported="true"/>
 
     </application>
