@@ -24,6 +24,8 @@ import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.playstore.utils.AC2DMUtil
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import java.util.Locale
 
 /**
@@ -52,7 +54,10 @@ class PlayStoreLoginWrapper constructor(
             this.exception = when (result) {
                 is ResultSupreme.Timeout -> GPlayLoginException(true, "GPlay API timeout", user)
                 is ResultSupreme.Error -> GPlayLoginException(false, result.message, user)
-                else -> null
+                else -> {
+                    EventBus.invokeEvent(AppEvent.SuccessfulLogin(user))
+                    null
+                }
             }
         }
     }
