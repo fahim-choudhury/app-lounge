@@ -65,6 +65,7 @@ import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentApplicationBinding
 import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
+import foundation.e.apps.domain.ValidateAppAgeLimitUseCase.Companion.KEY_ANTI_FEATURES_NSFW
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.install.pkg.PWAManager
@@ -431,6 +432,28 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 appIcon.load(CleanApkRetrofit.ASSET_URL + it.icon_image_path)
             } else {
                 appIcon.load(it.icon_image_path)
+            }
+        }
+
+        updateAntiFeaturesUi(it)
+    }
+
+    private fun updateAntiFeaturesUi(app: Application) {
+        val isNsfwApp =
+            app.antiFeatures.find { antiFeature -> antiFeature.containsKey(KEY_ANTI_FEATURES_NSFW) } != null
+
+        val isKnownNsfwApp = applicationViewModel.isKnownNsfwApp(app)
+
+        if (!isNsfwApp && !isKnownNsfwApp) return
+
+        binding.titleInclude.antiFeatureInfoLayout.apply {
+            isVisible = true
+            setOnClickListener {
+                ApplicationDialogFragment(
+                    title = getString(R.string.nsfw_dialog_title),
+                    message = getString(R.string.nsfw_dialog_message),
+                    drawableResId = R.drawable.ic_visibility_off
+                ).show(childFragmentManager, TAG)
             }
         }
     }
