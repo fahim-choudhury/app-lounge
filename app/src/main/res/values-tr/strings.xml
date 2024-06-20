@@ -115,7 +115,7 @@
     <string name="category_icon" weblate_ctx="categories_applications">Kategori Simgesi</string>
     <string name="preference_update_notify_available_description">Uygulama güncellemeleri mevcut olduğunda bir bildirim gösterin</string>
     <string name="login_to_see_gplay_apps">Yaygın uygulamaları görmek için oturum açmanız gerekir.</string>
-    <string name="login">Giriş Yap</string>
+    <string name="login">Giriş</string>
     <string name="update_all">Hepsini Güncelle</string>
     <string name="privacy_description">Gizlilik Puanı, uygulamalarda tespit edilen izinler ve izleyicilerden otomatik olarak hesaplanır. Bir uygulamanın kullanıcılarını ne kadar mikro hedefleme olasılığı olduğu hakkında bir fikir verir.&lt;br /&gt;&lt;br /&gt;Algoritmasının kaynak kodu &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;bulunabilir&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt; Takipçi algılaması &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Gizlilik Aletleri&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;\'nin 10 üzerinden skoruyla hesaplanmaktadır.&lt;br /&gt;&lt;br /&gt;Gizlilik Puanının nasıl hesaplandığı, sınırlamaları ve kendinizi mikro hedeflemeden nasıl koruyabileceğiniz hakkında daha fazla bilgi edinin &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;bu sayfada&lt;/a&gt;.</string>
     <string name="share">Paylaş</string>
