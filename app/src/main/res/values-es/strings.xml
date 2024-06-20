@@ -161,7 +161,7 @@
     <string name="close">Cerrar</string>
     <string name="installing">Instalando</string>
     <string name="logged_out">Desconectado</string>
-    <string name="login">Iniciar sesión</string>
+    <string name="login">Inicio de sesión</string>
     <string name="login_to_see_gplay_apps">Necesitas iniciar sesión para ver aplicaciones comunes.</string>
     <string name="select_one_source_of_applications">Por favor selecciona por lo menos una fuente de aplicaciones.</string>
     <string name="copied">Copiado</string>
