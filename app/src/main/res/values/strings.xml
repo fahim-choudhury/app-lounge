@@ -231,5 +231,6 @@
     <!-- F-Droid Anti-Features-->
     <string name="nsfw_dialog_title">Content Warning</string>
     <string name="nsfw_dialog_message">The app may contain nudity, profanity, slurs, violence, intense sexuality, political incorrectness, or other potentially disturbing subject matter. This is especially relevant in environments like workplaces, schools, religious and family settings.</string>
+    <string name="message_fetching_content_rating">Gathering content rating for all the apps you\'ve installed.</string>
 
 </resources>

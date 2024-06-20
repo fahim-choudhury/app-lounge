@@ -19,17 +19,23 @@
 
 package foundation.e.apps.provider
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.ContentProvider
 import android.content.ContentValues
+import android.content.Context
 import android.content.UriMatcher
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
+import android.os.Build
+import androidx.core.app.NotificationCompat
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import foundation.e.apps.BuildConfig
+import foundation.e.apps.R
 import foundation.e.apps.contract.ParentalControlContract.COLUMN_LOGIN_TYPE
 import foundation.e.apps.contract.ParentalControlContract.COLUMN_PACKAGE_NAME
 import foundation.e.apps.contract.ParentalControlContract.PATH_BLOCKLIST
@@ -48,6 +54,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
 
 class AgeRatingProvider : ContentProvider() {
 
@@ -59,6 +66,13 @@ class AgeRatingProvider : ContentProvider() {
         fun provideContentRatingsRepository(): ContentRatingsRepository
         fun provideValidateAppAgeLimitUseCase(): ValidateAppAgeLimitUseCase
         fun provideDataStoreManager(): DataStoreManager
+
+        fun provideNotificationManager(): NotificationManager
+    }
+
+    companion object {
+        private const val CHANNEL_ID = "applounge_provider"
+        private const val NOTIFICATION_ID = 77
     }
 
     private lateinit var authenticatorRepository: AuthenticatorRepository
@@ -66,6 +80,7 @@ class AgeRatingProvider : ContentProvider() {
     private lateinit var contentRatingsRepository: ContentRatingsRepository
     private lateinit var validateAppAgeLimitUseCase: ValidateAppAgeLimitUseCase
     private lateinit var dataStoreManager: DataStoreManager
+    private lateinit var notificationManager: NotificationManager
 
     private enum class UriCode(val code: Int) {
         LoginType(1),
@@ -105,23 +120,54 @@ class AgeRatingProvider : ContentProvider() {
 
     private fun getAgeRatings(): Cursor {
         val cursor = MatrixCursor(arrayOf(COLUMN_PACKAGE_NAME))
-        val packageNames = appLoungePackageManager.getAllUserApps().map { it.packageName }
+
         runBlocking {
+            showNotification()
+            val packageNames = appLoungePackageManager.getAllUserApps().map { it.packageName }
             Timber.d("Start preparing blocklist from ${packageNames.size} apps.")
             withContext(IO) {
                 try {
                     if (packageNames.isEmpty()) return@withContext cursor
-
-                    ensureAgeGroupDataExists()
                     if (!setupAuthDataIfExists()) return@withContext null
 
+                    ensureAgeGroupDataExists()
                     compileAppBlockList(cursor, packageNames)
                 } catch (e: Exception) {
                     Timber.e("AgeRatingProvider", "Error fetching age ratings", e)
                 }
             }
+
+            hideNotification()
         }
+
         return cursor
+    }
+
+    private fun showNotification() {
+        val context = context ?: return
+        val title = context.getString(R.string.app_name)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                title,
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            channel.setSound(null, null)
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.app_lounge_notification_icon)
+            .setContentTitle(title)
+            .setContentText(context.getString(R.string.message_fetching_content_rating))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+
+        notificationManager.notify(NOTIFICATION_ID, builder.build())
+    }
+
+    private fun hideNotification() {
+        notificationManager.cancel(NOTIFICATION_ID)
     }
 
     private suspend fun ensureAgeGroupDataExists() {
@@ -209,6 +255,7 @@ class AgeRatingProvider : ContentProvider() {
         contentRatingsRepository = hiltEntryPoint.provideContentRatingsRepository()
         validateAppAgeLimitUseCase = hiltEntryPoint.provideValidateAppAgeLimitUseCase()
         dataStoreManager = hiltEntryPoint.provideDataStoreManager()
+        notificationManager = hiltEntryPoint.provideNotificationManager()
 
         return true
     }
