@@ -25,6 +25,7 @@ import foundation.e.apps.data.blockedApps.ContentRatingGroup
 import foundation.e.apps.data.blockedApps.ContentRatingsRepository
 import foundation.e.apps.data.blockedApps.ParentalControlRepository
 import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.install.models.AppInstall
 import timber.log.Timber
@@ -46,12 +47,21 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
         return when {
             isParentalControlDisabled(ageGroup) -> ResultSupreme.Success(data = true)
             isKnownNsfwApp(app) -> ResultSupreme.Success(data = false)
-            isCleanApkApp(app) -> ResultSupreme.Success(!isNsfwAppByCleanApkApi(app))
+            isCleanApkApp(app) -> checkIsNsfwApp(app)
             isWhiteListedCleanApkApp(app) -> ResultSupreme.Success(data = true)
             // Check for GPlay apps now
             hasNoContentRatingOnGPlay(app) -> ResultSupreme.Error()
             else -> validateAgeLimit(ageGroup, app)
         }
+    }
+
+    private suspend fun checkIsNsfwApp(app: AppInstall): ResultSupreme<Boolean> {
+        val isNsfwResult = isNsfwAppByCleanApkApi(app)
+        if (isNsfwResult.second != ResultStatus.OK) {
+            return ResultSupreme.Error()
+        }
+
+        return ResultSupreme.Success(!isNsfwResult.first)
     }
 
     private fun isCleanApkApp(app: AppInstall): Boolean {
@@ -64,12 +74,19 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
         return app.origin == Origin.CLEANAPK
     }
 
-    private suspend fun isNsfwAppByCleanApkApi(app: AppInstall): Boolean {
-        return appsApi.getCleanapkAppDetails(app.packageName).first.let {
+    private suspend fun isNsfwAppByCleanApkApi(app: AppInstall): Pair<Boolean, ResultStatus> {
+        val cleanApkAppDetails = appsApi.getCleanapkAppDetails(app.packageName)
+        if (cleanApkAppDetails.second != ResultStatus.OK) {
+            return Pair(false, cleanApkAppDetails.second)
+        }
+
+        val isNsfwApp = cleanApkAppDetails.first.let {
             it.antiFeatures.any { antiFeature ->
                 antiFeature.containsKey(KEY_ANTI_FEATURES_NSFW)
             }
         }
+
+        return Pair(isNsfwApp, cleanApkAppDetails.second)
     }
 
     private fun isKnownNsfwApp(app: AppInstall): Boolean {
