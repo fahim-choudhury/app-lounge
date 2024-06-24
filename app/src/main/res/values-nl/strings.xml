@@ -174,4 +174,19 @@
     <string name="preference_update_apps_from_other_stores_title">Update apps geïnstalleerd door andere app-stores</string>
     <string name="account_unavailable">Account niet beschikbaar</string>
     <string name="share">Delen</string>
+    <string name="free_space_for_update">Maak %1$s vrij op jouw telefoon om de laatste updates te verkrijgen.</string>
+    <string name="notification_content_full_db">Maak geheugen vrij op jouw telefoon zodat App Lounge goed kan functioneren.</string>
+    <string name="split_install_warning_title">Waarschuwing betreffende %s</string>
+    <string name="sign_in">Inloggen</string>
+    <string name="ignore">Negeren</string>
+    <string name="checking_updates">Controleren op updates...</string>
+    <string name="split_install_warning_text">%s wil extra modules installeren. Je moet terug inloggen in App Lounge om die te kunnen installeren.</string>
+    <string name="no_trackers">Geen trackers</string>
+    <string name="proceed_to_google_login">Ga verder naar Google-aanmelden</string>
+    <string name="preference_update_apps_from_other_stores_description">Update apps geïnstalleerd door andere app stores.
+\nEr zal geprobeerd worden om dergelijke apps te updates van de \"algemene\" en \"open source\" categorie.</string>
+    <string name="having_troubles">Problemen?</string>
+    <string name="request_exodus_report">Exodus rapport aanvragen</string>
+    <string name="too_many_requests_desc">De anonieme account die je momenteel gebruikt is niet beschikbaar. Vernieuw de sessie om een andere te verkrijgen.</string>
+    <string name="refresh_session">SESSIE VERNIEUWEN</string>
 </resources>
