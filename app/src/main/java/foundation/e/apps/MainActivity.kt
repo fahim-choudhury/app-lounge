@@ -382,7 +382,7 @@ class MainActivity : AppCompatActivity() {
         Timber.d("Sending broadcast with login type - $user")
         val intent = Intent(Constants.ACTION_PARENTAL_CONTROL_APP_LOUNGE_LOGIN).apply {
             setPackage(BuildConfig.PACKAGE_NAME_PARENTAL_CONTROL)
-            putExtra(COLUMN_LOGIN_TYPE, user)
+            putExtra(COLUMN_LOGIN_TYPE, user.name)
         }
         sendBroadcast(intent)
     }

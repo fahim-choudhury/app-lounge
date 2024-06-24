@@ -25,6 +25,7 @@ import foundation.e.apps.data.ageRating.AgeGroupApi
 import foundation.e.apps.data.ageRating.FDroidMonitorApi
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.AuthenticatorRepository
+import foundation.e.apps.data.playstore.PlayStoreRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,7 +33,7 @@ import javax.inject.Singleton
 class ContentRatingsRepository @Inject constructor(
     private val ageGroupApi: AgeGroupApi,
     private val fDroidMonitorApi: FDroidMonitorApi,
-    private val authenticatorRepository: AuthenticatorRepository,
+    private val playStoreRepository: PlayStoreRepository,
 ) {
 
     private var _contentRatingGroups = listOf<ContentRatingGroup>()
@@ -54,11 +55,8 @@ class ContentRatingsRepository @Inject constructor(
     }
 
     suspend fun getEnglishContentRating(packageName: String): ContentRating? {
-        val authData = authenticatorRepository.gplayAuth ?: return null
-        val contentRatingHelper = ContentRatingHelper(authData)
-
         return handleNetworkResult {
-            contentRatingHelper.getEnglishContentRating(packageName)
+            playStoreRepository.getEnglishContentRating(packageName)
         }.data
     }
 }
