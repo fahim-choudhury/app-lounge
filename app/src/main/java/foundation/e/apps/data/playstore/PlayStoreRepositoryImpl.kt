@@ -38,7 +38,6 @@ import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.application.utils.CategoryType
-import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.playstore.utils.GPlayHttpClient
 import kotlinx.coroutines.Dispatchers
