@@ -21,23 +21,22 @@ package foundation.e.apps.data.parentalcontrol
 import android.content.Context
 import android.net.Uri
 import dagger.hilt.android.qualifiers.ApplicationContext
-import foundation.e.apps.domain.parentalcontrol.GetParentalControlStateUseCase
 import foundation.e.apps.domain.parentalcontrol.model.AgeGroupValue
 import foundation.e.apps.domain.parentalcontrol.model.ParentalControlState
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GetParentalControlStateUseCaseImpl
+class GetParentalControlStateUseCase
 @Inject
-constructor(@ApplicationContext private val context: Context) : GetParentalControlStateUseCase {
+constructor(@ApplicationContext private val context: Context) {
     companion object {
         private const val URI_PARENTAL_CONTROL_PROVIDER =
             "content://foundation.e.parentalcontrol.provider/age"
         private const val COLUMN_NAME = "age"
     }
 
-    override suspend fun invoke(): ParentalControlState {
+    fun invoke(): ParentalControlState {
         val uri = Uri.parse(URI_PARENTAL_CONTROL_PROVIDER)
 
         val cursor =

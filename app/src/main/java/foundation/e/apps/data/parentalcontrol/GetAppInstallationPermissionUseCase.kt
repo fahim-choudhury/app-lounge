@@ -27,7 +27,6 @@ import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.Den
 import foundation.e.apps.data.parentalcontrol.AppInstallationPermissionState.DeniedOnDataLoadError
 import foundation.e.apps.data.parentalcontrol.gplayrating.GooglePlayContentRatingsRepository
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.domain.parentalcontrol.GetParentalControlStateUseCase
 import foundation.e.apps.domain.parentalcontrol.model.ParentalControlState
 import foundation.e.apps.domain.parentalcontrol.model.ParentalControlState.AgeGroup
 import foundation.e.apps.domain.parentalcontrol.model.ParentalControlState.Disabled
