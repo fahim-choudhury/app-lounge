@@ -28,26 +28,35 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GetParentalControlStateUseCaseImpl @Inject constructor(
-    @ApplicationContext private val context: Context
-) : GetParentalControlStateUseCase {
+class GetParentalControlStateUseCaseImpl
+@Inject
+constructor(@ApplicationContext private val context: Context) : GetParentalControlStateUseCase {
     companion object {
         private const val URI_PARENTAL_CONTROL_PROVIDER =
             "content://foundation.e.parentalcontrol.provider/age"
+        private const val COLUMN_NAME = "age"
     }
 
     override suspend fun invoke(): ParentalControlState {
         val uri = Uri.parse(URI_PARENTAL_CONTROL_PROVIDER)
-        context.contentResolver.query(
-            uri, null, null, null, null
-        )?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                val ageOrdinal = cursor.getColumnIndexOrThrow("age").let(cursor::getInt)
-                val ageGroup = AgeGroupValue.values()[ageOrdinal]
-                return ParentalControlState.AgeGroup(ageGroup)
-            }
-        }
 
-        return ParentalControlState.Disabled
+        val cursor =
+            context.contentResolver.query(uri, null, null, null, null)
+                ?: return ParentalControlState.Disabled
+
+        return try {
+            cursor.use {
+                when {
+                    it.moveToFirst() -> {
+                        val ageOrdinal = it.getColumnIndexOrThrow(COLUMN_NAME).let(it::getInt)
+                        val ageGroup = AgeGroupValue.values()[ageOrdinal]
+                        ParentalControlState.AgeGroup(ageGroup)
+                    }
+                    else -> ParentalControlState.Disabled
+                }
+            }
+        } catch (e: IllegalArgumentException) {
+            ParentalControlState.Disabled
+        }
     }
 }
