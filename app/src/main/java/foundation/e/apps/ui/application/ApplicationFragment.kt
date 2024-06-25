@@ -440,23 +440,19 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun updateAntiFeaturesUi(app: Application) {
-        val isNsfwApp =
-            app.antiFeatures.find { antiFeature -> antiFeature.containsKey(KEY_ANTI_FEATURES_NSFW) } != null
-
-        if (isNsfwApp) {
-            with(binding.titleInclude) {
-                antiFeatureInfoLayout.apply {
-                    isVisible = true
-                    setOnClickListener {
-                        ApplicationDialogFragment(
-                            title = getString(R.string.nsfw_dialog_title),
-                            message = getString(R.string.nsfw_dialog_message),
-                            drawableResId = R.drawable.ic_visibility_off
-                        ).show(childFragmentManager, TAG)
-                    }
-                }
-            }
+        with(binding.titleInclude.antiFeatureInfoLayout) {
+            isVisible =
+                app.antiFeatures.any { antiFeature -> antiFeature.containsKey(KEY_ANTI_FEATURES_NSFW) }
+            setOnClickListener { showNsfwWarning() }
         }
+    }
+
+    private fun showNsfwWarning() {
+        ApplicationDialogFragment(
+            title = getString(R.string.nsfw_dialog_title),
+            message = getString(R.string.nsfw_dialog_message),
+            drawableResId = R.drawable.ic_visibility_off
+        ).show(childFragmentManager, TAG)
     }
 
     private fun updateCategoryTitle(app: Application) {
