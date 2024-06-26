@@ -192,6 +192,7 @@
     <string name="split_install_warning_title">Advarsel angående %s</string>
     <string name="split_install_warning_text">%s vil installere ekstra moduler. Du må logge inn på App Lounge på nytt for å kunne installere dem.</string>
     <string name="sign_in">Logg inn</string>
-    <string name="account_unavailable">Konto utilgjengelig</string>
-    <string name="share">Dele</string>
+    <string name="account_unavailable">Kontoen er ikke tilgjengelig</string>
+    <string name="share">Del</string>
+    <string name="no_trackers">Ingen sporere</string>
 </resources>
