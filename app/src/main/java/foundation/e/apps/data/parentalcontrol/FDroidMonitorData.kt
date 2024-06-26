@@ -16,23 +16,20 @@
  *
  */
 
-package foundation.e.apps.data.fdroid
+package foundation.e.apps.data.parentalcontrol
 
-import foundation.e.apps.data.fdroid.models.FdroidApiModel
-import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.Path
+import com.squareup.moshi.Json
 
-/**
- * Interface for retrofit calls.
- * Created from [foundation.e.apps.di.network.RetrofitApiModule.provideFdroidApi].
- */
-interface FdroidApiInterface {
-
-    companion object {
-        const val BASE_URL = "https://gitlab.com/fdroid/fdroiddata/-/raw/master/metadata/"
-    }
-
-    @GET("{packageName}.yml")
-    suspend fun getFdroidInfoForPackage(@Path("packageName") packageName: String): Response<FdroidApiModel?>
+data class FDroidMonitorData(
+    val antiFeatures: AntiFeatures
+) {
+    fun getNSFWApps() = antiFeatures.nsfw.apps
 }
+
+data class AntiFeatures(
+    @Json(name = "NSFW") val nsfw: NSFW
+)
+
+data class NSFW(
+    val apps: List<String>
+)
