@@ -16,23 +16,18 @@
  *
  */
 
-package foundation.e.apps.data.fdroid
+package foundation.e.apps.data.parentalcontrol
 
-import foundation.e.apps.data.fdroid.models.FdroidApiModel
 import retrofit2.Response
 import retrofit2.http.GET
-import retrofit2.http.Path
 
-/**
- * Interface for retrofit calls.
- * Created from [foundation.e.apps.di.network.RetrofitApiModule.provideFdroidApi].
- */
-interface FdroidApiInterface {
+interface FDroidMonitorApi {
 
     companion object {
-        const val BASE_URL = "https://gitlab.com/fdroid/fdroiddata/-/raw/master/metadata/"
+        const val BASE_URL = "https://f-droid.org/repo/"
     }
 
-    @GET("{packageName}.yml")
-    suspend fun getFdroidInfoForPackage(@Path("packageName") packageName: String): Response<FdroidApiModel?>
+    @GET("status/update.json")
+    suspend fun getMonitorData(): Response<FDroidMonitorData>
+
 }
