@@ -16,20 +16,21 @@
  *
  */
 
-package foundation.e.apps.data.parentalcontrol
+package foundation.e.apps.data.parentalcontrol.fdroid
 
-import com.squareup.moshi.Json
+import javax.inject.Inject
+import javax.inject.Singleton
 
-data class FDroidMonitorData(
-    val antiFeatures: AntiFeatures
+@Singleton
+class FDroidAntiFeatureRepository
+@Inject
+constructor(
+    private val fDroidMonitorApi: FDroidMonitorApi,
 ) {
-    fun getNSFWApps() = antiFeatures.nsfw.apps
+    var fDroidNsfwApps = listOf<String>()
+        private set
+
+    suspend fun fetchNsfwApps() {
+        fDroidNsfwApps = fDroidMonitorApi.getMonitorData().body()?.getNsfwApps() ?: emptyList()
+    }
 }
-
-data class AntiFeatures(
-    @Json(name = "NSFW") val nsfw: NSFW
-)
-
-data class NSFW(
-    val apps: List<String>
-)

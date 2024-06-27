@@ -16,19 +16,20 @@
  *
  */
 
-package foundation.e.apps.data.parentalcontrol
+package foundation.e.apps.data.parentalcontrol.fdroid
 
-import foundation.e.apps.data.blockedApps.ContentRatingGroup
-import retrofit2.Response
-import retrofit2.http.GET
+import com.squareup.moshi.Json
 
-interface AgeGroupApi {
-
-    companion object {
-        const val BASE_URL = "https://gitlab.e.foundation/e/os/app-lounge-content-ratings/-/raw/main/"
-    }
-
-    @GET("content_ratings.json?ref_type=heads")
-    suspend fun getDefinedAgeGroups(): Response<List<ContentRatingGroup>>
-
+data class FDroidMonitorData(
+    val antiFeatures: AntiFeatures
+) {
+    fun getNsfwApps() = antiFeatures.nsfw.apps
 }
+
+data class AntiFeatures(
+    @Json(name = "NSFW") val nsfw: NSFW
+)
+
+data class NSFW(
+    val apps: List<String>
+)

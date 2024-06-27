@@ -29,9 +29,9 @@ import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.ecloud.EcloudApiInterface
 import foundation.e.apps.data.exodus.ExodusTrackerApi
 import foundation.e.apps.data.fdroid.FdroidApiInterface
+import foundation.e.apps.data.parentalcontrol.fdroid.FDroidMonitorApi
+import foundation.e.apps.data.parentalcontrol.googleplay.AgeGroupApi
 import foundation.e.apps.di.network.NetworkModule.getYamlFactory
-import foundation.e.apps.data.parentalcontrol.AgeGroupApi
-import foundation.e.apps.data.parentalcontrol.FDroidMonitorApi
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

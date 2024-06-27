@@ -1,19 +1,18 @@
 /*
- *  Copyright MURENA SAS 2024
- *  Apps  Quickly and easily install Android apps onto your device!
+ * Copyright (C) 2024 MURENA SAS
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -23,7 +22,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ContentProvider
 import android.content.ContentValues
-import android.content.Context
 import android.content.UriMatcher
 import android.database.Cursor
 import android.database.MatrixCursor
@@ -41,10 +39,11 @@ import foundation.e.apps.contract.ParentalControlContract.COLUMN_PACKAGE_NAME
 import foundation.e.apps.contract.ParentalControlContract.PATH_BLOCKLIST
 import foundation.e.apps.contract.ParentalControlContract.PATH_LOGIN_TYPE
 import foundation.e.apps.contract.ParentalControlContract.getAppLoungeProviderAuthority
-import foundation.e.apps.data.blockedApps.ContentRatingsRepository
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthenticatorRepository
+import foundation.e.apps.data.parentalcontrol.fdroid.FDroidAntiFeatureRepository
+import foundation.e.apps.data.parentalcontrol.googleplay.GPlayContentRatingRepository
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
 import foundation.e.apps.install.pkg.AppLoungePackageManager
@@ -54,7 +53,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import javax.inject.Inject
 
 class AgeRatingProvider : ContentProvider() {
 
@@ -63,10 +61,10 @@ class AgeRatingProvider : ContentProvider() {
     interface ContentProviderEntryPoint {
         fun provideAuthenticationRepository(): AuthenticatorRepository
         fun providePackageManager(): AppLoungePackageManager
-        fun provideContentRatingsRepository(): ContentRatingsRepository
+        fun provideGPlayContentRatingsRepository(): GPlayContentRatingRepository
+        fun provideFDroidAntiFeatureRepository(): FDroidAntiFeatureRepository
         fun provideValidateAppAgeLimitUseCase(): ValidateAppAgeLimitUseCase
         fun provideDataStoreManager(): DataStoreManager
-
         fun provideNotificationManager(): NotificationManager
     }
 
@@ -77,7 +75,8 @@ class AgeRatingProvider : ContentProvider() {
 
     private lateinit var authenticatorRepository: AuthenticatorRepository
     private lateinit var appLoungePackageManager: AppLoungePackageManager
-    private lateinit var contentRatingsRepository: ContentRatingsRepository
+    private lateinit var gPlayContentRatingRepository: GPlayContentRatingRepository
+    private lateinit var fDroidAntiFeatureRepository: FDroidAntiFeatureRepository
     private lateinit var validateAppAgeLimitUseCase: ValidateAppAgeLimitUseCase
     private lateinit var dataStoreManager: DataStoreManager
     private lateinit var notificationManager: NotificationManager
@@ -173,13 +172,13 @@ class AgeRatingProvider : ContentProvider() {
     private suspend fun ensureAgeGroupDataExists() {
         withContext(IO) {
             val deferredFetchRatings = async {
-                if (contentRatingsRepository.contentRatingGroups.isEmpty()) {
-                    contentRatingsRepository.fetchContentRatingData()
+                if (gPlayContentRatingRepository.contentRatingGroups.isEmpty()) {
+                    gPlayContentRatingRepository.fetchContentRatingData()
                 }
             }
             val deferredFetchNSFW = async {
-                if (contentRatingsRepository.fDroidNSFWApps.isEmpty()) {
-                    contentRatingsRepository.fetchNSFWApps()
+                if (fDroidAntiFeatureRepository.fDroidNsfwApps.isEmpty()) {
+                    fDroidAntiFeatureRepository.fetchNsfwApps()
                 }
             }
             listOf(deferredFetchRatings, deferredFetchNSFW).awaitAll()
@@ -252,7 +251,8 @@ class AgeRatingProvider : ContentProvider() {
 
         authenticatorRepository = hiltEntryPoint.provideAuthenticationRepository()
         appLoungePackageManager = hiltEntryPoint.providePackageManager()
-        contentRatingsRepository = hiltEntryPoint.provideContentRatingsRepository()
+        gPlayContentRatingRepository = hiltEntryPoint.provideGPlayContentRatingsRepository()
+        fDroidAntiFeatureRepository = hiltEntryPoint.provideFDroidAntiFeatureRepository()
         validateAppAgeLimitUseCase = hiltEntryPoint.provideValidateAppAgeLimitUseCase()
         dataStoreManager = hiltEntryPoint.provideDataStoreManager()
         notificationManager = hiltEntryPoint.provideNotificationManager()
