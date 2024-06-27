@@ -16,39 +16,29 @@
  *
  */
 
-package foundation.e.apps.data.blockedApps
+package foundation.e.apps.data.parentalcontrol.googleplay
 
 import com.aurora.gplayapi.data.models.ContentRating
-import foundation.e.apps.data.parentalcontrol.AgeGroupApi
-import foundation.e.apps.data.parentalcontrol.FDroidMonitorApi
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ContentRatingsRepository @Inject constructor(
+class GPlayContentRatingRepository @Inject constructor(
     private val ageGroupApi: AgeGroupApi,
-    private val fDroidMonitorApi: FDroidMonitorApi,
     private val playStoreRepository: PlayStoreRepository,
 ) {
 
-    private var _contentRatingGroups = listOf<ContentRatingGroup>()
-    val contentRatingGroups: List<ContentRatingGroup>
+    private var _contentRatingGroups = listOf<GPlayContentRatingGroup>()
+    val contentRatingGroups: List<GPlayContentRatingGroup>
         get() = _contentRatingGroups
-
-    var fDroidNSFWApps = listOf<String>()
-        private set
 
     suspend fun fetchContentRatingData() {
         val response = ageGroupApi.getDefinedAgeGroups()
         if (response.isSuccessful) {
             _contentRatingGroups = response.body() ?: emptyList()
         }
-    }
-
-    suspend fun fetchNSFWApps() {
-        fDroidNSFWApps = fDroidMonitorApi.getMonitorData().body()?.getNSFWApps() ?: emptyList()
     }
 
     suspend fun getEnglishContentRating(packageName: String): ContentRating? {

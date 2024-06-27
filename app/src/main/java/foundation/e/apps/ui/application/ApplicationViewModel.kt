@@ -28,7 +28,6 @@ import foundation.e.apps.R
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.shareUri
-import foundation.e.apps.data.blockedApps.ContentRatingsRepository
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
@@ -37,6 +36,7 @@ import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
+import foundation.e.apps.data.parentalcontrol.fdroid.FDroidAntiFeatureRepository
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.download.data.DownloadProgressLD
@@ -56,7 +56,7 @@ class ApplicationViewModel @Inject constructor(
     private val applicationRepository: ApplicationRepository,
     private val playStoreRepository: PlayStoreRepository,
     private val appManagerWrapper: AppManagerWrapper,
-    private val contentRatingsRepository: ContentRatingsRepository,
+    private val fDroidAntiFeatureRepository: FDroidAntiFeatureRepository,
 ) : LoadingViewModel() {
 
     val applicationLiveData: MutableLiveData<Pair<Application, ResultStatus>> = MutableLiveData()
@@ -239,7 +239,7 @@ class ApplicationViewModel @Inject constructor(
     fun isOpenSourceSelected() = applicationRepository.isOpenSourceSelected()
 
     fun isKnownNsfwApp(app: Application): Boolean {
-        return app.package_name in contentRatingsRepository.fDroidNSFWApps
+        return app.package_name in fDroidAntiFeatureRepository.fDroidNsfwApps
     }
 }
 

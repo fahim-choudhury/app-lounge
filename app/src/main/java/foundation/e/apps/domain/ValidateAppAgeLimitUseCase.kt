@@ -20,18 +20,20 @@ package foundation.e.apps.domain
 
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.apps.AppsApi
-import foundation.e.apps.data.blockedApps.Age
-import foundation.e.apps.data.blockedApps.ContentRatingGroup
-import foundation.e.apps.data.blockedApps.ContentRatingsRepository
-import foundation.e.apps.data.blockedApps.ParentalControlRepository
+import foundation.e.apps.data.parentalcontrol.Age
+import foundation.e.apps.data.parentalcontrol.ParentalControlRepository
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.install.models.AppInstall
+import foundation.e.apps.data.parentalcontrol.fdroid.FDroidAntiFeatureRepository
+import foundation.e.apps.data.parentalcontrol.googleplay.GPlayContentRatingGroup
+import foundation.e.apps.data.parentalcontrol.googleplay.GPlayContentRatingRepository
 import timber.log.Timber
 import javax.inject.Inject
 
 class ValidateAppAgeLimitUseCase @Inject constructor(
-    private val contentRatingRepository: ContentRatingsRepository,
+    private val gPlayContentRatingRepository: GPlayContentRatingRepository,
+    private val fDroidAntiFeatureRepository: FDroidAntiFeatureRepository,
     private val parentalControlRepository: ParentalControlRepository,
     private val appsApi: AppsApi,
 ) {
@@ -73,7 +75,7 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
     }
 
     private fun isKnownNsfwApp(app: AppInstall): Boolean {
-        return app.packageName in contentRatingRepository.fDroidNSFWApps
+        return app.packageName in fDroidAntiFeatureRepository.fDroidNsfwApps
     }
 
     private fun validateAgeLimit(
@@ -81,7 +83,7 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
         app: AppInstall
     ): ResultSupreme.Success<Boolean> {
         val allowedContentRating =
-            contentRatingRepository.contentRatingGroups.find { it.id == ageGroup.toString() }
+            gPlayContentRatingRepository.contentRatingGroups.find { it.id == ageGroup.toString() }
 
         Timber.d(
             "Selected age group: $ageGroup \n" +
@@ -97,7 +99,7 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
 
     private fun isValidAppAgeRating(
         app: AppInstall,
-        allowedContentRating: ContentRatingGroup?
+        allowedContentRating: GPlayContentRatingGroup?
     ): Boolean {
         val allowedAgeRatings = allowedContentRating?.ratings?.map { it.lowercase() } ?: emptyList()
         return app.contentRating.id.isNotEmpty() && allowedAgeRatings.contains(app.contentRating.id)
@@ -108,7 +110,7 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
     private suspend fun verifyContentRatingExists(app: AppInstall): Boolean {
 
         if (app.contentRating.id.isEmpty()) {
-            contentRatingRepository.getEnglishContentRating(app.packageName)?.run {
+            gPlayContentRatingRepository.getEnglishContentRating(app.packageName)?.run {
                 Timber.d("Updating content rating for package: ${app.packageName}")
                 app.contentRating = this
             }

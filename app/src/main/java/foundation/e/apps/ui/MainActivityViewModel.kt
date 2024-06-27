@@ -35,13 +35,14 @@ import foundation.e.apps.R
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
-import foundation.e.apps.data.blockedApps.ContentRatingsRepository
 import foundation.e.apps.data.ecloud.EcloudRepository
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.install.AppManagerWrapper
 import foundation.e.apps.data.install.models.AppInstall
+import foundation.e.apps.data.parentalcontrol.fdroid.FDroidAntiFeatureRepository
+import foundation.e.apps.data.parentalcontrol.googleplay.GPlayContentRatingRepository
 import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.apps.data.preference.getSync
 import foundation.e.apps.install.pkg.AppLoungePackageManager
@@ -60,7 +61,8 @@ class MainActivityViewModel @Inject constructor(
     private val pwaManager: PWAManager,
     private val ecloudRepository: EcloudRepository,
     private val blockedAppRepository: BlockedAppRepository,
-    private val contentRatingsRepository: ContentRatingsRepository,
+    private val gPlayContentRatingRepository: GPlayContentRatingRepository,
+    private val fDroidAntiFeatureRepository: FDroidAntiFeatureRepository,
     private val appInstallProcessor: AppInstallProcessor,
 ) : ViewModel() {
 
@@ -240,8 +242,8 @@ class MainActivityViewModel @Inject constructor(
 
     fun updateContentRatings() {
         viewModelScope.launch {
-            contentRatingsRepository.fetchNSFWApps()
-            contentRatingsRepository.fetchContentRatingData()
+            fDroidAntiFeatureRepository.fetchNsfwApps()
+            gPlayContentRatingRepository.fetchContentRatingData()
         }
     }
 
