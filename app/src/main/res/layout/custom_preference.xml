@@ -34,7 +34,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp">
+            android:layout_marginBottom="12dp">
 
             <TextView
                 android:id="@+id/account"
@@ -72,7 +72,7 @@
                 android:layout_marginTop="30dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_user_icon"
-                app:layout_constraintBottom_toBottomOf="parent"
+
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/account"
                 app:shapeAppearanceOverlay="@style/roundedCornersImageView" />
@@ -109,11 +109,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
+                android:layout_marginTop="5dp"
                 android:text="@string/logout"
                 android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="@id/avatar"
+                app:layout_constraintTop_toBottomOf="@+id/avatar"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/avatar" />
+                />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.appbar.AppBarLayout>
