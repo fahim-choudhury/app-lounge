@@ -189,4 +189,10 @@
     <string name="request_exodus_report">Exodus rapport aanvragen</string>
     <string name="too_many_requests_desc">De anonieme account die je momenteel gebruikt is niet beschikbaar. Vernieuw de sessie om een andere te verkrijgen.</string>
     <string name="refresh_session">SESSIE VERNIEUWEN</string>
+    <string name="google_login_alert_message">We raden aan om een speciaal Google-account te gebruiken om:
+\n
+\n\t• micro-targeting te ontwijken
+\n\t• Impact te beperken wanneer Google dit account ingeperkt wordt</string>
+    <string name="notification_channel_desc">Split-installatiekanaal</string>
+    <string name="request_exodus_report_confirm_dialog">Wanneer je klikt op \"<xliff:g id="ok">%1$s</xliff:g>\" zal er een tab in jouw browser geopend worden met de pakket naam van de app ingevuld.&lt;br /&gt;&lt;br /&gt;Klik op \"Perform analysis\" om een analyse door Exodus te starten.&lt;br /&gt;&lt;br /&gt;Wanneer de knop \"See the report\" wordt weergegeven (dit kan even duren afhankelijk van de app) kan je de browser tab sluiten en terugkeren naar de app beschrijving in <xliff:g id="app_name">%2$s</xliff:g> waar je de Privacy Score kan zien. Het kan voorvallen dat de analyse door Exodus niet lukt.&lt;br /&gt;&lt;br /&gt;Ook kan het tot 10 min duren voor de score wordt weergegeven bij de app beschrijving.</string>
 </resources>
