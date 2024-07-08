@@ -120,6 +120,10 @@ class HomeApiImpl @Inject constructor(
             Source.PWA -> handleNetworkResult {
                 handleCleanApkHomes(priorList, SearchApi.APP_TYPE_PWA)
             }
+
+            Source.GITLAB -> {
+                ResultSupreme.Error(message = "Gitlab source not allowed")
+            }
         }
 
         setHomeErrorMessage(result.getResultStatus(), source)
@@ -223,6 +227,7 @@ class HomeApiImpl @Inject constructor(
         if (apiStatus != ResultStatus.OK) {
             apiStatus.message = when (source) {
                 Source.GPLAY -> ("GPlay home loading error\n" + apiStatus.message).trim()
+                Source.GITLAB -> ("Gitlab home not allowed\n" + apiStatus.message).trim()
                 Source.OPEN -> ("Open Source home loading error\n" + apiStatus.message).trim()
                 Source.PWA -> ("PWA home loading error\n" + apiStatus.message).trim()
             }
