@@ -18,11 +18,14 @@
 
 package foundation.e.apps.data.parentalcontrol.googleplay
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.squareup.moshi.Json
 
+@Entity
 data class GPlayContentRatingGroup(
-    val id: String,
+    @PrimaryKey val id: String,
     @Json(name = "age_group")
     val ageGroup: String,
-    var ratings: List<String>
+    var ratings: List<String> = listOf()
 )

@@ -59,7 +59,7 @@ class FakeAppManager(private val appInstallDAO: AppInstallDAO) : AppManager {
         TODO("Not yet implemented")
     }
 
-    override suspend fun cancelDownload(appInstall: AppInstall) {
+    override suspend fun cancelDownload(appInstall: AppInstall, packageName: String) {
         TODO("Not yet implemented")
     }
 

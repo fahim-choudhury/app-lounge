@@ -39,13 +39,17 @@ import foundation.e.apps.contract.ParentalControlContract.COLUMN_PACKAGE_NAME
 import foundation.e.apps.contract.ParentalControlContract.PATH_BLOCKLIST
 import foundation.e.apps.contract.ParentalControlContract.PATH_LOGIN_TYPE
 import foundation.e.apps.contract.ParentalControlContract.getAppLoungeProviderAuthority
+import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthenticatorRepository
+import foundation.e.apps.data.parentalcontrol.ContentRatingDao
+import foundation.e.apps.data.parentalcontrol.ContentRatingEntity
 import foundation.e.apps.data.parentalcontrol.fdroid.FDroidAntiFeatureRepository
 import foundation.e.apps.data.parentalcontrol.googleplay.GPlayContentRatingRepository
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
+import foundation.e.apps.domain.model.ContentRatingValidity
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
@@ -66,6 +70,7 @@ class AgeRatingProvider : ContentProvider() {
         fun provideValidateAppAgeLimitUseCase(): ValidateAppAgeLimitUseCase
         fun provideDataStoreManager(): DataStoreManager
         fun provideNotificationManager(): NotificationManager
+        fun provideContentRatingDao(): ContentRatingDao
     }
 
     companion object {
@@ -80,6 +85,7 @@ class AgeRatingProvider : ContentProvider() {
     private lateinit var validateAppAgeLimitUseCase: ValidateAppAgeLimitUseCase
     private lateinit var dataStoreManager: DataStoreManager
     private lateinit var notificationManager: NotificationManager
+    private lateinit var contentRatingDao: ContentRatingDao
 
     private enum class UriCode(val code: Int) {
         LoginType(1),
@@ -204,7 +210,22 @@ class AgeRatingProvider : ContentProvider() {
             origin = Origin.GPLAY
         )
         val validateResult = validateAppAgeLimitUseCase.invoke(fakeAppInstall)
-        return validateResult.data
+        saveContentRatingIfInvalid(validateResult, packageName)
+
+        return validateResult.data?.isValid
+    }
+
+    private suspend fun saveContentRatingIfInvalid(
+        validateResult: ResultSupreme<ContentRatingValidity>,
+        packageName: String
+    ) {
+        if (validateResult.data?.isValid == false) {
+            val ratingId = validateResult.data?.contentRating?.id ?: ""
+            val ratingTitle = validateResult.data?.contentRating?.title ?: ""
+            contentRatingDao.insertContentRating(
+                ContentRatingEntity(packageName, ratingId, ratingTitle)
+            )
+        }
     }
 
     private suspend fun isAppValidRegardingNSWF(packageName: String): Boolean {
@@ -213,7 +234,7 @@ class AgeRatingProvider : ContentProvider() {
             origin = Origin.CLEANAPK,
         )
         val validateResult = validateAppAgeLimitUseCase.invoke(fakeAppInstall)
-        return validateResult.data ?: false
+        return validateResult.data?.isValid ?: false
     }
 
     private suspend fun shouldAllow(packageName: String): Boolean {
@@ -236,6 +257,7 @@ class AgeRatingProvider : ContentProvider() {
             }.awaitAll()
             validityList.forEachIndexed { index: Int, isValid: Boolean? ->
                 if (isValid != true) {
+
                     // Collect package names for blocklist
                     cursor.addRow(arrayOf(packageNames[index]))
                 }
@@ -256,6 +278,7 @@ class AgeRatingProvider : ContentProvider() {
         validateAppAgeLimitUseCase = hiltEntryPoint.provideValidateAppAgeLimitUseCase()
         dataStoreManager = hiltEntryPoint.provideDataStoreManager()
         notificationManager = hiltEntryPoint.provideNotificationManager()
+        contentRatingDao = hiltEntryPoint.provideContentRatingDao()
 
         return true
     }

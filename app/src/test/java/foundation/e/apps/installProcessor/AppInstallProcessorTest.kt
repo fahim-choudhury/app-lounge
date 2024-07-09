@@ -32,6 +32,7 @@ import foundation.e.apps.data.install.AppManager
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
+import foundation.e.apps.domain.model.ContentRatingValidity
 import foundation.e.apps.install.AppInstallComponents
 import foundation.e.apps.install.notification.StorageNotificationManager
 import foundation.e.apps.install.workmanager.AppInstallProcessor
@@ -194,7 +195,7 @@ class AppInstallProcessorTest {
     fun `processInstallTest when age limit is satisfied`() = runTest {
         val fusedDownload = initTest()
         Mockito.`when`(validateAppAgeRatingUseCase.invoke(fusedDownload))
-            .thenReturn(ResultSupreme.create(ResultStatus.OK, true))
+            .thenReturn(ResultSupreme.create(ResultStatus.OK, ContentRatingValidity(true)))
 
         val finalFusedDownload = runProcessInstall(fusedDownload)
         assertEquals("processInstall", finalFusedDownload, null)
@@ -204,7 +205,7 @@ class AppInstallProcessorTest {
     fun `processInstallTest when age limit is not satisfied`() = runTest {
         val fusedDownload = initTest()
         Mockito.`when`(validateAppAgeRatingUseCase.invoke(fusedDownload))
-            .thenReturn(ResultSupreme.create(ResultStatus.OK, false))
+            .thenReturn(ResultSupreme.create(ResultStatus.OK, ContentRatingValidity(false)))
 
         val finalFusedDownload = runProcessInstall(fusedDownload)
         assertEquals("processInstall", finalFusedDownload, null)

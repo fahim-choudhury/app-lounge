@@ -103,7 +103,7 @@ class FakeAppManagerWrapper(
         return installationStatus
     }
 
-    override suspend fun cancelDownload(appInstall: AppInstall) {
+    override suspend fun cancelDownload(appInstall: AppInstall, packageName: String) {
         fusedDownloadDAO.deleteDownload(appInstall)
     }
 }

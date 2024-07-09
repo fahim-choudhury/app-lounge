@@ -39,7 +39,7 @@ interface AppManager {
 
     suspend fun installApp(appInstall: AppInstall)
 
-    suspend fun cancelDownload(appInstall: AppInstall)
+    suspend fun cancelDownload(appInstall: AppInstall, packageName: String = "")
 
     suspend fun getFusedDownload(downloadId: Long = 0, packageName: String = ""): AppInstall
     fun flushOldDownload(packageName: String)

@@ -54,42 +54,38 @@ open class PkgManagerBR : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         val action = intent?.action
         if (context != null && action != null) {
-            val packageUid = intent.getIntExtra(Intent.EXTRA_UID, 0)
             val isUpdating = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)
-            val packages = context.packageManager.getPackagesForUid(packageUid)
             val extra = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
             val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, -69)
-            val packageName = intent.getStringExtra(PackageInstaller.EXTRA_PACKAGE_NAME)
+            val packageName = intent.data?.schemeSpecificPart
 
             Timber.d("onReceive: $packageName $action $extra $status")
-            packages?.let { pkgList ->
-                handlePackageList(pkgList, action, isUpdating, extra)
+            packageName?.let {
+                handlePackageList(it, action, isUpdating, extra)
             }
         }
     }
 
     private fun handlePackageList(
-        pkgList: Array<out String>,
+        packageName: String,
         action: String,
         isUpdating: Boolean,
         extra: String?
     ) {
-        pkgList.forEach { pkgName ->
-            when (action) {
-                Intent.ACTION_PACKAGE_ADDED -> {
-                    updateDownloadStatus(pkgName)
-                    removeFaultyAppByPackageName(pkgName)
-                }
+        when (action) {
+            Intent.ACTION_PACKAGE_ADDED -> {
+                updateDownloadStatus(packageName)
+                removeFaultyAppByPackageName(packageName)
+            }
 
-                Intent.ACTION_PACKAGE_REMOVED -> {
-                    if (!isUpdating) deleteDownload(pkgName)
-                    removeFaultyAppByPackageName(pkgName)
-                }
+            Intent.ACTION_PACKAGE_REMOVED -> {
+                if (!isUpdating) deleteDownload(packageName)
+                removeFaultyAppByPackageName(packageName)
+            }
 
-                AppLoungePackageManager.ERROR_PACKAGE_INSTALL -> {
-                    Timber.e("Installation failed due to error: $extra")
-                    updateInstallationIssue(pkgName)
-                }
+            AppLoungePackageManager.ERROR_PACKAGE_INSTALL -> {
+                Timber.e("Installation failed due to error: $extra")
+                updateInstallationIssue(packageName)
             }
         }
     }
@@ -103,7 +99,7 @@ open class PkgManagerBR : BroadcastReceiver() {
     private fun deleteDownload(pkgName: String) {
         GlobalScope.launch {
             val fusedDownload = appManagerWrapper.getFusedDownload(packageName = pkgName)
-            appManagerWrapper.cancelDownload(fusedDownload)
+            appManagerWrapper.cancelDownload(fusedDownload, pkgName)
         }
     }
 
