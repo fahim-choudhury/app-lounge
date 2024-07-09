@@ -51,12 +51,12 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
 
         return when {
             isParentalControlDisabled(ageGroup) -> ResultSupreme.Success(
-                data = ContentRatingValidity(true,)
+                data = ContentRatingValidity(true)
             )
 
             isKnownNsfwApp(app) -> ResultSupreme.Success(data = ContentRatingValidity(false))
             isCleanApkApp(app) -> ResultSupreme.Success(
-                ContentRatingValidity(!isNsfwAppByCleanApkApi(app))
+                data = ContentRatingValidity(isValid = !isNsfwAppByCleanApkApi(app))
             )
 
             isWhiteListedCleanApkApp(app) -> ResultSupreme.Success(
