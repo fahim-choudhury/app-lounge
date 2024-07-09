@@ -84,8 +84,8 @@ class AppManagerWrapper @Inject constructor(
         return appManager.updateDownloadStatus(appInstall, status)
     }
 
-    suspend fun cancelDownload(appInstall: AppInstall) {
-        return appManager.cancelDownload(appInstall)
+    suspend fun cancelDownload(appInstall: AppInstall, packageName: String = "") {
+        return appManager.cancelDownload(appInstall, packageName)
     }
 
     suspend fun installationIssue(appInstall: AppInstall) {

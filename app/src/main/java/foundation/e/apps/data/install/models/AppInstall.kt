@@ -3,8 +3,10 @@ package foundation.e.apps.data.install.models
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
 import com.aurora.gplayapi.data.models.ContentRating
 import com.aurora.gplayapi.data.models.File
+import com.google.gson.Gson
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
@@ -27,7 +29,8 @@ data class AppInstall(
     val isFree: Boolean = true,
     var appSize: Long = 0,
     var files: List<File> = mutableListOf(),
-    var signature: String = String()
+    var signature: String = String(),
+    var contentRating: ContentRating = ContentRating()
 ) {
     @Ignore
     private val installingStatusList = listOf(
@@ -36,9 +39,6 @@ data class AppInstall(
         Status.DOWNLOADED,
         Status.INSTALLING
     )
-
-    @Ignore
-    var contentRating: ContentRating = ContentRating()
 
     fun isAppInstalling() = installingStatusList.contains(status)
 

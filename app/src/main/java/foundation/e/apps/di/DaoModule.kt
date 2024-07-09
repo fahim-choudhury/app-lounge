@@ -10,6 +10,7 @@ import foundation.e.apps.data.database.AppDatabase
 import foundation.e.apps.data.exodus.TrackerDao
 import foundation.e.apps.data.faultyApps.FaultyAppDao
 import foundation.e.apps.data.fdroid.FdroidDao
+import foundation.e.apps.data.parentalcontrol.ContentRatingDao
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -27,5 +28,10 @@ object DaoModule {
     @Provides
     fun getFaultyAppsDao(@ApplicationContext context: Context): FaultyAppDao {
         return AppDatabase.getInstance(context).faultyAppsDao()
+    }
+
+    @Provides
+    fun getContentRatingDao(@ApplicationContext context: Context): ContentRatingDao {
+        return AppDatabase.getInstance(context).contentRatingDao()
     }
 }

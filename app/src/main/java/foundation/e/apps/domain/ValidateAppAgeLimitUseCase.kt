@@ -18,6 +18,7 @@
 
 package foundation.e.apps.domain
 
+import com.aurora.gplayapi.data.models.ContentRating
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.apps.AppsApi
 import foundation.e.apps.data.parentalcontrol.Age
@@ -26,8 +27,10 @@ import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.parentalcontrol.fdroid.FDroidAntiFeatureRepository
+import foundation.e.apps.data.parentalcontrol.ContentRatingDao
 import foundation.e.apps.data.parentalcontrol.googleplay.GPlayContentRatingGroup
 import foundation.e.apps.data.parentalcontrol.googleplay.GPlayContentRatingRepository
+import foundation.e.apps.domain.model.ContentRatingValidity
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -36,21 +39,30 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
     private val fDroidAntiFeatureRepository: FDroidAntiFeatureRepository,
     private val parentalControlRepository: ParentalControlRepository,
     private val appsApi: AppsApi,
+    private val contentRatingDao: ContentRatingDao,
 ) {
 
     companion object {
         const val KEY_ANTI_FEATURES_NSFW = "NSFW"
     }
 
-    suspend operator fun invoke(app: AppInstall): ResultSupreme<Boolean> {
+    suspend operator fun invoke(app: AppInstall): ResultSupreme<ContentRatingValidity> {
         val ageGroup = parentalControlRepository.getSelectedAgeGroup()
 
         return when {
-            isParentalControlDisabled(ageGroup) -> ResultSupreme.Success(data = true)
-            isKnownNsfwApp(app) -> ResultSupreme.Success(data = false)
-            isCleanApkApp(app) -> ResultSupreme.Success(!isNsfwAppByCleanApkApi(app))
-            isWhiteListedCleanApkApp(app) -> ResultSupreme.Success(data = true)
-            // Check for GPlay apps now
+            isParentalControlDisabled(ageGroup) -> ResultSupreme.Success(
+                data = ContentRatingValidity(true,)
+            )
+
+            isKnownNsfwApp(app) -> ResultSupreme.Success(data = ContentRatingValidity(false))
+            isCleanApkApp(app) -> ResultSupreme.Success(
+                ContentRatingValidity(!isNsfwAppByCleanApkApi(app))
+            )
+
+            isWhiteListedCleanApkApp(app) -> ResultSupreme.Success(
+                data = ContentRatingValidity(true)
+            )
+
             hasNoContentRatingOnGPlay(app) -> ResultSupreme.Error()
             else -> validateAgeLimit(ageGroup, app)
         }
@@ -81,21 +93,29 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
     private fun validateAgeLimit(
         ageGroup: Age,
         app: AppInstall
-    ): ResultSupreme.Success<Boolean> {
+    ): ResultSupreme<ContentRatingValidity> {
         val allowedContentRating =
             gPlayContentRatingRepository.contentRatingGroups.find { it.id == ageGroup.toString() }
 
         Timber.d(
-            "Selected age group: $ageGroup \n" +
-                    "Content rating: ${app.contentRating.id} \n" +
+            "${app.packageName} - Content rating: ${app.contentRating.id} \n" +
+                    "Selected age group: $ageGroup \n" +
                     "Allowed content rating: $allowedContentRating"
         )
 
-        return ResultSupreme.Success(isValidAppAgeRating(app, allowedContentRating))
+        return ResultSupreme.Success(
+            ContentRatingValidity(
+                isValidAppAgeRating(
+                    app,
+                    allowedContentRating
+                ), app.contentRating
+            )
+        )
     }
 
-    private suspend fun hasNoContentRatingOnGPlay(app: AppInstall) =
-        !verifyContentRatingExists(app)
+    private suspend fun hasNoContentRatingOnGPlay(app: AppInstall): Boolean {
+        return app.origin == Origin.GPLAY && !verifyContentRatingExists(app)
+    }
 
     private fun isValidAppAgeRating(
         app: AppInstall,
@@ -110,10 +130,20 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
     private suspend fun verifyContentRatingExists(app: AppInstall): Boolean {
 
         if (app.contentRating.id.isEmpty()) {
-            gPlayContentRatingRepository.getEnglishContentRating(app.packageName)?.run {
-                Timber.d("Updating content rating for package: ${app.packageName}")
-                app.contentRating = this
-            }
+            val fetchedContentRating =
+                gPlayContentRatingRepository.getEnglishContentRating(app.packageName)
+
+            Timber.d("Fetched content rating - ${app.packageName} - ${fetchedContentRating?.id}")
+
+            app.contentRating = if (fetchedContentRating == null) {
+                val contentRatingDb = contentRatingDao.getContentRating(app.packageName)
+                Timber.d("Content rating from DB - ${app.packageName} - ${contentRatingDb?.ratingId}")
+                ContentRating(
+                    id = contentRatingDb?.ratingId ?: "",
+                    title = contentRatingDb?.ratingTitle ?: "",
+                )
+            } else fetchedContentRating
+
         }
 
         return app.contentRating.title.isNotEmpty() &&

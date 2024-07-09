@@ -32,6 +32,8 @@ import foundation.e.apps.R
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.install.models.AppInstall
+import foundation.e.apps.data.parentalcontrol.ContentRatingDao
+import foundation.e.apps.data.parentalcontrol.ContentRatingEntity
 import foundation.e.apps.install.download.data.DownloadProgressLD
 import foundation.e.apps.install.pkg.PWAManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
@@ -57,6 +59,9 @@ class AppManagerImpl @Inject constructor(
     @Named("update") private val updateNotificationChannel: NotificationChannel,
     @ApplicationContext private val context: Context
 ) : AppManager {
+
+    @Inject
+    lateinit var contentRatingDao: ContentRatingDao
 
     private val mutex = Mutex()
 
@@ -89,6 +94,7 @@ class AppManagerImpl @Inject constructor(
     override suspend fun updateDownloadStatus(appInstall: AppInstall, status: Status) {
         if (status == Status.INSTALLED) {
             appInstall.status = status
+            insertContentRating(appInstall)
             flushOldDownload(appInstall.packageName)
             appInstallRepository.deleteDownload(appInstall)
         } else if (status == Status.INSTALLING) {
@@ -97,6 +103,17 @@ class AppManagerImpl @Inject constructor(
             appInstallRepository.updateDownload(appInstall)
             installApp(appInstall)
         }
+    }
+
+    private suspend fun insertContentRating(appInstall: AppInstall) {
+        contentRatingDao.insertContentRating(
+            ContentRatingEntity(
+                appInstall.packageName,
+                appInstall.contentRating.id,
+                appInstall.contentRating.title
+            )
+        )
+        Timber.d("inserted age rating: ${appInstall.contentRating.title}")
     }
 
     override suspend fun downloadApp(appInstall: AppInstall) {
@@ -137,13 +154,14 @@ class AppManagerImpl @Inject constructor(
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    override suspend fun cancelDownload(appInstall: AppInstall) {
+    override suspend fun cancelDownload(appInstall: AppInstall, packageName: String) {
         mutex.withLock {
             if (appInstall.id.isNotBlank()) {
                 removeFusedDownload(appInstall)
             } else {
                 Timber.d("Unable to cancel download!")
             }
+            contentRatingDao.deleteContentRating(packageName)
         }
     }
 
