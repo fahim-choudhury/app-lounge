@@ -43,6 +43,7 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthenticatorRepository
+import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.data.parentalcontrol.ContentRatingDao
 import foundation.e.apps.data.parentalcontrol.ContentRatingEntity
 import foundation.e.apps.data.parentalcontrol.fdroid.FDroidAntiFeatureRepository
@@ -51,6 +52,7 @@ import foundation.e.apps.data.preference.DataStoreManager
 import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
 import foundation.e.apps.domain.model.ContentRatingValidity
 import foundation.e.apps.install.pkg.AppLoungePackageManager
+import foundation.e.apps.utils.isNetworkAvailable
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -133,7 +135,7 @@ class AgeRatingProvider : ContentProvider() {
             withContext(IO) {
                 try {
                     if (packageNames.isEmpty()) return@withContext cursor
-                    if (!setupAuthDataIfExists()) return@withContext null
+                    canSetupAuthData()
 
                     ensureAgeGroupDataExists()
                     compileAppBlockList(cursor, packageNames)
@@ -192,16 +194,14 @@ class AgeRatingProvider : ContentProvider() {
     }
 
     /**
-     * Return true if valid AuthData could be fetched from data store, false otherwise.
+     * Setup AuthData for other APIs to access,
+     * if user has logged in with Google or Anonymous mode.
      */
-    private fun setupAuthDataIfExists(): Boolean {
+    private fun canSetupAuthData() {
         val authData = dataStoreManager.getAuthData()
         if (authData.email.isNotBlank() && authData.authToken.isNotBlank()) {
             authenticatorRepository.gplayAuth = authData
-            return true
         }
-        Timber.e("Blank AuthData, cannot fetch ratings from provider.")
-        return false
     }
 
     private suspend fun isAppValidRegardingAge(packageName: String): Boolean? {
@@ -219,13 +219,15 @@ class AgeRatingProvider : ContentProvider() {
         validateResult: ResultSupreme<ContentRatingValidity>,
         packageName: String
     ) {
-        if (validateResult.data?.isValid == false) {
-            val ratingId = validateResult.data?.contentRating?.id ?: ""
-            val ratingTitle = validateResult.data?.contentRating?.title ?: ""
-            contentRatingDao.insertContentRating(
-                ContentRatingEntity(packageName, ratingId, ratingTitle)
-            )
-        }
+        val resultData = validateResult.data ?: return
+
+        if (resultData.isValid || resultData.contentRating == null) return
+
+        val ratingId = resultData.contentRating.id
+        val ratingTitle = resultData.contentRating.title
+        contentRatingDao.insertContentRating(
+            ContentRatingEntity(packageName, ratingId, ratingTitle)
+        )
     }
 
     private suspend fun isAppValidRegardingNSWF(packageName: String): Boolean {
@@ -237,8 +239,10 @@ class AgeRatingProvider : ContentProvider() {
         return validateResult.data?.isValid ?: false
     }
 
-    private suspend fun shouldAllow(packageName: String): Boolean {
+    private suspend fun shouldAllowToRun(packageName: String): Boolean {
         return when {
+            validateAppAgeLimitUseCase.isParentalControlDisabled() -> true
+            !isInitialized() -> false
             !isAppValidRegardingNSWF(packageName) -> false
             isAppValidRegardingAge(packageName) == false -> false
             else -> true
@@ -252,7 +256,7 @@ class AgeRatingProvider : ContentProvider() {
         withContext(IO) {
             val validityList = packageNames.map { packageName ->
                 async {
-                    shouldAllow(packageName)
+                    shouldAllowToRun(packageName)
                 }
             }.awaitAll()
             validityList.forEachIndexed { index: Int, isValid: Boolean? ->
@@ -264,6 +268,27 @@ class AgeRatingProvider : ContentProvider() {
             }
             Timber.d("Finished compiling blocklist - ${cursor.count} apps blocked.")
         }
+    }
+
+    private suspend fun hasContentRatings(): Boolean {
+        return contentRatingDao.getContentRatingCount() > 0
+    }
+
+    private fun hasNetwork(): Boolean {
+        return context?.isNetworkAvailable() ?: false
+    }
+
+    private fun hasAuthData(): Boolean {
+        return try {
+            authenticatorRepository.gplayAuth != null
+        } catch (e: GPlayLoginException) {
+            Timber.e("No AuthData to check content rating")
+            false
+        }
+    }
+
+    private suspend fun isInitialized(): Boolean {
+        return (hasNetwork() && hasAuthData()) || hasContentRatings()
     }
 
     override fun onCreate(): Boolean {

@@ -65,4 +65,7 @@ interface ContentRatingDao {
     @Query("SELECT * FROM ContentRatingEntity WHERE packageName = :packageName LIMIT 1")
     suspend fun getContentRating(packageName: String): ContentRatingEntity?
 
+    @Query("SELECT COUNT(*) FROM ContentRatingEntity WHERE packageName IS NOT NULL AND TRIM(packageName) != ''")
+    suspend fun getContentRatingCount(): Int
+
 }

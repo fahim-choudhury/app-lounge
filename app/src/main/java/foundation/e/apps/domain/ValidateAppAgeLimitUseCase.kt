@@ -46,11 +46,13 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
         const val KEY_ANTI_FEATURES_NSFW = "NSFW"
     }
 
+    private val ageGroup: Age
+        get() = parentalControlRepository.getSelectedAgeGroup()
+
     suspend operator fun invoke(app: AppInstall): ResultSupreme<ContentRatingValidity> {
-        val ageGroup = parentalControlRepository.getSelectedAgeGroup()
 
         return when {
-            isParentalControlDisabled(ageGroup) -> ResultSupreme.Success(
+            isParentalControlDisabled() -> ResultSupreme.Success(
                 data = ContentRatingValidity(true)
             )
 
@@ -125,7 +127,9 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
         return app.contentRating.id.isNotEmpty() && allowedAgeRatings.contains(app.contentRating.id)
     }
 
-    private fun isParentalControlDisabled(ageGroup: Age) = ageGroup == Age.PARENTAL_CONTROL_DISABLED
+    fun isParentalControlDisabled(): Boolean {
+        return ageGroup == Age.PARENTAL_CONTROL_DISABLED
+    }
 
     private suspend fun verifyContentRatingExists(app: AppInstall): Boolean {
 
