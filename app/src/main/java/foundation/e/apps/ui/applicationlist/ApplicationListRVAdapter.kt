@@ -175,6 +175,11 @@ class ApplicationListRVAdapter(
                     placeholder(shimmerDrawable)
                 }
             }
+            Origin.GITLAB -> {
+                appIcon.load(searchApp.icon_image_path) {
+                    placeholder(shimmerDrawable)
+                }
+            }
             else -> Timber.wtf("${searchApp.package_name} is from an unknown origin")
         }
     }
