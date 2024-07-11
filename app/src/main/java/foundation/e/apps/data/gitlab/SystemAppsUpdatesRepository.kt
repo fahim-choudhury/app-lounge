@@ -18,7 +18,8 @@
 package foundation.e.apps.data.gitlab
 
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.gitlab.models.ProjectIdMapItem
+import foundation.e.apps.data.gitlab.models.SystemAppInfo
+import foundation.e.apps.data.gitlab.models.SystemAppProject
 import foundation.e.apps.data.gitlab.models.toApplication
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,17 +31,17 @@ class SystemAppsUpdatesRepository @Inject constructor(
     private val systemAppDefinitionApi: SystemAppDefinitionApi,
 ) {
 
-    private var projectIdMap = mutableListOf<ProjectIdMapItem>()
+    private var systemAppProjectList = mutableListOf<SystemAppProject>()
 
     suspend fun fetchAllEligibleApps() {
         val response = eligibleSystemAppsApi.getAllEligibleApps()
         if (response.isSuccessful && !response.body().isNullOrEmpty()) {
-            response.body()?.let { projectIdMap.addAll(it) }
+            response.body()?.let { systemAppProjectList.addAll(it) }
         }
     }
 
     fun getAllEligibleApps(): List<String> {
-        return projectIdMap.map { it.packageName }
+        return systemAppProjectList.map { it.packageName }
     }
 
     suspend fun getSystemAppUpdateInfo(
@@ -50,8 +51,15 @@ class SystemAppsUpdatesRepository @Inject constructor(
         device: String,
     ): Application? {
 
+        fun isSystemAppBlacklisted(systemAppInfo: SystemAppInfo): Boolean {
+            return (systemAppInfo.blacklistedAndroid?.contains(sdkLevel) == true
+                    || systemAppInfo.blacklistedDevices?.contains(device) == true
+                    || systemAppInfo.blacklistedDevices?.contains("${device}@${sdkLevel}") == true
+                    )
+        }
+
         val projectId =
-            projectIdMap.find { it.packageName == packageName }?.projectId ?: return null
+            systemAppProjectList.find { it.packageName == packageName }?.projectId ?: return null
 
         val response = systemAppDefinitionApi.getSystemAppUpdateInfo(projectId, releaseType)
         if (!response.isSuccessful) {
@@ -59,32 +67,14 @@ class SystemAppsUpdatesRepository @Inject constructor(
             return null
         }
 
-        val updateDef = response.body()
+        val systemAppInfo = response.body() ?: return null
 
-        return when {
-            updateDef == null -> {
-                Timber.e("Null update definition: $packageName, $releaseType")
-                null
-            }
-            updateDef.blacklistedAndroid?.contains(sdkLevel) == true -> {
-                Timber.e("Ineligible sdk level: $packageName, $sdkLevel")
-                null
-            }
-            updateDef.blacklistedDevices?.contains(device) == true -> {
-                Timber.e("blacklisted device: $packageName, $device")
-                null
-            }
-            updateDef.blacklistedDevices?.contains("${device}@${sdkLevel}") == true -> {
-                // In case a device on a specific android version is blacklisted.
-                // Eg: "redfin@31" would mean Pixel 5 on Android 12 cannot receive this update.
-                Timber.e("blacklisted device: $packageName, ${device}@${sdkLevel}")
-                null
-            }
-            else -> {
-                val app = updateDef.toApplication()
-                app
-            }
+        if (isSystemAppBlacklisted(systemAppInfo)) {
+            Timber.e("Blacklisted system app: $packageName, $systemAppInfo")
+            return null
         }
+
+        return systemAppInfo.toApplication()
     }
 
 }

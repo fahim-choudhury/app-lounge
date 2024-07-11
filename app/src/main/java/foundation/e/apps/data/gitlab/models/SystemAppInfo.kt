@@ -24,7 +24,7 @@ import foundation.e.apps.data.enums.FilterLevel
 import java.util.UUID
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class UpdateDefinition(
+data class SystemAppInfo(
     val name: String,
     @Json(name = "package_name") val packageName: String,
     @Json(name = "version_code") val versionCode: Int,
@@ -36,7 +36,7 @@ data class UpdateDefinition(
     @Json(name = "blacklisted_devices") val blacklistedDevices: List<String>?,
 )
 
-fun UpdateDefinition.toApplication(): Application {
+fun SystemAppInfo.toApplication(): Application {
     return Application(
         _id = UUID.randomUUID().toString(),
         author = "Murena SAS",

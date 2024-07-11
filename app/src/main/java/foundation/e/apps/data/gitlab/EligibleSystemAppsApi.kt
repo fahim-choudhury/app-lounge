@@ -17,7 +17,7 @@
 
 package foundation.e.apps.data.gitlab
 
-import foundation.e.apps.data.gitlab.models.ProjectIdMapItem
+import foundation.e.apps.data.gitlab.models.SystemAppProject
 import retrofit2.Response
 import retrofit2.http.GET
 
@@ -29,6 +29,6 @@ interface EligibleSystemAppsApi {
     }
 
     @GET("updatable_system_apps.json")
-    suspend fun getAllEligibleApps(): Response<List<ProjectIdMapItem>>
+    suspend fun getAllEligibleApps(): Response<List<SystemAppProject>>
 
 }

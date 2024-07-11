@@ -1,6 +1,6 @@
 package foundation.e.apps.data.gitlab
 
-import foundation.e.apps.data.gitlab.models.UpdateDefinition
+import foundation.e.apps.data.gitlab.models.SystemAppInfo
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -16,6 +16,6 @@ interface SystemAppDefinitionApi {
     suspend fun getSystemAppUpdateInfo(
         @Path("projectId") projectId: Int,
         @Path("releaseType") releaseType: String,
-    ): Response<UpdateDefinition>
+    ): Response<SystemAppInfo>
 
 }
