@@ -195,4 +195,10 @@
     <string name="account_unavailable">Reikningur ekki í boði</string>
     <string name="share">Deila</string>
     <string name="no_trackers">Engir rekjarar</string>
+    <string name="restricted_app">[%1$s] takmarkað forrit</string>
+    <string name="message_inappropriate_content">Þetta forrit gæti innihaldið óviðeigandi efni.</string>
+    <string name="nsfw_dialog_title">Aðvörun vegna efnis</string>
+    <string name="message_fetching_content_rating">Sæki umsagnir um efni fyrir öll þau forrit sem þú hefur sett upp.</string>
+    <string name="age_rate_limit_message">Þú hefur ekki aldur til að setja upp %1$s. Hafðu samráð við foreldra þína hvort aldurshópurinn þinn sé réttur eða hvort gera eigi barnalæsingu óvirka til að geta sett það upp.</string>
+    <string name="nsfw_dialog_message">Forritið gæti innihaldið nekt, blótsyrði, aðdróttanir, ofbeldi, kynferðislegt efni, pólitískar rangfærslur eða annað efni sem gæti misboðið. Þetta getur valdið óþægindum á vinnustöðum, skólum, trúartengum athöfnum eða hjá fjölskyldum.</string>
 </resources>
