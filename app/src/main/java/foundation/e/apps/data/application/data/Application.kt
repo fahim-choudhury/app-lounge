@@ -105,6 +105,8 @@ data class Application(
     var contentRating: ContentRating = ContentRating(),
     @SerializedName(value = "antifeatures")
     val antiFeatures: List<Map<String, String>> = emptyList(),
+
+    var isSystemApp: Boolean = false,
 ) {
     fun updateType() {
         this.type = if (this.is_pwa) PWA else NATIVE
@@ -112,9 +114,12 @@ data class Application(
 
     fun updateSource(context: Context) {
         this.apply {
-            source = if (origin != Origin.CLEANAPK) ""
-            else if (is_pwa) context.getString(R.string.pwa)
-            else context.getString(R.string.open_source)
+            source = when {
+                origin == Origin.GITLAB -> context.getString(R.string.system_app)
+                origin == Origin.GPLAY -> ""
+                is_pwa -> context.getString(R.string.pwa)
+                else -> context.getString(R.string.open_source)
+            }
         }
     }
 }
