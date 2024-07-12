@@ -191,4 +191,15 @@
     <string name="ignore">Ignorer</string>
     <string name="account_unavailable">Compte indisponible</string>
     <string name="share">Partager</string>
+    <string name="no_trackers">Aucun pisteurs</string>
+    <string name="too_many_requests_desc">Le compte anonyme que vous êtes en train d\'utiliser est indisponible. Merci de renouveler la session pour en obtenir un autre.</string>
+    <string name="message_inappropriate_content">Cette application peut inclure du contenu inapproprié.</string>
+    <string name="nsfw_dialog_title">Avertissement sur le contenu</string>
+    <string name="nsfw_dialog_message">L\'application peut contenir de la nudité, des grossièretés, des insultes, de la violence, de la sexualité débridée, des inexactitudes politiques, ou tout autre sujet potentiellement dérangeant. Cet avertissement est particulièrement pertinent dans des lieux comme le travail, les écoles ou les environnements religieux et familiaux.</string>
+    <string name="message_fetching_content_rating">Récupération de la classification de contenu pour toutes les applications installées.</string>
+    <string name="age_rate_limit_message">Vous êtes trop jeune pour pouvoir installer %1$s. Merci de vérifier avec votre parent que votre tranche d\'âge est correcte ou de désactiver le contrôle parental pour pouvoir l\'installer.</string>
+    <string name="restricted_app">[%1$s] Appli restreinte</string>
+    <string name="request_exodus_report">Demander le rapport Exodus</string>
+    <string name="request_exodus_report_confirm_dialog">Cliquer sur \"<xliff:g id="ok">%1$s</xliff:g>\" ouvrira un onglet dans votre navigateur avec le nom du paquet de l\'application pré-rempli.&lt;br /&gt;&lt;br /&gt; Cliquez sur \"Perform analysis\" pour lancer l\'analyse par Exodus.&lt;br /&gt;&lt;br /&gt; Quand le bouton \"See the report\" apparaît (cela peut prendre un moment selon l\'application) vous pouvez fermer l\'onglet et retourner sur la description de l\'application dans <xliff:g id="app_name">%2$s</xliff:g> où vous devriez voir la note de Confidentialité. Parfois Exodus peut échouer à analyser l\'application.&lt;br /&gt;&lt;br /&gt;NB : cela peut prendre jusqu\'à 10 min pour que le score apparaisse dans la description de l\'application.</string>
+    <string name="refresh_session">RENOUVELER LA SESSION</string>
 </resources>
