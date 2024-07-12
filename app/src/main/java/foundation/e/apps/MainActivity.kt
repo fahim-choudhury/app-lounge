@@ -125,6 +125,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.updateAppWarningList()
         viewModel.updateContentRatings()
+        viewModel.updateEligibleSystemAppsList()
 
         observeEvents()
 
