@@ -70,7 +70,7 @@ class DownloadInfoApiImpl @Inject constructor(
             }
 
             Origin.GITLAB -> {
-                updateDownloadInfoFromGitlab(appInstall, list)
+                return // nothing to do as downloadURLList is already set
             }
         }
 
@@ -100,13 +100,6 @@ class DownloadInfoApiImpl @Inject constructor(
                 .getDownloadInfo(appInstall.id).body()
         downloadInfo?.download_data?.download_link?.let { list.add(it) }
         appInstall.signature = downloadInfo?.download_data?.signature ?: ""
-    }
-
-    private suspend fun updateDownloadInfoFromGitlab(
-        appInstall: AppInstall,
-        list: MutableList<String>
-    ) {
-        // TODO
     }
 
     override suspend fun getOSSDownloadInfo(id: String, version: String?) =
