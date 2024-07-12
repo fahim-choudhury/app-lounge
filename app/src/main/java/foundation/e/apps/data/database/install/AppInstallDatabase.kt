@@ -9,7 +9,7 @@ import foundation.e.apps.data.database.AppDatabase
 import foundation.e.apps.data.install.AppInstallDAO
 import foundation.e.apps.data.install.models.AppInstall
 
-@Database(entities = [AppInstall::class], version = 4, exportSchema = false)
+@Database(entities = [AppInstall::class], version = 5, exportSchema = false)
 @TypeConverters(AppInstallConverter::class)
 abstract class AppInstallDatabase : RoomDatabase() {
     abstract fun fusedDownloadDao(): AppInstallDAO
