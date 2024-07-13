@@ -195,4 +195,10 @@
     <string name="account_unavailable">Konto otillgängligt</string>
     <string name="share">Dela</string>
     <string name="no_trackers">Inga spårare</string>
+    <string name="message_inappropriate_content">Denna app kan innehålla olämpligt innehåll.</string>
+    <string name="message_fetching_content_rating">Samlar in innehållsbetyg för alla appar som du installerat.</string>
+    <string name="nsfw_dialog_title">Innehållsvarning</string>
+    <string name="age_rate_limit_message">Du är för ung för att kunna installera %1$s. Kontrollera med din förälder om din åldersgrupp är korrekt eller inaktivera föräldrakontroll för att kunna installera den.</string>
+    <string name="nsfw_dialog_message">Denna app kan innehålla nakenhet, svordomar, kränkningar, intensiv sexualitet, politisk inkorrekthet eller andra potentiellt stötande ämnen. Detta är extra relevant i miljöer som till exempel arbetsplatser, skolor, religiösa och familjesammanhang.</string>
+    <string name="restricted_app">[%1$s] Begränsad app</string>
 </resources>
