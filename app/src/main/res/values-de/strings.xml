@@ -195,4 +195,9 @@
     <string name="account_unavailable">Konto nicht verfügbar</string>
     <string name="share">Teilen</string>
     <string name="no_trackers">Keine Verfolger</string>
+    <string name="restricted_app">[%1$s] Beschränkte App</string>
+    <string name="age_rate_limit_message">Du bist zu jung, um %1$s installieren zu können. Bitte sprich mit deinen Eltern, ob die Altersbeschränkung korrekt ist, oder lasse sie die Elternkontrolle deaktivieren, damit diese App installiert werden kann.</string>
+    <string name="message_inappropriate_content">Diese App kann unangemessene Inhalte enthalten.</string>
+    <string name="nsfw_dialog_title">Warnung vor Inhalten</string>
+    <string name="message_fetching_content_rating">Abrufen der Inhaltsbewertungen für alle Ihre installierten Apps.</string>
 </resources>
