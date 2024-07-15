@@ -70,7 +70,7 @@ class DownloadInfoApiImpl @Inject constructor(
             }
 
             Origin.GITLAB_RELEASES -> {
-                // TODO
+                return // nothing to do as downloadURLList is already set
             }
         }
 
