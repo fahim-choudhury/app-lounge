@@ -20,8 +20,10 @@ package foundation.e.apps.ui.applicationlist
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
+import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -176,9 +178,21 @@ class ApplicationListRVAdapter(
                 }
             }
             Origin.GITLAB_RELEASES -> {
-                // TODO
+                setSystemAppIcon(appIcon, searchApp)
             }
             else -> Timber.wtf("${searchApp.package_name} is from an unknown origin")
+        }
+    }
+
+    private fun setSystemAppIcon(imageView: ImageView, app: Application) {
+        if (!app.isSystemApp) return
+        try {
+            imageView.run {
+                setImageDrawable(context.packageManager.getApplicationIcon(app.package_name))
+            }
+        } catch (e: Exception) {
+            Timber.w("Icon could not be set for system app - ${app.package_name} - ${e.message}")
+            e.printStackTrace()
         }
     }
 
@@ -190,6 +204,11 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.updateRating(searchApp: Application) {
+        if (searchApp.isSystemApp) {
+            iconStar.isVisible = false
+            appRating.isVisible = false
+            return
+        }
         if (searchApp.ratings.usageQualityScore != -1.0) {
             appRating.text = searchApp.ratings.usageQualityScore.toString()
         } else {
@@ -201,6 +220,10 @@ class ApplicationListRVAdapter(
         searchApp: Application,
         view: View
     ) {
+        if (searchApp.isSystemApp) {
+            appPrivacyScoreLayout.isVisible = false
+            return
+        }
         if (searchApp.ratings.privacyScore != -1.0) {
             appPrivacyScore.text = view.context.getString(
                 R.string.privacy_rating_out_of,
@@ -222,6 +245,9 @@ class ApplicationListRVAdapter(
         searchApp: Application,
         view: View
     ) {
+        if (searchApp.isSystemApp) {
+            return
+        }
         val catText = searchApp.category.ifBlank { optionalCategory }
         val action = when (currentDestinationId) {
             R.id.applicationListFragment -> {
