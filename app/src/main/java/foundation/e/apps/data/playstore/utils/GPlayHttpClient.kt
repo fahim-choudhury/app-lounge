@@ -1,7 +1,5 @@
 /*
- * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2021, Rahul Kumar Patel <whyorean@gmail.com>
- * Copyright (C) 2021  E FOUNDATION
+ * Copyright (C) 2021-2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.data.playstore.utils
@@ -27,6 +26,9 @@ import foundation.e.apps.utils.SystemInfoProvider
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.Cache
 import okhttp3.Headers.Companion.toHeaders
@@ -38,25 +40,21 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
+import okhttp3.logging.HttpLoggingInterceptor
 import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 class GPlayHttpClient @Inject constructor(
-    private val cache: Cache,
+    private val cache: Cache, loggingInterceptor: HttpLoggingInterceptor
 ) : IHttpClient {
 
-    private val POST = "POST"
-    private val GET = "GET"
-
     companion object {
-        private const val TAG = "GPlayHttpClient"
         private const val HTTP_TIMEOUT_IN_SECOND = 10L
+        private const val HTTP_METHOD_POST = "POST"
+        private const val HTTP_METHOD_GET = "GET"
         private const val SEARCH_SUGGEST = "searchSuggest"
         private const val STATUS_CODE_OK = 200
         const val STATUS_CODE_UNAUTHORIZED = 401
@@ -78,6 +76,7 @@ class GPlayHttpClient @Inject constructor(
         .followRedirects(true)
         .followSslRedirects(true)
         .cache(cache)
+        .addInterceptor(loggingInterceptor)
         .build()
 
     @Throws(IOException::class)
@@ -85,7 +84,7 @@ class GPlayHttpClient @Inject constructor(
         val request = Request.Builder()
             .url(url)
             .headers(headers.toHeaders())
-            .method(POST, requestBody)
+            .method(HTTP_METHOD_POST, requestBody)
             .build()
         return processRequest(request)
     }
@@ -99,7 +98,7 @@ class GPlayHttpClient @Inject constructor(
         val request = Request.Builder()
             .url(buildUrl(url, params))
             .headers(headers.toHeaders())
-            .method(POST, "".toRequestBody(null))
+            .method(HTTP_METHOD_POST, "".toRequestBody(null))
             .build()
         return processRequest(request)
     }
@@ -112,7 +111,7 @@ class GPlayHttpClient @Inject constructor(
         val request = Request.Builder()
             .headers(headers.toHeaders())
             .url(url)
-            .method(POST, requestBody)
+            .method(HTTP_METHOD_POST, requestBody)
             .build()
         return processRequest(request)
     }
@@ -141,7 +140,7 @@ class GPlayHttpClient @Inject constructor(
         val request = Request.Builder()
             .url(buildUrl(url, params))
             .headers(headers.toHeaders())
-            .method(GET, null)
+            .method(HTTP_METHOD_GET, null)
             .build()
         return processRequest(request)
     }
@@ -149,7 +148,7 @@ class GPlayHttpClient @Inject constructor(
     override fun getAuth(url: String): PlayResponse {
         val request = Request.Builder()
             .url(url)
-            .method(GET, null)
+            .method(HTTP_METHOD_GET, null)
             .build()
         Timber.d("get auth request", request.toString())
         return processRequest(request)
@@ -164,7 +163,7 @@ class GPlayHttpClient @Inject constructor(
         val request = Request.Builder()
             .url(url + paramString)
             .headers(headers.toHeaders())
-            .method(GET, null)
+            .method(HTTP_METHOD_GET, null)
             .build()
         return processRequest(request)
     }
@@ -200,7 +199,6 @@ class GPlayHttpClient @Inject constructor(
             isSuccessful = response.isSuccessful
             code = response.code
             val url = response.request.url
-            Timber.d("$TAG: Url: $url\nStatus: $code")
 
             when (code) {
                 STATUS_CODE_UNAUTHORIZED -> MainScope().launch {

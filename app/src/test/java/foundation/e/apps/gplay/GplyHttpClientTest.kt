@@ -1,6 +1,5 @@
 /*
- * Copyright MURENA SAS 2023
- * Apps  Quickly and easily install Android apps onto your device!
+ * Copyright (C) 2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.gplay
@@ -35,6 +35,7 @@ import kotlinx.coroutines.test.runTest
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.logging.HttpLoggingInterceptor
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -53,6 +54,9 @@ class GplyHttpClientTest {
     private lateinit var cache: Cache
 
     @Mock
+    private lateinit var loggingInterceptor: HttpLoggingInterceptor
+
+    @Mock
     private lateinit var okHttpClient: OkHttpClient
 
     private lateinit var call: FakeCall
@@ -66,7 +70,7 @@ class GplyHttpClientTest {
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        gPlayHttpClient = GPlayHttpClient(cache)
+        gPlayHttpClient = GPlayHttpClient(cache, loggingInterceptor)
         gPlayHttpClient.okHttpClient = this.okHttpClient
         call = FakeCall()
     }
