@@ -30,6 +30,7 @@ import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.gitlab.SystemAppsUpdatesRepository
 import foundation.e.apps.data.updates.UpdatesManagerImpl
 import foundation.e.apps.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -78,6 +79,9 @@ class UpdateManagerImptTest {
     @Mock
     private lateinit var fdroidRepository: FdroidRepository
 
+    @Mock
+    private lateinit var systemAppsUpdatesRepository: SystemAppsUpdatesRepository
+
     val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
 
     @Before
@@ -93,27 +97,40 @@ class UpdateManagerImptTest {
             faultyAppRepository,
             preferenceModule,
             fdroidRepository,
-            blockedAppRepository
+            blockedAppRepository,
+            systemAppsUpdatesRepository,
         )
     }
+
+    private fun getSystemApps(status: Status = Status.UPDATABLE) = mutableListOf(
+        Application(
+            status = status,
+            name = "Demo Four",
+            package_name = "foundation.e.demofour",
+            origin = Origin.GITLAB,
+            filterLevel = FilterLevel.NONE
+        )
+    )
 
     @Test
     fun getUpdateWhenUpdateIsAvailable() = runTest {
         val gplayApps = getGplayApps()
         val openSourceApps = getOpenSourceApps(Status.UPDATABLE)
+        val systemAppUpdates = getSystemApps()
 
         val openSourceUpdates = Pair(openSourceApps, ResultStatus.OK)
         val gplayUpdates = Pair(gplayApps, ResultStatus.OK)
 
         setupMockingForFetchingUpdates(
             openSourceUpdates,
-            gplayUpdates
+            gplayUpdates,
+            systemAppUpdates
         )
 
         val updateResult = updatesManagerImpl.getUpdates(authData)
         System.out.println("===> updates: ${updateResult.first.map { it.package_name }}")
 
-        assertEquals("fetchUpdate", 2, updateResult.first.size)
+        assertEquals("fetchUpdate", 3, updateResult.first.size)
     }
 
     private fun getGplayApps(status: Status = Status.UPDATABLE) = mutableListOf<Application>(
@@ -140,6 +157,8 @@ class UpdateManagerImptTest {
         val authData = AuthData("e@e.email", "AtadyMsIAtadyM")
         pkgManagerModule.applicationInfo.clear()
 
+        setupMockingSystemApps()
+
         val updateResult = updatesManagerImpl.getUpdates(authData)
         System.out.println("===> updates: ${updateResult.first.map { it.package_name }}")
 
@@ -150,13 +169,15 @@ class UpdateManagerImptTest {
     fun getUpdateWhenUpdateIsUnavailable() = runTest {
         val gplayApps = getGplayApps(Status.INSTALLED)
         val openSourceApps = getOpenSourceApps(Status.INSTALLED)
+        val systemAppUpdates = getSystemApps(Status.INSTALLED)
 
         val openSourceUpdates = Pair(openSourceApps, ResultStatus.OK)
         val gplayUpdates = Pair(gplayApps, ResultStatus.OK)
 
         setupMockingForFetchingUpdates(
             openSourceUpdates,
-            gplayUpdates
+            gplayUpdates,
+            systemAppUpdates,
         )
 
         val updateResult = updatesManagerImpl.getUpdates(authData)
@@ -169,36 +190,59 @@ class UpdateManagerImptTest {
     fun getUpdateWhenUpdateHasOnlyForOpenSourceApps() = runTest {
         val gplayApps = getGplayApps(Status.INSTALLED)
         val openSourceApps = getOpenSourceApps(Status.UPDATABLE)
+        val systemAppUpdates = getSystemApps(Status.INSTALLED)
 
         val openSourceUpdates = Pair(openSourceApps, ResultStatus.OK)
         val gplayUpdates = Pair(gplayApps, ResultStatus.OK)
 
         setupMockingForFetchingUpdates(
             openSourceUpdates,
-            gplayUpdates
+            gplayUpdates,
+            systemAppUpdates,
         )
 
         val updateResult = updatesManagerImpl.getUpdates(authData)
         System.out.println("===> updates: ${updateResult.first.map { it.package_name }}")
 
-        assertFalse("fetchupdate", updateResult.first.any { it.origin == Origin.GPLAY })
+        assertFalse("fetchupdate", updateResult.first.any { it.origin != Origin.CLEANAPK })
     }
 
     @Test
     fun getUpdateWhenUpdateHasOnlyForGplayApps() = runTest {
         val gplayApps = getGplayApps(Status.UPDATABLE)
         val openSourceApps = getOpenSourceApps(Status.INSTALLED)
+        val systemAppUpdates = getSystemApps(Status.INSTALLED)
 
         val openSourceUpdates = Pair(openSourceApps, ResultStatus.OK)
         val gplayUpdates = Pair(gplayApps, ResultStatus.OK)
 
         setupMockingForFetchingUpdates(
             openSourceUpdates,
-            gplayUpdates
+            gplayUpdates,
+            systemAppUpdates,
         )
 
         val updateResult = updatesManagerImpl.getUpdates(authData)
-        assertFalse("fetchupdate", updateResult.first.any { it.origin == Origin.CLEANAPK })
+        assertFalse("fetchupdate", updateResult.first.any { it.origin != Origin.GPLAY })
+    }
+
+    @Test
+    fun getUpdateWhenUpdateHasOnlySystemApps() = runTest {
+        val gplayApps = getGplayApps(Status.INSTALLED)
+        val openSourceApps = getOpenSourceApps(Status.INSTALLED)
+        val systemAppUpdates = getSystemApps(Status.UPDATABLE)
+
+        val openSourceUpdates = Pair(openSourceApps, ResultStatus.OK)
+        val gplayUpdates = Pair(gplayApps, ResultStatus.OK)
+
+        setupMockingForFetchingUpdates(
+            openSourceUpdates,
+            gplayUpdates,
+            systemAppUpdates,
+        )
+
+        val updateResult = updatesManagerImpl.getUpdates(authData)
+        assertFalse("fetchupdate", updateResult.first.any { it.origin != Origin.GITLAB })
     }
 
     @Test
@@ -274,15 +318,17 @@ class UpdateManagerImptTest {
     fun getUpdatesOSSWhenUpdateIsAvailable() = runTest {
         val openSourceApps = getOpenSourceApps(Status.UPDATABLE)
         val gPlayApps = getGplayApps(Status.UPDATABLE)
+        val systemAppUpdates = getSystemApps()
 
         val openSourceUpdates = Pair(openSourceApps, ResultStatus.OK)
         val gplayUpdates = Pair(gPlayApps, ResultStatus.OK)
 
-        setupMockingForFetchingUpdates(openSourceUpdates, gplayUpdates)
+        setupMockingForFetchingUpdates(openSourceUpdates, gplayUpdates, systemAppUpdates)
 
         val updateResult = updatesManagerImpl.getUpdatesOSS()
-        assertEquals("UpdateOSS", 1, updateResult.first.size)
+        assertEquals("UpdateOSS", 2, updateResult.first.size)
         assertEquals("UpdateOSS", Origin.CLEANAPK, updateResult.first[0].origin)
+        assertEquals("UpdateOSS", Origin.GITLAB, updateResult.first[1].origin)
     }
 
     @Test
@@ -317,6 +363,7 @@ class UpdateManagerImptTest {
     private suspend fun setupMockingForFetchingUpdates(
         openSourceUpdates: Pair<MutableList<Application>, ResultStatus>,
         gplayUpdates: Pair<MutableList<Application>, ResultStatus>,
+        systemAppUpdates: MutableList<Application> = mutableListOf(),
         selectedApplicationSources: List<String> = mutableListOf(
             SearchApi.APP_TYPE_ANY,
             SearchApi.APP_TYPE_OPEN,
@@ -333,6 +380,8 @@ class UpdateManagerImptTest {
 
         Mockito.`when`(applicationRepository.getSelectedAppTypes())
             .thenReturn(selectedApplicationSources)
+
+        setupMockingSystemApps(systemAppUpdates)
 
         if (gplayUpdates.first.isNotEmpty()) {
             Mockito.`when`(
@@ -356,5 +405,12 @@ class UpdateManagerImptTest {
                 )
             ).thenReturn(Pair(Application(), ResultStatus.TIMEOUT))
         }
+    }
+
+    private suspend fun setupMockingSystemApps(
+        systemAppUpdates: MutableList<Application> = mutableListOf()
+    ) {
+        Mockito.`when`(systemAppsUpdatesRepository.getSystemUpdates())
+            .thenReturn(systemAppUpdates)
     }
 }
