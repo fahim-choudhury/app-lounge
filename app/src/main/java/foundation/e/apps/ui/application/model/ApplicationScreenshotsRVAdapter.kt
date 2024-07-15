@@ -58,6 +58,7 @@ class ApplicationScreenshotsRVAdapter(
             Origin.GPLAY -> {
                 imageView.load(oldList[position])
             }
+            else -> {}
         }
         imageView.setOnClickListener {
             val action =

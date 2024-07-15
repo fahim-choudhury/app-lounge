@@ -19,6 +19,7 @@ package foundation.e.apps.data.enums
 
 enum class Source {
     GPLAY,
+    GITLAB,
     OPEN,
     PWA;
 
@@ -27,6 +28,7 @@ enum class Source {
             return when (source) {
                 "Open Source" -> OPEN
                 "PWA" -> PWA
+                "GITLAB" -> GITLAB
                 else -> GPLAY
             }
         }
