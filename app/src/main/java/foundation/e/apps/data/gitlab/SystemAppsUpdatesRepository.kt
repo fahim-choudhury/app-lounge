@@ -25,6 +25,7 @@ import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.gitlab.models.SystemAppInfo
 import foundation.e.apps.data.gitlab.models.SystemAppProject
 import foundation.e.apps.data.gitlab.models.toApplication
+import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.utils.SystemInfoProvider
 import javax.inject.Inject
@@ -43,9 +44,11 @@ class SystemAppsUpdatesRepository @Inject constructor(
     private var systemAppProjectList = mutableListOf<SystemAppProject>()
 
     suspend fun fetchAllEligibleApps() {
-        val response = eligibleSystemAppsApi.getAllEligibleApps()
-        if (response.isSuccessful && !response.body().isNullOrEmpty()) {
-            response.body()?.let { systemAppProjectList.addAll(it) }
+        handleNetworkResult {
+            val response = eligibleSystemAppsApi.getAllEligibleApps()
+            if (response.isSuccessful && !response.body().isNullOrEmpty()) {
+                response.body()?.let { systemAppProjectList.addAll(it) }
+            }
         }
     }
 
@@ -116,15 +119,23 @@ class SystemAppsUpdatesRepository @Inject constructor(
                 return@forEach
             }
 
-            getSystemAppUpdateInfo(
-                it,
-                releaseType,
-                sdkLevel,
-                device,
-            )?.run {
+            val result = handleNetworkResult {
+                getSystemAppUpdateInfo(
+                    it,
+                    releaseType,
+                    sdkLevel,
+                    device,
+                )
+            }
+
+            result.data?.run {
                 applicationDataManager.updateStatus(this)
                 updateList.add(this)
                 updateSource(context)
+            }
+
+            if (!result.isSuccess()) {
+                Timber.e("Failed to get system app info for $it - ${result.message}")
             }
         }
 
