@@ -76,20 +76,18 @@ class SystemAppsUpdatesRepository @Inject constructor(
         val projectId =
             systemAppProjectList.find { it.packageName == packageName }?.projectId ?: return null
 
-        val response = systemAppDefinitionApi.getSystemAppUpdateInfo(projectId, releaseType)
-        if (!response.isSuccessful) {
-            Timber.e("Failed to fetch system app update definition for: $packageName, $releaseType")
-            return null
-        }
+        val systemAppInfo =
+            systemAppDefinitionApi.getSystemAppUpdateInfo(projectId, releaseType).body()
 
-        val systemAppInfo = response.body() ?: return null
-
-        if (isSystemAppBlacklisted(systemAppInfo, sdkLevel, device)) {
+        return if (systemAppInfo == null) {
+            Timber.e("Null app info for: $packageName")
+            null
+        } else if (isSystemAppBlacklisted(systemAppInfo, sdkLevel, device)) {
             Timber.e("Blacklisted system app: $packageName, $systemAppInfo")
-            return null
+            null
+        } else {
+            systemAppInfo.toApplication()
         }
-
-        return systemAppInfo.toApplication()
     }
 
     private fun getSdkLevel(): Int {
