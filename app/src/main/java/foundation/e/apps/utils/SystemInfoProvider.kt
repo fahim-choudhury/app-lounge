@@ -25,6 +25,8 @@ import org.json.JSONObject
 object SystemInfoProvider {
 
     const val KEY_LINEAGE_VERSION = "ro.lineage.version"
+    const val KEY_LINEAGE_RELEASE_TYPE = "ro.lineage.releasetype"
+    const val KEY_LINEAGE_DEVICE = "ro.lineage.device"
 
     @SuppressLint("PrivateApi")
     fun getSystemProperty(key: String?): String? {
