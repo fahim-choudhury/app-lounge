@@ -110,6 +110,7 @@ data class Application(
         this.type = if (this.is_pwa) PWA else NATIVE
     }
 
+    // TODO: Make this logic separate from data layer.
     fun updateSource(context: Context) {
         this.apply {
             source = when {
