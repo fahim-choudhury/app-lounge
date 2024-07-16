@@ -44,11 +44,17 @@ class SystemAppsUpdatesRepository @Inject constructor(
     private var systemAppProjectList = mutableListOf<SystemAppProject>()
 
     suspend fun fetchAllEligibleApps() {
-        handleNetworkResult {
+        val result = handleNetworkResult {
             val response = eligibleSystemAppsApi.getAllEligibleApps()
             if (response.isSuccessful && !response.body().isNullOrEmpty()) {
                 response.body()?.let { systemAppProjectList.addAll(it) }
+            } else {
+                Timber.e("Failed to fetch eligible apps: ${response.errorBody()?.string()}")
             }
+        }
+
+        if (!result.isSuccess()) {
+            Timber.e("Network error when fetching eligible apps - ${result.message}")
         }
     }
 
@@ -79,14 +85,14 @@ class SystemAppsUpdatesRepository @Inject constructor(
         val projectId =
             systemAppProjectList.find { it.packageName == packageName }?.projectId ?: return null
 
-        val systemAppInfo =
-            systemAppDefinitionApi.getSystemAppUpdateInfo(projectId, releaseType).body()
+        val response = systemAppDefinitionApi.getSystemAppUpdateInfo(projectId, releaseType)
+        val systemAppInfo = response.body()
 
         return if (systemAppInfo == null) {
-            Timber.e("Null app info for: $packageName")
+            Timber.e("Null app info for: $packageName, response: ${response.errorBody()?.string()}")
             null
         } else if (isSystemAppBlacklisted(systemAppInfo, sdkLevel, device)) {
-            Timber.e("Blacklisted system app: $packageName, $systemAppInfo")
+            Timber.e("Blacklisted system app: $packageName, details: $systemAppInfo")
             null
         } else {
             systemAppInfo.toApplication()
