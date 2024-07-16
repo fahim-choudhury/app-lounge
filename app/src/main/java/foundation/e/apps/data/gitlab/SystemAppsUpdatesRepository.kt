@@ -43,9 +43,9 @@ class SystemAppsUpdatesRepository @Inject constructor(
 
     private var systemAppProjectList = mutableListOf<SystemAppProject>()
 
-    suspend fun fetchAllEligibleApps() {
+    suspend fun fetchEligibleSystemApps() {
         val result = handleNetworkResult {
-            val response = eligibleSystemAppsApi.getAllEligibleApps()
+            val response = eligibleSystemAppsApi.getUpdatableSystemApps()
             if (response.isSuccessful && !response.body().isNullOrEmpty()) {
                 response.body()?.let { systemAppProjectList.addAll(it) }
             } else {
@@ -58,7 +58,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
         }
     }
 
-    fun getAllEligibleApps(): List<String> {
+    fun getEligibleSystemApps(): List<String> {
         return systemAppProjectList.map { it.packageName }
     }
 
@@ -117,7 +117,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
         val sdkLevel = getSdkLevel()
         val device = getDevice()
 
-        val eligibleApps = getAllEligibleApps()
+        val eligibleApps = getEligibleSystemApps()
         eligibleApps.forEach {
 
             if (!appLoungePackageManager.isInstalled(it)) {

@@ -29,6 +29,6 @@ interface EligibleSystemAppsApi {
     }
 
     @GET("updatable_system_apps.json?inline=false")
-    suspend fun getAllEligibleApps(): Response<List<SystemAppProject>>
+    suspend fun getUpdatableSystemApps(): Response<List<SystemAppProject>>
 
 }
