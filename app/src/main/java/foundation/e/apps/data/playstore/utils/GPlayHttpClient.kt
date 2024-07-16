@@ -48,7 +48,8 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class GPlayHttpClient @Inject constructor(
-    private val cache: Cache, loggingInterceptor: HttpLoggingInterceptor
+    private val cache: Cache,
+    loggingInterceptor: HttpLoggingInterceptor
 ) : IHttpClient {
 
     companion object {
