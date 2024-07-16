@@ -1,6 +1,5 @@
 /*
- * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2021  E FOUNDATION
+ * Copyright (C) 2021-2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.ui.search
@@ -44,9 +44,9 @@ import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.R
-import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.application.ApplicationInstaller
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
@@ -61,6 +61,9 @@ import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.applicationlist.ApplicationListRVAdapter
 import foundation.e.apps.ui.parentFragment.TimeoutFragment
 import foundation.e.apps.utils.isNetworkAvailable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -101,6 +104,8 @@ class SearchFragment :
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5413
      */
     private var searchText = ""
+
+    private var searchJob: Job? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -451,12 +456,18 @@ class SearchFragment :
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
-        newText?.let { text ->
+        newText?.takeIf { it.isNotEmpty() }?.let(::doDebouncedSearch)
+        return true
+    }
+
+    private fun doDebouncedSearch(text: String) {
+        searchJob?.cancel()
+        searchJob = lifecycleScope.launch(Dispatchers.Main.immediate) {
+            delay(SEARCH_DEBOUNCE_DELAY_MILLIS)
             authObjects.value?.find { it is AuthObject.GPlayAuth }?.run {
                 searchViewModel.getSearchSuggestions(text, this as AuthObject.GPlayAuth)
             }
         }
-        return true
     }
 
     override fun onSuggestionSelect(position: Int): Boolean {
@@ -524,5 +535,9 @@ class SearchFragment :
 
     override fun cancelDownload(app: Application) {
         mainActivityViewModel.cancelDownload(app)
+    }
+
+    companion object {
+        private const val SEARCH_DEBOUNCE_DELAY_MILLIS = 500L
     }
 }
