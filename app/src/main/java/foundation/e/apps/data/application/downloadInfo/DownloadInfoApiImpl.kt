@@ -69,7 +69,7 @@ class DownloadInfoApiImpl @Inject constructor(
                 updateDownloadInfoFromGplay(appInstall, list)
             }
 
-            Origin.GITLAB -> {
+            Origin.GITLAB_RELEASES -> {
                 // TODO
             }
         }

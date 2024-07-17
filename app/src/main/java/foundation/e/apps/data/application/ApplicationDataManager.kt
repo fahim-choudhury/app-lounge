@@ -62,7 +62,7 @@ class ApplicationDataManager @Inject constructor(
             application.package_name.isBlank() -> FilterLevel.UNKNOWN
             !application.isFree && application.price.isBlank() -> FilterLevel.UI
             application.origin == Origin.CLEANAPK -> FilterLevel.NONE
-            application.origin == Origin.GITLAB -> FilterLevel.NONE
+            application.origin == Origin.GITLAB_RELEASES -> FilterLevel.NONE
             !isRestricted(application) -> FilterLevel.NONE
             authData == null -> FilterLevel.UNKNOWN // cannot determine for gplay app
             !isApplicationVisible(application) -> FilterLevel.DATA

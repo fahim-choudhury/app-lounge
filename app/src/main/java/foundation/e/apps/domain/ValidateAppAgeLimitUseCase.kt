@@ -75,7 +75,7 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
     }
 
     private fun isGitlabApp(app: AppInstall): Boolean {
-        return app.origin == Origin.GITLAB
+        return app.origin == Origin.GITLAB_RELEASES
     }
 
     private fun isCleanApkApp(app: AppInstall): Boolean {

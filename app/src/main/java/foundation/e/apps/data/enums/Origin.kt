@@ -21,5 +21,5 @@ package foundation.e.apps.data.enums
 enum class Origin {
     CLEANAPK,
     GPLAY,
-    GITLAB,
+    GITLAB_RELEASES,
 }

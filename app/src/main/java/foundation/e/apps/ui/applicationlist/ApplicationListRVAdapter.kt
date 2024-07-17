@@ -175,7 +175,7 @@ class ApplicationListRVAdapter(
                     placeholder(shimmerDrawable)
                 }
             }
-            Origin.GITLAB -> {
+            Origin.GITLAB_RELEASES -> {
                 // TODO
             }
             else -> Timber.wtf("${searchApp.package_name} is from an unknown origin")
