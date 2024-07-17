@@ -327,8 +327,8 @@ class UpdateManagerImptTest {
 
         val updateResult = updatesManagerImpl.getUpdatesOSS()
         assertEquals("UpdateOSS", 2, updateResult.first.size)
-        assertEquals("UpdateOSS", Origin.CLEANAPK, updateResult.first[0].origin)
-        assertEquals("UpdateOSS", Origin.GITLAB_RELEASES, updateResult.first[1].origin)
+        assertEquals("UpdateOSS", Origin.CLEANAPK, updateResult.first[1].origin)
+        assertEquals("UpdateOSS", Origin.GITLAB_RELEASES, updateResult.first[0].origin)
     }
 
     @Test
