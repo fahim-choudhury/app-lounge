@@ -128,7 +128,7 @@ class UpdatesManagerImpl @Inject constructor(
         val systemApps = getSystemAppUpdates()
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
 
-        arrangeWithSystemApps(updateList, nonFaultyUpdateList, systemApps)
+        addSystemAppsAtFirst(updateList, nonFaultyUpdateList, systemApps)
 
         return Pair(updateList, status)
     }
@@ -166,7 +166,7 @@ class UpdatesManagerImpl @Inject constructor(
         val systemApps = getSystemAppUpdates()
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
 
-        arrangeWithSystemApps(updateList, nonFaultyUpdateList, systemApps)
+        addSystemAppsAtFirst(updateList, nonFaultyUpdateList, systemApps)
 
         return Pair(updateList, status)
     }
@@ -179,14 +179,19 @@ class UpdatesManagerImpl @Inject constructor(
         return systemApps
     }
 
-    private fun arrangeWithSystemApps(
+    /**
+     * This method adds the system app updates at the beginning of the update list.
+     * It will ensure our system apps are updated first, followed by other apps,
+     * avoiding potential conflicts.
+     */
+    private fun addSystemAppsAtFirst(
         updateList: MutableList<Application>,
         nonFaultyApps: List<Application>,
         systemApps: List<Application>,
     ) {
         updateList.clear()
-        updateList.addAll(nonFaultyApps)
         updateList.addAll(systemApps)
+        updateList.addAll(nonFaultyApps)
     }
 
     /**
