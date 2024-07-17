@@ -33,6 +33,7 @@ data class SystemAppInfo(
     @Json(name = "version_name") val versionName: String,
     @Json(name = "url") val downloadUrl: String,
     @Json(name = "size") val size: Long?,
+    @Json(name = "author_name") val authorName: String?,
     val priority: Boolean?,
     @Json(name = "blacklisted_android") val blacklistedAndroid: List<Int>?,
     @Json(name = "blacklisted_devices") val blacklistedDevices: List<String>?,
@@ -43,7 +44,7 @@ private const val RANDOM_SIZE = 1L
 fun SystemAppInfo.toApplication(): Application {
     return Application(
         _id = UUID.randomUUID().toString(),
-        author = "Murena SAS",
+        author = authorName ?: "eFoundation",
         description = "",
         latest_version_code = versionCode,
         latest_version_number = versionName,
