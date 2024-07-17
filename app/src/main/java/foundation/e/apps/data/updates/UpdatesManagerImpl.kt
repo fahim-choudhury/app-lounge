@@ -125,7 +125,7 @@ class UpdatesManagerImpl @Inject constructor(
             status = if (status == ResultStatus.OK) status else gplayStatus
         }
 
-        val systemApps = getSystemUpdates()
+        val systemApps = getSystemAppUpdates()
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
 
         arrangeWithSystemApps(updateList, nonFaultyUpdateList, systemApps)
@@ -163,7 +163,7 @@ class UpdatesManagerImpl @Inject constructor(
             }, updateList)
         }
 
-        val systemApps = getSystemUpdates()
+        val systemApps = getSystemAppUpdates()
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
 
         arrangeWithSystemApps(updateList, nonFaultyUpdateList, systemApps)
@@ -171,7 +171,7 @@ class UpdatesManagerImpl @Inject constructor(
         return Pair(updateList, status)
     }
 
-    private suspend fun getSystemUpdates(): List<Application> {
+    private suspend fun getSystemAppUpdates(): List<Application> {
         val systemApps = mutableListOf<Application>()
         getUpdatesFromApi({
             Pair(systemAppsUpdatesRepository.getSystemUpdates(), ResultStatus.OK)
