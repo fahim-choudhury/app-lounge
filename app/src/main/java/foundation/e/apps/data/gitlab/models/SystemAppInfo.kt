@@ -32,10 +32,13 @@ data class SystemAppInfo(
     @Json(name = "min_sdk") val minSdk: Int,
     @Json(name = "version_name") val versionName: String,
     @Json(name = "url") val downloadUrl: String,
+    @Json(name = "size") val size: Long?,
     val priority: Boolean?,
     @Json(name = "blacklisted_android") val blacklistedAndroid: List<Int>?,
     @Json(name = "blacklisted_devices") val blacklistedDevices: List<String>?,
 )
+
+private const val RANDOM_SIZE = 1L
 
 fun SystemAppInfo.toApplication(): Application {
     return Application(
@@ -47,7 +50,7 @@ fun SystemAppInfo.toApplication(): Application {
         name = name,
         package_name = packageName,
         origin = Origin.GITLAB_RELEASES,
-        originalSize = 1, // so that the app is not filtered out,
+        originalSize = size ?: RANDOM_SIZE,
         url = downloadUrl,
         isSystemApp = true,
         filterLevel = FilterLevel.NONE,
