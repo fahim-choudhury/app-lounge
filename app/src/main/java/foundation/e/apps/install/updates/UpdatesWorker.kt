@@ -64,7 +64,7 @@ class UpdatesWorker @AssistedInject constructor(
             }
 
             refreshBlockedAppList()
-            refreshEligibleSystemApps()
+            systemAppsUpdatesRepository.fetchUpdatableSystemApps(forceRefresh = true)
             checkForUpdates()
             Result.success()
         } catch (e: Throwable) {
@@ -80,12 +80,6 @@ class UpdatesWorker @AssistedInject constructor(
     private suspend fun refreshBlockedAppList() {
         if (isAutoUpdate) {
             blockedAppRepository.fetchUpdateOfAppWarningList()
-        }
-    }
-
-    private suspend fun refreshEligibleSystemApps() {
-        if (systemAppsUpdatesRepository.getEligibleSystemApps().isEmpty()) {
-            systemAppsUpdatesRepository.fetchEligibleSystemApps()
         }
     }
 
