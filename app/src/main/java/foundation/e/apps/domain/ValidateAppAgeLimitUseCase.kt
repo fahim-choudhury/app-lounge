@@ -56,6 +56,10 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
                 data = ContentRatingValidity(true)
             )
 
+            isGitlabApp(app) -> ResultSupreme.Success(
+                data = ContentRatingValidity(true)
+            )
+
             isKnownNsfwApp(app) -> ResultSupreme.Success(data = ContentRatingValidity(false))
             isCleanApkApp(app) -> ResultSupreme.Success(
                 data = ContentRatingValidity(isValid = !isNsfwAppByCleanApkApi(app))
@@ -68,6 +72,10 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
             hasNoContentRatingOnGPlay(app) -> ResultSupreme.Error()
             else -> validateAgeLimit(ageGroup, app)
         }
+    }
+
+    private fun isGitlabApp(app: AppInstall): Boolean {
+        return app.origin == Origin.GITLAB_RELEASES
     }
 
     private fun isCleanApkApp(app: AppInstall): Boolean {

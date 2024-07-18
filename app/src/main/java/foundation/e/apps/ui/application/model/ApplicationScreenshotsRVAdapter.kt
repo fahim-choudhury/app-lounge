@@ -58,6 +58,9 @@ class ApplicationScreenshotsRVAdapter(
             Origin.GPLAY -> {
                 imageView.load(oldList[position])
             }
+            Origin.GITLAB_RELEASES -> {
+                // no operation
+            }
         }
         imageView.setOnClickListener {
             val action =
