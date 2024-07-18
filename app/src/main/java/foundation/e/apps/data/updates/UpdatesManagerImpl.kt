@@ -34,6 +34,7 @@ import foundation.e.apps.data.playstore.PlayStoreRepositoryImpl
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.gitlab.SystemAppsUpdatesRepository
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.install.pkg.AppLoungePackageManager
@@ -53,6 +54,7 @@ class UpdatesManagerImpl @Inject constructor(
     private val appLoungePreference: AppLoungePreference,
     private val fdroidRepository: FdroidRepository,
     private val blockedAppRepository: BlockedAppRepository,
+    private val systemAppsUpdatesRepository: SystemAppsUpdatesRepository,
 ) {
 
     companion object {
@@ -123,8 +125,12 @@ class UpdatesManagerImpl @Inject constructor(
             status = if (status == ResultStatus.OK) status else gplayStatus
         }
 
+        val systemApps = getSystemAppUpdates()
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
-        return Pair(nonFaultyUpdateList, status)
+
+        addSystemAppsAtFirst(updateList, nonFaultyUpdateList, systemApps)
+
+        return Pair(updateList, status)
     }
 
     suspend fun getUpdatesOSS(): Pair<List<Application>, ResultStatus> {
@@ -157,8 +163,35 @@ class UpdatesManagerImpl @Inject constructor(
             }, updateList)
         }
 
+        val systemApps = getSystemAppUpdates()
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
-        return Pair(nonFaultyUpdateList, status)
+
+        addSystemAppsAtFirst(updateList, nonFaultyUpdateList, systemApps)
+
+        return Pair(updateList, status)
+    }
+
+    private suspend fun getSystemAppUpdates(): List<Application> {
+        val systemApps = mutableListOf<Application>()
+        getUpdatesFromApi({
+            Pair(systemAppsUpdatesRepository.getSystemUpdates(), ResultStatus.OK)
+        }, systemApps)
+        return systemApps
+    }
+
+    /**
+     * This method adds the system app updates at the beginning of the update list.
+     * It will ensure our system apps are updated first, followed by other apps,
+     * avoiding potential conflicts.
+     */
+    private fun addSystemAppsAtFirst(
+        updateList: MutableList<Application>,
+        nonFaultyApps: List<Application>,
+        systemApps: List<Application>,
+    ) {
+        updateList.clear()
+        updateList.addAll(systemApps)
+        updateList.addAll(nonFaultyApps)
     }
 
     /**

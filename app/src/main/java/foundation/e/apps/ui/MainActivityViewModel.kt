@@ -39,6 +39,7 @@ import foundation.e.apps.data.ecloud.EcloudRepository
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
 import foundation.e.apps.data.enums.isUnFiltered
+import foundation.e.apps.data.gitlab.SystemAppsUpdatesRepository
 import foundation.e.apps.data.install.AppManagerWrapper
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.parentalcontrol.fdroid.FDroidAntiFeatureRepository
@@ -64,6 +65,7 @@ class MainActivityViewModel @Inject constructor(
     private val gPlayContentRatingRepository: GPlayContentRatingRepository,
     private val fDroidAntiFeatureRepository: FDroidAntiFeatureRepository,
     private val appInstallProcessor: AppInstallProcessor,
+    private val systemAppsUpdatesRepository: SystemAppsUpdatesRepository,
 ) : ViewModel() {
 
     val tocStatus: LiveData<Boolean> = appLoungeDataStore.tocStatus.asLiveData()
@@ -244,6 +246,12 @@ class MainActivityViewModel @Inject constructor(
         viewModelScope.launch {
             fDroidAntiFeatureRepository.fetchNsfwApps()
             gPlayContentRatingRepository.fetchContentRatingData()
+        }
+    }
+
+    fun fetchUpdatableSystemAppsList() {
+        viewModelScope.launch {
+            systemAppsUpdatesRepository.fetchUpdatableSystemApps()
         }
     }
 
