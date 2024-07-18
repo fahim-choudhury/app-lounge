@@ -68,6 +68,10 @@ class DownloadInfoApiImpl @Inject constructor(
             Origin.GPLAY -> {
                 updateDownloadInfoFromGplay(appInstall, list)
             }
+
+            Origin.GITLAB_RELEASES -> {
+                // TODO
+            }
         }
 
         appInstall.downloadURLList = list
