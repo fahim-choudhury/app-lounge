@@ -105,6 +105,7 @@ data class Application(
     var contentRating: ContentRating = ContentRating(),
     @SerializedName(value = "antifeatures")
     val antiFeatures: List<Map<String, String>> = emptyList(),
+    var isSystemApp: Boolean = false,
 ) {
     fun updateType() {
         this.type = if (this.is_pwa) PWA else NATIVE
