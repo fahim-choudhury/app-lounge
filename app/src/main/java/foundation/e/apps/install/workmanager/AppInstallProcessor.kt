@@ -29,6 +29,7 @@ import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.UpdatesDao
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.playstore.utils.GplayHttpRequestException
 import foundation.e.apps.data.preference.DataStoreManager
@@ -97,7 +98,7 @@ class AppInstallProcessor @Inject constructor(
             it.contentRating = application.contentRating
         }
 
-        if (appInstall.type == Type.PWA) {
+        if (appInstall.type == Type.PWA || application.origin == Origin.GITLAB_RELEASES) {
             appInstall.downloadURLList = mutableListOf(application.url)
         }
 

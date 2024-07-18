@@ -43,8 +43,15 @@ class SystemAppsUpdatesRepository @Inject constructor(
 
     private var systemAppProjectList = mutableListOf<SystemAppProject>()
 
-    suspend fun fetchUpdatableSystemApps() {
+    private fun getUpdatableSystemApps(): List<String> {
+        return systemAppProjectList.map { it.packageName }
+    }
+
+    suspend fun fetchUpdatableSystemApps(forceRefresh: Boolean = false) {
         val result = handleNetworkResult {
+            if (getUpdatableSystemApps().isNotEmpty() && !forceRefresh) {
+                return@handleNetworkResult
+            }
             val response = updatableSystemAppsApi.getUpdatableSystemApps()
             if (response.isSuccessful && !response.body().isNullOrEmpty()) {
                 response.body()?.let { systemAppProjectList.addAll(it) }
@@ -56,10 +63,6 @@ class SystemAppsUpdatesRepository @Inject constructor(
         if (!result.isSuccess()) {
             Timber.e("Network error when fetching updatable apps - ${result.message}")
         }
-    }
-
-    fun getUpdatableSystemApps(): List<String> {
-        return systemAppProjectList.map { it.packageName }
     }
 
     private fun isSystemAppBlocked(
