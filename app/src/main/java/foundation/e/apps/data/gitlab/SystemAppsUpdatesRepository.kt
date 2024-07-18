@@ -35,7 +35,7 @@ import timber.log.Timber
 @Singleton
 class SystemAppsUpdatesRepository @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val eligibleSystemAppsApi: EligibleSystemAppsApi,
+    private val updatableSystemAppsApi: UpdatableSystemAppsApi,
     private val systemAppDefinitionApi: SystemAppDefinitionApi,
     private val applicationDataManager: ApplicationDataManager,
     private val appLoungePackageManager: AppLoungePackageManager,
@@ -43,22 +43,22 @@ class SystemAppsUpdatesRepository @Inject constructor(
 
     private var systemAppProjectList = mutableListOf<SystemAppProject>()
 
-    suspend fun fetchEligibleSystemApps() {
+    suspend fun fetchUpdatableSystemApps() {
         val result = handleNetworkResult {
-            val response = eligibleSystemAppsApi.getUpdatableSystemApps()
+            val response = updatableSystemAppsApi.getUpdatableSystemApps()
             if (response.isSuccessful && !response.body().isNullOrEmpty()) {
                 response.body()?.let { systemAppProjectList.addAll(it) }
             } else {
-                Timber.e("Failed to fetch eligible apps: ${response.errorBody()?.string()}")
+                Timber.e("Failed to fetch updatable apps: ${response.errorBody()?.string()}")
             }
         }
 
         if (!result.isSuccess()) {
-            Timber.e("Network error when fetching eligible apps - ${result.message}")
+            Timber.e("Network error when fetching updatable apps - ${result.message}")
         }
     }
 
-    fun getEligibleSystemApps(): List<String> {
+    fun getUpdatableSystemApps(): List<String> {
         return systemAppProjectList.map { it.packageName }
     }
 
@@ -117,8 +117,8 @@ class SystemAppsUpdatesRepository @Inject constructor(
         val sdkLevel = getSdkLevel()
         val device = getDevice()
 
-        val eligibleApps = getEligibleSystemApps()
-        eligibleApps.forEach {
+        val updatableApps = getUpdatableSystemApps()
+        updatableApps.forEach {
 
             if (!appLoungePackageManager.isInstalled(it)) {
                 // Don't install for system apps which are removed (by root or otherwise)

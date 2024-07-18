@@ -29,7 +29,7 @@ import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.ecloud.EcloudApiInterface
 import foundation.e.apps.data.exodus.ExodusTrackerApi
 import foundation.e.apps.data.fdroid.FdroidApiInterface
-import foundation.e.apps.data.gitlab.EligibleSystemAppsApi
+import foundation.e.apps.data.gitlab.UpdatableSystemAppsApi
 import foundation.e.apps.data.gitlab.SystemAppDefinitionApi
 import foundation.e.apps.data.parentalcontrol.fdroid.FDroidMonitorApi
 import foundation.e.apps.data.parentalcontrol.googleplay.AgeGroupApi
@@ -135,16 +135,16 @@ class RetrofitApiModule {
 
     @Singleton
     @Provides
-    fun provideEligibleSystemAppsApi(
+    fun provideUpdatableSystemAppsApi(
         okHttpClient: OkHttpClient,
         moshi: Moshi,
-    ): EligibleSystemAppsApi {
+    ): UpdatableSystemAppsApi {
         return Retrofit.Builder()
-            .baseUrl(EligibleSystemAppsApi.BASE_URL)
+            .baseUrl(UpdatableSystemAppsApi.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
-            .create(EligibleSystemAppsApi::class.java)
+            .create(UpdatableSystemAppsApi::class.java)
     }
 
     @Singleton

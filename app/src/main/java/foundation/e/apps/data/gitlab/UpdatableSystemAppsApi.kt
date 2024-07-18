@@ -21,7 +21,7 @@ import foundation.e.apps.data.gitlab.models.SystemAppProject
 import retrofit2.Response
 import retrofit2.http.GET
 
-interface EligibleSystemAppsApi {
+interface UpdatableSystemAppsApi {
 
     companion object {
         const val BASE_URL =
