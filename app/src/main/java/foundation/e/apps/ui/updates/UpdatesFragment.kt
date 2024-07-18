@@ -132,10 +132,17 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
     }
 
     private fun observeUpdateList(listAdapter: ApplicationListRVAdapter?) {
-        updatesViewModel.updatesList.observe(viewLifecycleOwner) {
-            listAdapter?.setData(it.first)
+        updatesViewModel.updatesList.observe(viewLifecycleOwner) { result ->
+
+            val appsUpdateList = result.first
+            val resultStatus = result.second
+
+            // Put system apps on top
+            val appsToDisplay = appsUpdateList.sortedByDescending { it.isSystemApp }
+
+            listAdapter?.setData(appsToDisplay)
             if (!isDownloadObserverAdded) {
-                handleStateNoUpdates(it.first)
+                handleStateNoUpdates(appsUpdateList)
                 observeDownloadList()
                 isDownloadObserverAdded = true
             }
@@ -143,8 +150,8 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
             stopLoadingUI()
 
             Timber.d("===>> observeupdate list called")
-            if (it.second != ResultStatus.OK) {
-                val exception = GPlayException(it.second == ResultStatus.TIMEOUT)
+            if (resultStatus != ResultStatus.OK) {
+                val exception = GPlayException(resultStatus == ResultStatus.TIMEOUT)
                 val alertDialogBuilder = AlertDialog.Builder(requireContext())
                 onTimeout(exception, alertDialogBuilder)
             }
