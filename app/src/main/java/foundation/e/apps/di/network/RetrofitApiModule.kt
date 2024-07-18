@@ -29,6 +29,8 @@ import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.ecloud.EcloudApiInterface
 import foundation.e.apps.data.exodus.ExodusTrackerApi
 import foundation.e.apps.data.fdroid.FdroidApiInterface
+import foundation.e.apps.data.gitlab.UpdatableSystemAppsApi
+import foundation.e.apps.data.gitlab.SystemAppDefinitionApi
 import foundation.e.apps.data.parentalcontrol.fdroid.FDroidMonitorApi
 import foundation.e.apps.data.parentalcontrol.googleplay.AgeGroupApi
 import foundation.e.apps.di.network.NetworkModule.getYamlFactory
@@ -129,6 +131,34 @@ class RetrofitApiModule {
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
             .create(FDroidMonitorApi::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideUpdatableSystemAppsApi(
+        okHttpClient: OkHttpClient,
+        moshi: Moshi,
+    ): UpdatableSystemAppsApi {
+        return Retrofit.Builder()
+            .baseUrl(UpdatableSystemAppsApi.BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+            .create(UpdatableSystemAppsApi::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideSystemAppDefinitionApi(
+        okHttpClient: OkHttpClient,
+        moshi: Moshi,
+    ): SystemAppDefinitionApi {
+        return Retrofit.Builder()
+            .baseUrl(SystemAppDefinitionApi.BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+            .create(SystemAppDefinitionApi::class.java)
     }
 
 }
