@@ -62,16 +62,16 @@ class SystemAppsUpdatesRepository @Inject constructor(
         return systemAppProjectList.map { it.packageName }
     }
 
-    private fun isSystemAppBlacklisted(
+    private fun isSystemAppBlocked(
         systemAppInfo: SystemAppInfo,
         sdkLevel: Int,
         device: String,
     ): Boolean {
         return systemAppInfo.run {
             sdkLevel < minSdk ||
-                    blacklistedAndroid?.contains(sdkLevel) == true ||
-                    blacklistedDevices?.contains(device) == true ||
-                    blacklistedDevices?.contains("${device}@${sdkLevel}") == true
+                    blockedAndroid?.contains(sdkLevel) == true ||
+                    blockedDevices?.contains(device) == true ||
+                    blockedDevices?.contains("${device}@${sdkLevel}") == true
         }
     }
 
@@ -91,8 +91,8 @@ class SystemAppsUpdatesRepository @Inject constructor(
         return if (systemAppInfo == null) {
             Timber.e("Null app info for: $packageName, response: ${response.errorBody()?.string()}")
             null
-        } else if (isSystemAppBlacklisted(systemAppInfo, sdkLevel, device)) {
-            Timber.e("Blacklisted system app: $packageName, details: $systemAppInfo")
+        } else if (isSystemAppBlocked(systemAppInfo, sdkLevel, device)) {
+            Timber.e("Blocked system app: $packageName, details: $systemAppInfo")
             null
         } else {
             systemAppInfo.toApplication()

@@ -35,8 +35,8 @@ data class SystemAppInfo(
     @Json(name = "size") val size: Long?,
     @Json(name = "author_name") val authorName: String?,
     val priority: Boolean?,
-    @Json(name = "blacklisted_android") val blacklistedAndroid: List<Int>?,
-    @Json(name = "blacklisted_devices") val blacklistedDevices: List<String>?,
+    @Json(name = "blocked_android") val blockedAndroid: List<Int>?,
+    @Json(name = "blocked_devices") val blockedDevices: List<String>?,
 )
 
 private const val RANDOM_SIZE = 1L
