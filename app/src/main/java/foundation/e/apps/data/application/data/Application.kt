@@ -110,11 +110,15 @@ data class Application(
         this.type = if (this.is_pwa) PWA else NATIVE
     }
 
+    // TODO: Make this logic separate from data layer (https://gitlab.e.foundation/e/os/backlog/-/issues/2371)
     fun updateSource(context: Context) {
         this.apply {
-            source = if (origin != Origin.CLEANAPK) ""
-            else if (is_pwa) context.getString(R.string.pwa)
-            else context.getString(R.string.open_source)
+            source = when {
+                origin == Origin.GITLAB_RELEASES -> context.getString(R.string.system_app)
+                origin == Origin.GPLAY -> ""
+                is_pwa -> context.getString(R.string.pwa)
+                else -> context.getString(R.string.open_source)
+            }
         }
     }
 }
