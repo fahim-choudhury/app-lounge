@@ -41,7 +41,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
     private val appLoungePackageManager: AppLoungePackageManager,
 ) {
 
-    private var systemAppProjectList = mutableListOf<SystemAppProject>()
+    private val systemAppProjectList = mutableListOf<SystemAppProject>()
 
     private fun getUpdatableSystemApps(): List<String> {
         return systemAppProjectList.map { it.packageName }
@@ -54,6 +54,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
             }
             val response = updatableSystemAppsApi.getUpdatableSystemApps()
             if (response.isSuccessful && !response.body().isNullOrEmpty()) {
+                systemAppProjectList.clear()
                 response.body()?.let { systemAppProjectList.addAll(it) }
             } else {
                 Timber.e("Failed to fetch updatable apps: ${response.errorBody()?.string()}")
