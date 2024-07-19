@@ -195,4 +195,11 @@
     <string name="account_unavailable">Kontoen er ikke tilgjengelig</string>
     <string name="share">Del</string>
     <string name="no_trackers">Ingen sporere</string>
+    <string name="restricted_app">[%1$s] Begrenset applikasjon</string>
+    <string name="age_rate_limit_message">Du er for ung til å kunne installere %1$s. Vennligst sjekk med foreldrene dine om aldersgruppen din er riktig, eller deaktiver foreldrekontroll for å kunne installere det.</string>
+    <string name="message_inappropriate_content">Denne applikasjonen kan inneholde upassende innhold.</string>
+    <string name="nsfw_dialog_message">Applikasjonen kan inneholde nakenhet, banning, skjellsord, vold, intens seksualitet, politisk ukorrekthet eller andre potensielt forstyrrende emner. Dette er spesielt relevant i miljøer som arbeidsplasser, skoler, religiøse miljøer og familiemiljøer.</string>
+    <string name="system_app">Systemapplikasjon</string>
+    <string name="nsfw_dialog_title">Innholdsvarsel</string>
+    <string name="message_fetching_content_rating">Samler innholdsvurdering for alle applikasjonene du har installert.</string>
 </resources>
