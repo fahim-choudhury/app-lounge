@@ -201,4 +201,5 @@
     <string name="message_fetching_content_rating">Sæki umsagnir um efni fyrir öll þau forrit sem þú hefur sett upp.</string>
     <string name="age_rate_limit_message">Þú hefur ekki aldur til að setja upp %1$s. Hafðu samráð við foreldra þína hvort aldurshópurinn þinn sé réttur eða hvort gera eigi barnalæsingu óvirka til að geta sett það upp.</string>
     <string name="nsfw_dialog_message">Forritið gæti innihaldið nekt, blótsyrði, aðdróttanir, ofbeldi, kynferðislegt efni, pólitískar rangfærslur eða annað efni sem gæti misboðið. Þetta getur valdið óþægindum á vinnustöðum, skólum, trúartengum athöfnum eða hjá fjölskyldum.</string>
+    <string name="system_app">Kerfisforrit</string>
 </resources>
