@@ -202,4 +202,5 @@
     <string name="request_exodus_report">Demander le rapport Exodus</string>
     <string name="request_exodus_report_confirm_dialog">Cliquer sur \"<xliff:g id="ok">%1$s</xliff:g>\" ouvrira un onglet dans votre navigateur avec le nom du paquet de l\'application pré-rempli.&lt;br /&gt;&lt;br /&gt; Cliquez sur \"Perform analysis\" pour lancer l\'analyse par Exodus.&lt;br /&gt;&lt;br /&gt; Quand le bouton \"See the report\" apparaît (cela peut prendre un moment selon l\'application) vous pouvez fermer l\'onglet et retourner sur la description de l\'application dans <xliff:g id="app_name">%2$s</xliff:g> où vous devriez voir la note de Confidentialité. Parfois Exodus peut échouer à analyser l\'application.&lt;br /&gt;&lt;br /&gt;NB : cela peut prendre jusqu\'à 10 min pour que le score apparaisse dans la description de l\'application.</string>
     <string name="refresh_session">RENOUVELER LA SESSION</string>
+    <string name="system_app">Application système</string>
 </resources>
