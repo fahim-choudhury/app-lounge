@@ -32,17 +32,16 @@ import android.os.Build
 import androidx.core.content.pm.PackageInfoCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.OpenForTesting
+import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
-import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.install.models.AppInstall
-import kotlinx.coroutines.DelicateCoroutinesApi
-import timber.log.Timber
 import java.io.File
-import java.lang.IllegalArgumentException
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.DelicateCoroutinesApi
+import timber.log.Timber
 
 @Singleton
 @OpenForTesting
@@ -72,9 +71,16 @@ class AppLoungePackageManager @Inject constructor(
         }
     }
 
-    private fun isUpdatable(packageName: String, versionCode: Int): Boolean {
+    private fun isUpdatable(packageName: String, versionCode: Int, versionName: String): Boolean {
         val packageInfo = getPackageInfo(packageName) ?: return false
-        return versionCode.toLong() > PackageInfoCompat.getLongVersionCode(packageInfo)
+        val installedVersionNumber = PackageInfoCompat.getLongVersionCode(packageInfo)
+        val installedVersionName = packageInfo.versionName
+
+        val isVersionNumberHigher = versionCode.toLong() > installedVersionNumber
+        val isVersionNameHigher =
+            versionName.isNotBlank() && versionName > installedVersionName
+
+        return isVersionNumberHigher || isVersionNameHigher
     }
 
     fun getLaunchIntent(packageName: String): Intent? {
@@ -96,9 +102,13 @@ class AppLoungePackageManager @Inject constructor(
      *
      * Recommended to use: [SearchApi.getFusedAppInstallationStatus].
      */
-    fun getPackageStatus(packageName: String, versionCode: Int): Status {
+    fun getPackageStatus(
+        packageName: String,
+        versionCode: Int,
+        versionName: String = "",
+    ): Status {
         return if (isInstalled(packageName)) {
-            if (isUpdatable(packageName, versionCode)) {
+            if (isUpdatable(packageName, versionCode, versionName)) {
                 Status.UPDATABLE
             } else {
                 Status.INSTALLED

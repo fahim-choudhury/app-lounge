@@ -229,7 +229,8 @@ class AppsApiTest {
         Mockito.`when`(
             appLoungePackageManager.getPackageStatus(
                 eq("foundation.e.demoone"),
-                eq(123)
+                eq(123),
+                eq(""),
             )
         )
             .thenReturn(
@@ -238,7 +239,8 @@ class AppsApiTest {
         Mockito.`when`(
             appLoungePackageManager.getPackageStatus(
                 eq("foundation.e.demotwo"),
-                eq(123)
+                eq(123),
+                eq(""),
             )
         )
             .thenReturn(
@@ -247,7 +249,8 @@ class AppsApiTest {
         Mockito.`when`(
             appLoungePackageManager.getPackageStatus(
                 eq("foundation.e.demothree"),
-                eq(123)
+                eq(123),
+                eq(""),
             )
         )
             .thenReturn(
@@ -287,7 +290,8 @@ class AppsApiTest {
         Mockito.`when`(
             appLoungePackageManager.getPackageStatus(
                 eq("foundation.e.demoone"),
-                eq(123)
+                eq(123),
+                eq(""),
             )
         )
             .thenReturn(
@@ -296,7 +300,8 @@ class AppsApiTest {
         Mockito.`when`(
             appLoungePackageManager.getPackageStatus(
                 eq("foundation.e.demotwo"),
-                eq(123)
+                eq(123),
+                eq(""),
             )
         )
             .thenReturn(
@@ -305,7 +310,8 @@ class AppsApiTest {
         Mockito.`when`(
             appLoungePackageManager.getPackageStatus(
                 eq("foundation.e.demothree"),
-                eq(123)
+                eq(123),
+                eq(""),
             )
         )
             .thenReturn(
@@ -345,7 +351,8 @@ class AppsApiTest {
         Mockito.`when`(
             appLoungePackageManager.getPackageStatus(
                 eq("foundation.e.demoone"),
-                eq(123)
+                eq(123),
+                eq(""),
             )
         )
             .thenReturn(
@@ -354,7 +361,8 @@ class AppsApiTest {
         Mockito.`when`(
             appLoungePackageManager.getPackageStatus(
                 eq("foundation.e.demotwo"),
-                eq(123)
+                eq(123),
+                eq(""),
             )
         )
             .thenReturn(
@@ -363,7 +371,8 @@ class AppsApiTest {
         Mockito.`when`(
             appLoungePackageManager.getPackageStatus(
                 eq("foundation.e.demothree"),
-                eq(123)
+                eq(123),
+                eq(""),
             )
         )
             .thenReturn(

@@ -17,6 +17,8 @@
 
 package foundation.e.apps.data.gitlab.models
 
+import android.content.Context
+import android.text.format.Formatter
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.squareup.moshi.Json
 import foundation.e.apps.data.application.data.Application
@@ -41,7 +43,8 @@ data class SystemAppInfo(
 
 private const val RANDOM_SIZE = 1L
 
-fun SystemAppInfo.toApplication(): Application {
+fun SystemAppInfo.toApplication(context: Context): Application {
+    val apkSize = size ?: RANDOM_SIZE
     return Application(
         _id = UUID.randomUUID().toString(),
         author = authorName ?: "eFoundation",
@@ -51,7 +54,8 @@ fun SystemAppInfo.toApplication(): Application {
         name = name,
         package_name = packageName,
         origin = Origin.GITLAB_RELEASES,
-        originalSize = size ?: RANDOM_SIZE,
+        originalSize = apkSize,
+        appSize = Formatter.formatFileSize(context, apkSize),
         url = downloadUrl,
         isSystemApp = true,
         filterLevel = FilterLevel.NONE,
