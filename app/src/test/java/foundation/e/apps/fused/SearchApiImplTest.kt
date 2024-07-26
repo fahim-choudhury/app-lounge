@@ -201,7 +201,7 @@ class SearchApiImplTest {
         willThrowException: Boolean = false
     ) {
         Mockito.`when`(pwaManager.getPwaStatus(any())).thenReturn(Status.UNAVAILABLE)
-        Mockito.`when`(appLoungePackageManager.getPackageStatus(any(), any()))
+        Mockito.`when`(appLoungePackageManager.getPackageStatus(any(), any(), any()))
             .thenReturn(Status.UNAVAILABLE)
         Mockito.`when`(
             cleanApkAppsRepository.getSearchResult(

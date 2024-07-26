@@ -99,7 +99,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
             Timber.e("Blocked system app: $packageName, details: $systemAppInfo")
             null
         } else {
-            systemAppInfo.toApplication()
+            systemAppInfo.toApplication(context)
         }
     }
 

@@ -132,7 +132,7 @@ class HomeApiTest {
                 any()
             )
         ).thenReturn(listOf())
-        Mockito.`when`(appLoungePackageManager.getPackageStatus(any(), any()))
+        Mockito.`when`(appLoungePackageManager.getPackageStatus(any(), any(), any()))
             .thenReturn(Status.UNAVAILABLE)
 
         var hasLimitedDataFound = false

@@ -114,7 +114,11 @@ class ApplicationDataManager @Inject constructor(
         return if (application.is_pwa) {
             pwaManager.getPwaStatus(application)
         } else {
-            appLoungePackageManager.getPackageStatus(application.package_name, application.latest_version_code)
+            appLoungePackageManager.getPackageStatus(
+                application.package_name,
+                application.latest_version_code,
+                application.latest_version_number,
+            )
         }
     }
 }
