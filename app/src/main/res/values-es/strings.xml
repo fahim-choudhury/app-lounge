@@ -113,7 +113,7 @@
     <string name="monthly">Mensual</string>
     <string name="weekly">Semanal</string>
     <string name="daily">A diario</string>
-    <string name="may_not_work_warning_message">Forzar la instalación permitirá la descarga e instalación, pero no garantiza que funcione.<br/><br/>Intentar instalar aplicaciones no compatibles puede provocar fallos o ralentizar el sistema.<br/><br/>Estamos trabajando para mejorar la compatibilidad con esta aplicación en un futuro cercano.</string>
+    <string name="may_not_work_warning_message">Forzar la instalación permitirá la descarga e instalación, pero no garantiza un funcionamiento correcto.<br/><br/>Intentar instalar aplicaciones no compatibles puede provocar fallos o ralentizar el sistema.<br/><br/>Estamos trabajando para mejorar la compatibilidad con esta aplicación en un futuro cercano.</string>
     <string name="this_app_may_not_work_properly">¡Es posible que esta aplicación no funcione correctamente!</string>
     <string name="install_anyway">Instalar de todos modos</string>
     <string name="unsupported_app_unreleased">La aplicación %s no es compatible actualmente. Esto puede deberse a que la aplicación aún no se ha difundido ampliamente o a algún otro error.</string>
@@ -122,7 +122,7 @@
     <string name="download_automatically_message">Tu aplicación se descargará automáticamente en este dispositivo</string>
     <string name="purchase_complete">¡Compra completa!</string>
     <string name="paid_app_anonymous_message">Las aplicaciones de pago no se pueden instalar en modo anónimo. Inicia sesión en tu cuenta de Google para instalar aplicaciones de pago.</string>
-    <string name="dialog_confirm">CONFIRMAR</string>
+    <string name="dialog_confirm">Confirmar</string>
     <string name="dialog_paidapp_message">Al hacer clic en confirmar, se te llevará a la página de Google Play para completar la compra de la aplicación a través de tu navegador. Haz clic en confirmar para comprar %1$s por %2$s.</string>
     <string name="dialog_title_paid_app">Comprar <b>%1$s</b></string>
     <string name="anonymous_login_failed_desc">Esto puede deberse a que el autentificador no pudo ser generado / verificado u otras razones.
@@ -195,4 +195,12 @@
     <string name="additional_file_for">Archivo adicional para %s</string>
     <string name="account_unavailable">Cuenta no disponible</string>
     <string name="share">Compartir</string>
+    <string name="no_trackers">Sin rastreadores</string>
+    <string name="restricted_app">[%1$s] Aplicación restringida</string>
+    <string name="age_rate_limit_message">Eres demasiado joven para instalar %1$s. Por favor, comprueba con tus padres que tu grupo de edad es correcto o desactiva el control parental para poder instalar.</string>
+    <string name="message_inappropriate_content">Esta aplicación puede tener contenido inapropiado.</string>
+    <string name="system_app">Aplicación del sistema</string>
+    <string name="message_fetching_content_rating">Recopilando la clasificación de contenido de todas las aplicaciones que has instalado.</string>
+    <string name="nsfw_dialog_title">Advertencia del contenido</string>
+    <string name="nsfw_dialog_message">La aplicación puede contener desnudos, blasfemias, insultos, violencia, sexualidad intensa, incorrección política u otros temas potencialmente perturbadores. Esto es especialmente importante en entornos como lugares de trabajo, escuelas, entornos religiosos y familiares.</string>
 </resources>
