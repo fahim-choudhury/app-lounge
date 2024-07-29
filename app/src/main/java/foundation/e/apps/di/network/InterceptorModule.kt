@@ -62,7 +62,7 @@ class InterceptorModule {
     fun provideLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
             level = when {
-                BuildConfig.DEBUG -> HttpLoggingInterceptor.Level.BODY
+                BuildConfig.DEBUG -> HttpLoggingInterceptor.Level.HEADERS
                 else -> HttpLoggingInterceptor.Level.NONE
             }
         }
