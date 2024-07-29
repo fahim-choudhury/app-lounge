@@ -23,6 +23,7 @@ import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -466,6 +467,9 @@ class MainActivity : AppCompatActivity() {
         }.distinctUntilChanged { old, new ->
             ((old.data is String) && (new.data is String) && old.data == new.data)
         }.collectLatest {
+            if (BuildConfig.DEBUG) {
+                Toast.makeText(this, "Refreshing token...", Toast.LENGTH_SHORT).show()
+            }
             validatedAuthObject(it)
         }
     }

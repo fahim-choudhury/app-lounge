@@ -1,6 +1,5 @@
 /*
- * Copyright MURENA SAS 2023
- * Apps  Quickly and easily install Android apps onto your device!
+ * Copyright (C) 2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.data.application.search
@@ -28,11 +28,11 @@ import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.apps.AppsApi
+import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_OPEN
 import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_PWA
-import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.application.utils.toApplication
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
@@ -43,7 +43,9 @@ import foundation.e.apps.ui.search.SearchResult
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -65,6 +67,11 @@ class SearchApiImpl @Inject constructor(
 
     companion object {
         private const val KEYWORD_TEST_SEARCH = "facebook"
+
+        private val DUMMY_SEARCH_EXPECTED_APPS = listOf(
+            "Facebook" to "com.facebook.katana",
+            "Messenger" to "com.facebook.orca"
+        )
     }
 
     override fun getSelectedAppTypes(): List<String> {
@@ -327,6 +334,8 @@ class SearchApiImpl @Inject constructor(
         nextPageSubBundle: Set<SearchBundle.SubBundle>?
     ): GplaySearchResult {
         return handleNetworkResult {
+            coroutineScope { launch(Dispatchers.IO) { doDummySearch() } }
+
             val searchResults =
                 appSources.gplayRepo.getSearchResult(query, nextPageSubBundle?.toMutableSet())
 
@@ -339,8 +348,6 @@ class SearchApiImpl @Inject constructor(
 
             val fusedAppList = replaceWithFDroid(searchResults.first).toMutableList()
 
-            handleLimitedResult(fusedAppList)
-
             if (searchResults.second.isNotEmpty()) {
                 fusedAppList.add(Application(isPlaceHolder = true))
             }
@@ -349,15 +356,25 @@ class SearchApiImpl @Inject constructor(
         }
     }
 
-    private suspend fun handleLimitedResult(appList: List<Application>?) {
-        if (appList.isNullOrEmpty()) {
-            // Call search api with a common keyword (ex: facebook)
-            // to ensure Gplay is returning empty as search result for other keywords as well
-            val searchResult = appSources.gplayRepo.getSearchResult(KEYWORD_TEST_SEARCH, null)
-            if (searchResult.first.isEmpty()) {
-                Timber.w("Limited result for search is found...")
-                refreshToken()
-            }
+    // Initiate a dummy search to ensure Google Play returns enough results for the search query
+    private suspend fun doDummySearch() {
+        val (searchedApps, _) = appSources.gplayRepo.getSearchResult(KEYWORD_TEST_SEARCH, null)
+
+        if (searchedApps.isEmpty()) {
+            Timber.d("Search returned empty results, refreshing token...")
+            refreshToken()
+            return
+        }
+
+        val dummySearchPackageNames = DUMMY_SEARCH_EXPECTED_APPS.map { it.second }
+        val searchedAppsPackageNames = searchedApps.map { it.packageName }
+
+        val isSearchContainingResults = searchedAppsPackageNames.containsAll(dummySearchPackageNames)
+
+        if (!isSearchContainingResults) {
+            Timber.d("Search didn't return enough results, refreshing token...")
+            refreshToken()
+            return
         }
     }
 

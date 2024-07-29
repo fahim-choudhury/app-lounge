@@ -79,7 +79,7 @@ class PlayStoreRepositoryImpl @Inject constructor(
         query: String,
         subBundle: MutableSet<SearchBundle.SubBundle>?
     ): Pair<List<App>, MutableSet<SearchBundle.SubBundle>> {
-        var authData = authenticatorRepository.gplayAuth!!
+        val authData = authenticatorRepository.gplayAuth!!
         val searchHelper = SearchHelper(authData).using(gPlayHttpClient)
 
         Timber.d("Fetching search result for $query, subBundle: $subBundle")
@@ -87,18 +87,19 @@ class PlayStoreRepositoryImpl @Inject constructor(
         subBundle?.let {
             val searchResult = searchHelper.next(it)
             Timber.d("fetching next page search data...")
-            return getSearchResultPair(searchResult)
+            return getSearchResultPair(searchResult, query)
         }
 
         val searchResult = searchHelper.searchResults(query)
-        return getSearchResultPair(searchResult)
+        return getSearchResultPair(searchResult, query)
     }
 
     private fun getSearchResultPair(
-        searchBundle: SearchBundle
+        searchBundle: SearchBundle,
+        query: String
     ): Pair<MutableList<App>, MutableSet<SearchBundle.SubBundle>> {
         val apps = searchBundle.appList
-        Timber.d("Search result is found: ${apps.size}")
+        Timber.d("Found ${apps.size} apps for query, $query")
         return Pair(apps, searchBundle.subBundles)
     }
 
