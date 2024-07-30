@@ -195,4 +195,11 @@
 \n\t• Impact te beperken wanneer Google dit account ingeperkt wordt</string>
     <string name="notification_channel_desc">Split-installatiekanaal</string>
     <string name="request_exodus_report_confirm_dialog">Wanneer je klikt op \"<xliff:g id="ok">%1$s</xliff:g>\" zal er een tab in jouw browser geopend worden met de pakket naam van de app ingevuld.&lt;br /&gt;&lt;br /&gt;Klik op \"Perform analysis\" om een analyse door Exodus te starten.&lt;br /&gt;&lt;br /&gt;Wanneer de knop \"See the report\" wordt weergegeven (dit kan even duren afhankelijk van de app) kan je de browser tab sluiten en terugkeren naar de app beschrijving in <xliff:g id="app_name">%2$s</xliff:g> waar je de Privacy Score kan zien. Het kan voorvallen dat de analyse door Exodus niet lukt.&lt;br /&gt;&lt;br /&gt;Ook kan het tot 10 min duren voor de score wordt weergegeven bij de app beschrijving.</string>
+    <string name="system_app">Systeem app</string>
+    <string name="restricted_app">[%1$s] Gelimiteerde App</string>
+    <string name="age_rate_limit_message">Je bent te jong om %1$s te installeren. Bekijk met je ouders of jouw leeftijdsgroep correct is ingesteld of schakel ouderlijk toezicht uit om het te kunnen installeren.</string>
+    <string name="message_inappropriate_content">Deze app bevat mogelijk ongepaste inhoud.</string>
+    <string name="nsfw_dialog_title">Inhoud waarschuwing</string>
+    <string name="message_fetching_content_rating">Inhoudsbeoordeling verzamelen voor alle apps die je hebt geïnstalleerd.</string>
+    <string name="nsfw_dialog_message">Deze app kan naaktheid, godslastering, laster, geweld, seksualiteit, politieke incorrectheid of andere mogelijk ongepaste onderwerpen bevatten. Dit is voornamelijk relevant in omgevingen als werkplekken, scholen, religieuze instellingen en gezinnen.</string>
 </resources>
