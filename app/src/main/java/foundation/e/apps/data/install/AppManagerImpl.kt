@@ -95,11 +95,15 @@ class AppManagerImpl @Inject constructor(
         if (status == Status.INSTALLED) {
             appInstall.status = status
             insertContentRating(appInstall)
-            flushOldDownload(appInstall.packageName)
+            if (appInstall.packageName != context.packageName) {
+                flushOldDownload(appInstall.packageName)
+            }
             appInstallRepository.deleteDownload(appInstall)
         } else if (status == Status.INSTALLING) {
             appInstall.downloadIdMap.all { true }
-            appInstall.status = status
+            appInstall.status = if (appInstall.packageName == context.packageName) {
+                Status.INSTALLED
+            } else status
             appInstallRepository.updateDownload(appInstall)
             installApp(appInstall)
         }
