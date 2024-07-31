@@ -191,7 +191,7 @@
     <string name="checking_updates">Verifico Aggiornamenti...</string>
     <string name="request_exodus_report">Richiedi report ad Exodus</string>
     <string name="request_exodus_report_confirm_dialog">Toccando su \"<xliff:g id="ok">%1$s</xliff:g>\" verrà aperto un tab sul tuo browser con il nome del pacchetto app preimpostato.&lt;br /&gt;&lt;br /&gt;Tocca su \"Perform analysis\" per aviare l\'analisi da parte di Exodus.&lt;br /&gt;&lt;br /&gt;Quando verrò mostrato il pulsante \"See the report\" (potrebbe volerci un pò di tempo, a seconda dell\'app scelta) puoi chiudere il tab e tornare alla descrizione app su <xliff:g id="app_name">%2$s</xliff:g> dove dovresti vedere il Punteggio Privacy. A volte Exodus non riesce ad analizzare l\'app.&lt;br /&gt;&lt;br /&gt;NB: potresti dover aspettare anche 10 min per poter vedere il punteggio nella descrizione app.</string>
-    <string name="too_many_requests_desc">L\'account anonimo che stai utilizzando non è disponibile. Agiorna la sessione per ottenerne un altro.</string>
+    <string name="too_many_requests_desc">L\'account anonimo che stai utilizzando non è disponibile. Aggiorna la sessione per ottenerne un altro.</string>
     <string name="refresh_session">AGGIORNA SESSIONE</string>
     <string name="account_unavailable">Account non disponibile</string>
     <string name="share">Condividere</string>
