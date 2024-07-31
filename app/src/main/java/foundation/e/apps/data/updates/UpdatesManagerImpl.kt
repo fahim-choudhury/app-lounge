@@ -129,6 +129,7 @@ class UpdatesManagerImpl @Inject constructor(
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
 
         addSystemAppsAtFirst(updateList, nonFaultyUpdateList, systemApps)
+        rearrangeAppLoungeAtLast(updateList)
 
         return Pair(updateList, status)
     }
@@ -167,6 +168,7 @@ class UpdatesManagerImpl @Inject constructor(
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
 
         addSystemAppsAtFirst(updateList, nonFaultyUpdateList, systemApps)
+        rearrangeAppLoungeAtLast(updateList)
 
         return Pair(updateList, status)
     }
@@ -192,6 +194,14 @@ class UpdatesManagerImpl @Inject constructor(
         updateList.clear()
         updateList.addAll(systemApps)
         updateList.addAll(nonFaultyApps)
+    }
+
+    private fun rearrangeAppLoungeAtLast(updateList: MutableList<Application>) {
+        val appLoungeItem = updateList.find {
+            it.isSystemApp && it.package_name == context.packageName
+        } ?: return
+        updateList.remove(appLoungeItem)
+        updateList.add(appLoungeItem)
     }
 
     /**
