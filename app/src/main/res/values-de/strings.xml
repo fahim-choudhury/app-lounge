@@ -200,4 +200,5 @@
     <string name="message_inappropriate_content">Diese App kann unangemessene Inhalte enthalten.</string>
     <string name="nsfw_dialog_title">Warnung vor Inhalten</string>
     <string name="message_fetching_content_rating">Abrufen der Inhaltsbewertungen für alle Ihre installierten Apps.</string>
+    <string name="request_exodus_report_confirm_dialog">Wenn Sie auf \"<xliff:g id="ok">%1$s</xliff:g>\" klicken, öffnet sich ein Tab in Ihrem Browser, in dem der Paketname der App schon vorausgefüllt ist. &lt;br /&gt;&lt;br /&gt;Klicken Sie auf „Perform analysis“, um die Analyse durch Exodus zu starten.&lt;br /&gt;&lt;br /&gt;Wenn die Schaltfläche „See the report“ angezeigt wird (dies kann je nach App eine Weile dauern), können Sie den Tab schließen und zur App-Beschreibung in <xliff:g id="app_name">%2$s</xliff:g> zurückkehren, wo die Datenschutz-Bewertung angezeigt werden sollte. Manchmal kann es vorkommen, dass Exodus eine App nicht analysieren kann.&lt;br /&gt;&lt;br /&gt;Hinweis: Es kann bis zu 10 Min dauern, bis der Wert in der App-Beschreibung aktualisiert wird.</string>
 </resources>
