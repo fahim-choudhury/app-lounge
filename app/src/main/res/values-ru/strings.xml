@@ -172,5 +172,36 @@
     <string name="select_one_source_of_applications">Пожалуйста, выберите хотя бы один источник приложений.</string>
     <string name="logout">Выйти из системы</string>
     <string name="account_unavailable">Аккаунт недоступен</string>
-    <string name="share">Делиться</string>
+    <string name="share">Поделиться</string>
+    <string name="no_trackers">Нет трекеров</string>
+    <string name="sign_in">Зарегистрироваться</string>
+    <string name="restricted_app">[%1$s] Ограниченное приложение</string>
+    <string name="age_rate_limit_message">Вы слишком молоды, чтобы иметь возможность установить %1$s. Пожалуйста, уточните у родителей, правильно ли выбрана ваша возрастная группа, или отключите родительский контроль, чтобы иметь возможность установить эту игру.</string>
+    <string name="message_inappropriate_content">Это приложение может содержать неприемлемый контент.</string>
+    <string name="checking_updates">Проверка обновлений...</string>
+    <string name="free_space_for_update">Освободите %1$s на своем телефоне, чтобы получить последние обновления.</string>
+    <string name="notification_content_full_db">Пожалуйста, освободите немного места на вашем телефоне, чтобы App Lounge мог работать должным образом.</string>
+    <string name="ignore">Игнорировать</string>
+    <string name="system_app">Системное приложение</string>
+    <string name="proceed_to_google_login">Перейдите к входу в систему Google</string>
+    <string name="split_install_warning_title">Предупреждение относительно %s</string>
+    <string name="split_install_warning_text">%s хочет установить дополнительные модули. Вам необходимо снова войти в AppLounge, чтобы иметь возможность установить их.</string>
+    <string name="notification_channel_desc">Раздельный канал установки</string>
+    <string name="nsfw_dialog_title">Предупреждение о содержании</string>
+    <string name="message_fetching_content_rating">Сбор рейтинга содержимого для всех установленных вами приложений.</string>
+    <string name="google_login_alert_message">Мы рекомендуем использовать специальный аккаунт Google, чтобы:
+\n
+\n\t• смягчить микротаргетинг
+\n\t• ограничить воздействие в случае, если этот аккаунт будет ограничен Google</string>
+    <string name="request_exodus_report_confirm_dialog">Нажав на \"<xliff:g id="ok">%1$s</xliff:g>\", вы откроете вкладку в браузере с предварительно заполненным именем пакета приложения.&lt;br /&gt;&lt;br /&gt;Нажмите на \"Выполнить анализ\", чтобы начать анализ Exodus. &lt;br /&gt;&lt;br /&gt;Когда появится кнопка \"Посмотреть отчет\" (это может занять некоторое время в зависимости от приложения), вы можете закрыть вкладку и вернуться к описанию приложения в <xliff:g id="app_name">%2$s</xliff:g>, где вы должны увидеть Privacy Score. Иногда Exodus может не проанализировать приложение.&lt;br /&gt;&lt;br /&gt;NB: отображение оценки в описании приложения может занять до 10 минут.</string>
+    <string name="nsfw_dialog_message">Приложение может содержать наготу, ненормативную лексику, ругательства, насилие, яркую сексуальность, политическую некорректность и другие потенциально тревожные темы. Это особенно актуально для таких мест, как рабочие места, школы, религиозная и семейная обстановка.</string>
+    <string name="downloading">Загрузка…</string>
+    <string name="additional_file_for">Дополнительный файл для %s</string>
+    <string name="preference_update_apps_from_other_stores_title">Обновление приложений, установленных в других магазинах</string>
+    <string name="preference_update_apps_from_other_stores_description">Обновление приложений, установленных из других магазинов приложений.
+\nТакие приложения будут пытаться обновляться из категории обычных приложений и приложений с открытым исходным кодом.</string>
+    <string name="having_troubles">У вас возникли проблемы?</string>
+    <string name="request_exodus_report">Запросить исходный отчёт</string>
+    <string name="too_many_requests_desc">Анонимная учетная запись, которую вы используете в данный момент, недоступна. Пожалуйста, обновите сессию, чтобы получить другую.</string>
+    <string name="refresh_session">ОБНОВИТЬ СЕССИИ</string>
 </resources>
