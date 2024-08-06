@@ -213,6 +213,9 @@ generate-apks:
       when: on_success
   needs:
     - init_submodules
+    - buildRelease
+    - buildReleaseDev
+    - buildReleaseStable
   dependencies:
     - init_submodules
     - buildRelease
