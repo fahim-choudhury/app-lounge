@@ -193,11 +193,11 @@ publish-contracts:
     - ./gradlew :parental-control-data:publish
   allow_failure: true
 
-init_submodules:
+init-submodules:
   stage: gitlab_release
   rules:
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
-      when: on_success
+      when: always
   script:
     - |
       git submodule add --force \
@@ -212,12 +212,12 @@ generate-apks:
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
       when: on_success
   needs:
-    - init_submodules
+    - init-submodules
     - buildRelease
     - buildReleaseDev
     - buildReleaseStable
   dependencies:
-    - init_submodules
+    - init-submodules
     - buildRelease
     - buildReleaseDev
     - buildReleaseStable
@@ -238,10 +238,10 @@ generate-apks:
 create-json-files:
   stage: gitlab_release
   dependencies:
-    - init_submodules
+    - init-submodules
     - generate-apks
   needs:
-    - init_submodules
+    - init-submodules
     - generate-apks
   rules:
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
@@ -260,9 +260,9 @@ create-json-files:
 create-release:
   stage: gitlab_release
   dependencies:
-    - init_submodules
+    - init-submodules
   needs:
-    - init_submodules
+    - init-submodules
     - create-json-files
     - generate-apks
   rules:
