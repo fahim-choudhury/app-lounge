@@ -20,6 +20,7 @@ package foundation.e.apps.data.gitlab
 import foundation.e.apps.data.gitlab.models.SystemAppProject
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Path
 
 interface UpdatableSystemAppsApi {
 
@@ -28,7 +29,18 @@ interface UpdatableSystemAppsApi {
             "https://gitlab.e.foundation/e/os/system-apps-update-info/-/raw/main/"
     }
 
-    @GET("updatable_system_apps.json?inline=false")
-    suspend fun getUpdatableSystemApps(): Response<List<SystemAppProject>>
+    enum class EndPoint(private val value: String) {
+        ENDPOINT_RELEASE("updatable_system_apps.json"),
+        ENDPOINT_TEST("updatable_system_apps_test.json"),
+        ;
+        override fun toString(): String {
+            return value
+        }
+    }
+
+    @GET("{endPoint}?inline=false")
+    suspend fun getUpdatableSystemApps(
+        @Path("endPoint") endPoint: EndPoint = EndPoint.ENDPOINT_RELEASE
+    ): Response<List<SystemAppProject>>
 
 }
