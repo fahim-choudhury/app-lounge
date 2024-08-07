@@ -2,6 +2,11 @@ image: registry.gitlab.e.foundation/e/os/docker-android-apps-cicd:master
 
 variables:
   SENTRY_DSN: $SENTRY_DSN
+  PROJECT_ID: "355" # under Settings -> General
+  APK_PATH: "apks"
+  UNSIGNED_APK: "AppLounge-release.apk"
+  DEV_APK: "AppLounge-release-dev.apk"
+  STABLE_APK: "AppLounge-release-stable.apk"
 
 stages:
   - debug
