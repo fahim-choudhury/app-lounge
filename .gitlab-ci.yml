@@ -184,6 +184,7 @@ pushToPrebuilt:
     - git push
     # Sometimes a single push doesn't do all the job, so we have to push twice
     - git push
+  allow_failure: true
 
 publish-contracts:
   stage: publish
