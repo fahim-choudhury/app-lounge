@@ -17,6 +17,11 @@ before_script:
   - export GRADLE_USER_HOME=$(pwd)/.gradle
   - chmod +x ./gradlew
 
+cache:
+  key: ${CI_PROJECT_ID}
+  paths:
+    - .gradle/
+
 # Debug build related jobs
 buildDebug:
   stage: debug
