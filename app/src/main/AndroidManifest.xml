@@ -174,8 +174,8 @@
 
         <provider
             android:name=".microg.AuthDataProvider"
-            android:authorities="foundation.e.apps.authdata.provider"
-            android:readPermission="foundation.e.apps.permission.AUTH_DATA_PROVIDER"
+            android:authorities="foundation.e.apps.debug.authdata.provider"
+            android:readPermission="foundation.e.apps.debug.permission.AUTH_DATA_PROVIDER"
             android:exported="true"/>
 
     </application>
