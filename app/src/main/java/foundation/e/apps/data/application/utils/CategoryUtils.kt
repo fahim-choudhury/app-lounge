@@ -1,6 +1,5 @@
 /*
- * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2021  E FOUNDATION
+ * Copyright (C) 2021-2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.data.application.utils
@@ -26,7 +26,7 @@ import foundation.e.apps.data.enums.AppTag
 object CategoryUtils {
 
     private const val CATEGORY_OPEN_GAMES_ID = "game_open_games"
-    private const val CATEGORY_OPEN_GAMES_TITLE = "Open games"
+    private const val CATEGORY_OPEN_GAMES_TITLE = "Open Games"
     private const val CATEGORY_TITLE_REPLACEABLE_CONJUNCTION = "&"
     private const val CATEGORY_TITLE_CONJUNCTION = "and"
 
@@ -127,7 +127,8 @@ object CategoryUtils {
         return if (category.contentEquals(CATEGORY_OPEN_GAMES_ID)) {
             CATEGORY_OPEN_GAMES_TITLE
         } else {
-            categories.translations.getOrDefault(category, "")
+            val value = categories.translations.getOrDefault(category, "")
+            CategoryStringFormatter.format(value)
         }
     }
 

@@ -55,6 +55,7 @@ import foundation.e.apps.MainActivity
 import foundation.e.apps.R
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.shareUri
+import foundation.e.apps.data.application.utils.CategoryStringFormatter
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
@@ -461,13 +462,16 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     private fun updateCategoryTitle(app: Application) {
         binding.titleInclude.apply {
             var catText = app.category.ifBlank { args.category }
-            when {
-                catText.isBlank() -> categoryTitle.isVisible = false
-                catText == "game_open_games" -> catText = getString(R.string.games) // F-droid games
-                catText == "web_games" -> catText = getString(R.string.games) // PWA games
+
+            catText = when (catText) {
+                "game_open_games" -> getString(R.string.games) // F-droid games
+                "web_games" -> getString(R.string.games) // PWA games
+                else -> catText
             }
 
-            catText = catText.replace("_", " ")
+            catText = CategoryStringFormatter.format(catText)
+
+            categoryTitle.isVisible = catText.isNotBlank()
             categoryTitle.text = catText
         }
     }
