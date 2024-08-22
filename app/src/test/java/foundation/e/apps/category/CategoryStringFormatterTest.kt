@@ -33,9 +33,17 @@ class CategoryStringFormatterTest {
     }
 
     @Test
-    fun testFormatString_withMultipleWords() {
-        val input = "mental_health_and_fitness"
-        val expected = "Mental Health and Fitness"
+    fun testFormatString_withSpaces() {
+        val input = "health and fitness"
+        val expected = "Health and Fitness"
+        val result = CategoryStringFormatter.format(input)
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun testFormatString_withAllWordsCapitalized() {
+        val input = "Health And Fitness"
+        val expected = "Health and Fitness"
         val result = CategoryStringFormatter.format(input)
         assertEquals(expected, result)
     }
@@ -60,6 +68,14 @@ class CategoryStringFormatterTest {
     @Test
     fun testFormatString_withOnlyAnd() {
         val input = "and"
+        val expected = "and"
+        val result = CategoryStringFormatter.format(input)
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun testFormatString_withOnlyCapitalizedAnd() {
+        val input = "And"
         val expected = "and"
         val result = CategoryStringFormatter.format(input)
         assertEquals(expected, result)

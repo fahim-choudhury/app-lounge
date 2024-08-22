@@ -26,7 +26,7 @@ object CategoryStringFormatter {
             "unknown" -> "Unknown"
             else ->
                 input.replace("_", " ").split(" ").joinToString(" ") { word ->
-                    if (word.lowercase() == "and") word
+                    if (word.lowercase() == "and") word.lowercase(Locale.getDefault())
                     else {
                         word.replaceFirstChar {
                             if (it.isLowerCase()) it.titlecase(Locale.getDefault())
