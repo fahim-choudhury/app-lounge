@@ -149,6 +149,8 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         private const val PRIVACY_GUIDELINE_URL = "https://doc.e.foundation/privacy_score"
         private const val REQUEST_EXODUS_REPORT_URL =
             "https://reports.exodus-privacy.eu.org/en/analysis/submit#"
+        private const val CATEGORY_GAMES_F_DROID = "game_open_games"
+        private const val CATEGORY_GAMES_PWA = "web_games"
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -461,18 +463,17 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun updateCategoryTitle(app: Application) {
         binding.titleInclude.apply {
-            var catText = app.category.ifBlank { args.category }
+            var categoryText = app.category.ifBlank { args.category }
 
-            catText = when (catText) {
-                "game_open_games" -> getString(R.string.games) // F-droid games
-                "web_games" -> getString(R.string.games) // PWA games
-                else -> catText
+            categoryText = when (categoryText) {
+                CATEGORY_GAMES_F_DROID, CATEGORY_GAMES_PWA -> getString(R.string.games)
+                else -> CategoryStringFormatter.format(categoryText)
             }
 
-            catText = CategoryStringFormatter.format(catText)
-
-            categoryTitle.isVisible = catText.isNotBlank()
-            categoryTitle.text = catText
+            this.categoryTitle.apply {
+                isVisible = categoryText.isNotBlank()
+                text = categoryText
+            }
         }
     }
 
