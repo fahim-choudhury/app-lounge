@@ -17,10 +17,12 @@
 
 package foundation.e.apps.ui.applicationlist
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.core.view.isVisible
@@ -532,7 +534,11 @@ class ApplicationListRVAdapter(
                 if (mainActivityViewModel.checkUnsupportedApplication(searchApp, context)) {
                     return@setOnClickListener
                 }
-                installApplication(searchApp)
+                if (searchApp.package_name == context.packageName) {
+                    showUpdateConfirmationDialog(context, searchApp)
+                } else {
+                    installApplication(searchApp)
+                }
             }
         }
         progressBarInstall.visibility = View.GONE
@@ -555,6 +561,17 @@ class ApplicationListRVAdapter(
             }
         }
         progressBarInstall.visibility = View.GONE
+    }
+
+    private fun showUpdateConfirmationDialog(context: Context, searchApp: Application) {
+        AlertDialog.Builder(context).apply {
+            setTitle(R.string.own_update_warning_title)
+            setMessage(R.string.own_update_warning_description)
+            setPositiveButton(android.R.string.ok) {_, _ ->
+                installApplication(searchApp)
+            }
+            setNegativeButton(android.R.string.cancel, null)
+        }.show()
     }
 
     fun setData(newList: List<Application>, optionalCategory: String? = null) {

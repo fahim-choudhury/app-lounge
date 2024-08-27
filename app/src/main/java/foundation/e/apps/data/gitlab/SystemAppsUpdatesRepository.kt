@@ -52,7 +52,20 @@ class SystemAppsUpdatesRepository @Inject constructor(
             if (getUpdatableSystemApps().isNotEmpty() && !forceRefresh) {
                 return@handleNetworkResult
             }
-            val response = updatableSystemAppsApi.getUpdatableSystemApps()
+
+            val systemName = getFullSystemName()
+            val endPoint = if (
+                systemName.isBlank() ||
+                systemName.contains("beta") ||
+                systemName.contains("rc")
+            ) {
+                UpdatableSystemAppsApi.EndPoint.ENDPOINT_TEST
+            } else {
+                UpdatableSystemAppsApi.EndPoint.ENDPOINT_RELEASE
+            }
+
+            val response = updatableSystemAppsApi.getUpdatableSystemApps(endPoint)
+
             if (response.isSuccessful && !response.body().isNullOrEmpty()) {
                 systemAppProjectList.clear()
                 response.body()?.let { systemAppProjectList.addAll(it) }
@@ -101,6 +114,10 @@ class SystemAppsUpdatesRepository @Inject constructor(
         } else {
             systemAppInfo.toApplication(context)
         }
+    }
+
+    private fun getFullSystemName(): String {
+        return SystemInfoProvider.getSystemProperty(SystemInfoProvider.KEY_LINEAGE_VERSION) ?: ""
     }
 
     private fun getSdkLevel(): Int {

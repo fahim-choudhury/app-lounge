@@ -28,7 +28,7 @@ class UpdatesBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         Timber.d("onReceive: ${intent.action}")
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+        if (intent.action in listOf(Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED)) {
             val appLoungePreference = AppLoungePreference(context)
             val interval = appLoungePreference.getUpdateInterval()
             UpdatesWorkManager.enqueueWork(context, interval, ExistingPeriodicWorkPolicy.REPLACE)
