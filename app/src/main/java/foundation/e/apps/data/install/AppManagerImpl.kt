@@ -100,7 +100,13 @@ class AppManagerImpl @Inject constructor(
         } else if (status == Status.INSTALLING) {
             appInstall.downloadIdMap.all { true }
             appInstall.status = status
-            appInstallRepository.updateDownload(appInstall)
+            val isSelfUpdate = appInstall.packageName == context.packageName
+            if (isSelfUpdate) {
+                appInstallRepository.deleteDownload(appInstall)
+            } else {
+                appInstall.status = status
+                appInstallRepository.updateDownload(appInstall)
+            }
             installApp(appInstall)
         }
     }

@@ -128,7 +128,7 @@ class UpdatesManagerImpl @Inject constructor(
         val systemApps = getSystemAppUpdates()
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
 
-        addSystemAppsAtFirst(updateList, nonFaultyUpdateList, systemApps)
+        addSystemApps(updateList, nonFaultyUpdateList, systemApps)
 
         return Pair(updateList, status)
     }
@@ -166,7 +166,7 @@ class UpdatesManagerImpl @Inject constructor(
         val systemApps = getSystemAppUpdates()
         val nonFaultyUpdateList = faultyAppRepository.removeFaultyApps(updateList)
 
-        addSystemAppsAtFirst(updateList, nonFaultyUpdateList, systemApps)
+        addSystemApps(updateList, nonFaultyUpdateList, systemApps)
 
         return Pair(updateList, status)
     }
@@ -183,8 +183,11 @@ class UpdatesManagerImpl @Inject constructor(
      * This method adds the system app updates at the beginning of the update list.
      * It will ensure our system apps are updated first, followed by other apps,
      * avoiding potential conflicts.
+     *
+     * Since installing an App Lounge update will cause App Lounge to be closed by the system,
+     * it is added at the end of the list.
      */
-    private fun addSystemAppsAtFirst(
+    private fun addSystemApps(
         updateList: MutableList<Application>,
         nonFaultyApps: List<Application>,
         systemApps: List<Application>,
@@ -192,6 +195,13 @@ class UpdatesManagerImpl @Inject constructor(
         updateList.clear()
         updateList.addAll(systemApps)
         updateList.addAll(nonFaultyApps)
+
+        // Move App Lounge to the end of the list
+        val appLoungeItem = updateList.find {
+            it.isSystemApp && it.package_name == context.packageName
+        } ?: return
+        updateList.remove(appLoungeItem)
+        updateList.add(appLoungeItem)
     }
 
     /**

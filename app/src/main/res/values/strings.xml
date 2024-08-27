@@ -143,6 +143,8 @@
     <string name="message_retry">Update all has failed. Automatic retries are in progress.</string>
     <string name="message_update_failed">Due to temporary failure, your apps cannot be all updated. Please try again later.</string>
     <string name="message_update_failure_single_app">%1$s\'s update has failed due to a support rule (location, OS version…).</string>
+    <string name="own_update_warning_title">Update warning!</string>
+    <string name="own_update_warning_description">App Lounge will be closed by the system while installing its own update. Kindly refrain from doing any other task till App Lounge is updated and closed.</string>
     <!-- Home Fragment -->
     <string name="discover">Discover</string>
     <string name="discover_pwa">Discover PWA</string>
