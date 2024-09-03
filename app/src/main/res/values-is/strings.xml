@@ -202,4 +202,6 @@
     <string name="age_rate_limit_message">Þú hefur ekki aldur til að setja upp %1$s. Hafðu samráð við foreldra þína hvort aldurshópurinn þinn sé réttur eða hvort gera eigi barnalæsingu óvirka til að geta sett það upp.</string>
     <string name="nsfw_dialog_message">Forritið gæti innihaldið nekt, blótsyrði, aðdróttanir, ofbeldi, kynferðislegt efni, pólitískar rangfærslur eða annað efni sem gæti misboðið. Þetta getur valdið óþægindum á vinnustöðum, skólum, trúartengum athöfnum eða hjá fjölskyldum.</string>
     <string name="system_app">Kerfisforrit</string>
+    <string name="own_update_warning_title">Aðvörun vegna uppfærslu!</string>
+    <string name="own_update_warning_description">App Lounge verður lokað af kerfinu á meðan það uppfærir sjálft sig. Vertu helst ekki að gera neitt annað þangað til uppfærslu App Lounge er lokið.</string>
 </resources>
