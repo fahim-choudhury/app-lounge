@@ -5,8 +5,8 @@ variables:
   PROJECT_ID: "355" # under Settings -> General
   APK_PATH: "apks"
   UNSIGNED_APK: "AppLounge-release.apk"
-  DEV_APK: "AppLounge-release-dev.apk"
-  STABLE_APK: "AppLounge-release-stable.apk"
+  COMMUNITY_APK: "AppLounge-release-community.apk"
+  OFFICIAL_APK: "AppLounge-release-official.apk"
 
 stages:
   - debug
@@ -98,21 +98,21 @@ buildRelease:
     - if: '$CI_COMMIT_REF_PROTECTED == "true"'
       when: always
 
-buildReleaseDev:
+buildReleaseCommunity:
   extends: .releaseSigned
   script:
-    - ./gradlew assembleReleaseDev
+    - ./gradlew assembleReleaseCommunity
   artifacts:
     paths:
-      - app/build/outputs/apk/releaseDev/
+      - app/build/outputs/apk/releaseCommunity/
 
-buildReleaseStable:
+buildReleaseOfficial:
   extends: .releaseSigned
   script:
-    - ./gradlew assembleReleaseStable
+    - ./gradlew assembleReleaseOfficial
   artifacts:
     paths:
-      - app/build/outputs/apk/releaseStable/
+      - app/build/outputs/apk/releaseOfficial/
 
 # Default lint configuration for release jobs
 .lintReleaseDefault:
@@ -221,26 +221,26 @@ generate-apks:
   needs:
     - init-submodules
     - buildRelease
-    - buildReleaseDev
-    - buildReleaseStable
+    - buildReleaseCommunity
+    - buildReleaseOfficial
   dependencies:
     - init-submodules
     - buildRelease
-    - buildReleaseDev
-    - buildReleaseStable
+    - buildReleaseCommunity
+    - buildReleaseOfficial
   script:
     - mkdir -p $APK_PATH
     - unsignedApk=$(ls app/build/outputs/apk/release/*.apk | grep "release")
-    - devApk=$(ls app/build/outputs/apk/releaseDev/*.apk | grep "releaseDev")
-    - stableApk=$(ls app/build/outputs/apk/releaseStable/*.apk | grep "releaseStable")
+    - communityApk=$(ls app/build/outputs/apk/releaseCommunity/*.apk | grep "releaseCommunity")
+    - officialApk=$(ls app/build/outputs/apk/releaseOfficial/*.apk | grep "releaseOfficial")
     - cp "$unsignedApk" "$APK_PATH/$UNSIGNED_APK"
-    - cp "$devApk" "$APK_PATH/$DEV_APK"
-    - cp "$stableApk" "$APK_PATH/$STABLE_APK"
+    - cp "$communityApk" "$APK_PATH/$COMMUNITY_APK"
+    - cp "$officialApk" "$APK_PATH/$OFFICIAL_APK"
   artifacts:
     paths:
       - $APK_PATH/$UNSIGNED_APK
-      - $APK_PATH/$DEV_APK
-      - $APK_PATH/$STABLE_APK
+      - $APK_PATH/$COMMUNITY_APK
+      - $APK_PATH/$OFFICIAL_APK
 
 create-json-files:
   stage: gitlab_release
@@ -258,11 +258,11 @@ create-json-files:
   script:
     - |
       ./systemAppsUpdateInfo/scripts/create-json-files.sh \
-      "$APK_PATH" "$UNSIGNED_APK" "$DEV_APK" "$STABLE_APK"
+      "$APK_PATH" "$UNSIGNED_APK" "$COMMUNITY_APK" "$OFFICIAL_APK"
   artifacts:
     paths:
-      - dev.json
-      - stable.json
+      - community.json
+      - official.json
 
 create-release:
   stage: gitlab_release
@@ -280,4 +280,4 @@ create-release:
   script:
     - |
       ./systemAppsUpdateInfo/scripts/create-release.sh \
-      "$APK_PATH" "$UNSIGNED_APK" "$DEV_APK" "$STABLE_APK"
+      "$APK_PATH" "$UNSIGNED_APK" "$COMMUNITY_APK" "$OFFICIAL_APK"
