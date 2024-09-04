@@ -38,7 +38,7 @@ interface UpdatableSystemAppsApi {
         }
     }
 
-    @GET("{endPoint}?inline=false")
+    @GET("{endPoint}")
     suspend fun getUpdatableSystemApps(
         @Path("endPoint") endPoint: EndPoint = EndPoint.ENDPOINT_RELEASE
     ): Response<List<SystemAppProject>>
