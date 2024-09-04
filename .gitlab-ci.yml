@@ -4,9 +4,9 @@ variables:
   SENTRY_DSN: $SENTRY_DSN
   PROJECT_ID: "355" # under Settings -> General
   APK_PATH: "apks"
-  UNSIGNED_APK: "AppLounge-release.apk"
-  COMMUNITY_APK: "AppLounge-release-community.apk"
-  OFFICIAL_APK: "AppLounge-release-official.apk"
+  UNSIGNED_APK: "AppLounge_release.apk"
+  COMMUNITY_APK: "AppLounge_release_community.apk"
+  OFFICIAL_APK: "AppLounge_release_official.apk"
 
 stages:
   - debug
