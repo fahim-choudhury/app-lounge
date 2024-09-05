@@ -261,8 +261,8 @@ create-json-files:
       "$APK_PATH" "$UNSIGNED_APK" "$DEV_APK" "$STABLE_APK"
   artifacts:
     paths:
-      - dev.json
-      - stable.json
+      - community.json
+      - official.json
 
 create-release:
   stage: gitlab_release
