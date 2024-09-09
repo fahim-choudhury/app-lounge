@@ -54,11 +54,8 @@ class SystemAppsUpdatesRepository @Inject constructor(
             }
 
             val systemName = getFullSystemName()
-            val endPoint = if (
-                systemName.isBlank() ||
-                systemName.contains("beta") ||
-                systemName.contains("rc")
-            ) {
+            val endPoint = if (systemName.contains("beta") || systemName.contains("rc")
+                || systemName.contains("test")) {
                 UpdatableSystemAppsApi.EndPoint.ENDPOINT_TEST
             } else {
                 UpdatableSystemAppsApi.EndPoint.ENDPOINT_RELEASE
@@ -129,7 +126,8 @@ class SystemAppsUpdatesRepository @Inject constructor(
     }
 
     private fun getSystemReleaseType(): String {
-        return SystemInfoProvider.getSystemProperty(SystemInfoProvider.KEY_LINEAGE_RELEASE_TYPE) ?: ""
+        return "community"
+//        return SystemInfoProvider.getSystemProperty(SystemInfoProvider.KEY_LINEAGE_RELEASE_TYPE) ?: ""
     }
 
     suspend fun getSystemUpdates(): List<Application> {
@@ -139,6 +137,8 @@ class SystemAppsUpdatesRepository @Inject constructor(
         val device = getDevice()
 
         val updatableApps = getUpdatableSystemApps()
+
+        Timber.d("===> updatable System apps: ${updatableApps.map { it }}")
         updatableApps.forEach {
 
             if (!appLoungePackageManager.isInstalled(it)) {

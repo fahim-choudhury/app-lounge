@@ -97,7 +97,7 @@ class DownloadInfoApiImpl @Inject constructor(
     ) {
         val downloadInfo =
             (appSources.cleanApkAppsRepo as CleanApkDownloadInfoFetcher)
-                .getDownloadInfo(appInstall.id).body()
+                .getDownloadInfo(appInstall.id, architecture = appInstall.architecture).body()
         downloadInfo?.download_data?.download_link?.let { list.add(it) }
         appInstall.signature = downloadInfo?.download_data?.signature ?: ""
     }

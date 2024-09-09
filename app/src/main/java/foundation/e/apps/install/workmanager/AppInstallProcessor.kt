@@ -123,7 +123,11 @@ class AppInstallProcessor @Inject constructor(
                 EventBus.invokeEvent(AppEvent.ErrorMessageEvent(R.string.paid_app_anonymous_message))
                 return
             }
-
+            val platformList = authData.deviceInfoProvider?.properties?.getProperty("Platforms")
+//            val platforList = authData.deviceInfoProvider?.deviceConfigurationProto?.
+            val firstPlatoform = platformList?.split(",")?.first()
+            appInstall.architecture = firstPlatoform ?: ""
+            Timber.d("====> useragentstring: ${platformList?.split(",")}")
             if (appInstall.type != Type.PWA && !updateDownloadUrls(appInstall)) return
 
             val downloadAdded = appInstallComponents.appManagerWrapper.addDownload(appInstall)

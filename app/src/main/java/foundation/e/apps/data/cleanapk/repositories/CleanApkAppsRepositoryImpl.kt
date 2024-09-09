@@ -79,8 +79,8 @@ class CleanApkAppsRepositoryImpl(
         return cleanApkAppDetailsRetrofit.getAppOrPWADetailsByID(packageNameOrId, null, null)
     }
 
-    override suspend fun getDownloadInfo(idOrPackageName: String, versionCode: Any?): Response<Download> {
+    override suspend fun getDownloadInfo(idOrPackageName: String, versionCode: Any?, architecture: String?): Response<Download> {
         val version = versionCode?.let { it as String }
-        return cleanApkRetrofit.getDownloadInfo(idOrPackageName, version, null)
+        return cleanApkRetrofit.getDownloadInfo(idOrPackageName, version, "armeabi-v7a")
     }
 }

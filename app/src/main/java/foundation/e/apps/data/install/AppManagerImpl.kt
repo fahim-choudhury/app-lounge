@@ -203,7 +203,7 @@ class AppManagerImpl @Inject constructor(
 
     override fun flushOldDownload(packageName: String) {
         val parentPathFile = File("$cacheDir/$packageName")
-        if (parentPathFile.exists()) parentPathFile.deleteRecursively()
+//        if (parentPathFile.exists()) parentPathFile.deleteRecursively()
     }
 
     override suspend fun downloadNativeApp(appInstall: AppInstall) {

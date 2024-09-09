@@ -30,7 +30,8 @@ data class AppInstall(
     var appSize: Long = 0,
     var files: List<File> = mutableListOf(),
     var signature: String = String(),
-    var contentRating: ContentRating = ContentRating()
+    var contentRating: ContentRating = ContentRating(),
+    var architecture: String = String(),
 ) {
     @Ignore
     private val installingStatusList = listOf(

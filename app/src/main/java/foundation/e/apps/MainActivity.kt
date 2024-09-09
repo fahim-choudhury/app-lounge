@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        Timber.i("===> mainactivity onCreate... 7")
         binding = ActivityMainBinding.inflate(layoutInflater)
 
         setupBackPressHandlingForTiramisuAndAbove()
