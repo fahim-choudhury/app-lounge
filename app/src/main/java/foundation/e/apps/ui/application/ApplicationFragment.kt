@@ -51,7 +51,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textview.MaterialTextView
 import dagger.hilt.android.AndroidEntryPoint
-import foundation.e.apps.MainActivity
+import foundation.e.apps.ui.MainActivity
 import foundation.e.apps.R
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.shareUri
