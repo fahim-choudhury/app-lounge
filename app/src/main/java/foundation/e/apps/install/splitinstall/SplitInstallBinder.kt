@@ -32,7 +32,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.pm.PackageInfoCompat
 import foundation.e.apps.ISplitInstallService
-import foundation.e.apps.MainActivity
+import foundation.e.apps.ui.MainActivity
 import foundation.e.apps.R
 import foundation.e.apps.data.DownloadManager
 import foundation.e.apps.data.application.ApplicationRepository

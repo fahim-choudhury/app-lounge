@@ -29,7 +29,7 @@ import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import foundation.e.apps.MainActivity
+import foundation.e.apps.ui.MainActivity
 import foundation.e.apps.R
 
 object UpdatesNotifier {

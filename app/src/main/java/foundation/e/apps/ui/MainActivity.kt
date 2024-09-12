@@ -16,7 +16,7 @@
  *
  */
 
-package foundation.e.apps
+package foundation.e.apps.ui
 
 import android.content.Intent
 import android.os.Build.VERSION
@@ -42,6 +42,8 @@ import com.aurora.gplayapi.exceptions.ApiException
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import foundation.e.apps.BuildConfig
+import foundation.e.apps.R
 import foundation.e.apps.contract.ParentalControlContract.COLUMN_LOGIN_TYPE
 import foundation.e.apps.data.Constants
 import foundation.e.apps.data.enums.User
@@ -52,7 +54,6 @@ import foundation.e.apps.data.login.PlayStoreAuthenticator
 import foundation.e.apps.data.login.exceptions.GPlayValidationException
 import foundation.e.apps.databinding.ActivityMainBinding
 import foundation.e.apps.install.updates.UpdatesNotifier
-import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.purchase.AppPurchaseFragmentDirections
 import foundation.e.apps.ui.settings.SettingsFragment
