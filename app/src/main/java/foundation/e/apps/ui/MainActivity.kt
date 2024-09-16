@@ -61,6 +61,7 @@ import foundation.e.apps.ui.setup.signin.SignInViewModel
 import foundation.e.apps.utils.SystemInfoProvider
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -547,7 +548,7 @@ class MainActivity : AppCompatActivity() {
         viewModel: MainActivityViewModel,
         packageName: String
     ) {
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             val fusedDownload = viewModel.updateAwaitingForPurchasedApp(packageName)
             if (fusedDownload != null) {
                 ApplicationDialogFragment(
