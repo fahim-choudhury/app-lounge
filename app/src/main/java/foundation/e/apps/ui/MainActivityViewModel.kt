@@ -50,6 +50,7 @@ import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.install.pkg.PWAManager
 import foundation.e.apps.install.workmanager.AppInstallProcessor
 import foundation.e.apps.utils.NetworkStatusManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -190,7 +191,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun getApplication(app: Application) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             appInstallProcessor.initAppInstall(app)
         }
     }
