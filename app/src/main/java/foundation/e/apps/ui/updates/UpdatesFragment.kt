@@ -23,8 +23,10 @@ import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -173,8 +175,10 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
         WorkManager.getInstance(requireContext())
             .getWorkInfosForUniqueWorkLiveData(INSTALL_WORK_NAME)
             .observe(viewLifecycleOwner) { workInfoList ->
-                lifecycleScope.launchWhenResumed {
-                    binding.button.isEnabled = shouldUpdateButtonEnable(workInfoList)
+                viewLifecycleOwner.lifecycleScope.launch {
+                    repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                        binding.button.isEnabled = shouldUpdateButtonEnable(workInfoList)
+                    }
                 }
             }
     }
@@ -353,7 +357,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
         downloadProgress: DownloadProgress
     ) {
         val adapter = recyclerView.adapter as ApplicationListRVAdapter
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             adapter.currentList.forEach { fusedApp ->
                 if (fusedApp.status == Status.DOWNLOADING) {
                     val progress =

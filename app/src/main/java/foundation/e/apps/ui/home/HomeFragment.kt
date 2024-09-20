@@ -227,7 +227,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
         downloadProgress: DownloadProgress,
         childRV: RecyclerView
     ) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             updateDownloadProgressOfAppList(adapter, downloadProgress, childRV)
         }
     }

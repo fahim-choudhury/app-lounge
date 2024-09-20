@@ -503,7 +503,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun collectShareVisibilityState() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 applicationViewModel.shareButtonVisibilityState.collectLatest { state ->
                     when (state) {
@@ -516,7 +516,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun collectAppContentRatingState() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 applicationViewModel.appContentRatingState
                     .collectLatest(::updateContentRatingUi)
@@ -759,7 +759,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         downloadPB.visibility = View.VISIBLE
         appSize.visibility = View.GONE
         applicationViewModel.downloadProgress.observe(viewLifecycleOwner) {
-            lifecycleScope.launch(Dispatchers.Main) {
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
                 updateProgress(it)
             }
         }

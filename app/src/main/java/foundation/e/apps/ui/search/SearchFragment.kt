@@ -384,7 +384,7 @@ class SearchFragment :
 
     private fun updateProgressOfInstallingApps(downloadProgress: DownloadProgress) {
         val adapter = recyclerView?.adapter as ApplicationListRVAdapter
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             adapter.currentList.forEach { fusedApp ->
                 if (fusedApp.status == Status.DOWNLOADING) {
                     val progress =
