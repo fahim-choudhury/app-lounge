@@ -40,12 +40,12 @@
     <string name="logout" weblate_ctx="settings">Çıkış Yap</string>
     <string name="select_one_source_of_applications">Lütfen en az bir uygulama kaynağı seçiniz.</string>
     <string name="description">Açıklama</string>
-    <string name="ok">Tamam</string>
+    <string name="ok">OK</string>
     <string name="install">Yükle</string>
     <string name="installing">Yükleniyor</string>
-    <string name="cancel">İptal Et</string>
+    <string name="cancel">İptal</string>
     <string name="app_icon">Uygulama simgesi</string>
-    <string name="open">Açık</string>
+    <string name="open">Aç</string>
     <string name="retry">Yeniden Dene</string>
     <string name="close">Kapat</string>
     <string name="more">Daha Fazla</string>
@@ -86,8 +86,8 @@
     <string name="message_update_failure_single_app">%1$s güncellemesi bir destek kuralı (konum, işletim sistemi sürümü...) nedeniyle başarısız oldu.</string>
     <string name="discover">Keşfet</string>
     <string name="discover_pwa">PWA\'ları keşfedin</string>
-    <string name="top_updated_games">Açık Kaynak En Tutan Güncel Oyunlar</string>
-    <string name="top_updated_apps">Açık Kaynak En Tutan Güncel Uygulamalar</string>
+    <string name="top_updated_games">Açık Kaynaklı Tutan Güncel Oyunlar</string>
+    <string name="top_updated_apps">Açık Kaynaklı Tutan Güncel Uygulamalar</string>
     <string name="popular_apps_in_last_24_hours">Son 24 Saatte Açık Kaynaklı Popüler Uygulamalar</string>
     <string name="popular_games_in_last_24_hours">Son 24 Saatin Popüler Açık Kaynak Oyunları</string>
     <string name="popular_apps">PWA popüler uygulamalar</string>
@@ -126,4 +126,65 @@
     </plurals>
     <string name="updates">Güncellemeler</string>
     <string name="automatically_install_updates_notification_text">Uygulama güncellemeleri otomatik olarak yüklenecek</string>
+    <string name="error_signature_mismatch">Güncelleme uygulanamıyor çünkü %1$s güncellemesi ile telefonunuza yüklediğiniz sürüm arasında bir imza uyuşmazlığı var. Bunu düzeltmek için %1$s uygulamasını kaldırabilir ve ardından App Lounge\'dan tekrar yükleyebilirsiniz. <br/><br/> Not: Bu mesaj bir daha görünmeyecektir.</string>
+    <string name="dialog_confirm">ONAYLA</string>
+    <string name="install_anyway">Yine de yükle</string>
+    <string name="google_login_alert_message">Aşağıdakiler için özel bir Google hesabı kullanmanızı öneririz:
+\n
+\n\t- mikro hedeflemeyi hafifletmek
+\n\t- Bu hesabın Google tarafından kısıtlanması durumunda etkisini azaltmak</string>
+    <string name="proceed_to_google_login">Google girişine ilerle</string>
+    <string name="request_exodus_report">Exodus raporu iste</string>
+    <string name="restricted_app">[%1$s] Kısıtlandırılmış Uygulama</string>
+    <string name="age_rate_limit_message">%1$s yükleyebilmek için çok küçüksünüz. Lütfen yaş grubunuzun doğru olup olmadığını ebeveyninizle kontrol edin veya yükleyebilmek için ebeveyn kontrolünü devre dışı bırakın.</string>
+    <string name="message_inappropriate_content">Bu uygulama uygunsuz içerik içerebilir.</string>
+    <string name="system_app">Sistem uygulaması</string>
+    <string name="paid_app_anonymous_message">Ücretli uygulamalar anonim modda yüklenemez. Ücretli uygulamaları yüklemek için lütfen Google hesabınıza giriş yapın.</string>
+    <string name="privacy_computed_using_text">&lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Kullanılarak hesaplanmıştır. Exodus Gizlilik Analizi</string>
+    <string name="tracker_information_not_found">Bu uygulama için izleyici bilgisi mevcut değil.</string>
+    <string name="no_internet_message">Bağlantı kurulamıyor! Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin</string>
+    <string name="timeout_title">Uygulamaları getirirken zaman aşımı!</string>
+    <string name="timeout_desc_cleanapk">Bazı ağ sorunları tüm uygulamaların getirilmesini engelliyor.</string>
+    <string name="open_settings">Ayarları Aç</string>
+    <string name="more_info"><u>Daha fazla bilgi</u></string>
+    <string name="too_many_requests_desc">Şu anda kullandığınız anonim hesap kullanılamıyor. Başka bir tane almak için lütfen oturumu yenileyin.</string>
+    <string name="account_unavailable">Hesap kullanılamıyor</string>
+    <string name="refresh_session">OTURUMU TAZELE</string>
+    <string name="data_load_error">Uygulamalar yüklenirken hata oluştu.</string>
+    <string name="sign_in_failed_title">Google oturum açma başarısız!</string>
+    <string name="sign_in_failed_desc">Bir ağ hatası nedeniyle App Lounge, Google oturum açma verilerini alamadı.</string>
+    <string name="anonymous_login_failed">Anonim giriş başarısız!</string>
+    <string name="dialog_title_paid_app"><b>%1$s</b> satın al</string>
+    <string name="dialog_paidapp_message">Onayla\'ya tıkladığınızda, tarayıcınızı kullanarak satın alma işlemini tamamlamanız için sizi uygulamanın Google Play sayfasına götürecektir. %2$s karşılığında %1$s satın almak için onayla\'ya tıklayın.</string>
+    <string name="purchase_complete">Satın alma tamamlandı!</string>
+    <string name="download_automatically_message">Uygulamanız otomatik olarak bu cihaza indirilecektir</string>
+    <string name="purchase_error">Satın alma hatası!</string>
+    <string name="unsupported_app_title">Desteklenmeyen uygulama!</string>
+    <string name="this_app_may_not_work_properly">Bu uygulama düzgün çalışmayabilir!</string>
+    <string name="daily">Günlük</string>
+    <string name="weekly">Haftalık</string>
+    <string name="monthly">Aylık</string>
+    <string name="free_space_for_update">En son güncellemeleri almak için telefonunuzda %1$s alan boşaltın.</string>
+    <string name="notification_content_full_db">App Lounge\'un düzgün çalışabilmesi için lütfen telefonunuzda biraz yer açın.</string>
+    <string name="split_install_warning_title">%s ile ilgili uyarı</string>
+    <string name="notification_channel_desc">Bölünmüş Kurulum kanalı</string>
+    <string name="sign_in">Oturum aç</string>
+    <string name="ignore">Yoksay</string>
+    <string name="nsfw_dialog_title">İçerik Uyarısı</string>
+    <string name="message_fetching_content_rating">Yüklediğiniz tüm uygulamalar için içerik derecelendirmesi toplanıyor.</string>
+    <string name="own_update_warning_title">Güncelleme uyarısı!</string>
+    <string name="timeout_desc_gplay">Bazı ağ sorunları tüm uygulamaların getirilmesini engelliyor.
+\n
+\nYalnızca Açık kaynak uygulamaları veya PWA\'ları aramak için ayarları açın.</string>
+    <string name="data_load_error_desc">Bunun nedeni sunucu yanıt vermiyor veya başka bir sunucu hatası olabilir.
+\n
+\nLütfen tekrar deneyin veya daha sonra deneyin.</string>
+    <string name="unsupported_app_unreleased">%s uygulaması şu anda desteklenmiyor. Bunun nedeni, uygulamanın henüz yaygın olarak yayınlanmamış olması veya başka bir hata olması olabilir.</string>
+    <string name="may_not_work_warning_message">Yüklemeyi zorlamak, indirmenize ve yüklemenize izin verir, ancak çalışacağını garanti etmez. <br/><br/>Desteklenmeyen uygulamaların yüklenmeye çalışılması çökmelere neden olabilir veya sistemi yavaşlatabilir.<br/><br/>Yakın bir gelecekte bu uygulama ile uyumluluğu iyileştirmek için çalışıyoruz.</string>
+    <string name="nsfw_dialog_message">Uygulama çıplaklık, küfür, hakaret, şiddet, yoğun cinsellik, siyasi yanlışlık veya diğer potansiyel olarak rahatsız edici konular içerebilir. Bu durum özellikle iş yerleri, okullar, dini ve aile ortamları gibi ortamlar için geçerlidir.</string>
+    <string name="own_update_warning_description">App Lounge kendi güncellemesini yüklerken sistem tarafından kapatılacaktır. App Lounge güncellenene ve kapatılana kadar lütfen başka bir iş yapmaktan kaçının.</string>
+    <string name="anonymous_login_failed_desc">Bunun nedeni, belirtecin oluşturulamaması / doğrulanamaması veya başka nedenler olabilir.
+\n
+\nTekrar denemek için Yeniden Dene\'ye basın.</string>
+    <string name="split_install_warning_text">%s ekstra modüller yüklemek istiyor. Bunları yükleyebilmek için AppLounge\'da tekrar oturum açmalısınız.</string>
 </resources>
