@@ -202,4 +202,6 @@
     <string name="nsfw_dialog_title">Inhoud waarschuwing</string>
     <string name="message_fetching_content_rating">Inhoudsbeoordeling verzamelen voor alle apps die je hebt geïnstalleerd.</string>
     <string name="nsfw_dialog_message">Deze app kan naaktheid, godslastering, laster, geweld, seksualiteit, politieke incorrectheid of andere mogelijk ongepaste onderwerpen bevatten. Dit is voornamelijk relevant in omgevingen als werkplekken, scholen, religieuze instellingen en gezinnen.</string>
+    <string name="own_update_warning_title">Attentie, update!</string>
+    <string name="own_update_warning_description">App Lounge zal door het systeem afgesloten worden tijdens zijn update. Voer a.u.b. geen andere taken uit totdat App Lounge geüpdatet en afgesloten is.</string>
 </resources>
