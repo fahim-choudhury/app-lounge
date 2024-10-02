@@ -25,7 +25,13 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import foundation.e.apps.BuildConfig
 import okhttp3.Interceptor
+import okhttp3.Protocol
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.ResponseBody.Companion.toResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
+import timber.log.Timber
+import java.io.IOException
 import java.util.Locale
 import javax.inject.Singleton
 
@@ -36,6 +42,10 @@ class InterceptorModule {
     companion object {
         private const val HEADER_USER_AGENT = "User-Agent"
         private const val HEADER_ACCEPT_LANGUAGE = "Accept-Language"
+        const val ERROR_RESPONSE_CODE = 999 // Arbitrary value, not to mix with HTTP status code
+        const val ERROR_RESPONSE_MESSAGE = "IOException occurred."
+        val HEADER_USER_AGENT_VALUE =
+            "Dalvik/2.1.0 (Linux; U; Android ${Build.VERSION.RELEASE};)"
     }
 
     @Singleton
@@ -48,14 +58,28 @@ class InterceptorModule {
                     .newBuilder()
                     .header(
                         HEADER_USER_AGENT,
-                        "Dalvik/2.1.0 (Linux; U; Android ${Build.VERSION.RELEASE};)")
+                        HEADER_USER_AGENT_VALUE
+                    )
                     .header(HEADER_ACCEPT_LANGUAGE, Locale.getDefault().language)
 
-            val response = chain.proceed(builder.build())
+            val response = try {
+                chain.proceed(builder.build())
+            } catch (ioException: IOException) {
+                Timber.e(ioException)
+                return@Interceptor createResponseForIOException(chain.request())
+            }
 
             return@Interceptor response
         }
     }
+
+    private fun createResponseForIOException(request: Request) = Response.Builder()
+        .request(request)
+        .protocol(Protocol.HTTP_1_1)
+        .code(ERROR_RESPONSE_CODE)
+        .message(ERROR_RESPONSE_MESSAGE)
+        .body(ERROR_RESPONSE_MESSAGE.toResponseBody())
+        .build()
 
     @Provides
     @Singleton
