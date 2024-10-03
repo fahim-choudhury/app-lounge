@@ -93,4 +93,15 @@
         app:cornerRadius="4dp"
         />
 
+    <ProgressBar
+        android:id="@+id/progressBarInstall"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/installButton"
+        app:layout_constraintLeft_toLeftOf="@+id/installButton"
+        app:layout_constraintRight_toRightOf="@+id/installButton"
+        app:layout_constraintTop_toTopOf="@+id/installButton" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -18,6 +18,7 @@
 
 package foundation.e.apps.ui.application
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -782,6 +783,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun handleUnavaiable(
         installButton: MaterialButton,
         application: Application,
@@ -789,44 +791,56 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         appSize: MaterialTextView
     ) {
         installButton.apply {
-            enableInstallButton(R.string.install)
-            text = when {
-                mainActivityViewModel.checkUnsupportedApplication(application) ->
-                    getString(R.string.not_available)
+            installButton.disableInstallButton(R.string.install)
+            installButton.text = ""
+            binding.downloadInclude.progressBarInstall.visibility = View.VISIBLE
 
-                application.isFree -> getString(R.string.install)
-                else -> application.price
+            appInfoFetchViewModel.isAppPurchased(application).observe(viewLifecycleOwner) {
+                binding.downloadInclude.progressBarInstall.visibility = View.GONE
+                enableInstallButton(R.string.install)
+                text = when {
+                    mainActivityViewModel.checkUnsupportedApplication(application) ->
+                        getString(R.string.not_available)
+
+                    application.isFree || application.isPurchased -> getString(R.string.install)
+                    else -> application.price
+                }
             }
+
             setOnClickListener {
                 if (mainActivityViewModel.checkUnsupportedApplication(application, activity)) {
                     return@setOnClickListener
                 }
                 applicationIcon?.let {
-                    if (application.isFree) {
+                    if (application.isFree || application.isPurchased) {
                         disableInstallButton(R.string.cancel)
                         installApplication(application)
                     } else {
-                        if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(application)) {
-                            ApplicationDialogFragment(
-                                title = getString(R.string.dialog_title_paid_app, application.name),
-                                message = getString(
-                                    R.string.dialog_paidapp_message,
-                                    application.name,
-                                    application.price
-                                ),
-                                positiveButtonText = getString(R.string.dialog_confirm),
-                                positiveButtonAction = {
-                                    installApplication(application)
-                                },
-                                cancelButtonText = getString(R.string.dialog_cancel),
-                            ).show(childFragmentManager, "ApplicationFragment")
-                        }
+                        handleInstallClickForPaidApp(application)
                     }
                 }
             }
         }
         downloadPB.visibility = View.GONE
         appSize.visibility = View.VISIBLE
+    }
+
+    private fun handleInstallClickForPaidApp(application: Application) {
+        if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(application)) {
+            ApplicationDialogFragment(
+                title = getString(R.string.dialog_title_paid_app, application.name),
+                message = getString(
+                    R.string.dialog_paidapp_message,
+                    application.name,
+                    application.price
+                ),
+                positiveButtonText = getString(R.string.dialog_confirm),
+                positiveButtonAction = {
+                    installApplication(application)
+                },
+                cancelButtonText = getString(R.string.dialog_cancel),
+            ).show(childFragmentManager, "ApplicationFragment")
+        }
     }
 
     private fun MaterialButton.disableInstallButton(buttonStringID: Int) {
