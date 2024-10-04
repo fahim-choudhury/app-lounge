@@ -111,7 +111,7 @@ object CommonUtilsModule {
     @Singleton
     @Provides
     fun provideCache(@ApplicationContext context: Context): Cache {
-        val cacheSize = (10 * 1024 * 1024).toLong() // 10 MB
+        val cacheSize = (30 * 1024 * 1024).toLong() // 30 MB
         return Cache(context.cacheDir, cacheSize)
     }
 

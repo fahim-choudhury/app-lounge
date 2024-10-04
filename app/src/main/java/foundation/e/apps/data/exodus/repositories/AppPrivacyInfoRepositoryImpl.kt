@@ -56,6 +56,10 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
             return Result.success(appInfo)
         }
 
+        if (application.is_pwa) {
+            return Result.error("No need to fetch trackers for a PWA app")
+        }
+
         val appTrackerInfoResult = getResult {
             exodusTrackerApi.getTrackerInfoOfApp(
                 appHandle,
