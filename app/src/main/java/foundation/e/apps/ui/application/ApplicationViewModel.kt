@@ -72,45 +72,66 @@ class ApplicationViewModel @Inject constructor(
     val appContentRatingState = _appContentRatingState.asStateFlow()
 
     fun loadData(
-        id: String,
-        packageName: String,
-        origin: Origin,
-        isFdroidLink: Boolean,
-        authObjectList: List<AuthObject>,
+        params: ApplicationLoadingParams,
         retryBlock: (failedObjects: List<AuthObject>) -> Boolean,
     ) {
 
-        if (isFdroidLink) {
-            getCleanapkAppDetails(packageName)
+        if (params.isFdroidDeepLink) {
+            getCleanapkAppDetails(params.packageName)
             return
         }
 
-        val gPlayObj = authObjectList.find { it is AuthObject.GPlayAuth }
+        val gPlayObj = params.authObjectList.find { it is AuthObject.GPlayAuth }
 
         /*
          * If user is viewing only open source apps, auth object list will not have
          * GPlayAuth, it will only have CleanApkAuth.
          */
-        if (gPlayObj == null && origin == Origin.GPLAY) {
+        if (gPlayObj == null && params.origin == Origin.GPLAY) {
             _errorMessageLiveData.postValue(R.string.gplay_data_for_oss)
             return
         }
 
-        super.onLoadData(authObjectList, { successAuthList, _ ->
+        super.onLoadData(params.authObjectList, { successAuthList, _ ->
 
             successAuthList.find { it is AuthObject.GPlayAuth }?.run {
-                getApplicationDetails(id, packageName, result.data!! as AuthData, origin)
+                val authData = result.data as? AuthData
+                // Usually authdata won't be null, null check is added to avoid forcefully unwrapping
+                if (authData == null) {
+                    _errorMessageLiveData.postValue(R.string.data_load_error)
+                    return@onLoadData
+                }
+
+                getApplicationDetails(
+                    params.appId,
+                    params.packageName,
+                    params.isPurchased,
+                    authData,
+                    params.origin
+                )
                 return@onLoadData
             }
 
             successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getApplicationDetails(id, packageName, AuthData("", ""), origin)
+                getApplicationDetails(
+                    params.appId,
+                    params.packageName,
+                    params.isPurchased,
+                    AuthData("", ""),
+                    params.origin
+                )
                 return@onLoadData
             }
         }, retryBlock)
     }
 
-    fun getApplicationDetails(id: String, packageName: String, authData: AuthData, origin: Origin) {
+    fun getApplicationDetails(
+        id: String,
+        packageName: String,
+        isPurchased: Boolean,
+        authData: AuthData,
+        origin: Origin
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val appData =
@@ -120,6 +141,7 @@ class ApplicationViewModel @Inject constructor(
                         authData,
                         origin
                     )
+                appData.first.isPurchased = isPurchased
                 applicationLiveData.postValue(appData)
 
                 updateShareVisibilityState(appData.first.shareUri.toString())
@@ -247,3 +269,12 @@ sealed class ShareButtonVisibilityState {
     object Visible : ShareButtonVisibilityState()
     object Hidden : ShareButtonVisibilityState()
 }
+
+data class ApplicationLoadingParams(
+    val appId: String,
+    val packageName: String,
+    val origin: Origin,
+    val isFdroidDeepLink: Boolean,
+    val authObjectList: List<AuthObject>,
+    val isPurchased: Boolean
+)

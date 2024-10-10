@@ -114,6 +114,10 @@
             android:name="isGplayReplaced"
             app:argType="boolean"
             android:defaultValue="false"/>
+        <argument
+            android:name="isPurchased"
+            app:argType="boolean"
+            android:defaultValue="false"/>
         <deepLink
             app:action="android.intent.action.VIEW"
             app:uri="play.google.com/store/apps/details?id={packageName}" />
