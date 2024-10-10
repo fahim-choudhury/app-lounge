@@ -22,12 +22,14 @@ import android.os.Build
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.gitlab.models.GitlabReleaseInfo
 import foundation.e.apps.data.gitlab.models.SystemAppInfo
 import foundation.e.apps.data.gitlab.models.SystemAppProject
 import foundation.e.apps.data.gitlab.models.toApplication
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.utils.SystemInfoProvider
+import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 import timber.log.Timber
@@ -40,7 +42,6 @@ class SystemAppsUpdatesRepository @Inject constructor(
     private val applicationDataManager: ApplicationDataManager,
     private val appLoungePackageManager: AppLoungePackageManager,
 ) {
-
     private val systemAppProjectList = mutableListOf<SystemAppProject>()
 
     private fun getUpdatableSystemApps(): List<String> {
@@ -102,11 +103,15 @@ class SystemAppsUpdatesRepository @Inject constructor(
         device: String,
     ): Application? {
 
-        val projectId =
-            systemAppProjectList.find { it.packageName == packageName }?.projectId ?: return null
+        val systemAppProject = systemAppProjectList.find { it.packageName == packageName } ?: return null
 
-        val response = systemAppDefinitionApi.getLatestSystemAppUpdateInfo(projectId, releaseType)
-        val systemAppInfo = response.body()
+
+        val response = getSystemAppInfo(systemAppProject, releaseType)
+        if (response == null) { //todo refactor to avoid checking this
+            Timber.e("Can't get latest release for : $packageName")
+            return null
+        }
+        val systemAppInfo = response?.body()
 
         return if (systemAppInfo == null) {
             Timber.e("Null app info for: $packageName, response: ${response.errorBody()?.string()}")
@@ -116,6 +121,49 @@ class SystemAppsUpdatesRepository @Inject constructor(
             null
         } else {
             systemAppInfo.toApplication(context)
+        }
+    }
+
+    private suspend fun getSystemAppInfo(systemAppProject: SystemAppProject, releaseType: String): Response<SystemAppInfo>? {
+        val projectId = systemAppProject.projectId
+
+        return if (systemAppProject.dependsOnAndroidVersion) {
+            val latestRelease = getLatestSystemAppReleaseByAndroidVersion(projectId)
+            if (latestRelease == null) {
+                null //todo replace by an error code to avoid to check for nullity in calling method ?
+            } else {
+                val releaseTag = latestRelease.tagName
+                systemAppDefinitionApi.getSystemAppUpdateInfoByTag(projectId, releaseTag, releaseType)
+            }
+
+        } else {
+            systemAppDefinitionApi.getLatestSystemAppUpdateInfo(projectId, releaseType)
+        }
+    }
+
+    //todo: rename & rewrite ?
+    private suspend fun getLatestSystemAppReleaseByAndroidVersion(projectId: Int): GitlabReleaseInfo? {
+        val gitlabReleaseList = systemAppDefinitionApi.getSystemAppReleases(projectId).body()
+
+        val latestRelease = gitlabReleaseList?.filter {
+            it.tagName.contains("api${getAndroidVersion()}-")
+        }?.sortedByDescending { it.releasedAt }?.first()
+
+        return latestRelease
+    }
+
+    /*
+    todo: this method cannot match upper version. UPSIDE_DOWN_CAKE or VANILLA or note available
+    through BUILD.VERSIO_CODES (may be due to targeted SDK or minimum SDK.)
+    todo: This method shouldn't be called for each app. We need to define it only once!
+     */
+    private fun getAndroidVersion(): String {
+        return when (Build.VERSION.SDK_INT) {
+            Build.VERSION_CODES.Q -> "Q"
+            Build.VERSION_CODES.R -> "R"
+            Build.VERSION_CODES.S -> "S"
+            Build.VERSION_CODES.TIRAMISU -> "T"
+            else -> "unknown"
         }
     }
 
