@@ -97,7 +97,8 @@ class HomeChildRVAdapter(
                     homeApp._id,
                     homeApp.origin,
                     homeApp.category,
-                    homeApp.isGplayReplaced
+                    homeApp.isGplayReplaced,
+                    homeApp.isPurchased
                 )
                 holder.itemView.findNavController().navigate(action)
             }

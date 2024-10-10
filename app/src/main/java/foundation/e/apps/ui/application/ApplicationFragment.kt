@@ -18,6 +18,7 @@
 
 package foundation.e.apps.ui.application
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -231,10 +232,30 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
         fetchAppTracker(it)
         observeDownloadList()
-        observeDownloadStatus(binding.root)
+        updateInstallButton(it)
         stopLoadingUI()
 
         collectState()
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun updateInstallButton(application: Application) {
+        binding.downloadInclude.apply {
+            installButton.disableInstallButton(R.string.install)
+            installButton.text = ""
+            progressBarInstall.visibility = View.VISIBLE
+        }
+
+        if (!isFreeOrAlreadyPurchased(application)) {
+            appInfoFetchViewModel.isAppPurchased(application).observe(viewLifecycleOwner) {
+                binding.downloadInclude.progressBarInstall.visibility = View.GONE
+                observeDownloadStatus(binding.root)
+            }
+            return
+        }
+
+        binding.downloadInclude.progressBarInstall.visibility = View.GONE
+        observeDownloadStatus(binding.root)
     }
 
     private fun collectState() {
@@ -584,13 +605,15 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         /* Remove trailing slash (if present) that can become part of the packageName */
         val packageName = args.packageName.run { if (endsWith('/')) dropLast(1) else this }
 
-        applicationViewModel.loadData(
+        val applicationLoadingParams = ApplicationLoadingParams(
             args.id,
             packageName,
             origin,
             isFdroidDeepLink,
-            authObjectList
-        ) {
+            authObjectList,
+            args.isPurchased
+        )
+        applicationViewModel.loadData(applicationLoadingParams) {
             clearAndRestartGPlayLogin()
             true
         }
@@ -794,39 +817,47 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
                 mainActivityViewModel.checkUnsupportedApplication(application) ->
                     getString(R.string.not_available)
 
-                application.isFree -> getString(R.string.install)
+                isFreeOrAlreadyPurchased(application) -> getString(R.string.install)
                 else -> application.price
             }
+
             setOnClickListener {
                 if (mainActivityViewModel.checkUnsupportedApplication(application, activity)) {
                     return@setOnClickListener
                 }
                 applicationIcon?.let {
-                    if (application.isFree) {
+                    if (isFreeOrAlreadyPurchased(application)) {
                         disableInstallButton(R.string.cancel)
                         installApplication(application)
                     } else {
-                        if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(application)) {
-                            ApplicationDialogFragment(
-                                title = getString(R.string.dialog_title_paid_app, application.name),
-                                message = getString(
-                                    R.string.dialog_paidapp_message,
-                                    application.name,
-                                    application.price
-                                ),
-                                positiveButtonText = getString(R.string.dialog_confirm),
-                                positiveButtonAction = {
-                                    installApplication(application)
-                                },
-                                cancelButtonText = getString(R.string.dialog_cancel),
-                            ).show(childFragmentManager, "ApplicationFragment")
-                        }
+                        handleInstallClickForPaidApp(application)
                     }
                 }
             }
         }
         downloadPB.visibility = View.GONE
         appSize.visibility = View.VISIBLE
+    }
+
+    private fun isFreeOrAlreadyPurchased(application: Application) =
+        application.isFree || application.isPurchased
+
+    private fun handleInstallClickForPaidApp(application: Application) {
+        if (!mainActivityViewModel.shouldShowPaidAppsSnackBar(application)) {
+            ApplicationDialogFragment(
+                title = getString(R.string.dialog_title_paid_app, application.name),
+                message = getString(
+                    R.string.dialog_paidapp_message,
+                    application.name,
+                    application.price
+                ),
+                positiveButtonText = getString(R.string.dialog_confirm),
+                positiveButtonAction = {
+                    installApplication(application)
+                },
+                cancelButtonText = getString(R.string.dialog_cancel),
+            ).show(childFragmentManager, "ApplicationFragment")
+        }
     }
 
     private fun MaterialButton.disableInstallButton(buttonStringID: Int) {

@@ -258,7 +258,8 @@ class ApplicationListRVAdapter(
                     searchApp._id,
                     searchApp.origin,
                     catText,
-                    searchApp.isGplayReplaced
+                    searchApp.isGplayReplaced,
+                    searchApp.isPurchased
                 )
             }
             R.id.searchFragment -> {
@@ -267,7 +268,8 @@ class ApplicationListRVAdapter(
                     searchApp._id,
                     searchApp.origin,
                     catText,
-                    searchApp.isGplayReplaced
+                    searchApp.isGplayReplaced,
+                    searchApp.isPurchased
                 )
             }
             R.id.updatesFragment -> {
@@ -276,7 +278,8 @@ class ApplicationListRVAdapter(
                     searchApp._id,
                     searchApp.origin,
                     catText,
-                    searchApp.isGplayReplaced
+                    searchApp.isGplayReplaced,
+                    searchApp.isPurchased
                 )
             }
             else -> null
