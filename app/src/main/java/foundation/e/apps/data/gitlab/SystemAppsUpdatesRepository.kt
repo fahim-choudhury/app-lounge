@@ -102,7 +102,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
         val projectId =
             systemAppProjectList.find { it.packageName == packageName }?.projectId ?: return null
 
-        val response = systemAppDefinitionApi.getSystemAppUpdateInfo(projectId, releaseType)
+        val response = systemAppDefinitionApi.getLatestSystemAppUpdateInfo(projectId, releaseType)
         val systemAppInfo = response.body()
 
         return if (systemAppInfo == null) {
