@@ -53,17 +53,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
                 return@handleNetworkResult
             }
 
-            val systemName = getFullSystemName()
-            val endPoint = if (
-                systemName.isBlank() ||
-                systemName.contains("beta") ||
-                systemName.contains("rc")
-            ) {
-                UpdatableSystemAppsApi.EndPoint.ENDPOINT_TEST
-            } else {
-                UpdatableSystemAppsApi.EndPoint.ENDPOINT_RELEASE
-            }
-
+            val endPoint = getUpdatableSystemAppEndPoint()
             val response = updatableSystemAppsApi.getUpdatableSystemApps(endPoint)
 
             if (response.isSuccessful && !response.body().isNullOrEmpty()) {
@@ -76,6 +66,19 @@ class SystemAppsUpdatesRepository @Inject constructor(
 
         if (!result.isSuccess()) {
             Timber.e("Network error when fetching updatable apps - ${result.message}")
+        }
+    }
+
+    private fun getUpdatableSystemAppEndPoint(): UpdatableSystemAppsApi.EndPoint {
+        val systemName = getFullSystemName()
+        return if (
+            systemName.isBlank() ||
+            systemName.contains("beta") ||
+            systemName.contains("rc")
+        ) {
+            UpdatableSystemAppsApi.EndPoint.ENDPOINT_TEST
+        } else {
+            UpdatableSystemAppsApi.EndPoint.ENDPOINT_RELEASE
         }
     }
 
