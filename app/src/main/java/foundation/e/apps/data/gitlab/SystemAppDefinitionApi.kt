@@ -17,6 +17,7 @@
 
 package foundation.e.apps.data.gitlab
 
+import foundation.e.apps.data.gitlab.models.GitlabReleaseInfo
 import foundation.e.apps.data.gitlab.models.SystemAppInfo
 import retrofit2.Response
 import retrofit2.http.GET
@@ -50,7 +51,7 @@ interface SystemAppDefinitionApi {
     @GET(LIST_RELEASES_URL_SEGMENT)
     suspend fun getSystemAppReleases(
         @Path(PROJECT_ID_PLACEHOLDER) projectId: Int
-    )//: Response<@TODO>
+    ): Response<List<GitlabReleaseInfo>>
 
     @GET(UPDATE_INFO_BY_TAG_URL_SEGMENT)
     suspend fun getSystemAppUpdateInfoByTag(
