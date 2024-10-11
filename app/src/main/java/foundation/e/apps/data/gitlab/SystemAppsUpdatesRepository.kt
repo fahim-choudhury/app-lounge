@@ -130,14 +130,13 @@ class SystemAppsUpdatesRepository @Inject constructor(
         val projectId = systemAppProject.projectId
 
         return if (systemAppProject.dependsOnAndroidVersion) {
-            val latestRelease = getLatestReleaseByAndroidVersion(projectId)
-            if (latestRelease == null) {
-                null //todo replace by an error code to avoid to check for nullity in calling method ?
-            } else {
-                val releaseTag = latestRelease.tagName
-                systemAppDefinitionApi.getSystemAppUpdateInfoByTag(projectId, releaseTag, releaseType)
-            }
+            val latestReleaseTag = getLatestReleaseByAndroidVersion(projectId)?.tagName
 
+            if (latestReleaseTag == null) {
+                null
+            } else {
+                systemAppDefinitionApi.getSystemAppUpdateInfoByTag(projectId, latestReleaseTag, releaseType)
+            }
         } else {
             systemAppDefinitionApi.getLatestSystemAppUpdateInfo(projectId, releaseType)
         }
