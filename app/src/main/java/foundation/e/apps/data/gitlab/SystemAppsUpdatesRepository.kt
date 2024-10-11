@@ -44,6 +44,8 @@ class SystemAppsUpdatesRepository @Inject constructor(
 ) {
     private val systemAppProjectList = mutableListOf<SystemAppProject>()
 
+    private val androidVersionCode by lazy { getAndroidVersionCodeChar() }
+
     private fun getUpdatableSystemApps(): List<String> {
         return systemAppProjectList.map { it.packageName }
     }
@@ -128,7 +130,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
         val projectId = systemAppProject.projectId
 
         return if (systemAppProject.dependsOnAndroidVersion) {
-            val latestRelease = getLatestSystemAppReleaseByAndroidVersion(projectId)
+            val latestRelease = getLatestReleaseByAndroidVersion(projectId)
             if (latestRelease == null) {
                 null //todo replace by an error code to avoid to check for nullity in calling method ?
             } else {
@@ -141,15 +143,12 @@ class SystemAppsUpdatesRepository @Inject constructor(
         }
     }
 
-    //todo: rename & rewrite ?
-    private suspend fun getLatestSystemAppReleaseByAndroidVersion(projectId: Int): GitlabReleaseInfo? {
+    private suspend fun getLatestReleaseByAndroidVersion(projectId: Int): GitlabReleaseInfo? {
         val gitlabReleaseList = systemAppDefinitionApi.getSystemAppReleases(projectId).body()
 
-        val latestRelease = gitlabReleaseList?.filter {
-            it.tagName.contains("api${getAndroidVersion()}-")
-        }?.sortedByDescending { it.releasedAt }?.first()
-
-        return latestRelease
+        return gitlabReleaseList?.filter {
+            it.tagName.contains("api$androidVersionCode-")
+        }?.sortedByDescending { it.releasedAt }?.firstOrNull()
     }
 
     /*
@@ -157,7 +156,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
     through BUILD.VERSIO_CODES (may be due to targeted SDK or minimum SDK.)
     todo: This method shouldn't be called for each app. We need to define it only once!
      */
-    private fun getAndroidVersion(): String {
+    private fun getAndroidVersionCodeChar(): String {
         return when (Build.VERSION.SDK_INT) {
             Build.VERSION_CODES.Q -> "Q"
             Build.VERSION_CODES.R -> "R"
