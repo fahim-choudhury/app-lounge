@@ -44,7 +44,13 @@ class SystemAppsUpdatesRepository @Inject constructor(
 ) {
     private val systemAppProjectList = mutableListOf<SystemAppProject>()
 
-    private val androidVersionCode by lazy { getAndroidVersionCodeChar() }
+    private val androidVersionCode by lazy {
+        try { getAndroidVersionCodeChar() }
+        catch (exception: RuntimeException) {
+            Timber.w(exception.message)
+            "UnsupportedAndroidAPI"
+        }
+    }
 
     private fun getUpdatableSystemApps(): List<String> {
         return systemAppProjectList.map { it.packageName }
@@ -150,18 +156,15 @@ class SystemAppsUpdatesRepository @Inject constructor(
         }?.sortedByDescending { it.releasedAt }?.firstOrNull()
     }
 
-    /*
-    todo: this method cannot match upper version. UPSIDE_DOWN_CAKE or VANILLA or note available
-    through BUILD.VERSIO_CODES (may be due to targeted SDK or minimum SDK.)
-    todo: This method shouldn't be called for each app. We need to define it only once!
-     */
     private fun getAndroidVersionCodeChar(): String {
-        return when (Build.VERSION.SDK_INT) {
-            Build.VERSION_CODES.Q -> "Q"
-            Build.VERSION_CODES.R -> "R"
+        val baseAPI = Build.VERSION_CODES.BASE
+        val lastUnsupportedAPI = Build.VERSION_CODES.R
+
+        return when (val currentAPI = Build.VERSION.SDK_INT) {
+            in baseAPI.. lastUnsupportedAPI -> throw RuntimeException("Android $currentAPI is not supported anymore")
             Build.VERSION_CODES.S -> "S"
             Build.VERSION_CODES.TIRAMISU -> "T"
-            else -> "unknown"
+            else -> throw RuntimeException("Android $currentAPI and above is not yet supported")
         }
     }
 
