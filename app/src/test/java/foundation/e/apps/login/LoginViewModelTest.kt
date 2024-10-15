@@ -24,7 +24,7 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.AuthenticatorRepository
-import foundation.e.apps.data.login.LoginViewModel
+import foundation.e.apps.ui.LoginViewModel
 import okhttp3.Cache
 import org.junit.Before
 import org.junit.Rule
