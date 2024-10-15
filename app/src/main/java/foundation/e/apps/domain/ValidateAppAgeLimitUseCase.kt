@@ -21,13 +21,14 @@ package foundation.e.apps.domain
 import com.aurora.gplayapi.data.models.ContentRating
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.apps.AppsApi
-import foundation.e.apps.data.parentalcontrol.Age
-import foundation.e.apps.data.parentalcontrol.ParentalControlRepository
+import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.install.models.AppInstall
-import foundation.e.apps.data.parentalcontrol.fdroid.FDroidAntiFeatureRepository
+import foundation.e.apps.data.parentalcontrol.Age
 import foundation.e.apps.data.parentalcontrol.ContentRatingDao
+import foundation.e.apps.data.parentalcontrol.ParentalControlRepository
+import foundation.e.apps.data.parentalcontrol.fdroid.FDroidAntiFeatureRepository
 import foundation.e.apps.data.parentalcontrol.googleplay.GPlayContentRatingGroup
 import foundation.e.apps.data.parentalcontrol.googleplay.GPlayContentRatingRepository
 import foundation.e.apps.domain.model.ContentRatingValidity
@@ -38,6 +39,7 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
     private val gPlayContentRatingRepository: GPlayContentRatingRepository,
     private val fDroidAntiFeatureRepository: FDroidAntiFeatureRepository,
     private val parentalControlRepository: ParentalControlRepository,
+    private val blockedAppRepository: BlockedAppRepository,
     private val appsApi: AppsApi,
     private val contentRatingDao: ContentRatingDao,
 ) {
@@ -60,7 +62,10 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
                 data = ContentRatingValidity(true)
             )
 
+            isThirdPartyStoreApp(app) -> ResultSupreme.Success(data = ContentRatingValidity(false))
+
             isKnownNsfwApp(app) -> ResultSupreme.Success(data = ContentRatingValidity(false))
+
             isCleanApkApp(app) -> ResultSupreme.Success(
                 data = ContentRatingValidity(isValid = !isNsfwAppByCleanApkApi(app))
             )
@@ -72,6 +77,10 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
             hasNoContentRatingOnGPlay(app) -> ResultSupreme.Error()
             else -> validateAgeLimit(ageGroup, app)
         }
+    }
+
+    private fun isThirdPartyStoreApp(app: AppInstall): Boolean {
+        return blockedAppRepository.isThirdPartyStoreApp(app.packageName)
     }
 
     private fun isGitlabApp(app: AppInstall): Boolean {

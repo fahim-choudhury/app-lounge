@@ -40,6 +40,7 @@ import foundation.e.apps.contract.ParentalControlContract.PATH_BLOCKLIST
 import foundation.e.apps.contract.ParentalControlContract.PATH_LOGIN_TYPE
 import foundation.e.apps.contract.ParentalControlContract.getAppLoungeProviderAuthority
 import foundation.e.apps.data.ResultSupreme
+import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthenticatorRepository
@@ -73,6 +74,7 @@ class AgeRatingProvider : ContentProvider() {
         fun provideDataStoreManager(): DataStoreManager
         fun provideNotificationManager(): NotificationManager
         fun provideContentRatingDao(): ContentRatingDao
+        fun provideBlockedAppRepository(): BlockedAppRepository
     }
 
     companion object {
@@ -88,6 +90,7 @@ class AgeRatingProvider : ContentProvider() {
     private lateinit var dataStoreManager: DataStoreManager
     private lateinit var notificationManager: NotificationManager
     private lateinit var contentRatingDao: ContentRatingDao
+    private lateinit var blockedAppRepository: BlockedAppRepository
 
     private enum class UriCode(val code: Int) {
         LoginType(1),
@@ -230,7 +233,7 @@ class AgeRatingProvider : ContentProvider() {
         )
     }
 
-    private suspend fun isAppValidRegardingNSWF(packageName: String): Boolean {
+    private suspend fun isAppValidRegardingNSFW(packageName: String): Boolean {
         val fakeAppInstall = AppInstall(
             packageName = packageName,
             origin = Origin.CLEANAPK,
@@ -243,10 +246,15 @@ class AgeRatingProvider : ContentProvider() {
         return when {
             validateAppAgeLimitUseCase.isParentalControlDisabled() -> true
             !isInitialized() -> false
-            !isAppValidRegardingNSWF(packageName) -> false
+            isThirdPartyStoreApp(packageName) -> false
+            !isAppValidRegardingNSFW(packageName) -> false
             isAppValidRegardingAge(packageName) == false -> false
             else -> true
         }
+    }
+
+    private fun isThirdPartyStoreApp(packageName: String): Boolean {
+        return blockedAppRepository.isThirdPartyStoreApp(packageName)
     }
 
     private suspend fun compileAppBlockList(
@@ -304,6 +312,7 @@ class AgeRatingProvider : ContentProvider() {
         dataStoreManager = hiltEntryPoint.provideDataStoreManager()
         notificationManager = hiltEntryPoint.provideNotificationManager()
         contentRatingDao = hiltEntryPoint.provideContentRatingDao()
+        blockedAppRepository = hiltEntryPoint.provideBlockedAppRepository()
 
         return true
     }
