@@ -54,11 +54,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
             }
 
             val systemName = getFullSystemName()
-            val endPoint = if (
-                systemName.isBlank() ||
-                systemName.contains("beta") ||
-                systemName.contains("rc")
-            ) {
+            val endPoint = if (isEligibleToFetchAppListFromTest(systemName)) {
                 UpdatableSystemAppsApi.EndPoint.ENDPOINT_TEST
             } else {
                 UpdatableSystemAppsApi.EndPoint.ENDPOINT_RELEASE
@@ -78,6 +74,11 @@ class SystemAppsUpdatesRepository @Inject constructor(
             Timber.e("Network error when fetching updatable apps - ${result.message}")
         }
     }
+
+    private fun isEligibleToFetchAppListFromTest(systemName: String) = systemName.isBlank() ||
+            systemName.contains("beta") ||
+            systemName.contains("rc") ||
+            systemName.contains("test")
 
     private fun isSystemAppBlocked(
         systemAppInfo: SystemAppInfo,
