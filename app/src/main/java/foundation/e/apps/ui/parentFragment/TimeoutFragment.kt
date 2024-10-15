@@ -34,7 +34,7 @@ import foundation.e.apps.R
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.PlayStoreAuthenticator
-import foundation.e.apps.data.login.LoginViewModel
+import foundation.e.apps.ui.LoginViewModel
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
