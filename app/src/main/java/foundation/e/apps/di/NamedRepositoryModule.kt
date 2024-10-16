@@ -26,7 +26,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import foundation.e.apps.data.cleanapk.CleanApkAppDetailsRetrofit
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
-import foundation.e.apps.data.cleanapk.repositories.CleanApkAppsRepositoryImpl
+import foundation.e.apps.data.cleanapk.repositories.CleanApkAppsRepository
 import foundation.e.apps.data.cleanapk.repositories.CleanApkPWARepository
 import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.playstore.PlayStoreRepository
@@ -57,7 +57,7 @@ object NamedRepositoryModule {
         cleanAPKRetrofit: CleanApkRetrofit,
         cleanApkAppDetailsRetrofit: CleanApkAppDetailsRetrofit
     ): CleanApkRepository {
-        return CleanApkAppsRepositoryImpl(cleanAPKRetrofit, cleanApkAppDetailsRetrofit)
+        return CleanApkAppsRepository(cleanAPKRetrofit, cleanApkAppDetailsRetrofit)
     }
 
     @Singleton

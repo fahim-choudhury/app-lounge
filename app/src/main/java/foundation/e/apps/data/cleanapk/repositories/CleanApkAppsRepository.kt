@@ -28,7 +28,7 @@ import foundation.e.apps.data.cleanapk.data.home.HomeScreen
 import foundation.e.apps.data.cleanapk.data.search.Search
 import retrofit2.Response
 
-class CleanApkAppsRepositoryImpl(
+class CleanApkAppsRepository(
     private val cleanApkRetrofit: CleanApkRetrofit,
     private val cleanApkAppDetailsRetrofit: CleanApkAppDetailsRetrofit
 ) : CleanApkRepository, CleanApkDownloadInfoFetcher {
