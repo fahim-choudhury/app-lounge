@@ -37,7 +37,7 @@ import timber.log.Timber
 class SystemAppsUpdatesRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val updatableSystemAppsApi: UpdatableSystemAppsApi,
-    private val systemAppDefinitionApi: SystemAppDefinitionApi,
+    private val gitlabReleaseApi: GitlabReleaseApi,
     private val applicationDataManager: ApplicationDataManager,
     private val appLoungePackageManager: AppLoungePackageManager,
 ) {
@@ -135,10 +135,10 @@ class SystemAppsUpdatesRepository @Inject constructor(
                 return null
             }
 
-            systemAppDefinitionApi.getSystemAppUpdateInfoByTag(projectId, releaseType, latestRelease.tagName)
+            gitlabReleaseApi.getSystemAppUpdateInfoByTag(projectId, releaseType, latestRelease.tagName)
 
         } else {
-            systemAppDefinitionApi.getLatestSystemAppUpdateInfo(projectId, releaseType)
+            gitlabReleaseApi.getLatestSystemAppUpdateInfo(projectId, releaseType)
         }
 
         return if (response.isSuccessful ) {
@@ -150,7 +150,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
     }
 
     private suspend fun getLatestReleaseByAndroidVersion(projectId: Int): GitlabReleaseInfo? {
-        val gitlabReleaseList = systemAppDefinitionApi.getSystemAppReleases(projectId).body()
+        val gitlabReleaseList = gitlabReleaseApi.getSystemAppReleases(projectId).body()
 
         return gitlabReleaseList?.filter {
             it.tagName.contains("api$androidVersionCode-")

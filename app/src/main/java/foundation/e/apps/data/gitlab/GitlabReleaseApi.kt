@@ -26,10 +26,8 @@ import retrofit2.http.Path
 /*
 Those API method client must fit with gitlab releases API
 https://docs.gitlab.com/ee/api/releases/#download-a-release-asset
-TODO Option to consider at the end of the implementation:
-Can we rename this interface into: GitlabReleaseApi ?
  */
-interface SystemAppDefinitionApi {
+interface GitlabReleaseApi {
 
     companion object {
         const val BASE_URL =

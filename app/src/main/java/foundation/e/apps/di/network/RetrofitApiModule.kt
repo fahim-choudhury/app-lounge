@@ -30,7 +30,7 @@ import foundation.e.apps.data.ecloud.EcloudApiInterface
 import foundation.e.apps.data.exodus.ExodusTrackerApi
 import foundation.e.apps.data.fdroid.FdroidApiInterface
 import foundation.e.apps.data.gitlab.UpdatableSystemAppsApi
-import foundation.e.apps.data.gitlab.SystemAppDefinitionApi
+import foundation.e.apps.data.gitlab.GitlabReleaseApi
 import foundation.e.apps.data.parentalcontrol.fdroid.FDroidMonitorApi
 import foundation.e.apps.data.parentalcontrol.googleplay.AgeGroupApi
 import foundation.e.apps.di.network.NetworkModule.getYamlFactory
@@ -152,13 +152,13 @@ class RetrofitApiModule {
     fun provideSystemAppDefinitionApi(
         okHttpClient: OkHttpClient,
         moshi: Moshi,
-    ): SystemAppDefinitionApi {
+    ): GitlabReleaseApi {
         return Retrofit.Builder()
-            .baseUrl(SystemAppDefinitionApi.BASE_URL)
+            .baseUrl(GitlabReleaseApi.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
-            .create(SystemAppDefinitionApi::class.java)
+            .create(GitlabReleaseApi::class.java)
     }
 
 }
