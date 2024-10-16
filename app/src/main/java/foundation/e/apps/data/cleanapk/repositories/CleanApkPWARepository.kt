@@ -18,7 +18,6 @@
 
 package foundation.e.apps.data.cleanapk.repositories
 
-import foundation.e.apps.data.cleanapk.CleanApkAppDetailsRetrofit
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.cleanapk.data.app.Application
 import foundation.e.apps.data.cleanapk.data.categories.Categories
@@ -26,8 +25,7 @@ import foundation.e.apps.data.cleanapk.data.search.Search
 import retrofit2.Response
 
 class CleanApkPWARepository(
-    private val cleanAPKRetrofit: CleanApkRetrofit,
-    private val cleanApkAppDetailsRetrofit: CleanApkAppDetailsRetrofit
+    private val cleanAPKRetrofit: CleanApkRetrofit
 ) : CleanApkRepository {
 
     override suspend fun getHomeScreenData(): Any {
@@ -70,6 +68,6 @@ class CleanApkPWARepository(
     }
 
     override suspend fun getAppDetails(packageNameOrId: String): Response<Application> {
-        return cleanApkAppDetailsRetrofit.getAppOrPWADetailsByID(packageNameOrId, null, null)
+        return cleanAPKRetrofit.getAppOrPWADetailsByID(packageNameOrId, null, null)
     }
 }

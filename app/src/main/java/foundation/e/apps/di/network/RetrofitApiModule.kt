@@ -24,7 +24,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import foundation.e.apps.data.cleanapk.CleanApkAppDetailsRetrofit
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.ecloud.EcloudApiInterface
 import foundation.e.apps.data.exodus.ExodusTrackerApi
@@ -47,27 +46,17 @@ import javax.inject.Singleton
 class RetrofitApiModule {
     @Singleton
     @Provides
-    fun provideCleanApkApi(okHttpClient: OkHttpClient, moshi: Moshi): CleanApkRetrofit {
-        return Retrofit.Builder()
-            .baseUrl(CleanApkRetrofit.BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-            .create(CleanApkRetrofit::class.java)
-    }
-
-    @Singleton
-    @Provides
-    fun provideCleanApkAppDetailsApi(
+    fun provideCleanApkApi(
         okHttpClient: OkHttpClient,
         @Named("gsonCustomAdapter") gson: Gson
-    ): CleanApkAppDetailsRetrofit {
+    ): CleanApkRetrofit
+    {
         return Retrofit.Builder()
             .baseUrl(CleanApkRetrofit.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
-            .create(CleanApkAppDetailsRetrofit::class.java)
+            .create(CleanApkRetrofit::class.java)
     }
 
     @Singleton
