@@ -29,7 +29,6 @@ import foundation.e.apps.data.gitlab.models.toApplication
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.utils.SystemInfoProvider
-import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 import timber.log.Timber
@@ -113,18 +112,9 @@ class SystemAppsUpdatesRepository @Inject constructor(
 
         val systemAppProject = systemAppProjectList.find { it.packageName == packageName } ?: return null
 
+        val systemAppInfo = getSystemAppInfo(systemAppProject, releaseType) ?: return null
 
-        val response = getSystemAppInfo(systemAppProject, releaseType)
-        if (response == null) { //todo refactor to avoid checking this
-            Timber.e("Can't get latest release for : $packageName")
-            return null
-        }
-        val systemAppInfo = response?.body()
-
-        return if (systemAppInfo == null) {
-            Timber.e("Null app info for: $packageName, response: ${response.errorBody()?.string()}")
-            null
-        } else if (isSystemAppBlocked(systemAppInfo, sdkLevel, device)) {
+        return if (isSystemAppBlocked(systemAppInfo, sdkLevel, device)) {
             Timber.e("Blocked system app: $packageName, details: $systemAppInfo")
             null
         } else {
@@ -132,19 +122,30 @@ class SystemAppsUpdatesRepository @Inject constructor(
         }
     }
 
-    private suspend fun getSystemAppInfo(systemAppProject: SystemAppProject, releaseType: String): Response<SystemAppInfo>? {
+    private suspend fun getSystemAppInfo(
+        systemAppProject: SystemAppProject,
+        releaseType: String
+    ): SystemAppInfo? {
+
         val projectId = systemAppProject.projectId
 
-        return if (systemAppProject.dependsOnAndroidVersion) {
-            val latestReleaseTag = getLatestReleaseByAndroidVersion(projectId)?.tagName
-
-            if (latestReleaseTag == null) {
-                null
-            } else {
-                systemAppDefinitionApi.getSystemAppUpdateInfoByTag(projectId, latestReleaseTag, releaseType)
+        val response = if (systemAppProject.dependsOnAndroidVersion) {
+            val latestRelease = getLatestReleaseByAndroidVersion(projectId) ?: run {
+                Timber.e("No release found for project $projectId")
+                return null
             }
+
+            systemAppDefinitionApi.getSystemAppUpdateInfoByTag(projectId, latestRelease.tagName, releaseType)
+
         } else {
             systemAppDefinitionApi.getLatestSystemAppUpdateInfo(projectId, releaseType)
+        }
+
+        return if (response.isSuccessful ) {
+            response.body()
+        } else {
+            Timber.e("Can't get AppInfo for ${systemAppProject.packageName}, response: ${response.errorBody()?.string()}")
+            null
         }
     }
 
@@ -220,5 +221,4 @@ class SystemAppsUpdatesRepository @Inject constructor(
 
         return updateList
     }
-
 }
