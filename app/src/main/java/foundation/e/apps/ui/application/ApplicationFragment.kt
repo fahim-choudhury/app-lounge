@@ -22,7 +22,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Bundle
 import android.text.Html
 import android.text.format.Formatter
@@ -52,7 +51,6 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textview.MaterialTextView
 import dagger.hilt.android.AndroidEntryPoint
-import foundation.e.apps.ui.MainActivity
 import foundation.e.apps.R
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.shareUri
@@ -71,6 +69,7 @@ import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.install.pkg.PWAManager
 import foundation.e.apps.ui.AppInfoFetchViewModel
+import foundation.e.apps.ui.MainActivity
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.ui.PrivacyInfoViewModel
 import foundation.e.apps.ui.application.ShareButtonVisibilityState.Hidden
@@ -78,6 +77,7 @@ import foundation.e.apps.ui.application.ShareButtonVisibilityState.Visible
 import foundation.e.apps.ui.application.model.ApplicationScreenshotsRVAdapter
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.parentFragment.TimeoutFragment
+import foundation.e.apps.utils.ExodusUtil
 import foundation.e.apps.utils.isValid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -144,11 +144,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     companion object {
         private const val PRIVACY_SCORE_SOURCE_CODE_URL =
             "https://gitlab.e.foundation/e/os/apps/-/blob/main/app/src/main/java/foundation/e/apps/data/exodus/repositories/PrivacyScoreRepositoryImpl.kt"
-        private const val EXODUS_URL = "https://exodus-privacy.eu.org"
-        private const val EXODUS_REPORT_URL = "https://reports.exodus-privacy.eu.org/"
         private const val PRIVACY_GUIDELINE_URL = "https://doc.e.foundation/privacy_score"
-        private const val REQUEST_EXODUS_REPORT_URL =
-            "https://reports.exodus-privacy.eu.org/en/analysis/submit#"
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -417,9 +413,11 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun openRequestExodusReportUrl() {
         val openUrlIntent = Intent(Intent.ACTION_VIEW)
-        openUrlIntent.data =
-            Uri.parse("${REQUEST_EXODUS_REPORT_URL}${applicationViewModel.getFusedApp()?.package_name}")
-        startActivity(openUrlIntent)
+        val packageName = applicationViewModel.getFusedApp()?.package_name
+        if (!packageName.isNullOrBlank()) {
+            openUrlIntent.data = ExodusUtil.buildRequestReportUri(packageName)
+            startActivity(openUrlIntent)
+        }
     }
 
     private fun showPrivacyScoreCalculationLoginDialog() {
@@ -987,11 +985,11 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         // if app info not loaded yet, pass the default exodus homePage url
         val fusedApp = applicationViewModel.getFusedApp()
         if (fusedApp == null || fusedApp.permsFromExodus == LIST_OF_NULL) {
-            return EXODUS_URL
+            return ExodusUtil.DEFAULT_URL
         }
 
         val reportId = applicationViewModel.applicationLiveData.value!!.first.reportId
-        return "$EXODUS_REPORT_URL${Locale.getDefault().language}/reports/$reportId"
+        return ExodusUtil.buildReportUri(reportId).toString()
     }
 
     private fun fetchAppTracker(application: Application) {
