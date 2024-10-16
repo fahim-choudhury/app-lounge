@@ -70,6 +70,12 @@ android {
             keyAlias 'platform'
             keyPassword 'android'
         }
+        releaseTestConfig {
+            storeFile file("../keystore/proprietary.keystore")
+            storePassword keystore_password
+            keyAlias 'platform.test'
+            keyPassword keystore_password
+        }
         releaseCommunityConfig {
             storeFile file("../keystore/proprietary.keystore")
             storePassword keystore_password
@@ -87,6 +93,10 @@ android {
     sourceSets {
         debug {
             manifest.srcFile 'src/debug/AndroidManifest.xml'
+        }
+        releaseTest {
+            manifest.srcFile 'src/release/AndroidManifest.xml'
+            java.srcDirs = ['src/release/java']
         }
         releaseCommunity {
             manifest.srcFile 'src/release/AndroidManifest.xml'
@@ -107,6 +117,12 @@ android {
         }
         release {
             minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        releaseTest {
+            minifyEnabled false
+            signingConfig signingConfigs.releaseTestConfig
+            sourceSets
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         releaseCommunity {
