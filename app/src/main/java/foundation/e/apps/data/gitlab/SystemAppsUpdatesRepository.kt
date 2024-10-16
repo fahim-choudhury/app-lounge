@@ -135,7 +135,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
                 return null
             }
 
-            systemAppDefinitionApi.getSystemAppUpdateInfoByTag(projectId, latestRelease.tagName, releaseType)
+            systemAppDefinitionApi.getSystemAppUpdateInfoByTag(projectId, releaseType, latestRelease.tagName)
 
         } else {
             systemAppDefinitionApi.getLatestSystemAppUpdateInfo(projectId, releaseType)

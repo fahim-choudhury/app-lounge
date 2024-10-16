@@ -56,8 +56,8 @@ interface SystemAppDefinitionApi {
     @GET(UPDATE_INFO_BY_TAG_URL_SEGMENT)
     suspend fun getSystemAppUpdateInfoByTag(
         @Path(PROJECT_ID_PLACEHOLDER) projectId: Int,
-        @Path(TAG_NAME_PLACEHOLDER) gitlabTagName: String,
         @Path(RELEASE_TYPE_PLACEHOLDER) releaseType: String,
+        @Path(TAG_NAME_PLACEHOLDER) gitlabTagName: String,
     ): Response<SystemAppInfo>
 
     @GET(LATEST_UPDATE_INFO_URL_SEGMENT)
