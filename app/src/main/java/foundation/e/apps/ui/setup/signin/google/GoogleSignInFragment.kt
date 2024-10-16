@@ -64,9 +64,7 @@ class GoogleSignInFragment : Fragment(R.layout.fragment_google_signin) {
         cookieManager.acceptThirdPartyCookies(binding.webview)
         cookieManager.setAcceptThirdPartyCookies(binding.webview, true)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            binding.webview.settings.safeBrowsingEnabled = false
-        }
+        binding.webview.settings.safeBrowsingEnabled = false
 
         binding.webview.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView, url: String) {

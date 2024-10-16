@@ -21,7 +21,6 @@ class AppManagerWrapper @Inject constructor(
     private val fdroidRepository: FdroidRepository
 ) {
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun createNotificationChannels() {
         return appManager.createNotificationChannels()
     }

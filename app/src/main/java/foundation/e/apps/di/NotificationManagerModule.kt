@@ -49,7 +49,6 @@ object NotificationManagerModule {
     @Singleton
     @Provides
     @Named("download")
-    @RequiresApi(Build.VERSION_CODES.O)
     fun provideDownloadNotificationChannel(
         @ApplicationContext context: Context
     ): NotificationChannel {
@@ -63,7 +62,6 @@ object NotificationManagerModule {
     @Singleton
     @Provides
     @Named("update")
-    @RequiresApi(Build.VERSION_CODES.O)
     fun provideUpdateNotificationChannel(
         @ApplicationContext context: Context
     ): NotificationChannel {

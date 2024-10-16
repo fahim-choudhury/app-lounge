@@ -116,7 +116,6 @@ class MainActivityViewModel @Inject constructor(
      * Notification functions
      */
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun createNotificationChannels() {
         appManagerWrapper.createNotificationChannels()
     }

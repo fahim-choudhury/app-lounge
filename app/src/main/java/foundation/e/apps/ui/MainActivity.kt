@@ -98,9 +98,9 @@ class MainActivity : AppCompatActivity() {
             bottomNavigationView.selectedItemId = R.id.updatesFragment
         }
 
-        if (VERSION.SDK_INT >= VERSION_CODES.O) {
-            viewModel.createNotificationChannels()
-        }
+
+        viewModel.createNotificationChannels()
+
 
 
         viewModel.setupConnectivityManager(this.applicationContext)

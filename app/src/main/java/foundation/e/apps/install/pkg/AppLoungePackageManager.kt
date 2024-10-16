@@ -238,9 +238,8 @@ class AppLoungePackageManager @Inject constructor(
         val params = SessionParams(mode).apply {
             setAppPackageName(packageName)
             setOriginatingUid(android.os.Process.myUid())
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                setInstallReason(PackageManager.INSTALL_REASON_USER)
-            }
+            setInstallReason(PackageManager.INSTALL_REASON_USER)
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 setRequireUserAction(SessionParams.USER_ACTION_NOT_REQUIRED)
             }
