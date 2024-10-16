@@ -9,9 +9,14 @@ import java.time.format.DateTimeFormatter
 // 3 option: replace Instant by another class, use a third party library to make retrocompatibility
 // or update android minimum api to at least API 26
 class InstantJsonAdapter {
+
+    companion object {
+        private val FORMATTER: DateTimeFormatter = DateTimeFormatter.ISO_INSTANT
+    }
+
     @ToJson
     fun toJson(instant: Instant): String {
-        return DateTimeFormatter.ISO_INSTANT.format(instant)
+        return FORMATTER.format(instant)
     }
 
     @FromJson
