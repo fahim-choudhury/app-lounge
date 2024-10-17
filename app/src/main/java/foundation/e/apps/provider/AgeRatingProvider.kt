@@ -201,7 +201,7 @@ class AgeRatingProvider : ContentProvider() {
     private fun canSetupAuthData() {
         val authData = dataStoreManager.getAuthData()
         if (authData.email.isNotBlank() && authData.authToken.isNotBlank()) {
-            authenticatorRepository.gplayAuth = authData
+            authenticatorRepository.setGPlayAuth(authData)
         }
     }
 
@@ -286,7 +286,8 @@ class AgeRatingProvider : ContentProvider() {
 
     private fun hasAuthData(): Boolean {
         return try {
-            authenticatorRepository.gplayAuth != null
+            authenticatorRepository.getGPlayAuthOrThrow()
+            true
         } catch (e: GPlayLoginException) {
             Timber.e("No AuthData to check content rating")
             false
