@@ -87,13 +87,13 @@ class PlayStoreRepository @Inject constructor(
 
         Timber.d("Fetching search result for $query, subBundle: $subBundle")
 
-        subBundle?.let {
-            val searchResult = searchHelper.next(it)
+        val searchResult = if (subBundle != null) {
             Timber.d("fetching next page search data...")
-            return getSearchResultPair(searchResult, query)
+            searchHelper.next(subBundle)
+        } else {
+            searchHelper.searchResults(query)
         }
 
-        val searchResult = searchHelper.searchResults(query)
         return getSearchResultPair(searchResult, query)
     }
 
