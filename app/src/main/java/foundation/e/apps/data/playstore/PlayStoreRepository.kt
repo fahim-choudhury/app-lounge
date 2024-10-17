@@ -55,7 +55,7 @@ class PlayStoreRepository @Inject constructor(
     override suspend fun getHomeScreenData(): Any {
         val homeScreenData = mutableMapOf<String, List<App>>()
         val homeElements = createTopChartElements()
-        val authData = authenticatorRepository.gplayAuth!!
+        val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
         homeElements.forEach {
             val chart = it.value.keys.iterator().next()
@@ -76,11 +76,11 @@ class PlayStoreRepository @Inject constructor(
         context.getString(R.string.movers_shakers_games) to mapOf(Chart.MOVERS_SHAKERS to TopChartsHelper.Type.GAME),
     )
 
-    suspend fun getSearchResult(
+    fun getSearchResult(
         query: String,
         subBundle: MutableSet<SearchBundle.SubBundle>?
     ): Pair<List<App>, MutableSet<SearchBundle.SubBundle>> {
-        val authData = authenticatorRepository.gplayAuth!!
+        val authData = authenticatorRepository.getGPlayAuthOrThrow()
         val searchHelper = SearchHelper(authData).using(gPlayHttpClient)
 
         Timber.d("Fetching search result for $query, subBundle: $subBundle")
@@ -105,7 +105,7 @@ class PlayStoreRepository @Inject constructor(
     }
 
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
-        val authData = authenticatorRepository.gplayAuth!!
+        val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
         val searchData = mutableListOf<SearchSuggestEntry>()
         withContext(Dispatchers.IO) {
@@ -116,7 +116,7 @@ class PlayStoreRepository @Inject constructor(
     }
 
     suspend fun getAppsByCategory(category: String, pageUrl: String?): StreamCluster {
-        val authData = authenticatorRepository.gplayAuth!!
+        val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
         val subCategoryHelper = CategoryAppsHelper(authData).using(gPlayHttpClient)
 
@@ -133,7 +133,7 @@ class PlayStoreRepository @Inject constructor(
             return categoryList
         }
 
-        val authData = authenticatorRepository.gplayAuth!!
+        val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
         withContext(Dispatchers.IO) {
             val categoryHelper = CategoryHelper(authData).using(gPlayHttpClient)
@@ -144,7 +144,7 @@ class PlayStoreRepository @Inject constructor(
 
     override suspend fun getAppDetails(packageNameOrId: String): App? {
         var appDetails: App?
-        val authData = authenticatorRepository.gplayAuth!!
+        val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
         withContext(Dispatchers.IO) {
             val appDetailsHelper = AppDetailsHelper(authData).using(gPlayHttpClient)
@@ -155,7 +155,7 @@ class PlayStoreRepository @Inject constructor(
 
     suspend fun getAppsDetails(packageNamesOrIds: List<String>): List<App> {
         val appDetailsList = mutableListOf<App>()
-        val authData = authenticatorRepository.gplayAuth!!
+        val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
         withContext(Dispatchers.IO) {
             val appDetailsHelper = AppDetailsHelper(authData).using(gPlayHttpClient)
@@ -188,7 +188,7 @@ class PlayStoreRepository @Inject constructor(
         offerType: Int
     ): List<File> {
         val downloadData = mutableListOf<File>()
-        val authData = authenticatorRepository.gplayAuth!!
+        val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
         withContext(Dispatchers.IO) {
             val version = versionCode?.let { it as Int } ?: -1
@@ -205,7 +205,7 @@ class PlayStoreRepository @Inject constructor(
         offerType: Int
     ): List<File> {
         val downloadData = mutableListOf<File>()
-        val authData = authenticatorRepository.gplayAuth!!
+        val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
         withContext(Dispatchers.IO) {
             val purchaseHelper = PurchaseHelper(authData).using(gPlayHttpClient)
@@ -220,7 +220,7 @@ class PlayStoreRepository @Inject constructor(
         appPackage: String,
         contentRating: ContentRating
     ): ContentRating {
-        val authData = authenticatorRepository.gplayAuth!!
+        val authData = authenticatorRepository.getGPlayAuthOrThrow()
         val contentRatingHelper = ContentRatingHelper(authData)
 
         return withContext(Dispatchers.IO) {
@@ -231,8 +231,8 @@ class PlayStoreRepository @Inject constructor(
         }
     }
 
-    suspend fun getEnglishContentRating(packageName: String): ContentRating? {
-        val authData = authenticatorRepository.gplayAuth ?: return null
+    suspend fun getEnglishContentRating(packageName: String): ContentRating {
+        val authData = authenticatorRepository.getGPlayAuthOrThrow()
         val contentRatingHelper = ContentRatingHelper(authData)
 
         return withContext(Dispatchers.IO) {

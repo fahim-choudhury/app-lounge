@@ -71,11 +71,7 @@ class SplitInstallBinder(
         coroutineScope.launch {
             try {
                 authenticatorRepository.getValidatedAuthData()
-                if (authenticatorRepository.gplayAuth == null) {
-                    Timber.w(AUTH_DATA_ERROR_MESSAGE)
-                    handleError(packageName)
-                    return@launch
-                }
+                authenticatorRepository.getGPlayAuthOrThrow()
                 downloadModule(packageName, moduleName)
             } catch (exception: GPlayLoginException) {
                 Timber.w("$AUTH_DATA_ERROR_MESSAGE $exception")
