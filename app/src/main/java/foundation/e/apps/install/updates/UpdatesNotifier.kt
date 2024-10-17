@@ -25,7 +25,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -106,7 +105,7 @@ object UpdatesNotifier {
         return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
 
-    private fun createNotificationChannel(context: Context) {
+     fun createNotificationChannel(context: Context) {
         val importance = NotificationManager.IMPORTANCE_DEFAULT
         val channel = NotificationChannel(
             UPDATES_NOTIFICATION_CHANNEL_ID,
@@ -126,7 +125,6 @@ object UpdatesNotifier {
         isConnectedToUnmeteredNetwork: Boolean
     ) {
         with(NotificationManagerCompat.from(context)) {
-            createNotificationChannel(context)
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED
             ) {
@@ -151,7 +149,6 @@ object UpdatesNotifier {
         message: String,
     ) {
         with(NotificationManagerCompat.from(context)) {
-            createNotificationChannel(context)
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED
             ) {
