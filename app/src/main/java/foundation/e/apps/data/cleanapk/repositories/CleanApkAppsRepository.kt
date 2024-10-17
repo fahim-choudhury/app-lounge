@@ -18,7 +18,6 @@
 
 package foundation.e.apps.data.cleanapk.repositories
 
-import foundation.e.apps.data.cleanapk.CleanApkAppDetailsRetrofit
 import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.cleanapk.data.app.Application
@@ -27,10 +26,10 @@ import foundation.e.apps.data.cleanapk.data.download.Download
 import foundation.e.apps.data.cleanapk.data.home.HomeScreen
 import foundation.e.apps.data.cleanapk.data.search.Search
 import retrofit2.Response
+import javax.inject.Inject
 
-class CleanApkAppsRepositoryImpl(
-    private val cleanApkRetrofit: CleanApkRetrofit,
-    private val cleanApkAppDetailsRetrofit: CleanApkAppDetailsRetrofit
+class CleanApkAppsRepository @Inject constructor(
+    private val cleanApkRetrofit: CleanApkRetrofit
 ) : CleanApkRepository, CleanApkDownloadInfoFetcher {
 
     override suspend fun getHomeScreenData(): Response<HomeScreen> {
@@ -76,7 +75,7 @@ class CleanApkAppsRepositoryImpl(
     }
 
     override suspend fun getAppDetails(packageNameOrId: String): Response<Application> {
-        return cleanApkAppDetailsRetrofit.getAppOrPWADetailsByID(packageNameOrId, null, null)
+        return cleanApkRetrofit.getAppOrPWADetailsByID(packageNameOrId, null, null)
     }
 
     override suspend fun getDownloadInfo(idOrPackageName: String, versionCode: Any?): Response<Download> {

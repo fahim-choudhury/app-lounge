@@ -135,7 +135,7 @@ class AgeRatingProvider : ContentProvider() {
             withContext(IO) {
                 try {
                     if (packageNames.isEmpty()) return@withContext cursor
-                    canSetupAuthData()
+                    initAuthData()
 
                     ensureAgeGroupDataExists()
                     compileAppBlockList(cursor, packageNames)
@@ -197,10 +197,10 @@ class AgeRatingProvider : ContentProvider() {
      * Setup AuthData for other APIs to access,
      * if user has logged in with Google or Anonymous mode.
      */
-    private fun canSetupAuthData() {
+    private fun initAuthData() {
         val authData = dataStoreManager.getAuthData()
         if (authData.email.isNotBlank() && authData.authToken.isNotBlank()) {
-            authenticatorRepository.gplayAuth = authData
+            authenticatorRepository.setGPlayAuth(authData)
         }
     }
 
@@ -280,7 +280,8 @@ class AgeRatingProvider : ContentProvider() {
 
     private fun hasAuthData(): Boolean {
         return try {
-            authenticatorRepository.gplayAuth != null
+            authenticatorRepository.getGPlayAuthOrThrow()
+            true
         } catch (e: GPlayLoginException) {
             Timber.e("No AuthData to check content rating")
             false

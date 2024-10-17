@@ -18,7 +18,7 @@ import javax.inject.Named
 @HiltViewModel
 class AppInfoFetchViewModel @Inject constructor(
     private val fdroidRepository: FdroidRepository,
-    @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
+    private val gplayRepository: PlayStoreRepository,
     private val faultyAppRepository: FaultyAppRepository,
     private val blockedAppRepository: BlockedAppRepository,
 ) : ViewModel() {
