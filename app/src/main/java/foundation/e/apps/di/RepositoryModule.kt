@@ -28,8 +28,6 @@ import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepository
 import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepositoryImpl
 import foundation.e.apps.data.fdroid.FdroidRepository
 import foundation.e.apps.data.fdroid.IFdroidRepository
-import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.data.playstore.PlayStoreRepositoryImpl
 import foundation.e.apps.data.install.AppManagerImpl
 import foundation.e.apps.data.install.AppManager
 import javax.inject.Singleton
@@ -52,8 +50,4 @@ interface RepositoryModule {
     @Singleton
     @Binds
     fun getPrivacyScoreRepository(privacyScoreRepositoryImpl: PrivacyScoreRepositoryImpl): PrivacyScoreRepository
-
-    @Singleton
-    @Binds
-    fun getPlayStoreRepository(playStoreRepository: PlayStoreRepositoryImpl): PlayStoreRepository
 }
