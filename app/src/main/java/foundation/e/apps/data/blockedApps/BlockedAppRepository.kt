@@ -1,6 +1,6 @@
 /*
- * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2022  E FOUNDATION
+ * Copyright (C) 2022 E FOUNDATION
+ * Copyright (C) 2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 package foundation.e.apps.data.blockedApps
 
@@ -53,6 +54,10 @@ class BlockedAppRepository @Inject constructor(
     fun isPrivacyScoreZero(packageName: String) =
         blockedAppInfoList?.zeroPrivacyApps?.contains(packageName) ?: false
 
+    fun isThirdPartyStoreApp(packageName: String): Boolean {
+        return blockedAppInfoList?.thirdPartyStoreApps?.contains(packageName) ?: false
+    }
+
     suspend fun fetchUpdateOfAppWarningList(): Boolean =
         suspendCancellableCoroutine { continuation ->
             downloadManager.downloadFileInCache(
@@ -78,7 +83,7 @@ class BlockedAppRepository @Inject constructor(
             gson.fromJson(blockedAppInfoJson, AppWarningInfo::class.java)
         } catch (exception: Exception) {
             Timber.e(exception.localizedMessage ?: "", exception)
-            AppWarningInfo(listOf(), listOf())
+            AppWarningInfo(listOf(), listOf(), listOf())
         }
     }
 }

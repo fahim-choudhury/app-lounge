@@ -1,6 +1,6 @@
 /*
- * Apps  Quickly and easily install Android apps onto your device!
- * Copyright (C) 2022  E FOUNDATION
+ * Copyright (C) 2022 E FOUNDATION
+ * Copyright (C) 2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.data.blockedApps
@@ -22,5 +23,6 @@ import com.google.gson.annotations.SerializedName
 
 data class AppWarningInfo(
     @SerializedName("not_working_apps") val notWorkingApps: List<String>,
-    @SerializedName("zero_privacy_apps") val zeroPrivacyApps: List<String>
+    @SerializedName("zero_privacy_apps") val zeroPrivacyApps: List<String>,
+    @SerializedName("third_party_store_apps") val thirdPartyStoreApps: List<String> = emptyList()
 )
