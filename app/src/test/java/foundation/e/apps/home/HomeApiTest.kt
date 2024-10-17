@@ -28,7 +28,8 @@ import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.home.HomeApi
 import foundation.e.apps.data.application.home.HomeApiImpl
-import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
+import foundation.e.apps.data.cleanapk.repositories.CleanApkAppsRepository
+import foundation.e.apps.data.cleanapk.repositories.CleanApkPWARepository
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PWAManager
@@ -76,10 +77,10 @@ class HomeApiTest {
     private lateinit var context: Context
 
     @Mock
-    private lateinit var cleanApkAppsRepository: CleanApkRepository
+    private lateinit var cleanApkAppsRepository: CleanApkAppsRepository
 
     @Mock
-    private lateinit var cleanApkPWARepository: CleanApkRepository
+    private lateinit var cleanApkPWARepository: CleanApkPWARepository
 
     @Mock
     private lateinit var gPlayAPIRepository: PlayStoreRepository

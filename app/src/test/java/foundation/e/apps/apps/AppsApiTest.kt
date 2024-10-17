@@ -26,7 +26,6 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.FakeAppLoungePreference
 import foundation.e.apps.data.AppSourcesContainer
-import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
@@ -34,6 +33,8 @@ import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.apps.AppsApi
 import foundation.e.apps.data.application.apps.AppsApiImpl
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.cleanapk.repositories.CleanApkAppsRepository
+import foundation.e.apps.data.cleanapk.repositories.CleanApkPWARepository
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PWAManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
@@ -76,10 +77,10 @@ class AppsApiTest {
     private lateinit var context: Context
 
     @Mock
-    private lateinit var cleanApkAppsRepository: CleanApkRepository
+    private lateinit var cleanApkAppsRepository: CleanApkAppsRepository
 
     @Mock
-    private lateinit var cleanApkPWARepository: CleanApkRepository
+    private lateinit var cleanApkPWARepository: CleanApkPWARepository
 
     @Mock
     private lateinit var gPlayAPIRepository: PlayStoreRepository

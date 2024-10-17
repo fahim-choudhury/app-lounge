@@ -26,8 +26,9 @@ import foundation.e.apps.data.cleanapk.data.download.Download
 import foundation.e.apps.data.cleanapk.data.home.HomeScreen
 import foundation.e.apps.data.cleanapk.data.search.Search
 import retrofit2.Response
+import javax.inject.Inject
 
-class CleanApkAppsRepository(
+class CleanApkAppsRepository @Inject constructor(
     private val cleanApkRetrofit: CleanApkRetrofit
 ) : CleanApkRepository, CleanApkDownloadInfoFetcher {
 
