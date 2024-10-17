@@ -29,7 +29,8 @@ import foundation.e.apps.data.application.category.CategoryApi
 import foundation.e.apps.data.application.category.CategoryApiImpl
 import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.cleanapk.data.categories.Categories
-import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
+import foundation.e.apps.data.cleanapk.repositories.CleanApkAppsRepository
+import foundation.e.apps.data.cleanapk.repositories.CleanApkPWARepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PWAManager
@@ -70,10 +71,10 @@ class CategoryApiTest {
     private lateinit var appLoungePackageManager: AppLoungePackageManager
 
     @Mock
-    private lateinit var cleanApkAppsRepository: CleanApkRepository
+    private lateinit var cleanApkAppsRepository: CleanApkAppsRepository
 
     @Mock
-    private lateinit var cleanApkPWARepository: CleanApkRepository
+    private lateinit var cleanApkPWARepository: CleanApkPWARepository
 
     @Mock
     private lateinit var gPlayAPIRepository: PlayStoreRepository
