@@ -21,15 +21,17 @@ package foundation.e.apps.utils
 import android.net.Uri
 import java.util.Locale
 
-object ExodusUtil {
+object ExodusUriGenerator {
     const val DEFAULT_URL = "https://exodus-privacy.eu.org"
+    private const val SCHEME = "https"
+    private const val AUTHORITY = "reports.exodus-privacy.eu.org"
 
     fun buildReportUri(reportId: Long): Uri {
         val language = getLanguage(Locale.getDefault().language)
 
         return Uri.Builder()
-            .scheme("https")
-            .authority("reports.exodus-privacy.eu.org")
+            .scheme(SCHEME)
+            .authority(AUTHORITY)
             .appendPath(language)
             .appendPath("reports")
             .appendPath(reportId.toString())
@@ -40,8 +42,8 @@ object ExodusUtil {
         val language = getLanguage(Locale.getDefault().language)
 
         return Uri.Builder()
-            .scheme("https")
-            .authority("reports.exodus-privacy.eu.org")
+            .scheme(SCHEME)
+            .authority(AUTHORITY)
             .appendPath(language)
             .appendPath("analysis")
             .appendPath("submit")

@@ -77,7 +77,7 @@ import foundation.e.apps.ui.application.ShareButtonVisibilityState.Visible
 import foundation.e.apps.ui.application.model.ApplicationScreenshotsRVAdapter
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.parentFragment.TimeoutFragment
-import foundation.e.apps.utils.ExodusUtil
+import foundation.e.apps.utils.ExodusUriGenerator
 import foundation.e.apps.utils.isValid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -414,10 +414,13 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     private fun openRequestExodusReportUrl() {
         val openUrlIntent = Intent(Intent.ACTION_VIEW)
         val packageName = applicationViewModel.getFusedApp()?.package_name
-        if (!packageName.isNullOrBlank()) {
-            openUrlIntent.data = ExodusUtil.buildRequestReportUri(packageName)
-            startActivity(openUrlIntent)
+
+        if (packageName.isNullOrBlank()) {
+            return
         }
+
+        openUrlIntent.data = ExodusUriGenerator.buildRequestReportUri(packageName)
+        startActivity(openUrlIntent)
     }
 
     private fun showPrivacyScoreCalculationLoginDialog() {
@@ -985,11 +988,11 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         // if app info not loaded yet, pass the default exodus homePage url
         val fusedApp = applicationViewModel.getFusedApp()
         if (fusedApp == null || fusedApp.permsFromExodus == LIST_OF_NULL) {
-            return ExodusUtil.DEFAULT_URL
+            return ExodusUriGenerator.DEFAULT_URL
         }
 
         val reportId = applicationViewModel.applicationLiveData.value!!.first.reportId
-        return ExodusUtil.buildReportUri(reportId).toString()
+        return ExodusUriGenerator.buildReportUri(reportId).toString()
     }
 
     private fun fetchAppTracker(application: Application) {
