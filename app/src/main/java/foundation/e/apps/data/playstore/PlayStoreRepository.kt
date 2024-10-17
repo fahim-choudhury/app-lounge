@@ -117,7 +117,7 @@ class PlayStoreRepository @Inject constructor(
         return searchData.filter { it.suggestedQuery.isNotBlank() }
     }
 
-    suspend fun getAppsByCategory(category: String, pageUrl: String?): StreamCluster {
+    fun getAppsByCategory(category: String, pageUrl: String?): StreamCluster {
         val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
         val subCategoryHelper = CategoryAppsHelper(authData).using(gPlayHttpClient)
