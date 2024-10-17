@@ -58,6 +58,8 @@ class PlayStoreRepository @Inject constructor(
         val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
         homeElements.forEach {
+            if (it.value.isEmpty()) return@forEach
+
             val chart = it.value.keys.iterator().next()
             val type = it.value.values.iterator().next()
             val result = getTopApps(type, chart, authData)
