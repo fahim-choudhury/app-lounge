@@ -34,7 +34,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ApplicationDataManager @Inject constructor(
-    @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
+    private val gplayRepository: PlayStoreRepository,
     private val appLoungePackageManager: AppLoungePackageManager,
     private val pwaManager: PWAManager
 ) {
