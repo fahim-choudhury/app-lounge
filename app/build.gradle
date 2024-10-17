@@ -46,7 +46,7 @@ android {
 
     defaultConfig {
         applicationId "foundation.e.apps"
-        minSdk 25
+        minSdk 26
         targetSdk 30
         versionCode versionMajor * 1000000 + versionMinor * 1000 + versionPatch
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
