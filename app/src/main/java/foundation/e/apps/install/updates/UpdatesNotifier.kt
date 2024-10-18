@@ -107,17 +107,15 @@ object UpdatesNotifier {
     }
 
     private fun createNotificationChannel(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(
-                UPDATES_NOTIFICATION_CHANNEL_ID,
-                UPDATES_NOTIFICATION_CHANNEL_TITLE,
-                importance
-            )
-            val notificationManager: NotificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val channel = NotificationChannel(
+            UPDATES_NOTIFICATION_CHANNEL_ID,
+            UPDATES_NOTIFICATION_CHANNEL_TITLE,
+            importance
+        )
+        val notificationManager: NotificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 
     fun showNotification(
