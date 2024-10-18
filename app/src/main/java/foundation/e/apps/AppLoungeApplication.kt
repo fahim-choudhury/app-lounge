@@ -32,7 +32,6 @@ import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.install.pkg.PkgManagerBR
-import foundation.e.apps.install.updates.UpdatesNotifier
 import foundation.e.apps.install.updates.UpdatesWorkManager
 import foundation.e.apps.install.workmanager.InstallWorkManager
 import foundation.e.apps.ui.setup.tos.TOS_VERSION
@@ -72,7 +71,7 @@ class AppLoungeApplication : Application(), Configuration.Provider {
         super.onCreate()
 
         Thread.setDefaultUncaughtExceptionHandler(uncaughtExceptionHandler)
-        UpdatesNotifier.createNotificationChannel(this)
+
         InstallWorkManager.context = this
         // Register broadcast receiver for package manager
         val pkgManagerBR = object : PkgManagerBR() {}
