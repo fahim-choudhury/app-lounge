@@ -1,0 +1,52 @@
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: "${APP_ID}:id/agreeBT"
+    commands:
+      - tapOn:
+          id: "${APP_ID}:id/agreeBT"
+#- tapOn:
+#    id: ${APP_ID}:id/anonymousBT
+- runFlow:
+    when:
+      visible:
+        id: "${APP_ID}:id/errorMessagePanel"
+    commands:
+      - tapOn:
+          id: "${APP_ID}:id/ignoreSessionButton"
+- tapOn:
+    id: "${APP_ID}:id/navigation_bar_item_icon_view"
+    index: 1
+- evalScript: ${output.category_index = 0; output.app_install = 1;}
+- repeat:
+    while:
+      true: ${output.app_install < 60}
+    commands:
+      - tapOn:
+          id: "${APP_ID}:id/category_title"
+          index: ${output.category_index}
+      - evalScript: ${output.app_index = 0}
+      - repeat:
+          while:
+            true: ${output.app_index < 10}
+          commands:
+            - tapOn:
+                text: INSTALL
+                id: "${APP_ID}:id/installButton"
+                optional: true
+            - evalScript: ${output.app_install++, output.app_index++}
+            - runFlow:
+                when:
+                  notVisible: INSTALL
+                commands:
+                  - scroll
+
+      - evalScript: ${output.category_index = output.category_index + 1}
+      - back
+- tapOn:
+    text: Search
+- inputText: "notes"
