@@ -81,15 +81,13 @@ class InstallAppWorker @AssistedInject constructor(
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as
                     NotificationManager
-        // Create a Notification channel if necessary
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val mChannel = NotificationChannel(
-                channelId,
-                title,
-                NotificationManager.IMPORTANCE_LOW
-            )
-            notificationManager.createNotificationChannel(mChannel)
-        }
+
+        val mChannel = NotificationChannel(
+            channelId,
+            title,
+            NotificationManager.IMPORTANCE_LOW
+        )
+        notificationManager.createNotificationChannel(mChannel)
 
         val notification = NotificationCompat.Builder(applicationContext, channelId)
             .setContentTitle(title)

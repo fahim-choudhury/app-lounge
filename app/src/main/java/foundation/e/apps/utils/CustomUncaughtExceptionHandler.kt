@@ -81,17 +81,15 @@ class CustomUncaughtExceptionHandler @Inject constructor(
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val id = context.getString(R.string.warning_notification_channel_id)
-            val title = context.getString(R.string.warning_notification_channel_title)
+        val id = context.getString(R.string.warning_notification_channel_id)
+        val title = context.getString(R.string.warning_notification_channel_title)
 
-            val channel = NotificationChannel(
-                id, title, NotificationManager.IMPORTANCE_DEFAULT
-            )
+        val channel = NotificationChannel(
+            id, title, NotificationManager.IMPORTANCE_DEFAULT
+        )
 
-            val notificationManager: NotificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
+        val notificationManager: NotificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 }

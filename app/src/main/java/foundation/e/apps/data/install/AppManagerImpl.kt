@@ -65,7 +65,6 @@ class AppManagerImpl @Inject constructor(
 
     private val mutex = Mutex()
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun createNotificationChannels() {
         notificationManager.apply {
             createNotificationChannel(downloadNotificationChannel)

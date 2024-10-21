@@ -85,19 +85,11 @@ class SplitInstallBinder(
     }
 
     private fun handleError(packageName: String) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            return
-        }
-
         createNotificationChannel(context)
         showErrorNotification(context, packageName)
     }
 
     private fun createNotificationChannel(context: Context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            return
-        }
-
         val descriptionText = context.getString(R.string.notification_channel_desc)
         val notificationChannel = NotificationChannel(
             NOTIFICATION_CHANNEL,
