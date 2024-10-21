@@ -57,9 +57,7 @@ class AppPurchaseFragment : Fragment() {
         cookieManager.acceptThirdPartyCookies(binding.playStoreWebView)
         cookieManager.setAcceptThirdPartyCookies(binding.playStoreWebView, true)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            binding.playStoreWebView.settings.safeBrowsingEnabled = false
-        }
+        binding.playStoreWebView.settings.safeBrowsingEnabled = false
 
         binding.playStoreWebView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView, url: String) {

@@ -154,15 +154,13 @@ class AgeRatingProvider : ContentProvider() {
         val context = context ?: return
         val title = context.getString(R.string.app_name)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                title,
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            channel.setSound(null, null)
-            notificationManager.createNotificationChannel(channel)
-        }
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            title,
+            NotificationManager.IMPORTANCE_HIGH
+        )
+        channel.setSound(null, null)
+        notificationManager.createNotificationChannel(channel)
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.app_lounge_notification_icon)
