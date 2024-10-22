@@ -1,0 +1,17 @@
+appId: foundation.e.apps.debug
+---
+- evalScript: ${output.app_index = 0}
+- repeat:
+    while:
+      true: ${output.app_index < 10}
+    commands:
+      - tapOn:
+          text: INSTALL
+          id: "${APP_ID}:id/installButton"
+          optional: true
+      - evalScript: ${output.app_install++, output.app_index++}
+      - runFlow:
+          when:
+            notVisible: INSTALL
+          commands:
+            - scroll
