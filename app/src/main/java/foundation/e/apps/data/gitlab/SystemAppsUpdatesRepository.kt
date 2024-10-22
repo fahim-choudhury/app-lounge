@@ -22,6 +22,7 @@ import android.os.Build
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.gitlab.models.OsReleaseType
 import foundation.e.apps.data.gitlab.models.SystemAppInfo
 import foundation.e.apps.data.gitlab.models.SystemAppProject
 import foundation.e.apps.data.gitlab.models.toApplication
@@ -39,6 +40,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
     private val systemAppDefinitionApi: SystemAppDefinitionApi,
     private val applicationDataManager: ApplicationDataManager,
     private val appLoungePackageManager: AppLoungePackageManager,
+    private val releaseInfoApi: ReleaseInfoApi,
 ) {
 
     private val systemAppProjectList = mutableListOf<SystemAppProject>()
@@ -93,9 +95,34 @@ class SystemAppsUpdatesRepository @Inject constructor(
         }
     }
 
+    private suspend fun getReleaseDetailsUrl(
+        projectId: Int,
+        releaseType: OsReleaseType,
+    ): String? {
+        val releaseResponse = releaseInfoApi.getReleases(projectId)
+        val releases = releaseResponse.body()
+
+        if (!releaseResponse.isSuccessful || releases == null) {
+            Timber.e("Failed to fetch releases for project id - $projectId")
+            return null
+        }
+
+        val sortedReleases = releases.sortedByDescending {
+            it.releasedAt
+        }
+
+        for (release in sortedReleases) {
+            release.getAssetWebLink("${releaseType}.json")?.run {
+                return this.removePrefix(SystemAppDefinitionApi.BASE_URL)
+            }
+        }
+
+        return null
+    }
+
     private suspend fun getSystemAppUpdateInfo(
         packageName: String,
-        releaseType: String,
+        releaseType: OsReleaseType,
         sdkLevel: Int,
         device: String,
     ): Application? {
@@ -103,7 +130,9 @@ class SystemAppsUpdatesRepository @Inject constructor(
         val projectId =
             systemAppProjectList.find { it.packageName == packageName }?.projectId ?: return null
 
-        val response = systemAppDefinitionApi.getSystemAppUpdateInfo(projectId, releaseType)
+        val detailsUrl = getReleaseDetailsUrl(projectId, releaseType) ?: return null
+
+        val response = systemAppDefinitionApi.getSystemAppUpdateInfo(detailsUrl)
         val systemAppInfo = response.body()
 
         return if (systemAppInfo == null) {
@@ -129,8 +158,10 @@ class SystemAppsUpdatesRepository @Inject constructor(
         return SystemInfoProvider.getSystemProperty(SystemInfoProvider.KEY_LINEAGE_DEVICE) ?: ""
     }
 
-    private fun getSystemReleaseType(): String {
-        return SystemInfoProvider.getSystemProperty(SystemInfoProvider.KEY_LINEAGE_RELEASE_TYPE) ?: ""
+    private fun getSystemReleaseType(): OsReleaseType {
+        return SystemInfoProvider.getSystemProperty(SystemInfoProvider.KEY_LINEAGE_RELEASE_TYPE).let {
+            OsReleaseType.get(it)
+        }
     }
 
     suspend fun getSystemUpdates(): List<Application> {
