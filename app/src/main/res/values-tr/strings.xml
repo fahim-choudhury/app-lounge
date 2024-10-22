@@ -85,7 +85,6 @@
     <string name="message_update_failed">Geçici bir arıza nedeniyle uygulamalarınızın tümü güncellenemiyor. Lütfen daha sonra tekrar deneyin.</string>
     <string name="message_update_failure_single_app">%1$s güncellemesi bir destek kuralı (konum, işletim sistemi sürümü...) nedeniyle başarısız oldu.</string>
     <string name="discover">Keşfet</string>
-    <string name="discover_pwa">PWA\'ları keşfedin</string>
     <string name="top_updated_games">Açık Kaynaklı Tutan Güncel Oyunlar</string>
     <string name="top_updated_apps">Açık Kaynaklı Tutan Güncel Uygulamalar</string>
     <string name="popular_apps_in_last_24_hours">Son 24 Saatte Açık Kaynaklı Popüler Uygulamalar</string>

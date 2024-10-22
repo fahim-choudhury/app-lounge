@@ -52,7 +52,6 @@
     <string name="automatically_install_updates_notification_text">Applikasjonsoppdateringer vil bli installert automatisk</string>
     <string name="updates">Oppdateringer</string>
     <string name="downloads">Nedlastinger</string>
-    <string name="discover_pwa">Oppdag PWA</string>
     <string name="discover">Oppdag</string>
     <string name="message_update_failure_single_app">%1$s sin oppdatering har mislyktes på grunn av et misforhold (lokasjon, operativsystemversjon…).</string>
     <string name="message_update_failed">På gunn av en midlertidig feil kan ikke alle dine applikasjoner bli oppdatert. Prøv igjen senere.</string>

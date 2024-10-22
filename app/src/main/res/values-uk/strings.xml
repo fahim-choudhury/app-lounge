@@ -97,7 +97,6 @@
     <string name="message_retry">Оновлення не вдалося. Автоматичні повторні спроби уже в процесі.</string>
     <string name="movers_shakers_apps">Трендові додатки в Топі</string>
     <string name="topselling_free_games">Безкоштовні ігри в Топі</string>
-    <string name="discover_pwa">Дослідити PWA</string>
     <string name="discover">Дослідити</string>
     <plurals name="updates_notification_title">
         <item quantity="one"><xliff:g id="version_code">%1$d</xliff:g> оновлення застосунку доступне</item>

@@ -153,7 +153,6 @@
 \nPuoi riprovare adesso o più tardi.</string>
     <string name="data_load_error">Si è verificato un errore durante il caricamento delle App.</string>
     <string name="more_info"><u>Maggiori informazioni</u></string>
-    <string name="discover_pwa">Scopri le PWA</string>
     <string name="gplay_data_for_oss">Non posso avviare l\'App Google Play se sono permesse solo App open source.</string>
     <string name="close">Chiudi</string>
     <string name="monthly">Mensilmente</string>

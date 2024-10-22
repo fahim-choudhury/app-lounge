@@ -22,22 +22,22 @@ import com.google.gson.Gson
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
-import foundation.e.apps.data.cleanapk.data.app.Application
+import foundation.e.apps.data.cleanapk.data.app.CleanApkApplication
 
-class ApplicationDeserializer : JsonDeserializer<Application> {
+class ApplicationDeserializer : JsonDeserializer<CleanApkApplication> {
     override fun deserialize(
         json: JsonElement?,
         typeOfT: java.lang.reflect.Type?,
         context: JsonDeserializationContext?
-    ): Application {
+    ): CleanApkApplication {
         val gson = Gson()
-        val application = gson.fromJson(json?.asJsonObject?.toString(), Application::class.java)
-        val lastUpdate = application.app.latest_downloaded_version
+        val cleanApkApplication = gson.fromJson(json?.asJsonObject?.toString(), CleanApkApplication::class.java)
+        val lastUpdate = cleanApkApplication.app.latest_downloaded_version
         val lastUpdateJson = json?.asJsonObject?.get("app")?.asJsonObject?.get(lastUpdate)?.asJsonObject
         val lastUpdatedOn = lastUpdateJson
             ?.asJsonObject?.get("update_on")?.asString ?: ""
-        application.app.updatedOn = lastUpdatedOn
-        application.app.latest_version_code = lastUpdateJson?.get("version_code")?.asInt ?: -1
-        return application
+        cleanApkApplication.app.updatedOn = lastUpdatedOn
+        cleanApkApplication.app.latest_version_code = lastUpdateJson?.get("version_code")?.asInt ?: -1
+        return cleanApkApplication
     }
 }

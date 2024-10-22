@@ -120,7 +120,6 @@
     <string name="why_open_source_version">Af hverju sé ég opnu hugbúnaðarútgáfuna\?</string>
     <string name="open_source_apps">Forrit með opinn grunnkóða</string>
     <string name="all_apps_updated">Öll forrit eru af nýjustu útgáfu</string>
-    <string name="discover_pwa">Kynntu þér PWA-vefforrit</string>
     <string name="popular_apps">Vinsæl PWA-vefforrit</string>
     <string name="popular_games">Vinsælir PWA-leikir</string>
     <string name="no_internet_message">Næ ekki að tengjast! Athugaðu internettenginguna þína og prófaðu svo aftur</string>

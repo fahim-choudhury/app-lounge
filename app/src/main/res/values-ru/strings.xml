@@ -123,7 +123,6 @@
     <string name="top_updated_games">Топ Open Source обновленных игр</string>
     <string name="top_updated_apps">Топ обновленных Open Source приложений</string>
     <string name="discover">Откройте для себя</string>
-    <string name="discover_pwa">Откройте для себя PWA</string>
     <string name="message_update_failure_single_app">Обновление %1$s не произошло из-за поддержки (местоположения, версии ОС...).</string>
     <string name="message_update_failed">Из-за временного сбоя все ваши приложения не могут быть обновлены. Пожалуйста, повторите попытку позже.</string>
     <string name="message_retry">Обновить всё не удалось. Выполняются автоматические повторные попытки.</string>

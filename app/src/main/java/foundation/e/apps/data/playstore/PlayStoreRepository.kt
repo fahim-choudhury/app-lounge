@@ -19,6 +19,7 @@
 package foundation.e.apps.data.playstore
 
 import android.content.Context
+import android.util.Log
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
@@ -38,7 +39,9 @@ import com.aurora.gplayapi.helpers.TopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.StoreRepository
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.utils.CategoryType
+import foundation.e.apps.data.application.utils.toApplication
 import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.playstore.utils.GPlayHttpClient
 import kotlinx.coroutines.Dispatchers
@@ -52,8 +55,8 @@ class PlayStoreRepository @Inject constructor(
     private val authenticatorRepository: AuthenticatorRepository
 ) : StoreRepository {
 
-    override suspend fun getHomeScreenData(): Any {
-        val homeScreenData = mutableMapOf<String, List<App>>()
+    override suspend fun getHomeScreenData(): Map<String, List<Application>> {
+        val homeScreenData = mutableMapOf<String, List<Application>>()
         val homeElements = createTopChartElements()
         val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
@@ -175,13 +178,16 @@ class PlayStoreRepository @Inject constructor(
         type: TopChartsHelper.Type,
         chart: Chart,
         authData: AuthData
-    ): List<App> {
+    ): List<Application> {
         val topApps = mutableListOf<App>()
         withContext(Dispatchers.IO) {
             val topChartsHelper = TopChartsHelper(authData).using(gPlayHttpClient)
             topApps.addAll(topChartsHelper.getCluster(type, chart).clusterAppList)
         }
-        return topApps
+
+        return topApps.map {
+            it.toApplication(context)
+        }
     }
 
     suspend fun getDownloadInfo(

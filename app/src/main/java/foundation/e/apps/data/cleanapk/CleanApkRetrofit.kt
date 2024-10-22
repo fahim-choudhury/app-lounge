@@ -18,10 +18,10 @@
 
 package foundation.e.apps.data.cleanapk
 
-import foundation.e.apps.data.cleanapk.data.app.Application
+import foundation.e.apps.data.cleanapk.data.app.CleanApkApplication
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.download.Download
-import foundation.e.apps.data.cleanapk.data.home.HomeScreen
+import foundation.e.apps.data.cleanapk.data.home.HomeScreenResponse
 import foundation.e.apps.data.cleanapk.data.search.Search
 import retrofit2.Response
 import retrofit2.http.GET
@@ -48,7 +48,7 @@ interface CleanApkRetrofit {
     suspend fun getHomeScreenData(
         @Query("type") type: String = APP_TYPE_ANY,
         @Query("source") source: String = APP_SOURCE_ANY,
-    ): Response<HomeScreen>
+    ): Response<HomeScreenResponse>
 
     // TODO: Reminder that this function is for search App and PWA both
     @GET("apps?action=app_detail")
@@ -56,7 +56,7 @@ interface CleanApkRetrofit {
         @Query("id") id: String,
         @Query("architectures") architectures: List<String>? = null,
         @Query("type") type: String? = null
-    ): Response<Application>
+    ): Response<CleanApkApplication>
 
     @GET("apps?action=search")
     suspend fun searchApps(

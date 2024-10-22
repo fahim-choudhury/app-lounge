@@ -19,6 +19,7 @@
 package foundation.e.apps.data.application.home
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import com.aurora.gplayapi.data.models.App
@@ -28,11 +29,12 @@ import foundation.e.apps.R
 import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.ApplicationDataManager
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.application.search.FusedHomeDeferred
 import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.application.utils.toApplication
-import foundation.e.apps.data.cleanapk.data.home.HomeScreen
+import foundation.e.apps.data.cleanapk.data.home.HomeScreenResponse
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.handleNetworkResult
@@ -47,7 +49,7 @@ import kotlinx.coroutines.launch
 import retrofit2.Response
 import timber.log.Timber
 import javax.inject.Inject
-import foundation.e.apps.data.cleanapk.data.home.Home as CleanApkHome
+import foundation.e.apps.data.cleanapk.data.home.CleanApkHome
 
 class HomeApiImpl @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -142,86 +144,18 @@ class HomeApiImpl @Inject constructor(
         priorList: MutableList<Home>,
         appType: String
     ): MutableList<Home> {
-        val response = if (appType == SearchApi.APP_TYPE_OPEN) {
-            (appSources.cleanApkAppsRepo.getHomeScreenData() as Response<HomeScreen>).body()
+        val homes = if (appType == SearchApi.APP_TYPE_OPEN) {
+            appSources.cleanApkAppsRepo.getHomeScreenData()
         } else {
-            (appSources.cleanApkPWARepo.getHomeScreenData() as Response<HomeScreen>).body()
+            appSources.cleanApkPWARepo.getHomeScreenData()
         }
 
-        response?.home?.let {
-            priorList.addAll(generateCleanAPKHome(it, appType))
+        homes.forEach { (title, list) ->
+            priorList.add(Home(title, list, appType))
         }
 
         return priorList
     }
-
-    private suspend fun generateCleanAPKHome(home: CleanApkHome, appType: String): List<Home> {
-        val list = mutableListOf<Home>()
-        val headings = if (appType == SearchApi.APP_TYPE_OPEN) {
-            getOpenSourceHomeCategories()
-        } else {
-            getPWAHomeCategories()
-        }
-
-        headings.forEach { (key, value) ->
-            when (key) {
-                "top_updated_apps" -> {
-                    applicationDataManager.prepareApps(home.top_updated_apps, list, value)
-                }
-
-                "top_updated_games" -> {
-                    applicationDataManager.prepareApps(home.top_updated_games, list, value)
-                }
-
-                "popular_apps" -> {
-                    applicationDataManager.prepareApps(home.popular_apps, list, value)
-                }
-
-                "popular_games" -> {
-                    applicationDataManager.prepareApps(home.popular_games, list, value)
-                }
-
-                "popular_apps_in_last_24_hours" -> {
-                    applicationDataManager.prepareApps(
-                        home.popular_apps_in_last_24_hours,
-                        list,
-                        value
-                    )
-                }
-
-                "popular_games_in_last_24_hours" -> {
-                    applicationDataManager.prepareApps(
-                        home.popular_games_in_last_24_hours,
-                        list,
-                        value
-                    )
-                }
-
-                "discover" -> {
-                    applicationDataManager.prepareApps(home.discover, list, value)
-                }
-            }
-        }
-
-        return list.map {
-            it.source = appType
-            it
-        }
-    }
-
-    private fun getPWAHomeCategories() = mapOf(
-        "popular_apps" to context.getString(R.string.popular_apps),
-        "popular_games" to context.getString(R.string.popular_games),
-        "discover" to context.getString(R.string.discover_pwa)
-    )
-
-    private fun getOpenSourceHomeCategories() = mapOf(
-        "top_updated_apps" to context.getString(R.string.top_updated_apps),
-        "top_updated_games" to context.getString(R.string.top_updated_games),
-        "popular_apps_in_last_24_hours" to context.getString(R.string.popular_apps_in_last_24_hours),
-        "popular_games_in_last_24_hours" to context.getString(R.string.popular_games_in_last_24_hours),
-        "discover" to context.getString(R.string.discover)
-    )
 
     private fun setHomeErrorMessage(apiStatus: ResultStatus, source: Source) {
         if (apiStatus != ResultStatus.OK) {
@@ -239,11 +173,11 @@ class HomeApiImpl @Inject constructor(
         priorList: MutableList<Home>
     ): List<Home> {
         val list = mutableListOf<Home>()
-        val gplayHomeData =
-            appSources.gplayRepo.getHomeScreenData() as Map<String, List<App>>
+        val gplayHomeData = appSources.gplayRepo.getHomeScreenData()
+
         gplayHomeData.map {
             val fusedApps = it.value.map { app ->
-                app.toApplication(context).apply {
+                app.apply {
                     applicationDataManager.updateStatus(this)
                     applicationDataManager.updateFilterLevel(authData, this)
                 }
@@ -278,4 +212,64 @@ class HomeApiImpl @Inject constructor(
         }
     }
 
+    private suspend fun toGenericHome(cleanApkHome: CleanApkHome, appType: String): List<Home> {
+        val list = mutableListOf<Home>()
+
+        openSourceCategories.forEach { (key, value) ->
+            when (key) {
+                "top_updated_apps" -> {
+                    applicationDataManager.prepareApps(cleanApkHome.top_updated_apps, list, value)
+                }
+
+                "top_updated_games" -> {
+                    applicationDataManager.prepareApps(cleanApkHome.top_updated_games, list, value)
+                }
+
+                "popular_apps" -> {
+                    applicationDataManager.prepareApps(cleanApkHome.popular_apps, list, value)
+                }
+
+                "popular_games" -> {
+                    applicationDataManager.prepareApps(cleanApkHome.popular_games, list, value)
+                }
+
+                "popular_apps_in_last_24_hours" -> {
+                    applicationDataManager.prepareApps(
+                        cleanApkHome.popular_apps_in_last_24_hours,
+                        list,
+                        value
+                    )
+                }
+
+                "popular_games_in_last_24_hours" -> {
+                    applicationDataManager.prepareApps(
+                        cleanApkHome.popular_games_in_last_24_hours,
+                        list,
+                        value
+                    )
+                }
+
+                "discover" -> {
+                    applicationDataManager.prepareApps(cleanApkHome.discover, list, value)
+                }
+            }
+        }
+
+        return list.map {
+            it.source = appType
+            it
+        }
+    }
+
+    private val openSourceCategories: Map<String, String> by lazy {
+        mapOf(
+            "top_updated_apps" to context.getString(R.string.top_updated_apps),
+            "top_updated_games" to context.getString(R.string.top_updated_games),
+            "popular_apps_in_last_24_hours" to context.getString(R.string.popular_apps_in_last_24_hours),
+            "popular_games_in_last_24_hours" to context.getString(R.string.popular_games_in_last_24_hours),
+            "popular_apps" to context.getString(R.string.popular_apps),
+            "popular_games" to context.getString(R.string.popular_games),
+            "discover" to context.getString(R.string.discover)
+        )
+    }
 }

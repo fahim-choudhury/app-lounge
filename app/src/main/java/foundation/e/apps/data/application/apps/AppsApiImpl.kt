@@ -21,7 +21,6 @@ package foundation.e.apps.data.application.apps
 import android.content.Context
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.ContentRating
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.application.ApplicationDataManager
@@ -38,7 +37,7 @@ import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
 import retrofit2.Response
 import javax.inject.Inject
-import foundation.e.apps.data.cleanapk.data.app.Application as CleanApkApplication
+import foundation.e.apps.data.cleanapk.data.app.CleanApkApplication
 
 class AppsApiImpl @Inject constructor(
     @ApplicationContext private val context: Context,
