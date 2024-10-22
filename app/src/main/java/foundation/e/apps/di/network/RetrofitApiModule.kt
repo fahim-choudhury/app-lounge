@@ -29,6 +29,7 @@ import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.ecloud.EcloudApiInterface
 import foundation.e.apps.data.exodus.ExodusTrackerApi
 import foundation.e.apps.data.fdroid.FdroidApiInterface
+import foundation.e.apps.data.gitlab.ReleaseInfoApi
 import foundation.e.apps.data.gitlab.UpdatableSystemAppsApi
 import foundation.e.apps.data.gitlab.SystemAppDefinitionApi
 import foundation.e.apps.data.parentalcontrol.fdroid.FDroidMonitorApi
@@ -145,6 +146,20 @@ class RetrofitApiModule {
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
             .create(UpdatableSystemAppsApi::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideReleaseInfoApi(
+        okHttpClient: OkHttpClient,
+        moshi: Moshi,
+    ): ReleaseInfoApi {
+        return Retrofit.Builder()
+            .baseUrl(ReleaseInfoApi.BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+            .create(ReleaseInfoApi::class.java)
     }
 
     @Singleton

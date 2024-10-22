@@ -17,21 +17,21 @@
 
 package foundation.e.apps.data.gitlab
 
-import foundation.e.apps.data.gitlab.models.SystemAppInfo
+import foundation.e.apps.data.gitlab.models.ReleaseInfo
 import retrofit2.Response
 import retrofit2.http.GET
-import retrofit2.http.Url
+import retrofit2.http.Path
 
-interface SystemAppDefinitionApi {
+interface ReleaseInfoApi {
 
     companion object {
         const val BASE_URL =
-            "https://gitlab.e.foundation/"
+            "${SystemAppDefinitionApi.BASE_URL}/api/v4/projects/"
     }
 
-    @GET
-    suspend fun getSystemAppUpdateInfo(
-        @Url detailsUrl: String,
-    ): Response<SystemAppInfo>
+    @GET("{projectId}/releases")
+    suspend fun getReleases(
+        @Path("projectId") projectId: Int,
+    ): Response<List<ReleaseInfo>>
 
 }
