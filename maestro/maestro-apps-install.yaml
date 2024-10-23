@@ -2,6 +2,7 @@ appId: ${APP_ID}
 env:
   SEARCH_STRING: "notes"
   SEARCH_SUGGESTION_STRING: "notes app"
+  NUMBER_OF_MAX_CATEGORY: 8
   APP_INSTALL_CATEGORY_PAGE: 80
   APP_INSTALL_PER_CATEGORY: 10
   APP_INSTALL_SEARCH_PAGE: 20
@@ -34,7 +35,7 @@ env:
 - evalScript: ${output.app_install = 0; output.category_index = 0}
 - repeat:
     while:
-      true: ${output.app_install < APP_INSTALL_CATEGORY_PAGE}
+      true: ${output.app_install < APP_INSTALL_CATEGORY_PAGE && output.category_index < NUMBER_OF_MAX_CATEGORY}
     commands:
       - tapOn:
           id: "${APP_ID}:id/category_title"
@@ -52,7 +53,7 @@ env:
 - inputText: ${SEARCH_STRING}
 - tapOn:
     text: ${SEARCH_SUGGESTION_STRING}
-- evalScript: ${output.app_install = 0; output.app_index = 0;}
+- evalScript: ${output.app_install = 0;}
 - runFlow:
     file: apps-install-flow.yaml
     env:

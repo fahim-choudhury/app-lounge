@@ -1,9 +1,11 @@
 appId: ${APP_ID}
+env:
+  NUMBER_OF_MAX_SCROLL: 5
 ---
-- evalScript: ${output.app_index = 0}
+- evalScript: ${output.app_index = 0, output.number_of_scroll = 0}
 - repeat:
     while:
-      true: ${output.app_index < NUMBER_OF_INSTALL}
+      true: ${output.app_index < NUMBER_OF_INSTALL && output.number_of_scroll < NUMBER_OF_MAX_SCROLL}
     commands:
       - tapOn:
           text: INSTALL
@@ -14,4 +16,5 @@ appId: ${APP_ID}
           when:
             notVisible: INSTALL
           commands:
+            - evalScript: ${output.number_of_scroll++}
             - scroll
