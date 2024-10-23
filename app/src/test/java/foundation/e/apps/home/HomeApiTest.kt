@@ -124,7 +124,7 @@ class HomeApiTest {
         formatterMocked.`when`<String> { Formatter.formatFileSize(any(), any()) }.thenReturn("15MB")
         Mockito.`when`(gPlayAPIRepository.getHomeScreenData()).thenReturn(newHomeData)
         Mockito.`when`(gPlayAPIRepository.getAppDetails(ArgumentMatchers.anyString())).thenReturn(
-            App("foundation.e.demothree")
+            Application("foundation.e.demothree")
         )
         Mockito.`when`(
             gPlayAPIRepository.getDownloadInfo(

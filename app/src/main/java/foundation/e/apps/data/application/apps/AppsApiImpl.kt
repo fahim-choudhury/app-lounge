@@ -60,8 +60,7 @@ class AppsApiImpl @Inject constructor(
 
             if (result?.hasSingleResult() == true) {
                 application =
-                    (appSources.cleanApkAppsRepo.getAppDetails(result.apps[0]._id)
-                            as Response<CleanApkApplication>).body()?.app ?: Application()
+                    appSources.cleanApkAppsRepo.getAppDetails(result.apps[0]._id)
             }
 
             application.updateFilterLevel(null)
@@ -189,18 +188,16 @@ class AppsApiImpl @Inject constructor(
         authData: AuthData,
         origin: Origin
     ): Pair<Application, ResultStatus> {
-        var application: Application?
+        var application: Application
 
         val result = handleNetworkResult {
             application = if (origin == Origin.CLEANAPK) {
-                (appSources.cleanApkAppsRepo.getAppDetails(id)
-                        as Response<CleanApkApplication>).body()?.app
+                appSources.cleanApkAppsRepo.getAppDetails(id)
             } else {
-                val app = appSources.gplayRepo.getAppDetails(packageName) as App?
-                app?.toApplication(context)
+                appSources.gplayRepo.getAppDetails(packageName)
             }
 
-            application?.let {
+            application.let {
                 applicationDataManager.updateStatus(it)
                 it.updateType()
                 it.updateSource(context)

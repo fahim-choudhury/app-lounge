@@ -22,5 +22,5 @@ import foundation.e.apps.data.application.data.Application
 
 interface StoreRepository {
     suspend fun getHomeScreenData(): Map<String, List<Application>>
-    suspend fun getAppDetails(packageNameOrId: String): Any?
+    suspend fun getAppDetails(packageNameOrId: String): Application
 }

@@ -19,9 +19,8 @@
 package foundation.e.apps.data.playstore
 
 import android.content.Context
-import android.util.Log
 import com.aurora.gplayapi.SearchSuggestEntry
-import com.aurora.gplayapi.data.models.App
+import com.aurora.gplayapi.data.models.App as GplayApp
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.ContentRating
@@ -84,7 +83,7 @@ class PlayStoreRepository @Inject constructor(
     fun getSearchResult(
         query: String,
         subBundle: MutableSet<SearchBundle.SubBundle>?
-    ): Pair<List<App>, MutableSet<SearchBundle.SubBundle>> {
+    ): Pair<List<GplayApp>, MutableSet<SearchBundle.SubBundle>> {
         val authData = authenticatorRepository.getGPlayAuthOrThrow()
         val searchHelper = SearchHelper(authData).using(gPlayHttpClient)
 
@@ -103,7 +102,7 @@ class PlayStoreRepository @Inject constructor(
     private fun getSearchResultPair(
         searchBundle: SearchBundle,
         query: String
-    ): Pair<MutableList<App>, MutableSet<SearchBundle.SubBundle>> {
+    ): Pair<MutableList<GplayApp>, MutableSet<SearchBundle.SubBundle>> {
         val apps = searchBundle.appList
         Timber.d("Found ${apps.size} apps for query, $query")
         return Pair(apps, searchBundle.subBundles)
@@ -147,19 +146,20 @@ class PlayStoreRepository @Inject constructor(
         return categoryList
     }
 
-    override suspend fun getAppDetails(packageNameOrId: String): App? {
-        var appDetails: App?
+    override suspend fun getAppDetails(packageNameOrId: String): Application {
+        var appDetails: GplayApp?
         val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
         withContext(Dispatchers.IO) {
             val appDetailsHelper = AppDetailsHelper(authData).using(gPlayHttpClient)
             appDetails = appDetailsHelper.getAppByPackageName(packageNameOrId)
         }
-        return appDetails
+
+        return appDetails?.toApplication(context) ?: Application()
     }
 
-    suspend fun getAppsDetails(packageNamesOrIds: List<String>): List<App> {
-        val appDetailsList = mutableListOf<App>()
+    suspend fun getAppsDetails(packageNamesOrIds: List<String>): List<GplayApp> {
+        val appDetailsList = mutableListOf<GplayApp>()
         val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
         withContext(Dispatchers.IO) {
@@ -179,7 +179,7 @@ class PlayStoreRepository @Inject constructor(
         chart: Chart,
         authData: AuthData
     ): List<Application> {
-        val topApps = mutableListOf<App>()
+        val topApps = mutableListOf<GplayApp>()
         withContext(Dispatchers.IO) {
             val topChartsHelper = TopChartsHelper(authData).using(gPlayHttpClient)
             topApps.addAll(topChartsHelper.getCluster(type, chart).clusterAppList)

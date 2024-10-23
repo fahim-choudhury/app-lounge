@@ -83,7 +83,8 @@ class CleanApkPwaRepository @Inject constructor(
         return cleanAPKRetrofit.checkAvailablePackages(packageNames)
     }
 
-    override suspend fun getAppDetails(packageNameOrId: String): Response<CleanApkApplication> {
-        return cleanAPKRetrofit.getAppOrPWADetailsByID(packageNameOrId, null, null)
+    override suspend fun getAppDetails(packageNameOrId: String): Application {
+        val response = cleanAPKRetrofit.getAppOrPWADetailsByID(packageNameOrId, null, null)
+        return response.body()?.app ?: throw IllegalStateException("No app data found")
     }
 }

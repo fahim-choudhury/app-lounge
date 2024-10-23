@@ -22,7 +22,6 @@ import android.content.Context
 import android.text.format.Formatter
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.Constants
-import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.FakeAppLoungePreference
 import foundation.e.apps.data.AppSourcesContainer
@@ -121,7 +120,7 @@ class AppsApiTest {
 
     @Test
     fun `is any app updated when new list is empty`() {
-        val oldAppList = mutableListOf<Application>(
+        val oldAppList = mutableListOf(
             Application(
                 _id = "111",
                 status = Status.UNAVAILABLE,
@@ -155,7 +154,7 @@ class AppsApiTest {
 
     @Test
     fun `is any app updated when any app is uninstalled`() {
-        val oldAppList = mutableListOf<Application>(
+        val oldAppList = mutableListOf(
             Application(
                 _id = "111",
                 status = Status.UNAVAILABLE,
@@ -176,7 +175,7 @@ class AppsApiTest {
             )
         )
 
-        val newAppList = mutableListOf<Application>(
+        val newAppList = mutableListOf(
             Application(
                 _id = "111",
                 status = Status.UNAVAILABLE,
@@ -203,7 +202,7 @@ class AppsApiTest {
 
     @Test
     fun `has any app install status changed when changed`() {
-        val oldAppList = mutableListOf<Application>(
+        val oldAppList = mutableListOf(
             Application(
                 _id = "111",
                 status = Status.UNAVAILABLE,
@@ -264,7 +263,7 @@ class AppsApiTest {
 
     @Test
     fun `has any app install status changed when not changed`() {
-        val oldAppList = mutableListOf<Application>(
+        val oldAppList = mutableListOf(
             Application(
                 _id = "111",
                 status = Status.UNAVAILABLE,
@@ -325,7 +324,7 @@ class AppsApiTest {
 
     @Test
     fun `has any app install status changed when installation_issue`() {
-        val oldAppList = mutableListOf<Application>(
+        val oldAppList = mutableListOf(
             Application(
                 _id = "111",
                 status = Status.INSTALLATION_ISSUE,
@@ -492,7 +491,7 @@ class AppsApiTest {
             }
 
             Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name))
-                .thenReturn(App(fusedApp.package_name))
+                .thenReturn(Application(fusedApp.package_name))
 
             Mockito.`when`(
                 gPlayAPIRepository.getDownloadInfo(
@@ -534,7 +533,7 @@ class AppsApiTest {
         }
 
         Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name))
-            .thenReturn(App(fusedApp.package_name))
+            .thenReturn(Application(fusedApp.package_name))
 
         Mockito.`when`(
             gPlayAPIRepository.getDownloadInfo(

@@ -148,7 +148,7 @@ class SearchApiImplTest {
     @Ignore("Dependencies are not mockable")
     @Test
     fun `getSearchResult When all sources are selected`() = runTest {
-        val appList = mutableListOf<Application>(
+        val appList = mutableListOf(
             Application(
                 _id = "111",
                 status = Status.UNAVAILABLE,
@@ -174,7 +174,7 @@ class SearchApiImplTest {
 
         val searchResult = Search(apps = appList, numberOfResults = 3, success = true)
         val packageNameSearchResponse = Response.success(searchResult)
-        val gplayPackageResult = App("com.search.package")
+        val gplayPackageResult = Application("com.search.package")
 
         preferenceManagerModule.isPWASelectedFake = true
         preferenceManagerModule.isOpenSourceelectedFake = true
@@ -196,7 +196,7 @@ class SearchApiImplTest {
 
     private suspend fun setupMockingSearchApp(
         packageNameSearchResponse: Response<Search>?,
-        gplayPackageResult: App,
+        gplayPackageResult: Application,
         gplayLivedata: Pair<List<App>, MutableSet<SearchBundle.SubBundle>>,
         willThrowException: Boolean = false
     ) {
@@ -231,7 +231,7 @@ class SearchApiImplTest {
         ).thenReturn(packageNameSearchResponse)
 
         Mockito.`when`(cleanApkAppsRepository.getAppDetails(any()))
-            .thenReturn(Response.error(404, "".toResponseBody()))
+            .thenReturn(Application())
 
         Mockito.`when`(gPlayAPIRepository.getSearchResult(eq("com.search.package"), null))
             .thenReturn(gplayLivedata)
@@ -266,7 +266,7 @@ class SearchApiImplTest {
 
         val searchResult = Search(apps = appList, numberOfResults = 1, success = true)
         val packageNameSearchResponse = Response.success(searchResult)
-        val gplayPackageResult = App("com.search.package")
+        val gplayPackageResult = Application("com.search.package")
 
         val gplayFlow: Pair<List<App>, MutableSet<SearchBundle.SubBundle>> = Pair(
             listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), mutableSetOf()
