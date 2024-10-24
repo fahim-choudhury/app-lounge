@@ -124,7 +124,7 @@
         </receiver>
 
         <!-- TODO: ExportedReceiver, suppressing because changes are needed in other apps -->
-        <receiver android:name=".install.receiver.PWAPlayerStatusReceiver"
+        <receiver android:name=".install.receiver.PwaPlayerStatusReceiver"
             tools:ignore="ExportedReceiver"
             android:exported="true">
             <intent-filter>

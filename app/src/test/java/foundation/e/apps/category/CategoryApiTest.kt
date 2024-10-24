@@ -30,10 +30,10 @@ import foundation.e.apps.data.application.category.CategoryApiImpl
 import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.repositories.CleanApkAppsRepository
-import foundation.e.apps.data.cleanapk.repositories.CleanApkPWARepository
+import foundation.e.apps.data.cleanapk.repositories.CleanApkPwaRepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -65,7 +65,7 @@ class CategoryApiTest {
     private lateinit var context: Context
 
     @Mock
-    private lateinit var pwaManager: PWAManager
+    private lateinit var pwaManager: PwaManager
 
     @Mock
     private lateinit var appLoungePackageManager: AppLoungePackageManager
@@ -74,7 +74,7 @@ class CategoryApiTest {
     private lateinit var cleanApkAppsRepository: CleanApkAppsRepository
 
     @Mock
-    private lateinit var cleanApkPWARepository: CleanApkPWARepository
+    private lateinit var cleanApkPWARepository: CleanApkPwaRepository
 
     @Mock
     private lateinit var gPlayAPIRepository: PlayStoreRepository

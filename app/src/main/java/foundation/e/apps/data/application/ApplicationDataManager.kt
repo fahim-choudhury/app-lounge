@@ -26,17 +26,16 @@ import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import javax.inject.Inject
-import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
 class ApplicationDataManager @Inject constructor(
-    private val gplayRepository: PlayStoreRepository,
+    private val gPlayRepository: PlayStoreRepository,
     private val appLoungePackageManager: AppLoungePackageManager,
-    private val pwaManager: PWAManager
+    private val pwaManager: PwaManager
 ) {
     suspend fun updateFilterLevel(authData: AuthData?, application: Application) {
         application.filterLevel = getAppFilterLevel(application, authData)
@@ -81,7 +80,7 @@ class ApplicationDataManager @Inject constructor(
      * Example: com.skype.m2
      */
     private suspend fun isApplicationVisible(application: Application): Boolean {
-        return kotlin.runCatching { gplayRepository.getAppDetails(application.package_name) }.isSuccess
+        return kotlin.runCatching { gPlayRepository.getAppDetails(application.package_name) }.isSuccess
     }
 
     /*
@@ -90,7 +89,7 @@ class ApplicationDataManager @Inject constructor(
      */
     private suspend fun isDownloadable(application: Application): Boolean {
         return kotlin.runCatching {
-            gplayRepository.getDownloadInfo(
+            gPlayRepository.getDownloadInfo(
                 application.package_name,
                 application.latest_version_code,
                 application.offer_type,

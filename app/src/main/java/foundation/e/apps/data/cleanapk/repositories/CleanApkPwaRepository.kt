@@ -25,7 +25,7 @@ import foundation.e.apps.data.cleanapk.data.search.Search
 import retrofit2.Response
 import javax.inject.Inject
 
-class CleanApkPWARepository @Inject constructor(
+class CleanApkPwaRepository @Inject constructor(
     private val cleanAPKRetrofit: CleanApkRetrofit
 ) : CleanApkRepository {
 

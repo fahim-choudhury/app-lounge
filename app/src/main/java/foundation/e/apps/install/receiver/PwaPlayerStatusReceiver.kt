@@ -39,7 +39,7 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 @DelicateCoroutinesApi
-class PWAPlayerStatusReceiver : BroadcastReceiver() {
+class PwaPlayerStatusReceiver : BroadcastReceiver() {
 
     companion object {
         const val ACTION_PWA_ADDED = "foundation.e.pwaplayer.PWA_ADDED"

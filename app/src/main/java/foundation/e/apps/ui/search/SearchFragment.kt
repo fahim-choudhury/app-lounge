@@ -52,7 +52,7 @@ import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentSearchBinding
 import foundation.e.apps.install.download.data.DownloadProgress
-import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.AppProgressViewModel
 import foundation.e.apps.ui.MainActivityViewModel
@@ -75,7 +75,7 @@ class SearchFragment :
     ApplicationInstaller {
 
     @Inject
-    lateinit var pwaManager: PWAManager
+    lateinit var pwaManager: PwaManager
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!

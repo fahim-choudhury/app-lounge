@@ -39,7 +39,7 @@ import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentApplicationListBinding
 import foundation.e.apps.install.download.data.DownloadProgress
-import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.AppProgressViewModel
@@ -62,7 +62,7 @@ class ApplicationListFragment :
     lateinit var appLoungePackageManager: AppLoungePackageManager
 
     @Inject
-    lateinit var pwaManager: PWAManager
+    lateinit var pwaManager: PwaManager
 
     // protected to avoid SyntheticAccessor
     protected val viewModel: ApplicationListViewModel by viewModels()

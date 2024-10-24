@@ -26,7 +26,7 @@ import foundation.e.apps.data.exodus.repositories.AppPrivacyInfoRepositoryImpl
 import foundation.e.apps.data.exodus.repositories.IAppPrivacyInfoRepository
 import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepository
 import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepositoryImpl
-import foundation.e.apps.data.fdroid.FdroidRepository
+import foundation.e.apps.data.fdroid.FDroidRepository
 import foundation.e.apps.data.fdroid.IFdroidRepository
 import foundation.e.apps.data.install.AppManagerImpl
 import foundation.e.apps.data.install.AppManager
@@ -45,7 +45,7 @@ interface RepositoryModule {
 
     @Singleton
     @Binds
-    fun getFdroidRepository(fusedManagerImpl: FdroidRepository): IFdroidRepository
+    fun getFdroidRepository(fusedManagerImpl: FDroidRepository): IFdroidRepository
 
     @Singleton
     @Binds

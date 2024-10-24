@@ -34,9 +34,9 @@ import foundation.e.apps.data.application.apps.AppsApi
 import foundation.e.apps.data.application.apps.AppsApiImpl
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.cleanapk.repositories.CleanApkAppsRepository
-import foundation.e.apps.data.cleanapk.repositories.CleanApkPWARepository
+import foundation.e.apps.data.cleanapk.repositories.CleanApkPwaRepository
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.util.MainCoroutineRule
 import foundation.e.apps.utils.eventBus.EventBus
@@ -44,7 +44,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -77,7 +76,7 @@ class SearchApiImplTest {
     private lateinit var fusedAPIImpl: SearchApiImpl
 
     @Mock
-    private lateinit var pwaManager: PWAManager
+    private lateinit var pwaManager: PwaManager
 
     @Mock
     private lateinit var appLoungePackageManager: AppLoungePackageManager
@@ -89,7 +88,7 @@ class SearchApiImplTest {
     private lateinit var cleanApkAppsRepository: CleanApkAppsRepository
 
     @Mock
-    private lateinit var cleanApkPWARepository: CleanApkPWARepository
+    private lateinit var cleanApkPWARepository: CleanApkPwaRepository
 
     @Mock
     private lateinit var gPlayAPIRepository: PlayStoreRepository

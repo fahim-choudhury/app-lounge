@@ -21,10 +21,9 @@ package foundation.e.apps.installProcessor
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.ContentRating
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fdroid.FdroidRepository
+import foundation.e.apps.data.fdroid.FDroidRepository
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.install.AppInstallRepository
@@ -47,7 +46,6 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
-import kotlin.reflect.jvm.internal.ReflectProperties.Val
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppInstallProcessorTest {
@@ -69,7 +67,7 @@ class AppInstallProcessorTest {
     private lateinit var fakeFusedManager: AppManager
 
     @Mock
-    private lateinit var fakeFdroidRepository: FdroidRepository
+    private lateinit var fakeFDroidRepository: FDroidRepository
 
     @Mock
     private lateinit var context: Context
@@ -94,7 +92,7 @@ class AppInstallProcessorTest {
         fakeFusedDownloadDAO = FakeAppInstallDAO()
         appInstallRepository = AppInstallRepository(fakeFusedDownloadDAO)
         fakeFusedManagerRepository =
-            FakeAppManagerWrapper(fakeFusedDownloadDAO, fakeFusedManager, fakeFdroidRepository)
+            FakeAppManagerWrapper(fakeFusedDownloadDAO, fakeFusedManager, fakeFDroidRepository)
         val appInstallComponents =
             AppInstallComponents(appInstallRepository, fakeFusedManagerRepository)
 

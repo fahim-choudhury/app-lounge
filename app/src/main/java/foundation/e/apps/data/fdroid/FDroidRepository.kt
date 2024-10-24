@@ -10,7 +10,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FdroidRepository @Inject constructor(
+class FDroidRepository @Inject constructor(
     private val fdroidApi: FdroidApiInterface,
     private val fdroidDao: FdroidDao,
 ) : IFdroidRepository {
@@ -54,7 +54,7 @@ class FdroidRepository @Inject constructor(
         return result?.authorName ?: FdroidEntity.DEFAULT_FDROID_AUTHOR_NAME
     }
 
-    override suspend fun isFdroidApplicationSigned(context: Context, packageName: String, apkFilePath: String, signature: String): Boolean {
+    override suspend fun isFDroidApplicationSigned(context: Context, packageName: String, apkFilePath: String, signature: String): Boolean {
         if (isFdroidApplication(packageName)) {
             return ApkSignatureManager.verifyFdroidSignature(context, apkFilePath, signature, packageName)
         }

@@ -164,7 +164,7 @@ class DownloadManagerUtils @Inject constructor(
     }
 
     private suspend fun checkCleanApkSignatureOK(appInstall: AppInstall): Boolean {
-        if (appInstall.origin != Origin.CLEANAPK || appManagerWrapper.isFdroidApplicationSigned(
+        if (appInstall.origin != Origin.CLEANAPK || appManagerWrapper.isFDroidApplicationSigned(
                 context, appInstall
             )
         ) {
