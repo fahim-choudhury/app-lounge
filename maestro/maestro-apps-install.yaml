@@ -1,0 +1,61 @@
+appId: ${APP_ID}
+env:
+  SEARCH_STRING: "notes"
+  SEARCH_SUGGESTION_STRING: "notes app"
+  NUMBER_OF_MAX_CATEGORY: 8
+  APP_INSTALL_CATEGORY_PAGE: 80
+  APP_INSTALL_PER_CATEGORY: 10
+  APP_INSTALL_SEARCH_PAGE: 20
+---
+
+- launchApp:
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: "${APP_ID}:id/agreeBT"
+    commands:
+      - tapOn:
+          id: "${APP_ID}:id/agreeBT"
+- tapOn:
+    id: ${APP_ID}:id/anonymousBT
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: "${APP_ID}:id/errorMessagePanel"
+    commands:
+      - tapOn:
+          id: "${APP_ID}:id/ignoreSessionButton"
+
+# Go to category page
+- tapOn:
+    id: "${APP_ID}:id/navigation_bar_item_icon_view"
+    index: 1
+- evalScript: ${output.app_install = 0; output.category_index = 0}
+- repeat:
+    while:
+      true: ${output.app_install < APP_INSTALL_CATEGORY_PAGE && output.category_index < NUMBER_OF_MAX_CATEGORY}
+    commands:
+      - tapOn:
+          id: "${APP_ID}:id/category_title"
+          index: ${output.category_index}
+      - runFlow:
+          file: apps-install-flow.yaml
+          env:
+            NUMBER_OF_INSTALL: ${APP_INSTALL_PER_CATEGORY}
+      - evalScript: ${output.category_index++}
+      - back
+
+# Go to search page
+- tapOn:
+    text: Search
+- inputText: ${SEARCH_STRING}
+- tapOn:
+    text: ${SEARCH_SUGGESTION_STRING}
+- evalScript: ${output.app_install = 0;}
+- runFlow:
+    file: apps-install-flow.yaml
+    env:
+      NUMBER_OF_INSTALL: ${APP_INSTALL_SEARCH_PAGE}
+
