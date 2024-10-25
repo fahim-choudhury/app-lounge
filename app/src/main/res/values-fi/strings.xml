@@ -110,8 +110,6 @@
     <string name="topselling_free_apps">Top ilmaiset sovellukset</string>
     <string name="popular_games">PWA Suositut pelit</string>
     <string name="popular_apps">PWA Suositut sovellukset</string>
-    <string name="popular_games_in_last_24_hours">Suosittuja avoimen lähdekoodin pelejä viimeisen 24 tunnin aikana</string>
-    <string name="popular_apps_in_last_24_hours">Suosittuja avoimen lähdekoodin sovelluksia viimeisen 24 tunnin aikana</string>
     <string name="top_updated_games">Avoimen lähdekoodin päivitettyjen pelien Top lista</string>
     <string name="top_updated_apps">Avoimen lähdekoodin päivitettyjen sovellusten Top lista</string>
     <string name="discover">Tutustu</string>

@@ -110,8 +110,6 @@
     <string name="select_one_source_of_applications">Välj åtminstone en källa av applikationer.</string>
     <string name="privacy_analyses">Integritetsanalys</string>
     <string name="having_troubles">Har du problem\?</string>
-    <string name="popular_apps_in_last_24_hours">Populäraste apparna de senaste 24 timmarna med öppen källkod</string>
-    <string name="popular_games_in_last_24_hours">Populäraste spelen de senaste 24 timmarna med öppen källkod</string>
     <string name="popular_apps">Populära PWA-appar</string>
     <string name="popular_games">Populära PWA-spel</string>
     <string name="downloads">Hämtningar</string>

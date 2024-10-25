@@ -71,8 +71,6 @@
     <string name="discover">Découvrir</string>
     <string name="top_updated_apps">Top des apps Open Source mises à jour</string>
     <string name="top_updated_games">Top des jeux Open Source mis à jour</string>
-    <string name="popular_games_in_last_24_hours">Jeux populaires Open Source dans les dernières 24h</string>
-    <string name="popular_apps_in_last_24_hours">Apps populaires Open Source dans les dernières 24 h</string>
     <string name="popular_apps">Apps PWA populaires</string>
     <string name="popular_games">Jeux PWA populaires</string>
     <string name="topselling_free_apps">Top des apps gratuites</string>

@@ -87,8 +87,6 @@
     <string name="discover">Keşfet</string>
     <string name="top_updated_games">Açık Kaynaklı Tutan Güncel Oyunlar</string>
     <string name="top_updated_apps">Açık Kaynaklı Tutan Güncel Uygulamalar</string>
-    <string name="popular_apps_in_last_24_hours">Son 24 Saatte Açık Kaynaklı Popüler Uygulamalar</string>
-    <string name="popular_games_in_last_24_hours">Son 24 Saatin Popüler Açık Kaynak Oyunları</string>
     <string name="popular_apps">PWA popüler uygulamalar</string>
     <string name="popular_games">PWA Popüler Uygulamalar</string>
     <string name="topgrossing_apps" weblate_ctx="home">En Çok Kazanan Uygulamalar</string>

@@ -118,8 +118,6 @@
     <string name="topselling_free_apps">Топ бесплатных приложений</string>
     <string name="popular_games">Популярные PWA игры</string>
     <string name="popular_apps">Популярные PWA приложения</string>
-    <string name="popular_games_in_last_24_hours">Популярные Open Source игры за последние 24 часа</string>
-    <string name="popular_apps_in_last_24_hours">Популярные Open Source приложения за последние 24 часа</string>
     <string name="top_updated_games">Топ Open Source обновленных игр</string>
     <string name="top_updated_apps">Топ обновленных Open Source приложений</string>
     <string name="discover">Откройте для себя</string>

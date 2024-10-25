@@ -26,8 +26,6 @@ data class CleanApkHome(
     val top_updated_games: List<Application> = emptyList(),
     val popular_apps: List<Application> = emptyList(),
     val popular_games: List<Application> = emptyList(),
-    val popular_apps_in_last_24_hours: List<Application> = emptyList(),
-    val popular_games_in_last_24_hours: List<Application> = emptyList(),
     val discover: List<Application> = emptyList(),
     var origin: Origin = Origin.CLEANAPK // Origin
 )

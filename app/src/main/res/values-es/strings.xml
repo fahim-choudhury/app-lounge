@@ -76,8 +76,6 @@
     <string name="discover">Explorar</string>
     <string name="top_updated_apps">Aplicaciones de código abierto más actualizadas</string>
     <string name="top_updated_games">Juegos de código abierto más actualizados</string>
-    <string name="popular_games_in_last_24_hours">Juegos de código abierto más populares en las últimas 24 horas</string>
-    <string name="popular_apps_in_last_24_hours">Aplicaciones de código abierto más populares en las últimas 24 horas</string>
     <string name="popular_apps">Aplicaciones PWA populares</string>
     <string name="popular_games">Juegos PWA populares</string>
     <string name="topselling_free_apps">Las mejores aplicaciones gratuitas</string>

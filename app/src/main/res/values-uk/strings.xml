@@ -121,8 +121,6 @@
     <string name="topselling_free_apps">Топ безкоштовних ігор</string>
     <string name="popular_games">Популярні прогресивні веб-ігри</string>
     <string name="popular_apps">Популярні прогресивні веб-застосунки</string>
-    <string name="popular_games_in_last_24_hours">Популярні ігри з відкритим кодом за останню добу</string>
-    <string name="popular_apps_in_last_24_hours">Популярні додатки з відкритим кодом за останню добу</string>
     <string name="top_updated_games">Топ оновлених Ігор з відкритим кодом</string>
     <string name="top_updated_apps">Топ оновлених додатків з відкритим кодом</string>
     <string name="message_update_failure_single_app">Оновлення %1$s не вдалося з причини підтримки (наприклад місцезнаходження, версія ОС…).</string>

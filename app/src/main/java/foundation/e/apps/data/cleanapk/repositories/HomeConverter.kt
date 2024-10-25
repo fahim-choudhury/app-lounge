@@ -34,22 +34,6 @@ class HomeConverter @Inject constructor(
                     applicationDataManager.prepareApps(cleanApkHome.popular_games, list, value)
                 }
 
-                "popular_apps_in_last_24_hours" -> {
-                    applicationDataManager.prepareApps(
-                        cleanApkHome.popular_apps_in_last_24_hours,
-                        list,
-                        value
-                    )
-                }
-
-                "popular_games_in_last_24_hours" -> {
-                    applicationDataManager.prepareApps(
-                        cleanApkHome.popular_games_in_last_24_hours,
-                        list,
-                        value
-                    )
-                }
-
                 "discover" -> {
                     applicationDataManager.prepareApps(cleanApkHome.discover, list, value)
                 }
@@ -66,8 +50,6 @@ class HomeConverter @Inject constructor(
         mapOf(
             "top_updated_apps" to context.getString(R.string.top_updated_apps),
             "top_updated_games" to context.getString(R.string.top_updated_games),
-            "popular_apps_in_last_24_hours" to context.getString(R.string.popular_apps_in_last_24_hours),
-            "popular_games_in_last_24_hours" to context.getString(R.string.popular_games_in_last_24_hours),
             "popular_apps" to context.getString(R.string.popular_apps),
             "popular_games" to context.getString(R.string.popular_games),
             "discover" to context.getString(R.string.discover)

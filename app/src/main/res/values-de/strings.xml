@@ -72,8 +72,6 @@
     <string name="discover">Entdecke</string>
     <string name="top_updated_apps">Top quelloffene aktualisierte Apps</string>
     <string name="top_updated_games">Top quelloffene aktualisierte Spiele</string>
-    <string name="popular_apps_in_last_24_hours">Beliebteste quelloffene Apps in den letzten 24 Stunden</string>
-    <string name="popular_games_in_last_24_hours">Beliebteste quelloffene Spiele in den letzten 24 Stunden</string>
     <string name="popular_apps">PWA beliebteste Apps</string>
     <string name="popular_games">PWA beliebteste Spiele</string>
     <string name="topselling_free_apps">Top kostenlose Apps</string>
