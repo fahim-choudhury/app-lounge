@@ -32,8 +32,7 @@ import javax.inject.Inject
 
 class CleanApkAppsRepository @Inject constructor(
     private val cleanApkRetrofit: CleanApkRetrofit,
-    private val homeConverter: HomeConverter,
-    @ApplicationContext val context: Context
+    private val homeConverter: HomeConverter
 ) : CleanApkRepository, CleanApkDownloadInfoFetcher {
 
     override suspend fun getHomeScreenData(): Map<String, List<Application>> {
