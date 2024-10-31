@@ -38,7 +38,9 @@ import com.aurora.gplayapi.helpers.web.WebTopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.StoreRepository
+import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.application.utils.toApplication
 import foundation.e.apps.data.login.AuthenticatorRepository
@@ -51,10 +53,11 @@ import javax.inject.Inject
 class PlayStoreRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val gPlayHttpClient: GPlayHttpClient,
-    private val authenticatorRepository: AuthenticatorRepository
+    private val authenticatorRepository: AuthenticatorRepository,
+    private val applicationDataManager: ApplicationDataManager
 ) : StoreRepository {
 
-    override suspend fun getHomeScreenData(): Map<String, List<Application>> {
+    override suspend fun getHomeScreenData(list: MutableList<Home>): List<Home> {
         val homeScreenData = mutableMapOf<String, List<Application>>()
         val homeElements = createTopChartElements()
 
@@ -67,7 +70,17 @@ class PlayStoreRepository @Inject constructor(
             homeScreenData[it.key] = result
         }
 
-        return homeScreenData
+        homeScreenData.map {
+            val fusedApps = it.value.map { app ->
+                app.apply {
+                    applicationDataManager.updateStatus(this)
+                    applicationDataManager.updateFilterLevel(this)
+                }
+            }
+            list.add(Home(it.key, fusedApps))
+        }
+
+        return list
     }
 
     private fun createTopChartElements() = mutableMapOf(
@@ -191,7 +204,12 @@ class PlayStoreRepository @Inject constructor(
         val topApps = mutableListOf<GplayApp>()
         withContext(Dispatchers.IO) {
             val topChartsHelper = WebTopChartsHelper().using(gPlayHttpClient)
-            topApps.addAll(topChartsHelper.getCluster(type.value, chart.value).clusterAppList)
+            try {
+                topApps.addAll(topChartsHelper.getCluster(type.value, chart.value).clusterAppList)
+            } catch (exception: Exception) {
+                Timber.w("Could not get top apps: $exception")
+                topApps.addAll(emptyList())
+            }
         }
 
         return topApps.map {

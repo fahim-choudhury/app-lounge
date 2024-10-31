@@ -24,7 +24,5 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.data.Home
 
 interface HomeApi {
-    suspend fun fetchHomeScreenData(
-        authData: AuthData,
-    ): LiveData<ResultSupreme<List<Home>>>
+    suspend fun fetchHomeScreenData(): LiveData<ResultSupreme<List<Home>>>
 }

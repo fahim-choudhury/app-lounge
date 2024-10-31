@@ -22,14 +22,11 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.exceptions.CleanApkException
-import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
@@ -69,12 +66,12 @@ class HomeViewModel @Inject constructor(
         super.onLoadData(authObjectList, { successAuthList, _ ->
 
             successAuthList.find { it is AuthObject.GPlayAuth }?.run {
-                getHomeScreenData(result.data!! as AuthData, lifecycleOwner)
+                getHomeScreenData(lifecycleOwner)
                 return@onLoadData
             }
 
             successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getHomeScreenData(AuthData("", ""), lifecycleOwner)
+                getHomeScreenData(lifecycleOwner)
                 return@onLoadData
             }
         }, retryBlock)
@@ -95,31 +92,16 @@ class HomeViewModel @Inject constructor(
         return true
     }
 
-    fun getHomeScreenData(
-        authData: AuthData,
+    private fun getHomeScreenData(
         lifecycleOwner: LifecycleOwner,
     ) {
         viewModelScope.launch {
-            applicationRepository.getHomeScreenData(authData).observe(lifecycleOwner) {
+            applicationRepository.getHomeScreenData().observe(lifecycleOwner) {
                 postHomeResult(it)
 
                 if (it.isSuccess()) {
                     return@observe
                 }
-
-                val exception =
-                    if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
-                        GPlayException(
-                            it.isTimeout(),
-                            it.message.ifBlank { "Data load error" }
-                        )
-                    else CleanApkException(
-                        it.isTimeout(),
-                        it.message.ifBlank { "Data load error" }
-                    )
-
-                exceptionsList.add(exception)
-                exceptionsLiveData.postValue(exceptionsList)
             }
         }
     }

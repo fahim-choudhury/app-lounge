@@ -21,6 +21,8 @@ package foundation.e.apps.data.cleanapk.repositories
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.application.data.Home
+import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.search.Search
@@ -33,7 +35,7 @@ class CleanApkPwaRepository @Inject constructor(
     @ApplicationContext val context: Context
 ) : CleanApkRepository {
 
-    override suspend fun getHomeScreenData(): Map<String, List<Application>> {
+    override suspend fun getHomeScreenData(list: MutableList<Home>): List<Home> {
         val response =  cleanApkRetrofit.getHomeScreenData(
             CleanApkRetrofit.APP_TYPE_PWA,
             CleanApkRetrofit.APP_SOURCE_ANY
@@ -47,7 +49,11 @@ class CleanApkPwaRepository @Inject constructor(
             map[it.title] = it.list
         }
 
-        return map
+        listHome.forEach { (title, apps) ->
+            list.add(Home(title, apps, SearchApi.APP_TYPE_PWA))
+        }
+
+        return list
     }
 
     override suspend fun getSearchResult(query: String, searchBy: String?): Response<Search> {

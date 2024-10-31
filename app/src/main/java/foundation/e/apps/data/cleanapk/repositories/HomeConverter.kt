@@ -13,7 +13,7 @@ class HomeConverter @Inject constructor(
     private val applicationDataManager: ApplicationDataManager
 ) {
 
-    suspend fun toGenericHome(cleanApkHome: CleanApkHome, appType: String): List<Home> {
+    fun toGenericHome(cleanApkHome: CleanApkHome, appType: String): List<Home> {
         val list = mutableListOf<Home>()
 
         openSourceCategories.forEach { (key, value) ->

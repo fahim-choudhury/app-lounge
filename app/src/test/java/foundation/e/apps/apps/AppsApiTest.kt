@@ -22,7 +22,6 @@ import android.content.Context
 import android.text.format.Formatter
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.Constants
-import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.FakeAppLoungePreference
 import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.enums.FilterLevel
@@ -98,7 +97,7 @@ class AppsApiTest {
         formatterMocked = Mockito.mockStatic(Formatter::class.java)
         preferenceManagerModule = FakeAppLoungePreference(context)
         applicationDataManager =
-            ApplicationDataManager(gPlayAPIRepository, appLoungePackageManager, pwaManager)
+            ApplicationDataManager(appLoungePackageManager, pwaManager)
         val appSourcesContainer =
             AppSourcesContainer(gPlayAPIRepository, cleanApkAppsRepository, cleanApkPWARepository)
         appsApi = AppsApiImpl(
@@ -491,44 +490,4 @@ class AppsApiTest {
             val filterLevel = appsApi.getAppFilterLevel(fusedApp)
             assertEquals("getAppFilterLevel", FilterLevel.NONE, filterLevel)
         }
-
-    @Test
-    fun `getAppFilterLevel when app is restricted and getAppDetails throws exception`() = runTest {
-        val fusedApp = getFusedAppForFilterLevelTest().apply {
-            this.origin = Origin.GPLAY
-            this.restriction = Constants.Restriction.UNKNOWN
-        }
-
-        Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name))
-            .thenThrow(RuntimeException())
-
-        Mockito.`when`(
-            gPlayAPIRepository.getDownloadInfo(
-                fusedApp.package_name, fusedApp.latest_version_code, fusedApp.offer_type
-            )
-        ).thenReturn(listOf())
-
-        val filterLevel = appsApi.getAppFilterLevel(fusedApp)
-        assertEquals("getAppFilterLevel", FilterLevel.DATA, filterLevel)
-    }
-
-    @Test
-    fun `getAppFilterLevel when app is restricted and getDownoadInfo throws exception`() = runTest {
-        val fusedApp = getFusedAppForFilterLevelTest().apply {
-            this.origin = Origin.GPLAY
-            this.restriction = Constants.Restriction.UNKNOWN
-        }
-
-        Mockito.`when`(gPlayAPIRepository.getAppDetails(fusedApp.package_name))
-            .thenReturn(Application(fusedApp.package_name))
-
-        Mockito.`when`(
-            gPlayAPIRepository.getDownloadInfo(
-                fusedApp.package_name, fusedApp.latest_version_code, fusedApp.offer_type
-            )
-        ).thenThrow(RuntimeException())
-
-        val filterLevel = appsApi.getAppFilterLevel(fusedApp)
-        assertEquals("getAppFilterLevel", FilterLevel.UI, filterLevel)
-    }
 }

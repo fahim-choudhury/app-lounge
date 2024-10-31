@@ -88,7 +88,7 @@ class CategoryApiTest {
         MockitoAnnotations.openMocks(this)
         preferenceManagerModule = FakeAppLoungePreference(context)
         val applicationDataManager =
-            ApplicationDataManager(gPlayAPIRepository, appLoungePackageManager, pwaManager)
+            ApplicationDataManager(appLoungePackageManager, pwaManager)
         val appSourcesContainer =
             AppSourcesContainer(gPlayAPIRepository, cleanApkAppsRepository, cleanApkPWARepository)
         categoryApi = CategoryApiImpl(

@@ -32,15 +32,14 @@ import javax.inject.Singleton
 
 @Singleton
 class ApplicationDataManager @Inject constructor(
-    private val gPlayRepository: PlayStoreRepository,
     private val appLoungePackageManager: AppLoungePackageManager,
     private val pwaManager: PwaManager
 ) {
-    suspend fun updateFilterLevel(application: Application) {
+    fun updateFilterLevel(application: Application) {
         application.filterLevel = getAppFilterLevel(application)
     }
 
-    suspend fun prepareApps(
+    fun prepareApps(
         appList: List<Application>,
         list: MutableList<Home>,
         value: String
@@ -55,44 +54,20 @@ class ApplicationDataManager @Inject constructor(
         }
     }
 
-    suspend fun getAppFilterLevel(application: Application): FilterLevel {
+    fun getAppFilterLevel(application: Application): FilterLevel {
         return when {
             application.package_name.isBlank() -> FilterLevel.UNKNOWN
             !application.isFree && application.price.isBlank() -> FilterLevel.UI
             application.origin == Origin.CLEANAPK -> FilterLevel.NONE
             application.origin == Origin.GITLAB_RELEASES -> FilterLevel.NONE
             !isRestricted(application) -> FilterLevel.NONE
-            !isApplicationVisible(application) -> FilterLevel.DATA
             application.originalSize == 0L -> FilterLevel.UI
-            !isDownloadable(application) -> FilterLevel.UI
             else -> FilterLevel.NONE
         }
     }
 
     private fun isRestricted(application: Application): Boolean {
         return application.restriction != Constants.Restriction.NOT_RESTRICTED
-    }
-
-    /*
-     * Some apps are simply not visible.
-     * Example: com.skype.m2
-     */
-    private suspend fun isApplicationVisible(application: Application): Boolean {
-        return kotlin.runCatching { gPlayRepository.getAppDetails(application.package_name) }.isSuccess
-    }
-
-    /*
-     * Some apps are visible but not downloadable.
-     * Example: com.riotgames.league.wildrift
-     */
-    private suspend fun isDownloadable(application: Application): Boolean {
-        return kotlin.runCatching {
-            gPlayRepository.getDownloadInfo(
-                application.package_name,
-                application.latest_version_code,
-                application.offer_type,
-            )
-        }.isSuccess
     }
 
     fun updateStatus(application: Application) {

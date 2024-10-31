@@ -39,19 +39,14 @@ import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.util.MainCoroutineRule
-import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
 import org.mockito.MockedStatic
 import org.mockito.Mockito
@@ -111,7 +106,7 @@ class SearchApiImplTest {
         formatterMocked = Mockito.mockStatic(Formatter::class.java)
         preferenceManagerModule = FakeAppLoungePreference(context)
         applicationDataManager =
-            ApplicationDataManager(gPlayAPIRepository, appLoungePackageManager, pwaManager)
+            ApplicationDataManager(appLoungePackageManager, pwaManager)
         val appSourcesContainer =
             AppSourcesContainer(gPlayAPIRepository, cleanApkAppsRepository, cleanApkPWARepository)
         appsApi = AppsApiImpl(

@@ -52,8 +52,8 @@ class ApplicationRepository @Inject constructor(
     private val downloadInfoApi: DownloadInfoApi
 ) {
 
-    suspend fun getHomeScreenData(authData: AuthData): LiveData<ResultSupreme<List<Home>>> {
-        return homeApi.fetchHomeScreenData(authData)
+    suspend fun getHomeScreenData(): LiveData<ResultSupreme<List<Home>>> {
+        return homeApi.fetchHomeScreenData()
     }
 
     fun getSelectedAppTypes(): List<String> {
