@@ -39,7 +39,7 @@ import foundation.e.apps.data.application.search.GplaySearchResult
 import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.install.models.AppInstall
-import foundation.e.apps.ui.search.SearchResult
+import foundation.e.apps.data.application.search.SearchResult
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -23,9 +23,10 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.SearchBundle
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.ui.search.SearchResult
 
 typealias GplaySearchResult = ResultSupreme<Pair<List<Application>, Set<SearchBundle.SubBundle>>>
+
+typealias SearchResult = ResultSupreme<Pair<List<Application>, Boolean>>
 
 interface SearchApi {
     companion object {

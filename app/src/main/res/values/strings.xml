@@ -236,4 +236,10 @@
     <string name="nsfw_dialog_message">The app may contain nudity, profanity, slurs, violence, intense sexuality, political incorrectness, or other potentially disturbing subject matter. This is especially relevant in environments like workplaces, schools, religious and family settings.</string>
     <string name="message_fetching_content_rating">Gathering content rating for all the apps you\'ve installed.</string>
 
+    <!-- CleanAPK and GPlay data loading error -->
+    <string name="common_apps_unavailable">Common apps unavailable</string>
+    <string name="open_source_apps_unavailable">Open Source apps and PWA unavailable</string>
+    <string name="common_apps_data_load_error_description">An error occurred while loading Common apps. Only Open Source apps and PWA are available for now.</string>
+    <string name="open_source_apps_data_load_error_description">An error occurred while loading PWA and Open Source apps. Only Common apps are available for now.</string>
+
 </resources>

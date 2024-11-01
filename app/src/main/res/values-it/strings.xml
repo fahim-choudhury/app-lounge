@@ -203,4 +203,10 @@
     <string name="nsfw_dialog_title">Avviso sui contenuti</string>
     <string name="own_update_warning_description">App Lounge verrà chiusa dal sistema mentre installa l\'aggiornamento. Si prega di non effettuare alcuna attività su App Lounge finchè non sarà aggiornata e chiusa.</string>
     <string name="own_update_warning_title">Avviso sull\'aggiornamento!</string>
+
+    <!-- CleanAPK and GPlay data loading error -->
+    <string name="common_apps_unavailable">App comuni non disponibili</string>
+    <string name="open_source_apps_unavailable">App Open Source e PWA non disponibili</string>
+    <string name="common_apps_data_load_error_description">Si è verificato un errore durante il caricamento delle app comuni. Solo le app Open Source e PWA sono disponibili per ora.</string>
+    <string name="open_source_apps_data_load_error_description">Si è verificato un errore durante il caricamento delle app PWA e Open Source. Solo le app comuni sono disponibili per ora.</string>
 </resources>

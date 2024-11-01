@@ -24,3 +24,5 @@ open class GPlayException(
     val isTimeout: Boolean,
     message: String? = null,
 ) : LoginException(message)
+
+open class GPlayIOException(message: String): GPlayException(false, message)

@@ -20,7 +20,9 @@ package foundation.e.apps.data.login.exceptions
 /**
  * This exception is for all CleanApk data loading exceptions.
  */
-class CleanApkException(
+open class CleanApkException(
     val isTimeout: Boolean,
     message: String? = null,
 ) : LoginException(message)
+
+class CleanApkIOException(message: String) : CleanApkException(false, message)

@@ -38,8 +38,9 @@ import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.AuthObject
+import foundation.e.apps.data.login.exceptions.CleanApkIOException
+import foundation.e.apps.data.login.exceptions.GPlayIOException
 import foundation.e.apps.data.preference.AppLoungePreference
-import foundation.e.apps.ui.search.SearchResult
 import foundation.e.apps.utils.eventBus.AppEvent
 import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Deferred
@@ -94,7 +95,10 @@ class SearchApiImpl @Inject constructor(
         query: String,
         authData: AuthData
     ): SearchResult {
-        var finalSearchResult: SearchResult = ResultSupreme.Error()
+        var finalSearchResult: SearchResult = ResultSupreme.Error(
+            message = "",
+            exception = CleanApkIOException("Unable to reach CleanAPK API")
+        )
 
         val packageSpecificResults =
             fetchPackageSpecificResult(authData, query).data?.first ?: emptyList()
@@ -158,7 +162,8 @@ class SearchApiImpl @Inject constructor(
                     query
                 ),
                 appLoungePreference.isGplaySelected()
-            )
+            ),
+            exception = result.exception
         )
     }
 
@@ -187,7 +192,8 @@ class SearchApiImpl @Inject constructor(
                     query
                 ),
                 appLoungePreference.isGplaySelected() || appLoungePreference.isPWASelected()
-            )
+            ),
+            exception = result.exception
         )
     }
 
@@ -333,7 +339,7 @@ class SearchApiImpl @Inject constructor(
         query: String,
         nextPageSubBundle: Set<SearchBundle.SubBundle>?
     ): GplaySearchResult {
-        return handleNetworkResult {
+        val result = handleNetworkResult {
             coroutineScope { launch(Dispatchers.IO) { doDummySearch() } }
 
             val searchResults =
@@ -354,6 +360,11 @@ class SearchApiImpl @Inject constructor(
 
             return@handleNetworkResult Pair(fusedAppList.toList(), searchResults.second.toSet())
         }
+
+        return if (result.isSuccess()) result else ResultSupreme.Error(
+            message = "",
+            exception = GPlayIOException("Unable to reach Google Play API")
+        )
     }
 
     // Initiate a dummy search to ensure Google Play returns enough results for the search query
@@ -369,7 +380,8 @@ class SearchApiImpl @Inject constructor(
         val dummySearchPackageNames = DUMMY_SEARCH_EXPECTED_APPS.map { it.second }
         val searchedAppsPackageNames = searchedApps.map { it.packageName }
 
-        val isSearchContainingResults = searchedAppsPackageNames.containsAll(dummySearchPackageNames)
+        val isSearchContainingResults =
+            searchedAppsPackageNames.containsAll(dummySearchPackageNames)
 
         if (!isSearchContainingResults) {
             Timber.d("Search didn't return enough results, refreshing token...")
@@ -383,19 +395,23 @@ class SearchApiImpl @Inject constructor(
      * else will show the GPlay app itself.
      */
     private suspend fun replaceWithFDroid(gPlayApps: List<App>): List<Application> {
+        try {
+            if (gPlayApps.isEmpty()) return emptyList()
 
-        if (gPlayApps.isEmpty()) return emptyList()
+            val packageNames = gPlayApps.map { it.packageName }
+            val response = appSources.cleanApkAppsRepo.checkAvailablePackages(packageNames)
 
-        val packageNames = gPlayApps.map { it.packageName }
-        val response = appSources.cleanApkAppsRepo.checkAvailablePackages(packageNames)
+            val availableApps = response.body()?.apps ?: emptyList()
 
-        val availableApps = response.body()?.apps ?: emptyList()
-
-        return gPlayApps.map { gPlayApp ->
-            availableApps.find { it.package_name == gPlayApp.packageName }?.apply {
-                isGplayReplaced = true
-                updateSource(context)
-            } ?: gPlayApp.toApplication(context)
+            return gPlayApps.map { gPlayApp ->
+                availableApps.find { it.package_name == gPlayApp.packageName }?.apply {
+                    isGplayReplaced = true
+                    updateSource(context)
+                } ?: gPlayApp.toApplication(context)
+            }
+        } catch (e: Exception) {
+            Timber.w(e, "Failed to replace Google apps with their F-Droid counterparts.")
+            return gPlayApps.map { it.toApplication(context) }
         }
     }
 

@@ -68,8 +68,11 @@ object NetworkStatusManager {
             ) {
                 super.onCapabilitiesChanged(network, networkCapabilities)
                 val hasInternet =
-                    networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                    networkCapabilities.hasCapability(
+                        NetworkCapabilities.NET_CAPABILITY_INTERNET
+                    ) && networkCapabilities.hasCapability(
+                        NetworkCapabilities.NET_CAPABILITY_VALIDATED
+                    )
 
                 Timber.d("Network: onCapabilitiesChanged: ${network.networkHandle}, hasInternet: $hasInternet")
                 sendInternetStatus(hasInternet)

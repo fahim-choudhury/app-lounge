@@ -205,4 +205,10 @@
     <string name="system_app">System-App</string>
     <string name="own_update_warning_title">Achtung – Aktualisierung!</string>
     <string name="own_update_warning_description">App Lounge wird vom System beendet, um eine Aktualisierung durchzuführen. Bitte führen Sie keine anderen Aktionen aus, bis App Lounge aktualisert und beendet ist.</string>
+
+    <!-- CleanAPK and GPlay data loading error -->
+    <string name="common_apps_unavailable">Gemeinsame Apps nicht verfügbar</string>
+    <string name="open_source_apps_unavailable">Open-Source-Apps und PWA nicht verfügbar</string>
+    <string name="common_apps_data_load_error_description">Beim Laden der gemeinsamen Apps ist ein Fehler aufgetreten. Nur Open-Source-Apps und PWA sind momentan verfügbar.</string>
+    <string name="open_source_apps_data_load_error_description">Beim Laden von PWA und Open-Source-Apps ist ein Fehler aufgetreten. Nur gemeinsame Apps sind momentan verfügbar.</string>
 </resources>
