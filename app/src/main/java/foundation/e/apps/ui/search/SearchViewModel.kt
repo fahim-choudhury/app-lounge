@@ -28,28 +28,24 @@ import com.aurora.gplayapi.data.models.SearchBundle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.ApplicationRepository
-import foundation.e.apps.data.application.search.GplaySearchResult
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.application.search.GplaySearchResult
+import foundation.e.apps.data.application.search.SearchResult
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.exodus.repositories.IAppPrivacyInfoRepository
 import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepository
 import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.exceptions.CleanApkException
-import foundation.e.apps.data.login.exceptions.GPlayException
-import foundation.e.apps.data.login.exceptions.UnknownSourceException
 import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
-typealias SearchResult = ResultSupreme<Pair<List<Application>, Boolean>>
+import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -64,7 +60,7 @@ class SearchViewModel @Inject constructor(
         MutableLiveData()
     val searchResult: LiveData<SearchResult> = _searchResult
 
-    val gplaySearchLoaded : MutableLiveData<Boolean> = MutableLiveData(false)
+    val gplaySearchLoaded: MutableLiveData<Boolean> = MutableLiveData(false)
 
     private var lastAuthObjects: List<AuthObject>? = null
 
@@ -119,16 +115,15 @@ class SearchViewModel @Inject constructor(
 
         this.lastAuthObjects = authObjectList
         super.onLoadData(authObjectList, { successAuthList, _ ->
+            successAuthList.find { it is AuthObject.CleanApk }?.run {
+                fetchCleanApkData(query, null)
+            }
 
             successAuthList.find { it is AuthObject.GPlayAuth }?.run {
-                getSearchResults(query, result.data!! as AuthData)
-                return@onLoadData
+                nextSubBundle = null
+                fetchGplayData(query)
             }
 
-            successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getSearchResults(query, null)
-                return@onLoadData
-            }
         }, retryBlock)
     }
 
@@ -138,7 +133,7 @@ class SearchViewModel @Inject constructor(
      * without having to wait for all of the apps.
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
      */
-    private fun getSearchResults(
+    private fun fetchCleanApkData(
         query: String,
         authData: AuthData?
     ) {
@@ -152,28 +147,8 @@ class SearchViewModel @Inject constructor(
             emitFilteredResults(searchResultSupreme)
 
             if (!searchResultSupreme.isSuccess()) {
-                val exception =
-                    if (authData != null) {
-                        GPlayException(
-                            searchResultSupreme.isTimeout(),
-                            searchResultSupreme.message.ifBlank { DATA_LOAD_ERROR }
-                        )
-                    } else {
-                        CleanApkException(
-                            searchResultSupreme.isTimeout(),
-                            searchResultSupreme.message.ifBlank { DATA_LOAD_ERROR }
-                        )
-                    }
-
-                handleException(exception)
+                searchResultSupreme.exception?.let { handleException(it) }
             }
-
-            if (authData == null) {
-                return@launch
-            }
-
-            nextSubBundle = null
-            fetchGplayData(query)
         }
     }
 
@@ -191,25 +166,30 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    private suspend fun fetchGplayData(query: String) {
-        isLoading = true
-        val gplaySearchResult = applicationRepository.getGplaySearchResults(query, nextSubBundle)
+    private fun fetchGplayData(query: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            isLoading = true
+            val gplaySearchResult =
+                applicationRepository.getGplaySearchResults(query, nextSubBundle)
 
-        if (!gplaySearchResult.isSuccess()) {
-            handleException(gplaySearchResult.exception ?: UnknownSourceException())
+            if (!gplaySearchResult.isSuccess()) {
+                gplaySearchResult.exception?.let {
+                    handleException(it)
+                }
+            }
+
+            nextSubBundle = gplaySearchResult.data?.second
+
+            val currentAppList = updateCurrentAppList(gplaySearchResult)
+            val finalResult = ResultSupreme.Success(
+                Pair(currentAppList.toList(), nextSubBundle?.isNotEmpty() ?: false)
+            )
+
+            hasGPlayBeenFetched = true
+            emitFilteredResults(finalResult)
+
+            isLoading = false
         }
-
-        nextSubBundle = gplaySearchResult.data?.second
-
-        val currentAppList = updateCurrentAppList(gplaySearchResult)
-        val finalResult = ResultSupreme.Success(
-            Pair(currentAppList.toList(), nextSubBundle?.isNotEmpty() ?: false)
-        )
-
-        hasGPlayBeenFetched = true
-        emitFilteredResults(finalResult)
-
-        isLoading = false
     }
 
     private fun updateCurrentAppList(gplaySearchResult: GplaySearchResult): List<Application> {

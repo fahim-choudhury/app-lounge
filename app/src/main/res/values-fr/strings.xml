@@ -203,4 +203,10 @@
     <string name="request_exodus_report_confirm_dialog">Cliquer sur \"<xliff:g id="ok">%1$s</xliff:g>\" ouvrira un onglet dans votre navigateur avec le nom du paquet de l\'application pré-rempli.&lt;br /&gt;&lt;br /&gt; Cliquez sur \"Perform analysis\" pour lancer l\'analyse par Exodus.&lt;br /&gt;&lt;br /&gt; Quand le bouton \"See the report\" apparaît (cela peut prendre un moment selon l\'application) vous pouvez fermer l\'onglet et retourner sur la description de l\'application dans <xliff:g id="app_name">%2$s</xliff:g> où vous devriez voir la note de Confidentialité. Parfois Exodus peut échouer à analyser l\'application.&lt;br /&gt;&lt;br /&gt;NB : cela peut prendre jusqu\'à 10 min pour que le score apparaisse dans la description de l\'application.</string>
     <string name="refresh_session">RENOUVELER LA SESSION</string>
     <string name="system_app">Application système</string>
+
+    <!-- CleanAPK and GPlay data loading error -->
+    <string name="common_apps_unavailable">Applications communes indisponibles</string>
+    <string name="open_source_apps_unavailable">Applications Open Source et PWA indisponibles</string>
+    <string name="common_apps_data_load_error_description">Une erreur est survenue lors du chargement des applications communes. Seules les applications Open Source et PWA sont disponibles pour l’instant.</string>
+    <string name="open_source_apps_data_load_error_description">Une erreur est survenue lors du chargement des applications PWA et Open Source. Seules les applications communes sont disponibles pour l\'instant.</string>
 </resources>

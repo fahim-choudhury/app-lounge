@@ -19,8 +19,6 @@
 package foundation.e.apps.di.network
 
 import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertNotNull
-import junit.framework.TestCase.assertTrue
 import okhttp3.Interceptor
 import okhttp3.Protocol
 import okhttp3.Request
@@ -33,7 +31,6 @@ import org.mockito.Mockito.verify
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.whenever
-import java.io.IOException
 import java.util.Locale
 
 class InterceptorModuleTest {
@@ -86,27 +83,5 @@ class InterceptorModuleTest {
         )
         assertEquals(Locale.getDefault().language, capturedRequest.header("Accept-Language"))
         assertEquals(response, interceptedResponse)
-    }
-
-    @Test
-    fun `provideInterceptor should return custom response on IOException`() {
-        // Mock IOException when proceeding with chain
-        whenever(chain.proceed(any())).thenThrow(IOException())
-
-        val interceptor = module.provideInterceptor()
-
-        // Intercept the request, should catch IOException and return custom response
-        val interceptedResponse = interceptor.intercept(chain)
-
-        assertNotNull(interceptedResponse)
-        assertEquals(InterceptorModule.ERROR_RESPONSE_CODE, interceptedResponse.code)
-        assertEquals(
-            InterceptorModule.ERROR_RESPONSE_MESSAGE,
-            interceptedResponse.message
-        )
-        assertTrue(
-            interceptedResponse.body?.string()
-                ?.contains(InterceptorModule.ERROR_RESPONSE_MESSAGE) == true
-        )
     }
 }

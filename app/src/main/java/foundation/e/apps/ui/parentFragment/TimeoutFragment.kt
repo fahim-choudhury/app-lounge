@@ -22,6 +22,7 @@ import android.graphics.Paint
 import android.net.Uri
 import android.widget.TextView
 import androidx.annotation.LayoutRes
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -34,13 +35,15 @@ import foundation.e.apps.R
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.PlayStoreAuthenticator
-import foundation.e.apps.ui.LoginViewModel
 import foundation.e.apps.data.login.exceptions.CleanApkException
+import foundation.e.apps.data.login.exceptions.CleanApkIOException
 import foundation.e.apps.data.login.exceptions.GPlayException
+import foundation.e.apps.data.login.exceptions.GPlayIOException
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.data.login.exceptions.GPlayValidationException
 import foundation.e.apps.data.login.exceptions.UnknownSourceException
 import foundation.e.apps.databinding.DialogErrorLogBinding
+import foundation.e.apps.ui.LoginViewModel
 import foundation.e.apps.ui.MainActivityViewModel
 import timber.log.Timber
 
@@ -356,7 +359,11 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
      * instance if it deems fit. Else it may return null, at which case no error dialog
      * is shown to the user.
      */
-    fun showDataLoadError(exception: Exception) {
+    private fun showDataLoadError(
+        exception: Exception,
+        @StringRes dialogTitle: Int = R.string.data_load_error,
+        @StringRes dialogMessage: Int = R.string.data_load_error_desc
+    ) {
         val dialogView = DialogErrorLogBinding.inflate(requireActivity().layoutInflater)
         dialogView.apply {
             moreInfo.setOnClickListener {
@@ -376,8 +383,8 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
         }
 
         val predefinedDialog = AlertDialog.Builder(requireActivity()).apply {
-            setTitle(R.string.data_load_error)
-            setMessage(R.string.data_load_error_desc)
+            setTitle(dialogTitle)
+            setMessage(dialogMessage)
             setView(dialogView.root)
             setPositiveButton(R.string.retry) { _, _ ->
                 showLoadingUI()
@@ -407,6 +414,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
         val gPlayException = exceptions.find { it is GPlayException }?.run {
             this as GPlayException
         }
+
         val unknownSourceException = exceptions.find { it is UnknownSourceException }
 
         if (gPlayException?.message?.contains(STATUS_TOO_MANY_REQUESTS) == true) {
@@ -418,6 +426,19 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
          * Cases to be defined from most restrictive to least restrictive.
          */
         when {
+            // Handle IOException
+            cleanApkException is CleanApkIOException -> showDataLoadError(
+                exception = cleanApkException,
+                dialogTitle = R.string.open_source_apps_unavailable,
+                dialogMessage = R.string.open_source_apps_data_load_error_description,
+            )
+
+            gPlayException is GPlayIOException -> showDataLoadError(
+                exception = gPlayException,
+                dialogTitle = R.string.common_apps_unavailable,
+                dialogMessage = R.string.common_apps_data_load_error_description
+            )
+
             // Handle timeouts
             cleanApkException?.isTimeout == true -> showTimeout(cleanApkException)
             gPlayException?.isTimeout == true -> showTimeout(gPlayException)
