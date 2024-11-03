@@ -204,4 +204,8 @@
     <string name="system_app">Kerfisforrit</string>
     <string name="own_update_warning_title">Aðvörun vegna uppfærslu!</string>
     <string name="own_update_warning_description">App Lounge verður lokað af kerfinu á meðan það uppfærir sjálft sig. Vertu helst ekki að gera neitt annað þangað til uppfærslu App Lounge er lokið.</string>
+    <string name="open_source_apps_unavailable">Forrit með opnum grunnkóða og PWA óaðgengileg</string>
+    <string name="open_source_apps_data_load_error_description">Villa kom upp við að hlaða inn forritum með opnum grunnkóða og PWA. Aðeins algeng forrit eru tiltæk í augnablikinu.</string>
+    <string name="common_apps_unavailable">Algeng forrit óaðgengileg</string>
+    <string name="common_apps_data_load_error_description">Villa kom upp við að hlaða inn algengum forritum. Aðeins forrit með opnum grunnkóða og PWA eru tiltæk í augnablikinu.</string>
 </resources>
