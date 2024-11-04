@@ -22,6 +22,7 @@ import android.os.Build
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.gitlab.UpdatableSystemAppsApi.*
 import foundation.e.apps.data.gitlab.models.OsReleaseType
 import foundation.e.apps.data.gitlab.models.SystemAppInfo
 import foundation.e.apps.data.gitlab.models.SystemAppProject
@@ -43,6 +44,15 @@ class SystemAppsUpdatesRepository @Inject constructor(
     private val releaseInfoApi: ReleaseInfoApi,
 ) {
 
+    private val androidVersionCode by lazy {
+        try { getAndroidVersionCodeChar() }
+        catch (exception: UnsupportedAndroidApiException) {
+            Timber.w(exception.message,
+                "Android API isn't in supported range to update some system apps")
+            "UnsupportedAndroidAPI"
+        }
+    }
+
     private val systemAppProjectList = mutableListOf<SystemAppProject>()
 
     private fun getUpdatableSystemApps(): List<String> {
@@ -55,13 +65,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
                 return@handleNetworkResult
             }
 
-            val systemName = getFullSystemName()
-            val endPoint = if (isEligibleToFetchAppListFromTest(systemName)) {
-                UpdatableSystemAppsApi.EndPoint.ENDPOINT_TEST
-            } else {
-                UpdatableSystemAppsApi.EndPoint.ENDPOINT_RELEASE
-            }
-
+            val endPoint = getUpdatableSystemAppEndPoint()
             val response = updatableSystemAppsApi.getUpdatableSystemApps(endPoint)
 
             if (response.isSuccessful && !response.body().isNullOrEmpty()) {
@@ -74,6 +78,15 @@ class SystemAppsUpdatesRepository @Inject constructor(
 
         if (!result.isSuccess()) {
             Timber.e("Network error when fetching updatable apps - ${result.message}")
+        }
+    }
+
+    private fun getUpdatableSystemAppEndPoint(): EndPoint {
+        val systemName = getFullSystemName()
+        return if (isEligibleToFetchAppListFromTest(systemName)) {
+            EndPoint.ENDPOINT_TEST
+        } else {
+            EndPoint.ENDPOINT_RELEASE
         }
     }
 
@@ -96,15 +109,21 @@ class SystemAppsUpdatesRepository @Inject constructor(
     }
 
     private suspend fun getReleaseDetailsUrl(
-        projectId: Int,
+        systemAppProject: SystemAppProject,
         releaseType: OsReleaseType,
     ): String? {
+        val projectId = systemAppProject.projectId
         val releaseResponse = releaseInfoApi.getReleases(projectId)
-        val releases = releaseResponse.body()
+        var releases = releaseResponse.body()
 
         if (!releaseResponse.isSuccessful || releases == null) {
             Timber.e("Failed to fetch releases for project id - $projectId")
             return null
+        }
+
+        if (systemAppProject.dependsOnAndroidVersion) {
+            val versionSuffix = "-$androidVersionCode"
+            releases = releases.filter { isVersionedTag(it.tagName, versionSuffix) }
         }
 
         val sortedReleases = releases.sortedByDescending {
@@ -120,29 +139,41 @@ class SystemAppsUpdatesRepository @Inject constructor(
         return null
     }
 
-    private suspend fun getSystemAppUpdateInfo(
+    private fun isVersionedTag(tag: String, versionSuffix: String): Boolean {
+        return tag.endsWith(suffix = versionSuffix, ignoreCase = true)
+    }
+
+    private suspend fun getApplication(
         packageName: String,
         releaseType: OsReleaseType,
         sdkLevel: Int,
         device: String,
     ): Application? {
 
-        val projectId =
-            systemAppProjectList.find { it.packageName == packageName }?.projectId ?: return null
+        val systemAppProject = systemAppProjectList.find { it.packageName == packageName } ?: return null
+        val detailsUrl = getReleaseDetailsUrl(systemAppProject, releaseType) ?: return null
 
-        val detailsUrl = getReleaseDetailsUrl(projectId, releaseType) ?: return null
+        val systemAppInfo = getSystemAppInfo(packageName, detailsUrl) ?: return null
 
-        val response = systemAppDefinitionApi.getSystemAppUpdateInfo(detailsUrl)
-        val systemAppInfo = response.body()
-
-        return if (systemAppInfo == null) {
-            Timber.e("Null app info for: $packageName, response: ${response.errorBody()?.string()}")
-            null
-        } else if (isSystemAppBlocked(systemAppInfo, sdkLevel, device)) {
+        return if (isSystemAppBlocked(systemAppInfo, sdkLevel, device)) {
             Timber.e("Blocked system app: $packageName, details: $systemAppInfo")
             null
         } else {
             systemAppInfo.toApplication(context)
+        }
+    }
+
+    private suspend fun getSystemAppInfo(
+        packageName: String,
+        detailsUrl: String
+    ): SystemAppInfo? {
+        val response = systemAppDefinitionApi.getSystemAppUpdateInfo(detailsUrl)
+
+        return if (response.isSuccessful) {
+            response.body()
+        } else {
+            Timber.e("Can't get AppInfo for $packageName, response: ${response.errorBody()?.string()}")
+            null
         }
     }
 
@@ -164,6 +195,23 @@ class SystemAppsUpdatesRepository @Inject constructor(
         }
     }
 
+    /**
+     * This method must be updated when Murena or /e/ foundation support new Android version
+     * or stop to support an old one
+     */
+    private fun getAndroidVersionCodeChar(): String {
+        /* TODO manually add new supported android version when they will be supported.
+        * VANILLA_ICE_CREAM (A15) => https://gitlab.e.foundation/e/os/backlog/-/issues/2772
+        * BAKLAVA (A16) => https://gitlab.e.foundation/e/os/backlog/-/issues/2773
+        */
+        return when (val currentAPI = Build.VERSION.SDK_INT) {
+            Build.VERSION_CODES.S, Build.VERSION_CODES.S_V2 -> "S"
+            Build.VERSION_CODES.TIRAMISU -> "T"
+            Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> "U"
+            else -> throw UnsupportedAndroidApiException("API level $currentAPI is not supported")
+        }
+    }
+
     suspend fun getSystemUpdates(): List<Application> {
         val updateList = mutableListOf<Application>()
         val releaseType = getSystemReleaseType()
@@ -179,7 +227,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
             }
 
             val result = handleNetworkResult {
-                getSystemAppUpdateInfo(
+                getApplication(
                     it,
                     releaseType,
                     sdkLevel,
@@ -200,5 +248,6 @@ class SystemAppsUpdatesRepository @Inject constructor(
 
         return updateList
     }
-
 }
+
+private class UnsupportedAndroidApiException(message: String) : RuntimeException(message)

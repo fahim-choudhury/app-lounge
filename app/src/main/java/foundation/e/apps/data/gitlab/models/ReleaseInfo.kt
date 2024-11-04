@@ -19,10 +19,10 @@ package foundation.e.apps.data.gitlab.models
 
 import com.squareup.moshi.Json
 
-data class ReleaseInfo(
+data class GitLabReleaseInfo(
     val name: String,
-    @Json(name = "released_at")
-    val releasedAt: String,
+    @Json(name = "tag_name") val tagName: String,
+    @Json(name = "released_at") val releasedAt: String,
     val assets: ReleaseAssets,
 ) {
     fun getAssetWebLink(assetName: String): String? {

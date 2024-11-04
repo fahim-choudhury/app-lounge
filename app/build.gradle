@@ -42,7 +42,7 @@ def getSentryDsn = { ->
 }
 
 android {
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "foundation.e.apps"

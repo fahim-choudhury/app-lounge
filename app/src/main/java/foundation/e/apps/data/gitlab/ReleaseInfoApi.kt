@@ -17,11 +17,14 @@
 
 package foundation.e.apps.data.gitlab
 
-import foundation.e.apps.data.gitlab.models.ReleaseInfo
+import foundation.e.apps.data.gitlab.models.GitLabReleaseInfo
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 
+/*
+Provides GitLab API client method (https://docs.gitlab.com/ee/api/releases/)
+ */
 interface ReleaseInfoApi {
 
     companion object {
@@ -32,6 +35,5 @@ interface ReleaseInfoApi {
     @GET("{projectId}/releases")
     suspend fun getReleases(
         @Path("projectId") projectId: Int,
-    ): Response<List<ReleaseInfo>>
-
+    ): Response<List<GitLabReleaseInfo>>
 }
