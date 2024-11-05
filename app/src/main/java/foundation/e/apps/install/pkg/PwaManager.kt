@@ -27,7 +27,7 @@ import javax.inject.Singleton
 
 @Singleton
 @OpenForTesting
-class PWAManager @Inject constructor(
+class PwaManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appInstallRepository: AppInstallRepository,
 ) {

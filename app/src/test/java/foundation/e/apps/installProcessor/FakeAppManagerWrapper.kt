@@ -19,7 +19,7 @@
 package foundation.e.apps.installProcessor
 
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fdroid.FdroidRepository
+import foundation.e.apps.data.fdroid.FDroidRepository
 import foundation.e.apps.data.install.AppManagerWrapper
 import foundation.e.apps.data.install.AppManager
 import foundation.e.apps.data.install.models.AppInstall
@@ -28,8 +28,8 @@ import kotlinx.coroutines.delay
 class FakeAppManagerWrapper(
     private val fusedDownloadDAO: FakeAppInstallDAO,
     fusedManager: AppManager,
-    fdroidRepository: FdroidRepository,
-) : AppManagerWrapper(fusedManager, fdroidRepository) {
+    fDroidRepository: FDroidRepository,
+) : AppManagerWrapper(fusedManager, fDroidRepository) {
     var isAppInstalled = false
     var installationStatus = Status.INSTALLED
     var willDownloadFail = false

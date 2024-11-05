@@ -6,7 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import foundation.e.apps.OpenForTesting
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fdroid.FdroidRepository
+import foundation.e.apps.data.fdroid.FDroidRepository
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.install.download.data.DownloadProgress
@@ -18,7 +18,7 @@ import javax.inject.Singleton
 @OpenForTesting
 class AppManagerWrapper @Inject constructor(
     private val appManager: AppManager,
-    private val fdroidRepository: FdroidRepository
+    private val fDroidRepository: FDroidRepository
 ) {
 
     fun createNotificationChannels() {
@@ -182,9 +182,9 @@ class AppManagerWrapper @Inject constructor(
         return null
     }
 
-    suspend fun isFdroidApplicationSigned(context: Context, appInstall: AppInstall): Boolean {
+    suspend fun isFDroidApplicationSigned(context: Context, appInstall: AppInstall): Boolean {
         val apkFilePath = appManager.getBaseApkPath(appInstall)
-        return fdroidRepository.isFdroidApplicationSigned(context, appInstall.packageName, apkFilePath, appInstall.signature)
+        return fDroidRepository.isFDroidApplicationSigned(context, appInstall.packageName, apkFilePath, appInstall.signature)
     }
 
     fun isFusedDownloadInstalled(appInstall: AppInstall): Boolean {

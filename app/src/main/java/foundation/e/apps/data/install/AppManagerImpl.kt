@@ -35,7 +35,7 @@ import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.parentalcontrol.ContentRatingDao
 import foundation.e.apps.data.parentalcontrol.ContentRatingEntity
 import foundation.e.apps.install.download.data.DownloadProgressLD
-import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.sync.Mutex
@@ -53,7 +53,7 @@ class AppManagerImpl @Inject constructor(
     private val downloadManager: DownloadManager,
     private val notificationManager: NotificationManager,
     private val appInstallRepository: AppInstallRepository,
-    private val pwaManager: PWAManager,
+    private val pwaManager: PwaManager,
     private val appLoungePackageManager: AppLoungePackageManager,
     @Named("download") private val downloadNotificationChannel: NotificationChannel,
     @Named("update") private val updateNotificationChannel: NotificationChannel,

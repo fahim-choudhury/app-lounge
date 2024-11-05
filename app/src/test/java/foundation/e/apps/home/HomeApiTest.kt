@@ -21,17 +21,18 @@ package foundation.e.apps.home
 import android.content.Context
 import android.text.format.Formatter
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.FakeAppLoungePreference
 import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.application.ApplicationDataManager
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.home.HomeApi
 import foundation.e.apps.data.application.home.HomeApiImpl
-import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
+import foundation.e.apps.data.cleanapk.repositories.CleanApkAppsRepository
+import foundation.e.apps.data.cleanapk.repositories.CleanApkPwaRepository
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.util.MainCoroutineRule
 import foundation.e.apps.util.getOrAwaitValue
@@ -67,7 +68,7 @@ class HomeApiTest {
     private lateinit var applicationDataManager: ApplicationDataManager
 
     @Mock
-    private lateinit var pwaManager: PWAManager
+    private lateinit var pwaManager: PwaManager
 
     @Mock
     private lateinit var appLoungePackageManager: AppLoungePackageManager
@@ -76,10 +77,10 @@ class HomeApiTest {
     private lateinit var context: Context
 
     @Mock
-    private lateinit var cleanApkAppsRepository: CleanApkRepository
+    private lateinit var cleanApkAppsRepository: CleanApkAppsRepository
 
     @Mock
-    private lateinit var cleanApkPWARepository: CleanApkRepository
+    private lateinit var cleanApkPWARepository: CleanApkPwaRepository
 
     @Mock
     private lateinit var gPlayAPIRepository: PlayStoreRepository
@@ -111,19 +112,19 @@ class HomeApiTest {
 
     @Test
     fun testHomeScreenDataWhenDataIsLimited() = runTest {
-        val newAppList = mutableListOf<App>(
-            App("foundation.e.demoone"),
-            App("foundation.e.demotwo"),
-            App("foundation.e.demothree"),
+        val newAppList = mutableListOf(
+            Application("foundation.e.demoone"),
+            Application("foundation.e.demotwo"),
+            Application("foundation.e.demothree"),
         )
 
-        var newHomeData = mapOf<String, List<App>>(Pair("Top Free Apps", newAppList))
+        val newHomeData = mapOf<String, List<Application>>(Pair("Top Free Apps", newAppList))
         preferenceManagerModule.isGplaySelectedFake = true
 
         formatterMocked.`when`<String> { Formatter.formatFileSize(any(), any()) }.thenReturn("15MB")
         Mockito.`when`(gPlayAPIRepository.getHomeScreenData()).thenReturn(newHomeData)
         Mockito.`when`(gPlayAPIRepository.getAppDetails(ArgumentMatchers.anyString())).thenReturn(
-            App("foundation.e.demothree")
+            Application("foundation.e.demothree")
         )
         Mockito.`when`(
             gPlayAPIRepository.getDownloadInfo(

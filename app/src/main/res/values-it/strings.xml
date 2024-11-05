@@ -75,8 +75,6 @@
     <string name="unknown_error">Errore sconosciuto!</string>
     <string name="update_all">Aggiorna tutto</string>
     <string name="discover">Scopri</string>
-    <string name="popular_apps_in_last_24_hours">App Open Source più richieste nelle ultime 24 ore</string>
-    <string name="popular_games_in_last_24_hours">Giochi Open Source più richiesti nelle ultime 24 ore</string>
     <string name="popular_apps">App PWA più richieste</string>
     <string name="popular_games">Giochi PWA più richiesti</string>
     <string name="top_updated_apps">Migliori App Open Source aggiornate</string>
@@ -153,7 +151,6 @@
 \nPuoi riprovare adesso o più tardi.</string>
     <string name="data_load_error">Si è verificato un errore durante il caricamento delle App.</string>
     <string name="more_info"><u>Maggiori informazioni</u></string>
-    <string name="discover_pwa">Scopri le PWA</string>
     <string name="gplay_data_for_oss">Non posso avviare l\'App Google Play se sono permesse solo App open source.</string>
     <string name="close">Chiudi</string>
     <string name="monthly">Mensilmente</string>

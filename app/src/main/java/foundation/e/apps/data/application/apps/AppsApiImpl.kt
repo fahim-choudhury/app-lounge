@@ -21,7 +21,6 @@ package foundation.e.apps.data.application.apps
 import android.content.Context
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.ContentRating
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.application.ApplicationDataManager
@@ -38,7 +37,7 @@ import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
 import retrofit2.Response
 import javax.inject.Inject
-import foundation.e.apps.data.cleanapk.data.app.Application as CleanApkApplication
+import foundation.e.apps.data.cleanapk.data.app.CleanApkApplication
 
 class AppsApiImpl @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -61,8 +60,7 @@ class AppsApiImpl @Inject constructor(
 
             if (result?.hasSingleResult() == true) {
                 application =
-                    (appSources.cleanApkAppsRepo.getAppDetails(result.apps[0]._id)
-                            as Response<CleanApkApplication>).body()?.app ?: Application()
+                    appSources.cleanApkAppsRepo.getAppDetails(result.apps[0]._id)
             }
 
             application.updateFilterLevel(null)
@@ -190,18 +188,16 @@ class AppsApiImpl @Inject constructor(
         authData: AuthData,
         origin: Origin
     ): Pair<Application, ResultStatus> {
-        var application: Application?
+        var application: Application
 
         val result = handleNetworkResult {
             application = if (origin == Origin.CLEANAPK) {
-                (appSources.cleanApkAppsRepo.getAppDetails(id)
-                        as Response<CleanApkApplication>).body()?.app
+                appSources.cleanApkAppsRepo.getAppDetails(id)
             } else {
-                val app = appSources.gplayRepo.getAppDetails(packageName) as App?
-                app?.toApplication(context)
+                appSources.gplayRepo.getAppDetails(packageName)
             }
 
-            application?.let {
+            application.let {
                 applicationDataManager.updateStatus(it)
                 it.updateType()
                 it.updateSource(context)

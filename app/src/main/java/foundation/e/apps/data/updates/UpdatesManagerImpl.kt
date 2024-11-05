@@ -29,8 +29,7 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
-import foundation.e.apps.data.fdroid.FdroidRepository
-import foundation.e.apps.data.playstore.PlayStoreRepositoryImpl
+import foundation.e.apps.data.fdroid.FDroidRepository
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.application.data.Application
@@ -52,7 +51,7 @@ class UpdatesManagerImpl @Inject constructor(
     private val applicationRepository: ApplicationRepository,
     private val faultyAppRepository: FaultyAppRepository,
     private val appLoungePreference: AppLoungePreference,
-    private val fdroidRepository: FdroidRepository,
+    private val fDroidRepository: FDroidRepository,
     private val blockedAppRepository: BlockedAppRepository,
     private val systemAppsUpdatesRepository: SystemAppsUpdatesRepository,
 ) {
@@ -417,7 +416,7 @@ class UpdatesManagerImpl @Inject constructor(
         // Received list has build info of the latest version at the bottom.
         // We want it at the top.
         val builds = handleNetworkResult {
-            fdroidRepository.getBuildVersionInfo(packageName)?.asReversed() ?: listOf()
+            fDroidRepository.getBuildVersionInfo(packageName)?.asReversed() ?: listOf()
         }.data
 
         val matchingIndex = builds?.find {

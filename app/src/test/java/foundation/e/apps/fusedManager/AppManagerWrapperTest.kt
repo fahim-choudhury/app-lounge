@@ -21,7 +21,7 @@ package foundation.e.apps.fusedManager
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.fdroid.FdroidRepository
+import foundation.e.apps.data.fdroid.FDroidRepository
 import foundation.e.apps.data.install.AppManagerWrapper
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.install.workmanager.InstallWorkManager
@@ -58,7 +58,7 @@ class AppManagerWrapperTest {
     private lateinit var application: Application
 
     @Mock
-    private lateinit var fdroidRepository: FdroidRepository
+    private lateinit var fdroidRepository: FDroidRepository
 
     private lateinit var appManagerWrapper: AppManagerWrapper
 

@@ -16,9 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.cleanapk.data.home
+package foundation.e.apps.data.cleanapk.data.app
 
-data class HomeScreen(
-    val home: Home = Home(),
+import foundation.e.apps.data.application.data.Application
+
+data class CleanApkApplication(
+    val app: Application = Application(),
     val success: Boolean = false
 )

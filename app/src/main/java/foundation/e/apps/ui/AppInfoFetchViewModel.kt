@@ -6,32 +6,31 @@ import androidx.lifecycle.liveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
-import foundation.e.apps.data.fdroid.FdroidRepository
+import foundation.e.apps.data.fdroid.FDroidRepository
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import javax.inject.Inject
-import javax.inject.Named
 
 /**
  *
  */
 @HiltViewModel
 class AppInfoFetchViewModel @Inject constructor(
-    private val fdroidRepository: FdroidRepository,
-    @Named("gplayRepository") private val gplayRepository: PlayStoreRepository,
+    private val fDroidRepository: FDroidRepository,
+    private val gPlayRepository: PlayStoreRepository,
     private val faultyAppRepository: FaultyAppRepository,
     private val blockedAppRepository: BlockedAppRepository,
 ) : ViewModel() {
 
     fun getAuthorName(application: Application) = liveData {
-        val authorName = fdroidRepository.getAuthorName(application)
+        val authorName = fDroidRepository.getAuthorName(application)
         emit(authorName)
     }
 
     fun isAppPurchased(app: Application): LiveData<Boolean> {
         return liveData {
             try {
-                gplayRepository.getDownloadInfo(
+                gPlayRepository.getDownloadInfo(
                     app.package_name,
                     app.latest_version_code,
                     app.offer_type,

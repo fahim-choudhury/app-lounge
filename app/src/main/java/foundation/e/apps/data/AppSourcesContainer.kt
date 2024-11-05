@@ -19,15 +19,15 @@
 
 package foundation.e.apps.data
 
-import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
+import foundation.e.apps.data.cleanapk.repositories.CleanApkAppsRepository
+import foundation.e.apps.data.cleanapk.repositories.CleanApkPwaRepository
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import javax.inject.Inject
-import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
 class AppSourcesContainer @Inject constructor(
-    @Named("gplayRepository") val gplayRepo: PlayStoreRepository,
-    @Named("cleanApkAppsRepository") val cleanApkAppsRepo: CleanApkRepository,
-    @Named("cleanApkPWARepository") val cleanApkPWARepo: CleanApkRepository
+    val gplayRepo: PlayStoreRepository,
+    val cleanApkAppsRepo: CleanApkAppsRepository,
+    val cleanApkPWARepo: CleanApkPwaRepository
 )

@@ -147,11 +147,8 @@
     <string name="own_update_warning_description">App Lounge will be closed by the system while installing its own update. Kindly refrain from doing any other task till App Lounge is updated and closed.</string>
     <!-- Home Fragment -->
     <string name="discover">Discover</string>
-    <string name="discover_pwa">Discover PWA</string>
     <string name="top_updated_apps">Open Source Top Updated Apps</string>
     <string name="top_updated_games">Open Source Top Updated Games</string>
-    <string name="popular_apps_in_last_24_hours">Open Source Popular Apps In Last 24 Hours</string>
-    <string name="popular_games_in_last_24_hours">Open Source Popular Games In Last 24 Hours</string>
     <string name="popular_apps">PWA Popular Apps</string>
     <string name="popular_games">PWA Popular Games</string>
     <string name="topselling_free_apps" weblate_ctx="home">Top Free Apps</string>

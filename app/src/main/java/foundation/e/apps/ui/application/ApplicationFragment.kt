@@ -67,7 +67,7 @@ import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.domain.ValidateAppAgeLimitUseCase.Companion.KEY_ANTI_FEATURES_NSFW
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.pkg.AppLoungePackageManager
-import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.MainActivity
 import foundation.e.apps.ui.MainActivityViewModel
@@ -130,7 +130,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     lateinit var appLoungePackageManager: AppLoungePackageManager
 
     @Inject
-    lateinit var pwaManager: PWAManager
+    lateinit var pwaManager: PwaManager
 
     private val applicationViewModel: ApplicationViewModel by viewModels()
     private val privacyInfoViewModel: PrivacyInfoViewModel by viewModels()

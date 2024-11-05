@@ -52,7 +52,6 @@
     <string name="automatically_install_updates_notification_text">Applikasjonsoppdateringer vil bli installert automatisk</string>
     <string name="updates">Oppdateringer</string>
     <string name="downloads">Nedlastinger</string>
-    <string name="discover_pwa">Oppdag PWA</string>
     <string name="discover">Oppdag</string>
     <string name="message_update_failure_single_app">%1$s sin oppdatering har mislyktes på grunn av et misforhold (lokasjon, operativsystemversjon…).</string>
     <string name="message_update_failed">På gunn av en midlertidig feil kan ikke alle dine applikasjoner bli oppdatert. Prøv igjen senere.</string>
@@ -164,9 +163,7 @@
     <string name="topselling_free_apps" weblate_ctx="home">Topp gratis applikasjoner</string>
     <string name="movers_shakers_games">Mest populære spill</string>
     <string name="topselling_free_games" weblate_ctx="home">Topp gratis spill</string>
-    <string name="popular_apps_in_last_24_hours">Populære åpen kildekode-applikasjoner de siste 24 timer</string>
     <string name="popular_games">Populære PWA spill</string>
-    <string name="popular_games_in_last_24_hours">Populære åpen kildekode-spill de siste 24 timer</string>
     <string name="topgrossing_apps" weblate_ctx="home">Mest innbringende applikasjoner</string>
     <string name="topgrossing_games">Mest innbringende spill</string>
     <string name="tracker_information_not_found">Ingen sporingsinformasjon tilgjengelig for denne applikasjonen.</string>

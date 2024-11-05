@@ -76,8 +76,6 @@
     <string name="discover">Explorar</string>
     <string name="top_updated_apps">Aplicaciones de código abierto más actualizadas</string>
     <string name="top_updated_games">Juegos de código abierto más actualizados</string>
-    <string name="popular_games_in_last_24_hours">Juegos de código abierto más populares en las últimas 24 horas</string>
-    <string name="popular_apps_in_last_24_hours">Aplicaciones de código abierto más populares en las últimas 24 horas</string>
     <string name="popular_apps">Aplicaciones PWA populares</string>
     <string name="popular_games">Juegos PWA populares</string>
     <string name="topselling_free_apps">Las mejores aplicaciones gratuitas</string>
@@ -144,7 +142,6 @@
     <string name="timeout_title">¡Límite de tiempo buscando aplicaciones!</string>
     <string name="tracker_information_not_found">No hay información de rastreo disponible para esta aplicación.</string>
     <string name="message_last_update_triggered">Actualización de %1$s aplicaciones completada en %2$s.</string>
-    <string name="discover_pwa">Explorar PWA</string>
     <string name="message_update_failure_single_app">La actualización de %1$s ha fallado debido a una regla de soporte (ubicación, versión del sistema operativo...).</string>
     <string name="message_update_failed">Debido a un fallo temporal, no se pueden actualizar todas tus aplicaciones. Vuelve a intentarlo más tarde.</string>
     <string name="message_retry">Actualizar todo ha fallado. Se harán reintentos automáticos.</string>

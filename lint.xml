@@ -34,6 +34,9 @@
         <ignore path="**/bcprov-jdk15*.jar"/>
     </issue>
 
+    <!--Ignore lint on permission name so that we can declare it with {applicationId} -->
+    <issue id="PermissionNamingConvention" severity="ignore" />
+
     <!-- WARNINGS -->
     <issue id="MissingTranslation" severity="warning" />
     <issue id="VectorRaster" severity="warning" />

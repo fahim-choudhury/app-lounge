@@ -18,26 +18,38 @@
 
 package foundation.e.apps.data.cleanapk.repositories
 
-import foundation.e.apps.data.cleanapk.CleanApkAppDetailsRetrofit
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
-import foundation.e.apps.data.cleanapk.data.app.Application
+import foundation.e.apps.data.cleanapk.data.app.CleanApkApplication
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.download.Download
-import foundation.e.apps.data.cleanapk.data.home.HomeScreen
 import foundation.e.apps.data.cleanapk.data.search.Search
 import retrofit2.Response
+import javax.inject.Inject
 
-class CleanApkAppsRepositoryImpl(
+class CleanApkAppsRepository @Inject constructor(
     private val cleanApkRetrofit: CleanApkRetrofit,
-    private val cleanApkAppDetailsRetrofit: CleanApkAppDetailsRetrofit
+    private val homeConverter: HomeConverter
 ) : CleanApkRepository, CleanApkDownloadInfoFetcher {
 
-    override suspend fun getHomeScreenData(): Response<HomeScreen> {
-        return cleanApkRetrofit.getHomeScreenData(
+    override suspend fun getHomeScreenData(): Map<String, List<Application>> {
+
+        val response = cleanApkRetrofit.getHomeScreenData(
             CleanApkRetrofit.APP_TYPE_ANY,
             CleanApkRetrofit.APP_SOURCE_FOSS
         )
+
+        val home = response.body()?.home ?: throw IllegalStateException("No home data found")
+        val listHome = homeConverter.toGenericHome(home, CleanApkRetrofit.APP_TYPE_ANY)
+        val map = mutableMapOf<String, List<Application>>()
+        listHome.forEach {
+            map[it.title] = it.list
+        }
+
+        return map
     }
 
     override suspend fun getSearchResult(query: String, searchBy: String?): Response<Search> {
@@ -75,8 +87,9 @@ class CleanApkAppsRepositoryImpl(
         return cleanApkRetrofit.checkAvailablePackages(packageNames)
     }
 
-    override suspend fun getAppDetails(packageNameOrId: String): Response<Application> {
-        return cleanApkAppDetailsRetrofit.getAppOrPWADetailsByID(packageNameOrId, null, null)
+    override suspend fun getAppDetails(packageNameOrId: String): Application {
+        val response = cleanApkRetrofit.getAppOrPWADetailsByID(packageNameOrId, null, null)
+        return response.body()?.app ?: throw IllegalStateException("No app data found")
     }
 
     override suspend fun getDownloadInfo(idOrPackageName: String, versionCode: Any?): Response<Download> {

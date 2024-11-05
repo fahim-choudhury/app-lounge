@@ -38,7 +38,7 @@ import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentHomeBinding
 import foundation.e.apps.di.CommonUtilsModule.safeNavigate
 import foundation.e.apps.install.download.data.DownloadProgress
-import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.AppProgressViewModel
 import foundation.e.apps.ui.MainActivityViewModel
@@ -67,7 +67,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
     private val appInfoFetchViewModel: AppInfoFetchViewModel by viewModels()
 
     @Inject
-    lateinit var pwaManager: PWAManager
+    lateinit var pwaManager: PwaManager
 
     companion object {
         private const val SCROLL_DELAY_IN_MILLIS = 500L

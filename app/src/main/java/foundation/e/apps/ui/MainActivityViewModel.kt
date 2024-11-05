@@ -47,7 +47,7 @@ import foundation.e.apps.data.parentalcontrol.googleplay.GPlayContentRatingRepos
 import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.apps.data.preference.getSync
 import foundation.e.apps.install.pkg.AppLoungePackageManager
-import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.install.workmanager.AppInstallProcessor
 import foundation.e.apps.utils.NetworkStatusManager
 import kotlinx.coroutines.Dispatchers
@@ -60,7 +60,7 @@ class MainActivityViewModel @Inject constructor(
     private val applicationRepository: ApplicationRepository,
     private val appManagerWrapper: AppManagerWrapper,
     private val appLoungePackageManager: AppLoungePackageManager,
-    private val pwaManager: PWAManager,
+    private val pwaManager: PwaManager,
     private val ecloudRepository: EcloudRepository,
     private val blockedAppRepository: BlockedAppRepository,
     private val gPlayContentRatingRepository: GPlayContentRatingRepository,

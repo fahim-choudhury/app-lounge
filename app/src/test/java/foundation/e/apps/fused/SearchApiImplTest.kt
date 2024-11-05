@@ -26,7 +26,6 @@ import com.aurora.gplayapi.data.models.SearchBundle
 import foundation.e.apps.FakeAppLoungePreference
 import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.cleanapk.data.search.Search
-import foundation.e.apps.data.cleanapk.repositories.CleanApkRepository
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.application.search.SearchApiImpl
@@ -34,8 +33,10 @@ import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.apps.AppsApi
 import foundation.e.apps.data.application.apps.AppsApiImpl
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.cleanapk.repositories.CleanApkAppsRepository
+import foundation.e.apps.data.cleanapk.repositories.CleanApkPwaRepository
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.install.pkg.PWAManager
+import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import foundation.e.apps.util.MainCoroutineRule
 import foundation.e.apps.utils.eventBus.EventBus
@@ -43,7 +44,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -76,7 +76,7 @@ class SearchApiImplTest {
     private lateinit var fusedAPIImpl: SearchApiImpl
 
     @Mock
-    private lateinit var pwaManager: PWAManager
+    private lateinit var pwaManager: PwaManager
 
     @Mock
     private lateinit var appLoungePackageManager: AppLoungePackageManager
@@ -85,10 +85,10 @@ class SearchApiImplTest {
     private lateinit var context: Context
 
     @Mock
-    private lateinit var cleanApkAppsRepository: CleanApkRepository
+    private lateinit var cleanApkAppsRepository: CleanApkAppsRepository
 
     @Mock
-    private lateinit var cleanApkPWARepository: CleanApkRepository
+    private lateinit var cleanApkPWARepository: CleanApkPwaRepository
 
     @Mock
     private lateinit var gPlayAPIRepository: PlayStoreRepository
@@ -148,7 +148,7 @@ class SearchApiImplTest {
     @Ignore("Dependencies are not mockable")
     @Test
     fun `getSearchResult When all sources are selected`() = runTest {
-        val appList = mutableListOf<Application>(
+        val appList = mutableListOf(
             Application(
                 _id = "111",
                 status = Status.UNAVAILABLE,
@@ -174,7 +174,7 @@ class SearchApiImplTest {
 
         val searchResult = Search(apps = appList, numberOfResults = 3, success = true)
         val packageNameSearchResponse = Response.success(searchResult)
-        val gplayPackageResult = App("com.search.package")
+        val gplayPackageResult = Application("com.search.package")
 
         preferenceManagerModule.isPWASelectedFake = true
         preferenceManagerModule.isOpenSourceelectedFake = true
@@ -196,7 +196,7 @@ class SearchApiImplTest {
 
     private suspend fun setupMockingSearchApp(
         packageNameSearchResponse: Response<Search>?,
-        gplayPackageResult: App,
+        gplayPackageResult: Application,
         gplayLivedata: Pair<List<App>, MutableSet<SearchBundle.SubBundle>>,
         willThrowException: Boolean = false
     ) {
@@ -231,7 +231,7 @@ class SearchApiImplTest {
         ).thenReturn(packageNameSearchResponse)
 
         Mockito.`when`(cleanApkAppsRepository.getAppDetails(any()))
-            .thenReturn(Response.error<ResponseBody>(404, "".toResponseBody()))
+            .thenReturn(Application())
 
         Mockito.`when`(gPlayAPIRepository.getSearchResult(eq("com.search.package"), null))
             .thenReturn(gplayLivedata)
@@ -266,7 +266,7 @@ class SearchApiImplTest {
 
         val searchResult = Search(apps = appList, numberOfResults = 1, success = true)
         val packageNameSearchResponse = Response.success(searchResult)
-        val gplayPackageResult = App("com.search.package")
+        val gplayPackageResult = Application("com.search.package")
 
         val gplayFlow: Pair<List<App>, MutableSet<SearchBundle.SubBundle>> = Pair(
             listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), mutableSetOf()

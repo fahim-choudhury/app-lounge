@@ -16,11 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package foundation.e.apps.data.cleanapk.data.app
+package foundation.e.apps.data.cleanapk.data.home
 
-import foundation.e.apps.data.application.data.Application as AppLoungeApplication
-
-data class Application(
-    val app: AppLoungeApplication = AppLoungeApplication(),
+data class HomeScreenResponse(
+    val home: CleanApkHome = CleanApkHome(),
     val success: Boolean = false
 )

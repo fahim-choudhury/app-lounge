@@ -29,7 +29,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import foundation.e.apps.data.cleanapk.ApplicationDeserializer
-import foundation.e.apps.data.cleanapk.data.app.Application
+import foundation.e.apps.data.cleanapk.data.app.CleanApkApplication
 import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -58,7 +58,7 @@ object NetworkModule {
     @Named("gsonCustomAdapter")
     fun getGson(): Gson {
         return GsonBuilder()
-            .registerTypeAdapter(Application::class.java, ApplicationDeserializer())
+            .registerTypeAdapter(CleanApkApplication::class.java, ApplicationDeserializer())
             .enableComplexMapKeySerialization()
             .create()
     }

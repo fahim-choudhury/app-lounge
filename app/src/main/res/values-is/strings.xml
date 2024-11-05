@@ -120,7 +120,6 @@
     <string name="why_open_source_version">Af hverju sé ég opnu hugbúnaðarútgáfuna\?</string>
     <string name="open_source_apps">Forrit með opinn grunnkóða</string>
     <string name="all_apps_updated">Öll forrit eru af nýjustu útgáfu</string>
-    <string name="discover_pwa">Kynntu þér PWA-vefforrit</string>
     <string name="popular_apps">Vinsæl PWA-vefforrit</string>
     <string name="popular_games">Vinsælir PWA-leikir</string>
     <string name="no_internet_message">Næ ekki að tengjast! Athugaðu internettenginguna þína og prófaðu svo aftur</string>
@@ -134,8 +133,6 @@
     <string name="top_updated_apps">Vinsælustu uppfærðu forritin með opinn grunnkóða</string>
     <string name="top_updated_games">Vinsælustu uppfærðir leikir með opinn grunnkóða</string>
     <string name="topselling_free_apps">Vinsælustu ókeypis og frjálsu forritin</string>
-    <string name="popular_apps_in_last_24_hours">Vinsæl forrit síðasta sólahring með opinn grunnkóða</string>
-    <string name="popular_games_in_last_24_hours">Vinsæla leiki síðasta sólahring með opinn grunnkóða</string>
     <string name="topselling_free_games">Vinsælustu ókeypis og frjálsu leikirnir</string>
     <string name="topgrossing_apps">Forrit með mestu innkomuna</string>
     <string name="topgrossing_games">Leikir með mestu innkomuna</string>

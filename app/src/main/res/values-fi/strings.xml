@@ -110,8 +110,6 @@
     <string name="topselling_free_apps">Top ilmaiset sovellukset</string>
     <string name="popular_games">PWA Suositut pelit</string>
     <string name="popular_apps">PWA Suositut sovellukset</string>
-    <string name="popular_games_in_last_24_hours">Suosittuja avoimen lähdekoodin pelejä viimeisen 24 tunnin aikana</string>
-    <string name="popular_apps_in_last_24_hours">Suosittuja avoimen lähdekoodin sovelluksia viimeisen 24 tunnin aikana</string>
     <string name="top_updated_games">Avoimen lähdekoodin päivitettyjen pelien Top lista</string>
     <string name="top_updated_apps">Avoimen lähdekoodin päivitettyjen sovellusten Top lista</string>
     <string name="discover">Tutustu</string>
@@ -146,7 +144,6 @@
 \n
 \nAvaa asetukset ja etsi vain avoimen lähdekoodin sovelluksia tai PWA:ita.</string>
     <string name="timeout_title">Aikakatkaisu sovellusten hakemisessa!</string>
-    <string name="discover_pwa">Tutustu PWA:n</string>
     <string name="update_error">Päivitysvirhe!</string>
     <string name="error_signature_mismatch">Päivitystä ei voida suorittaa koska allekirjoitus on ristiriidassa %1$s ja puhelimeesi asennetun version välillä. Voit korjata tämän poistamalla %1$s ja asentamalla se uudestaan App Loungesta. <br/><br/> Huomautus: Tämä viesti ei tule näkyviin uudelleen.</string>
     <string name="gplay_data_for_oss">Google Play -sovelluksia ei voida näyttää, kun vain avoimen lähdekoodin sovellukset ovat valittuna.</string>

@@ -33,7 +33,7 @@ interface IFdroidRepository {
 
     suspend fun getAuthorName(application: Application): String
 
-    suspend fun isFdroidApplicationSigned(
+    suspend fun isFDroidApplicationSigned(
         context: Context,
         packageName: String,
         apkFilePath: String,

@@ -31,8 +31,15 @@ class AuthenticatorRepository @Inject constructor(
     private val authenticators: List<StoreAuthenticator>,
 ) {
 
-    var gplayAuth: AuthData? = null
-        get() = field ?: throw GPlayLoginException(false, "AuthData is not available!", getUserType())
+    private var gPlayAuth: AuthData? = null
+
+    fun getGPlayAuthOrThrow(): AuthData {
+        return gPlayAuth ?: throw GPlayLoginException(false, "AuthData is not available!", getUserType())
+    }
+
+    fun setGPlayAuth(auth: AuthData) {
+       gPlayAuth = auth
+    }
 
     suspend fun getAuthObjects(clearAuthTypes: List<String> = listOf()): List<AuthObject> {
 
@@ -48,7 +55,7 @@ class AuthenticatorRepository @Inject constructor(
             authObjectsLocal.add(authObject)
 
             if (authObject is AuthObject.GPlayAuth) {
-                gplayAuth = authObject.result.data
+                gPlayAuth = authObject.result.data
             }
         }
 
@@ -74,7 +81,7 @@ class AuthenticatorRepository @Inject constructor(
     suspend fun getValidatedAuthData(): ResultSupreme<AuthData?> {
         val authDataValidator = (authenticators.find { it is AuthDataValidator } as AuthDataValidator)
         val validateAuthData = authDataValidator.validateAuthData()
-        this.gplayAuth = validateAuthData.data
+        this.gPlayAuth = validateAuthData.data
         return validateAuthData
     }
 

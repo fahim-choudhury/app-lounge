@@ -26,7 +26,7 @@ import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
-import foundation.e.apps.data.fdroid.FdroidRepository
+import foundation.e.apps.data.fdroid.FDroidRepository
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.application.data.Application
@@ -77,7 +77,7 @@ class UpdateManagerImptTest {
     private lateinit var blockedAppRepository: BlockedAppRepository
 
     @Mock
-    private lateinit var fdroidRepository: FdroidRepository
+    private lateinit var fDroidRepository: FDroidRepository
 
     @Mock
     private lateinit var systemAppsUpdatesRepository: SystemAppsUpdatesRepository
@@ -96,7 +96,7 @@ class UpdateManagerImptTest {
             applicationRepository,
             faultyAppRepository,
             preferenceModule,
-            fdroidRepository,
+            fDroidRepository,
             blockedAppRepository,
             systemAppsUpdatesRepository,
         )

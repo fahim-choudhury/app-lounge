@@ -18,27 +18,40 @@
 
 package foundation.e.apps.data.cleanapk.repositories
 
-import foundation.e.apps.data.cleanapk.CleanApkAppDetailsRetrofit
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
-import foundation.e.apps.data.cleanapk.data.app.Application
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.search.Search
 import retrofit2.Response
+import javax.inject.Inject
 
-class CleanApkPWARepository(
-    private val cleanAPKRetrofit: CleanApkRetrofit,
-    private val cleanApkAppDetailsRetrofit: CleanApkAppDetailsRetrofit
+class CleanApkPwaRepository @Inject constructor(
+    private val cleanApkRetrofit: CleanApkRetrofit,
+    private val homeConverter: HomeConverter,
+    @ApplicationContext val context: Context
 ) : CleanApkRepository {
 
-    override suspend fun getHomeScreenData(): Any {
-        return cleanAPKRetrofit.getHomeScreenData(
+    override suspend fun getHomeScreenData(): Map<String, List<Application>> {
+        val response =  cleanApkRetrofit.getHomeScreenData(
             CleanApkRetrofit.APP_TYPE_PWA,
             CleanApkRetrofit.APP_SOURCE_ANY
         )
+
+        val home = response.body()?.home ?: throw IllegalStateException("No home data found")
+
+        val listHome = homeConverter.toGenericHome(home, CleanApkRetrofit.APP_TYPE_PWA)
+        val map = mutableMapOf<String, List<Application>>()
+        listHome.forEach {
+            map[it.title] = it.list
+        }
+
+        return map
     }
 
     override suspend fun getSearchResult(query: String, searchBy: String?): Response<Search> {
-        return cleanAPKRetrofit.searchApps(
+        return cleanApkRetrofit.searchApps(
             query,
             CleanApkRetrofit.APP_SOURCE_ANY,
             CleanApkRetrofit.APP_TYPE_PWA,
@@ -49,7 +62,7 @@ class CleanApkPWARepository(
     }
 
     override suspend fun getAppsByCategory(category: String, paginationParameter: Any?): Response<Search> {
-        return cleanAPKRetrofit.listApps(
+        return cleanApkRetrofit.listApps(
             category,
             CleanApkRetrofit.APP_SOURCE_ANY,
             CleanApkRetrofit.APP_TYPE_PWA,
@@ -59,17 +72,18 @@ class CleanApkPWARepository(
     }
 
     override suspend fun getCategories(): Response<Categories> {
-        return cleanAPKRetrofit.getCategoriesList(
+        return cleanApkRetrofit.getCategoriesList(
             CleanApkRetrofit.APP_TYPE_PWA,
             CleanApkRetrofit.APP_SOURCE_ANY
         )
     }
 
     override suspend fun checkAvailablePackages(packageNames: List<String>): Response<Search> {
-        return cleanAPKRetrofit.checkAvailablePackages(packageNames)
+        return cleanApkRetrofit.checkAvailablePackages(packageNames)
     }
 
-    override suspend fun getAppDetails(packageNameOrId: String): Response<Application> {
-        return cleanApkAppDetailsRetrofit.getAppOrPWADetailsByID(packageNameOrId, null, null)
+    override suspend fun getAppDetails(packageNameOrId: String): Application {
+        val response = cleanApkRetrofit.getAppOrPWADetailsByID(packageNameOrId, null, null)
+        return response.body()?.app ?: throw IllegalStateException("No app data found")
     }
 }
