@@ -164,7 +164,7 @@
     <string name="why_open_source_version">Warum sehe ich die quelloffene Version\?</string>
     <string name="logged_out">Abgemeldet</string>
     <string name="login">Anmelden</string>
-    <string name="login_to_see_gplay_apps">Du musst angemeldet sein, um gemeinsame Apps zu sehen.</string>
+    <string name="login_to_see_gplay_apps">Du musst angemeldet sein, um allgemeine Apps zu sehen.</string>
     <string name="pwa_and_open_source_apps">PWA und quelloffene Apps</string>
     <string name="additional_file_for">Zusätzliche Dateien für %s</string>
     <string name="downloading">Herunterladen …</string>
@@ -202,10 +202,9 @@
     <string name="system_app">System-App</string>
     <string name="own_update_warning_title">Achtung – Aktualisierung!</string>
     <string name="own_update_warning_description">App Lounge wird vom System beendet, um eine Aktualisierung durchzuführen. Bitte führen Sie keine anderen Aktionen aus, bis App Lounge aktualisert und beendet ist.</string>
-
     <!-- CleanAPK and GPlay data loading error -->
-    <string name="common_apps_unavailable">Gemeinsame Apps nicht verfügbar</string>
-    <string name="open_source_apps_unavailable">Open-Source-Apps und PWA nicht verfügbar</string>
-    <string name="common_apps_data_load_error_description">Beim Laden der gemeinsamen Apps ist ein Fehler aufgetreten. Nur Open-Source-Apps und PWA sind momentan verfügbar.</string>
-    <string name="open_source_apps_data_load_error_description">Beim Laden von PWA und Open-Source-Apps ist ein Fehler aufgetreten. Nur gemeinsame Apps sind momentan verfügbar.</string>
+    <string name="common_apps_unavailable">Allgemeine Apps nicht verfügbar</string>
+    <string name="open_source_apps_unavailable">Quelloffene Apps und PWA nicht verfügbar</string>
+    <string name="common_apps_data_load_error_description">Beim Laden der allgemeinen Apps ist ein Fehler aufgetreten. Nur quelloffene Apps und PWA sind momentan verfügbar.</string>
+    <string name="open_source_apps_data_load_error_description">Beim Laden von PWA und quelloffenen Apps ist ein Fehler aufgetreten. Nur allgemeine Apps sind momentan verfügbar.</string>
 </resources>
