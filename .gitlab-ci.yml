@@ -167,7 +167,6 @@ pushToPrebuilt:
   variables:
     NEW_APK_PATH: "app/build/outputs/apk/release/"
   before_script:
-    - 'which ssh-agent || ( apt update -y && apt install openssh-client -y )'
     - eval $(ssh-agent -s)
     - echo "$SSH_E_ROBOT_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - mkdir -p ~/.ssh
@@ -265,8 +264,6 @@ create-json-files:
   rules:
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
       when: on_success
-  before_script:
-    - apt update && apt install jq aapt -y
   script:
     - |
       ./systemAppsUpdateInfo/scripts/create-json-files.sh \
@@ -288,8 +285,6 @@ create-test-release:
   rules:
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
       when: manual
-  before_script:
-    - apt update && apt install jq -y
   script:
     - |
       ./systemAppsUpdateInfo/scripts/create-test-release.sh \
@@ -307,8 +302,6 @@ create-release:
   rules:
     - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
       when: manual
-  before_script:
-    - apt update && apt install jq -y
   script:
     - |
       ./systemAppsUpdateInfo/scripts/create-release.sh \
