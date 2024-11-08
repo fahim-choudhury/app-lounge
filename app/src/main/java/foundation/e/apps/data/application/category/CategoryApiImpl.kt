@@ -21,7 +21,6 @@ package foundation.e.apps.data.application.category
 import android.content.Context
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.StreamCluster
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.AppSourcesContainer
@@ -180,15 +179,13 @@ class CategoryApiImpl @Inject constructor(
         var nextPageUrl = ""
 
         return handleNetworkResult {
-            val streamCluster =
-                appSources.gplayRepo.getAppsByCategory(category, pageUrl) as StreamCluster
+            val cluster =
+                appSources.gplayRepo.getAppsByCategory(category, pageUrl)
 
-            val filteredAppList = filterRestrictedGPlayApps(authData, streamCluster.clusterAppList)
-            filteredAppList.data?.let {
-                applicationList = it.toMutableList()
-            }
+            val filteredAppList = filterRestrictedGPlayApps(cluster.clusterAppList)
+            applicationList = (filteredAppList.data ?: emptyList()).toMutableList()
 
-            nextPageUrl = streamCluster.clusterNextPageUrl
+            nextPageUrl = cluster.clusterNextPageUrl
             if (nextPageUrl.isNotEmpty()) {
                 applicationList.add(Application(isPlaceHolder = true))
             }
@@ -208,17 +205,12 @@ class CategoryApiImpl @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5131 [2]
      */
     private suspend fun filterRestrictedGPlayApps(
-        authData: AuthData,
         appList: List<App>,
     ): ResultSupreme<List<Application>> {
         val filteredApplications = mutableListOf<Application>()
         return handleNetworkResult {
             appList.forEach {
-                val filter = applicationDataManager.getAppFilterLevel(
-                    it.toApplication(context),
-                    authData
-                )
-
+                val filter = applicationDataManager.getAppFilterLevel(it.toApplication(context))
                 if (filter.isUnFiltered()) {
                     filteredApplications.add(
                         it.toApplication(context).apply {
@@ -242,7 +234,7 @@ class CategoryApiImpl @Inject constructor(
             response?.apps?.forEach {
                 applicationDataManager.updateStatus(it)
                 it.updateType()
-                applicationDataManager.updateFilterLevel(null, it)
+                applicationDataManager.updateFilterLevel(it)
                 list.add(it)
             }
         }

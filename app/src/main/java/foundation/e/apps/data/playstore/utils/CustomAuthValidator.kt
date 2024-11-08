@@ -22,7 +22,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.data.providers.HeaderProvider
 import com.aurora.gplayapi.helpers.AuthValidator
-import com.aurora.gplayapi.helpers.BaseHelper
+import com.aurora.gplayapi.helpers.NativeHelper
 import com.aurora.gplayapi.network.IHttpClient
 
 /**
@@ -33,7 +33,7 @@ import com.aurora.gplayapi.network.IHttpClient
  *
  * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5709
  */
-class CustomAuthValidator(authData: AuthData) : BaseHelper(authData) {
+class CustomAuthValidator(authData: AuthData) : NativeHelper(authData) {
 
     override fun using(httpClient: IHttpClient) = apply {
         this.httpClient = httpClient

@@ -182,7 +182,10 @@ dependencies {
     api files('libs/splitinstall-lib.jar')
 
     implementation 'foundation.e.lib:telemetry:0.0.11-alpha'
-    implementation "foundation.e:gplayapi:3.2.10-4"
+
+    // TODO: Integrate properly latest version of GplayAPI https://gitlab.e.foundation/e/os/backlog/-/issues/2783
+    api files('libs/libgplayapi.aar')
+
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.fragment:fragment-ktx:1.5.6'
@@ -249,9 +252,9 @@ dependencies {
     implementation "androidx.navigation:navigation-ui-ktx:$navigation_version"
 
     // Hilt
-    def hilt_version = '2.40.5'
-    kapt "com.google.dagger:hilt-compiler:2.44.2"
-    implementation "com.google.dagger:hilt-android:2.44.2"
+    def hilt_version = '2.51.1'
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+    implementation "com.google.dagger:hilt-android:$hilt_version"
     implementation 'androidx.hilt:hilt-work:1.0.0'
     kapt 'androidx.hilt:hilt-compiler:1.0.0'
 
@@ -271,10 +274,9 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test:$test_kotlin_version"
 
     // Room
-    def roomVersion = "2.4.1"
-    kapt "androidx.room:room-compiler:$roomVersion"
-    implementation "androidx.room:room-ktx:$roomVersion"
-    implementation "androidx.room:room-runtime:$roomVersion"
+    kapt "androidx.room:room-compiler:2.6.1"
+    implementation "androidx.room:room-ktx:2.6.1"
+    implementation "androidx.room:room-runtime:2.6.1"
 
     // WorkManager
     implementation 'androidx.work:work-runtime-ktx:2.7.1'

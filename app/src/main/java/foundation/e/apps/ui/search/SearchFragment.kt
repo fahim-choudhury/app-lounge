@@ -235,7 +235,7 @@ class SearchFragment :
         }
 
         showData()
-        listAdapter?.setData(appList)
+        listAdapter?.setData(appList.filter { it.name.isNotBlank() })
         return true
     }
 
