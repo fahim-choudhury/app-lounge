@@ -258,7 +258,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
 
     override fun onResume() {
         super.onResume()
-        binding.shimmerLayout.startShimmer()
+        showLoadingUI()
         appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
             updateProgressOfDownloadingAppItemViews(homeParentRVAdapter, it)
         }
