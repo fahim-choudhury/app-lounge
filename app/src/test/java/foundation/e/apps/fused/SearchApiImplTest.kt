@@ -286,26 +286,4 @@ class SearchApiImplTest {
         val size = searchResultLiveData.data?.first?.size ?: -2
         assertEquals("getSearchResult", 4, size)
     }
-
-    @Test
-    fun testSearchResultWhenDataIsLimited() = runTest {
-        preferenceManagerModule.isGplaySelectedFake = true
-        formatterMocked.`when`<String> { Formatter.formatFileSize(any(), any()) }.thenReturn("15MB")
-        Mockito.`when`(gPlayAPIRepository.getSearchResult(anyString(), eq(null)))
-            .thenReturn(Pair(emptyList(), mutableSetOf()))
-        Mockito.`when`(cleanApkAppsRepository.getAppDetails(any())).thenReturn(null)
-
-        var isEventBusTriggered = false
-        val job = launch {
-            EventBus.events.collect {
-                isEventBusTriggered = true
-            }
-        }
-
-        fusedAPIImpl.getGplaySearchResult("anything", null)
-        delay(500)
-        job.cancel()
-
-        assert(isEventBusTriggered)
-    }
 }

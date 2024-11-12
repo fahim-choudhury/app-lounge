@@ -37,17 +37,10 @@ import foundation.e.apps.data.application.utils.toApplication
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.handleNetworkResult
-import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkIOException
 import foundation.e.apps.data.login.exceptions.GPlayIOException
 import foundation.e.apps.data.preference.AppLoungePreference
-import foundation.e.apps.utils.eventBus.AppEvent
-import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -65,15 +58,6 @@ class SearchApiImpl @Inject constructor(
     @Inject
     @ApplicationContext
     lateinit var context: Context
-
-    companion object {
-        private const val KEYWORD_TEST_SEARCH = "facebook"
-
-        private val DUMMY_SEARCH_EXPECTED_APPS = listOf(
-            "Facebook" to "com.facebook.katana",
-            "Messenger" to "com.facebook.orca"
-        )
-    }
 
     override fun getSelectedAppTypes(): List<String> {
         val selectedAppTypes = mutableListOf<String>()
@@ -340,8 +324,6 @@ class SearchApiImpl @Inject constructor(
         nextPageSubBundle: Set<SearchBundle.SubBundle>?
     ): GplaySearchResult {
         val result = handleNetworkResult {
-            coroutineScope { launch(Dispatchers.IO) { doDummySearch() } }
-
             val searchResults =
                 appSources.gplayRepo.getSearchResult(query, nextPageSubBundle?.toMutableSet())
 
@@ -367,29 +349,6 @@ class SearchApiImpl @Inject constructor(
         )
     }
 
-    // Initiate a dummy search to ensure Google Play returns enough results for the search query
-    private suspend fun doDummySearch() {
-        val (searchedApps, _) = appSources.gplayRepo.getSearchResult(KEYWORD_TEST_SEARCH, null)
-
-        if (searchedApps.isEmpty()) {
-            Timber.d("Search returned empty results, refreshing token...")
-            refreshToken()
-            return
-        }
-
-        val dummySearchPackageNames = DUMMY_SEARCH_EXPECTED_APPS.map { it.second }
-        val searchedAppsPackageNames = searchedApps.map { it.packageName }
-
-        val isSearchContainingResults =
-            searchedAppsPackageNames.containsAll(dummySearchPackageNames)
-
-        if (!isSearchContainingResults) {
-            Timber.d("Search didn't return enough results, refreshing token...")
-            refreshToken()
-            return
-        }
-    }
-
     /*
      * This function will replace a GPlay app with F-Droid app if exists,
      * else will show the GPlay app itself.
@@ -412,14 +371,6 @@ class SearchApiImpl @Inject constructor(
         } catch (e: Exception) {
             Timber.w(e, "Failed to replace Google apps with their F-Droid counterparts.")
             return gPlayApps.map { it.toApplication(context) }
-        }
-    }
-
-    private fun refreshToken() {
-        MainScope().launch {
-            EventBus.invokeEvent(
-                AppEvent.InvalidAuthEvent(AuthObject.GPlayAuth::class.java.simpleName)
-            )
         }
     }
 }
