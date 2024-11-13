@@ -149,8 +149,13 @@ class PlayStoreRepository @Inject constructor(
     override suspend fun getAppDetails(packageNameOrId: String): Application {
         var appDetails: GplayApp?
 
+        val appDetailsHelper = try {
+            AppDetailsHelper(authenticatorRepository.getGPlayAuthOrThrow()).using(gPlayHttpClient)
+        } catch (exception: Exception) {
+            WebAppDetailsHelper().using(gPlayHttpClient)
+        }
+
         withContext(Dispatchers.IO) {
-            val appDetailsHelper = WebAppDetailsHelper().using(gPlayHttpClient)
             appDetails = appDetailsHelper.getAppByPackageName(packageNameOrId)
         }
 
@@ -160,10 +165,16 @@ class PlayStoreRepository @Inject constructor(
     suspend fun getAppsDetails(packageNamesOrIds: List<String>): List<GplayApp> {
         val appDetailsList = mutableListOf<GplayApp>()
 
+        val appDetailsHelper = try {
+            AppDetailsHelper(authenticatorRepository.getGPlayAuthOrThrow()).using(gPlayHttpClient)
+        } catch (exception: Exception) {
+            WebAppDetailsHelper().using(gPlayHttpClient)
+        }
+
         withContext(Dispatchers.IO) {
-            val appDetailsHelper = WebAppDetailsHelper().using(gPlayHttpClient)
             appDetailsList.addAll(appDetailsHelper.getAppByPackageName(packageNamesOrIds))
         }
+
         return appDetailsList
     }
 
@@ -195,36 +206,11 @@ class PlayStoreRepository @Inject constructor(
         val downloadData = mutableListOf<File>()
         val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
-        var version = versionCode
-        var offer = offerType
-
-        if (version == 0) {
-            val appDetails = getAppsDetailsWithAuthentication(idOrPackageName)
-            version = appDetails.latest_version_code
-            offer = appDetails.offer_type
-        }
-
-        if (version == 0) {
-            throw IllegalStateException("Could not get version code for app we want to download")
-        }
-
         withContext(Dispatchers.IO) {
             val purchaseHelper = PurchaseHelper(authData).using(gPlayHttpClient)
-            downloadData.addAll(purchaseHelper.purchase(idOrPackageName, version, offer))
+            downloadData.addAll(purchaseHelper.purchase(idOrPackageName, versionCode, offerType))
         }
         return downloadData
-    }
-
-    private suspend fun getAppsDetailsWithAuthentication(idOrPackageName: String): Application {
-        var appDetails: Application
-        val authData = authenticatorRepository.getGPlayAuthOrThrow()
-
-        withContext(Dispatchers.IO) {
-            val appDetailsHelper = AppDetailsHelper(authData).using(gPlayHttpClient)
-            appDetails = appDetailsHelper.getAppByPackageName(idOrPackageName).toApplication(context)
-        }
-
-        return appDetails
     }
 
     suspend fun getOnDemandModule(
