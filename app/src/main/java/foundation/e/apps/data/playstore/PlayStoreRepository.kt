@@ -113,7 +113,7 @@ class PlayStoreRepository @Inject constructor(
             val searchHelper = WebSearchHelper().using(gPlayHttpClient)
             searchData.addAll(searchHelper.searchSuggestions(query))
         }
-        return searchData.filter { it.suggestedQuery.isNotBlank() }
+        return searchData.filter { it.title.isNotBlank() }
     }
 
     fun getAppsByCategory(category: String, pageUrl: String?): StreamCluster {

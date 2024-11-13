@@ -97,10 +97,9 @@ class SearchViewModel @Inject constructor(
 
     fun getSearchSuggestions(query: String, gPlayAuth: AuthObject.GPlayAuth) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (gPlayAuth.result.isSuccess())
-                searchSuggest.postValue(
-                    applicationRepository.getSearchSuggestions(query)
-                )
+            searchSuggest.postValue(
+                applicationRepository.getSearchSuggestions(query)
+            )
         }
     }
 
