@@ -490,8 +490,12 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             }
 
             catText = catText.replace("_", " ")
-            categoryTitle.text = catText
+            categoryTitle.text = catText.capitalizeFirstLetter()
         }
+    }
+
+    private fun String.capitalizeFirstLetter(): String {
+        return this.lowercase().replaceFirstChar { it.uppercase() }
     }
 
     private fun setupScreenshotRVAdapter() {
