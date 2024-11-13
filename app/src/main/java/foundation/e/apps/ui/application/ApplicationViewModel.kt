@@ -22,7 +22,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.ContentRating
-import com.aurora.gplayapi.exceptions.ApiException
+import com.aurora.gplayapi.exceptions.InternalException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.R
 import foundation.e.apps.data.application.ApplicationRepository
@@ -164,7 +164,7 @@ class ApplicationViewModel @Inject constructor(
                     exceptionsList.add(exception)
                     exceptionsLiveData.postValue(exceptionsList)
                 }
-            } catch (e: ApiException.AppNotFound) {
+            } catch (e: InternalException.AppNotFound) {
                 _errorMessageLiveData.postValue(R.string.app_not_found)
             } catch (e: Exception) {
                 _errorMessageLiveData.postValue(R.string.unknown_error)

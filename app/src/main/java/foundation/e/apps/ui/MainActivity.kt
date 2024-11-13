@@ -38,7 +38,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.exceptions.ApiException
+import com.aurora.gplayapi.exceptions.InternalException
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -285,7 +285,7 @@ class MainActivity : AppCompatActivity() {
     private fun observeErrorMessage() {
         viewModel.errorMessage.observe(this) {
             when (it) {
-                is ApiException.AppNotPurchased -> showSnackbarMessage(getString(R.string.message_app_available_later))
+                is InternalException.AppNotPurchased -> showSnackbarMessage(getString(R.string.message_app_available_later))
                 else -> showSnackbarMessage(
                     it.localizedMessage ?: getString(R.string.unknown_error)
                 )

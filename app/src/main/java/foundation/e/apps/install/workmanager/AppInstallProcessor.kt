@@ -19,7 +19,7 @@
 package foundation.e.apps.install.workmanager
 
 import android.content.Context
-import com.aurora.gplayapi.exceptions.ApiException
+import com.aurora.gplayapi.exceptions.InternalException
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.ResultSupreme
@@ -174,7 +174,7 @@ class AppInstallProcessor @Inject constructor(
     private suspend fun updateDownloadUrls(appInstall: AppInstall): Boolean {
         try {
             updateFusedDownloadWithAppDownloadLink(appInstall)
-        } catch (e: ApiException.AppNotPurchased) {
+        } catch (e: InternalException.AppNotPurchased) {
             appInstallComponents.appManagerWrapper.addFusedDownloadPurchaseNeeded(appInstall)
             EventBus.invokeEvent(AppEvent.AppPurchaseEvent(appInstall))
             return false
