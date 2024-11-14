@@ -206,9 +206,22 @@ class PlayStoreRepository @Inject constructor(
         val downloadData = mutableListOf<File>()
         val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
+        var version = versionCode
+        var offer = offerType
+
+        if (version == 0) {
+            val appDetailsHelper = getAppDetails(idOrPackageName)
+            version = appDetailsHelper.latest_version_code
+            offer = appDetailsHelper.offer_type
+        }
+
+        if (version == 0) {
+            throw IllegalStateException("Could not get download details for $idOrPackageName")
+        }
+
         withContext(Dispatchers.IO) {
             val purchaseHelper = PurchaseHelper(authData).using(gPlayHttpClient)
-            downloadData.addAll(purchaseHelper.purchase(idOrPackageName, versionCode, offerType))
+            downloadData.addAll(purchaseHelper.purchase(idOrPackageName, version, offer))
         }
         return downloadData
     }
