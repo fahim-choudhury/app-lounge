@@ -64,7 +64,7 @@ class GoogleLoginManager(
 
         var authData: AuthData?
         withContext(Dispatchers.IO) {
-            authData = AuthHelper.build(email, aasToken, nativeDeviceProperty)
+            authData = AuthHelper.build(email, aasToken, tokenType = AuthHelper.Token.AAS, properties = nativeDeviceProperty)
         }
         return authData
     }

@@ -63,7 +63,7 @@ class AppsApiImpl @Inject constructor(
                     appSources.cleanApkAppsRepo.getAppDetails(result.apps[0]._id)
             }
 
-            application.updateFilterLevel(null)
+            application.updateFilterLevel()
         }
 
         return Pair(application, result.getResultStatus())
@@ -72,8 +72,8 @@ class AppsApiImpl @Inject constructor(
     /*
      * Handy method to run on an instance of FusedApp to update its filter level.
      */
-    private suspend fun Application.updateFilterLevel(authData: AuthData?) {
-        this.filterLevel = applicationDataManager.getAppFilterLevel(this, authData)
+    private suspend fun Application.updateFilterLevel() {
+        this.filterLevel = applicationDataManager.getAppFilterLevel(this)
     }
 
     override suspend fun getApplicationDetails(
@@ -148,7 +148,7 @@ class AppsApiImpl @Inject constructor(
         applicationList: MutableList<Application>
     ) {
         val application = app.toApplication(context)
-        val filter = applicationDataManager.getAppFilterLevel(application, authData)
+        val filter = applicationDataManager.getAppFilterLevel(application)
         if (filter.isUnFiltered()) {
             applicationList.add(
                 application.apply {
@@ -173,7 +173,7 @@ class AppsApiImpl @Inject constructor(
         if (hasSingleResult()) {
             applicationList.add(
                 apps[0].apply {
-                    updateFilterLevel(null)
+                    updateFilterLevel()
                 }
             )
         }
@@ -201,7 +201,7 @@ class AppsApiImpl @Inject constructor(
                 applicationDataManager.updateStatus(it)
                 it.updateType()
                 it.updateSource(context)
-                it.updateFilterLevel(authData)
+                it.updateFilterLevel()
             }
             application
         }
@@ -217,7 +217,7 @@ class AppsApiImpl @Inject constructor(
         application: Application,
         authData: AuthData?
     ): FilterLevel {
-        return applicationDataManager.getAppFilterLevel(application, authData)
+        return applicationDataManager.getAppFilterLevel(application)
     }
 
     override fun isAnyFusedAppUpdated(

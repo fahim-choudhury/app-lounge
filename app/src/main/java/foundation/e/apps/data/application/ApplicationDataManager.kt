@@ -19,7 +19,6 @@
 package foundation.e.apps.data.application
 
 import com.aurora.gplayapi.Constants
-import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.enums.FilterLevel
@@ -37,8 +36,8 @@ class ApplicationDataManager @Inject constructor(
     private val appLoungePackageManager: AppLoungePackageManager,
     private val pwaManager: PwaManager
 ) {
-    suspend fun updateFilterLevel(authData: AuthData?, application: Application) {
-        application.filterLevel = getAppFilterLevel(application, authData)
+    suspend fun updateFilterLevel(application: Application) {
+        application.filterLevel = getAppFilterLevel(application)
     }
 
     suspend fun prepareApps(
@@ -50,20 +49,19 @@ class ApplicationDataManager @Inject constructor(
             appList.forEach {
                 it.updateType()
                 updateStatus(it)
-                updateFilterLevel(null, it)
+                updateFilterLevel(it)
             }
             list.add(Home(value, appList))
         }
     }
 
-    suspend fun getAppFilterLevel(application: Application, authData: AuthData?): FilterLevel {
+    suspend fun getAppFilterLevel(application: Application): FilterLevel {
         return when {
             application.package_name.isBlank() -> FilterLevel.UNKNOWN
             !application.isFree && application.price.isBlank() -> FilterLevel.UI
             application.origin == Origin.CLEANAPK -> FilterLevel.NONE
             application.origin == Origin.GITLAB_RELEASES -> FilterLevel.NONE
             !isRestricted(application) -> FilterLevel.NONE
-            authData == null -> FilterLevel.UNKNOWN // cannot determine for gplay app
             !isApplicationVisible(application) -> FilterLevel.DATA
             application.originalSize == 0L -> FilterLevel.UI
             !isDownloadable(application) -> FilterLevel.UI

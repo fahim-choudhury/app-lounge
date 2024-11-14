@@ -235,7 +235,7 @@ class SearchFragment :
         }
 
         showData()
-        listAdapter?.setData(appList)
+        listAdapter?.setData(appList.filter { it.name.isNotBlank() })
         return true
     }
 
@@ -477,7 +477,7 @@ class SearchFragment :
     override fun onSuggestionClick(position: Int): Boolean {
         searchViewModel.searchSuggest.value?.let {
             if (it.isNotEmpty()) {
-                searchView?.setQuery(it[position].suggestedQuery, true)
+                searchView?.setQuery(it[position].title, true)
             }
         }
         return true
@@ -523,7 +523,7 @@ class SearchFragment :
         val cursor = MatrixCursor(arrayOf(BaseColumns._ID, SUGGESTION_KEY))
         suggestions?.let {
             for (i in it.indices) {
-                cursor.addRow(arrayOf(i, it[i].suggestedQuery))
+                cursor.addRow(arrayOf(i, it[i].title))
             }
         }
         searchView?.suggestionsAdapter?.changeCursor(cursor)

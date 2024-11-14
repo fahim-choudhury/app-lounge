@@ -97,10 +97,9 @@ class SearchViewModel @Inject constructor(
 
     fun getSearchSuggestions(query: String, gPlayAuth: AuthObject.GPlayAuth) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (gPlayAuth.result.isSuccess())
-                searchSuggest.postValue(
-                    applicationRepository.getSearchSuggestions(query)
-                )
+            searchSuggest.postValue(
+                applicationRepository.getSearchSuggestions(query)
+            )
         }
     }
 
@@ -110,16 +109,20 @@ class SearchViewModel @Inject constructor(
         authObjectList: List<AuthObject>,
         retryBlock: (failedObjects: List<AuthObject>) -> Boolean
     ) {
-
         if (query.isBlank()) return
 
         this.lastAuthObjects = authObjectList
-        super.onLoadData(authObjectList, { successAuthList, _ ->
+        super.onLoadData(authObjectList, { successAuthList, failedAuthList ->
             successAuthList.find { it is AuthObject.CleanApk }?.run {
                 fetchCleanApkData(query, null)
             }
 
             successAuthList.find { it is AuthObject.GPlayAuth }?.run {
+                nextSubBundle = null
+                fetchGplayData(query)
+            }
+
+            failedAuthList.find { it is AuthObject.GPlayAuth }?.run {
                 nextSubBundle = null
                 fetchGplayData(query)
             }

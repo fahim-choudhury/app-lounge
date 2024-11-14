@@ -171,7 +171,7 @@ class HomeApiImpl @Inject constructor(
             val fusedApps = it.value.map { app ->
                 app.apply {
                     applicationDataManager.updateStatus(this)
-                    applicationDataManager.updateFilterLevel(authData, this)
+                    applicationDataManager.updateFilterLevel(this)
                 }
             }
             list.add(Home(it.key, fusedApps))

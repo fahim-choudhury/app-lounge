@@ -21,20 +21,21 @@ package foundation.e.apps.data.playstore
 import android.content.Context
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App as GplayApp
-import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.ContentRating
 import com.aurora.gplayapi.data.models.File
 import com.aurora.gplayapi.data.models.SearchBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.AppDetailsHelper
-import com.aurora.gplayapi.helpers.CategoryAppsHelper
-import com.aurora.gplayapi.helpers.CategoryHelper
-import com.aurora.gplayapi.helpers.Chart
 import com.aurora.gplayapi.helpers.ContentRatingHelper
 import com.aurora.gplayapi.helpers.PurchaseHelper
-import com.aurora.gplayapi.helpers.SearchHelper
-import com.aurora.gplayapi.helpers.TopChartsHelper
+import com.aurora.gplayapi.helpers.contracts.TopChartsContract.Chart
+import com.aurora.gplayapi.helpers.contracts.TopChartsContract.Type
+import com.aurora.gplayapi.helpers.web.WebAppDetailsHelper
+import com.aurora.gplayapi.helpers.web.WebCategoryHelper
+import com.aurora.gplayapi.helpers.web.WebCategoryStreamHelper
+import com.aurora.gplayapi.helpers.web.WebSearchHelper
+import com.aurora.gplayapi.helpers.web.WebTopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.StoreRepository
@@ -57,14 +58,13 @@ class PlayStoreRepository @Inject constructor(
     override suspend fun getHomeScreenData(): Map<String, List<Application>> {
         val homeScreenData = mutableMapOf<String, List<Application>>()
         val homeElements = createTopChartElements()
-        val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
         homeElements.forEach {
             if (it.value.isEmpty()) return@forEach
 
             val chart = it.value.keys.iterator().next()
             val type = it.value.values.iterator().next()
-            val result = getTopApps(type, chart, authData)
+            val result = getTopApps(type, chart)
             homeScreenData[it.key] = result
         }
 
@@ -72,20 +72,19 @@ class PlayStoreRepository @Inject constructor(
     }
 
     private fun createTopChartElements() = mutableMapOf(
-        context.getString(R.string.topselling_free_apps) to mapOf(Chart.TOP_SELLING_FREE to TopChartsHelper.Type.APPLICATION),
-        context.getString(R.string.topselling_free_games) to mapOf(Chart.TOP_SELLING_FREE to TopChartsHelper.Type.GAME),
-        context.getString(R.string.topgrossing_apps) to mapOf(Chart.TOP_GROSSING to TopChartsHelper.Type.APPLICATION),
-        context.getString(R.string.topgrossing_games) to mapOf(Chart.TOP_GROSSING to TopChartsHelper.Type.GAME),
-        context.getString(R.string.movers_shakers_apps) to mapOf(Chart.MOVERS_SHAKERS to TopChartsHelper.Type.APPLICATION),
-        context.getString(R.string.movers_shakers_games) to mapOf(Chart.MOVERS_SHAKERS to TopChartsHelper.Type.GAME),
+        context.getString(R.string.topselling_free_apps) to mapOf(Chart.TOP_SELLING_FREE to Type.APPLICATION),
+        context.getString(R.string.topselling_free_games) to mapOf(Chart.TOP_SELLING_FREE to Type.GAME),
+        context.getString(R.string.topgrossing_apps) to mapOf(Chart.TOP_GROSSING to Type.APPLICATION),
+        context.getString(R.string.topgrossing_games) to mapOf(Chart.TOP_GROSSING to Type.GAME),
+        context.getString(R.string.movers_shakers_apps) to mapOf(Chart.MOVERS_SHAKERS to Type.APPLICATION),
+        context.getString(R.string.movers_shakers_games) to mapOf(Chart.MOVERS_SHAKERS to Type.GAME),
     )
 
     fun getSearchResult(
         query: String,
         subBundle: MutableSet<SearchBundle.SubBundle>?
     ): Pair<List<GplayApp>, MutableSet<SearchBundle.SubBundle>> {
-        val authData = authenticatorRepository.getGPlayAuthOrThrow()
-        val searchHelper = SearchHelper(authData).using(gPlayHttpClient)
+        val searchHelper = WebSearchHelper().using(gPlayHttpClient)
 
         Timber.d("Fetching search result for $query, subBundle: $subBundle")
 
@@ -109,27 +108,30 @@ class PlayStoreRepository @Inject constructor(
     }
 
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
-        val authData = authenticatorRepository.getGPlayAuthOrThrow()
-
         val searchData = mutableListOf<SearchSuggestEntry>()
         withContext(Dispatchers.IO) {
-            val searchHelper = SearchHelper(authData).using(gPlayHttpClient)
+            val searchHelper = WebSearchHelper().using(gPlayHttpClient)
             searchData.addAll(searchHelper.searchSuggestions(query))
         }
-        return searchData.filter { it.suggestedQuery.isNotBlank() }
+        return searchData.filter { it.title.isNotBlank() }
     }
 
     fun getAppsByCategory(category: String, pageUrl: String?): StreamCluster {
-        val authData = authenticatorRepository.getGPlayAuthOrThrow()
-
-        val subCategoryHelper = CategoryAppsHelper(authData).using(gPlayHttpClient)
+        val subCategoryHelper = WebCategoryStreamHelper().using(gPlayHttpClient)
 
         if (!pageUrl.isNullOrEmpty()) {
-            return subCategoryHelper.next(pageUrl)
+            return subCategoryHelper.nextStreamCluster(pageUrl)
         }
 
-        return subCategoryHelper.getCategoryAppsList(category.uppercase())
+        val bundle = subCategoryHelper.fetch(upperCaseCategory(category))
+        return bundle.streamClusters.entries.first().value
     }
+
+    private fun upperCaseCategory(path: String): String {
+        val lastPart = path.substringAfterLast("/").uppercase()
+        val basePath = path.substringBeforeLast("/")
+        return "$basePath/$lastPart"
+     }
 
     suspend fun getCategories(type: CategoryType?): List<Category> {
         val categoryList = mutableListOf<Category>()
@@ -137,21 +139,23 @@ class PlayStoreRepository @Inject constructor(
             return categoryList
         }
 
-        val authData = authenticatorRepository.getGPlayAuthOrThrow()
-
         withContext(Dispatchers.IO) {
-            val categoryHelper = CategoryHelper(authData).using(gPlayHttpClient)
-            categoryList.addAll(categoryHelper.getAllCategoriesList(getCategoryType(type)))
+            val categoryHelper = WebCategoryHelper().using(gPlayHttpClient)
+            categoryList.addAll(categoryHelper.getAllCategories(getCategoryType(type)))
         }
         return categoryList
     }
 
     override suspend fun getAppDetails(packageNameOrId: String): Application {
         var appDetails: GplayApp?
-        val authData = authenticatorRepository.getGPlayAuthOrThrow()
+
+        val appDetailsHelper = try {
+            AppDetailsHelper(authenticatorRepository.getGPlayAuthOrThrow()).using(gPlayHttpClient)
+        } catch (exception: Exception) {
+            WebAppDetailsHelper().using(gPlayHttpClient)
+        }
 
         withContext(Dispatchers.IO) {
-            val appDetailsHelper = AppDetailsHelper(authData).using(gPlayHttpClient)
             appDetails = appDetailsHelper.getAppByPackageName(packageNameOrId)
         }
 
@@ -160,12 +164,17 @@ class PlayStoreRepository @Inject constructor(
 
     suspend fun getAppsDetails(packageNamesOrIds: List<String>): List<GplayApp> {
         val appDetailsList = mutableListOf<GplayApp>()
-        val authData = authenticatorRepository.getGPlayAuthOrThrow()
+
+        val appDetailsHelper = try {
+            AppDetailsHelper(authenticatorRepository.getGPlayAuthOrThrow()).using(gPlayHttpClient)
+        } catch (exception: Exception) {
+            WebAppDetailsHelper().using(gPlayHttpClient)
+        }
 
         withContext(Dispatchers.IO) {
-            val appDetailsHelper = AppDetailsHelper(authData).using(gPlayHttpClient)
             appDetailsList.addAll(appDetailsHelper.getAppByPackageName(packageNamesOrIds))
         }
+
         return appDetailsList
     }
 
@@ -175,14 +184,13 @@ class PlayStoreRepository @Inject constructor(
     }
 
     private suspend fun getTopApps(
-        type: TopChartsHelper.Type,
-        chart: Chart,
-        authData: AuthData
+        type: Type,
+        chart: Chart
     ): List<Application> {
         val topApps = mutableListOf<GplayApp>()
         withContext(Dispatchers.IO) {
-            val topChartsHelper = TopChartsHelper(authData).using(gPlayHttpClient)
-            topApps.addAll(topChartsHelper.getCluster(type, chart).clusterAppList)
+            val topChartsHelper = WebTopChartsHelper().using(gPlayHttpClient)
+            topApps.addAll(topChartsHelper.getCluster(type.value, chart.value).clusterAppList)
         }
 
         return topApps.map {
@@ -192,16 +200,28 @@ class PlayStoreRepository @Inject constructor(
 
     suspend fun getDownloadInfo(
         idOrPackageName: String,
-        versionCode: Any?,
+        versionCode: Int,
         offerType: Int
     ): List<File> {
         val downloadData = mutableListOf<File>()
         val authData = authenticatorRepository.getGPlayAuthOrThrow()
 
+        var version = versionCode
+        var offer = offerType
+
+        if (version == 0) {
+            val appDetailsHelper = getAppDetails(idOrPackageName)
+            version = appDetailsHelper.latest_version_code
+            offer = appDetailsHelper.offer_type
+        }
+
+        if (version == 0) {
+            throw IllegalStateException("Could not get download details for $idOrPackageName")
+        }
+
         withContext(Dispatchers.IO) {
-            val version = versionCode?.let { it as Int } ?: -1
             val purchaseHelper = PurchaseHelper(authData).using(gPlayHttpClient)
-            downloadData.addAll(purchaseHelper.purchase(idOrPackageName, version, offerType))
+            downloadData.addAll(purchaseHelper.purchase(idOrPackageName, version, offer))
         }
         return downloadData
     }
@@ -218,7 +238,7 @@ class PlayStoreRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val purchaseHelper = PurchaseHelper(authData).using(gPlayHttpClient)
             downloadData.addAll(
-                purchaseHelper.getOnDemandModule(packageName, moduleName, versionCode, offerType)
+                purchaseHelper.purchase(packageName, versionCode, offerType, moduleName)
             )
         }
         return downloadData

@@ -44,6 +44,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -84,7 +85,7 @@ class GPlayHttpClient @Inject constructor(
     fun post(url: String, headers: Map<String, String>, requestBody: RequestBody): PlayResponse {
         val request = Request.Builder()
             .url(url)
-            .headers(headers.toHeaders())
+            .headers(headersWithLocale(headers).toHeaders())
             .method(HTTP_METHOD_POST, requestBody)
             .build()
         return processRequest(request)
@@ -98,8 +99,8 @@ class GPlayHttpClient @Inject constructor(
     ): PlayResponse {
         val request = Request.Builder()
             .url(buildUrl(url, params))
-            .headers(headers.toHeaders())
-            .method(HTTP_METHOD_POST, "".toRequestBody(null))
+            .headers(headersWithLocale(headers).toHeaders())
+            .method(HTTP_METHOD_POST, "".toRequestBody())
             .build()
         return processRequest(request)
     }
@@ -119,11 +120,7 @@ class GPlayHttpClient @Inject constructor(
 
     @Throws(IOException::class)
     override fun post(url: String, headers: Map<String, String>, body: ByteArray): PlayResponse {
-        val requestBody = body.toRequestBody(
-            "application/x-protobuf".toMediaType(),
-            0,
-            body.size
-        )
+        val requestBody = body.toRequestBody()
         return post(url, headers, requestBody)
     }
 
@@ -140,7 +137,7 @@ class GPlayHttpClient @Inject constructor(
     ): PlayResponse {
         val request = Request.Builder()
             .url(buildUrl(url, params))
-            .headers(headers.toHeaders())
+            .headers(headersWithLocale(headers).toHeaders())
             .method(HTTP_METHOD_GET, null)
             .build()
         return processRequest(request)
@@ -163,10 +160,16 @@ class GPlayHttpClient @Inject constructor(
     ): PlayResponse {
         val request = Request.Builder()
             .url(url + paramString)
-            .headers(headers.toHeaders())
+            .headers(headersWithLocale(headers).toHeaders())
             .method(HTTP_METHOD_GET, null)
             .build()
         return processRequest(request)
+    }
+
+    private fun headersWithLocale(headers: Map<String, String>): Map<String, String> {
+        val headersWithLocale = headers.toMutableMap()
+        headersWithLocale["Accept-Language"] = Locale.getDefault().language
+        return headersWithLocale
     }
 
     private fun processRequest(request: Request): PlayResponse {
