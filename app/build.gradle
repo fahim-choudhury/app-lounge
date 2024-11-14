@@ -182,10 +182,7 @@ dependencies {
     api files('libs/splitinstall-lib.jar')
 
     implementation 'foundation.e.lib:telemetry:0.0.11-alpha'
-
-    // TODO: Integrate properly latest version of GplayAPI https://gitlab.e.foundation/e/os/backlog/-/issues/2783
-    api files('libs/libgplayapi.aar')
-
+    implementation 'foundation.e:gplayapi:3.4.2-0'
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.fragment:fragment-ktx:1.5.6'
