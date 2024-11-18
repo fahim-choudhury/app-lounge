@@ -46,6 +46,7 @@ import foundation.e.apps.databinding.DialogErrorLogBinding
 import foundation.e.apps.ui.LoginViewModel
 import foundation.e.apps.ui.MainActivityViewModel
 import timber.log.Timber
+import java.util.Locale
 
 /**
  * Parent class of all fragments.
@@ -233,7 +234,7 @@ abstract class TimeoutFragment(@LayoutRes layoutId: Int) : Fragment(layoutId) {
     }
 
     private fun openTroubleshootingPage() {
-        val troubleshootUrl = getString(R.string.troubleshootURL)
+        val troubleshootUrl = getString(R.string.troubleshootURL, Locale.getDefault().language)
         val openUrlIntent = Intent(Intent.ACTION_VIEW)
         openUrlIntent.data = Uri.parse(troubleshootUrl)
         startActivity(openUrlIntent)
