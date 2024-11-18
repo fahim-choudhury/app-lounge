@@ -20,6 +20,8 @@ package foundation.e.apps.ui.settings
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -39,14 +41,15 @@ import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.BuildConfig
 import foundation.e.apps.R
-import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.application.UpdatesDao
-import foundation.e.apps.ui.LoginViewModel
+import foundation.e.apps.data.enums.User
 import foundation.e.apps.databinding.CustomPreferenceBinding
 import foundation.e.apps.install.updates.UpdatesWorkManager
+import foundation.e.apps.ui.LoginViewModel
 import foundation.e.apps.ui.MainActivityViewModel
 import foundation.e.apps.utils.SystemInfoProvider
 import timber.log.Timber
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -58,6 +61,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private var showAllApplications: CheckBoxPreference? = null
     private var showFOSSApplications: CheckBoxPreference? = null
     private var showPWAApplications: CheckBoxPreference? = null
+    private var troubleShootPreference: Preference? = null
 
     val loginViewModel: LoginViewModel by lazy {
         ViewModelProvider(requireActivity())[LoginViewModel::class.java]
@@ -86,6 +90,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
         showAllApplications = findPreference<CheckBoxPreference>("showAllApplications")
         showFOSSApplications = findPreference<CheckBoxPreference>("showFOSSApplications")
         showPWAApplications = findPreference<CheckBoxPreference>("showPWAApplications")
+        troubleShootPreference = findPreference(getString(R.string.having_troubles))
+
         val updateCheckInterval =
             preferenceManager.findPreference<Preference>(getString(R.string.update_check_intervals))
         updateCheckInterval?.setOnPreferenceChangeListener { _, newValue ->
@@ -126,6 +132,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         allSourceCheckboxes.forEach {
             it?.onPreferenceChangeListener = sourceCheckboxListener
         }
+
+        val troubleshootUrl = getString(R.string.troubleshootURL, Locale.getDefault().language)
+        troubleShootPreference?.intent = Intent(Intent.ACTION_VIEW, Uri.parse(troubleshootUrl))
     }
 
     /**

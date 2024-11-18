@@ -27,9 +27,6 @@
     <Preference
         android:key="@string/having_troubles"
         android:layout="@layout/custom_preferences_troubleshooting_link">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="@string/troubleshootURL"/>
     </Preference>
 
     <PreferenceCategory
