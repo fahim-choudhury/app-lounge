@@ -186,6 +186,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
     }
 
     override fun loadData(authObjectList: List<AuthObject>) {
+        showLoadingUI()
         homeViewModel.loadData(authObjectList, viewLifecycleOwner) { _ ->
             clearAndRestartGPlayLogin()
             true
@@ -258,7 +259,6 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
 
     override fun onResume() {
         super.onResume()
-        binding.shimmerLayout.startShimmer()
         appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
             updateProgressOfDownloadingAppItemViews(homeParentRVAdapter, it)
         }
