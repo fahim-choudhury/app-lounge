@@ -30,6 +30,7 @@ import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
+import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
@@ -41,6 +42,8 @@ class HomeViewModel @Inject constructor(
     private val applicationRepository: ApplicationRepository,
 ) : LoadingViewModel() {
 
+    @Inject
+    lateinit var appLoungePreference: AppLoungePreference
 
     /*
      * Hold list of applications, as well as application source type.
@@ -51,6 +54,8 @@ class HomeViewModel @Inject constructor(
     var homeScreenData: MutableLiveData<ResultSupreme<List<Home>>> = MutableLiveData()
 
     var currentHomes: List<Home>? = null
+
+    private var previousSources = emptyList<Boolean>()
 
     fun loadData(
         authObjectList: List<AuthObject>,
@@ -69,6 +74,21 @@ class HomeViewModel @Inject constructor(
                 return@onLoadData
             }
         }, retryBlock)
+    }
+
+    fun haveSourcesChanged(): Boolean {
+        val sources = listOf(
+            appLoungePreference.isGplaySelected(),
+            appLoungePreference.isOpenSourceSelected(),
+            appLoungePreference.isPWASelected()
+        )
+
+        if (sources == previousSources) {
+            return false
+        }
+
+        previousSources = sources
+        return true
     }
 
     fun getHomeScreenData(
@@ -109,8 +129,6 @@ class HomeViewModel @Inject constructor(
             currentHomes = homeResult.data?.map { it.copy() }
             return
         }
-
-        homeScreenData.value = ResultSupreme.Error("No change is found in homepage")
     }
 
     private fun shouldUpdateResult(homeResult: ResultSupreme<List<Home>>) =
