@@ -21,8 +21,6 @@ package foundation.e.apps.ui
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -68,6 +66,12 @@ class MainActivityViewModel @Inject constructor(
     private val appInstallProcessor: AppInstallProcessor,
     private val systemAppsUpdatesRepository: SystemAppsUpdatesRepository,
 ) : ViewModel() {
+
+    init {
+        updateAppWarningList()
+        updateContentRatings()
+        fetchUpdatableSystemAppsList()
+    }
 
     val tocStatus: LiveData<Boolean> = appLoungeDataStore.tocStatus.asLiveData()
 
