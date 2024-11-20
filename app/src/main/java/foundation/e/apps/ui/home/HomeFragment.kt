@@ -186,10 +186,12 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
     }
 
     override fun loadData(authObjectList: List<AuthObject>) {
-        showLoadingUI()
-        homeViewModel.loadData(authObjectList, viewLifecycleOwner) { _ ->
-            clearAndRestartGPlayLogin()
-            true
+        if (homeViewModel.haveSourcesChanged()) {
+            showLoadingUI()
+            homeViewModel.loadData(authObjectList, viewLifecycleOwner) { _ ->
+                clearAndRestartGPlayLogin()
+                true
+            }
         }
     }
 
