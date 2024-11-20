@@ -98,10 +98,7 @@ class MainActivity : AppCompatActivity() {
             bottomNavigationView.selectedItemId = R.id.updatesFragment
         }
 
-
         viewModel.createNotificationChannels()
-
-
 
         viewModel.setupConnectivityManager(this.applicationContext)
 
@@ -124,10 +121,6 @@ class MainActivity : AppCompatActivity() {
         if (viewModel.internetConnection.value != true) {
             showNoInternet()
         }
-
-        viewModel.updateAppWarningList()
-        viewModel.updateContentRatings()
-        viewModel.fetchUpdatableSystemAppsList()
 
         observeEvents()
 
