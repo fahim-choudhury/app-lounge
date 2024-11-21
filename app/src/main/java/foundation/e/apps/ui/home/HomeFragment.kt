@@ -186,7 +186,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
     }
 
     override fun loadData(authObjectList: List<AuthObject>) {
-        if (homeViewModel.haveSourcesChanged()) {
+        if (shouldLoadData()) {
             showLoadingUI()
             homeViewModel.loadData(authObjectList, viewLifecycleOwner) { _ ->
                 clearAndRestartGPlayLogin()
@@ -194,6 +194,8 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
             }
         }
     }
+
+    private fun shouldLoadData() = homeViewModel.haveSourcesChanged() || !homeViewModel.hasData()
 
     override fun showLoadingUI() {
         binding.shimmerLayout.startShimmer()

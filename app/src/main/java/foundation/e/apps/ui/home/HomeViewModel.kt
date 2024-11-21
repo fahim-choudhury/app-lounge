@@ -57,6 +57,10 @@ class HomeViewModel @Inject constructor(
 
     private var previousSources = emptyList<Boolean>()
 
+   fun hasData(): Boolean {
+       return homeScreenData.value?.data?.isNotEmpty() ?: false
+   }
+
     fun loadData(
         authObjectList: List<AuthObject>,
         lifecycleOwner: LifecycleOwner,
