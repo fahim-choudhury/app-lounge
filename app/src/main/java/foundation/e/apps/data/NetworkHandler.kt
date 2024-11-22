@@ -1,5 +1,6 @@
 /*
- * Copyright MURENA SAS 2023
+ * Copyright (C) 2024 e Foundation
+ * Copyright (C) 2023 MURENA SAS
  * Apps  Quickly and easily install Android apps onto your device!
  *
  * This program is free software: you can redistribute it and/or modify
@@ -14,13 +15,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.data
 
+import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.data.playstore.utils.GPlayHttpClient
 import foundation.e.apps.data.playstore.utils.GplayHttpRequestException
-import foundation.e.apps.data.login.exceptions.GPlayException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import timber.log.Timber
 import java.net.SocketTimeoutException
@@ -37,6 +40,8 @@ private const val INITIAL_DELAY_RETRY_IN_SECONDS = 1
 suspend fun <T> handleNetworkResult(call: suspend () -> T): ResultSupreme<T> {
     return try {
         ResultSupreme.Success(call())
+    } catch (e: CancellationException) {
+        throw e
     } catch (e: SocketTimeoutException) {
         handleSocketTimeoutException(e)
     } catch (e: GplayHttpRequestException) {
