@@ -73,7 +73,6 @@
     <string name="updates">更新</string>
     <string name="topselling_free_apps" weblate_ctx="home">上位の無料アプリ</string>
     <string name="topselling_free_games" weblate_ctx="home">上位の無料ゲーム</string>
-    <string name="no_tracker_found">追跡機能が見つかりませんでした！</string>
     <string name="more_info"><u>詳細を表示</u></string>
     <string name="install_anyway">インストール</string>
     <string name="this_app_may_not_work_properly">このアプリは適切に動作しない可能性があります！</string>
@@ -125,7 +124,6 @@
     <string name="additional_file_for">%sの追加のファイル</string>
     <string name="popular_apps">PWAの人気アプリ</string>
     <string name="popular_games">PWAの人気ゲーム</string>
-    <string name="tracker_information_not_found">このアプリの追跡機能に関する情報はありません。</string>
     <string name="no_internet_message">接続できません！インターネットの接続を確認して、再度試してください</string>
     <string name="message_last_update_triggered">%1$sのアップデートが%2$sに完了しました。</string>
     <string name="automatically_install_updates_notification_text">アプリのアップデートは自動的にインストールされます</string>

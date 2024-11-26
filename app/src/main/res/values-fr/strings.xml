@@ -80,8 +80,6 @@
     <string name="downloads">Téléchargements</string>
     <string name="updates">Mises à jour</string>
     <string name="manually_install_updates_notification_text">Les mises à jour d\'application ne seront pas installées automatiquement</string>
-    <string name="no_permission_found">Aucune permission d\'exécution Android trouvée !</string>
-    <string name="no_tracker_found">Aucun pisteur trouvé !</string>
     <string name="no_internet_message">Connexion impossible ! Merci de vérifier votre connexion internet puis réessayer</string>
     <string name="menu_home">Accueil</string>
     <string name="no_apps_found">Aucune application trouvée…</string>
@@ -102,7 +100,6 @@
     </plurals>
     <string name="automatically_install_updates_notification_text">Les mises à jour d\'application seront installées automatiquement</string>
     <string name="updates_notification_unmetered_network_warning">En attente d\'un réseau illimité</string>
-    <string name="privacy_computed_using_text">Calculé à partir des &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; analyses d\'Exodus Privacy</string>
     <string name="category_icon">Icône de catégorie</string>
     <string name="sign_in_desc">Connectez-vous à App Lounge en utilisant votre compte Google ou sélectionnez le mode Anonyme pour protéger votre vie privée.</string>
     <string name="topgrossing_apps">Apps les mieux classées</string>
@@ -138,7 +135,6 @@
 \n
 \nOuvrez les paramètres pour n\'afficher que les applications Open Source et PWA.</string>
     <string name="timeout_title">Expiration du délai de récupération des applications !</string>
-    <string name="tracker_information_not_found">Aucune information concernant les pisteurs pour cette application.</string>
     <string name="update_error">Erreur lors de la mise à jour !</string>
     <string name="error_signature_mismatch">La mise à jour ne peut être appliquée car la signature de la mise à jour de %1$s ne correspond pas à la signature de la version installée sur votre téléphone. Pour y remédier vous pouvez désinstaller %1$s puis la réinstaller depuis App Lounge. <br/><br/> Note : Ce message ne s\'affichera plus.</string>
     <string name="gplay_data_for_oss">Il est impossible d\'afficher les applications Google Play quand seules les applications Open Source sont sélectionnées.</string>

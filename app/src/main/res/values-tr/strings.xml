@@ -97,8 +97,6 @@
     <string name="manually_install_updates_notification_text">Uygulama güncellemeleri otomatik olarak yüklenmeyecek</string>
     <string name="updates_notification_unmetered_network_warning">Tarifesiz ağ bekleniyor</string>
     <string name="message_last_update_triggered">%1$s uygulamanın güncellemesi %2$s zamanında bitti.</string>
-    <string name="no_permission_found">Çalışma zamanı android izni bulunamadı!</string>
-    <string name="no_tracker_found">İzleyici Bulunamadı!</string>
     <string name="topselling_free_apps" weblate_ctx="home">En İyi Ücretsiz Uygulamalar</string>
     <string name="topselling_free_games" weblate_ctx="home">En İyi Ücretsiz Oyunlar</string>
     <string name="menu_home" weblate_ctx="home">Ana Menü</string>
@@ -137,8 +135,6 @@
     <string name="message_inappropriate_content">Bu uygulama uygunsuz içerik içerebilir.</string>
     <string name="system_app">Sistem uygulaması</string>
     <string name="paid_app_anonymous_message">Ücretli uygulamalar anonim modda yüklenemez. Ücretli uygulamaları yüklemek için lütfen Google hesabınıza giriş yapın.</string>
-    <string name="privacy_computed_using_text">&lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Kullanılarak hesaplanmıştır. Exodus Gizlilik Analizi</string>
-    <string name="tracker_information_not_found">Bu uygulama için izleyici bilgisi mevcut değil.</string>
     <string name="no_internet_message">Bağlantı kurulamıyor! Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin</string>
     <string name="timeout_title">Uygulamaları getirirken zaman aşımı!</string>
     <string name="timeout_desc_cleanapk">Bazı ağ sorunları tüm uygulamaların getirilmesini engelliyor.</string>

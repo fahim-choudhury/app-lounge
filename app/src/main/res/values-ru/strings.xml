@@ -100,10 +100,6 @@
 \nОткройте настройки, чтобы искать только Open Source приложения или PWA.</string>
     <string name="timeout_title">Тайм-аут загрузки приложений!</string>
     <string name="no_internet_message">Не удается подключиться! Пожалуйста, проверьте подключение к Интернету и повторите попытку</string>
-    <string name="tracker_information_not_found">Информация о трекере для этого приложения отсутствует.</string>
-    <string name="no_tracker_found">Трекеры не найдены!</string>
-    <string name="privacy_computed_using_text">Подсчитано с помощью &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus Privacy Analysis</string>
-    <string name="no_permission_found">Не найдено разрешение на выполнение для android!</string>
     <string name="message_last_update_triggered">Обновление приложений %1$s завершено на %2$s.</string>
     <string name="updates_notification_unmetered_network_warning">В ожидании безлимитной сети</string>
     <string name="manually_install_updates_notification_text">Обновления приложений не будут устанавливаться автоматически</string>

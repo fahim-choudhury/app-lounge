@@ -93,10 +93,6 @@
     <string name="dialog_paidapp_message">Kun klikkaat vahvista, pääset sovelluksen Google Play -sivulle ja voit suorittaa oston loppuun selaimellasi. Klikkaa vahvista ostaaksesi %1$s hintaan %2$s.</string>
     <string name="dialog_title_paid_app">Osta <b>%1$s</b></string>
     <string name="no_internet_message">Yhteyden muodostaminen ei onnistu! Tarkista internetyhteytesi ja yritä uudelleen</string>
-    <string name="tracker_information_not_found">Tästä sovelluksesta ei ole saatavilla seuraintietoja.</string>
-    <string name="no_tracker_found">Seuraimia ei löytynyt!</string>
-    <string name="privacy_computed_using_text">Laskettu käyttäen &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus Privacy Analyysia</string>
-    <string name="no_permission_found">Android-käyttöoikeutta ei löytynyt!</string>
     <string name="updates_notification_unmetered_network_warning">Odotetaan mittaamatonta verkkoa</string>
     <string name="manually_install_updates_notification_text">Sovelluspäivityksiä ei asenneta automaattisesti</string>
     <string name="automatically_install_updates_notification_text">Sovelluspäivitykset asennetaan automaattisesti</string>

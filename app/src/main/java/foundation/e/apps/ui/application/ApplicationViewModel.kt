@@ -219,24 +219,7 @@ class ApplicationViewModel @Inject constructor(
         }
     }
 
-    fun transformPermsToString(): String {
-        var permissionString = ""
-        applicationLiveData.value?.first?.let {
-            // Filter list to only keep platform permissions
-            val filteredList = it.perms.filter {
-                it.startsWith("android.permission.")
-            }
-            // Remove prefix as we only have platform permissions remaining
-            val list = filteredList.map {
-                it.replace("[^>]*permission\\.".toRegex(), "")
-            }
-            // Make it a dialog-friendly string and return it
-            permissionString = list.joinToString(separator = "") { "$it<br />" }
-        }
-        return permissionString
-    }
-
-    fun getFusedApp(): Application? {
+    fun getApplication(): Application? {
         return applicationLiveData.value?.first
     }
 

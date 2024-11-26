@@ -84,8 +84,6 @@
     <string name="updates">Aktualisierungen</string>
     <string name="manually_install_updates_notification_text">App-Aktualisierungen werden nicht automatisch installiert</string>
     <string name="updates_notification_unmetered_network_warning">Auf ein unlimitiertes Netzwerk warten</string>
-    <string name="no_permission_found">Keine „runtime android“-Berechtigung gefunden!</string>
-    <string name="no_tracker_found">Keine Tracker/Verfolger gefunden!</string>
     <string name="no_internet_message">Keine Verbindung möglich. Bitte überprüfe die Internetverbindung und versuche es erneut</string>
     <string name="menu_home">Start</string>
     <string name="search_hint">App-Suche</string>
@@ -104,7 +102,6 @@
     </plurals>
     <string name="automatically_install_updates_notification_text">App-Aktualisierungen werden automatisch installiert</string>
     <string name="preference_update_wifi_only_description">Aktualisierungen von Apps nur in unlimitierten Netzwerken wie WLAN</string>
-    <string name="privacy_computed_using_text">Berechnet aus &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus Datenschutz-Analyse</string>
     <string name="all_apps_updated">Alle Apps sind aktuell</string>
     <string name="or">Oder nur anzeigen</string>
     <string name="dialog_title_paid_app"><b>%1$s</b> kaufen</string>
@@ -113,7 +110,6 @@
     <string name="privacy_description">Die Datenschutz-Bewertung wird automatisch berechnet aus den Berechtigungen und den Trackern, die in den Anwendungen aufgespürt werden. Es gibt einen Überblick darüber, wie sehr die App Benutzer ausspioniert. &lt;br /&gt;&lt;br /&gt;Die Quelle für den Berechnungsalgorithmus kann &lt;a href=<xliff:g id="source_code">%1$s</xliff:g>&gt;hier gefunden werden&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Die Tracker-Aufspürung wird durchgeführt mit &lt;a href=<xliff:g id="exodus">%2$s</xliff:g>&gt;Exodus Privacy Werkzeuge&lt;/a&gt;.&lt;br /&gt;&lt;br /&gt;Bewertung von 1-10.&lt;br /&gt;&lt;br /&gt;Wenn du mehr erfahren willst, wie die Datenschutzbewertung berechnet wird, und wie du dich vor dem Ausspionieren schützen kannst, &lt;a href=<xliff:g id="e_doc">%3$s</xliff:g>&gt;besuche dieses Seite&lt;/a&gt;.</string>
     <string name="not_enough_storage">Es ist nicht genügend Speicher vorhanden, um diese App herunterzuladen!</string>
     <string name="paid_app_anonymous_message">Bezahl-Apps können nicht im anonymen Modus installiert werden. Bitte melde dich mit deinem Google-Konto an.</string>
-    <string name="tracker_information_not_found">Es ist keine Tracker-Information für diese App verfügbar.</string>
     <string name="unsupported_app_unreleased">Die %s App wird zurzeit nicht unterstützt. Ein Grund könnte sein, dass die App noch nicht sehr verbreitet, oder ein anderer Fehler aufgetreten ist.</string>
     <string name="unsupported_app_title">Diese App wird nicht unterstützt!</string>
     <string name="open_settings">Einstellungen öffnen</string>

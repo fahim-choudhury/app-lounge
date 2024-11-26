@@ -11,7 +11,9 @@ import foundation.e.apps.data.exodus.models.AppPrivacyInfo
 import foundation.e.apps.data.exodus.repositories.IAppPrivacyInfoRepository
 import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepository
 import foundation.e.apps.data.application.data.Application
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,12 +31,10 @@ class PrivacyInfoViewModel @Inject constructor(
         }
     }
 
-    suspend fun getAppPrivacyInfo(application: Application): Result<AppPrivacyInfo> {
-        return fetchEmitAppPrivacyInfo(application)
-    }
-
     fun getSingularAppPrivacyInfoLiveData(application: Application?): LiveData<Result<AppPrivacyInfo>> {
-        fetchPrivacyInfo(application)
+        viewModelScope.launch(Dispatchers.IO) {
+            fetchPrivacyInfo(application)
+        }
         return singularAppPrivacyInfoLiveData
     }
 
@@ -44,13 +44,11 @@ class PrivacyInfoViewModel @Inject constructor(
 
     private fun fetchPrivacyInfo(application: Application?, forced: Boolean = false) {
         application?.let {
-            if (forced) {
-                it.trackers = emptyList()
-                it.permsFromExodus = emptyList()
-            }
-
             viewModelScope.launch {
-                singularAppPrivacyInfoLiveData.postValue(fetchEmitAppPrivacyInfo(it))
+                val info = withContext(Dispatchers.IO) {
+                    fetchEmitAppPrivacyInfo(it)
+                }
+                singularAppPrivacyInfoLiveData.postValue(info)
             }
         }
     }
@@ -58,8 +56,10 @@ class PrivacyInfoViewModel @Inject constructor(
     private suspend fun fetchEmitAppPrivacyInfo(
         application: Application
     ): Result<AppPrivacyInfo> {
-        val appPrivacyPrivacyInfoResult =
+        val appPrivacyPrivacyInfoResult = withContext(Dispatchers.IO) {
             privacyInfoRepository.getAppPrivacyInfo(application, application.package_name)
+        }
+
         return handleAppPrivacyInfoResult(appPrivacyPrivacyInfoResult)
     }
 
@@ -69,15 +69,6 @@ class PrivacyInfoViewModel @Inject constructor(
         return if (!appPrivacyPrivacyInfoResult.isSuccess()) {
             Result.error("Tracker not found!")
         } else appPrivacyPrivacyInfoResult
-    }
-
-    fun getTrackerListText(application: Application?): String {
-        application?.let {
-            if (it.trackers.isNotEmpty()) {
-                return it.trackers.joinToString(separator = "") { tracker -> "$tracker<br />" }
-            }
-        }
-        return ""
     }
 
     fun getPrivacyScore(application: Application?): Int {

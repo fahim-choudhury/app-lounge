@@ -22,6 +22,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.text.Html
 import android.text.format.Formatter
@@ -63,7 +64,6 @@ import foundation.e.apps.data.enums.isInitialized
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
 import foundation.e.apps.databinding.FragmentApplicationBinding
-import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.domain.ValidateAppAgeLimitUseCase.Companion.KEY_ANTI_FEATURES_NSFW
 import foundation.e.apps.install.download.data.DownloadProgress
 import foundation.e.apps.install.pkg.AppLoungePackageManager
@@ -294,42 +294,26 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     private fun updatePrivacyPanel() {
         binding.privacyInclude.apply {
             appPermissions.setOnClickListener { _ ->
-                ApplicationDialogFragment(
-                    drawableResId = R.drawable.ic_perm,
-                    title = getString(R.string.permissions),
-                    message = getPermissionListString()
-                ).show(childFragmentManager, TAG)
+                openBrowser()
             }
             appTrackers.setOnClickListener {
-                val fusedApp = applicationViewModel.getFusedApp()
-                var trackers =
-                    buildTrackersString(fusedApp)
-
-                ApplicationDialogFragment(
-                    drawableResId = R.drawable.ic_tracker,
-                    title = getString(R.string.trackers_title),
-                    message = trackers
-                ).show(childFragmentManager, TAG)
+                openBrowser()
             }
         }
     }
 
-    private fun buildTrackersString(application: Application?): String {
-        var trackers =
-            privacyInfoViewModel.getTrackerListText(application)
-
-        if (application?.trackers == LIST_OF_NULL) {
-            trackers = getString(R.string.tracker_information_not_found)
-        } else if (trackers.isNotEmpty()) {
-            trackers += "<br /> <br />" + getString(
-                R.string.privacy_computed_using_text,
-                generateExodusUrl()
-            )
-        } else {
-            trackers = getString(R.string.no_tracker_found)
+    private fun openBrowser() {
+        val url = generateExodusUrl()
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = Uri.parse(url)
         }
 
-        return trackers
+        if (intent.resolveActivity(requireContext().packageManager) == null) {
+            Timber.e("Could not find a browser to open URL: $url")
+            return
+        }
+
+        startActivity(intent)
     }
 
     private fun updateAppInformation(
@@ -381,7 +365,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             }
 
             appPrivacyScoreLayout.setOnClickListener {
-                if (privacyInfoViewModel.shouldRequestExodusReport(applicationViewModel.getFusedApp())) {
+                if (privacyInfoViewModel.shouldRequestExodusReport(applicationViewModel.getApplication())) {
                     showRequestExodusReportDialog()
                     return@setOnClickListener
                 }
@@ -413,7 +397,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun openRequestExodusReportUrl() {
         val openUrlIntent = Intent(Intent.ACTION_VIEW)
-        val packageName = applicationViewModel.getFusedApp()?.package_name
+        val packageName = applicationViewModel.getApplication()?.package_name
 
         if (packageName.isNullOrBlank()) {
             return
@@ -647,7 +631,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun observeDownloadStatus(view: View) {
         applicationViewModel.appStatus.observe(viewLifecycleOwner) { status ->
-            val application = applicationViewModel.getFusedApp() ?: Application()
+            val application = applicationViewModel.getApplication() ?: Application()
             mainActivityViewModel.verifyUiFilter(application) {
                 if (!application.filterLevel.isInitialized()) {
                     return@verifyUiFilter
@@ -972,31 +956,9 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         binding.downloadInclude.downloadedSize.text = downloadedSize
     }
 
-    private fun getPermissionListString(): String {
-        var permission =
-            applicationViewModel.transformPermsToString()
-        if (permission.isEmpty()) {
-            permission = getString(
-                R.string.no_permission_found
-            )
-        } else {
-            permission += "<br />" + getString(
-                R.string.privacy_computed_using_text,
-                generateExodusUrl()
-            )
-        }
-        return permission
-    }
-
     private fun generateExodusUrl(): String {
-        // if app info not loaded yet, pass the default exodus homePage url
-        val fusedApp = applicationViewModel.getFusedApp()
-        if (fusedApp == null || fusedApp.permsFromExodus == LIST_OF_NULL) {
-            return ExodusUriGenerator.DEFAULT_URL
-        }
-
-        val reportId = applicationViewModel.applicationLiveData.value!!.first.reportId
-        return ExodusUriGenerator.buildReportUri(reportId).toString()
+        val packageName = applicationViewModel.applicationLiveData.value?.first?.package_name ?: ""
+        return ExodusUriGenerator.buildReportUri(packageName).toString()
     }
 
     private fun fetchAppTracker(application: Application) {
@@ -1018,7 +980,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
     private fun updatePrivacyScore() {
         val privacyScore =
-            privacyInfoViewModel.getPrivacyScore(applicationViewModel.getFusedApp())
+            privacyInfoViewModel.getPrivacyScore(applicationViewModel.getApplication())
         if (privacyScore != -1) {
             val appPrivacyScore = binding.ratingsInclude.appPrivacyScore
             appPrivacyScore.text = getString(
@@ -1055,7 +1017,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
         if (visible) {
             isRequestReportVisible =
-                privacyInfoViewModel.shouldRequestExodusReport(applicationViewModel.getFusedApp())
+                privacyInfoViewModel.shouldRequestExodusReport(applicationViewModel.getApplication())
             privacyScoreVisibility = if (isRequestReportVisible) View.INVISIBLE else View.VISIBLE
         }
 
@@ -1072,7 +1034,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     private fun reloadPrivacyInfo() {
         if (shouldReloadPrivacyInfo) {
             togglePrivacyInfoVisibility(false)
-            privacyInfoViewModel.refreshAppPrivacyInfo(applicationViewModel.getFusedApp())
+            privacyInfoViewModel.refreshAppPrivacyInfo(applicationViewModel.getApplication())
         }
 
         shouldReloadPrivacyInfo = false

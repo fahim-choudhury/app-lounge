@@ -90,13 +90,13 @@ class SearchViewModel @Inject constructor(
         this.flagOpenSource = flagOpenSource
         this.flagPWA = flagPWA
 
-        viewModelScope.launch {
+        viewModelScope.launch(IO) {
             emitFilteredResults(null)
         }
     }
 
     fun getSearchSuggestions(query: String, gPlayAuth: AuthObject.GPlayAuth) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(IO) {
             searchSuggest.postValue(
                 applicationRepository.getSearchSuggestions(query)
             )
@@ -140,7 +140,7 @@ class SearchViewModel @Inject constructor(
         query: String,
         authData: AuthData?
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(IO) {
             val searchResultSupreme = applicationRepository.getCleanApkSearchResults(
                 query,
                 authData ?: AuthData("", "")
@@ -161,7 +161,7 @@ class SearchViewModel @Inject constructor(
             return
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(IO) {
             if (autoTriggered) {
                 delay(PREVENT_HTTP_429_DELAY_IN_MS)
             }
@@ -170,7 +170,7 @@ class SearchViewModel @Inject constructor(
     }
 
     private fun fetchGplayData(query: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(IO) {
             isLoading = true
             val gplaySearchResult =
                 applicationRepository.getGplaySearchResults(query, nextSubBundle)
@@ -221,8 +221,6 @@ class SearchViewModel @Inject constructor(
 
     private fun hasTrackers(app: Application): Boolean {
         return when {
-            app.trackers == LIST_OF_NULL -> true        // Tracker data unavailable, don't show
-            app.trackers.isNotEmpty() -> true           // Trackers present
             app.privacyScore == 0 -> true               // Manually blocked apps (Facebook etc.)
             else -> false
         }
