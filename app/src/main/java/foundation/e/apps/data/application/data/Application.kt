@@ -117,6 +117,10 @@ data class Application(
             }
         }
     }
+
+    fun hasExodusPrivacyRating(): Boolean {
+        return this.reportId.toInt() != -1
+    }
 }
 
 val Application.shareUri: Uri

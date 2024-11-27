@@ -51,7 +51,7 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
         }
 
         val reports = fetchReports(application.package_name)
-        if (reports.isEmpty()) {
+        if (reports.firstOrNull()?.handle != application.package_name) {
             return Result.error("Could not fetch reports for ${application.package_name}")
         }
 

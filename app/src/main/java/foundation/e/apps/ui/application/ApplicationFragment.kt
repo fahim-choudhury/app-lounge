@@ -303,9 +303,17 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun openBrowser() {
-        val url = generateExodusUrl()
+        val application = applicationViewModel.getApplication()
+        val packageName = application?.package_name ?: return
+
+        val url = if (application.hasExodusPrivacyRating()) {
+            ExodusUriGenerator.buildReportUri(packageName)
+        } else {
+            ExodusUriGenerator.buildRequestReportUri(packageName)
+        }
+
         val intent = Intent(Intent.ACTION_VIEW).apply {
-            data = Uri.parse(url)
+            data = url
         }
 
         if (intent.resolveActivity(requireContext().packageManager) == null) {

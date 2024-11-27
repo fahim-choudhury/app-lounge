@@ -226,7 +226,7 @@ class ApplicationListRVAdapter(
             appPrivacyScoreLayout.isVisible = false
             return
         }
-        if (searchApp.ratings.privacyScore != -1.0) {
+        if (searchApp.hasExodusPrivacyRating() && searchApp.ratings.privacyScore != -1.0) {
             appPrivacyScore.text = view.context.getString(
                 R.string.privacy_rating_out_of,
                 searchApp.ratings.privacyScore.toInt().toString()
@@ -395,22 +395,7 @@ class ApplicationListRVAdapter(
         searchApp: Application,
         view: View
     ) {
-        if (searchApp.privacyScore > -1) {
-            showPrivacyScoreOnAvailableData(searchApp, view)
-        } else {
-            showPrivacyScoreAfterFetching(searchApp, view)
-        }
-    }
-
-    private fun ApplicationListItemBinding.showPrivacyScoreOnAvailableData(
-        searchApp: Application,
-        view: View
-    ) {
-        showPrivacyScore()
-        appPrivacyScore.text = view.context.getString(
-            R.string.privacy_rating_out_of,
-            searchApp.privacyScore.toString()
-        )
+        showPrivacyScoreAfterFetching(searchApp, view)
     }
 
     private fun ApplicationListItemBinding.showPrivacyScoreAfterFetching(
