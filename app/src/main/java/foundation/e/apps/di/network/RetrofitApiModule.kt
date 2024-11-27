@@ -26,7 +26,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.ecloud.EcloudApiInterface
-import foundation.e.apps.data.exodus.ExodusTrackerApi
 import foundation.e.apps.data.fdroid.FdroidApiInterface
 import foundation.e.apps.data.gitlab.ReleaseInfoApi
 import foundation.e.apps.data.gitlab.UpdatableSystemAppsApi
@@ -58,17 +57,6 @@ class RetrofitApiModule {
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(CleanApkRetrofit::class.java)
-    }
-
-    @Singleton
-    @Provides
-    fun provideExodusApi(okHttpClient: OkHttpClient, moshi: Moshi): ExodusTrackerApi {
-        return Retrofit.Builder()
-            .baseUrl(ExodusTrackerApi.BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-            .create(ExodusTrackerApi::class.java)
     }
 
     /**

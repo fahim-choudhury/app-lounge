@@ -38,7 +38,6 @@ data class Application(
     val category: String = String(),
     val description: String = String(),
     var perms: List<String> = emptyList(),
-    var trackers: List<String> = emptyList(),
     var reportId: Long = -1L,
     val icon_image_path: String = String(),
     val last_modified: String = String(),
@@ -65,17 +64,13 @@ data class Application(
     var type: Type = NATIVE,
     var privacyScore: Int = -1,
     var isPurchased: Boolean = false,
+    var updatedOn: String = String(),
 
     /*
-     * List of permissions from Exodus API.
-     * This list is now used to calculate the privacy score instead of perms variable above.
-     * If the value is LIST_OF_NULL - listOf("null"), it means no data is available in Exodus API for this package,
-     * hence display "N/A"
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5136
+     * Number of permissions and trackers from Exodus Api used for privacy score calculation.
      */
-    var permsFromExodus: List<String> = LIST_OF_NULL,
-    var updatedOn: String = String(),
+    var numberOfPermission: Int = 0,
+    var numberOfTracker: Int = 0,
 
     /*
      * Store restriction from App.

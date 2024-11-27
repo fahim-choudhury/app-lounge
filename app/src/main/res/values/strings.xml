@@ -164,11 +164,6 @@
     <string name="manually_install_updates_notification_text">App updates will not be installed automatically</string>
     <string name="updates_notification_unmetered_network_warning">Waiting for un-metered network</string>
     <string name="message_last_update_triggered">Update of %1$s apps completed on %2$s.</string>
-    <!-- Trackers & Permission Dialog-->
-    <string name="no_permission_found">No runtime android permission found!</string>
-    <string name="privacy_computed_using_text">Computed using &lt;a href="<xliff:g id="exodus">%1$s</xliff:g>"&gt; Exodus Privacy Analysis</string>
-    <string name="no_tracker_found">No Tracker Found!</string>
-    <string name="tracker_information_not_found">No tracker information available for this app.</string>
     <!-- Settings Preferences-->
     <string name="update_check_intervals" translatable="false">updateCheckIntervals</string>
     <string name="updateNotify" translatable="false">updateNotify</string>

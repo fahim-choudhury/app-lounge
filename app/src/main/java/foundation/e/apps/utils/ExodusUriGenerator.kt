@@ -26,7 +26,7 @@ object ExodusUriGenerator {
     private const val SCHEME = "https"
     private const val AUTHORITY = "reports.exodus-privacy.eu.org"
 
-    fun buildReportUri(reportId: Long): Uri {
+    fun buildReportUri(packageName: String): Uri {
         val language = getLanguage(Locale.getDefault().language)
 
         return Uri.Builder()
@@ -34,8 +34,9 @@ object ExodusUriGenerator {
             .authority(AUTHORITY)
             .appendPath(language)
             .appendPath("reports")
-            .appendPath(reportId.toString())
-            .build()  // Example: https://reports.exodus-privacy.eu.org/es/reports/511980/
+            .appendPath(packageName)
+            .appendPath("latest")
+            .build()
     }
 
     fun buildRequestReportUri(packageName: String): Uri {

@@ -54,45 +54,9 @@ class PrivacyScoreRepositoryImplTest {
             package_name = "com.test.fakePackage",
             latest_version_code = 123,
             is_pwa = true,
-            permsFromExodus = listOf(),
-            perms = listOf(),
-            trackers = listOf()
         )
         val privacyScore = privacyScoreRepository.calculatePrivacyScore(application)
         Assert.assertEquals("failed to retrieve valid privacy score", 10, privacyScore)
-    }
-
-    @Test
-    fun calculatePrivacyScoreWhenPermsAreNotAvailable() {
-        val application = Application(
-            _id = "113",
-            status = Status.UNAVAILABLE,
-            name = "Demo Three",
-            package_name = "com.test.fakePackage",
-            latest_version_code = 123,
-            is_pwa = true,
-            perms = listOf(),
-            trackers = listOf()
-        )
-        val privacyScore = privacyScoreRepository.calculatePrivacyScore(application)
-        Assert.assertEquals("failed to retrieve valid privacy score", -1, privacyScore)
-    }
-
-    @Test
-    fun calculatePrivacyScoreWhenTrackersAreNotAvailable() {
-        val application = Application(
-            _id = "113",
-            status = Status.UNAVAILABLE,
-            name = "Demo Three",
-            package_name = "com.test.fakePackage",
-            latest_version_code = 123,
-            is_pwa = true,
-            permsFromExodus = listOf(),
-            perms = listOf(),
-            trackers = CommonUtilsModule.LIST_OF_NULL
-        )
-        val privacyScore = privacyScoreRepository.calculatePrivacyScore(application)
-        Assert.assertEquals("failed to retrieve valid privacy score", 9, privacyScore)
     }
 
     @Test
@@ -104,9 +68,6 @@ class PrivacyScoreRepositoryImplTest {
             package_name = "com.test.fakePackage.privacyZero",
             latest_version_code = 123,
             is_pwa = true,
-            permsFromExodus = listOf(),
-            perms = listOf(),
-            trackers = CommonUtilsModule.LIST_OF_NULL
         )
         Mockito.`when`(blockedAppRepository.isPrivacyScoreZero(eq("com.test.fakePackage.privacyZero"))).thenReturn(true)
 

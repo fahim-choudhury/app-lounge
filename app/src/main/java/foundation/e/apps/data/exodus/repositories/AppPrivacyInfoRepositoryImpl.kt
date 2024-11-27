@@ -18,172 +18,100 @@
 
 package foundation.e.apps.data.exodus.repositories
 
-import foundation.e.apps.data.Result
-import foundation.e.apps.data.enums.Origin
-import foundation.e.apps.data.exodus.ExodusTrackerApi
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import foundation.e.apps.data.exodus.Report
-import foundation.e.apps.data.exodus.Tracker
-import foundation.e.apps.data.exodus.TrackerDao
 import foundation.e.apps.data.exodus.models.AppPrivacyInfo
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.getResult
-import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
-import foundation.e.apps.utils.getFormattedString
-import java.util.Date
-import java.util.Locale
+import foundation.e.apps.data.exodus.ApiResponse
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.lang.reflect.Modifier
 import javax.inject.Inject
 import javax.inject.Singleton
+import foundation.e.apps.data.Result
 
 @Singleton
 class AppPrivacyInfoRepositoryImpl @Inject constructor(
-    private val exodusTrackerApi: ExodusTrackerApi,
-    private val trackerDao: TrackerDao
+    private val okHttpClient: OkHttpClient
 ) : IAppPrivacyInfoRepository {
     companion object {
-        private const val DATE_FORMAT = "ddMMyyyy"
-        private const val SOURCE_FDROID = "fdroid"
-        private const val SOURCE_GOOGLE = "google"
+        private const val EXODUS_PRIVACY_URL = "https://reports.exodus-privacy.eu.org/api"
     }
-
-    private var trackers: List<Tracker> = listOf()
 
     override suspend fun getAppPrivacyInfo(
         application: Application,
         appHandle: String
     ): Result<AppPrivacyInfo> {
-        if (application.trackers.isNotEmpty() && application.permsFromExodus.isNotEmpty()) {
-            val appInfo = AppPrivacyInfo(application.trackers, application.permsFromExodus, application.reportId)
-            return Result.success(appInfo)
-        }
-
         if (application.is_pwa) {
-            return Result.error("No need to fetch trackers for a PWA app")
+            return Result.success(AppPrivacyInfo())
         }
 
-        val appTrackerInfoResult = getResult {
-            exodusTrackerApi.getTrackerInfoOfApp(
-                appHandle,
-                application.latest_version_code,
-            )
+        val reports = fetchReports(application.package_name)
+        if (reports.isEmpty()) {
+            return Result.error("Could not fetch reports for ${application.package_name}")
         }
 
-        if (appTrackerInfoResult.isSuccess()) {
-            return parsePrivacyInfo(application, appTrackerInfoResult)
-        }
-        return Result.error(extractErrorMessage(appTrackerInfoResult))
+        updateApplication(application, reports.first())
+        return Result.success(buildPrivacyInfo(reports.first()))
     }
 
-    private suspend fun parsePrivacyInfo(
-        application: Application,
-        appTrackerInfoResult: Result<List<Report>>
-    ): Result<AppPrivacyInfo> {
-        val appPrivacyPrivacyInfoResult =
-            handleAppPrivacyInfoResultSuccess(application, appTrackerInfoResult)
+    private fun fetchReports(packageName: String) : List<Report> {
+        val requestBody = mapOf(
+            "type" to "application",
+            "query" to packageName,
+            "limit" to 50
+        )
 
-        updateFusedApp(application, appPrivacyPrivacyInfoResult)
-        return appPrivacyPrivacyInfoResult
-    }
+        val jsonBody = Gson().toJson(requestBody)
+        val request = Request.Builder()
+            .url("$EXODUS_PRIVACY_URL/search")
+            .post(jsonBody.toRequestBody("application/json".toMediaType()))
+            .build()
 
-    private fun updateFusedApp(
-        application: Application,
-        appPrivacyPrivacyInfoResult: Result<AppPrivacyInfo>
-    ) {
-        application.trackers = appPrivacyPrivacyInfoResult.data?.trackerList ?: LIST_OF_NULL
-        application.permsFromExodus = appPrivacyPrivacyInfoResult.data?.permissionList ?: LIST_OF_NULL
-        application.reportId = appPrivacyPrivacyInfoResult.data?.reportId ?: -1L
-        if (application.permsFromExodus != LIST_OF_NULL) {
-            application.perms = application.permsFromExodus
-        }
-    }
-
-    private suspend fun handleAppPrivacyInfoResultSuccess(
-        application: Application,
-        appTrackerResult: Result<List<Report>>,
-    ): Result<AppPrivacyInfo> {
-        if (trackers.isEmpty()) {
-            generateTrackerList()
-        }
-        return createAppPrivacyInfo(application, appTrackerResult)
-    }
-
-    private suspend fun generateTrackerList() {
-        val trackerListOfLocalDB = trackerDao.getTrackers()
-        if (trackerListOfLocalDB.isNotEmpty()) {
-            this.trackers = trackerListOfLocalDB
-        } else {
-            generateTrackerListFromExodusApi()
-        }
-    }
-
-    private suspend fun generateTrackerListFromExodusApi() {
-        val date = Date().getFormattedString(DATE_FORMAT, Locale("en"))
-        val result = getResult { exodusTrackerApi.getTrackerList(date) }
-        if (result.isSuccess()) {
-            result.data?.let {
-                val trackerList = it.trackers.values.toList()
-                trackerDao.saveTrackers(trackerList)
-                this.trackers = trackerList
+        okHttpClient.newCall(request).execute().use { response ->
+            if (response.isSuccessful) {
+                val responseBody = response.body?.string()
+                return parseReports(responseBody ?: "")
+            } else {
+                throw IllegalStateException("Failed to fetch reports")
             }
         }
     }
 
-    private fun extractErrorMessage(appTrackerResult: Result<List<Report>>): String {
-        return appTrackerResult.message ?: "Unknown Error"
-    }
+    private fun parseReports(response: String): List<Report> {
+        try {
+            val gson = GsonBuilder()
+                .excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC)
+                .create()
 
-    private fun createAppPrivacyInfo(
-        application: Application,
-        appTrackerResult: Result<List<Report>>,
-    ): Result<AppPrivacyInfo> {
-        appTrackerResult.data?.let {
-            return Result.success(getAppPrivacyInfo(application, it))
+            val list = gson.fromJson<ApiResponse>(response)
+            return list.results
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return emptyList()
         }
-        return Result.error(extractErrorMessage(appTrackerResult))
     }
 
-    private fun getAppPrivacyInfo(
-        application: Application,
-        appTrackerData: List<Report>,
-    ): AppPrivacyInfo {
-        /*
-         * If the response is empty, that means there is no data on Exodus API about this app,
-         * i.e. invalid data.
-         * We signal this by list of "null".
-         * It is not enough to send just empty lists, as an app can actually have zero trackers
-         * and zero permissions. This is not to be confused with invalid data.
-         *
-         * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5136
-         */
-        if (appTrackerData.isEmpty()) {
-            return AppPrivacyInfo(LIST_OF_NULL, LIST_OF_NULL)
-        }
-
-        val latestTrackerData = getLatestTrackerData(application, appTrackerData)
-            ?: return AppPrivacyInfo(LIST_OF_NULL, LIST_OF_NULL)
-
-        val appTrackers = extractAppTrackers(latestTrackerData)
-        val permissions = latestTrackerData.permissions
-        return AppPrivacyInfo(appTrackers, permissions, latestTrackerData.report)
+    private inline fun <reified T> Gson.fromJson(json: String): T {
+        val type = object : TypeToken<T>() {}.type
+        return this.fromJson(json, type)
     }
 
-    private fun getLatestTrackerData(
-        application: Application,
-        appTrackerData: List<Report>
-    ): Report? {
-        val source = if (application.origin == Origin.CLEANAPK) SOURCE_FDROID else SOURCE_GOOGLE
-        val filteredAppTrackerData = appTrackerData.filter { it.source == source }
-        if (filteredAppTrackerData.isEmpty()) {
-            return null
-        }
-
-        val sortedTrackerData =
-            filteredAppTrackerData.sortedByDescending { trackerData -> trackerData.versionCode.toLong() }
-        return sortedTrackerData[0]
+    private fun updateApplication(application: Application, report: Report) {
+        application.numberOfTracker = report.trackersCount
+        application.numberOfPermission = report.permissionsCount
+        application.reportId = report.id.toLong()
     }
 
-    private fun extractAppTrackers(latestTrackerData: Report): List<String> {
-        return trackers.filter {
-            latestTrackerData.trackers.contains(it.id)
-        }.map { it.name }
+    private fun buildPrivacyInfo(report: Report): AppPrivacyInfo {
+        return AppPrivacyInfo(
+            report.trackersCount,
+            report.permissionsCount,
+            report.id.toLong()
+        )
     }
 }

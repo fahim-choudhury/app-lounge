@@ -116,8 +116,6 @@
     <string name="automatically_install_updates_notification_text">Appuppdateringar kommer installera automatiskt</string>
     <string name="manually_install_updates_notification_text">Appuppdateringar kommer inte att installeras automatiskt</string>
     <string name="more_info"><u>Mer info</u></string>
-    <string name="no_tracker_found">Ingen spårare hittades!</string>
-    <string name="tracker_information_not_found">Ingen information tillgänglig om spårare för denna app.</string>
     <string name="no_internet_message">Kan inte ansluta! Kontrollera din internetanslutning och försök igen</string>
     <string name="open_settings">Öppna inställningar</string>
     <string name="too_many_requests_desc">Det anonyma kontot du använder är inte tillgängligt. Uppdatera sessionen för att få ett annat.</string>
@@ -154,7 +152,6 @@
     <string name="timeout_desc_cleanapk">Nätverksproblem förhindrar hämtning av alla applikationer.</string>
     <string name="top_updated_apps">Topplista: Uppdaterade appar med öppen källkod</string>
     <string name="updates_notification_unmetered_network_warning">Väntar på obegränsat nätverk</string>
-    <string name="privacy_computed_using_text">Beräknad med &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus integritetsanalys</string>
     <string name="timeout_desc_gplay">Nätverksproblem förhindrar hämtning av alla applikationer.
 \n
 \nÖppna inställningar för att endast kolla efter appar med öppen källkod eller PWA.</string>
@@ -176,7 +173,6 @@
     <string name="request_exodus_report">Begär Exodusrapport</string>
     <string name="proceed_to_google_login">Fortsätt till Google-inloggning</string>
     <string name="dialog_paidapp_message">När du tryckt på bekräfta kommer du tas till appens Google Play-sida för att fullborda köpet med din webbläsare. Tryck bekräfta för att köpa %1$s för %2$s.</string>
-    <string name="no_permission_found">Ingen behörighet för androidkörtiden hittades!</string>
     <string name="message_update_failure_single_app">%1$ss uppdatering misslyckades på grund av en stödregel (plats, OS-verison…).</string>
     <string name="google_login_alert_message">Vi rekommenderar att använda ett dedikerat Googlekonto för att:
 \n

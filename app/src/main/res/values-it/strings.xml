@@ -88,8 +88,6 @@
     <string name="updates">Aggiornamenti</string>
     <string name="manually_install_updates_notification_text">Gli aggiornamenti App non verranno installati automaticamente</string>
     <string name="updates_notification_unmetered_network_warning">Attesa connessione WiFi</string>
-    <string name="no_permission_found">Permessi di runtime per android non rilevati!</string>
-    <string name="no_tracker_found">Nessun Tracker rilevato!</string>
     <string name="install_blocked_google">Le App a pagamento non sono ancora supportate da App Lounge. Un pò di pazienza e lo saranno.</string>
     <string name="no_internet_message">Non riesco a connettermi! Verifica la connessione internet e ritenta</string>
     <string name="preference_update_notify_available_description">Mostra una notifica quando sono disponibili aggiornamenti App</string>
@@ -106,7 +104,6 @@
     </plurals>
     <string name="movers_shakers_apps">Migliori App di tendenza</string>
     <string name="automatically_install_updates_notification_text">Gli aggiornamenti App verranno installati automaticamente</string>
-    <string name="privacy_computed_using_text">Calcolato usando &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus Privacy Analysis</string>
     <string name="all_apps_updated">Tutte le app sono aggiornate</string>
     <string name="may_not_work_warning_message">Forzando l\'installazione, potrai scaricarla e installarla, ma non possiamo garantire che funzioni. <br/><br/>Tentare di installare app non supportate può risultare in arresti anomali o rallentamenti del sistema. <br/><br/>Cercheremo di migliorare la compatibilità con questa app in un futuro prossimo.</string>
     <string name="this_app_may_not_work_properly">Questa app potrebbe non funzionare correttamente!</string>
@@ -128,7 +125,6 @@
 \n
 \nAprire le impostazioni per selezionare solo app open source o le PWA.</string>
     <string name="timeout_title">Timeout nel recupero delle app!</string>
-    <string name="tracker_information_not_found">Informazioni sui tracker di questa app non disponibili.</string>
     <string name="update_error">Errore nell\'aggiornamento!</string>
     <string name="error_signature_mismatch">L\'aggiornamento non può essere installato per la mancata corrispondenza di firma tra l\'aggiornamento di %1$s e la versione istallata sul tuo smartphone. Per ovviare, puoi disinstallare %1$s e quindi installarlo di nuovo da App Lounge. <br/><br/> Nota: questo messaggio non verrà più visualizzato.</string>
     <string name="show_more">Mostrane altre</string>

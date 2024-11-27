@@ -34,7 +34,6 @@ fun App.toApplication(context: Context): Application {
         author = this.developerName,
         category = this.categoryName,
         description = this.description,
-        perms = this.permissions,
         icon_image_path = this.iconArtwork.url,
         last_modified = this.updatedOn,
         latest_version_code = this.versionCode,

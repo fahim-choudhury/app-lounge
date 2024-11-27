@@ -45,7 +45,6 @@
 \nÅpne instillinger for å kun se etter åpen kildekode-applikasjoner eller PWAer.</string>
     <string name="timeout_title">Tidsavbrudd ved henting av applikasjoner!</string>
     <string name="no_internet_message">Kan ikke koble til! Kontroller internettilgangen og prøv igjen</string>
-    <string name="privacy_computed_using_text">Utregnet med &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; Exodus personvernanalyse</string>
     <string name="message_last_update_triggered">Oppdatering av %1$s applikasjoner ble fullført %2$s.</string>
     <string name="updates_notification_unmetered_network_warning">Venter på ubegrenset nettverk</string>
     <string name="manually_install_updates_notification_text">Applikasjonsoppdateringer vil ikke bli installert automatisk</string>
@@ -166,11 +165,8 @@
     <string name="popular_games">Populære PWA spill</string>
     <string name="topgrossing_apps" weblate_ctx="home">Mest innbringende applikasjoner</string>
     <string name="topgrossing_games">Mest innbringende spill</string>
-    <string name="tracker_information_not_found">Ingen sporingsinformasjon tilgjengelig for denne applikasjonen.</string>
-    <string name="no_permission_found">Ingen runtime Android-tillatelse funnet!</string>
     <string name="too_many_requests_desc">Den anonyme kontoen du bruker er utilgjengelig. Vennligst oppdater økten for å få en ny.</string>
     <string name="refresh_session">OPPDATER ØKTEN</string>
-    <string name="no_tracker_found">Ingen sporer funnet!</string>
     <string name="purchase_error">Feil ved kjøp!</string>
     <string name="dialog_paidapp_message">Når du klikker på Bekreft, vil den ta deg til Google Play-siden for applikasjonen for å fullføre kjøpet i nettleseren din. Klikk bekreft for å kjøpe %1$s for %2$s.</string>
     <string name="paid_app_anonymous_message">Applikasjoner som koster penger kan ikke installeres i anonym modus. Logg inn på Google-kontoen din for å installere betalte applikasjoner.</string>

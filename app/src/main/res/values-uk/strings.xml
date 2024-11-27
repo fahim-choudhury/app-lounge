@@ -20,7 +20,6 @@
     <string name="unknown_error">Непередбачувана помилка!</string>
     <string name="information">Інформація</string>
     <string name="trackers_title">Трекери</string>
-    <string name="tracker_information_not_found">Не знайдено інформації стосовно трекерів для цього додатку.</string>
     <string name="terms_services">Умови використання сервісів</string>
     <string name="account">Акаунт</string>
     <string name="copied">Скопійовано</string>
@@ -146,9 +145,6 @@
 \nВідкрийте налаштування, щоб перевірити опції \"Тільки застосунки з відкритим кодом\" та \"Тільки прогресивні вебзастосунки\".</string>
     <string name="timeout_title">Час запиту на отримання застосунків вичерпано!</string>
     <string name="no_internet_message">Неможливо приєднатись до мережі! Будь ласка, перевірте налаштування Вашої мережі та спробуйте знову</string>
-    <string name="no_tracker_found">Трекерів не було знайдено!</string>
-    <string name="privacy_computed_using_text">Обчислено, використовуючи &lt;a href=<xliff:g id="exodus">%1$s</xliff:g>&gt; аналіз приватності Exodus</string>
-    <string name="no_permission_found">Не було знайдено дозволів runtime android!</string>
     <string name="message_last_update_triggered">Оновлення застосунків %1$s було завершено %2$s.</string>
     <string name="error_signature_mismatch">Це оновлення не може бути застосоване, тому що не співпадають сигнатури версії %1$s та версії, що встановлена на Вашому телефоні. Щоб виправити це, Ви можете видалити %1$s, а потім знову встановити з Магазину. <br/><br/> Примітка: Це повідомлення не показуватиметься знову.</string>
     <string name="weekly">Щотижня</string>

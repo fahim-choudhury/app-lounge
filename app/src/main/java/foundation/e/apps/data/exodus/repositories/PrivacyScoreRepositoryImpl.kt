@@ -37,15 +37,9 @@ class PrivacyScoreRepositoryImpl @Inject constructor(
             privacyScore = 0
         }
 
-        if (application.permsFromExodus == CommonUtilsModule.LIST_OF_NULL) {
-            return privacyScore
-        }
-
         if (privacyScore != 0) {
-            val calculateTrackersScore = calculateTrackersScore(application.trackers.size)
-            val calculatePermissionsScore = calculatePermissionsScore(
-                countAndroidPermissions(application)
-            )
+            val calculateTrackersScore = calculateTrackersScore(application.numberOfTracker)
+            val calculatePermissionsScore = calculatePermissionsScore(application.numberOfPermission)
             privacyScore = calculateTrackersScore + calculatePermissionsScore
         }
 
@@ -55,9 +49,6 @@ class PrivacyScoreRepositoryImpl @Inject constructor(
     private fun calculateTrackersScore(numberOfTrackers: Int): Int {
         return if (numberOfTrackers > THRESHOLD_OF_NON_ZERO_TRACKER_SCORE) MIN_TRACKER_SCORE else MAX_TRACKER_SCORE - numberOfTrackers
     }
-
-    private fun countAndroidPermissions(application: Application) =
-        application.permsFromExodus.filter { it.contains("android.permission") }.size
 
     private fun calculatePermissionsScore(numberOfPermission: Int): Int {
         return if (numberOfPermission > THRESHOLD_OF_NON_ZERO_PERMISSION_SCORE) MIN_PERMISSION_SCORE else round(

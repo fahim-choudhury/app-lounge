@@ -1,13 +1,24 @@
 package foundation.e.apps.data.exodus
 
-import com.squareup.moshi.Json
+import com.google.gson.annotations.SerializedName
+
+data class ApiResponse(
+    val results: List<Report>
+)
 
 data class Report(
-    val report: Long = -1L,
-    @Json(name = "updated") val updatedAt: String,
-    @Json(name = "version_name") val version: String,
-    @Json(name = "version_code") val versionCode: String,
-    val source: String,
-    val trackers: List<Long>,
-    val permissions: List<String> = listOf()
+    val id: Int,
+    val handle: String,
+    val name: String,
+    val creator: String,
+    val downloads: String,
+    @SerializedName("app_uid") val appUid: String,
+    @SerializedName("icon_phash") val iconPhash: String,
+    @SerializedName("report_updated_at") val reportUpdatedAt: Double,
+    @SerializedName("permissions_count") val permissionsCount: Int,
+    @SerializedName("trackers_count") val trackersCount: Int,
+    @SerializedName("permissions_class") val permissionsClass: String,
+    @SerializedName("trackers_class") val trackersClass: String,
+    val version: String
 )
+
