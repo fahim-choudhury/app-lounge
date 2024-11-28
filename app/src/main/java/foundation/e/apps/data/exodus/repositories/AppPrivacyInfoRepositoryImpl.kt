@@ -63,7 +63,7 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
         val requestBody = mapOf(
             "type" to "application",
             "query" to packageName,
-            "limit" to 50
+            "limit" to 5
         )
 
         val jsonBody = Gson().toJson(requestBody)
