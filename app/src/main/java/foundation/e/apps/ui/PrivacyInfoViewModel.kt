@@ -79,6 +79,10 @@ class PrivacyInfoViewModel @Inject constructor(
     }
 
     fun shouldRequestExodusReport(application: Application?): Boolean {
+        if (application?.hasExodusPrivacyRating() == false)  {
+            return true
+        }
+
         if (application?.isFree != true) {
             return false
         }
