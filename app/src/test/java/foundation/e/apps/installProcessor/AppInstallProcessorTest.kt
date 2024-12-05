@@ -29,7 +29,7 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.install.AppInstallRepository
 import foundation.e.apps.data.install.AppManager
 import foundation.e.apps.data.install.models.AppInstall
-import foundation.e.apps.data.preference.DataStoreManager
+import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
 import foundation.e.apps.domain.model.ContentRatingValidity
 import foundation.e.apps.install.AppInstallComponents
@@ -73,7 +73,7 @@ class AppInstallProcessorTest {
     private lateinit var context: Context
 
     @Mock
-    private lateinit var dataStoreManager: DataStoreManager
+    private lateinit var appLoungeDataStore: AppLoungeDataStore
 
     @Mock
     private lateinit var applicationRepository: ApplicationRepository
@@ -101,7 +101,7 @@ class AppInstallProcessorTest {
             appInstallComponents,
             applicationRepository,
             validateAppAgeRatingUseCase,
-            dataStoreManager,
+            appLoungeDataStore,
             storageNotificationManager
         )
     }
@@ -120,7 +120,7 @@ class AppInstallProcessorTest {
     ): AppInstall {
         val fusedDownload = createFusedDownload(packageName, downloadUrlList)
         fakeFusedDownloadDAO.addDownload(fusedDownload)
-        Mockito.`when`(dataStoreManager.getAuthData()).thenReturn(AuthData("", ""))
+        Mockito.`when`(appLoungeDataStore.getAuthData()).thenReturn(AuthData("", ""))
         return fusedDownload
     }
 

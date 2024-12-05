@@ -22,7 +22,7 @@ import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.gitlab.SystemAppsUpdatesRepository
 import foundation.e.apps.data.login.AuthenticatorRepository
-import foundation.e.apps.data.preference.DataStoreManager
+import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.apps.data.updates.UpdatesManagerRepository
 import foundation.e.apps.install.workmanager.AppInstallProcessor
 import foundation.e.apps.utils.eventBus.AppEvent
@@ -37,7 +37,7 @@ class UpdatesWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted private val params: WorkerParameters,
     private val updatesManagerRepository: UpdatesManagerRepository,
-    private val dataStoreManager: DataStoreManager,
+    private val appLoungeDataStore: AppLoungeDataStore,
     private val authenticatorRepository: AuthenticatorRepository,
     private val appInstallProcessor: AppInstallProcessor,
     private val blockedAppRepository: BlockedAppRepository,
@@ -101,7 +101,7 @@ class UpdatesWorker @AssistedInject constructor(
     }
 
     private fun getUser(): User {
-        return dataStoreManager.getUserType()
+        return appLoungeDataStore.getUserType()
     }
 
     private suspend fun checkForUpdates() {

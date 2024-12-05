@@ -29,7 +29,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import foundation.e.apps.authdata.AuthDataContract
-import foundation.e.apps.data.preference.DataStoreManager
+import foundation.e.apps.data.preference.AppLoungeDataStore
 
 /**
  * Content provider dedicated to share the Google auth data with
@@ -40,21 +40,21 @@ class AuthDataProvider : ContentProvider() {
 
     @EntryPoint
     @InstallIn(SingletonComponent::class)
-    interface DataStoreManagerEntryPoint {
-        fun provideDataStoreManager(): DataStoreManager
+    interface DataStoreProvider {
+        fun provideAppLoungeDataStore(): AppLoungeDataStore
     }
 
-    private lateinit var dataStoreManager: DataStoreManager
+    private lateinit var appLoungeDataStore: AppLoungeDataStore
 
     override fun onCreate(): Boolean {
         val context = context ?: return false
 
         val dataStoreEntryPoint = EntryPointAccessors.fromApplication(
             context.applicationContext,
-            DataStoreManagerEntryPoint::class.java
+            DataStoreProvider::class.java
         )
 
-        dataStoreManager = dataStoreEntryPoint.provideDataStoreManager()
+        appLoungeDataStore = dataStoreEntryPoint.provideAppLoungeDataStore()
         return true
     }
 
@@ -80,7 +80,7 @@ class AuthDataProvider : ContentProvider() {
         )
 
         val row = cursor.newRow()
-        dataStoreManager.getAuthData().let {
+        appLoungeDataStore.getAuthData().let {
             row.add(AuthDataContract.EMAIL_KEY, it.email)
             row.add(AuthDataContract.AUTH_TOKEN_KEY, it.authToken)
             row.add(AuthDataContract.GSF_ID_KEY, it.gsfId)
