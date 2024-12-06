@@ -89,6 +89,10 @@ class AppLoungeDataStore @Inject constructor(
         }
     }
 
+    fun getAuthData(): AuthData {
+        return gson.fromJson(authData.getSync(), AuthData::class.java)
+    }
+
     /**
      * Destroy auth credentials if they are no longer valid.
      *

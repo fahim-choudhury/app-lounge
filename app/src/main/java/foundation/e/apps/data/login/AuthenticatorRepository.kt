@@ -21,6 +21,7 @@ import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
+import foundation.e.apps.data.preference.AppLoungeDataStore
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,16 +30,19 @@ import javax.inject.Singleton
 class AuthenticatorRepository @Inject constructor(
     private val loginCommon: LoginCommon,
     private val authenticators: List<StoreAuthenticator>,
+    private val appLoungeDataStore: AppLoungeDataStore
 ) {
 
-    private var gPlayAuth: AuthData? = null
-
     fun getGPlayAuthOrThrow(): AuthData {
-        return gPlayAuth ?: throw GPlayLoginException(false, "AuthData is not available!", getUserType())
+        return kotlin.runCatching {
+            appLoungeDataStore.getAuthData()
+        }.getOrElse {
+            throw GPlayLoginException(false, "AuthData is not available", appLoungeDataStore.getUserType())
+        }
     }
 
-    fun setGPlayAuth(auth: AuthData) {
-       gPlayAuth = auth
+    suspend fun setGPlayAuth(auth: AuthData) {
+        appLoungeDataStore.saveAuthData(auth)
     }
 
     suspend fun getAuthObjects(clearAuthTypes: List<String> = listOf()): List<AuthObject> {
@@ -55,7 +59,7 @@ class AuthenticatorRepository @Inject constructor(
             authObjectsLocal.add(authObject)
 
             if (authObject is AuthObject.GPlayAuth) {
-                gPlayAuth = authObject.result.data
+                appLoungeDataStore.saveAuthData(authObject.result.data)
             }
         }
 
@@ -81,7 +85,7 @@ class AuthenticatorRepository @Inject constructor(
     suspend fun getValidatedAuthData(): ResultSupreme<AuthData?> {
         val authDataValidator = (authenticators.find { it is AuthDataValidator } as AuthDataValidator)
         val validateAuthData = authDataValidator.validateAuthData()
-        this.gPlayAuth = validateAuthData.data
+        appLoungeDataStore.saveAuthData(validateAuthData.data)
         return validateAuthData
     }
 

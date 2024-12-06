@@ -184,7 +184,7 @@ class SplitInstallBinder(
             val url = fetchModuleUrl(packageName, moduleName, versionCode)
 
             if (url == null) {
-                Timber.e("Could not find split module named $moduleName for $packageName package")
+                Timber.w("Could not find split module named $moduleName for $packageName package")
                 return@withContext
             }
 

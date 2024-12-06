@@ -32,7 +32,7 @@ import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.playstore.utils.GplayHttpRequestException
-import foundation.e.apps.data.preference.DataStoreManager
+import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
 import foundation.e.apps.install.AppInstallComponents
 import foundation.e.apps.install.download.DownloadManagerUtils
@@ -55,7 +55,7 @@ class AppInstallProcessor @Inject constructor(
     private val appInstallComponents: AppInstallComponents,
     private val applicationRepository: ApplicationRepository,
     private val validateAppAgeLimitUseCase: ValidateAppAgeLimitUseCase,
-    private val dataStoreManager: DataStoreManager,
+    private val appLoungeDataStore: AppLoungeDataStore,
     private val storageNotificationManager: StorageNotificationManager,
 ) {
 
@@ -117,7 +117,7 @@ class AppInstallProcessor @Inject constructor(
         isAnUpdate: Boolean = false
     ) {
         try {
-            val authData = dataStoreManager.getAuthData()
+            val authData = appLoungeDataStore.getAuthData()
 
             if (!appInstall.isFree && authData.isAnonymous) {
                 EventBus.invokeEvent(AppEvent.ErrorMessageEvent(R.string.paid_app_anonymous_message))
@@ -324,7 +324,7 @@ class AppInstallProcessor @Inject constructor(
     }
 
     private fun showNotificationOnUpdateEnded() {
-        val locale = dataStoreManager.getAuthData().locale
+        val locale = appLoungeDataStore.getAuthData().locale
         val date = Date().getFormattedString(DATE_FORMAT, locale)
         val numberOfUpdatedApps =
             NumberFormat.getNumberInstance(locale).format(UpdatesDao.successfulUpdatedApps.size)

@@ -33,6 +33,7 @@ import java.lang.reflect.Modifier
 import javax.inject.Inject
 import javax.inject.Singleton
 import foundation.e.apps.data.Result
+import okio.IOException
 
 @Singleton
 class AppPrivacyInfoRepositoryImpl @Inject constructor(
@@ -72,14 +73,20 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
             .post(jsonBody.toRequestBody("application/json".toMediaType()))
             .build()
 
-        okHttpClient.newCall(request).execute().use { response ->
-            if (response.isSuccessful) {
-                val responseBody = response.body?.string()
-                return parseReports(responseBody ?: "")
-            } else {
-                throw IllegalStateException("Failed to fetch reports")
+        try {
+            okHttpClient.newCall(request).execute().use { response ->
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string()
+                    return parseReports(responseBody ?: "")
+                } else {
+                    throw IllegalStateException("Failed to fetch reports")
+                }
             }
+        } catch (exception: IOException) {
+           exception.printStackTrace()
         }
+
+        return emptyList()
     }
 
     private fun parseReports(response: String): List<Report> {

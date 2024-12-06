@@ -26,7 +26,6 @@ import android.content.UriMatcher
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -49,7 +48,7 @@ import foundation.e.apps.data.parentalcontrol.ContentRatingDao
 import foundation.e.apps.data.parentalcontrol.ContentRatingEntity
 import foundation.e.apps.data.parentalcontrol.fdroid.FDroidAntiFeatureRepository
 import foundation.e.apps.data.parentalcontrol.googleplay.GPlayContentRatingRepository
-import foundation.e.apps.data.preference.DataStoreManager
+import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
 import foundation.e.apps.domain.model.ContentRatingValidity
 import foundation.e.apps.install.pkg.AppLoungePackageManager
@@ -71,7 +70,7 @@ class AgeRatingProvider : ContentProvider() {
         fun provideGPlayContentRatingsRepository(): GPlayContentRatingRepository
         fun provideFDroidAntiFeatureRepository(): FDroidAntiFeatureRepository
         fun provideValidateAppAgeLimitUseCase(): ValidateAppAgeLimitUseCase
-        fun provideDataStoreManager(): DataStoreManager
+        fun provideAppLoungeDataStore(): AppLoungeDataStore
         fun provideNotificationManager(): NotificationManager
         fun provideContentRatingDao(): ContentRatingDao
         fun provideBlockedAppRepository(): BlockedAppRepository
@@ -87,7 +86,7 @@ class AgeRatingProvider : ContentProvider() {
     private lateinit var gPlayContentRatingRepository: GPlayContentRatingRepository
     private lateinit var fDroidAntiFeatureRepository: FDroidAntiFeatureRepository
     private lateinit var validateAppAgeLimitUseCase: ValidateAppAgeLimitUseCase
-    private lateinit var dataStoreManager: DataStoreManager
+    private lateinit var appLoungeDataStore: AppLoungeDataStore
     private lateinit var notificationManager: NotificationManager
     private lateinit var contentRatingDao: ContentRatingDao
     private lateinit var blockedAppRepository: BlockedAppRepository
@@ -124,7 +123,7 @@ class AgeRatingProvider : ContentProvider() {
 
     private fun getLoginType(): Cursor {
         val cursor = MatrixCursor(arrayOf(COLUMN_LOGIN_TYPE))
-        cursor.addRow(arrayOf(dataStoreManager.getUserType()))
+        cursor.addRow(arrayOf(appLoungeDataStore.getUserType()))
         return cursor
     }
 
@@ -198,8 +197,8 @@ class AgeRatingProvider : ContentProvider() {
      * Setup AuthData for other APIs to access,
      * if user has logged in with Google or Anonymous mode.
      */
-    private fun initAuthData() {
-        val authData = dataStoreManager.getAuthData()
+    private suspend fun initAuthData() {
+        val authData = appLoungeDataStore.getAuthData()
         if (authData.email.isNotBlank() && authData.authToken.isNotBlank()) {
             authenticatorRepository.setGPlayAuth(authData)
         }
@@ -308,7 +307,7 @@ class AgeRatingProvider : ContentProvider() {
         gPlayContentRatingRepository = hiltEntryPoint.provideGPlayContentRatingsRepository()
         fDroidAntiFeatureRepository = hiltEntryPoint.provideFDroidAntiFeatureRepository()
         validateAppAgeLimitUseCase = hiltEntryPoint.provideValidateAppAgeLimitUseCase()
-        dataStoreManager = hiltEntryPoint.provideDataStoreManager()
+        appLoungeDataStore = hiltEntryPoint.provideAppLoungeDataStore()
         notificationManager = hiltEntryPoint.provideNotificationManager()
         contentRatingDao = hiltEntryPoint.provideContentRatingDao()
         blockedAppRepository = hiltEntryPoint.provideBlockedAppRepository()
