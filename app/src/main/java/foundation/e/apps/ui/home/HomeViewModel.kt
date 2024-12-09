@@ -181,39 +181,4 @@ class HomeViewModel @Inject constructor(
 
         return false
     }
-
-    fun checkAnyChangeInAppStatus() {
-        if (this.currentHomes == null) {
-            return
-        }
-
-        val fusedHomes: MutableList<Home> = mutableListOf()
-        checkForChangesInAppStatus(fusedHomes)
-
-        if (fusedHomes.isNotEmpty() && hasAnyChange(fusedHomes)) {
-            homeScreenData.value = ResultSupreme.Success(fusedHomes)
-            currentHomes = fusedHomes
-        }
-    }
-
-    private fun checkForChangesInAppStatus(fusedHomes: MutableList<Home>) {
-        var home: Home? = null
-        this.currentHomes?.forEach {
-
-            it.list.forEach { application ->
-                val status =
-                    applicationRepository.getFusedAppInstallationStatus(application)
-
-                if (application.status != status) {
-                    application.status = status
-                    home = it.copy()
-                    // Setting a new id, so that recyclerview can find that this item is changed
-                    home?.id = UUID.randomUUID().toString()
-                }
-            }
-
-            fusedHomes.add(home ?: it)
-            home = null
-        }
-    }
 }

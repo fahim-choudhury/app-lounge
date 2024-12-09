@@ -266,8 +266,6 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
         appProgressViewModel.downloadProgress.observe(viewLifecycleOwner) {
             updateProgressOfDownloadingAppItemViews(homeParentRVAdapter, it)
         }
-
-        homeViewModel.checkAnyChangeInAppStatus()
     }
 
     override fun onPause() {
