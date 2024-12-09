@@ -62,14 +62,13 @@ class ApplicationRepository @Inject constructor(
 
     suspend fun getApplicationDetails(
         packageNameList: List<String>,
-        authData: AuthData,
         origin: Origin
     ): Pair<List<Application>, ResultStatus> {
-        return appsApi.getApplicationDetails(packageNameList, authData, origin)
+        return appsApi.getApplicationDetails(packageNameList, origin)
     }
 
-    suspend fun getAppFilterLevel(application: Application, authData: AuthData?): FilterLevel {
-        return appsApi.getAppFilterLevel(application, authData)
+    suspend fun getAppFilterLevel(application: Application): FilterLevel {
+        return appsApi.getAppFilterLevel(application)
     }
 
     suspend fun getApplicationDetails(

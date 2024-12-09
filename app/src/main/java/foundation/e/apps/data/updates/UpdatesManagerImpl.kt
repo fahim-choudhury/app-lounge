@@ -100,7 +100,6 @@ class UpdatesManagerImpl @Inject constructor(
             status = getUpdatesFromApi({
                 applicationRepository.getApplicationDetails(
                     openSourceInstalledApps,
-                    authData,
                     Origin.CLEANAPK
                 )
             }, updateList)
@@ -156,7 +155,6 @@ class UpdatesManagerImpl @Inject constructor(
             status = getUpdatesFromApi({
                 applicationRepository.getApplicationDetails(
                     openSourceInstalledApps,
-                    AuthData("", ""),
                     Origin.CLEANAPK
                 )
             }, updateList)

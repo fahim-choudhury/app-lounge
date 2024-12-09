@@ -179,11 +179,10 @@ class MainActivityViewModel @Inject constructor(
      */
     fun verifyUiFilter(application: Application, method: () -> Unit) {
         viewModelScope.launch {
-            val authData = gPlayAuthData
             if (application.filterLevel.isInitialized()) {
                 method()
             } else {
-                applicationRepository.getAppFilterLevel(application, authData).run {
+                applicationRepository.getAppFilterLevel(application).run {
                     if (isInitialized()) {
                         application.filterLevel = this
                         method()
