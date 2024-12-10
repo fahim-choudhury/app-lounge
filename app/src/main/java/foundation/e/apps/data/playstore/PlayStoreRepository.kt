@@ -31,7 +31,6 @@ import com.aurora.gplayapi.helpers.ContentRatingHelper
 import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.aurora.gplayapi.helpers.contracts.TopChartsContract.Chart
 import com.aurora.gplayapi.helpers.contracts.TopChartsContract.Type
-import com.aurora.gplayapi.helpers.web.WebAppDetailsHelper
 import com.aurora.gplayapi.helpers.web.WebCategoryHelper
 import com.aurora.gplayapi.helpers.web.WebCategoryStreamHelper
 import com.aurora.gplayapi.helpers.web.WebSearchHelper
@@ -149,14 +148,15 @@ class PlayStoreRepository @Inject constructor(
     override suspend fun getAppDetails(packageNameOrId: String): Application {
         var appDetails: GplayApp?
 
-        val appDetailsHelper = try {
+        val appDetailsHelper =
             AppDetailsHelper(authenticatorRepository.getGPlayAuthOrThrow()).using(gPlayHttpClient)
-        } catch (exception: Exception) {
-            WebAppDetailsHelper().using(gPlayHttpClient)
-        }
 
         withContext(Dispatchers.IO) {
             appDetails = appDetailsHelper.getAppByPackageName(packageNameOrId)
+        }
+
+        if (appDetails?.versionCode == 0) {
+            throw IllegalStateException("App version code cannot be 0")
         }
 
         return appDetails?.toApplication(context) ?: Application()
@@ -165,14 +165,15 @@ class PlayStoreRepository @Inject constructor(
     suspend fun getAppsDetails(packageNamesOrIds: List<String>): List<GplayApp> {
         val appDetailsList = mutableListOf<GplayApp>()
 
-        val appDetailsHelper = try {
+        val appDetailsHelper =
             AppDetailsHelper(authenticatorRepository.getGPlayAuthOrThrow()).using(gPlayHttpClient)
-        } catch (exception: Exception) {
-            WebAppDetailsHelper().using(gPlayHttpClient)
-        }
 
         withContext(Dispatchers.IO) {
             appDetailsList.addAll(appDetailsHelper.getAppByPackageName(packageNamesOrIds))
+        }
+
+        if (appDetailsList.first().versionCode == 0) {
+            throw IllegalStateException("App version code cannot be 0")
         }
 
         return appDetailsList

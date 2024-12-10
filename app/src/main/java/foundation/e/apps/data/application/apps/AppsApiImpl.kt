@@ -182,7 +182,6 @@ class AppsApiImpl @Inject constructor(
     override suspend fun getApplicationDetails(
         id: String,
         packageName: String,
-        authData: AuthData,
         origin: Origin
     ): Pair<Application, ResultStatus> {
         var application: Application

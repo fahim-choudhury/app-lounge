@@ -191,7 +191,7 @@ class SearchApiImpl @Inject constructor(
 
         val result = handleNetworkResult {
             if (appLoungePreference.isGplaySelected()) {
-                gplayPackageResult = getGplayPackagResult(query, authData)
+                gplayPackageResult = getGplayPackageResult(query)
             }
 
             if (appLoungePreference.isOpenSourceSelected()) {
@@ -257,11 +257,10 @@ class SearchApiImpl @Inject constructor(
         return null
     }
 
-    private suspend fun getGplayPackagResult(
+    private suspend fun getGplayPackageResult(
         query: String,
-        authData: AuthData,
     ): Application? {
-        appsApi.getApplicationDetails(query, query, authData, Origin.GPLAY).let {
+        appsApi.getApplicationDetails(query, query, Origin.GPLAY).let {
             if (it.second == ResultStatus.OK && it.first.package_name.isNotEmpty()) {
                 return it.first
             }

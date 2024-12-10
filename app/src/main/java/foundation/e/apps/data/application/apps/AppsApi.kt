@@ -42,7 +42,6 @@ interface AppsApi {
     suspend fun getApplicationDetails(
         id: String,
         packageName: String,
-        authData: AuthData,
         origin: Origin
     ): Pair<Application, ResultStatus>
 

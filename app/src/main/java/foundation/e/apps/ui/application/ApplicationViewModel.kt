@@ -34,8 +34,6 @@ import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.install.AppManagerWrapper
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.exceptions.CleanApkException
-import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.data.parentalcontrol.fdroid.FDroidAntiFeatureRepository
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.download.data.DownloadProgress
@@ -43,6 +41,8 @@ import foundation.e.apps.install.download.data.DownloadProgressLD
 import foundation.e.apps.ui.application.ShareButtonVisibilityState.Hidden
 import foundation.e.apps.ui.application.ShareButtonVisibilityState.Visible
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -106,7 +106,6 @@ class ApplicationViewModel @Inject constructor(
                     params.appId,
                     params.packageName,
                     params.isPurchased,
-                    authData,
                     params.origin
                 )
                 return@onLoadData
@@ -117,7 +116,6 @@ class ApplicationViewModel @Inject constructor(
                     params.appId,
                     params.packageName,
                     params.isPurchased,
-                    AuthData("", ""),
                     params.origin
                 )
                 return@onLoadData
@@ -125,47 +123,30 @@ class ApplicationViewModel @Inject constructor(
         }, retryBlock)
     }
 
-    fun getApplicationDetails(
+    private fun getApplicationDetails(
         id: String,
         packageName: String,
         isPurchased: Boolean,
-        authData: AuthData,
         origin: Origin
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val appData =
+                val result =
                     applicationRepository.getApplicationDetails(
                         id,
                         packageName,
-                        authData,
                         origin
                     )
-                appData.first.isPurchased = isPurchased
-                applicationLiveData.postValue(appData)
+                result.first.isPurchased = isPurchased
+                applicationLiveData.postValue(result)
 
-                updateShareVisibilityState(appData.first.shareUri.toString())
-                updateAppContentRatingState(packageName, appData.first.contentRating)
-
-                val status = appData.second
-
-                if (appData.second != ResultStatus.OK) {
-                    val exception =
-                        if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
-                            GPlayException(
-                                appData.second == ResultStatus.TIMEOUT,
-                                status.message.ifBlank { "Data load error" }
-                            )
-                        else CleanApkException(
-                            appData.second == ResultStatus.TIMEOUT,
-                            status.message.ifBlank { "Data load error" }
-                        )
-
-                    exceptionsList.add(exception)
-                    exceptionsLiveData.postValue(exceptionsList)
-                }
+                updateShareVisibilityState(result.first.shareUri.toString())
+                updateAppContentRatingState(packageName, result.first.contentRating)
             } catch (e: InternalException.AppNotFound) {
                 _errorMessageLiveData.postValue(R.string.app_not_found)
+            } catch (exception: IllegalStateException) {
+                exception.printStackTrace()
+                EventBus.invokeEvent(AppEvent.InvalidAuthEvent(AuthObject.GPlayAuth::class.java.simpleName))
             } catch (e: Exception) {
                 _errorMessageLiveData.postValue(R.string.unknown_error)
             }

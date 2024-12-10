@@ -74,10 +74,9 @@ class ApplicationRepository @Inject constructor(
     suspend fun getApplicationDetails(
         id: String,
         packageName: String,
-        authData: AuthData,
         origin: Origin
     ): Pair<Application, ResultStatus> {
-        return appsApi.getApplicationDetails(id, packageName, authData, origin)
+        return appsApi.getApplicationDetails(id, packageName, origin)
     }
 
     suspend fun getCleanapkAppDetails(packageName: String): Pair<Application, ResultStatus> {

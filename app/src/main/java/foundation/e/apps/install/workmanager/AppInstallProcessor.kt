@@ -31,6 +31,7 @@ import foundation.e.apps.data.application.UpdatesDao
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.install.models.AppInstall
+import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.playstore.utils.GplayHttpRequestException
 import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.apps.domain.ValidateAppAgeLimitUseCase
@@ -185,6 +186,8 @@ class AppInstallProcessor @Inject constructor(
                 e
             )
             return false
+        } catch (e: IllegalStateException) {
+            EventBus.invokeEvent(AppEvent.InvalidAuthEvent(AuthObject.GPlayAuth::class.java.simpleName))
         } catch (e: Exception) {
             handleUpdateDownloadError(
                 appInstall,
