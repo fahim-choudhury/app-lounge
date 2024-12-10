@@ -20,7 +20,6 @@ package foundation.e.apps.installProcessor
 
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.fdroid.FDroidRepository
@@ -120,7 +119,6 @@ class AppInstallProcessorTest {
     ): AppInstall {
         val fusedDownload = createFusedDownload(packageName, downloadUrlList)
         fakeFusedDownloadDAO.addDownload(fusedDownload)
-        Mockito.`when`(appLoungeDataStore.getAuthData()).thenReturn(AuthData("", ""))
         return fusedDownload
     }
 

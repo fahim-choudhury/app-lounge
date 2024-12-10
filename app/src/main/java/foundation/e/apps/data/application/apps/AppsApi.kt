@@ -36,14 +36,12 @@ interface AppsApi {
 
     suspend fun getApplicationDetails(
         packageNameList: List<String>,
-        authData: AuthData,
         origin: Origin
     ): Pair<List<Application>, ResultStatus>
 
     suspend fun getApplicationDetails(
         id: String,
         packageName: String,
-        authData: AuthData,
         origin: Origin
     ): Pair<Application, ResultStatus>
 
@@ -55,7 +53,7 @@ interface AppsApi {
      */
     fun getFusedAppInstallationStatus(application: Application): Status
 
-    suspend fun getAppFilterLevel(application: Application, authData: AuthData?): FilterLevel
+    suspend fun getAppFilterLevel(application: Application): FilterLevel
 
     /**
      * @return returns true if there is changes in data, otherwise false

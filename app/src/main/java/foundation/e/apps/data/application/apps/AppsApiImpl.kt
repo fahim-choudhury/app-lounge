@@ -78,7 +78,6 @@ class AppsApiImpl @Inject constructor(
 
     override suspend fun getApplicationDetails(
         packageNameList: List<String>,
-        authData: AuthData,
         origin: Origin
     ): Pair<List<Application>, ResultStatus> {
         val list = mutableListOf<Application>()
@@ -87,7 +86,7 @@ class AppsApiImpl @Inject constructor(
             if (origin == Origin.CLEANAPK) {
                 getAppDetailsListFromCleanApk(packageNameList)
             } else {
-                getAppDetailsListFromGPlay(packageNameList, authData)
+                getAppDetailsListFromGPlay(packageNameList)
             }
 
         response.first.forEach {
@@ -123,13 +122,12 @@ class AppsApiImpl @Inject constructor(
 
     private suspend fun getAppDetailsListFromGPlay(
         packageNameList: List<String>,
-        authData: AuthData,
     ): Pair<List<Application>, ResultStatus> {
         val applicationList = mutableListOf<Application>()
 
         val result = handleNetworkResult {
             appSources.gplayRepo.getAppsDetails(packageNameList).forEach { app ->
-                handleFilteredApps(app, authData, applicationList)
+                handleFilteredApps(app, applicationList)
             }
         }
 
@@ -144,7 +142,6 @@ class AppsApiImpl @Inject constructor(
      */
     private suspend fun handleFilteredApps(
         app: App,
-        authData: AuthData,
         applicationList: MutableList<Application>
     ) {
         val application = app.toApplication(context)
@@ -185,7 +182,6 @@ class AppsApiImpl @Inject constructor(
     override suspend fun getApplicationDetails(
         id: String,
         packageName: String,
-        authData: AuthData,
         origin: Origin
     ): Pair<Application, ResultStatus> {
         var application: Application
@@ -215,7 +211,6 @@ class AppsApiImpl @Inject constructor(
 
     override suspend fun getAppFilterLevel(
         application: Application,
-        authData: AuthData?
     ): FilterLevel {
         return applicationDataManager.getAppFilterLevel(application)
     }

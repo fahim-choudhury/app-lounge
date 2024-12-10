@@ -92,10 +92,6 @@ class AppsApiTest {
 
     private lateinit var formatterMocked: MockedStatic<Formatter>
 
-    companion object {
-        private val AUTH_DATA = AuthData("e@e.email", "AtadyMsIAtadyM")
-    }
-
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
@@ -429,7 +425,7 @@ class AppsApiTest {
             latest_version_code = 123,
         )
 
-        val filterLevel = appsApi.getAppFilterLevel(application, AUTH_DATA)
+        val filterLevel = appsApi.getAppFilterLevel(application)
         assertEquals("getAppFilterLevel", FilterLevel.UNKNOWN, filterLevel)
     }
 
@@ -437,7 +433,7 @@ class AppsApiTest {
     fun `getAppFilterLevel when app is CleanApk`() = runTest {
         val fusedApp = getFusedAppForFilterLevelTest()
 
-        val filterLevel = appsApi.getAppFilterLevel(fusedApp, AUTH_DATA)
+        val filterLevel = appsApi.getAppFilterLevel(fusedApp)
         assertEquals("getAppFilterLevel", FilterLevel.NONE, filterLevel)
     }
 
@@ -456,7 +452,7 @@ class AppsApiTest {
     fun `getAppFilterLevel when Authdata is NULL`() = runTest {
         val fusedApp = getFusedAppForFilterLevelTest()
 
-        val filterLevel = appsApi.getAppFilterLevel(fusedApp, null)
+        val filterLevel = appsApi.getAppFilterLevel(fusedApp)
         assertEquals("getAppFilterLevel", FilterLevel.NONE, filterLevel)
     }
 
@@ -467,7 +463,7 @@ class AppsApiTest {
             this.restriction = Constants.Restriction.UNKNOWN
         }
 
-        val filterLevel = appsApi.getAppFilterLevel(fusedApp, AUTH_DATA)
+        val filterLevel = appsApi.getAppFilterLevel(fusedApp)
         assertEquals("getAppFilterLevel", FilterLevel.UI, filterLevel)
     }
 
@@ -478,7 +474,7 @@ class AppsApiTest {
             this.restriction = Constants.Restriction.NOT_RESTRICTED
         }
 
-        val filterLevel = appsApi.getAppFilterLevel(fusedApp, AUTH_DATA)
+        val filterLevel = appsApi.getAppFilterLevel(fusedApp)
         assertEquals("getAppFilterLevel", FilterLevel.UI, filterLevel)
     }
 
@@ -501,7 +497,7 @@ class AppsApiTest {
                 )
             ).thenReturn(listOf())
 
-            val filterLevel = appsApi.getAppFilterLevel(fusedApp, AUTH_DATA)
+            val filterLevel = appsApi.getAppFilterLevel(fusedApp)
             assertEquals("getAppFilterLevel", FilterLevel.NONE, filterLevel)
         }
 
@@ -521,7 +517,7 @@ class AppsApiTest {
             )
         ).thenReturn(listOf())
 
-        val filterLevel = appsApi.getAppFilterLevel(fusedApp, AUTH_DATA)
+        val filterLevel = appsApi.getAppFilterLevel(fusedApp)
         assertEquals("getAppFilterLevel", FilterLevel.DATA, filterLevel)
     }
 
@@ -541,7 +537,7 @@ class AppsApiTest {
             )
         ).thenThrow(RuntimeException())
 
-        val filterLevel = appsApi.getAppFilterLevel(fusedApp, AUTH_DATA)
+        val filterLevel = appsApi.getAppFilterLevel(fusedApp)
         assertEquals("getAppFilterLevel", FilterLevel.UI, filterLevel)
     }
 }

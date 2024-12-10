@@ -46,6 +46,8 @@ suspend fun <T> handleNetworkResult(call: suspend () -> T): ResultSupreme<T> {
         handleSocketTimeoutException(e)
     } catch (e: GplayHttpRequestException) {
         resultSupremeGplayHttpRequestException(e)
+    } catch (e: IllegalStateException) {
+        throw e
     } catch (e: Exception) {
         handleOthersException(e)
     }

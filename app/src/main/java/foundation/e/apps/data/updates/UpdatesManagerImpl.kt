@@ -35,8 +35,11 @@ import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_AN
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.gitlab.SystemAppsUpdatesRepository
 import foundation.e.apps.data.handleNetworkResult
+import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.install.pkg.AppLoungePackageManager
+import foundation.e.apps.utils.eventBus.AppEvent
+import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -100,7 +103,6 @@ class UpdatesManagerImpl @Inject constructor(
             status = getUpdatesFromApi({
                 applicationRepository.getApplicationDetails(
                     openSourceInstalledApps,
-                    authData,
                     Origin.CLEANAPK
                 )
             }, updateList)
@@ -156,7 +158,6 @@ class UpdatesManagerImpl @Inject constructor(
             status = getUpdatesFromApi({
                 applicationRepository.getApplicationDetails(
                     openSourceInstalledApps,
-                    AuthData("", ""),
                     Origin.CLEANAPK
                 )
             }, updateList)
@@ -286,7 +287,6 @@ class UpdatesManagerImpl @Inject constructor(
                     applicationRepository.getApplicationDetails(
                         "",
                         packageName,
-                        authData,
                         Origin.GPLAY
                     )
                 }

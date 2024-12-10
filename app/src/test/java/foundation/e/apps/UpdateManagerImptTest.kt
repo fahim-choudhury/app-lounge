@@ -373,7 +373,6 @@ class UpdateManagerImptTest {
         Mockito.`when`(
             applicationRepository.getApplicationDetails(
                 any(),
-                any(),
                 eq(Origin.CLEANAPK)
             )
         ).thenReturn(openSourceUpdates)
@@ -388,7 +387,6 @@ class UpdateManagerImptTest {
                 applicationRepository.getApplicationDetails(
                     any(),
                     any(),
-                    any(),
                     eq(Origin.GPLAY)
                 )
             ).thenReturn(
@@ -398,7 +396,6 @@ class UpdateManagerImptTest {
         } else {
             Mockito.`when`(
                 applicationRepository.getApplicationDetails(
-                    any(),
                     any(),
                     any(),
                     eq(Origin.GPLAY)
