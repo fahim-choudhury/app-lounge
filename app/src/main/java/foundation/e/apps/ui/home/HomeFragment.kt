@@ -69,10 +69,6 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
     @Inject
     lateinit var pwaManager: PwaManager
 
-    companion object {
-        private const val SCROLL_DELAY_IN_MILLIS = 500L
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentHomeBinding.bind(view)
@@ -97,12 +93,6 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
             }
 
             homeParentRVAdapter?.setData(it.data!!)
-
-            // scrolling to top 500 ms later to give time UI elements to be rendered
-            viewLifecycleOwner.lifecycleScope.launch {
-                delay(SCROLL_DELAY_IN_MILLIS)
-                binding.parentRV.scrollToPosition(0)
-            }
         }
     }
 
