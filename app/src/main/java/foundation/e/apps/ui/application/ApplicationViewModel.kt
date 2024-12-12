@@ -137,16 +137,23 @@ class ApplicationViewModel @Inject constructor(
                         packageName,
                         origin
                     )
-                result.first.isPurchased = isPurchased
+
+                val app = result.first
+                val status = result.second
+
+                app.isPurchased = isPurchased
                 applicationLiveData.postValue(result)
 
-                updateShareVisibilityState(result.first.shareUri.toString())
-                updateAppContentRatingState(packageName, result.first.contentRating)
+                updateShareVisibilityState(app.shareUri.toString())
+                updateAppContentRatingState(packageName, app.contentRating)
+
+                if (status != ResultStatus.OK) {
+                    EventBus.invokeEvent(
+                        AppEvent.InvalidAuthEvent(AuthObject.GPlayAuth::class.java.simpleName)
+                    )
+                }
             } catch (e: InternalException.AppNotFound) {
                 _errorMessageLiveData.postValue(R.string.app_not_found)
-            } catch (exception: IllegalStateException) {
-                exception.printStackTrace()
-                EventBus.invokeEvent(AppEvent.InvalidAuthEvent(AuthObject.GPlayAuth::class.java.simpleName))
             } catch (e: Exception) {
                 _errorMessageLiveData.postValue(R.string.unknown_error)
             }
