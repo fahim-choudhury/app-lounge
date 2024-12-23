@@ -22,6 +22,7 @@ import android.os.StatFs
 import foundation.e.apps.data.install.models.AppInstall
 import java.text.CharacterIterator
 import java.text.StringCharacterIterator
+import java.util.Locale
 
 object StorageComputer {
     fun spaceMissing(appInstall: AppInstall): Long {
@@ -48,6 +49,6 @@ object StorageComputer {
             bytes /= 1000
             ci.next()
         }
-        return String.format("%.1f %cB", bytes / 1000.0, ci.current())
+        return String.format(Locale.getDefault(),"%.1f %cB", bytes / 1000.0, ci.current())
     }
 }

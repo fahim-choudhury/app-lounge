@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity() {
         checkGPlayLoginRequest(intent)
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         checkGPlayLoginRequest(intent)
         findNavController(R.id.fragment).handleDeepLink(intent)

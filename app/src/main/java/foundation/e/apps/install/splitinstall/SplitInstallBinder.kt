@@ -113,6 +113,7 @@ class SplitInstallBinder(
         if (ignoreList != null && packageName in ignoreList) return
 
         val appInfo = context.packageManager.getPackageInfo(packageName, 0).applicationInfo
+            ?: return
         val appLabel = context.packageManager.getApplicationLabel(appInfo)
         val callerUid = appInfo.uid
         val contentText = context.getString(

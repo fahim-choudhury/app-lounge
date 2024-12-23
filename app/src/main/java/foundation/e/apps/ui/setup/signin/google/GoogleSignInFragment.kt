@@ -91,8 +91,7 @@ class GoogleSignInFragment : Fragment(R.layout.fragment_google_signin) {
         binding.webview.apply {
             settings.apply {
                 allowContentAccess = true
-                databaseEnabled = true
-                domStorageEnabled = true
+                domStorageEnabled = true // Replaces databaseEnabled for local storage support
                 javaScriptEnabled = true
                 cacheMode = WebSettings.LOAD_DEFAULT
             }
