@@ -22,6 +22,7 @@ import android.os.Build
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.gitlab.UpdatableSystemAppsApi.*
 import foundation.e.apps.data.gitlab.models.OsReleaseType
 import foundation.e.apps.data.gitlab.models.SystemAppInfo
@@ -235,14 +236,19 @@ class SystemAppsUpdatesRepository @Inject constructor(
                 )
             }
 
-            result.data?.run {
+            if (!result.isSuccess()) {
+                Timber.e("Failed to get system app info for $it - ${result.message}")
+                return@forEach
+            }
+
+            val app: Application = result.data ?: return@forEach
+            val appStatus = appLoungePackageManager.getPackageStatus(it, app.latest_version_code)
+            if (appStatus != Status.UPDATABLE) return@forEach
+
+            app.run {
                 applicationDataManager.updateStatus(this)
                 updateList.add(this)
                 updateSource(context)
-            }
-
-            if (!result.isSuccess()) {
-                Timber.e("Failed to get system app info for $it - ${result.message}")
             }
         }
 
