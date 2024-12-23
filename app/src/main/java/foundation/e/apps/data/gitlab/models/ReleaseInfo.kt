@@ -41,19 +41,15 @@ data class ReleaseLinks(
 )
 
 enum class OsReleaseType {
-    TEST,
-    COMMUNITY,
-    STABLE,
-    UNKNOWN,
-    ;
-
-    override fun toString(): String {
-        return this.name.lowercase()
-    }
+    COMMUNITY, OFFICIAL, TEST;
 
     companion object {
-        fun get(value: String?): OsReleaseType {
-            return OsReleaseType.values().find { it.name == value?.trim()?.uppercase() } ?: UNKNOWN
+        fun get(value: String?) = when (value?.trim()?.lowercase()) {
+            "dev", "community" -> COMMUNITY
+            "official", "stable", "partner" -> OFFICIAL
+            else -> TEST
         }
     }
+
+    override fun toString() = name.lowercase()
 }

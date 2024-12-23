@@ -190,10 +190,17 @@ class SystemAppsUpdatesRepository @Inject constructor(
         return SystemInfoProvider.getSystemProperty(SystemInfoProvider.KEY_LINEAGE_DEVICE) ?: ""
     }
 
+    /**
+     * Available release types are:
+     * - community
+     * - official
+     * - partner
+     * - test
+     * - unofficial/UNOFFICIAL
+     */
     private fun getSystemReleaseType(): OsReleaseType {
-        return SystemInfoProvider.getSystemProperty(SystemInfoProvider.KEY_LINEAGE_RELEASE_TYPE).let {
-            OsReleaseType.get(it)
-        }
+        return OsReleaseType.get(SystemInfoProvider.getSystemProperty(
+            SystemInfoProvider.KEY_LINEAGE_RELEASE_TYPE) ?: OsReleaseType.TEST.name)
     }
 
     /**
