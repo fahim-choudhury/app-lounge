@@ -111,13 +111,9 @@ class ApplicationDataManager @Inject constructor(
         return if (application.is_pwa) {
             pwaManager.getPwaStatus(application)
         } else {
-            val versionName = if (application.isSystemApp) {
-                application.latest_version_number
-            } else ""
             appLoungePackageManager.getPackageStatus(
                 application.package_name,
                 application.latest_version_code,
-                versionName,
             )
         }
     }

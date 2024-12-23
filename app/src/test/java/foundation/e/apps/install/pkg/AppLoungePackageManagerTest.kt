@@ -54,12 +54,10 @@ class AppLoungePackageManagerTest {
     private fun mockPackagePresence(
         expectedPackageName: String,
         expectedVersionCode: Int,
-        expectedVersionName: String,
         optionalFlag: Int = 0,
     ) {
         val expectedPackageInfo = mock(PackageInfo::class.java).apply {
             packageName = expectedPackageName
-            versionName = expectedVersionName
             versionCode = expectedVersionCode
         }
         Mockito.`when`(
@@ -68,7 +66,7 @@ class AppLoungePackageManagerTest {
     }
 
     private fun mockPackagePresence() {
-        mockPackagePresence(testPackageName, 0, "")
+        mockPackagePresence(testPackageName, 0)
     }
 
     private fun mockPackageAbsence() {
@@ -91,12 +89,10 @@ class AppLoungePackageManagerTest {
     @Test
     fun givenPackageInfoIsPresent_thenReturnProperVersionCode() {
         val installedVersionCode = 40903000
-        val installedVersionName = "4.9.3"
 
         mockPackagePresence(
             expectedPackageName = testPackageName,
             expectedVersionCode = installedVersionCode,
-            expectedVersionName = installedVersionName,
         )
 
         assertEquals(
@@ -110,152 +106,12 @@ class AppLoungePackageManagerTest {
         mockPackageAbsence()
 
         val newVersionCode = 40903000
-        val newVersionName = "4.9.3+20240725"
 
         assertEquals(
             Status.UNAVAILABLE, appLoungePackageManager.getPackageStatus(
                 packageName = testPackageName,
                 versionCode = newVersionCode,
-                versionName = newVersionName,
             )
         )
     }
-
-    @Test
-    fun givenNewVersionCode_andSameVersionName_whenCheckIsUpdatable_thenReturnStatusUPDATABLE() {
-        val installedVersionCode = 40903000
-        val installedVersionName = "4.9.3"
-
-        mockPackagePresence(
-            expectedPackageName = testPackageName,
-            expectedVersionCode = installedVersionCode,
-            expectedVersionName = installedVersionName,
-        )
-
-        val newVersionCode = 40903001
-        val newVersionName = "4.9.3"
-
-        assertEquals(
-            Status.UPDATABLE, appLoungePackageManager.getPackageStatus(
-                packageName = testPackageName,
-                versionCode = newVersionCode,
-                versionName = newVersionName,
-            )
-        )
-    }
-
-    @Test
-    fun givenNewVersionCode_andNewVersionNameBlank_whenCheckIsUpdatable_thenReturnStatusUPDATABLE() {
-        val installedVersionCode = 40903000
-        val installedVersionName = "4.9.3"
-
-        mockPackagePresence(
-            expectedPackageName = testPackageName,
-            expectedVersionCode = installedVersionCode,
-            expectedVersionName = installedVersionName,
-        )
-
-        val newVersionCode = 40903001
-        val newVersionName = ""
-
-        assertEquals(
-            Status.UPDATABLE, appLoungePackageManager.getPackageStatus(
-                packageName = testPackageName,
-                versionCode = newVersionCode,
-                versionName = newVersionName,
-            )
-        )
-    }
-
-    @Test
-    fun givenNewVersionName_andSameVersionCode_whenCheckIsUpdatable_thenReturnStatusUPDATABLE() {
-        val installedVersionCode = 40903000
-        val installedVersionName = "4.9.3"
-
-        mockPackagePresence(
-            expectedPackageName = testPackageName,
-            expectedVersionCode = installedVersionCode,
-            expectedVersionName = installedVersionName,
-        )
-
-        val newVersionCode = 40903000
-        val newVersionName = "4.9.3+20240725"
-
-        assertEquals(
-            Status.UPDATABLE, appLoungePackageManager.getPackageStatus(
-                packageName = testPackageName,
-                versionCode = newVersionCode,
-                versionName = newVersionName,
-            )
-        )
-    }
-
-    @Test
-    fun givenSameVersionCode_andSameVersionName_whenCheckIsUpdatable_thenReturnStatusINSTALLED() {
-        val installedVersionCode = 40903000
-        val installedVersionName = "4.9.3+20240725"
-
-        mockPackagePresence(
-            expectedPackageName = testPackageName,
-            expectedVersionCode = installedVersionCode,
-            expectedVersionName = installedVersionName,
-        )
-
-        val newVersionCode = 40903000
-        val newVersionName = "4.9.3+20240725"
-
-        assertEquals(
-            Status.INSTALLED, appLoungePackageManager.getPackageStatus(
-                packageName = testPackageName,
-                versionCode = newVersionCode,
-                versionName = newVersionName,
-            )
-        )
-    }
-
-    @Test
-    fun givenNewVersionName_whenCheckIsUpdatable_thenReturnStatusUPDATABLE() {
-        val installedVersionCode = 40903000
-        val installedVersionName = "4.9.3+20240725"
-
-        mockPackagePresence(
-            expectedPackageName = testPackageName,
-            expectedVersionCode = installedVersionCode,
-            expectedVersionName = installedVersionName,
-        )
-
-        var newVersionCode = 40903000
-        var newVersionName = "4.9.3+20240726"
-
-        assertEquals(
-            Status.UPDATABLE, appLoungePackageManager.getPackageStatus(
-                packageName = testPackageName,
-                versionCode = newVersionCode,
-                versionName = newVersionName,
-            )
-        )
-
-        newVersionCode = 40903000
-        newVersionName = "4.9.3+20240825"
-
-        assertEquals(
-            Status.UPDATABLE, appLoungePackageManager.getPackageStatus(
-                packageName = testPackageName,
-                versionCode = newVersionCode,
-                versionName = newVersionName,
-            )
-        )
-
-        newVersionCode = 40903000
-        newVersionName = "4.9.3+20250725"
-
-        assertEquals(
-            Status.UPDATABLE, appLoungePackageManager.getPackageStatus(
-                packageName = testPackageName,
-                versionCode = newVersionCode,
-                versionName = newVersionName,
-            )
-        )
-    }
-
 }
