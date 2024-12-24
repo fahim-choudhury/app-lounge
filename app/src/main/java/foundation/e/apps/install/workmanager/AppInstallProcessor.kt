@@ -30,6 +30,7 @@ import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.UpdatesDao
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.playstore.utils.GplayHttpRequestException
@@ -103,7 +104,7 @@ class AppInstallProcessor @Inject constructor(
             appInstall.downloadURLList = mutableListOf(application.url)
         }
 
-        enqueueFusedDownload(appInstall, isAnUpdate)
+        enqueueFusedDownload(appInstall, isAnUpdate, application.isSystemApp)
     }
 
     /**
@@ -115,14 +116,16 @@ class AppInstallProcessor @Inject constructor(
      */
     suspend fun enqueueFusedDownload(
         appInstall: AppInstall,
-        isAnUpdate: Boolean = false
+        isAnUpdate: Boolean = false,
+        isSystemApp: Boolean = false
     ) {
         try {
-            val authData = appLoungeDataStore.getAuthData()
-
-            if (!appInstall.isFree && authData.isAnonymous) {
-                EventBus.invokeEvent(AppEvent.ErrorMessageEvent(R.string.paid_app_anonymous_message))
-                return
+            val user = appLoungeDataStore.getUserType()
+            if (!isSystemApp && (user == User.GOOGLE || user == User.ANONYMOUS)) {
+                val authData = appLoungeDataStore.getAuthData()
+                if (!appInstall.isFree && authData.isAnonymous) {
+                    EventBus.invokeEvent(AppEvent.ErrorMessageEvent(R.string.paid_app_anonymous_message))
+                }
             }
 
             if (appInstall.type != Type.PWA && !updateDownloadUrls(appInstall)) return
