@@ -71,16 +71,10 @@ class AppLoungePackageManager @Inject constructor(
         }
     }
 
-    private fun isUpdatable(packageName: String, versionCode: Int, versionName: String): Boolean {
+    private fun isUpdatable(packageName: String, versionCode: Int): Boolean {
         val packageInfo = getPackageInfo(packageName) ?: return false
         val installedVersionNumber = PackageInfoCompat.getLongVersionCode(packageInfo)
-        val installedVersionName = packageInfo.versionName
-
-        val isVersionNumberHigher = versionCode.toLong() > installedVersionNumber
-        val isVersionNameHigher =
-            versionName.isNotBlank() && versionName > installedVersionName
-
-        return isVersionNumberHigher || isVersionNameHigher
+        return versionCode.toLong() > installedVersionNumber
     }
 
     fun getLaunchIntent(packageName: String): Intent? {
@@ -105,10 +99,9 @@ class AppLoungePackageManager @Inject constructor(
     fun getPackageStatus(
         packageName: String,
         versionCode: Int,
-        versionName: String = "",
     ): Status {
         return if (isInstalled(packageName)) {
-            if (isUpdatable(packageName, versionCode, versionName)) {
+            if (isUpdatable(packageName, versionCode)) {
                 Status.UPDATABLE
             } else {
                 Status.INSTALLED
