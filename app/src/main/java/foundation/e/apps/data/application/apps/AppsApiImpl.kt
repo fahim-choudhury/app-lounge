@@ -20,9 +20,9 @@ package foundation.e.apps.data.application.apps
 
 import android.content.Context
 import com.aurora.gplayapi.data.models.App
-import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.AppSourcesContainer
+import foundation.e.apps.data.Stores
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.utils.toApplication
@@ -35,14 +35,15 @@ import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
-import retrofit2.Response
 import javax.inject.Inject
-import foundation.e.apps.data.cleanapk.data.app.CleanApkApplication
+import foundation.e.apps.data.enums.Source
+import foundation.e.apps.data.playstore.PlayStoreRepository
 
 class AppsApiImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val appLoungePreference: AppLoungePreference,
     private val appSources: AppSourcesContainer,
+    private val stores: Stores,
     private val applicationDataManager: ApplicationDataManager
 ) : AppsApi {
 
@@ -72,7 +73,7 @@ class AppsApiImpl @Inject constructor(
     /*
      * Handy method to run on an instance of FusedApp to update its filter level.
      */
-    private suspend fun Application.updateFilterLevel() {
+    private fun Application.updateFilterLevel() {
         this.filterLevel = applicationDataManager.getAppFilterLevel(this)
     }
 
@@ -140,7 +141,7 @@ class AppsApiImpl @Inject constructor(
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5174
      */
-    private suspend fun handleFilteredApps(
+    private fun handleFilteredApps(
         app: App,
         applicationList: MutableList<Application>
     ) {
@@ -164,7 +165,7 @@ class AppsApiImpl @Inject constructor(
         ).body()
     }
 
-    private suspend fun Search.handleCleanApkSearch(
+    private fun Search.handleCleanApkSearch(
         applicationList: MutableList<Application>
     ) {
         if (hasSingleResult()) {
@@ -187,11 +188,12 @@ class AppsApiImpl @Inject constructor(
         var application: Application
 
         val result = handleNetworkResult {
-            application = if (origin == Origin.CLEANAPK) {
-                appSources.cleanApkAppsRepo.getAppDetails(id)
-            } else {
-                appSources.gplayRepo.getAppDetails(packageName)
-            }
+
+            val store = stores.getStores()[Source.fromOrigin(origin)]
+                ?: throw IllegalStateException("Could not get store")
+
+            val idOrPackageName = if (store is PlayStoreRepository) packageName else id
+            application = store.getAppDetails(idOrPackageName)
 
             application.let {
                 applicationDataManager.updateStatus(it)

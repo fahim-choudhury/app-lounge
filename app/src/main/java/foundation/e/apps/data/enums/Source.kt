@@ -32,5 +32,13 @@ enum class Source {
                 else -> GPLAY
             }
         }
+
+        fun fromOrigin(origin: Origin): Source {
+            return when (origin) {
+                Origin.GPLAY -> GPLAY
+                Origin.CLEANAPK -> OPEN
+                Origin.GITLAB_RELEASES -> GITLAB_RELEASES
+            }
+        }
     }
 }
