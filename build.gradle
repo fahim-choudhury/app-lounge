@@ -9,7 +9,7 @@ plugins {
     id 'com.google.dagger.hilt.android' version '2.54' apply false
     id("com.google.devtools.ksp") version "2.1.0-1.0.29" apply false
     id 'androidx.navigation.safeargs' version '2.8.5' apply false
-    id 'io.gitlab.arturbosch.detekt' version '1.23.1'
+    id 'io.gitlab.arturbosch.detekt' version '1.23.7'
 }
 
 allprojects {
@@ -23,12 +23,8 @@ allprojects {
 
 subprojects {
     detekt {
-        toolVersion = "1.23.1"
-
-        source = files(
-                "src/main/java"
-        )
-
+        toolVersion = "1.23.7"
+        source.setFrom("src/main/java", "src/main/kotlin")
         config.setFrom("detekt.yml")
         baseline = file("detekt-baseline.xml")
         parallel = false
