@@ -164,7 +164,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
     private fun handleStateNoUpdates(list: List<Application>?) {
         if (!list.isNullOrEmpty()) {
             binding.button.isEnabled = true
-            initUpdataAllButton()
+            initUpdateAllButton()
             binding.noUpdates.visibility = View.GONE
         } else {
             binding.noUpdates.visibility = View.VISIBLE
@@ -284,10 +284,10 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
             clearAndRestartGPlayLogin()
             true
         }
-        initUpdataAllButton()
+        initUpdateAllButton()
     }
 
-    private fun initUpdataAllButton() {
+    private fun initUpdateAllButton() {
         binding.button.setOnClickListener {
             UpdatesWorkManager.startUpdateAllWork(requireContext())
             observeUpdateWork()

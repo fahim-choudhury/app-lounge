@@ -63,7 +63,7 @@ class UpdatesViewModel @Inject constructor(
         }, retryBlock)
     }
 
-    fun getUpdates(authData: AuthData?) {
+    private fun getUpdates(authData: AuthData?) {
         viewModelScope.launch {
             val updatesResult = if (authData != null)
                 updatesManagerRepository.getUpdates(authData)
