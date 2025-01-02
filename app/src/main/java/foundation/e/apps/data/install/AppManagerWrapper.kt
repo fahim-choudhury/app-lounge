@@ -176,7 +176,7 @@ class AppManagerWrapper @Inject constructor(
     fun getDownloadingItemStatus(application: Application?, downloadList: List<AppInstall>): Status? {
         application?.let { app ->
             val downloadingItem =
-                downloadList.find { it.origin == app.origin && (it.packageName == app.package_name || it.id == app.package_name) }
+                downloadList.find { it.packageName == app.package_name || it.id == app.package_name }
             return downloadingItem?.status
         }
         return null

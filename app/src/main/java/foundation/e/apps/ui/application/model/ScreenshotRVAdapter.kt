@@ -27,10 +27,10 @@ import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import coil.load
 import foundation.e.apps.R
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
-import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.databinding.ScreenshotListItemBinding
 
-class ScreenshotRVAdapter(private val list: List<String>, private val origin: Origin) :
+class ScreenshotRVAdapter(private val list: List<String>, private val source: Source) :
     RecyclerView.Adapter<ScreenshotRVAdapter.ViewHolder>() {
 
     private lateinit var circularProgressDrawable: CircularProgressDrawable
@@ -55,13 +55,18 @@ class ScreenshotRVAdapter(private val list: List<String>, private val origin: Or
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val imageView = holder.binding.imageView
-        when (origin) {
-            Origin.CLEANAPK -> {
+        when (source) {
+            Source.PWA -> {
                 imageView.load(CleanApkRetrofit.ASSET_URL + list[position]) {
                     placeholder(circularProgressDrawable)
                 }
             }
-            Origin.GPLAY -> {
+            Source.OPEN_SOURCE -> {
+                imageView.load(CleanApkRetrofit.ASSET_URL + list[position]) {
+                    placeholder(circularProgressDrawable)
+                }
+            }
+            Source.PLAY_STORE -> {
                 imageView.load(list[position]) {
                     placeholder(circularProgressDrawable)
                 }

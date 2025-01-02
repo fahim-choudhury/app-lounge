@@ -25,8 +25,8 @@ import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.SearchBundle
 import foundation.e.apps.FakeAppLoungePreference
 import foundation.e.apps.data.AppSourcesContainer
+import foundation.e.apps.data.Stores
 import foundation.e.apps.data.cleanapk.data.search.Search
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.application.search.SearchApiImpl
 import foundation.e.apps.data.application.ApplicationDataManager
@@ -35,6 +35,7 @@ import foundation.e.apps.data.application.apps.AppsApiImpl
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.cleanapk.repositories.CleanApkAppsRepository
 import foundation.e.apps.data.cleanapk.repositories.CleanApkPwaRepository
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
@@ -88,6 +89,9 @@ class SearchApiImplTest {
     @Mock
     private lateinit var gPlayAPIRepository: PlayStoreRepository
 
+    @Mock
+    private lateinit var stores: Stores
+
     private lateinit var appsApi: AppsApi
 
     private lateinit var applicationDataManager: ApplicationDataManager
@@ -113,6 +117,7 @@ class SearchApiImplTest {
             context,
             preferenceManagerModule,
             appSourcesContainer,
+            stores,
             applicationDataManager,
         )
 
@@ -134,7 +139,7 @@ class SearchApiImplTest {
         name = "Demo Three",
         package_name = "foundation.e.demothree",
         latest_version_code = 123,
-        origin = Origin.CLEANAPK,
+        source = Source.OPEN_SOURCE,
         originalSize = -1,
         isFree = isFree,
         price = ""
@@ -183,7 +188,7 @@ class SearchApiImplTest {
         )
 
         val searchResultLiveData =
-            fusedAPIImpl.getCleanApkSearchResults("com.search.package", AUTH_DATA)
+            fusedAPIImpl.getCleanApkSearchResults("com.search.package")
 
         val size = searchResultLiveData.data?.first?.size ?: -2
         assertEquals("getSearchResult", 8, size)
@@ -276,7 +281,7 @@ class SearchApiImplTest {
         preferenceManagerModule.isGplaySelectedFake = true
 
         val searchResultLiveData =
-            fusedAPIImpl.getCleanApkSearchResults("com.search.package", AUTH_DATA)
+            fusedAPIImpl.getCleanApkSearchResults("com.search.package")
 
         val size = searchResultLiveData.data?.first?.size ?: -2
         assertEquals("getSearchResult", 4, size)

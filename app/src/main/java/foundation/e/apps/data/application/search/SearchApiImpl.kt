@@ -21,7 +21,6 @@ package foundation.e.apps.data.application.search
 import android.content.Context
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
-import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.SearchBundle
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.AppSourcesContainer
@@ -34,8 +33,8 @@ import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_AN
 import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_OPEN
 import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_PWA
 import foundation.e.apps.data.application.utils.toApplication
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.exceptions.CleanApkIOException
 import foundation.e.apps.data.login.exceptions.GPlayIOException
@@ -71,13 +70,11 @@ class SearchApiImpl @Inject constructor(
     /**
      * Fetches search results from cleanAPK and returns them
      * @param query Query
-     * @param authData [AuthData]
      * @return A ResultSupreme with Pair of list of non-nullable [Application] and
      * a Boolean signifying if more search results are being loaded.
      */
     override suspend fun getCleanApkSearchResults(
         query: String,
-        authData: AuthData
     ): SearchResult {
         var finalSearchResult: SearchResult = ResultSupreme.Error(
             message = "",
@@ -85,7 +82,7 @@ class SearchApiImpl @Inject constructor(
         )
 
         val packageSpecificResults =
-            fetchPackageSpecificResult(authData, query).data?.first ?: emptyList()
+            fetchPackageSpecificResult(query).data?.first ?: emptyList()
 
         val searchResult = mutableListOf<Application>()
         if (appLoungePreference.isOpenSourceSelected()) {
@@ -127,8 +124,8 @@ class SearchApiImpl @Inject constructor(
                 appSources.cleanApkPWARepo.getSearchResult(query).body()?.apps
             apps?.forEach {
                 applicationDataManager.updateStatus(it)
+                it.source = Source.PWA
                 it.updateType()
-                it.updateSource(context)
                 pwaApps.add(it)
             }
         }
@@ -182,7 +179,6 @@ class SearchApiImpl @Inject constructor(
     }
 
     private suspend fun fetchPackageSpecificResult(
-        authData: AuthData,
         query: String,
     ): SearchResult {
         val packageSpecificResults: MutableList<Application> = mutableListOf()
@@ -260,7 +256,7 @@ class SearchApiImpl @Inject constructor(
     private suspend fun getGplayPackageResult(
         query: String,
     ): Application? {
-        appsApi.getApplicationDetails(query, query, Origin.GPLAY).let {
+        appsApi.getApplicationDetails(query, query, Source.PLAY_STORE).let {
             if (it.second == ResultStatus.OK && it.first.package_name.isNotEmpty()) {
                 return it.first
             }
@@ -310,8 +306,8 @@ class SearchApiImpl @Inject constructor(
 
         response?.forEach {
             applicationDataManager.updateStatus(it)
+            it.source = if (it.is_pwa) Source.PWA else Source.OPEN_SOURCE
             it.updateType()
-            it.updateSource(context)
             list.add(it)
         }
 
@@ -364,7 +360,7 @@ class SearchApiImpl @Inject constructor(
             return gPlayApps.map { gPlayApp ->
                 availableApps.find { it.package_name == gPlayApp.packageName }?.apply {
                     isGplayReplaced = true
-                    updateSource(context)
+                    source = Source.PLAY_STORE
                 } ?: gPlayApp.toApplication(context)
             }
         } catch (e: Exception) {

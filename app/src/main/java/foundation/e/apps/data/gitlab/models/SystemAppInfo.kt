@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.squareup.moshi.Json
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.enums.FilterLevel
-import foundation.e.apps.data.enums.Origin
 import java.util.UUID
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -53,7 +52,6 @@ fun SystemAppInfo.toApplication(context: Context): Application {
         latest_version_number = versionName,
         name = name,
         package_name = packageName,
-        origin = Origin.GITLAB_RELEASES,
         originalSize = apkSize,
         appSize = Formatter.formatFileSize(context, apkSize),
         url = downloadUrl,

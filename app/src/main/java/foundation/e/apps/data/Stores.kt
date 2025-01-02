@@ -20,8 +20,8 @@ class Stores @Inject constructor(
     }
 
     init {
-        stores[Source.OPEN] = cleanApkAppsRepository
+        stores[Source.OPEN_SOURCE] = cleanApkAppsRepository
         stores[Source.PWA] = cleanApkPwaRepository
-        stores[Source.GPLAY] = playStoreRepository
+        stores[Source.PLAY_STORE] = playStoreRepository
     }
 }

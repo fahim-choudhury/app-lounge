@@ -22,7 +22,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Bundle
 import android.text.Html
 import android.text.format.Formatter
@@ -56,8 +55,8 @@ import foundation.e.apps.R
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.shareUri
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
@@ -107,19 +106,6 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
      */
     private val isFdroidDeepLink: Boolean by lazy {
         activity?.intent?.data?.host?.equals("f-droid.org") ?: false
-    }
-
-    /*
-     * We will use this variable in all cases instead of directly calling args.origin.
-     *
-     * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5509
-     */
-    private val origin by lazy {
-        if (isFdroidDeepLink) {
-            Origin.CLEANAPK
-        } else {
-            args.origin
-        }
     }
 
     private var isDetailsLoaded = false
@@ -330,7 +316,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         binding.infoInclude.apply {
             appUpdatedOn.text = getString(
                 R.string.updated_on,
-                if (origin == Origin.CLEANAPK) it.updatedOn else it.last_modified
+                if (it.source == Source.PWA || it.source == Source.OPEN_SOURCE) it.updatedOn else it.last_modified
             )
             val notAvailable = getString(R.string.not_available)
             appRequires.text = getString(R.string.min_android_version, notAvailable)
@@ -438,11 +424,11 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
 
             updateCategoryTitle(it)
 
-            if (it.origin == Origin.CLEANAPK) {
+            if (it.source == Source.OPEN_SOURCE || it.source == Source.PWA) {
                 sourceTag.visibility = View.VISIBLE
-                sourceTag.text = it.source
+                sourceTag.text = it.source.toString()
             }
-            if (origin == Origin.CLEANAPK) {
+            if (it.source == Source.PWA || it.source == Source.OPEN_SOURCE) {
                 appIcon.load(CleanApkRetrofit.ASSET_URL + it.icon_image_path)
             } else {
                 appIcon.load(it.icon_image_path)
@@ -491,7 +477,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun setupScreenshotRVAdapter() {
-        screenshotsRVAdapter = ApplicationScreenshotsRVAdapter(origin)
+        screenshotsRVAdapter = ApplicationScreenshotsRVAdapter(args.source)
         binding.recyclerView.apply {
             adapter = screenshotsRVAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
@@ -605,7 +591,7 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         val applicationLoadingParams = ApplicationLoadingParams(
             args.id,
             packageName,
-            origin,
+            args.source,
             isFdroidDeepLink,
             authObjectList,
             args.isPurchased

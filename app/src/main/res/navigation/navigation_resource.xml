@@ -103,9 +103,9 @@
             android:name="packageName"
             app:argType="string" />
         <argument
-            android:name="origin"
-            android:defaultValue="GPLAY"
-            app:argType="foundation.e.apps.data.enums.Origin" />
+            android:name="source"
+            android:defaultValue="PLAY_STORE"
+            app:argType="foundation.e.apps.data.enums.Source"/>
         <argument
             android:name="category"
             android:defaultValue=""
@@ -184,8 +184,8 @@
             android:name="position"
             app:argType="integer" />
         <argument
-            android:name="origin"
-            app:argType="foundation.e.apps.data.enums.Origin" />
+            android:name="source"
+            app:argType="foundation.e.apps.data.enums.Source" />
     </fragment>
     <fragment
         android:id="@+id/descriptionFragment"

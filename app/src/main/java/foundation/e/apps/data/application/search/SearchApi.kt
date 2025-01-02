@@ -40,13 +40,11 @@ interface SearchApi {
     /**
      * Fetches search results from cleanAPK and GPlay servers and returns them
      * @param query Query
-     * @param authData [AuthData]
      * @return ResultSupreme which contains a Pair<List<FusedApp>, Boolean> where List<FusedApp>
      *     is the app list and [Boolean] indicates more data to load or not.
      */
     suspend fun getCleanApkSearchResults(
-        query: String,
-        authData: AuthData
+        query: String
     ): SearchResult
 
     suspend fun getGplaySearchResult(

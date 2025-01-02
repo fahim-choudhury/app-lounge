@@ -18,26 +18,24 @@
 package foundation.e.apps.data.enums
 
 enum class Source {
-    GPLAY,
+    PLAY_STORE,
     GITLAB_RELEASES,
-    OPEN,
+    OPEN_SOURCE,
     PWA;
+
+    override fun toString(): String {
+        return name.lowercase()
+            .split("_")
+            .joinToString(" ") { it.replaceFirstChar(Char::uppercase) }
+    }
 
     companion object {
         fun fromString(source: String): Source {
             return when (source) {
-                "Open Source" -> OPEN
+                "Open Source" -> OPEN_SOURCE
                 "PWA" -> PWA
                 "GITLAB_RELEASES" -> GITLAB_RELEASES
-                else -> GPLAY
-            }
-        }
-
-        fun fromOrigin(origin: Origin): Source {
-            return when (origin) {
-                Origin.GPLAY -> GPLAY
-                Origin.CLEANAPK -> OPEN
-                Origin.GITLAB_RELEASES -> GITLAB_RELEASES
+                else -> PLAY_STORE
             }
         }
     }

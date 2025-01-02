@@ -26,7 +26,6 @@ import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.apps.AppsApi
 import foundation.e.apps.data.application.category.CategoryApi
 import foundation.e.apps.data.enums.FilterLevel
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
@@ -62,9 +61,9 @@ class ApplicationRepository @Inject constructor(
 
     suspend fun getApplicationDetails(
         packageNameList: List<String>,
-        origin: Origin
+        source: Source
     ): Pair<List<Application>, ResultStatus> {
-        return appsApi.getApplicationDetails(packageNameList, origin)
+        return appsApi.getApplicationDetails(packageNameList, source)
     }
 
     suspend fun getAppFilterLevel(application: Application): FilterLevel {
@@ -74,9 +73,9 @@ class ApplicationRepository @Inject constructor(
     suspend fun getApplicationDetails(
         id: String,
         packageName: String,
-        origin: Origin
+        source: Source
     ): Pair<Application, ResultStatus> {
-        return appsApi.getApplicationDetails(id, packageName, origin)
+        return appsApi.getApplicationDetails(id, packageName, source)
     }
 
     suspend fun getCleanapkAppDetails(packageName: String): Pair<Application, ResultStatus> {
@@ -84,11 +83,11 @@ class ApplicationRepository @Inject constructor(
     }
 
     suspend fun updateFusedDownloadWithDownloadingInfo(
-        origin: Origin,
+        source: Source,
         appInstall: AppInstall
     ) {
         downloadInfoApi.updateFusedDownloadWithDownloadingInfo(
-            origin,
+            source,
             appInstall
         )
     }
@@ -116,10 +115,9 @@ class ApplicationRepository @Inject constructor(
     }
 
     suspend fun getCleanApkSearchResults(
-        query: String,
-        authData: AuthData
+        query: String
     ): SearchResult {
-        return searchAPIImpl.getCleanApkSearchResults(query, authData)
+        return searchAPIImpl.getCleanApkSearchResults(query)
     }
 
     suspend fun getGplaySearchResults(
@@ -136,7 +134,7 @@ class ApplicationRepository @Inject constructor(
         source: Source
     ): ResultSupreme<Pair<List<Application>, String>> {
         return when (source) {
-            Source.OPEN -> categoryApi.getCleanApkAppsByCategory(category, Source.OPEN)
+            Source.OPEN_SOURCE -> categoryApi.getCleanApkAppsByCategory(category, Source.OPEN_SOURCE)
             Source.PWA -> categoryApi.getCleanApkAppsByCategory(category, Source.PWA)
             else -> categoryApi.getGplayAppsByCategory(authData, category, pageUrl)
         }

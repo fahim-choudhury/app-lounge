@@ -2,10 +2,10 @@ package foundation.e.apps.data.fdroid
 
 import android.content.Context
 import foundation.e.apps.data.cleanapk.ApkSignatureManager
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.fdroid.models.BuildInfo
 import foundation.e.apps.data.fdroid.models.FdroidEntity
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.enums.Source
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -41,7 +41,7 @@ class FDroidRepository @Inject constructor(
     }
 
     override suspend fun getAuthorName(application: Application): String {
-        if (application.author != UNKNOWN || application.origin != Origin.CLEANAPK) {
+        if (application.author != UNKNOWN || (application.source != Source.OPEN_SOURCE && application.source != Source.PWA)) {
             return application.author.ifEmpty { UNKNOWN }
         }
 

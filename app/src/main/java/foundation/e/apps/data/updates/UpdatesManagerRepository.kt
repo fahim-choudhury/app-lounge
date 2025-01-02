@@ -32,7 +32,7 @@ class UpdatesManagerRepository @Inject constructor(
         if (UpdatesDao.hasAnyAppsForUpdate()) {
             return Pair(UpdatesDao.appsAwaitingForUpdate, ResultStatus.OK)
         }
-        return updatesManagerImpl.getUpdates(authData).run {
+        return updatesManagerImpl.getUpdates().run {
             val filteredApps = first.filter { !(!it.isFree && authData.isAnonymous) }
             UpdatesDao.addItemsForUpdate(filteredApps)
             Pair(filteredApps, this.second)

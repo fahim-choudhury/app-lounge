@@ -28,8 +28,8 @@ import foundation.e.apps.R
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.shareUri
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.install.AppManagerWrapper
 import foundation.e.apps.data.install.models.AppInstall
@@ -87,7 +87,7 @@ class ApplicationViewModel @Inject constructor(
          * If user is viewing only open source apps, auth object list will not have
          * GPlayAuth, it will only have CleanApkAuth.
          */
-        if (gPlayObj == null && params.origin == Origin.GPLAY) {
+        if (gPlayObj == null && (params.source == Source.OPEN_SOURCE || params.source == Source.PWA)) {
             _errorMessageLiveData.postValue(R.string.gplay_data_for_oss)
             return
         }
@@ -106,7 +106,7 @@ class ApplicationViewModel @Inject constructor(
                     params.appId,
                     params.packageName,
                     params.isPurchased,
-                    params.origin
+                    params.source
                 )
                 return@onLoadData
             }
@@ -116,7 +116,7 @@ class ApplicationViewModel @Inject constructor(
                     params.appId,
                     params.packageName,
                     params.isPurchased,
-                    params.origin
+                    params.source
                 )
                 return@onLoadData
             }
@@ -127,7 +127,7 @@ class ApplicationViewModel @Inject constructor(
         id: String,
         packageName: String,
         isPurchased: Boolean,
-        origin: Origin
+        source: Source
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -135,7 +135,7 @@ class ApplicationViewModel @Inject constructor(
                     applicationRepository.getApplicationDetails(
                         id,
                         packageName,
-                        origin
+                        source
                     )
 
                 val app = result.first
@@ -244,7 +244,7 @@ sealed class ShareButtonVisibilityState {
 data class ApplicationLoadingParams(
     val appId: String,
     val packageName: String,
-    val origin: Origin,
+    val source: Source,
     val isFdroidDeepLink: Boolean,
     val authObjectList: List<AuthObject>,
     val isPurchased: Boolean

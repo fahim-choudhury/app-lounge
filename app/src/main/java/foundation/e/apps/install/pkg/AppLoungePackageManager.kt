@@ -33,7 +33,7 @@ import androidx.core.content.pm.PackageInfoCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.OpenForTesting
 import foundation.e.apps.data.application.search.SearchApi
-import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.install.models.AppInstall
@@ -124,7 +124,7 @@ class AppLoungePackageManager @Inject constructor(
         if (appInstall == null || appInstall.packageName.isBlank()) {
             return
         }
-        if (appInstall.origin == Origin.GPLAY) {
+        if (appInstall.source == Source.PLAY_STORE) {
             if (appInstall.type == Type.NATIVE && isInstalled(FAKE_STORE_PACKAGE_NAME)) {
                 val targetPackage = appInstall.packageName
                 try {

@@ -43,6 +43,7 @@ import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.application.utils.toApplication
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.playstore.utils.GPlayHttpClient
 import kotlinx.coroutines.Dispatchers
@@ -75,6 +76,7 @@ class PlayStoreRepository @Inject constructor(
                 app.apply {
                     applicationDataManager.updateStatus(this)
                     applicationDataManager.updateFilterLevel(this)
+                    source = Source.PLAY_STORE
                 }
             }
             list.add(Home(it.key, fusedApps))
@@ -158,14 +160,14 @@ class PlayStoreRepository @Inject constructor(
         return categoryList
     }
 
-    override suspend fun getAppDetails(packageNameOrId: String): Application {
+    override suspend fun getAppDetails(packageName: String): Application {
         var appDetails: GplayApp?
 
         val appDetailsHelper =
             AppDetailsHelper(authenticatorRepository.getGPlayAuthOrThrow()).using(gPlayHttpClient)
 
         withContext(Dispatchers.IO) {
-            appDetails = appDetailsHelper.getAppByPackageName(packageNameOrId)
+            appDetails = appDetailsHelper.getAppByPackageName(packageName)
         }
 
         if (appDetails?.versionCode == 0) {

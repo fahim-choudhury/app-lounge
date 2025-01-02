@@ -26,6 +26,7 @@ import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.download.Download
 import foundation.e.apps.data.cleanapk.data.search.Search
+import foundation.e.apps.data.enums.Source
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -42,13 +43,14 @@ class CleanApkAppsRepository @Inject constructor(
         )
 
         val home = response.body()?.home ?: throw IllegalStateException("No home data found")
-        val listHome = homeConverter.toGenericHome(home, CleanApkRetrofit.APP_TYPE_ANY)
+        val listHome = homeConverter.toGenericHome(home, CleanApkRetrofit.APP_SOURCE_FOSS)
         val map = mutableMapOf<String, List<Application>>()
         listHome.forEach {
             map[it.title] = it.list
         }
 
         listHome.forEach { (title, apps) ->
+            apps.forEach { app -> app.source = Source.OPEN_SOURCE }
             list.add(Home(title, apps, SearchApi.APP_TYPE_OPEN))
         }
 
@@ -90,9 +92,11 @@ class CleanApkAppsRepository @Inject constructor(
         return cleanApkRetrofit.checkAvailablePackages(packageNames)
     }
 
-    override suspend fun getAppDetails(packageNameOrId: String): Application {
-        val response = cleanApkRetrofit.getAppOrPWADetailsByID(packageNameOrId, null, null)
-        return response.body()?.app ?: throw IllegalStateException("No app data found")
+    override suspend fun getAppDetails(packageName: String): Application {
+        val apps = cleanApkRetrofit.checkAvailablePackages(listOf(packageName))
+        val app = apps.body()?.apps?.firstOrNull() ?: return Application()
+        val response = cleanApkRetrofit.getAppOrPWADetailsByID(app._id, null, null)
+        return response.body()?.app ?: return Application()
     }
 
     override suspend fun getDownloadInfo(idOrPackageName: String, versionCode: Any?): Response<Download> {

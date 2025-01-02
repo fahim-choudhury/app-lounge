@@ -45,7 +45,7 @@ class ScreenshotFragment : Fragment(R.layout.fragment_screenshot) {
             view.findNavController().navigateUp()
         }
 
-        val screenshotRVAdapter = ScreenshotRVAdapter(args.list.toList(), args.origin)
+        val screenshotRVAdapter = ScreenshotRVAdapter(args.list.toList(), args.source)
         binding.viewPager.apply {
             adapter = screenshotRVAdapter
             currentItem = args.position

@@ -3,19 +3,17 @@ package foundation.e.apps.data.install.models
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
 import com.aurora.gplayapi.data.models.ContentRating
 import com.aurora.gplayapi.data.models.File
-import com.google.gson.Gson
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
-import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
 
 @Entity(tableName = "FusedDownload")
 data class AppInstall(
     @PrimaryKey val id: String = String(),
-    val origin: Origin = Origin.CLEANAPK,
+    val source: Source = Source.PLAY_STORE,
     var status: Status = Status.UNAVAILABLE,
     val name: String = String(),
     val packageName: String = String(),
@@ -47,7 +45,7 @@ data class AppInstall(
     fun areFilesDownloaded() = downloadIdMap.isNotEmpty() && !downloadIdMap.values.contains(false)
 
     fun getAppIconUrl(): String {
-        if (this.origin == Origin.CLEANAPK) {
+        if (this.source == Source.PLAY_STORE || this.source == Source.PWA) {
             return "${CleanApkRetrofit.ASSET_URL}${this.iconImageUrl}"
         }
         return this.iconImageUrl

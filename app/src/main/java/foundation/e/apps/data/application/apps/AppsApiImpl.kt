@@ -28,7 +28,6 @@ import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.utils.toApplication
 import foundation.e.apps.data.cleanapk.data.search.Search
 import foundation.e.apps.data.enums.FilterLevel
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.isUnFiltered
@@ -37,7 +36,6 @@ import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
 import javax.inject.Inject
 import foundation.e.apps.data.enums.Source
-import foundation.e.apps.data.playstore.PlayStoreRepository
 
 class AppsApiImpl @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -79,12 +77,12 @@ class AppsApiImpl @Inject constructor(
 
     override suspend fun getApplicationDetails(
         packageNameList: List<String>,
-        origin: Origin
+        source: Source
     ): Pair<List<Application>, ResultStatus> {
         val list = mutableListOf<Application>()
 
         val response: Pair<List<Application>, ResultStatus> =
-            if (origin == Origin.CLEANAPK) {
+            if (source == Source.OPEN_SOURCE || source == Source.PWA) {
                 getAppDetailsListFromCleanApk(packageNameList)
             } else {
                 getAppDetailsListFromGPlay(packageNameList)
@@ -183,22 +181,21 @@ class AppsApiImpl @Inject constructor(
     override suspend fun getApplicationDetails(
         id: String,
         packageName: String,
-        origin: Origin
+        source: Source
     ): Pair<Application, ResultStatus> {
         var application: Application
 
         val result = handleNetworkResult {
 
-            val store = stores.getStores()[Source.fromOrigin(origin)]
+            val store = stores.getStores()[source]
                 ?: throw IllegalStateException("Could not get store")
 
-            val idOrPackageName = if (store is PlayStoreRepository) packageName else id
-            application = store.getAppDetails(idOrPackageName)
+            application = store.getAppDetails(packageName)
 
             application.let {
                 applicationDataManager.updateStatus(it)
+                it.source = source
                 it.updateType()
-                it.updateSource(context)
                 it.updateFilterLevel()
             }
             application

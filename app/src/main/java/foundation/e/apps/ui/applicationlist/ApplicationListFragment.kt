@@ -165,6 +165,7 @@ class ApplicationListFragment :
             if (it != null && it.isSuccess()) {
                 observeDownloadList(listAdapter, it)
             }
+            listAdapter.setData(it?.data ?: emptyList(), args.translation)
         }
     }
 

@@ -20,7 +20,7 @@ package foundation.e.apps.data.application.downloadInfo
 
 import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.cleanapk.CleanApkDownloadInfoFetcher
-import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.handleNetworkResult
 import javax.inject.Inject
@@ -56,20 +56,24 @@ class DownloadInfoApiImpl @Inject constructor(
     }
 
     override suspend fun updateFusedDownloadWithDownloadingInfo(
-        origin: Origin,
+        source: Source,
         appInstall: AppInstall
     ) {
         val list = mutableListOf<String>()
-        when (origin) {
-            Origin.CLEANAPK -> {
+        when (source) {
+            Source.OPEN_SOURCE -> {
+                updateDownloadInfoFromCleanApk(appInstall, list)
+            }
+            
+            Source.PWA -> {
                 updateDownloadInfoFromCleanApk(appInstall, list)
             }
 
-            Origin.GPLAY -> {
+            Source.PLAY_STORE -> {
                 updateDownloadInfoFromGplay(appInstall, list)
             }
 
-            Origin.GITLAB_RELEASES -> {
+            Source.GITLAB_RELEASES -> {
                 return // nothing to do as downloadURLList is already set
             }
         }

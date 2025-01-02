@@ -63,7 +63,7 @@ class CategoryApiImpl @Inject constructor(
         val categoryResults: MutableList<ResultStatus> = mutableListOf()
 
         if (appLoungePreference.isOpenSourceSelected()) {
-            categoryResults.add(fetchCategoryResult(categoriesList, type, Source.OPEN))
+            categoryResults.add(fetchCategoryResult(categoriesList, type, Source.OPEN_SOURCE))
         }
 
         if (appLoungePreference.isPWASelected()) {
@@ -71,7 +71,7 @@ class CategoryApiImpl @Inject constructor(
         }
 
         if (appLoungePreference.isGplaySelected()) {
-            categoryResults.add(fetchCategoryResult(categoriesList, type, Source.GPLAY))
+            categoryResults.add(fetchCategoryResult(categoriesList, type, Source.PLAY_STORE))
         }
 
         return categoryResults.find { it != ResultStatus.OK } ?: ResultStatus.OK
@@ -83,8 +83,8 @@ class CategoryApiImpl @Inject constructor(
         source: Source
     ): ResultStatus {
         val categoryResult = when (source) {
-            Source.OPEN -> {
-                fetchCleanApkCategories(type, Source.OPEN)
+            Source.OPEN_SOURCE -> {
+                fetchCleanApkCategories(type, Source.OPEN_SOURCE)
             }
 
             Source.PWA -> {
@@ -133,7 +133,7 @@ class CategoryApiImpl @Inject constructor(
 
         val result = handleNetworkResult {
             val categories = when (source) {
-                Source.OPEN -> {
+                Source.OPEN_SOURCE -> {
                     tag = AppTag.OpenSource(context.getString(R.string.open_source))
                     appSources.cleanApkAppsRepo.getCategories().body()
                 }
@@ -234,6 +234,7 @@ class CategoryApiImpl @Inject constructor(
             response?.apps?.forEach {
                 applicationDataManager.updateStatus(it)
                 it.updateType()
+                it.source = source
                 applicationDataManager.updateFilterLevel(it)
                 list.add(it)
             }
@@ -245,7 +246,7 @@ class CategoryApiImpl @Inject constructor(
         source: Source,
         category: String
     ) = when (source) {
-        Source.OPEN -> {
+        Source.OPEN_SOURCE -> {
             appSources.cleanApkAppsRepo.getAppsByCategory(category).body()
         }
 

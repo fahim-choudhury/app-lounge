@@ -31,13 +31,11 @@ import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.search.GplaySearchResult
 import foundation.e.apps.data.application.search.SearchResult
-import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.exodus.repositories.IAppPrivacyInfoRepository
 import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepository
 import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -105,7 +103,6 @@ class SearchViewModel @Inject constructor(
 
     fun loadData(
         query: String,
-        lifecycleOwner: LifecycleOwner,
         authObjectList: List<AuthObject>,
         retryBlock: (failedObjects: List<AuthObject>) -> Boolean
     ) {
@@ -114,7 +111,7 @@ class SearchViewModel @Inject constructor(
         this.lastAuthObjects = authObjectList
         super.onLoadData(authObjectList, { successAuthList, failedAuthList ->
             successAuthList.find { it is AuthObject.CleanApk }?.run {
-                fetchCleanApkData(query, null)
+                fetchCleanApkData(query)
             }
 
             successAuthList.find { it is AuthObject.GPlayAuth }?.run {
@@ -137,14 +134,10 @@ class SearchViewModel @Inject constructor(
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5171
      */
     private fun fetchCleanApkData(
-        query: String,
-        authData: AuthData?
+        query: String
     ) {
         viewModelScope.launch(IO) {
-            val searchResultSupreme = applicationRepository.getCleanApkSearchResults(
-                query,
-                authData ?: AuthData("", "")
-            )
+            val searchResultSupreme = applicationRepository.getCleanApkSearchResults(query)
 
             hasGPlayBeenFetched = false
             emitFilteredResults(searchResultSupreme)
@@ -250,7 +243,7 @@ class SearchViewModel @Inject constructor(
         accumulatedList.filter {
             if (!flagNoTrackers && !flagOpenSource && !flagPWA) return@filter true
             if (flagNoTrackers && !hasTrackers(it)) return@filter true
-            if (flagOpenSource && !it.is_pwa && it.origin == Origin.CLEANAPK) return@filter true
+            if (flagOpenSource && !it.is_pwa && it.source == Source.OPEN_SOURCE) return@filter true
             if (flagPWA && it.is_pwa) return@filter true
             false
         }

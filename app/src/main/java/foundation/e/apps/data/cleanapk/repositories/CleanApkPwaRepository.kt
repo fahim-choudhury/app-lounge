@@ -26,6 +26,7 @@ import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
 import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.data.search.Search
+import foundation.e.apps.data.enums.Source
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -50,6 +51,7 @@ class CleanApkPwaRepository @Inject constructor(
         }
 
         listHome.forEach { (title, apps) ->
+            apps.forEach { app -> app.source = Source.PWA }
             list.add(Home(title, apps, SearchApi.APP_TYPE_PWA))
         }
 
@@ -88,8 +90,10 @@ class CleanApkPwaRepository @Inject constructor(
         return cleanApkRetrofit.checkAvailablePackages(packageNames)
     }
 
-    override suspend fun getAppDetails(packageNameOrId: String): Application {
-        val response = cleanApkRetrofit.getAppOrPWADetailsByID(packageNameOrId, null, null)
-        return response.body()?.app ?: throw IllegalStateException("No app data found")
+    override suspend fun getAppDetails(packageName: String): Application {
+        val apps = cleanApkRetrofit.checkAvailablePackages(listOf(packageName), CleanApkRetrofit.APP_TYPE_PWA)
+        val app = apps.body()?.apps?.firstOrNull() ?: return Application()
+        val response = cleanApkRetrofit.getAppOrPWADetailsByID(app._id, null, null)
+        return response.body()?.app ?: return Application()
     }
 }

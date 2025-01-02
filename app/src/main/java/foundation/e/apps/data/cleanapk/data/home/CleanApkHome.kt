@@ -18,7 +18,6 @@
 
 package foundation.e.apps.data.cleanapk.data.home
 
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.application.data.Application
 
 data class CleanApkHome(
@@ -27,5 +26,4 @@ data class CleanApkHome(
     val popular_apps: List<Application> = emptyList(),
     val popular_games: List<Application> = emptyList(),
     val discover: List<Application> = emptyList(),
-    var origin: Origin = Origin.CLEANAPK // Origin
 )

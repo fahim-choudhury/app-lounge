@@ -22,7 +22,7 @@ import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.DownloadManager
-import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.install.AppManagerWrapper
 import foundation.e.apps.data.install.models.AppInstall
@@ -164,7 +164,7 @@ class DownloadManagerUtils @Inject constructor(
     }
 
     private suspend fun checkCleanApkSignatureOK(appInstall: AppInstall): Boolean {
-        if (appInstall.origin != Origin.CLEANAPK || appManagerWrapper.isFDroidApplicationSigned(
+        if ((appInstall.source != Source.PWA && appInstall.source != Source.OPEN_SOURCE) || appManagerWrapper.isFDroidApplicationSigned(
                 context, appInstall
             )
         ) {

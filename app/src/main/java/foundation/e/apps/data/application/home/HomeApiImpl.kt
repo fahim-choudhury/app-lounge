@@ -24,16 +24,12 @@ import androidx.lifecycle.liveData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.Stores
-import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.application.search.FusedHomeDeferred
 import foundation.e.apps.data.application.search.SearchApi
-import foundation.e.apps.data.cleanapk.repositories.CleanApkAppsRepository
-import foundation.e.apps.data.cleanapk.repositories.CleanApkPwaRepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.handleNetworkResult
-import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.data.preference.AppLoungePreference
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -61,11 +57,11 @@ class HomeApiImpl @Inject constructor(
             coroutineScope {
 
                 if (appLoungePreference.isGplaySelected()) {
-                    resultGplay = async { loadHomeData(list, Source.GPLAY) }
+                    resultGplay = async { loadHomeData(list, Source.PLAY_STORE) }
                 }
 
                 if (appLoungePreference.isOpenSourceSelected()) {
-                    resultOpenSource = async { loadHomeData(list, Source.OPEN) }
+                    resultOpenSource = async { loadHomeData(list, Source.OPEN_SOURCE) }
                 }
 
                 if (appLoungePreference.isPWASelected()) {
@@ -112,9 +108,9 @@ class HomeApiImpl @Inject constructor(
     private fun setHomeErrorMessage(apiStatus: ResultStatus, source: Source) {
         if (apiStatus != ResultStatus.OK) {
             apiStatus.message = when (source) {
-                Source.GPLAY -> ("GPlay home loading error\n" + apiStatus.message).trim()
+                Source.PLAY_STORE -> ("GPlay home loading error\n" + apiStatus.message).trim()
                 Source.GITLAB_RELEASES -> ("Gitlab home not allowed\n" + apiStatus.message).trim()
-                Source.OPEN -> ("Open Source home loading error\n" + apiStatus.message).trim()
+                Source.OPEN_SOURCE -> ("Open Source home loading error\n" + apiStatus.message).trim()
                 Source.PWA -> ("PWA home loading error\n" + apiStatus.message).trim()
             }
         }

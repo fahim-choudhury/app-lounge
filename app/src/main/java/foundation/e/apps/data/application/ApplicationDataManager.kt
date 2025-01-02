@@ -22,9 +22,8 @@ import com.aurora.gplayapi.Constants
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.enums.FilterLevel
-import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import javax.inject.Inject
@@ -58,8 +57,8 @@ class ApplicationDataManager @Inject constructor(
         return when {
             application.package_name.isBlank() -> FilterLevel.UNKNOWN
             !application.isFree && application.price.isBlank() -> FilterLevel.UI
-            application.origin == Origin.CLEANAPK -> FilterLevel.NONE
-            application.origin == Origin.GITLAB_RELEASES -> FilterLevel.NONE
+            application.source == Source.PWA || application.source == Source.OPEN_SOURCE -> FilterLevel.NONE
+            application.source == Source.GITLAB_RELEASES -> FilterLevel.NONE
             !isRestricted(application) -> FilterLevel.NONE
             application.originalSize == 0L -> FilterLevel.UI
             else -> FilterLevel.NONE

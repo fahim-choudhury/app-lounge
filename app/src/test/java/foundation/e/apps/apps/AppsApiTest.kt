@@ -24,8 +24,8 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.Constants
 import foundation.e.apps.FakeAppLoungePreference
 import foundation.e.apps.data.AppSourcesContainer
+import foundation.e.apps.data.Stores
 import foundation.e.apps.data.enums.FilterLevel
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.apps.AppsApi
@@ -33,6 +33,7 @@ import foundation.e.apps.data.application.apps.AppsApiImpl
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.cleanapk.repositories.CleanApkAppsRepository
 import foundation.e.apps.data.cleanapk.repositories.CleanApkPwaRepository
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
@@ -83,6 +84,9 @@ class AppsApiTest {
     @Mock
     private lateinit var gPlayAPIRepository: PlayStoreRepository
 
+    @Mock
+    private lateinit var stores: Stores
+
     private lateinit var appsApi: AppsApi
 
     private lateinit var applicationDataManager: ApplicationDataManager
@@ -104,6 +108,7 @@ class AppsApiTest {
             context,
             preferenceManagerModule,
             appSourcesContainer,
+            stores,
             applicationDataManager
         )
     }
@@ -432,7 +437,7 @@ class AppsApiTest {
         name = "Demo Three",
         package_name = "foundation.e.demothree",
         latest_version_code = 123,
-        origin = Origin.CLEANAPK,
+        source = Source.OPEN_SOURCE,
         originalSize = -1,
         isFree = isFree,
         price = ""
@@ -449,7 +454,7 @@ class AppsApiTest {
     @Test
     fun `getAppFilterLevel when app is restricted and paid and no price`() = runTest {
         val fusedApp = getFusedAppForFilterLevelTest(false).apply {
-            this.origin = Origin.GPLAY
+            this.source = Source.PLAY_STORE
             this.restriction = Constants.Restriction.UNKNOWN
         }
 
@@ -460,7 +465,7 @@ class AppsApiTest {
     @Test
     fun `getAppFilterLevel when app is not_restricted and paid and no price`() = runTest {
         val fusedApp = getFusedAppForFilterLevelTest(false).apply {
-            this.origin = Origin.GPLAY
+            this.source = Source.PLAY_STORE
             this.restriction = Constants.Restriction.NOT_RESTRICTED
         }
 
@@ -472,7 +477,7 @@ class AppsApiTest {
     fun `getAppFilterLevel when app is restricted and getAppDetails and getDownloadDetails returns success`() =
         runTest {
             val fusedApp = getFusedAppForFilterLevelTest().apply {
-                this.origin = Origin.GPLAY
+                this.source = Source.PLAY_STORE
                 this.restriction = Constants.Restriction.UNKNOWN
             }
 

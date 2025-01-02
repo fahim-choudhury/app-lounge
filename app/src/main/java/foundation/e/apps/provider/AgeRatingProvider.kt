@@ -38,7 +38,7 @@ import foundation.e.apps.contract.ParentalControlContract.PATH_BLOCKLIST
 import foundation.e.apps.contract.ParentalControlContract.PATH_LOGIN_TYPE
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
-import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.login.exceptions.GPlayLoginException
@@ -204,7 +204,7 @@ class AgeRatingProvider : ContentProvider() {
     private suspend fun isAppValidRegardingAge(packageName: String): Boolean? {
         val fakeAppInstall = AppInstall(
             packageName = packageName,
-            origin = Origin.GPLAY
+            source = Source.PLAY_STORE
         )
         val validateResult = validateAppAgeLimitUseCase.invoke(fakeAppInstall)
         saveContentRatingIfInvalid(validateResult, packageName)
@@ -230,7 +230,7 @@ class AgeRatingProvider : ContentProvider() {
     private suspend fun isAppValidRegardingNSFW(packageName: String): Boolean {
         val fakeAppInstall = AppInstall(
             packageName = packageName,
-            origin = Origin.CLEANAPK,
+            source = Source.OPEN_SOURCE,
         )
         val validateResult = validateAppAgeLimitUseCase.invoke(fakeAppInstall)
         return validateResult.data?.isValid ?: false
