@@ -18,10 +18,11 @@
 package foundation.e.apps.ui.applicationlist
 
 import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
@@ -180,21 +181,20 @@ class ApplicationListRVAdapter(
                 }
             }
             Origin.GITLAB_RELEASES -> {
-                setSystemAppIcon(appIcon, searchApp)
+                appIcon.load(getAppIcon(appIcon.context, searchApp.package_name)) {
+                    placeholder(shimmerDrawable)
+                }
             }
             else -> Timber.wtf("${searchApp.package_name} is from an unknown origin")
         }
     }
 
-    private fun setSystemAppIcon(imageView: ImageView, app: Application) {
-        if (!app.isSystemApp) return
-        try {
-            imageView.run {
-                setImageDrawable(context.packageManager.getApplicationIcon(app.package_name))
-            }
-        } catch (e: Exception) {
-            Timber.w("Icon could not be set for system app - ${app.package_name} - ${e.message}")
-            e.printStackTrace()
+    private fun getAppIcon(context: Context, packageName: String): Drawable? {
+        return try {
+            context.packageManager.getApplicationIcon(packageName)
+        } catch (e: PackageManager.NameNotFoundException) {
+            Timber.w("Icon could not be set for system app - $packageName: ${e.message}")
+            null
         }
     }
 
