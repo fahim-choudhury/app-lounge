@@ -28,7 +28,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="foundation.e.pwaplayer.provider.READ_WRITE" />
-
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -84,7 +85,11 @@
             </intent-filter>
             <nav-graph android:value="@navigation/navigation_resource" />
         </activity>
-        <service android:name=".install.pkg.InstallerService" />
+
+        <service
+            android:name=".install.pkg.InstallerService"
+            android:foregroundServiceType="dataSync">
+        </service>
 
         <receiver
             android:name="foundation.e.apps.install.download.DownloadManagerBR"
@@ -157,13 +162,23 @@
             android:exported="true"
             android:readPermission="${applicationId}.permission.PROVIDER_READ" />
 
-        <service android:name=".install.pkg.PackageInstallerService" />
+        <service
+            android:name=".install.pkg.PackageInstallerService"
+            android:foregroundServiceType="dataSync">
+        </service>
 
         <!-- TODO: ExportedService, suppressing because changes are needed in other apps -->
         <service
             android:name=".install.splitinstall.SplitInstallService"
             tools:ignore="ExportedService"
-            android:exported="true" />
+            android:exported="true"
+            android:foregroundServiceType="dataSync">
+        </service>
+
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
 
         <receiver
             android:name=".install.splitinstall.SplitInstallBinder$IgnoreReceiver"
