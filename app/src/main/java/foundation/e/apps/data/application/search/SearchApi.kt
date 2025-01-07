@@ -49,8 +49,7 @@ interface SearchApi {
 
     suspend fun getGplaySearchResult(
         query: String,
-        nextPageSubBundle: Set<SearchBundle.SubBundle>?
-    ): GplaySearchResult
+    ): SearchResult
 
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry>
 }

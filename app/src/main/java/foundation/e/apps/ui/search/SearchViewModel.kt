@@ -18,18 +18,14 @@
 
 package foundation.e.apps.ui.search
 
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.SearchSuggestEntry
-import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.SearchBundle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.application.search.GplaySearchResult
 import foundation.e.apps.data.application.search.SearchResult
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.exodus.repositories.IAppPrivacyInfoRepository
@@ -62,7 +58,6 @@ class SearchViewModel @Inject constructor(
 
     private var lastAuthObjects: List<AuthObject>? = null
 
-    private var nextSubBundle: Set<SearchBundle.SubBundle>? = null
 
     private var isLoading: Boolean = false
     private var hasGPlayBeenFetched = false
@@ -103,24 +98,22 @@ class SearchViewModel @Inject constructor(
 
     fun loadData(
         query: String,
-        authObjectList: List<AuthObject>,
+        authObjects: List<AuthObject>,
         retryBlock: (failedObjects: List<AuthObject>) -> Boolean
     ) {
         if (query.isBlank()) return
 
-        this.lastAuthObjects = authObjectList
-        super.onLoadData(authObjectList, { successAuthList, failedAuthList ->
-            successAuthList.find { it is AuthObject.CleanApk }?.run {
+        this.lastAuthObjects = authObjects
+        super.onLoadData(authObjects, { successObjects, failedObjects ->
+            successObjects.find { it is AuthObject.CleanApk }?.run {
                 fetchCleanApkData(query)
             }
 
-            successAuthList.find { it is AuthObject.GPlayAuth }?.run {
-                nextSubBundle = null
+            successObjects.find { it is AuthObject.GPlayAuth }?.run {
                 fetchGplayData(query)
             }
 
-            failedAuthList.find { it is AuthObject.GPlayAuth }?.run {
-                nextSubBundle = null
+            failedObjects.find { it is AuthObject.GPlayAuth }?.run {
                 fetchGplayData(query)
             }
 
@@ -166,7 +159,7 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch(IO) {
             isLoading = true
             val gplaySearchResult =
-                applicationRepository.getGplaySearchResults(query, nextSubBundle)
+                applicationRepository.getGplaySearchResults(query)
 
             if (!gplaySearchResult.isSuccess()) {
                 gplaySearchResult.exception?.let {
@@ -174,11 +167,9 @@ class SearchViewModel @Inject constructor(
                 }
             }
 
-            nextSubBundle = gplaySearchResult.data?.second
-
             val currentAppList = updateCurrentAppList(gplaySearchResult)
             val finalResult = ResultSupreme.Success(
-                Pair(currentAppList.toList(), nextSubBundle?.isNotEmpty() ?: false)
+                Pair(currentAppList.toList(), false)
             )
 
             hasGPlayBeenFetched = true
@@ -188,10 +179,10 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    private fun updateCurrentAppList(gplaySearchResult: GplaySearchResult): List<Application> {
+    private fun updateCurrentAppList(searchResult: SearchResult): List<Application> {
         val currentAppList = accumulatedList
         currentAppList.removeIf { item -> item.isPlaceHolder }
-        currentAppList.addAll(gplaySearchResult.data?.first ?: emptyList())
+        currentAppList.addAll(searchResult.data?.first ?: emptyList())
         return currentAppList.distinctBy { it.package_name }
     }
 

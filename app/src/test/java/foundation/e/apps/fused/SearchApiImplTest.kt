@@ -125,6 +125,7 @@ class SearchApiImplTest {
             appsApi,
             preferenceManagerModule,
             appSourcesContainer,
+            stores,
             applicationDataManager
         )
     }

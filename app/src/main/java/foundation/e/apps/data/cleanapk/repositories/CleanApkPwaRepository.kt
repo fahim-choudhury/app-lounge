@@ -96,4 +96,25 @@ class CleanApkPwaRepository @Inject constructor(
         val response = cleanApkRetrofit.getAppOrPWADetailsByID(app._id, null, null)
         return response.body()?.app ?: return Application()
     }
+
+    override suspend fun getSearchResults(pattern: String): List<Application> {
+        val searchResult = cleanApkRetrofit.searchApps(
+            pattern,
+            CleanApkRetrofit.APP_SOURCE_ANY,
+            CleanApkRetrofit.APP_TYPE_PWA,
+            NUMBER_OF_ITEMS,
+            NUMBER_OF_PAGES
+        )
+
+        val apps = searchResult.body()?.apps
+        apps?.forEach { app ->
+            app.source = if (app.is_pwa) {
+                Source.PWA
+            } else {
+                Source.OPEN_SOURCE
+            }
+        }
+
+        return apps ?: emptyList()
+    }
 }

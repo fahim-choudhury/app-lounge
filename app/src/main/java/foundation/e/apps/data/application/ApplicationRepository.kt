@@ -121,10 +121,9 @@ class ApplicationRepository @Inject constructor(
     }
 
     suspend fun getGplaySearchResults(
-        query: String,
-        nextPageSubBundle: Set<SearchBundle.SubBundle>?
-    ): GplaySearchResult {
-        return searchAPIImpl.getGplaySearchResult(query, nextPageSubBundle)
+        query: String
+    ): SearchResult {
+        return searchAPIImpl.getGplaySearchResult(query)
     }
 
     suspend fun getAppsListBasedOnCategory(

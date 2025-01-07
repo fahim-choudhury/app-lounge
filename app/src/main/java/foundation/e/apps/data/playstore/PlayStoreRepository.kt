@@ -57,7 +57,6 @@ class PlayStoreRepository @Inject constructor(
     private val authenticatorRepository: AuthenticatorRepository,
     private val applicationDataManager: ApplicationDataManager
 ) : StoreRepository {
-
     override suspend fun getHomeScreenData(list: MutableList<Home>): List<Home> {
         val homeScreenData = mutableMapOf<String, List<Application>>()
         val homeElements = createTopChartElements()
@@ -93,6 +92,13 @@ class PlayStoreRepository @Inject constructor(
         context.getString(R.string.movers_shakers_apps) to mapOf(Chart.MOVERS_SHAKERS to Type.APPLICATION),
         context.getString(R.string.movers_shakers_games) to mapOf(Chart.MOVERS_SHAKERS to Type.GAME),
     )
+
+    override suspend fun getSearchResults(pattern: String): List<Application> {
+        val searchResult = WebSearchHelper().using(gPlayHttpClient).searchResults(pattern)
+        return searchResult.appList.map {
+            it.toApplication(context)
+        }
+    }
 
     fun getSearchResult(
         query: String,

@@ -99,6 +99,27 @@ class CleanApkAppsRepository @Inject constructor(
         return response.body()?.app ?: return Application()
     }
 
+    override suspend fun getSearchResults(pattern: String): List<Application> {
+        val searchResult = cleanApkRetrofit.searchApps(
+            pattern,
+            CleanApkRetrofit.APP_SOURCE_FOSS,
+            CleanApkRetrofit.APP_TYPE_NATIVE,
+            NUMBER_OF_ITEMS,
+            NUMBER_OF_PAGES
+        )
+
+        val apps = searchResult.body()?.apps
+        apps?.forEach { app ->
+            app.source = if (app.is_pwa) {
+                Source.PWA
+            } else {
+                Source.OPEN_SOURCE
+            }
+        }
+
+        return apps ?: emptyList()
+    }
+
     override suspend fun getDownloadInfo(idOrPackageName: String, versionCode: Any?): Response<Download> {
         val version = versionCode?.let { it as String }
         return cleanApkRetrofit.getDownloadInfo(idOrPackageName, version, null)
