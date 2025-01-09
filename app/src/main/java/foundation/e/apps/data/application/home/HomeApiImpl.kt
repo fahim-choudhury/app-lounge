@@ -109,7 +109,7 @@ class HomeApiImpl @Inject constructor(
         if (apiStatus != ResultStatus.OK) {
             apiStatus.message = when (source) {
                 Source.PLAY_STORE -> ("GPlay home loading error\n" + apiStatus.message).trim()
-                Source.GITLAB_RELEASES -> ("Gitlab home not allowed\n" + apiStatus.message).trim()
+                Source.SYSTEM_APP -> ("Gitlab home not allowed\n" + apiStatus.message).trim()
                 Source.OPEN_SOURCE -> ("Open Source home loading error\n" + apiStatus.message).trim()
                 Source.PWA -> ("PWA home loading error\n" + apiStatus.message).trim()
             }

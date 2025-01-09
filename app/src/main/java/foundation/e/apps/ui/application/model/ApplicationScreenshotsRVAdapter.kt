@@ -61,7 +61,7 @@ class ApplicationScreenshotsRVAdapter(
             Source.PLAY_STORE -> {
                 imageView.load(oldList[position])
             }
-            Source.GITLAB_RELEASES -> {
+            Source.SYSTEM_APP -> {
                 // no operation
             }
         }

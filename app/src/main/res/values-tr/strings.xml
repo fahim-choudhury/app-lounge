@@ -133,7 +133,6 @@
     <string name="restricted_app">[%1$s] Kısıtlandırılmış Uygulama</string>
     <string name="age_rate_limit_message">%1$s yükleyebilmek için çok küçüksünüz. Lütfen yaş grubunuzun doğru olup olmadığını ebeveyninizle kontrol edin veya yükleyebilmek için ebeveyn kontrolünü devre dışı bırakın.</string>
     <string name="message_inappropriate_content">Bu uygulama uygunsuz içerik içerebilir.</string>
-    <string name="system_app">Sistem uygulaması</string>
     <string name="paid_app_anonymous_message">Ücretli uygulamalar anonim modda yüklenemez. Ücretli uygulamaları yüklemek için lütfen Google hesabınıza giriş yapın.</string>
     <string name="no_internet_message">Bağlantı kurulamıyor! Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin</string>
     <string name="timeout_title">Uygulamaları getirirken zaman aşımı!</string>

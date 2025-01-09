@@ -107,7 +107,7 @@ class UpdateManagerImptTest {
             status = status,
             name = "Demo Four",
             package_name = "foundation.e.demofour",
-            source = Source.GITLAB_RELEASES,
+            source = Source.SYSTEM_APP,
             filterLevel = FilterLevel.NONE
         )
     )
@@ -242,7 +242,7 @@ class UpdateManagerImptTest {
         )
 
         val updateResult = updatesManagerImpl.getUpdates()
-        assertFalse("fetchupdate", updateResult.first.any { it.source != Source.GITLAB_RELEASES })
+        assertFalse("fetchupdate", updateResult.first.any { it.source != Source.SYSTEM_APP })
     }
 
     @Test
@@ -328,7 +328,7 @@ class UpdateManagerImptTest {
         val updateResult = updatesManagerImpl.getUpdatesOSS()
         assertEquals("UpdateOSS", 2, updateResult.first.size)
         assertEquals("UpdateOSS", Source.OPEN_SOURCE, updateResult.first[1].source)
-        assertEquals("UpdateOSS", Source.GITLAB_RELEASES, updateResult.first[0].source)
+        assertEquals("UpdateOSS", Source.SYSTEM_APP, updateResult.first[0].source)
     }
 
     @Test

@@ -73,7 +73,7 @@ class DownloadInfoApiImpl @Inject constructor(
                 updateDownloadInfoFromGplay(appInstall, list)
             }
 
-            Source.GITLAB_RELEASES -> {
+            Source.SYSTEM_APP -> {
                 return // nothing to do as downloadURLList is already set
             }
         }

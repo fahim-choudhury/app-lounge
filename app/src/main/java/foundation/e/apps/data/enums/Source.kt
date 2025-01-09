@@ -19,7 +19,7 @@ package foundation.e.apps.data.enums
 
 enum class Source {
     PLAY_STORE,
-    GITLAB_RELEASES,
+    SYSTEM_APP,
     OPEN_SOURCE,
     PWA;
 
@@ -34,7 +34,7 @@ enum class Source {
             return when (source) {
                 "Open Source" -> OPEN_SOURCE
                 "PWA" -> PWA
-                "GITLAB_RELEASES" -> GITLAB_RELEASES
+                "SYSTEM_APP" -> SYSTEM_APP
                 else -> PLAY_STORE
             }
         }

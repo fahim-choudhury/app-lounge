@@ -100,7 +100,7 @@ class AppInstallProcessor @Inject constructor(
             it.contentRating = application.contentRating
         }
 
-        if (appInstall.type == Type.PWA || application.source == Source.GITLAB_RELEASES) {
+        if (appInstall.type == Type.PWA || application.source == Source.SYSTEM_APP) {
             appInstall.downloadURLList = mutableListOf(application.url)
         }
 

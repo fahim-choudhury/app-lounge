@@ -255,7 +255,7 @@ class SystemAppsUpdatesRepository @Inject constructor(
 
             app.run {
                 applicationDataManager.updateStatus(this)
-                source = Source.GITLAB_RELEASES
+                source = Source.SYSTEM_APP
                 updateList.add(this)
             }
         }

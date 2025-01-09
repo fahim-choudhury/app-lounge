@@ -185,7 +185,7 @@ class ApplicationListRVAdapter(
                     placeholder(shimmerDrawable)
                 }
             }
-            Source.GITLAB_RELEASES -> {
+            Source.SYSTEM_APP -> {
                 appIcon.load(getAppIcon(appIcon.context, searchApp.package_name)) {
                     placeholder(shimmerDrawable)
                 }
