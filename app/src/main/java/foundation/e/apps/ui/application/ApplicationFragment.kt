@@ -423,12 +423,10 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
             }
 
             updateCategoryTitle(it)
-
-            if (it.source == Source.OPEN_SOURCE || it.source == Source.PWA) {
+            val source = if (isFdroidDeepLink) Source.OPEN_SOURCE else args.source
+            if (source == Source.OPEN_SOURCE || source == Source.PWA) {
                 sourceTag.visibility = View.VISIBLE
                 sourceTag.text = it.source.toString()
-            }
-            if (it.source == Source.PWA || it.source == Source.OPEN_SOURCE) {
                 appIcon.load(CleanApkRetrofit.ASSET_URL + it.icon_image_path)
             } else {
                 appIcon.load(it.icon_image_path)
@@ -477,7 +475,8 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun setupScreenshotRVAdapter() {
-        screenshotsRVAdapter = ApplicationScreenshotsRVAdapter(args.source)
+        val source = if (isFdroidDeepLink) Source.OPEN_SOURCE else args.source
+        screenshotsRVAdapter = ApplicationScreenshotsRVAdapter(source)
         binding.recyclerView.apply {
             adapter = screenshotsRVAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
@@ -588,14 +587,16 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
         /* Remove trailing slash (if present) that can become part of the packageName */
         val packageName = args.packageName.run { if (endsWith('/')) dropLast(1) else this }
 
+        val source = if (isFdroidDeepLink) Source.OPEN_SOURCE else args.source
         val applicationLoadingParams = ApplicationLoadingParams(
             args.id,
             packageName,
-            args.source,
+            source,
             isFdroidDeepLink,
             authObjectList,
             args.isPurchased
         )
+
         applicationViewModel.loadData(applicationLoadingParams) {
             clearAndRestartGPlayLogin()
             true

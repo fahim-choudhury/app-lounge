@@ -57,17 +57,6 @@ class CleanApkAppsRepository @Inject constructor(
         return list
     }
 
-    override suspend fun getSearchResult(query: String, searchBy: String?): Response<Search> {
-        return cleanApkRetrofit.searchApps(
-            query,
-            CleanApkRetrofit.APP_SOURCE_FOSS,
-            CleanApkRetrofit.APP_TYPE_ANY,
-            NUMBER_OF_ITEMS,
-            NUMBER_OF_PAGES,
-            searchBy
-        )
-    }
-
     override suspend fun getAppsByCategory(
         category: String,
         paginationParameter: Any?

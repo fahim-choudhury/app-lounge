@@ -78,10 +78,6 @@ class ApplicationRepository @Inject constructor(
         return appsApi.getApplicationDetails(id, packageName, source)
     }
 
-    suspend fun getCleanapkAppDetails(packageName: String): Pair<Application, ResultStatus> {
-        return appsApi.getCleanapkAppDetails(packageName)
-    }
-
     suspend fun updateFusedDownloadWithDownloadingInfo(
         source: Source,
         appInstall: AppInstall

@@ -321,11 +321,11 @@ class UpdatesManagerImpl @Inject constructor(
         packageName: String,
         appsAndSignatures: HashMap<String, String>
     ) {
-            val cleanApkFusedApp = applicationRepository.getCleanapkAppDetails(packageName).first
-            if (cleanApkFusedApp.package_name.isBlank()) {
+            val app = applicationRepository.getApplicationDetails(listOf(packageName), Source.OPEN_SOURCE).first
+            if (app[0].package_name.isBlank()) {
                 return
             }
-            appsAndSignatures[packageName] = getPgpSignature(cleanApkFusedApp)
+            appsAndSignatures[packageName] = getPgpSignature(app[0])
     }
 
     private suspend fun getPgpSignature(cleanApkApplication: Application): String {

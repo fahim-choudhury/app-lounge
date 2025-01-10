@@ -193,12 +193,12 @@ class ApplicationViewModel @Inject constructor(
     fun getCleanapkAppDetails(packageName: String) {
         viewModelScope.launch {
             try {
-                applicationRepository.getCleanapkAppDetails(packageName).run {
-                    if (this.first.package_name.isBlank()) {
+                applicationRepository.getApplicationDetails(listOf(packageName), Source.OPEN_SOURCE).run {
+                    if (this.first[0].package_name.isBlank()) {
                         _errorMessageLiveData.postValue(R.string.app_not_found)
                     } else {
-                        applicationLiveData.postValue(this)
-                        updateShareVisibilityState(first.shareUri.toString())
+                        applicationLiveData.postValue(Pair(this.first[0], this.second))
+                        updateShareVisibilityState(first[0].shareUri.toString())
                     }
                 }
             } catch (e: Exception) {

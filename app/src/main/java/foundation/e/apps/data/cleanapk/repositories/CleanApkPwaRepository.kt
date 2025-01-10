@@ -58,17 +58,6 @@ class CleanApkPwaRepository @Inject constructor(
         return list
     }
 
-    override suspend fun getSearchResult(query: String, searchBy: String?): Response<Search> {
-        return cleanApkRetrofit.searchApps(
-            query,
-            CleanApkRetrofit.APP_SOURCE_ANY,
-            CleanApkRetrofit.APP_TYPE_PWA,
-            20,
-            1,
-            searchBy
-        )
-    }
-
     override suspend fun getAppsByCategory(category: String, paginationParameter: Any?): Response<Search> {
         return cleanApkRetrofit.listApps(
             category,
