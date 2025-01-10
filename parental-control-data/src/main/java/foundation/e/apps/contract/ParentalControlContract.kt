@@ -25,7 +25,4 @@ object ParentalControlContract {
 
     const val PATH_LOGIN_TYPE = "login_type"
     const val PATH_BLOCKLIST = "block_list"
-
-    fun getAppLoungeProviderAuthority(isDebug: Boolean = false) =
-        "foundation.e.apps${if (isDebug) ".debug" else ""}.provider"
 }

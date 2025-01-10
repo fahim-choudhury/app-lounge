@@ -31,13 +31,11 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
-import foundation.e.apps.BuildConfig
 import foundation.e.apps.R
 import foundation.e.apps.contract.ParentalControlContract.COLUMN_LOGIN_TYPE
 import foundation.e.apps.contract.ParentalControlContract.COLUMN_PACKAGE_NAME
 import foundation.e.apps.contract.ParentalControlContract.PATH_BLOCKLIST
 import foundation.e.apps.contract.ParentalControlContract.PATH_LOGIN_TYPE
-import foundation.e.apps.contract.ParentalControlContract.getAppLoungeProviderAuthority
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.enums.Origin
@@ -79,6 +77,7 @@ class AgeRatingProvider : ContentProvider() {
     companion object {
         private const val CHANNEL_ID = "applounge_provider"
         private const val NOTIFICATION_ID = 77
+        private const val AUTHORITY = "foundation.e.apps.provider"
     }
 
     private lateinit var authenticatorRepository: AuthenticatorRepository
@@ -97,12 +96,10 @@ class AgeRatingProvider : ContentProvider() {
         ;
     }
 
-    private val authority = getAppLoungeProviderAuthority(BuildConfig.DEBUG)
-
     private val uriMatcher by lazy {
         UriMatcher(UriMatcher.NO_MATCH).apply {
-            addURI(authority, PATH_LOGIN_TYPE, UriCode.LoginType.code)
-            addURI(authority, PATH_BLOCKLIST, UriCode.AgeRating.code)
+            addURI(AUTHORITY, PATH_LOGIN_TYPE, UriCode.LoginType.code)
+            addURI(AUTHORITY, PATH_BLOCKLIST, UriCode.AgeRating.code)
         }
     }
 
@@ -327,9 +324,9 @@ class AgeRatingProvider : ContentProvider() {
     override fun getType(uri: Uri): String {
         return when (uriMatcher.match(uri)) {
             UriCode.LoginType.code ->
-                "vnd.android.cursor.item/${authority}.${UriCode.LoginType.code}"
+                "vnd.android.cursor.item/${AUTHORITY}.${UriCode.LoginType.code}"
             UriCode.AgeRating.code ->
-                "vnd.android.cursor.item/${authority}.${UriCode.AgeRating.code}"
+                "vnd.android.cursor.item/${AUTHORITY}.${UriCode.AgeRating.code}"
             else -> throw IllegalArgumentException("Unknown URI: $uri")
         }
     }

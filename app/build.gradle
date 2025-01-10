@@ -66,10 +66,10 @@ android {
     signingConfigs {
         def keystore_password = System.getenv('KEYSTORE_PASSWORD')
         debugConfig {
-            storeFile file("../keystore/platform.keystore")
-            storePassword 'android'
-            keyAlias 'platform'
-            keyPassword 'android'
+            storeFile file("keystore/platform.jks")
+            storePassword "platform"
+            keyAlias "platform"
+            keyPassword "platform"
         }
         releaseTestConfig {
             storeFile file("../keystore/proprietary.keystore")
@@ -111,8 +111,6 @@ android {
 
     buildTypes {
         debug {
-            versionNameSuffix ".debug"
-            applicationIdSuffix ".debug"
             signingConfig signingConfigs.debugConfig
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
