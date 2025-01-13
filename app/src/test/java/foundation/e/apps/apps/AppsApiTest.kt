@@ -23,7 +23,6 @@ import android.text.format.Formatter
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.Constants
 import foundation.e.apps.FakeAppLoungePreference
-import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.Stores
 import foundation.e.apps.data.enums.FilterLevel
 import foundation.e.apps.data.enums.Status
@@ -31,8 +30,6 @@ import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.apps.AppsApi
 import foundation.e.apps.data.application.apps.AppsApiImpl
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.cleanapk.repositories.CleanApkAppsRepository
-import foundation.e.apps.data.cleanapk.repositories.CleanApkPwaRepository
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PwaManager
@@ -76,12 +73,6 @@ class AppsApiTest {
     private lateinit var context: Context
 
     @Mock
-    private lateinit var cleanApkAppsRepository: CleanApkAppsRepository
-
-    @Mock
-    private lateinit var cleanApkPWARepository: CleanApkPwaRepository
-
-    @Mock
     private lateinit var gPlayAPIRepository: PlayStoreRepository
 
     @Mock
@@ -102,12 +93,8 @@ class AppsApiTest {
         preferenceManagerModule = FakeAppLoungePreference(context)
         applicationDataManager =
             ApplicationDataManager(appLoungePackageManager, pwaManager)
-        val appSourcesContainer =
-            AppSourcesContainer(gPlayAPIRepository, cleanApkAppsRepository, cleanApkPWARepository)
         appsApi = AppsApiImpl(
-            context,
             preferenceManagerModule,
-            appSourcesContainer,
             stores,
             applicationDataManager
         )

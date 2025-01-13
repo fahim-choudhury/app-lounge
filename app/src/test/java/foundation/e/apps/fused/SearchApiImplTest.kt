@@ -21,7 +21,6 @@ import android.content.Context
 import android.text.format.Formatter
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.App
-import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.SearchBundle
 import foundation.e.apps.FakeAppLoungePreference
 import foundation.e.apps.data.AppSourcesContainer
@@ -100,10 +99,6 @@ class SearchApiImplTest {
 
     private lateinit var formatterMocked: MockedStatic<Formatter>
 
-    companion object {
-        private val AUTH_DATA = AuthData("e@e.email", "AtadyMsIAtadyM")
-    }
-
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
@@ -114,9 +109,7 @@ class SearchApiImplTest {
         val appSourcesContainer =
             AppSourcesContainer(gPlayAPIRepository, cleanApkAppsRepository, cleanApkPWARepository)
         appsApi = AppsApiImpl(
-            context,
             preferenceManagerModule,
-            appSourcesContainer,
             stores,
             applicationDataManager,
         )
@@ -184,9 +177,13 @@ class SearchApiImplTest {
             listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), mutableSetOf()
         )
 
-        setupMockingSearchApp(
-            packageNameSearchResponse, gplayPackageResult, gplayFlow
-        )
+        val playStoreApps = listOf(
+            Application(package_name = "a.b.c"),
+            Application(package_name = "c.d.e"),
+            Application(package_name = "d.e.f"),
+            Application(package_name = "d.e.g"))
+
+        setupMockingSearchApp(playStoreApps, gplayPackageResult)
 
         val searchResultLiveData =
             fusedAPIImpl.getCleanApkSearchResults("com.search.package")
@@ -196,19 +193,16 @@ class SearchApiImplTest {
     }
 
     private suspend fun setupMockingSearchApp(
-        packageNameSearchResponse: Response<Search>?,
+        apps: List<Application>,
         gplayPackageResult: Application,
-        gplayLivedata: Pair<List<App>, MutableSet<SearchBundle.SubBundle>>,
         willThrowException: Boolean = false
     ) {
         Mockito.`when`(pwaManager.getPwaStatus(any())).thenReturn(Status.UNAVAILABLE)
         Mockito.`when`(appLoungePackageManager.getPackageStatus(any(), any()))
             .thenReturn(Status.UNAVAILABLE)
         Mockito.`when`(
-            cleanApkAppsRepository.getSearchResult(
-                query = "com.search.package", searchBy = "package_name"
-            )
-        ).thenReturn(packageNameSearchResponse)
+            cleanApkAppsRepository.getSearchResults("com.search.package")
+        ).thenReturn(apps)
         formatterMocked.`when`<String> { Formatter.formatFileSize(any(), any()) }.thenReturn("15MB")
 
         if (willThrowException) {
@@ -219,23 +213,21 @@ class SearchApiImplTest {
                 .thenReturn(gplayPackageResult)
         }
 
-        Mockito.`when`(cleanApkAppsRepository.getSearchResult(query = "com.search.package"))
-            .thenReturn(packageNameSearchResponse)
+        Mockito.`when`(cleanApkAppsRepository.getSearchResults("com.search.package"))
+            .thenReturn(apps)
 
-        Mockito.`when`(cleanApkPWARepository.getSearchResult(query = "com.search.package"))
-            .thenReturn(packageNameSearchResponse)
+        Mockito.`when`(cleanApkPWARepository.getSearchResults("com.search.package"))
+            .thenReturn(apps)
 
         Mockito.`when`(
-            cleanApkAppsRepository.getSearchResult(
-                query = "com.search.package"
-            )
-        ).thenReturn(packageNameSearchResponse)
+            cleanApkAppsRepository.getSearchResults("com.search.package")
+        ).thenReturn(apps)
 
         Mockito.`when`(cleanApkAppsRepository.getAppDetails(any()))
             .thenReturn(Application())
 
-        Mockito.`when`(gPlayAPIRepository.getSearchResult(eq("com.search.package"), null))
-            .thenReturn(gplayLivedata)
+        Mockito.`when`(gPlayAPIRepository.getSearchResults(eq("com.search.package")))
+            .thenReturn(apps)
     }
 
     @Ignore("Dependencies are not mockable")
@@ -265,16 +257,16 @@ class SearchApiImplTest {
             )
         )
 
-        val searchResult = Search(apps = appList, numberOfResults = 1, success = true)
-        val packageNameSearchResponse = Response.success(searchResult)
         val gplayPackageResult = Application("com.search.package")
 
-        val gplayFlow: Pair<List<App>, MutableSet<SearchBundle.SubBundle>> = Pair(
-            listOf(App("a.b.c"), App("c.d.e"), App("d.e.f"), App("d.e.g")), mutableSetOf()
-        )
+        val playStoreApps = listOf(
+            Application(package_name = "a.b.c"),
+            Application(package_name = "c.d.e"),
+            Application(package_name = "d.e.f"),
+            Application(package_name = "d.e.g"))
 
         setupMockingSearchApp(
-            packageNameSearchResponse, gplayPackageResult, gplayFlow, true
+            playStoreApps, gplayPackageResult, true
         )
 
         preferenceManagerModule.isPWASelectedFake = false
