@@ -24,7 +24,6 @@ import com.aurora.gplayapi.data.models.App as GplayApp
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.ContentRating
 import com.aurora.gplayapi.data.models.File
-import com.aurora.gplayapi.data.models.SearchBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.AppDetailsHelper
 import com.aurora.gplayapi.helpers.ContentRatingHelper
@@ -100,33 +99,6 @@ class PlayStoreRepository @Inject constructor(
         }
     }
 
-    fun getSearchResult(
-        query: String,
-        subBundle: MutableSet<SearchBundle.SubBundle>?
-    ): Pair<List<GplayApp>, MutableSet<SearchBundle.SubBundle>> {
-        val searchHelper = WebSearchHelper().using(gPlayHttpClient)
-
-        Timber.d("Fetching search result for $query, subBundle: $subBundle")
-
-        val searchResult = if (subBundle != null) {
-            Timber.d("fetching next page search data...")
-            searchHelper.next(subBundle)
-        } else {
-            searchHelper.searchResults(query)
-        }
-
-        return getSearchResultPair(searchResult, query)
-    }
-
-    private fun getSearchResultPair(
-        searchBundle: SearchBundle,
-        query: String
-    ): Pair<MutableList<GplayApp>, MutableSet<SearchBundle.SubBundle>> {
-        val apps = searchBundle.appList
-        Timber.d("Found ${apps.size} apps for query, $query")
-        return Pair(apps, searchBundle.subBundles)
-    }
-
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
         val searchData = mutableListOf<SearchSuggestEntry>()
         withContext(Dispatchers.IO) {
@@ -181,23 +153,6 @@ class PlayStoreRepository @Inject constructor(
         }
 
         return appDetails?.toApplication(context) ?: Application()
-    }
-
-    suspend fun getAppsDetails(packageNamesOrIds: List<String>): List<GplayApp> {
-        val appDetailsList = mutableListOf<GplayApp>()
-
-        val appDetailsHelper =
-            AppDetailsHelper(authenticatorRepository.getGPlayAuthOrThrow()).using(gPlayHttpClient)
-
-        withContext(Dispatchers.IO) {
-            appDetailsList.addAll(appDetailsHelper.getAppByPackageName(packageNamesOrIds))
-        }
-
-        if (appDetailsList.first().versionCode == 0) {
-            throw IllegalStateException("App version code cannot be 0")
-        }
-
-        return appDetailsList
     }
 
     private fun getCategoryType(type: CategoryType): Category.Type {
