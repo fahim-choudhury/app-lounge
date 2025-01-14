@@ -199,4 +199,6 @@
     <string name="own_update_warning_description">App Lounge zal door het systeem afgesloten worden tijdens zijn update. Voer a.u.b. geen andere taken uit totdat App Lounge geüpdatet en afgesloten is.</string>
     <string name="common_apps_unavailable">Algemene apps niet beschikbaar</string>
     <string name="open_source_apps_unavailable">Open source apps en PWA niet beschikbaar</string>
+    <string name="common_apps_data_load_error_description">Er is een fout opgetreden tijdens het laden van de algemene apps. Enkel opensource apps en PWA\'s zijn beschikbaar.</string>
+    <string name="open_source_apps_data_load_error_description">Er is een fout opgetreden tijdens het laden van PWA en opensource apps. Enkel algemene apps zijn beschikbaar.</string>
 </resources>
