@@ -18,26 +18,20 @@
 
 package foundation.e.apps.data.application.home
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
-import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.Stores
 import foundation.e.apps.data.application.data.Home
-import foundation.e.apps.data.application.search.FusedHomeDeferred
 import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.handleNetworkResult
-import foundation.e.apps.data.preference.AppLoungePreference
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
 class HomeApiImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val appLoungePreference: AppLoungePreference,
     private val stores: Stores
 ) : HomeApi {
 
@@ -49,35 +43,22 @@ class HomeApiImpl @Inject constructor(
 
     override suspend fun fetchHomeScreenData(): LiveData<ResultSupreme<List<Home>>> {
         val list = mutableListOf<Home>()
-        var resultGplay: FusedHomeDeferred? = null
-        var resultOpenSource: FusedHomeDeferred? = null
-        var resultPWA: FusedHomeDeferred? = null
 
         return liveData {
             coroutineScope {
 
-                if (appLoungePreference.isGplaySelected()) {
-                    resultGplay = async { loadHomeData(list, Source.PLAY_STORE) }
+                if (Source.PLAY_STORE in stores.getStores()) {
+                    val result = async {
+                        loadHomeData(list, Source.PLAY_STORE)
+                    }
+                    emit(result.await())
                 }
 
-                if (appLoungePreference.isOpenSourceSelected()) {
-                    resultOpenSource = async { loadHomeData(list, Source.OPEN_SOURCE) }
-                }
-
-                if (appLoungePreference.isPWASelected()) {
-                    resultPWA = async { loadHomeData(list, Source.PWA) }
-                }
-
-                resultGplay?.await()?.let {
-                    emit(it)
-                }
-
-                resultOpenSource?.await()?.let {
-                    emit(it)
-                }
-
-                resultPWA?.await()?.let {
-                    emit(it)
+                stores.getStores().forEach { (source, _) ->
+                    val result = async {
+                        loadHomeData(list, source)
+                    }
+                    emit(result.await())
                 }
             }
         }
@@ -88,7 +69,7 @@ class HomeApiImpl @Inject constructor(
         source: Source
     ): ResultSupreme<List<Home>> {
         val result = handleNetworkResult {
-            val homeDataBuilder = stores.getStores()[source]
+            val homeDataBuilder = stores.getStore(source)
             homeDataBuilder?.getHomeScreenData(priorList)
                 ?: throw IllegalStateException("Could not find store for $source")
         }

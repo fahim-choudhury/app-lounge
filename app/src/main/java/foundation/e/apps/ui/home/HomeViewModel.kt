@@ -24,19 +24,22 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
+import foundation.e.apps.data.StoreRepository
+import foundation.e.apps.data.Stores
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.data.Home
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val applicationRepository: ApplicationRepository,
+    private val stores: Stores
 ) : LoadingViewModel() {
 
     @Inject
@@ -52,11 +55,11 @@ class HomeViewModel @Inject constructor(
 
     var currentHomes: List<Home>? = null
 
-    private var previousSources = emptyList<Boolean>()
+    private var previousStores = mapOf<Source, StoreRepository>()
 
-   fun hasData(): Boolean {
-       return homeScreenData.value?.data?.isNotEmpty() ?: false
-   }
+    fun hasData(): Boolean {
+        return homeScreenData.value?.data?.isNotEmpty() ?: false
+    }
 
     fun loadData(
         authObjectList: List<AuthObject>,
@@ -78,17 +81,12 @@ class HomeViewModel @Inject constructor(
     }
 
     fun haveSourcesChanged(): Boolean {
-        val sources = listOf(
-            appLoungePreference.isGplaySelected(),
-            appLoungePreference.isOpenSourceSelected(),
-            appLoungePreference.isPWASelected()
-        )
-
-        if (sources == previousSources) {
+        val newStores = stores.getStores()
+        if (newStores == previousStores) {
             return false
         }
 
-        previousSources = sources
+        previousStores = newStores.toMutableMap()
         return true
     }
 

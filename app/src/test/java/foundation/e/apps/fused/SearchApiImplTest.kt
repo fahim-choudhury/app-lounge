@@ -109,14 +109,12 @@ class SearchApiImplTest {
         val appSourcesContainer =
             AppSourcesContainer(gPlayAPIRepository, cleanApkAppsRepository, cleanApkPWARepository)
         appsApi = AppsApiImpl(
-            preferenceManagerModule,
             stores,
             applicationDataManager,
         )
 
         fusedAPIImpl = SearchApiImpl(
             appsApi,
-            preferenceManagerModule,
             appSourcesContainer,
             stores,
             applicationDataManager

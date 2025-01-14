@@ -24,6 +24,7 @@ import com.aurora.gplayapi.data.models.Category
 import foundation.e.apps.FakeAppLoungePreference
 import foundation.e.apps.R
 import foundation.e.apps.data.AppSourcesContainer
+import foundation.e.apps.data.Stores
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.category.CategoryApi
 import foundation.e.apps.data.application.category.CategoryApiImpl
@@ -32,6 +33,7 @@ import foundation.e.apps.data.cleanapk.data.categories.Categories
 import foundation.e.apps.data.cleanapk.repositories.CleanApkAppsRepository
 import foundation.e.apps.data.cleanapk.repositories.CleanApkPwaRepository
 import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
@@ -79,22 +81,24 @@ class CategoryApiTest {
     @Mock
     private lateinit var gPlayAPIRepository: PlayStoreRepository
 
-    private lateinit var preferenceManagerModule: FakeAppLoungePreference
+    private lateinit var fakeStores: Stores
 
     private lateinit var categoryApi: CategoryApi
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        preferenceManagerModule = FakeAppLoungePreference(context)
         val applicationDataManager =
             ApplicationDataManager(appLoungePackageManager, pwaManager)
+
+        fakeStores = Stores(gPlayAPIRepository, cleanApkAppsRepository, cleanApkPWARepository)
+
         val appSourcesContainer =
             AppSourcesContainer(gPlayAPIRepository, cleanApkAppsRepository, cleanApkPWARepository)
         categoryApi = CategoryApiImpl(
             context,
-            preferenceManagerModule,
             appSourcesContainer,
+            fakeStores,
             applicationDataManager
         )
     }
@@ -104,13 +108,13 @@ class CategoryApiTest {
         val categories =
             Categories(listOf("app one", "app two", "app three"), listOf("game 1", "game 2"), true)
         val response = Response.success(categories)
-        preferenceManagerModule.isPWASelectedFake = true
-        preferenceManagerModule.isOpenSourceelectedFake = false
-        preferenceManagerModule.isGplaySelectedFake = false
 
         Mockito.`when`(
             cleanApkPWARepository.getCategories()
         ).thenReturn(response)
+
+        fakeStores.disableStore(Source.OPEN_SOURCE)
+        fakeStores.disableStore(Source.PLAY_STORE)
 
         Mockito.`when`(context.getString(eq(R.string.pwa))).thenReturn("PWA")
 
@@ -126,14 +130,13 @@ class CategoryApiTest {
             Categories(listOf("app one", "app two", "app three"), listOf("game 1", "game 2"), true)
         val response = Response.success(categories)
 
-        preferenceManagerModule.isPWASelectedFake = false
-        preferenceManagerModule.isOpenSourceelectedFake = true
-        preferenceManagerModule.isGplaySelectedFake = false
-
         Mockito.`when`(
             cleanApkAppsRepository.getCategories()
         ).thenReturn(response)
         Mockito.`when`(context.getString(eq(R.string.open_source))).thenReturn("Open source")
+
+        fakeStores.disableStore(Source.PWA)
+        fakeStores.disableStore(Source.PLAY_STORE)
 
         val categoryListResponse =
             categoryApi.getCategoriesList(CategoryType.APPLICATION)
@@ -145,13 +148,12 @@ class CategoryApiTest {
     fun `getCategory when gplay source is selected`() = runTest {
         val categories = listOf(Category(), Category(), Category(), Category())
 
-        preferenceManagerModule.isPWASelectedFake = false
-        preferenceManagerModule.isOpenSourceelectedFake = false
-        preferenceManagerModule.isGplaySelectedFake = true
-
         Mockito.`when`(
             gPlayAPIRepository.getCategories(CategoryType.APPLICATION)
         ).thenReturn(categories)
+
+        fakeStores.disableStore(Source.PWA)
+        fakeStores.disableStore(Source.OPEN_SOURCE)
 
         val categoryListResponse =
             categoryApi.getCategoriesList(CategoryType.APPLICATION)
@@ -161,13 +163,13 @@ class CategoryApiTest {
 
     @Test
     fun `getCategory when gplay source is selected return error`() = runTest {
-        preferenceManagerModule.isPWASelectedFake = false
-        preferenceManagerModule.isOpenSourceelectedFake = false
-        preferenceManagerModule.isGplaySelectedFake = true
 
         Mockito.`when`(
             gPlayAPIRepository.getCategories(CategoryType.APPLICATION)
         ).thenThrow()
+        
+        fakeStores.disableStore(Source.PWA)
+        fakeStores.disableStore(Source.OPEN_SOURCE)
 
         val categoryListResponse =
             categoryApi.getCategoriesList(CategoryType.APPLICATION)
@@ -202,9 +204,6 @@ class CategoryApiTest {
         Mockito.`when`(context.getString(eq(R.string.open_source))).thenReturn("Open source")
         Mockito.`when`(context.getString(eq(R.string.pwa))).thenReturn("pwa")
 
-        preferenceManagerModule.isPWASelectedFake = true
-        preferenceManagerModule.isOpenSourceelectedFake = true
-        preferenceManagerModule.isGplaySelectedFake = true
 
         val categoryListResponse =
             categoryApi.getCategoriesList(CategoryType.APPLICATION)

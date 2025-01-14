@@ -94,7 +94,6 @@ class AppsApiTest {
         applicationDataManager =
             ApplicationDataManager(appLoungePackageManager, pwaManager)
         appsApi = AppsApiImpl(
-            preferenceManagerModule,
             stores,
             applicationDataManager
         )

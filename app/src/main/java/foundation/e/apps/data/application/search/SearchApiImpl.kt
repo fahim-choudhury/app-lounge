@@ -28,7 +28,6 @@ import foundation.e.apps.data.Stores
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.apps.AppsApi
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_OPEN
 import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_PWA
@@ -37,18 +36,13 @@ import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.handleNetworkResult
 import foundation.e.apps.data.login.exceptions.CleanApkIOException
 import foundation.e.apps.data.login.exceptions.GPlayIOException
-import foundation.e.apps.data.preference.AppLoungePreference
-import kotlinx.coroutines.Deferred
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
-typealias FusedHomeDeferred = Deferred<ResultSupreme<List<Home>>>
-
 @Singleton
 class SearchApiImpl @Inject constructor(
     private val appsApi: AppsApi,
-    private val appLoungePreference: AppLoungePreference,
     private val appSources: AppSourcesContainer,
     private val stores: Stores,
     private val applicationDataManager: ApplicationDataManager
@@ -60,9 +54,9 @@ class SearchApiImpl @Inject constructor(
 
     override fun getSelectedAppTypes(): List<String> {
         val selectedAppTypes = mutableListOf<String>()
-        if (appLoungePreference.isGplaySelected()) selectedAppTypes.add(APP_TYPE_ANY)
-        if (appLoungePreference.isOpenSourceSelected()) selectedAppTypes.add(APP_TYPE_OPEN)
-        if (appLoungePreference.isPWASelected()) selectedAppTypes.add(APP_TYPE_PWA)
+        if (stores.isStoreEnabled(Source.PLAY_STORE)) selectedAppTypes.add(APP_TYPE_ANY)
+        if (stores.isStoreEnabled(Source.OPEN_SOURCE)) selectedAppTypes.add(APP_TYPE_OPEN)
+        if (stores.isStoreEnabled(Source.PWA)) selectedAppTypes.add(APP_TYPE_PWA)
 
         return selectedAppTypes
     }
@@ -85,7 +79,7 @@ class SearchApiImpl @Inject constructor(
             fetchPackageSpecificResult(query).data?.first ?: emptyList()
 
         val searchResult = mutableListOf<Application>()
-        if (appLoungePreference.isOpenSourceSelected()) {
+        if (stores.isStoreEnabled(Source.OPEN_SOURCE)) {
             finalSearchResult = fetchOpenSourceSearchResult(
                 query,
                 searchResult,
@@ -93,7 +87,7 @@ class SearchApiImpl @Inject constructor(
             )
         }
 
-        if (appLoungePreference.isPWASelected()) {
+        if (stores.isStoreEnabled(Source.PWA)) {
             finalSearchResult = fetchPWASearchResult(
                 query,
                 searchResult,
@@ -101,11 +95,11 @@ class SearchApiImpl @Inject constructor(
             )
         }
 
-        if (!appLoungePreference.isOpenSourceSelected() && !appLoungePreference.isPWASelected()) {
+        if (!stores.isStoreEnabled(Source.OPEN_SOURCE) && !stores.isStoreEnabled(Source.PWA)) {
             finalSearchResult = ResultSupreme.Success(
                 Pair(
                     packageSpecificResults,
-                    appLoungePreference.isGplaySelected()
+                    stores.isStoreEnabled(Source.PLAY_STORE)
                 )
             )
         }
@@ -121,7 +115,7 @@ class SearchApiImpl @Inject constructor(
         val pwaApps: MutableList<Application> = mutableListOf()
         val result = handleNetworkResult {
             val apps =
-                stores.getStores()[Source.PWA]?.getSearchResults(query) ?: emptyList()
+                stores.getStore(Source.PWA)?.getSearchResults(query) ?: emptyList()
 
             apps.forEach {
                 applicationDataManager.updateStatus(it)
@@ -143,7 +137,7 @@ class SearchApiImpl @Inject constructor(
                     packageSpecificResults,
                     query
                 ),
-                appLoungePreference.isGplaySelected()
+                stores.isStoreEnabled(Source.PLAY_STORE)
             ),
             exception = result.exception
         )
@@ -173,7 +167,7 @@ class SearchApiImpl @Inject constructor(
                     packageSpecificResults,
                     query
                 ),
-                appLoungePreference.isGplaySelected() || appLoungePreference.isPWASelected()
+                stores.isStoreEnabled(Source.PLAY_STORE) || stores.isStoreEnabled(Source.PWA)
             ),
             exception = result.exception
         )
@@ -187,11 +181,11 @@ class SearchApiImpl @Inject constructor(
         var cleanapkPackageResult: Application? = null
 
         val result = handleNetworkResult {
-            if (appLoungePreference.isGplaySelected()) {
+            if (stores.isStoreEnabled(Source.PLAY_STORE)) {
                 gplayPackageResult = getGplayPackageResult(query)
             }
 
-            if (appLoungePreference.isOpenSourceSelected()) {
+            if (stores.isStoreEnabled(Source.OPEN_SOURCE)) {
                 cleanapkPackageResult = getCleanApkPackageResult(query)
             }
         }
@@ -203,7 +197,7 @@ class SearchApiImpl @Inject constructor(
             gplayPackageResult?.let { packageSpecificResults.add(it) }
         }
 
-        if (appLoungePreference.isGplaySelected()) {
+        if (stores.isStoreEnabled(Source.PLAY_STORE)) {
             packageSpecificResults.add(Application(isPlaceHolder = true))
         }
 
@@ -235,7 +229,7 @@ class SearchApiImpl @Inject constructor(
 
         val finalList = (packageSpecificResults + filteredResults).toMutableList()
         finalList.removeIf { it.isPlaceHolder }
-        if (appLoungePreference.isGplaySelected()) {
+        if (stores.isStoreEnabled(Source.PLAY_STORE)) {
             finalList.add(Application(isPlaceHolder = true))
         }
 
@@ -276,7 +270,7 @@ class SearchApiImpl @Inject constructor(
     private suspend fun getCleanApkSearchResult(packageName: String): ResultSupreme<Application> {
         var application = Application()
         val result = handleNetworkResult {
-            val results = stores.getStores()[Source.PWA]?.getSearchResults(packageName) ?: emptyList()
+            val results = stores.getStore(Source.OPEN_SOURCE)?.getSearchResults(packageName) ?: emptyList()
 
             if (results.isNotEmpty() && results.size == 1) {
                 application = results[0]
@@ -300,7 +294,7 @@ class SearchApiImpl @Inject constructor(
     ): List<Application> {
         val list = mutableListOf<Application>()
         val response =
-            stores.getStores()[Source.OPEN_SOURCE]?.getSearchResults(keyword) ?: emptyList()
+            stores.getStore(Source.OPEN_SOURCE)?.getSearchResults(keyword) ?: emptyList()
 
         response.forEach {
             applicationDataManager.updateStatus(it)
@@ -315,7 +309,7 @@ class SearchApiImpl @Inject constructor(
         query: String,
     ): SearchResult {
         val result = handleNetworkResult {
-            if (!appLoungePreference.isGplaySelected()) {
+            if (!stores.isStoreEnabled(Source.PLAY_STORE)) {
                 return@handleNetworkResult Pair(
                     listOf<Application>(),
                     setOf<SearchBundle.SubBundle>()
@@ -323,7 +317,7 @@ class SearchApiImpl @Inject constructor(
             }
 
             val searchResults =
-                stores.getStores()[Source.PLAY_STORE]?.getSearchResults(query)
+                stores.getStore(Source.PLAY_STORE)?.getSearchResults(query)
                     ?: throw IllegalStateException("Could not get store")
 
             val apps = replaceWithFDroid(searchResults).toMutableList()

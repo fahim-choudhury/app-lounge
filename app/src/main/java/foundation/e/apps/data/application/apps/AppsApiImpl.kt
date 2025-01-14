@@ -26,13 +26,11 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.handleNetworkResult
-import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
 import javax.inject.Inject
 import foundation.e.apps.data.enums.Source
 
 class AppsApiImpl @Inject constructor(
-    private val appLoungePreference: AppLoungePreference,
     private val stores: Stores,
     private val applicationDataManager: ApplicationDataManager
 ) : AppsApi {
@@ -40,7 +38,7 @@ class AppsApiImpl @Inject constructor(
     override suspend fun getCleanapkAppDetails(packageName: String): Pair<Application, ResultStatus> {
         var application = Application()
         val result = handleNetworkResult {
-            application = stores.getStores()[Source.OPEN_SOURCE]?.getAppDetails(packageName) ?: Application()
+            application = stores.getStore(Source.OPEN_SOURCE)?.getAppDetails(packageName) ?: Application()
             application.source = Source.OPEN_SOURCE
             application.updateType()
             application.updateFilterLevel()
@@ -92,7 +90,7 @@ class AppsApiImpl @Inject constructor(
         val applicationList = mutableListOf<Application>()
 
         for (packageName in packageNameList) {
-            applicationList.add(stores.getStores()[Source.OPEN_SOURCE]?.getAppDetails(packageName) ?: Application())
+            applicationList.add(stores.getStore(Source.OPEN_SOURCE)?.getAppDetails(packageName) ?: Application())
         }
 
         return Pair(applicationList, status)
@@ -104,7 +102,7 @@ class AppsApiImpl @Inject constructor(
         val applicationList = mutableListOf<Application>()
 
         for (packageName in packageNameList) {
-            val app = stores.getStores()[Source.PLAY_STORE]?.getAppDetails(packageName) ?: Application()
+            val app = stores.getStore(Source.PLAY_STORE)?.getAppDetails(packageName) ?: Application()
             handleFilteredApps(app, applicationList)
         }
 
@@ -140,7 +138,7 @@ class AppsApiImpl @Inject constructor(
 
         val result = handleNetworkResult {
 
-            val store = stores.getStores()[source]
+            val store = stores.getStore(source)
                 ?: throw IllegalStateException("Could not get store")
 
             application = store.getAppDetails(packageName)
@@ -207,5 +205,5 @@ class AppsApiImpl @Inject constructor(
         return false
     }
 
-    override fun isOpenSourceSelected() = appLoungePreference.isOpenSourceSelected()
+    override fun isOpenSourceSelected() = stores.isStoreEnabled(Source.OPEN_SOURCE)
 }
