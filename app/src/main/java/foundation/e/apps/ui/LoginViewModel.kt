@@ -21,6 +21,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import foundation.e.apps.data.Stores
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.AuthenticatorRepository
@@ -37,6 +39,7 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val authenticatorRepository: AuthenticatorRepository,
     private val cache: Cache,
+    private val stores: Stores
 ) : ViewModel() {
 
     /**
@@ -68,6 +71,7 @@ class LoginViewModel @Inject constructor(
      */
     fun initialAnonymousLogin(onUserSaved: () -> Unit) {
         viewModelScope.launch {
+            stores.enableStore(Source.PLAY_STORE)
             authenticatorRepository.saveUserType(User.ANONYMOUS)
             onUserSaved()
             startLoginFlow()
@@ -82,6 +86,7 @@ class LoginViewModel @Inject constructor(
      */
     fun initialGoogleLogin(email: String, oauthToken: String, onUserSaved: () -> Unit) {
         viewModelScope.launch {
+            stores.enableStore(Source.PLAY_STORE)
             authenticatorRepository.saveGoogleLogin(email, oauthToken)
             authenticatorRepository.saveUserType(User.GOOGLE)
             onUserSaved()
@@ -98,6 +103,7 @@ class LoginViewModel @Inject constructor(
      */
     fun initialNoGoogleLogin(onUserSaved: () -> Unit) {
         viewModelScope.launch {
+            stores.disableStore(Source.PLAY_STORE)
             authenticatorRepository.setNoGoogleMode()
             onUserSaved()
             startLoginFlow()

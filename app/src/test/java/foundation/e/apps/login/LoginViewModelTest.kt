@@ -21,6 +21,7 @@ package foundation.e.apps.login
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.ResultSupreme
+import foundation.e.apps.data.Stores
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.AuthenticatorRepository
@@ -38,6 +39,8 @@ class LoginViewModelTest {
     private lateinit var authenticatorRepository: AuthenticatorRepository
     @Mock
     private lateinit var cache: Cache
+    @Mock
+    private lateinit var stores: Stores
 
     private lateinit var loginViewModel: LoginViewModel
 
@@ -48,7 +51,7 @@ class LoginViewModelTest {
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        loginViewModel = LoginViewModel(authenticatorRepository, cache)
+        loginViewModel = LoginViewModel(authenticatorRepository, cache, stores)
     }
 
     @Test
