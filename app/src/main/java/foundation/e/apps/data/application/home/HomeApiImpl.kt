@@ -54,7 +54,8 @@ class HomeApiImpl @Inject constructor(
                     emit(result.await())
                 }
 
-                stores.getStores().forEach { (source, _) ->
+                val otherStores = stores.getStores().filter { it.key != Source.PLAY_STORE }
+                otherStores.forEach { (source, _) ->
                     val result = async {
                         loadHomeData(list, source)
                     }
