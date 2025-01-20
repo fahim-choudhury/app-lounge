@@ -18,6 +18,7 @@
 
 package foundation.e.apps.ui.search
 
+import androidx.annotation.GuardedBy
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -37,6 +38,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
@@ -62,7 +65,9 @@ class SearchViewModel @Inject constructor(
     private var isLoading: Boolean = false
     private var hasGPlayBeenFetched = false
 
-    val accumulatedList = mutableListOf<Application>()
+    @GuardedBy("mutex")
+    private val accumulatedList = mutableListOf<Application>()
+    private val mutex = Mutex()
 
     private var flagNoTrackers: Boolean = false
     private var flagOpenSource: Boolean = false
@@ -167,7 +172,10 @@ class SearchViewModel @Inject constructor(
                 }
             }
 
-            val currentAppList = updateCurrentAppList(gplaySearchResult)
+            val currentAppList = mutex.withLock {
+                updateCurrentAppList(gplaySearchResult)
+            }
+
             val finalResult = ResultSupreme.Success(
                 Pair(currentAppList.toList(), false)
             )
@@ -259,12 +267,17 @@ class SearchViewModel @Inject constructor(
 
         if (result != null) {
             result.data?.first?.let {
-                accumulatedList.clear()
-                accumulatedList.addAll(it)
+                mutex.withLock {
+                    accumulatedList.clear()
+                    accumulatedList.addAll(it)
+                }
             }
         }
 
-        val filteredList = getFilteredList()
+        val filteredList = mutex.withLock {
+            getFilteredList()
+        }
+
         val isMoreDataLoading = result?.data?.second ?: _searchResult.value?.data?.second ?: false
 
         _searchResult.postValue(
