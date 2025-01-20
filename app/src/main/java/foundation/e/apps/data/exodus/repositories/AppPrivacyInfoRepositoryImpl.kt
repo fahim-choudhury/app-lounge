@@ -33,7 +33,8 @@ import java.lang.reflect.Modifier
 import javax.inject.Inject
 import javax.inject.Singleton
 import foundation.e.apps.data.Result
-import okio.IOException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Singleton
 class AppPrivacyInfoRepositoryImpl @Inject constructor(
@@ -60,7 +61,7 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
         return Result.success(buildPrivacyInfo(reports.first()))
     }
 
-    private fun fetchReports(packageName: String) : List<Report> {
+    private suspend fun fetchReports(packageName: String) : List<Report> {
         val requestBody = mapOf(
             "type" to "application",
             "query" to packageName,
@@ -73,20 +74,19 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
             .post(jsonBody.toRequestBody("application/json".toMediaType()))
             .build()
 
-        try {
-            okHttpClient.newCall(request).execute().use { response ->
+        return withContext(Dispatchers.IO) {
+            var result: List<Report> = emptyList()
+            try {
+                val response = okHttpClient.newCall(request).execute()
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string()
-                    return parseReports(responseBody ?: "")
-                } else {
-                    throw IllegalStateException("Failed to fetch reports")
+                    result = parseReports(responseBody ?: "")
                 }
+            } catch (exception: Exception) {
+                exception.printStackTrace()
             }
-        } catch (exception: IOException) {
-           exception.printStackTrace()
+            result
         }
-
-        return emptyList()
     }
 
     private fun parseReports(response: String): List<Report> {
