@@ -18,6 +18,7 @@
 
 package foundation.e.apps.home
 
+import foundation.e.apps.data.Stores
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.Home
@@ -34,12 +35,15 @@ class HomeViewModelTest {
     @Mock
     private lateinit var applicationRepository: ApplicationRepository
 
+    @Mock
+    private lateinit var stores: Stores
+
     private lateinit var homeViewModel: HomeViewModel
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        homeViewModel = HomeViewModel(applicationRepository)
+        homeViewModel = HomeViewModel(applicationRepository, stores)
     }
 
     @Test
@@ -49,7 +53,7 @@ class HomeViewModelTest {
 
         val oldHomeData =
             listOf(Home("Top Free Apps", oldAppList, id = "123"), Home("Top Free Games", oldAppList, id = "124"))
-        var newHomeData =
+        val newHomeData =
             listOf(Home("Top Free Apps", newAppList, id = "123"), Home("Top Free Games", newAppList, id = "124"))
 
         homeViewModel.currentHomes = oldHomeData
@@ -65,7 +69,7 @@ class HomeViewModelTest {
 
         val oldHomeData =
             listOf(Home("Top Free Apps", oldAppList, id = "123"), Home("Top Free Games", oldAppList, id = "124"))
-        var newHomeData =
+        val newHomeData =
             listOf(Home("Top Free Apps", newAppList, id = "123"), Home("Top Free Games", newAppList, id = "124"))
 
         homeViewModel.currentHomes = oldHomeData
@@ -81,7 +85,7 @@ class HomeViewModelTest {
 
         val oldHomeData =
             listOf(Home("Top Free Apps", oldAppList, id = "123"), Home("Top Free Games", oldAppList, id = "124"))
-        var newHomeData =
+        val newHomeData =
             listOf(Home("Top Free Apps", newAppList, id = "123"), Home("Top Free Games", newAppList, id = "124"))
 
         homeViewModel.currentHomes = oldHomeData

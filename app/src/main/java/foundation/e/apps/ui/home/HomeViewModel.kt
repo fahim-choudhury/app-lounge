@@ -22,24 +22,24 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.ResultSupreme
+import foundation.e.apps.data.StoreRepository
+import foundation.e.apps.data.Stores
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.data.Home
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.login.AuthObject
-import foundation.e.apps.data.login.exceptions.CleanApkException
-import foundation.e.apps.data.login.exceptions.GPlayException
 import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val applicationRepository: ApplicationRepository,
+    private val stores: Stores
 ) : LoadingViewModel() {
 
     @Inject
@@ -55,11 +55,11 @@ class HomeViewModel @Inject constructor(
 
     var currentHomes: List<Home>? = null
 
-    private var previousSources = emptyList<Boolean>()
+    private var previousStores = mapOf<Source, StoreRepository>()
 
-   fun hasData(): Boolean {
-       return homeScreenData.value?.data?.isNotEmpty() ?: false
-   }
+    fun hasData(): Boolean {
+        return homeScreenData.value?.data?.isNotEmpty() ?: false
+    }
 
     fun loadData(
         authObjectList: List<AuthObject>,
@@ -69,57 +69,37 @@ class HomeViewModel @Inject constructor(
         super.onLoadData(authObjectList, { successAuthList, _ ->
 
             successAuthList.find { it is AuthObject.GPlayAuth }?.run {
-                getHomeScreenData(result.data!! as AuthData, lifecycleOwner)
+                getHomeScreenData(lifecycleOwner)
                 return@onLoadData
             }
 
             successAuthList.find { it is AuthObject.CleanApk }?.run {
-                getHomeScreenData(AuthData("", ""), lifecycleOwner)
+                getHomeScreenData(lifecycleOwner)
                 return@onLoadData
             }
         }, retryBlock)
     }
 
     fun haveSourcesChanged(): Boolean {
-        val sources = listOf(
-            appLoungePreference.isGplaySelected(),
-            appLoungePreference.isOpenSourceSelected(),
-            appLoungePreference.isPWASelected()
-        )
-
-        if (sources == previousSources) {
+        val newStores = stores.getStores()
+        if (newStores == previousStores) {
             return false
         }
 
-        previousSources = sources
+        previousStores = newStores.toMutableMap()
         return true
     }
 
-    fun getHomeScreenData(
-        authData: AuthData,
+    private fun getHomeScreenData(
         lifecycleOwner: LifecycleOwner,
     ) {
         viewModelScope.launch {
-            applicationRepository.getHomeScreenData(authData).observe(lifecycleOwner) {
+            applicationRepository.getHomeScreenData().observe(lifecycleOwner) {
                 postHomeResult(it)
 
                 if (it.isSuccess()) {
                     return@observe
                 }
-
-                val exception =
-                    if (authData.aasToken.isNotBlank() || authData.authToken.isNotBlank())
-                        GPlayException(
-                            it.isTimeout(),
-                            it.message.ifBlank { "Data load error" }
-                        )
-                    else CleanApkException(
-                        it.isTimeout(),
-                        it.message.ifBlank { "Data load error" }
-                    )
-
-                exceptionsList.add(exception)
-                exceptionsLiveData.postValue(exceptionsList)
             }
         }
     }

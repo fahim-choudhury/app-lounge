@@ -25,6 +25,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.ResultSupreme
+import foundation.e.apps.data.Stores
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.Category
@@ -38,13 +39,12 @@ import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.handleNetworkResult
-import foundation.e.apps.data.preference.AppLoungePreference
 import javax.inject.Inject
 
 class CategoryApiImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val appLoungePreference: AppLoungePreference,
     private val appSources: AppSourcesContainer,
+    private val stores: Stores,
     private val applicationDataManager: ApplicationDataManager
 ) : CategoryApi {
 
@@ -62,16 +62,8 @@ class CategoryApiImpl @Inject constructor(
     ): ResultStatus {
         val categoryResults: MutableList<ResultStatus> = mutableListOf()
 
-        if (appLoungePreference.isOpenSourceSelected()) {
-            categoryResults.add(fetchCategoryResult(categoriesList, type, Source.OPEN))
-        }
-
-        if (appLoungePreference.isPWASelected()) {
-            categoryResults.add(fetchCategoryResult(categoriesList, type, Source.PWA))
-        }
-
-        if (appLoungePreference.isGplaySelected()) {
-            categoryResults.add(fetchCategoryResult(categoriesList, type, Source.GPLAY))
+        for ((source, _) in stores.getStores()) {
+            categoryResults.add(fetchCategoryResult(categoriesList, type, source))
         }
 
         return categoryResults.find { it != ResultStatus.OK } ?: ResultStatus.OK
@@ -83,8 +75,8 @@ class CategoryApiImpl @Inject constructor(
         source: Source
     ): ResultStatus {
         val categoryResult = when (source) {
-            Source.OPEN -> {
-                fetchCleanApkCategories(type, Source.OPEN)
+            Source.OPEN_SOURCE -> {
+                fetchCleanApkCategories(type, Source.OPEN_SOURCE)
             }
 
             Source.PWA -> {
@@ -133,7 +125,7 @@ class CategoryApiImpl @Inject constructor(
 
         val result = handleNetworkResult {
             val categories = when (source) {
-                Source.OPEN -> {
+                Source.OPEN_SOURCE -> {
                     tag = AppTag.OpenSource(context.getString(R.string.open_source))
                     appSources.cleanApkAppsRepo.getCategories().body()
                 }
@@ -234,6 +226,7 @@ class CategoryApiImpl @Inject constructor(
             response?.apps?.forEach {
                 applicationDataManager.updateStatus(it)
                 it.updateType()
+                it.source = source
                 applicationDataManager.updateFilterLevel(it)
                 list.add(it)
             }
@@ -245,7 +238,7 @@ class CategoryApiImpl @Inject constructor(
         source: Source,
         category: String
     ) = when (source) {
-        Source.OPEN -> {
+        Source.OPEN_SOURCE -> {
             appSources.cleanApkAppsRepo.getAppsByCategory(category).body()
         }
 

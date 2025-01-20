@@ -33,11 +33,11 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import foundation.e.apps.R
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.application.ApplicationInstaller
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.databinding.HomeChildListItemBinding
 import foundation.e.apps.ui.AppInfoFetchViewModel
 import foundation.e.apps.ui.MainActivityViewModel
@@ -81,7 +81,7 @@ class HomeChildRVAdapter(
         val shimmerDrawable = ShimmerDrawable().apply { setShimmer(shimmer) }
 
         holder.binding.apply {
-            if (homeApp.origin == Origin.CLEANAPK) {
+            if (homeApp.source == Source.PWA || homeApp.source == Source.OPEN_SOURCE) {
                 appIcon.load(CleanApkRetrofit.ASSET_URL + homeApp.icon_image_path) {
                     placeholder(shimmerDrawable)
                 }
@@ -95,7 +95,7 @@ class HomeChildRVAdapter(
                 val action = HomeFragmentDirections.actionHomeFragmentToApplicationFragment(
                     homeApp.package_name,
                     homeApp._id,
-                    homeApp.origin,
+                    homeApp.source,
                     homeApp.category,
                     homeApp.isGplayReplaced,
                     homeApp.isPurchased

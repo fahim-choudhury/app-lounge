@@ -25,12 +25,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
-import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.databinding.ApplicationScreenshotsListItemBinding
 import foundation.e.apps.ui.application.ApplicationFragmentDirections
 
 class ApplicationScreenshotsRVAdapter(
-    private val origin: Origin
+    private val source: Source
 ) :
     RecyclerView.Adapter<ApplicationScreenshotsRVAdapter.ViewHolder>() {
 
@@ -51,14 +51,17 @@ class ApplicationScreenshotsRVAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val imageView = holder.binding.imageView
-        when (origin) {
-            Origin.CLEANAPK -> {
+        when (source) {
+            Source.PWA -> {
                 imageView.load(CleanApkRetrofit.ASSET_URL + oldList[position])
             }
-            Origin.GPLAY -> {
+            Source.OPEN_SOURCE -> {
+                imageView.load(CleanApkRetrofit.ASSET_URL + oldList[position])
+            }
+            Source.PLAY_STORE -> {
                 imageView.load(oldList[position])
             }
-            Origin.GITLAB_RELEASES -> {
+            Source.SYSTEM_APP -> {
                 // no operation
             }
         }
@@ -67,7 +70,7 @@ class ApplicationScreenshotsRVAdapter(
                 ApplicationFragmentDirections.actionApplicationFragmentToScreenshotFragment(
                     oldList.toTypedArray(),
                     position,
-                    origin
+                    source
                 )
             it.findNavController().navigate(action)
         }

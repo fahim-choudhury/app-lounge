@@ -18,51 +18,29 @@
 
 package foundation.e.apps.data.application.apps
 
-import android.content.Context
-import com.aurora.gplayapi.data.models.App
-import com.aurora.gplayapi.data.models.AuthData
-import dagger.hilt.android.qualifiers.ApplicationContext
-import foundation.e.apps.data.AppSourcesContainer
+import foundation.e.apps.data.Stores
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.application.utils.toApplication
-import foundation.e.apps.data.cleanapk.data.search.Search
 import foundation.e.apps.data.enums.FilterLevel
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.isUnFiltered
 import foundation.e.apps.data.handleNetworkResult
-import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.ui.applicationlist.ApplicationDiffUtil
-import retrofit2.Response
 import javax.inject.Inject
-import foundation.e.apps.data.cleanapk.data.app.CleanApkApplication
+import foundation.e.apps.data.enums.Source
 
 class AppsApiImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val appLoungePreference: AppLoungePreference,
-    private val appSources: AppSourcesContainer,
+    private val stores: Stores,
     private val applicationDataManager: ApplicationDataManager
 ) : AppsApi {
-
-    companion object {
-        private const val KEY_SEARCH_PACKAGE_NAME = "package_name"
-    }
 
     override suspend fun getCleanapkAppDetails(packageName: String): Pair<Application, ResultStatus> {
         var application = Application()
         val result = handleNetworkResult {
-            val result = appSources.cleanApkAppsRepo.getSearchResult(
-                packageName,
-                KEY_SEARCH_PACKAGE_NAME
-            ).body()
-
-            if (result?.hasSingleResult() == true) {
-                application =
-                    appSources.cleanApkAppsRepo.getAppDetails(result.apps[0]._id)
-            }
-
+            application = stores.getStore(Source.OPEN_SOURCE)?.getAppDetails(packageName) ?: Application()
+            application.source = Source.OPEN_SOURCE
+            application.updateType()
             application.updateFilterLevel()
         }
 
@@ -72,18 +50,18 @@ class AppsApiImpl @Inject constructor(
     /*
      * Handy method to run on an instance of FusedApp to update its filter level.
      */
-    private suspend fun Application.updateFilterLevel() {
+    private fun Application.updateFilterLevel() {
         this.filterLevel = applicationDataManager.getAppFilterLevel(this)
     }
 
     override suspend fun getApplicationDetails(
         packageNameList: List<String>,
-        origin: Origin
+        source: Source
     ): Pair<List<Application>, ResultStatus> {
         val list = mutableListOf<Application>()
 
         val response: Pair<List<Application>, ResultStatus> =
-            if (origin == Origin.CLEANAPK) {
+            if (source == Source.OPEN_SOURCE || source == Source.PWA) {
                 getAppDetailsListFromCleanApk(packageNameList)
             } else {
                 getAppDetailsListFromGPlay(packageNameList)
@@ -108,13 +86,11 @@ class AppsApiImpl @Inject constructor(
     private suspend fun getAppDetailsListFromCleanApk(
         packageNameList: List<String>,
     ): Pair<List<Application>, ResultStatus> {
-        var status = ResultStatus.OK
+        val status = ResultStatus.OK
         val applicationList = mutableListOf<Application>()
 
         for (packageName in packageNameList) {
-            getCleanApkSearchResultByPackageName(packageName).data?.run {
-                handleCleanApkSearch(applicationList)
-            }
+            applicationList.add(stores.getStore(Source.OPEN_SOURCE)?.getAppDetails(packageName) ?: Application())
         }
 
         return Pair(applicationList, status)
@@ -125,13 +101,12 @@ class AppsApiImpl @Inject constructor(
     ): Pair<List<Application>, ResultStatus> {
         val applicationList = mutableListOf<Application>()
 
-        val result = handleNetworkResult {
-            appSources.gplayRepo.getAppsDetails(packageNameList).forEach { app ->
-                handleFilteredApps(app, applicationList)
-            }
+        for (packageName in packageNameList) {
+            val app = stores.getStore(Source.PLAY_STORE)?.getAppDetails(packageName) ?: Application()
+            handleFilteredApps(app, applicationList)
         }
 
-        return Pair(applicationList, result.getResultStatus())
+        return Pair(applicationList, ResultStatus.OK)
     }
 
     /*
@@ -140,63 +115,37 @@ class AppsApiImpl @Inject constructor(
      *
      * Issue: https://gitlab.e.foundation/e/backlog/-/issues/5174
      */
-    private suspend fun handleFilteredApps(
-        app: App,
+    private fun handleFilteredApps(
+        app: Application,
         applicationList: MutableList<Application>
     ) {
-        val application = app.toApplication(context)
-        val filter = applicationDataManager.getAppFilterLevel(application)
+        val filter = applicationDataManager.getAppFilterLevel(app)
         if (filter.isUnFiltered()) {
             applicationList.add(
-                application.apply {
+                app.apply {
                     filterLevel = filter
                 }
             )
         }
     }
 
-    private suspend fun getCleanApkSearchResultByPackageName(
-        packageName: String,
-    ) = handleNetworkResult {
-        appSources.cleanApkAppsRepo.getSearchResult(
-            packageName,
-            KEY_SEARCH_PACKAGE_NAME
-        ).body()
-    }
-
-    private suspend fun Search.handleCleanApkSearch(
-        applicationList: MutableList<Application>
-    ) {
-        if (hasSingleResult()) {
-            applicationList.add(
-                apps[0].apply {
-                    updateFilterLevel()
-                }
-            )
-        }
-    }
-
-    private fun Search.hasSingleResult() =
-        apps.isNotEmpty() && numberOfResults == 1
-
     override suspend fun getApplicationDetails(
         id: String,
         packageName: String,
-        origin: Origin
+        source: Source
     ): Pair<Application, ResultStatus> {
         var application: Application
 
         val result = handleNetworkResult {
-            application = if (origin == Origin.CLEANAPK) {
-                appSources.cleanApkAppsRepo.getAppDetails(id)
-            } else {
-                appSources.gplayRepo.getAppDetails(packageName)
-            }
 
+            val store = stores.getStore(source)
+                ?: throw IllegalStateException("Could not get store")
+
+            application = store.getAppDetails(packageName)
             application.let {
                 applicationDataManager.updateStatus(it)
+                it.source = source
                 it.updateType()
-                it.updateSource(context)
                 it.updateFilterLevel()
             }
             application
@@ -256,5 +205,5 @@ class AppsApiImpl @Inject constructor(
         return false
     }
 
-    override fun isOpenSourceSelected() = appLoungePreference.isOpenSourceSelected()
+    override fun isOpenSourceSelected() = stores.isStoreEnabled(Source.OPEN_SOURCE)
 }

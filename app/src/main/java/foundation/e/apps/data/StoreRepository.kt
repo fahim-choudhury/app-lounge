@@ -19,8 +19,10 @@
 package foundation.e.apps.data
 
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.application.data.Home
 
 interface StoreRepository {
-    suspend fun getHomeScreenData(): Map<String, List<Application>>
-    suspend fun getAppDetails(packageNameOrId: String): Application
+    suspend fun getHomeScreenData(list: MutableList<Home>): List<Home>
+    suspend fun getAppDetails(packageName: String): Application
+    suspend fun getSearchResults(pattern: String): List<Application>
 }

@@ -22,6 +22,7 @@ import android.os.Build
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.gitlab.UpdatableSystemAppsApi.*
 import foundation.e.apps.data.gitlab.models.OsReleaseType
@@ -254,8 +255,8 @@ class SystemAppsUpdatesRepository @Inject constructor(
 
             app.run {
                 applicationDataManager.updateStatus(this)
+                source = Source.SYSTEM_APP
                 updateList.add(this)
-                updateSource(context)
             }
         }
 

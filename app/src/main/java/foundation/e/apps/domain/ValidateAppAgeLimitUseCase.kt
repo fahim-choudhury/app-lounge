@@ -22,7 +22,7 @@ import com.aurora.gplayapi.data.models.ContentRating
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.application.apps.AppsApi
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
-import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.parentalcontrol.Age
@@ -84,17 +84,17 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
     }
 
     private fun isGitlabApp(app: AppInstall): Boolean {
-        return app.origin == Origin.GITLAB_RELEASES
+        return app.source == Source.SYSTEM_APP
     }
 
     private fun isCleanApkApp(app: AppInstall): Boolean {
         return app.id.isNotBlank()
-                && app.origin == Origin.CLEANAPK
+                && (app.source == Source.PWA || app.source == Source.OPEN_SOURCE)
                 && app.type == Type.NATIVE
     }
 
     private fun isWhiteListedCleanApkApp(app: AppInstall): Boolean {
-        return app.origin == Origin.CLEANAPK
+        return app.source == Source.OPEN_SOURCE || app.source == Source.PWA
     }
 
     private suspend fun isNsfwAppByCleanApkApi(app: AppInstall): Boolean {
@@ -133,7 +133,7 @@ class ValidateAppAgeLimitUseCase @Inject constructor(
     }
 
     private suspend fun hasNoContentRatingOnGPlay(app: AppInstall): Boolean {
-        return app.origin == Origin.GPLAY && !verifyContentRatingExists(app)
+        return app.source == Source.PLAY_STORE && !verifyContentRatingExists(app)
     }
 
     private fun isValidAppAgeRating(

@@ -22,9 +22,8 @@ import com.aurora.gplayapi.Constants
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.enums.FilterLevel
-import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
-import foundation.e.apps.data.playstore.PlayStoreRepository
 import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.install.pkg.AppLoungePackageManager
 import javax.inject.Inject
@@ -32,15 +31,14 @@ import javax.inject.Singleton
 
 @Singleton
 class ApplicationDataManager @Inject constructor(
-    private val gPlayRepository: PlayStoreRepository,
     private val appLoungePackageManager: AppLoungePackageManager,
     private val pwaManager: PwaManager
 ) {
-    suspend fun updateFilterLevel(application: Application) {
+    fun updateFilterLevel(application: Application) {
         application.filterLevel = getAppFilterLevel(application)
     }
 
-    suspend fun prepareApps(
+    fun prepareApps(
         appList: List<Application>,
         list: MutableList<Home>,
         value: String
@@ -55,44 +53,20 @@ class ApplicationDataManager @Inject constructor(
         }
     }
 
-    suspend fun getAppFilterLevel(application: Application): FilterLevel {
+    fun getAppFilterLevel(application: Application): FilterLevel {
         return when {
             application.package_name.isBlank() -> FilterLevel.UNKNOWN
             !application.isFree && application.price.isBlank() -> FilterLevel.UI
-            application.origin == Origin.CLEANAPK -> FilterLevel.NONE
-            application.origin == Origin.GITLAB_RELEASES -> FilterLevel.NONE
+            application.source == Source.PWA || application.source == Source.OPEN_SOURCE -> FilterLevel.NONE
+            application.source == Source.SYSTEM_APP -> FilterLevel.NONE
             !isRestricted(application) -> FilterLevel.NONE
-            !isApplicationVisible(application) -> FilterLevel.DATA
             application.originalSize == 0L -> FilterLevel.UI
-            !isDownloadable(application) -> FilterLevel.UI
             else -> FilterLevel.NONE
         }
     }
 
     private fun isRestricted(application: Application): Boolean {
         return application.restriction != Constants.Restriction.NOT_RESTRICTED
-    }
-
-    /*
-     * Some apps are simply not visible.
-     * Example: com.skype.m2
-     */
-    private suspend fun isApplicationVisible(application: Application): Boolean {
-        return kotlin.runCatching { gPlayRepository.getAppDetails(application.package_name) }.isSuccess
-    }
-
-    /*
-     * Some apps are visible but not downloadable.
-     * Example: com.riotgames.league.wildrift
-     */
-    private suspend fun isDownloadable(application: Application): Boolean {
-        return kotlin.runCatching {
-            gPlayRepository.getDownloadInfo(
-                application.package_name,
-                application.latest_version_code,
-                application.offer_type,
-            )
-        }.isSuccess
     }
 
     fun updateStatus(application: Application) {

@@ -20,11 +20,9 @@ package foundation.e.apps.data.updates
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
-import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.cleanapk.ApkSignatureManager
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.isUnFiltered
@@ -33,13 +31,11 @@ import foundation.e.apps.data.fdroid.FDroidRepository
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.search.SearchApi.Companion.APP_TYPE_ANY
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.gitlab.SystemAppsUpdatesRepository
 import foundation.e.apps.data.handleNetworkResult
-import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.install.pkg.AppLoungePackageManager
-import foundation.e.apps.utils.eventBus.AppEvent
-import foundation.e.apps.utils.eventBus.EventBus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -68,7 +64,7 @@ class UpdatesManagerImpl @Inject constructor(
     private val userApplications: List<ApplicationInfo>
         get() = appLoungePackageManager.getAllUserApps()
 
-    suspend fun getUpdates(authData: AuthData): Pair<List<Application>, ResultStatus> {
+    suspend fun getUpdates(): Pair<List<Application>, ResultStatus> {
         val updateList = mutableListOf<Application>()
         var status = ResultStatus.OK
 
@@ -103,7 +99,7 @@ class UpdatesManagerImpl @Inject constructor(
             status = getUpdatesFromApi({
                 applicationRepository.getApplicationDetails(
                     openSourceInstalledApps,
-                    Origin.CLEANAPK
+                    Source.OPEN_SOURCE
                 )
             }, updateList)
         }
@@ -115,8 +111,7 @@ class UpdatesManagerImpl @Inject constructor(
 
             val gplayStatus = getUpdatesFromApi({
                 getGPlayUpdates(
-                    gPlayInstalledApps,
-                    authData
+                    gPlayInstalledApps
                 )
             }, updateList)
 
@@ -158,7 +153,7 @@ class UpdatesManagerImpl @Inject constructor(
             status = getUpdatesFromApi({
                 applicationRepository.getApplicationDetails(
                     openSourceInstalledApps,
-                    Origin.CLEANAPK
+                    Source.OPEN_SOURCE
                 )
             }, updateList)
         }
@@ -278,7 +273,6 @@ class UpdatesManagerImpl @Inject constructor(
      */
     private suspend fun getGPlayUpdates(
         packageNames: List<String>,
-        authData: AuthData
     ): Pair<List<Application>, ResultStatus> {
 
         val appsResults = coroutineScope {
@@ -287,7 +281,7 @@ class UpdatesManagerImpl @Inject constructor(
                     applicationRepository.getApplicationDetails(
                         "",
                         packageName,
-                        Origin.GPLAY
+                        Source.PLAY_STORE
                     )
                 }
             }
@@ -327,11 +321,15 @@ class UpdatesManagerImpl @Inject constructor(
         packageName: String,
         appsAndSignatures: HashMap<String, String>
     ) {
-            val cleanApkFusedApp = applicationRepository.getCleanapkAppDetails(packageName).first
-            if (cleanApkFusedApp.package_name.isBlank()) {
+            val apps = applicationRepository.getApplicationDetails(listOf(packageName), Source.OPEN_SOURCE).first
+            if (apps.isEmpty()) {
                 return
             }
-            appsAndSignatures[packageName] = getPgpSignature(cleanApkFusedApp)
+
+            if (apps[0].package_name.isBlank()) {
+                return
+            }
+            appsAndSignatures[packageName] = getPgpSignature(apps[0])
     }
 
     private suspend fun getPgpSignature(cleanApkApplication: Application): String {

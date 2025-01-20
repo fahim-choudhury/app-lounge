@@ -35,22 +35,22 @@ abstract class LoadingViewModel : ViewModel() {
     /**
      * Call this method from ViewModel.
      *
-     * @param authObjectList List obtained from login process.
+     * @param authObjects List obtained from login process.
      * @param loadingBlock Define how to load data in this method.
      * @param retryBlock Define retry mechanism for failed AuthObject.
      * Return `true` to signify the failure event is consumed by the block and no further
      * processing on failed AuthObject is needed.
      */
     fun onLoadData(
-        authObjectList: List<AuthObject>,
+        authObjects: List<AuthObject>,
         loadingBlock: (successObjects: List<AuthObject>, failedObjects: List<AuthObject>) -> Unit,
         retryBlock: (failedObjects: List<AuthObject>) -> Boolean,
     ) {
 
         exceptionsList.clear()
 
-        val successAuthList = authObjectList.filter { it.result.isSuccess() }
-        val failedAuthList = authObjectList.filter { !it.result.isSuccess() }
+        val successAuthList = authObjects.filter { it.result.isSuccess() }
+        val failedAuthList = authObjects.filter { !it.result.isSuccess() }
 
         failedAuthList.forEach {
             exceptionsList.add(it.result.exception ?: UnknownSourceException())

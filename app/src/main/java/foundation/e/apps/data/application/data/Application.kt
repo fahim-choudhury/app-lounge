@@ -18,19 +18,16 @@
 
 package foundation.e.apps.data.application.data
 
-import android.content.Context
 import android.net.Uri
 import com.aurora.gplayapi.Constants.Restriction
 import com.aurora.gplayapi.data.models.ContentRating
 import com.google.gson.annotations.SerializedName
-import foundation.e.apps.R
 import foundation.e.apps.data.enums.FilterLevel
-import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.enums.Type.NATIVE
 import foundation.e.apps.data.enums.Type.PWA
-import foundation.e.apps.di.CommonUtilsModule.LIST_OF_NULL
 
 data class Application(
     val _id: String = String(),
@@ -51,11 +48,10 @@ data class Application(
     val ratings: Ratings = Ratings(),
     val offer_type: Int = -1,
     var status: Status = Status.UNAVAILABLE,
-    var origin: Origin = Origin.CLEANAPK,
     val shareUrl: String = String(),
     val originalSize: Long = 0,
     val appSize: String = String(),
-    var source: String = String(),
+    var source: Source = Source.PLAY_STORE,
     val price: String = String(),
     val isFree: Boolean = true,
     val is_pwa: Boolean = false,
@@ -104,18 +100,6 @@ data class Application(
 ) {
     fun updateType() {
         this.type = if (this.is_pwa) PWA else NATIVE
-    }
-
-    // TODO: Make this logic separate from data layer (https://gitlab.e.foundation/e/os/backlog/-/issues/2371)
-    fun updateSource(context: Context) {
-        this.apply {
-            source = when {
-                origin == Origin.GITLAB_RELEASES -> context.getString(R.string.system_app)
-                origin == Origin.GPLAY -> ""
-                is_pwa -> context.getString(R.string.pwa)
-                else -> context.getString(R.string.open_source)
-            }
-        }
     }
 
     fun hasExodusPrivacyRating(): Boolean {

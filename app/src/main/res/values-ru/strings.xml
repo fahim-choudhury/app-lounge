@@ -175,7 +175,6 @@
     <string name="free_space_for_update">Освободите %1$s на своем телефоне, чтобы получить последние обновления.</string>
     <string name="notification_content_full_db">Пожалуйста, освободите немного места на вашем телефоне, чтобы App Lounge мог работать должным образом.</string>
     <string name="ignore">Игнорировать</string>
-    <string name="system_app">Системное приложение</string>
     <string name="proceed_to_google_login">Перейдите к входу в систему Google</string>
     <string name="split_install_warning_title">Предупреждение относительно %s</string>
     <string name="split_install_warning_text">%s хочет установить дополнительные модули. Вам необходимо снова войти в AppLounge, чтобы иметь возможность установить их.</string>

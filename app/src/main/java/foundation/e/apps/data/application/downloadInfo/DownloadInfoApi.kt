@@ -19,7 +19,7 @@
 package foundation.e.apps.data.application.downloadInfo
 
 import foundation.e.apps.data.cleanapk.data.download.Download
-import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.install.models.AppInstall
 import retrofit2.Response
 
@@ -33,7 +33,7 @@ interface DownloadInfoApi {
     ): String?
 
     suspend fun updateFusedDownloadWithDownloadingInfo(
-        origin: Origin,
+        source: Source,
         appInstall: AppInstall
     )
 

@@ -26,7 +26,6 @@ import com.aurora.gplayapi.data.models.Category
 import foundation.e.apps.data.application.data.Category as AppLoungeCategory
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.application.data.Ratings
-import foundation.e.apps.data.enums.Origin
 
 fun App.toApplication(context: Context): Application {
     val app = Application(
@@ -50,7 +49,6 @@ fun App.toApplication(context: Context): Application {
             }
         ),
         offer_type = this.offerType,
-        origin = Origin.GPLAY,
         shareUrl = this.shareUrl,
         originalSize = this.size,
         appSize = Formatter.formatFileSize(context, this.size),

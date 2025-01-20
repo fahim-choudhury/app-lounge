@@ -41,11 +41,11 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import foundation.e.apps.R
 import foundation.e.apps.data.cleanapk.CleanApkRetrofit
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.application.ApplicationInstaller
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.databinding.ApplicationListItemBinding
 import foundation.e.apps.install.pkg.InstallerService
 import foundation.e.apps.ui.AppInfoFetchViewModel
@@ -169,23 +169,27 @@ class ApplicationListRVAdapter(
         searchApp: Application,
         shimmerDrawable: ShimmerDrawable
     ) {
-        when (searchApp.origin) {
-            Origin.GPLAY -> {
+        when (searchApp.source) {
+            Source.PLAY_STORE -> {
                 appIcon.load(searchApp.icon_image_path) {
                     placeholder(shimmerDrawable)
                 }
             }
-            Origin.CLEANAPK -> {
+            Source.PWA -> {
                 appIcon.load(CleanApkRetrofit.ASSET_URL + searchApp.icon_image_path) {
                     placeholder(shimmerDrawable)
                 }
             }
-            Origin.GITLAB_RELEASES -> {
+            Source.OPEN_SOURCE -> {
+                appIcon.load(CleanApkRetrofit.ASSET_URL + searchApp.icon_image_path) {
+                    placeholder(shimmerDrawable)
+                }
+            }
+            Source.SYSTEM_APP -> {
                 appIcon.load(getAppIcon(appIcon.context, searchApp.package_name)) {
                     placeholder(shimmerDrawable)
                 }
             }
-            else -> Timber.wtf("${searchApp.package_name} is from an unknown origin")
         }
     }
 
@@ -235,12 +239,7 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.updateSourceTag(searchApp: Application) {
-        if (searchApp.source.isEmpty()) {
-            sourceTag.visibility = View.INVISIBLE
-        } else {
-            sourceTag.visibility = View.VISIBLE
-        }
-        sourceTag.text = searchApp.source
+        sourceTag.text = searchApp.source.toString()
     }
 
     private fun handleAppItemClick(
@@ -256,7 +255,7 @@ class ApplicationListRVAdapter(
                 ApplicationListFragmentDirections.actionApplicationListFragmentToApplicationFragment(
                     searchApp.package_name,
                     searchApp._id,
-                    searchApp.origin,
+                    searchApp.source,
                     catText,
                     searchApp.isGplayReplaced,
                     searchApp.isPurchased
@@ -266,7 +265,7 @@ class ApplicationListRVAdapter(
                 SearchFragmentDirections.actionSearchFragmentToApplicationFragment(
                     searchApp.package_name,
                     searchApp._id,
-                    searchApp.origin,
+                    searchApp.source,
                     catText,
                     searchApp.isGplayReplaced,
                     searchApp.isPurchased
@@ -276,7 +275,7 @@ class ApplicationListRVAdapter(
                 UpdatesFragmentDirections.actionUpdatesFragmentToApplicationFragment(
                     searchApp.package_name,
                     searchApp._id,
-                    searchApp.origin,
+                    searchApp.source,
                     catText,
                     searchApp.isGplayReplaced,
                     searchApp.isPurchased

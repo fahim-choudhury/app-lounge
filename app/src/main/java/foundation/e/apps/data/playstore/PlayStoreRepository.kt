@@ -24,7 +24,6 @@ import com.aurora.gplayapi.data.models.App as GplayApp
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.data.models.ContentRating
 import com.aurora.gplayapi.data.models.File
-import com.aurora.gplayapi.data.models.SearchBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.AppDetailsHelper
 import com.aurora.gplayapi.helpers.ContentRatingHelper
@@ -38,9 +37,12 @@ import com.aurora.gplayapi.helpers.web.WebTopChartsHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.R
 import foundation.e.apps.data.StoreRepository
+import foundation.e.apps.data.application.ApplicationDataManager
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.application.data.Home
 import foundation.e.apps.data.application.utils.CategoryType
 import foundation.e.apps.data.application.utils.toApplication
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.playstore.utils.GPlayHttpClient
 import kotlinx.coroutines.Dispatchers
@@ -51,10 +53,10 @@ import javax.inject.Inject
 class PlayStoreRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val gPlayHttpClient: GPlayHttpClient,
-    private val authenticatorRepository: AuthenticatorRepository
+    private val authenticatorRepository: AuthenticatorRepository,
+    private val applicationDataManager: ApplicationDataManager
 ) : StoreRepository {
-
-    override suspend fun getHomeScreenData(): Map<String, List<Application>> {
+    override suspend fun getHomeScreenData(list: MutableList<Home>): List<Home> {
         val homeScreenData = mutableMapOf<String, List<Application>>()
         val homeElements = createTopChartElements()
 
@@ -67,7 +69,18 @@ class PlayStoreRepository @Inject constructor(
             homeScreenData[it.key] = result
         }
 
-        return homeScreenData
+        homeScreenData.map {
+            val fusedApps = it.value.map { app ->
+                app.apply {
+                    applicationDataManager.updateStatus(this)
+                    applicationDataManager.updateFilterLevel(this)
+                    source = Source.PLAY_STORE
+                }
+            }
+            list.add(Home(it.key, fusedApps))
+        }
+
+        return list
     }
 
     private fun createTopChartElements() = mutableMapOf(
@@ -79,31 +92,11 @@ class PlayStoreRepository @Inject constructor(
         context.getString(R.string.movers_shakers_games) to mapOf(Chart.MOVERS_SHAKERS to Type.GAME),
     )
 
-    fun getSearchResult(
-        query: String,
-        subBundle: MutableSet<SearchBundle.SubBundle>?
-    ): Pair<List<GplayApp>, MutableSet<SearchBundle.SubBundle>> {
-        val searchHelper = WebSearchHelper().using(gPlayHttpClient)
-
-        Timber.d("Fetching search result for $query, subBundle: $subBundle")
-
-        val searchResult = if (subBundle != null) {
-            Timber.d("fetching next page search data...")
-            searchHelper.next(subBundle)
-        } else {
-            searchHelper.searchResults(query)
+    override suspend fun getSearchResults(pattern: String): List<Application> {
+        val searchResult = WebSearchHelper().using(gPlayHttpClient).searchResults(pattern)
+        return searchResult.appList.map {
+            it.toApplication(context)
         }
-
-        return getSearchResultPair(searchResult, query)
-    }
-
-    private fun getSearchResultPair(
-        searchBundle: SearchBundle,
-        query: String
-    ): Pair<MutableList<GplayApp>, MutableSet<SearchBundle.SubBundle>> {
-        val apps = searchBundle.appList
-        Timber.d("Found ${apps.size} apps for query, $query")
-        return Pair(apps, searchBundle.subBundles)
     }
 
     suspend fun getSearchSuggestions(query: String): List<SearchSuggestEntry> {
@@ -145,14 +138,14 @@ class PlayStoreRepository @Inject constructor(
         return categoryList
     }
 
-    override suspend fun getAppDetails(packageNameOrId: String): Application {
+    override suspend fun getAppDetails(packageName: String): Application {
         var appDetails: GplayApp?
 
         val appDetailsHelper =
             AppDetailsHelper(authenticatorRepository.getGPlayAuthOrThrow()).using(gPlayHttpClient)
 
         withContext(Dispatchers.IO) {
-            appDetails = appDetailsHelper.getAppByPackageName(packageNameOrId)
+            appDetails = appDetailsHelper.getAppByPackageName(packageName)
         }
 
         if (appDetails?.versionCode == 0) {
@@ -160,23 +153,6 @@ class PlayStoreRepository @Inject constructor(
         }
 
         return appDetails?.toApplication(context) ?: Application()
-    }
-
-    suspend fun getAppsDetails(packageNamesOrIds: List<String>): List<GplayApp> {
-        val appDetailsList = mutableListOf<GplayApp>()
-
-        val appDetailsHelper =
-            AppDetailsHelper(authenticatorRepository.getGPlayAuthOrThrow()).using(gPlayHttpClient)
-
-        withContext(Dispatchers.IO) {
-            appDetailsList.addAll(appDetailsHelper.getAppByPackageName(packageNamesOrIds))
-        }
-
-        if (appDetailsList.first().versionCode == 0) {
-            throw IllegalStateException("App version code cannot be 0")
-        }
-
-        return appDetailsList
     }
 
     private fun getCategoryType(type: CategoryType): Category.Type {
@@ -191,7 +167,12 @@ class PlayStoreRepository @Inject constructor(
         val topApps = mutableListOf<GplayApp>()
         withContext(Dispatchers.IO) {
             val topChartsHelper = WebTopChartsHelper().using(gPlayHttpClient)
-            topApps.addAll(topChartsHelper.getCluster(type.value, chart.value).clusterAppList)
+            try {
+                topApps.addAll(topChartsHelper.getCluster(type.value, chart.value).clusterAppList)
+            } catch (exception: Exception) {
+                Timber.w("Could not get top apps: $exception")
+                topApps.addAll(emptyList())
+            }
         }
 
         return topApps.map {

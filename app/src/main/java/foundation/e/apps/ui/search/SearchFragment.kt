@@ -65,6 +65,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -187,6 +188,7 @@ class SearchFragment :
                     observeDownloadList(adapter)
                 }
             }
+            updateSearchResult(listAdapter, it.data?.first ?: emptyList())
             observeScrollOfSearchResult(listAdapter)
         }
     }
@@ -366,7 +368,7 @@ class SearchFragment :
 
     override fun loadData(authObjectList: List<AuthObject>) {
         showLoadingUI()
-        searchViewModel.loadData(searchText, viewLifecycleOwner, authObjectList) {
+        searchViewModel.loadData(searchText, authObjectList) {
             clearAndRestartGPlayLogin()
             true
         }

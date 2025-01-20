@@ -29,7 +29,7 @@ import foundation.e.apps.data.enums.Type
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.UpdatesDao
 import foundation.e.apps.data.application.data.Application
-import foundation.e.apps.data.enums.Origin
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.install.models.AppInstall
 import foundation.e.apps.data.login.AuthObject
@@ -83,7 +83,7 @@ class AppInstallProcessor @Inject constructor(
     ) {
         val appInstall = AppInstall(
             application._id,
-            application.origin,
+            application.source,
             application.status,
             application.name,
             application.package_name,
@@ -100,7 +100,7 @@ class AppInstallProcessor @Inject constructor(
             it.contentRating = application.contentRating
         }
 
-        if (appInstall.type == Type.PWA || application.origin == Origin.GITLAB_RELEASES) {
+        if (appInstall.type == Type.PWA || application.source == Source.SYSTEM_APP) {
             appInstall.downloadURLList = mutableListOf(application.url)
         }
 
@@ -221,7 +221,7 @@ class AppInstallProcessor @Inject constructor(
         appInstall: AppInstall
     ) {
         applicationRepository.updateFusedDownloadWithDownloadingInfo(
-            appInstall.origin, appInstall
+            appInstall.source, appInstall
         )
     }
 

@@ -34,6 +34,7 @@ import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.ecloud.EcloudRepository
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.enums.isInitialized
 import foundation.e.apps.data.enums.isUnFiltered
@@ -232,7 +233,7 @@ class MainActivityViewModel @Inject constructor(
     ) {
         applicationList.forEach {
             val downloadingItem = appInstallList.find { fusedDownload ->
-                fusedDownload.origin == it.origin && (fusedDownload.packageName == it.package_name || fusedDownload.id == it._id)
+                fusedDownload.source == it.source && (fusedDownload.packageName == it.package_name || fusedDownload.id == it._id)
             }
             it.status =
                 downloadingItem?.status ?: applicationRepository.getFusedAppInstallationStatus(it)

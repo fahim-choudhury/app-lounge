@@ -22,7 +22,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.AuthData
 import foundation.e.apps.data.blockedApps.BlockedAppRepository
 import foundation.e.apps.data.enums.FilterLevel
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.faultyApps.FaultyAppRepository
@@ -30,6 +29,7 @@ import foundation.e.apps.data.fdroid.FDroidRepository
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.search.SearchApi
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.gitlab.SystemAppsUpdatesRepository
 import foundation.e.apps.data.updates.UpdatesManagerImpl
 import foundation.e.apps.util.MainCoroutineRule
@@ -107,7 +107,7 @@ class UpdateManagerImptTest {
             status = status,
             name = "Demo Four",
             package_name = "foundation.e.demofour",
-            origin = Origin.GITLAB_RELEASES,
+            source = Source.SYSTEM_APP,
             filterLevel = FilterLevel.NONE
         )
     )
@@ -127,7 +127,7 @@ class UpdateManagerImptTest {
             systemAppUpdates
         )
 
-        val updateResult = updatesManagerImpl.getUpdates(authData)
+        val updateResult = updatesManagerImpl.getUpdates()
         System.out.println("===> updates: ${updateResult.first.map { it.package_name }}")
 
         assertEquals("fetchUpdate", 3, updateResult.first.size)
@@ -139,7 +139,7 @@ class UpdateManagerImptTest {
             status = status,
             name = "Demo One",
             package_name = "foundation.e.demoone",
-            origin = Origin.GPLAY,
+            source = Source.PLAY_STORE,
             filterLevel = FilterLevel.NONE
         ),
         Application(
@@ -147,7 +147,7 @@ class UpdateManagerImptTest {
             status = Status.INSTALLED,
             name = "Demo Two",
             package_name = "foundation.e.demotwo",
-            origin = Origin.GPLAY,
+            source = Source.PLAY_STORE,
             filterLevel = FilterLevel.NONE
         ),
     )
@@ -159,7 +159,7 @@ class UpdateManagerImptTest {
 
         setupMockingSystemApps()
 
-        val updateResult = updatesManagerImpl.getUpdates(authData)
+        val updateResult = updatesManagerImpl.getUpdates()
         System.out.println("===> updates: ${updateResult.first.map { it.package_name }}")
 
         assertEquals("fetchUpdate", 0, updateResult.first.size)
@@ -180,7 +180,7 @@ class UpdateManagerImptTest {
             systemAppUpdates,
         )
 
-        val updateResult = updatesManagerImpl.getUpdates(authData)
+        val updateResult = updatesManagerImpl.getUpdates()
         System.out.println("===> updates: ${updateResult.first.map { it.package_name }}")
 
         assertEquals("fetchUpdate", 0, updateResult.first.size)
@@ -201,10 +201,10 @@ class UpdateManagerImptTest {
             systemAppUpdates,
         )
 
-        val updateResult = updatesManagerImpl.getUpdates(authData)
+        val updateResult = updatesManagerImpl.getUpdates()
         System.out.println("===> updates: ${updateResult.first.map { it.package_name }}")
 
-        assertFalse("fetchupdate", updateResult.first.any { it.origin != Origin.CLEANAPK })
+        assertFalse("fetchupdate", updateResult.first.any { it.source != Source.OPEN_SOURCE && it.source != Source.PWA })
     }
 
     @Test
@@ -222,8 +222,8 @@ class UpdateManagerImptTest {
             systemAppUpdates,
         )
 
-        val updateResult = updatesManagerImpl.getUpdates(authData)
-        assertFalse("fetchupdate", updateResult.first.any { it.origin != Origin.GPLAY })
+        val updateResult = updatesManagerImpl.getUpdates()
+        assertFalse("fetchupdate", updateResult.first.any { it.source != Source.PLAY_STORE })
     }
 
     @Test
@@ -241,8 +241,8 @@ class UpdateManagerImptTest {
             systemAppUpdates,
         )
 
-        val updateResult = updatesManagerImpl.getUpdates(authData)
-        assertFalse("fetchupdate", updateResult.first.any { it.origin != Origin.GITLAB_RELEASES })
+        val updateResult = updatesManagerImpl.getUpdates()
+        assertFalse("fetchupdate", updateResult.first.any { it.source != Source.SYSTEM_APP })
     }
 
     @Test
@@ -258,7 +258,7 @@ class UpdateManagerImptTest {
             gplayUpdates
         )
 
-        val updateResult = updatesManagerImpl.getUpdates(authData)
+        val updateResult = updatesManagerImpl.getUpdates()
         assertEquals("fetchupdate", 1, updateResult.first.size)
         assertEquals("fetchupdate", ResultStatus.OK, updateResult.second)
     }
@@ -276,7 +276,7 @@ class UpdateManagerImptTest {
             gplayUpdates
         )
 
-        val updateResult = updatesManagerImpl.getUpdates(authData)
+        val updateResult = updatesManagerImpl.getUpdates()
         System.out.println("===> updates: ${updateResult.first.map { it.package_name }}")
 
         assertEquals("fetchupdate", 1, updateResult.first.size)
@@ -296,7 +296,7 @@ class UpdateManagerImptTest {
             gplayUpdates
         )
 
-        val updateResult = updatesManagerImpl.getUpdates(authData)
+        val updateResult = updatesManagerImpl.getUpdates()
         System.out.println("===> updates: ${updateResult.first.map { it.package_name }}")
 
         assertEquals("fetchupdate", 1, updateResult.first.size)
@@ -309,7 +309,7 @@ class UpdateManagerImptTest {
             status = status,
             name = "Demo Three",
             package_name = "foundation.e.demothree",
-            origin = Origin.CLEANAPK,
+            source = Source.OPEN_SOURCE,
             filterLevel = FilterLevel.NONE
         )
     )
@@ -327,8 +327,8 @@ class UpdateManagerImptTest {
 
         val updateResult = updatesManagerImpl.getUpdatesOSS()
         assertEquals("UpdateOSS", 2, updateResult.first.size)
-        assertEquals("UpdateOSS", Origin.CLEANAPK, updateResult.first[1].origin)
-        assertEquals("UpdateOSS", Origin.GITLAB_RELEASES, updateResult.first[0].origin)
+        assertEquals("UpdateOSS", Source.OPEN_SOURCE, updateResult.first[1].source)
+        assertEquals("UpdateOSS", Source.SYSTEM_APP, updateResult.first[0].source)
     }
 
     @Test
@@ -373,7 +373,7 @@ class UpdateManagerImptTest {
         Mockito.`when`(
             applicationRepository.getApplicationDetails(
                 any(),
-                eq(Origin.CLEANAPK)
+                eq(Source.OPEN_SOURCE)
             )
         ).thenReturn(openSourceUpdates)
 
@@ -387,7 +387,7 @@ class UpdateManagerImptTest {
                 applicationRepository.getApplicationDetails(
                     any(),
                     any(),
-                    eq(Origin.GPLAY)
+                    eq(Source.PLAY_STORE)
                 )
             ).thenReturn(
                 Pair(gplayUpdates.first.first(), ResultStatus.OK),
@@ -398,7 +398,7 @@ class UpdateManagerImptTest {
                 applicationRepository.getApplicationDetails(
                     any(),
                     any(),
-                    eq(Origin.GPLAY)
+                    eq(Source.PLAY_STORE)
                 )
             ).thenReturn(Pair(Application(), ResultStatus.TIMEOUT))
         }

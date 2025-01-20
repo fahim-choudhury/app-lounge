@@ -18,12 +18,10 @@
 
 package foundation.e.apps.data.application.apps
 
-import com.aurora.gplayapi.data.models.AuthData
-import com.aurora.gplayapi.data.models.ContentRating
 import foundation.e.apps.data.application.data.Application
 import foundation.e.apps.data.enums.FilterLevel
-import foundation.e.apps.data.enums.Origin
 import foundation.e.apps.data.enums.ResultStatus
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.Status
 
 interface AppsApi {
@@ -36,13 +34,13 @@ interface AppsApi {
 
     suspend fun getApplicationDetails(
         packageNameList: List<String>,
-        origin: Origin
+        source: Source
     ): Pair<List<Application>, ResultStatus>
 
     suspend fun getApplicationDetails(
         id: String,
         packageName: String,
-        origin: Origin
+        source: Source
     ): Pair<Application, ResultStatus>
 
     /**

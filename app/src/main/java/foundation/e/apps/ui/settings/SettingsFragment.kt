@@ -41,7 +41,10 @@ import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import foundation.e.apps.BuildConfig
 import foundation.e.apps.R
+import foundation.e.apps.data.Constants
+import foundation.e.apps.data.Stores
 import foundation.e.apps.data.application.UpdatesDao
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.databinding.CustomPreferenceBinding
 import foundation.e.apps.install.updates.UpdatesWorkManager
@@ -63,11 +66,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private var showPWAApplications: CheckBoxPreference? = null
     private var troubleShootPreference: Preference? = null
 
-    val loginViewModel: LoginViewModel by lazy {
+    private val loginViewModel: LoginViewModel by lazy {
         ViewModelProvider(requireActivity())[LoginViewModel::class.java]
     }
 
     private var sourcesChangedFlag = false
+
+    @Inject
+    lateinit var stores: Stores
 
     @Inject
     lateinit var gson: Gson
@@ -87,9 +93,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.settings_preferences, rootKey)
 
         // Show applications preferences
-        showAllApplications = findPreference<CheckBoxPreference>("showAllApplications")
-        showFOSSApplications = findPreference<CheckBoxPreference>("showFOSSApplications")
-        showPWAApplications = findPreference<CheckBoxPreference>("showPWAApplications")
+        showAllApplications = findPreference("showAllApplications")
+        showFOSSApplications = findPreference("showFOSSApplications")
+        showPWAApplications = findPreference("showPWAApplications")
         troubleShootPreference = findPreference(getString(R.string.having_troubles))
 
         val updateCheckInterval =
@@ -141,7 +147,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
      * Checkbox listener to prevent all checkboxes from getting unchecked.
      */
     private val sourceCheckboxListener =
-        Preference.OnPreferenceChangeListener { preference: Preference, newValue: Any? ->
+        OnPreferenceChangeListener { preference: Preference, newValue: Any? ->
+
+            when (preference.key) {
+                Constants.PREFERENCE_SHOW_GPLAY -> updateStore(Source.PLAY_STORE, newValue == true)
+                Constants.PREFERENCE_SHOW_FOSS -> updateStore(Source.OPEN_SOURCE, newValue == true)
+                Constants.PREFERENCE_SHOW_PWA -> updateStore(Source.PWA, newValue == true)
+            }
 
             sourcesChangedFlag = true
             loginViewModel.authObjects.value = null
@@ -297,5 +309,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun updateStore(source: Source, isEnabled: Boolean) {
+        if (isEnabled) {
+            stores.enableStore(source)
+        } else {
+            stores.disableStore(source)
+        }
     }
 }

@@ -155,7 +155,7 @@ class ApplicationListViewModel @Inject constructor(
                 authData,
                 category,
                 nextPageUrl,
-                Source.GPLAY
+                Source.PLAY_STORE
             )
             isLoading = false
 
