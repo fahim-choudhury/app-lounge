@@ -239,7 +239,12 @@ class ApplicationListRVAdapter(
     }
 
     private fun ApplicationListItemBinding.updateSourceTag(searchApp: Application) {
-        sourceTag.text = searchApp.source.toString()
+        sourceTag.visibility = View.INVISIBLE
+        val tag = searchApp.source.toString()
+        if (tag.isNotBlank()) {
+            sourceTag.text = tag
+            sourceTag.visibility = View.VISIBLE
+        }
     }
 
     private fun handleAppItemClick(

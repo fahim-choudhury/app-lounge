@@ -24,9 +24,12 @@ enum class Source {
     PWA;
 
     override fun toString(): String {
-        return name.lowercase()
-            .split("_")
-            .joinToString(" ") { it.replaceFirstChar(Char::uppercase) }
+        return when (this) {
+            PLAY_STORE -> ""
+            else -> name.lowercase()
+                    .split("_")
+                    .joinToString(" ") { it.replaceFirstChar(Char::uppercase) }
+        }
     }
 
     companion object {
