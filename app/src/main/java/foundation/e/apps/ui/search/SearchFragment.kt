@@ -65,7 +65,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -229,15 +228,16 @@ class SearchFragment :
      */
     private fun updateSearchResult(
         listAdapter: ApplicationListRVAdapter?,
-        appList: List<Application>,
+        apps: List<Application>,
     ): Boolean {
-        val currentList = listAdapter?.currentList ?: listOf()
-        if (!searchViewModel.isAnyAppUpdated(appList, currentList)) {
+        val currentApps = listAdapter?.currentList ?: listOf()
+        if (!searchViewModel.isAnyAppUpdated(apps, currentApps)) {
             return false
         }
 
         showData()
-        listAdapter?.setData(appList.filter { it.name.isNotBlank() })
+        val filteredApps = apps.filter { it.name.isNotBlank() }.distinctBy { it.package_name }
+        listAdapter?.setData(filteredApps)
         return true
     }
 
