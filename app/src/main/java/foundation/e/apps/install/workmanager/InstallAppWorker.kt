@@ -106,7 +106,7 @@ class InstallAppWorker @AssistedInject constructor(
             ForegroundInfo(
                 atomicInteger.getAndIncrement(),
                 notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE // Specify a valid service type
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC // Specify a valid service type
             )
         } else {
             ForegroundInfo(
