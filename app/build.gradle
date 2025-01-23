@@ -104,7 +104,8 @@ android {
     defaultConfig {
         applicationId = "foundation.e.apps"
         minSdk = 30
-        targetSdk = 35
+        //noinspection OldTargetApi
+        targetSdk = 34
         versionCode = getVersionCode()
         versionName = getVersionName()
 
