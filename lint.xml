@@ -46,6 +46,8 @@
 
     <!-- It is not recommended to be always on the bleeding edge of dependencies-->
     <issue id="GradleDependency" severity="warning" />
+    <issue id="NewerVersionAvailable" severity="warning" />
+    <issue id="AndroidGradlePluginVersion" severity="warning" />
 
     <!-- Updating targetSdk requires further testing and is not the scope of this issue -->
     <issue id="ExpiredTargetSdkVersion" severity="warning" />

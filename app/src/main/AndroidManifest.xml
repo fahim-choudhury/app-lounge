@@ -62,7 +62,6 @@
 
     <application
         android:name=".AppLoungeApplication"
-        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:killAfterRestore="false"
         android:label="@string/app_name"

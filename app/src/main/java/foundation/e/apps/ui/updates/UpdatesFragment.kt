@@ -371,7 +371,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
                     )
                     viewHolder?.let {
                         (viewHolder as ApplicationListRVAdapter.ViewHolder).binding.installButton.text =
-                            String.format(Locale.getDefault(), "%d%%", progress);
+                            String.format(Locale.getDefault(), "%d%%", progress)
                     }
                 }
             }
