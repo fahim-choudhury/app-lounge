@@ -161,11 +161,6 @@
             android:exported="true"
             android:readPermission="${applicationId}.permission.PROVIDER_READ" />
 
-        <service
-            android:name=".install.pkg.PackageInstallerService"
-            android:foregroundServiceType="dataSync">
-        </service>
-
         <!-- TODO: ExportedService, suppressing because changes are needed in other apps -->
         <service
             android:name=".install.splitinstall.SplitInstallService"
