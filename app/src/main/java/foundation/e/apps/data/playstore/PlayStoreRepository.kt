@@ -19,6 +19,7 @@
 package foundation.e.apps.data.playstore
 
 import android.content.Context
+import android.os.Build
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App as GplayApp
 import com.aurora.gplayapi.data.models.Category
@@ -45,6 +46,7 @@ import foundation.e.apps.data.application.utils.toApplication
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.login.AuthenticatorRepository
 import foundation.e.apps.data.playstore.utils.GPlayHttpClient
+import foundation.e.apps.utils.SystemInfoProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -148,11 +150,15 @@ class PlayStoreRepository @Inject constructor(
             appDetails = appDetailsHelper.getAppByPackageName(packageName)
         }
 
-        if (appDetails?.versionCode == 0) {
+        if (!isEmulator() && appDetails?.versionCode == 0) {
             throw IllegalStateException("App version code cannot be 0")
         }
 
         return appDetails?.toApplication(context) ?: Application()
+    }
+
+    private fun isEmulator(): Boolean {
+        return SystemInfoProvider.getSystemProperty("ro.boot.qemu").equals("1")
     }
 
     private fun getCategoryType(type: CategoryType): Category.Type {
