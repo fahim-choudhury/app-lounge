@@ -21,7 +21,6 @@ import com.aurora.gplayapi.GooglePlayApi
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.data.providers.HeaderProvider
-import com.aurora.gplayapi.helpers.AuthValidator
 import com.aurora.gplayapi.helpers.NativeHelper
 import com.aurora.gplayapi.network.IHttpClient
 
