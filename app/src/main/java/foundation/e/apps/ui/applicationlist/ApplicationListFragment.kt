@@ -48,6 +48,7 @@ import foundation.e.apps.ui.PrivacyInfoViewModel
 import foundation.e.apps.ui.application.subFrags.ApplicationDialogFragment
 import foundation.e.apps.ui.parentFragment.TimeoutFragment
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -321,7 +322,7 @@ class ApplicationListFragment :
                     )
                     viewHolder?.let {
                         (viewHolder as ApplicationListRVAdapter.ViewHolder).binding.installButton.text =
-                            String.format("%d%%", progress)
+                            String.format(Locale.getDefault(), "%d%%", progress)
                     }
                 }
             }

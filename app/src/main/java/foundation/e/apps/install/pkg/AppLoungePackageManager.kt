@@ -139,12 +139,8 @@ class AppLoungePackageManager @Inject constructor(
 
     fun getInstallerName(packageName: String): String {
         return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val installerInfo = packageManager.getInstallSourceInfo(packageName)
-                installerInfo.originatingPackageName ?: installerInfo.installingPackageName ?: UNKNOWN_VALUE
-            } else {
-                packageManager.getInstallerPackageName(packageName) ?: UNKNOWN_VALUE
-            }
+            val installerInfo = packageManager.getInstallSourceInfo(packageName)
+            installerInfo.originatingPackageName ?: installerInfo.installingPackageName ?: UNKNOWN_VALUE
         } catch (e: NameNotFoundException) {
             Timber.e("getInstallerName -> $packageName : ${e.localizedMessage}")
             UNKNOWN_VALUE
@@ -164,12 +160,7 @@ class AppLoungePackageManager @Inject constructor(
 
     fun getVersionCode(packageName: String): String {
         val packageInfo = getPackageInfo(packageName)
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            packageInfo?.longVersionCode?.toString() ?: UNKNOWN_VALUE
-        } else {
-            @Suppress("DEPRECATION")
-            packageInfo?.versionCode?.toString() ?: UNKNOWN_VALUE
-        }
+        return packageInfo?.longVersionCode?.toString() ?: UNKNOWN_VALUE
     }
 
     fun getVersionName(packageName: String): String {

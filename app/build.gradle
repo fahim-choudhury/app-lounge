@@ -2,17 +2,17 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id 'kotlin-kapt'
-    id 'org.jlleitschuh.gradle.ktlint' version '10.2.0'
+    id 'com.google.devtools.ksp'
+    alias libs.plugins.ktlint
     id 'androidx.navigation.safeargs.kotlin'
     id 'com.google.dagger.hilt.android'
     id 'kotlin-allopen'
     id 'kotlin-parcelize'
 }
 
-def versionMajor = 2
-def versionMinor = 12
-def versionPatch = 3
+def appVersionMajor = 2
+def appVersionMinor = 12
+def appVersionPatch = 3
 
 def getGitHash = { ->
     def stdOut = new ByteArrayOutputStream()
@@ -43,14 +43,71 @@ def getSentryDsn = { ->
 }
 
 android {
-    compileSdk 34
+    def versionPropsFile = file('version.properties')
+    Properties versionProps = new Properties()
+
+    if (!versionPropsFile.exists()) {
+        versionProps['VERSION_CHANGE'] = '0'
+        versionProps['VERSION_MAJOR'] = appVersionMajor.toString()
+        versionProps['VERSION_MINOR'] = appVersionMinor.toString()
+        versionProps['VERSION_PATCH'] = appVersionPatch.toString()
+        versionProps['VERSION_CODE'] = (appVersionMajor * 1000000 + appVersionMinor * 1000 + appVersionPatch).toString()
+        versionProps.store(versionPropsFile.newWriter(), null)
+    }
+
+    def getVersionCode = { ->
+        if (versionPropsFile.canRead()) {
+            versionProps.load(new FileInputStream(versionPropsFile))
+            def versionChange = versionProps['VERSION_CHANGE'].toInteger() + 1
+            def versionMinor = versionProps['VERSION_MINOR'].toInteger()
+            def versionMajor = versionProps['VERSION_MAJOR'].toInteger()
+            def versionPatch = versionProps['VERSION_PATCH'].toInteger()
+            // Up version on each 100 cycles of builds
+            if (versionChange >= 100) {
+                versionPatch = versionProps['VERSION_PATCH'].toInteger() + 1
+                versionChange = 0
+            }
+            if (versionPatch == 9) {
+                versionMinor = versionProps['VERSION_MINOR'].toInteger() + 1
+                versionPatch = 0
+            }
+            if (versionMinor == 9) {
+                versionMajor = versionProps['VERSION_MAJOR'].toInteger() + 1
+                versionMinor = 0
+            }
+            def versionCode = versionProps['VERSION_CODE'].toInteger()
+
+            versionProps['VERSION_CHANGE'] = versionChange.toString()
+            versionProps['VERSION_PATCH'] = versionPatch.toString()
+            versionProps['VERSION_MINOR'] = versionMinor.toString()
+            versionProps['VERSION_MAJOR'] = versionMajor.toString()
+            versionProps['VERSION_CODE'] = (versionCode.toInteger() + 1).toString()
+            versionProps.store(versionPropsFile.newWriter(), null)
+            return versionCode
+        }
+    }
+
+    def getVersionName = { ->
+        if (versionPropsFile.canRead()) {
+            versionProps.load(new FileInputStream(versionPropsFile))
+
+            def versionMajor = versionProps['VERSION_MAJOR']
+            def versionMinor = versionProps['VERSION_MINOR']
+            def versionPatch = versionProps['VERSION_PATCH']
+
+            return "${versionMajor}.${versionMinor}.${versionPatch}"
+        }
+    }
+
+    compileSdk = 35
 
     defaultConfig {
-        applicationId "foundation.e.apps"
-        minSdk 26
-        targetSdk 30
-        versionCode versionMajor * 1000000 + versionMinor * 1000 + versionPatch
-        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+        applicationId = "foundation.e.apps"
+        minSdk = 30
+        //noinspection OldTargetApi
+        targetSdk = 34
+        versionCode = getVersionCode()
+        versionName = getVersionName()
 
         buildConfigField "String", "BUILD_ID", "\"${getGitHash() + "." + getDate()}\""
         buildConfigField("String", "SENTRY_DSN", "\"${getSentryDsn()}\"")
@@ -60,7 +117,7 @@ android {
         manifestPlaceholders = [parentalControlPkgName: parentalControlPkgName]
         buildConfigField "String", "PACKAGE_NAME_PARENTAL_CONTROL", "\"${parentalControlPkgName}\""
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
@@ -72,22 +129,22 @@ android {
             keyPassword "platform"
         }
         releaseTestConfig {
-            storeFile file("../keystore/proprietary.keystore")
-            storePassword keystore_password
-            keyAlias 'platform.test'
-            keyPassword keystore_password
+            storeFile = file("../keystore/proprietary.keystore")
+            storePassword = keystore_password
+            keyAlias = 'platform.test'
+            keyPassword = keystore_password
         }
         releaseCommunityConfig {
-            storeFile file("../keystore/proprietary.keystore")
-            storePassword keystore_password
-            keyAlias 'platform.dev'
-            keyPassword keystore_password
+            storeFile = file("../keystore/proprietary.keystore")
+            storePassword = keystore_password
+            keyAlias = 'platform.dev'
+            keyPassword = keystore_password
         }
         releaseOfficialConfig {
-            storeFile file("../keystore/proprietary.keystore")
-            storePassword keystore_password
-            keyAlias 'platform.stable'
-            keyPassword keystore_password
+            storeFile = file("../keystore/proprietary.keystore")
+            storePassword = keystore_password
+            keyAlias = 'platform.stable'
+            keyPassword = keystore_password
         }
     }
 
@@ -111,28 +168,29 @@ android {
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.debugConfig
+            signingConfig = signingConfigs.debugConfig
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         release {
-            minifyEnabled false
+            minifyEnabled = false
+            signingConfig = signingConfigs.debugConfig
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         releaseTest {
-            minifyEnabled false
-            signingConfig signingConfigs.releaseTestConfig
+            minifyEnabled = false
+            signingConfig = signingConfigs.releaseTestConfig
             sourceSets
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         releaseCommunity {
-            minifyEnabled false
-            signingConfig signingConfigs.releaseCommunityConfig
+            minifyEnabled = false
+            signingConfig = signingConfigs.releaseCommunityConfig
             sourceSets
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         releaseOfficial {
-            minifyEnabled false
-            signingConfig signingConfigs.releaseOfficialConfig
+            minifyEnabled = false
+            signingConfig = signingConfigs.releaseOfficialConfig
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
 
@@ -143,27 +201,24 @@ android {
         }
     }
     buildFeatures {
-        viewBinding true
-        aidl true
+        buildConfig = true
+        viewBinding = true
+        aidl = true
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
         jvmTarget = '17'
     }
     lint {
-        lintConfig file('lint.xml')
+        lintConfig = file('lint.xml')
     }
-    namespace 'foundation.e.apps'
-    kotlin.sourceSets.all {
+    namespace = 'foundation.e.apps'
+    kotlin.sourceSets.configureEach {
         languageSettings.optIn("kotlin.RequiresOptIn")
     }
-}
-
-kapt {
-    correctErrorTypes true
 }
 
 allOpen {
@@ -174,116 +229,105 @@ allOpen {
 
 dependencies {
 
-    implementation project(':auth-data-lib')
-    implementation project(':parental-control-data')
+    // Project dependencies
+    implementation(project(":auth-data-lib"))
+    implementation(project(":parental-control-data"))
 
+    // Library dependencies
     // TODO: Add splitinstall-lib to a repo https://gitlab.e.foundation/e/os/backlog/-/issues/628
-    api files('libs/splitinstall-lib.jar')
+    api(files("libs/splitinstall-lib.jar"))
 
-    implementation 'foundation.e.lib:telemetry:0.0.11-alpha'
-    implementation 'foundation.e:gplayapi:3.4.2-0'
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.fragment:fragment-ktx:1.5.6'
-    implementation 'com.google.android.material:material:1.5.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.preference:preference-ktx:1.2.0'
-    implementation "androidx.datastore:datastore-preferences:1.0.0"
-    implementation 'com.facebook.shimmer:shimmer:0.5.0'
-    implementation 'androidx.core:core-google-shortcuts:1.0.0'
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
-    testImplementation "com.google.truth:truth:1.1.3"
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    // Optional -- Robolectric environment
-    testImplementation "androidx.test:core:1.5.0"
-    // Optional -- Mockito framework
-    testImplementation "org.mockito:mockito-core:5.0.0"
-    // Optional -- mockito-kotlin
-    testImplementation "org.mockito.kotlin:mockito-kotlin:4.1.0"
-    testImplementation 'org.mockito:mockito-inline:5.0.0'
-    testImplementation "androidx.arch.core:core-testing:2.2.0"
+    // eFoundation libraries
+    implementation(libs.telemetry)
+    implementation(libs.gplayapi)
+    implementation(libs.elib)
 
-    testImplementation "io.mockk:mockk:1.12.3"
+    // AndroidX libraries
+    implementation(libs.core.ktx)
+    implementation(libs.appcompat)
+    implementation(libs.fragment.ktx)
+    implementation(libs.preference.ktx)
+    implementation(libs.constraintlayout)
+    implementation(libs.legacy.support.v4)
+    implementation(libs.datastore.preferences)
+    implementation(libs.viewpager2)
+    implementation(libs.recyclerview)
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
+    implementation(libs.activity.ktx)
 
-    // Coil and PhotoView
-    implementation "io.coil-kt:coil:1.4.0"
-    implementation 'com.github.Baseflow:PhotoView:2.3.0'
-
-    //Protobuf and Gson
-    implementation 'com.google.code.gson:gson:2.9.0'
-    implementation "com.google.protobuf:protobuf-javalite:3.25.2"
-
-    // ViewPager2 and RecyclerView
-    implementation "androidx.viewpager2:viewpager2:1.0.0"
-    implementation "androidx.recyclerview:recyclerview:1.2.1"
-
-    //logger
-    implementation 'com.jakewharton.timber:timber:5.0.1'
-
-    // Bouncy Castle
-    implementation 'org.bouncycastle:bcpg-jdk15on:1.60'
-
-    // Retrofit
-    def retrofit_version = "2.9.0"
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-jackson:$retrofit_version"
-    implementation "com.squareup.moshi:moshi-kotlin:1.13.0"
-//    implementation "com.squareup.moshi:moshi-adapters:1.5.0"
-    implementation "com.squareup.okhttp3:okhttp:4.9.2"
-    implementation "com.squareup.okhttp3:logging-interceptor:4.9.2"
-
-    // JSON Converter
-    implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
-
-    // YAML factory
-    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.2"
-
-    // Navigation Components
-    def navigation_version = "2.6.0"
-    implementation "androidx.navigation:navigation-fragment-ktx:$navigation_version"
-    implementation "androidx.navigation:navigation-ui-ktx:$navigation_version"
-
-    // Hilt
-    def hilt_version = '2.51.1'
-    kapt "com.google.dagger:hilt-compiler:$hilt_version"
-    implementation "com.google.dagger:hilt-android:$hilt_version"
-    implementation 'androidx.hilt:hilt-work:1.0.0'
-    kapt 'androidx.hilt:hilt-compiler:1.0.0'
+    // Material Design
+    implementation(libs.material)
 
     // Lifecycle Components
-    def lifecycle_version = "2.6.1"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
-    implementation "android.arch.lifecycle:extensions:1.1.1"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
-
-    // Coroutines
-    def coroutines_version = "1.6.0"
-    def test_kotlin_version = "1.6.0"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
-    testImplementation "org.jetbrains.kotlin:kotlin-test:$test_kotlin_version"
-
-    // Room
-    kapt "androidx.room:room-compiler:2.6.1"
-    implementation "androidx.room:room-ktx:2.6.1"
-    implementation "androidx.room:room-runtime:2.6.1"
+    implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.lifecycle.livedata.ktx)
+    implementation(libs.lifecycle.runtime.ktx)
+    implementation(libs.lifecycle.extensions)
 
     // WorkManager
-    implementation 'androidx.work:work-runtime-ktx:2.7.1'
+    implementation(libs.work.runtime.ktx)
+
+    // Room
+    ksp(libs.room.compiler)
+    implementation(libs.room.ktx)
+    implementation(libs.room.runtime)
+
+    // Hilt
+    ksp(libs.hilt.compile)
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.work)
+    ksp(libs.hilt.compiler)
+
+    // Facebook
+    implementation(libs.shimmer)
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.kotlin.test)
+
+    // Testing dependencies
+    testImplementation(libs.truth)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
+    testImplementation(libs.core)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.mockito.inline)
+    testImplementation(libs.core.testing)
+    testImplementation(libs.mockk)
+
+    // Coil and PhotoView
+    implementation(libs.coil)
+    implementation(libs.photoview)
+
+    // Protobuf and Gson
+    implementation(libs.gson)
+    implementation(libs.protobuf.javalite)
+
+    // Logger
+    implementation(libs.timber)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.moshi)
+    implementation(libs.converter.jackson)
+    implementation(libs.moshi.kotlin)
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
+
+    // JSON Converter
+    implementation(libs.converter.gson)
+
+    // YAML factory
+    implementation(libs.jackson.dataformat.yaml)
+
+    // Bouncy Castle
+    implementation(libs.bcpg.jdk15on)
 
     // JSoup
-    implementation 'org.jsoup:jsoup:1.13.1'
-
-    // elib
-    implementation 'foundation.e:elib:0.0.1-alpha11'
-
-    // androidx.activity
-    def activity_version = "1.6.1"
-    implementation("androidx.activity:activity-ktx:$activity_version")
+    implementation(libs.jsoup)
 }

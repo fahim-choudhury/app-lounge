@@ -65,6 +65,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -399,7 +400,7 @@ class SearchFragment :
                     )
                     viewHolder?.let {
                         (viewHolder as ApplicationListRVAdapter.ViewHolder).binding.installButton.text =
-                            String.format("%d%%", progress)
+                            String.format(Locale.getDefault(), "%d%%", progress)
                     }
                 }
             }
@@ -517,7 +518,10 @@ class SearchFragment :
             isAccessible = true
             get(searchView) as EditText
         }?.onSuccess {
-            inputMethodManager.showSoftInput(it, InputMethodManager.SHOW_FORCED)
+            // Instead of forcing the keyboard to show, you should use
+            // InputMethodManager.SHOW_IMPLICIT, which is the recommended
+            // way to request the keyboard in modern Android development.
+            inputMethodManager.showSoftInput(it, InputMethodManager.SHOW_IMPLICIT)
         }
     }
 

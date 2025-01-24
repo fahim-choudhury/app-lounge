@@ -26,7 +26,8 @@
         <item name="actionBarTheme">@style/AppTheme.ActionBarStyle</item>
         <item name="android:colorBackground">@color/colorBackground</item>
         <item name="android:statusBarColor">@color/colorBackground</item>
-        <item name="android:windowLightStatusBar">@bool/is_day</item>
+        <item name="android:windowLightStatusBar">@bool/isLight</item>
+        <item name="android:windowLightNavigationBar">@bool/isLight</item>
         <item name="android:navigationBarColor">@color/colorNavBar</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="autoCompleteTextViewStyle">@style/AutoCompleteTextViewStyle</item>

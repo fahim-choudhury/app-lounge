@@ -25,6 +25,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -82,6 +83,20 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Add an OnBackPressedCallback to handle the back press
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (isInitialScreen()) {
+                    resetIgnoreStatusForSessionRefresh()
+                    finish()
+                } else {
+                    // Let the system handle the back press
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
+
         binding = ActivityMainBinding.inflate(layoutInflater)
 
         setupBackPressHandlingForTiramisuAndAbove()
@@ -127,7 +142,7 @@ class MainActivity : AppCompatActivity() {
         checkGPlayLoginRequest(intent)
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         checkGPlayLoginRequest(intent)
         findNavController(R.id.fragment).handleDeepLink(intent)
@@ -148,19 +163,7 @@ class MainActivity : AppCompatActivity() {
         loginViewModel.startLoginFlow(listOf(PlayStoreAuthenticator::class.java.simpleName))
     }
 
-    // In Android 12 (API level 32) and lower, onBackPressed is always called,
-    // regardless of any registered instances of OnBackPressedCallback.
-    // https://developer.android.com/guide/navigation/navigation-custom-back#onbackpressed
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if (isInitialScreen()) {
-            resetIgnoreStatusForSessionRefresh()
-            finish()
-        }
-        super.onBackPressed()
-    }
-
-    private fun isInitialScreen(): Boolean {
+    fun isInitialScreen(): Boolean {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.fragment) as NavHostFragment
 
@@ -169,7 +172,7 @@ class MainActivity : AppCompatActivity() {
         return navController.currentDestination?.id == navController.graph.startDestinationId
     }
 
-    private fun resetIgnoreStatusForSessionRefresh() {
+    fun resetIgnoreStatusForSessionRefresh() {
         viewModel.shouldIgnoreSessionError = false
     }
 

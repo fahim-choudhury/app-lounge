@@ -216,7 +216,7 @@ class ApplicationListRVAdapter(
             return
         }
         if (searchApp.ratings.usageQualityScore != -1.0) {
-            appRating.text = searchApp.ratings.usageQualityScore.toString()
+            appRating.text = "${searchApp.ratings.usageQualityScore}"
         } else {
             appRating.text = root.context.getString(R.string.not_available)
         }

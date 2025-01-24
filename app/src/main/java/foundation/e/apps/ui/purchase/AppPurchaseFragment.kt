@@ -97,8 +97,7 @@ class AppPurchaseFragment : Fragment() {
         binding.playStoreWebView.apply {
             settings.apply {
                 allowContentAccess = true
-                databaseEnabled = true
-                domStorageEnabled = true
+                domStorageEnabled = true // Replaces databaseEnabled for local storage support
                 javaScriptEnabled = true // Google Play page is tested to not work otherwise
                 cacheMode = WebSettings.LOAD_DEFAULT
             }

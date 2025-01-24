@@ -48,6 +48,7 @@ import foundation.e.apps.ui.home.model.HomeParentRVAdapter
 import foundation.e.apps.ui.parentFragment.TimeoutFragment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -246,7 +247,7 @@ class HomeFragment : TimeoutFragment(R.layout.fragment_home), ApplicationInstall
             )
             childViewHolder?.let {
                 (childViewHolder as HomeChildRVAdapter.ViewHolder).binding.installButton.text =
-                    String.format("%d%%", progress)
+                    String.format(Locale.getDefault(),"%d%%", progress)
             }
         }
     }

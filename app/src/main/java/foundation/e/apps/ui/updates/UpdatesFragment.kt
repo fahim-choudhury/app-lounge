@@ -64,6 +64,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -163,7 +164,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
     private fun handleStateNoUpdates(list: List<Application>?) {
         if (!list.isNullOrEmpty()) {
             binding.button.isEnabled = true
-            initUpdataAllButton()
+            initUpdateAllButton()
             binding.noUpdates.visibility = View.GONE
         } else {
             binding.noUpdates.visibility = View.VISIBLE
@@ -183,7 +184,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
             }
     }
 
-    private fun shouldUpdateButtonEnable(workInfoList: MutableList<WorkInfo>) =
+    private fun shouldUpdateButtonEnable(workInfoList: List<WorkInfo>) =
         !updatesViewModel.updatesList.value?.first.isNullOrEmpty() &&
             (
                 workInfoList.isNullOrEmpty() ||
@@ -283,10 +284,10 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
             clearAndRestartGPlayLogin()
             true
         }
-        initUpdataAllButton()
+        initUpdateAllButton()
     }
 
-    private fun initUpdataAllButton() {
+    private fun initUpdateAllButton() {
         binding.button.setOnClickListener {
             UpdatesWorkManager.startUpdateAllWork(requireContext())
             observeUpdateWork()
@@ -303,7 +304,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
     }
 
     private fun hasAnyPendingUpdates(
-        workInfoList: MutableList<WorkInfo>
+        workInfoList: List<WorkInfo>
     ): Boolean {
         val errorStates = listOf(
             WorkInfo.State.FAILED,
@@ -370,7 +371,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
                     )
                     viewHolder?.let {
                         (viewHolder as ApplicationListRVAdapter.ViewHolder).binding.installButton.text =
-                            String.format("%d%%", progress)
+                            String.format(Locale.getDefault(), "%d%%", progress)
                     }
                 }
             }

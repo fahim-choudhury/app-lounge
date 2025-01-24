@@ -24,7 +24,7 @@
     <color name="colorBackground">@color/e_background</color>
 
     <!-- TOS -->
-    <color name="tos_bottom">@android:color/white</color>
+    <color name="tos_bottom">@color/colorNavBar</color>
 
     <!-- Shimmer Animation -->
     <color name="colorGrey">#f2f2f2</color>
