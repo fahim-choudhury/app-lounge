@@ -267,12 +267,19 @@ class ApplicationFragment : TimeoutFragment(R.layout.fragment_application) {
     }
 
     private fun updateAppDescriptionText(it: Application) {
-        binding.appDescription.text =
-            Html.fromHtml(it.description, Html.FROM_HTML_MODE_COMPACT)
+        val description =
+            if (it.isFDroidApp || it.is_pwa) {
+                it.description
+            } else {
+                Html.fromHtml(it.description, Html.FROM_HTML_MODE_COMPACT)
+            }
+        binding.appDescription.text = description
 
         binding.appDescriptionMore.setOnClickListener { view ->
             val action =
-                ApplicationFragmentDirections.actionApplicationFragmentToDescriptionFragment(it.description)
+                ApplicationFragmentDirections.actionApplicationFragmentToDescriptionFragment(
+                    description.toString()
+                )
             view.findNavController().navigate(action)
         }
     }
