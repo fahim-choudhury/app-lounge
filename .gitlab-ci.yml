@@ -1,4 +1,4 @@
-image: registry.gitlab.e.foundation/e/os/docker-android-apps-cicd:master
+image: registry.gitlab.e.foundation/e/os/docker-android-apps-cicd:java21
 
 variables:
   SENTRY_DSN: $SENTRY_DSN
