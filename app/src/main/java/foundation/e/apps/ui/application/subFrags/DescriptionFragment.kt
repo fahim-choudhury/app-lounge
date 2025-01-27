@@ -1,7 +1,6 @@
 package foundation.e.apps.ui.application.subFrags
 
 import android.os.Bundle
-import android.text.Html
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
@@ -27,8 +26,7 @@ class DescriptionFragment : Fragment(R.layout.fragment_description) {
                 view.findNavController().navigateUp()
             }
         }
-
-        binding.descriptionTV.text = Html.fromHtml(args.description, Html.FROM_HTML_MODE_COMPACT)
+        binding.descriptionTV.text = args.description
     }
 
     override fun onDestroyView() {
