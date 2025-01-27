@@ -179,7 +179,7 @@
     <string name="too_many_requests_desc">La cuenta anónima que estás utilizando no está disponible. Por favor, actualiza tu sesión para obtener otra.</string>
     <string name="having_troubles">¿Tienes problemas?</string>
     <string name="refresh_session">ACTUALIZAR SESSION</string>
-    <string name="preference_update_apps_from_other_stores_description">Actualizar aplicaciones instaladas desde otras tiendas. 
+    <string name="preference_update_apps_from_other_stores_description">Actualizar aplicaciones instaladas desde otras tiendas.
 \nSe intentará actualizar dichas aplicaciones desde la categoría de aplicaciones comunes y de código abierto.</string>
     <string name="google_login_alert_message">Recomendamos utilizar una cuenta de Google dedicada para:
 \n
@@ -201,4 +201,5 @@
     <string name="open_source_apps_unavailable">Aplicaciones de código abierto y PWA no disponibles</string>
     <string name="common_apps_data_load_error_description">Se produjo un error al cargar las aplicaciones comunes. Solo las aplicaciones de código abierto y PWA están disponibles por ahora.</string>
     <string name="open_source_apps_data_load_error_description">Se produjo un error al cargar las aplicaciones PWA y de código abierto. Solo las aplicaciones comunes están disponibles por ahora.</string>
+    <string name="own_update_warning_description">La App Lounge estará cerrada durante la instalación de la actualización. Por favor, absténgase de hacer cualquier acción en ella hasta que la actualización (descarga + instalación) haya terminado. Podrá acceder a ella en un par de minutos como máximo.</string>
 </resources>

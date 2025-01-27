@@ -199,5 +199,4 @@
     <string name="common_apps_data_load_error_description">Det oppstod en feil under innlasting av en applikasjon. Bare åpen kildekode-applikasjoner og PWA er tilgjengelige for øyeblikket.</string>
     <string name="open_source_apps_data_load_error_description">Det oppstod en feil under innlasting av PWA- og åpen kildekode-applikasjoner. Bare vanlige applikasjoner er tilgjengelige for øyeblikket.</string>
     <string name="own_update_warning_title">Advarsel om oppdatering!</string>
-    <string name="own_update_warning_description">Systemet vil slå av App Lounge mens det installerer sin egen oppdatering. Vennligst avstå fra å utføre andre oppgaver inntil App Lounge er oppdatert.</string>
 </resources>
