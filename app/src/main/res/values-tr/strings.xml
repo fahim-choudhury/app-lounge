@@ -174,7 +174,6 @@
     <string name="unsupported_app_unreleased">%s uygulaması şu anda desteklenmiyor. Bunun nedeni, uygulamanın henüz yaygın olarak yayınlanmamış olması veya başka bir hata olması olabilir.</string>
     <string name="may_not_work_warning_message">Yüklemeyi zorlamak, indirmenize ve yüklemenize izin verir, ancak çalışacağını garanti etmez. <br/><br/>Desteklenmeyen uygulamaların yüklenmeye çalışılması çökmelere neden olabilir veya sistemi yavaşlatabilir.<br/><br/>Yakın bir gelecekte bu uygulama ile uyumluluğu iyileştirmek için çalışıyoruz.</string>
     <string name="nsfw_dialog_message">Uygulama çıplaklık, küfür, hakaret, şiddet, yoğun cinsellik, siyasi yanlışlık veya diğer potansiyel olarak rahatsız edici konular içerebilir. Bu durum özellikle iş yerleri, okullar, dini ve aile ortamları gibi ortamlar için geçerlidir.</string>
-    <string name="own_update_warning_description">App Lounge kendi güncellemesini yüklerken sistem tarafından kapatılacaktır. App Lounge güncellenene ve kapatılana kadar lütfen başka bir iş yapmaktan kaçının.</string>
     <string name="anonymous_login_failed_desc">Bunun nedeni, belirtecin oluşturulamaması / doğrulanamaması veya başka nedenler olabilir.
 \n
 \nTekrar denemek için Yeniden Dene\'ye basın.</string>

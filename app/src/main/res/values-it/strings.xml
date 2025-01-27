@@ -193,7 +193,7 @@
     <string name="age_rate_limit_message">Sei troppo giovane per poter installare %1$s. Per favore controlla con i tuoi genitori se la fascia d\'età è corretta o disabilita il controllo parentale per poter effettuare l\'installazione.</string>
     <string name="message_inappropriate_content">Questa app potrebbe avere contenuti inappropriati.</string>
     <string name="nsfw_dialog_title">Avviso sui contenuti</string>
-    <string name="own_update_warning_description">App Lounge verrà chiusa dal sistema mentre installa l\'aggiornamento. Si prega di non effettuare alcuna attività su App Lounge finchè non sarà aggiornata e chiusa.</string>
+    <string name="own_update_warning_description">App Lounge sarà chiusa durante l\'installazione dell\'aggiornamento. Si prega di non fare nulla fino al termine dell\'aggiornamento (download + installazione). Potrai accedervi fra un paio di minuti al massimo.</string>
     <string name="own_update_warning_title">Avviso sull\'aggiornamento!</string>
 
     <!-- CleanAPK and GPlay data loading error -->

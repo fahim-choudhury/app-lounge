@@ -143,7 +143,7 @@
     <string name="message_update_failed">Due to temporary failure, your apps cannot be all updated. Please try again later.</string>
     <string name="message_update_failure_single_app">%1$s\'s update has failed due to a support rule (location, OS version…).</string>
     <string name="own_update_warning_title">Update warning!</string>
-    <string name="own_update_warning_description">App Lounge will be closed by the system while installing its own update. Kindly refrain from doing any other task till App Lounge is updated and closed.</string>
+    <string name="own_update_warning_description">App Lounge will be closed during its update installation. Please refrain from doing anything in it until the update (download + installation) is over. You\'ll be able to access it in a couple of minutes top.</string>
     <!-- Home Fragment -->
     <string name="discover">Discover</string>
     <string name="top_updated_apps">Open Source Top Updated Apps</string>

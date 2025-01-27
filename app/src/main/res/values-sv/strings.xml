@@ -195,7 +195,6 @@
     <string name="nsfw_dialog_message">Denna app kan innehålla nakenhet, svordomar, kränkningar, intensiv sexualitet, politisk inkorrekthet eller andra potentiellt stötande ämnen. Detta är extra relevant i miljöer som till exempel arbetsplatser, skolor, religiösa och familjesammanhang.</string>
     <string name="restricted_app">[%1$s] Begränsad app</string>
     <string name="own_update_warning_title">Varning för uppdatering!</string>
-    <string name="own_update_warning_description">Systemet kommer stänga App Lounge medan uppdatering installeras för App Lounge. Undvik att något annat tills App Lounge är uppdaterat och har stängts.</string>
     <string name="open_source_apps_data_load_error_description">Ett fel uppstod vid inläsning av PWA-appar och appar med öppen källkod. Endast vanliga appar är tillgängliga just nu.</string>
     <string name="common_apps_unavailable">Vanliga appar är inte tillgängliga</string>
     <string name="open_source_apps_unavailable">Appar med öppen källkod och PWA-appar är inte tillgängliga</string>
