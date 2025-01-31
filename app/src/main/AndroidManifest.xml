@@ -70,7 +70,7 @@
         android:restoreNeedsApplication="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.Apps"
-        android:enableOnBackInvokedCallback="true"
+        android:enableOnBackInvokedCallback="false"
         android:usesCleartextTraffic="true"
         tools:targetApi="tiramisu">
 
