@@ -199,4 +199,5 @@
     <string name="common_apps_unavailable">Vanliga appar är inte tillgängliga</string>
     <string name="open_source_apps_unavailable">Appar med öppen källkod och PWA-appar är inte tillgängliga</string>
     <string name="common_apps_data_load_error_description">Ett fil uppstod vid inläsning av vanliga appar. Endast appar med öppen källkod och PWA-appar är tillgängliga just nu.</string>
+    <string name="own_update_warning_description">App Lounge kommer stängas under dess uppdatering. Undvik att göra något i App Lounge till dess att uppdateringen (hämtning + installation) är färdig. Du kommer få åtkomst om några minuter.</string>
 </resources>
