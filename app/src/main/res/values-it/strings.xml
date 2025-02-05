@@ -195,10 +195,11 @@
     <string name="nsfw_dialog_title">Avviso sui contenuti</string>
     <string name="own_update_warning_description">App Lounge sarà chiusa durante l\'installazione dell\'aggiornamento. Si prega di non fare nulla fino al termine dell\'aggiornamento (download + installazione). Potrai accedervi fra un paio di minuti al massimo.</string>
     <string name="own_update_warning_title">Avviso sull\'aggiornamento!</string>
-
     <!-- CleanAPK and GPlay data loading error -->
     <string name="common_apps_unavailable">App comuni non disponibili</string>
     <string name="open_source_apps_unavailable">App Open Source e PWA non disponibili</string>
     <string name="common_apps_data_load_error_description">Si è verificato un errore durante il caricamento delle app comuni. Solo le app Open Source e PWA sono disponibili per ora.</string>
     <string name="open_source_apps_data_load_error_description">Si è verificato un errore durante il caricamento delle app PWA e Open Source. Solo le app comuni sono disponibili per ora.</string>
+    <string name="message_fetching_content_rating">Sto raccogliendo la valutazione di tutte le app che hai installato.</string>
+    <string name="nsfw_dialog_message">L\'applicazione potrebbe contenere nudità, bestemmie, insulti, violenza, estrema sessualità, politicamente scorretto o altri argomenti potenzialmente disturbanti. Questo è rilevante specialmente in ambienti tipo lavoro, scuola, ambienti religiosi e familiari.</string>
 </resources>
