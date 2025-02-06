@@ -69,7 +69,7 @@
     <string name="retry">Reyna aftur</string>
     <string name="close">Loka</string>
     <string name="more">Meira</string>
-    <string name="update">Uppfæra</string>
+    <string name="update">Uppfærsla</string>
     <string name="ratings">Einkunnir</string>
     <string name="privacy">Persónuvernd</string>
     <string name="privacy_score">Persónuverndarstig</string>
@@ -199,4 +199,5 @@
     <string name="open_source_apps_data_load_error_description">Villa kom upp við að hlaða inn forritum með opnum grunnkóða og PWA. Aðeins algeng forrit eru tiltæk í augnablikinu.</string>
     <string name="common_apps_unavailable">Algeng forrit óaðgengileg</string>
     <string name="common_apps_data_load_error_description">Villa kom upp við að hlaða inn algengum forritum. Aðeins forrit með opnum grunnkóða og PWA eru tiltæk í augnablikinu.</string>
+    <string name="own_update_warning_description">App Lounge verður lokað af kerfinu á meðan það uppfærir sjálft sig. Vertu helst ekki að gera neitt annað þangað til uppfærslu App Lounge er lokið. Það verður svo aðgengilegt aftur eftir örfáar mínútur.</string>
 </resources>
