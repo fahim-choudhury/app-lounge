@@ -81,9 +81,11 @@ class ApplicationListRVAdapter(
 
     var onPlaceHolderShow: (() -> Unit)? = null
 
-    inner class ViewHolder(val binding: ApplicationListItemBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(
+        val binding: ApplicationListItemBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
         var isPurchasedLiveData: LiveData<Boolean> = MutableLiveData()
+        lateinit var app: Application
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -99,6 +101,7 @@ class ApplicationListRVAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val view = holder.itemView
         val searchApp = getItem(position)
+        holder.app = searchApp
         val shimmerDrawable = ShimmerDrawable().apply { setShimmer(shimmer) }
 
         /*
@@ -151,7 +154,7 @@ class ApplicationListRVAdapter(
                 }
             }
 
-            showCalculatedPrivacyScoreData(searchApp, view)
+            showPrivacyScoreAfterFetching(searchApp, view)
         }
     }
 
@@ -368,7 +371,7 @@ class ApplicationListRVAdapter(
         }
     }
 
-    private fun MaterialButton.getInstallationIssueText(
+    private fun getInstallationIssueText(
         faultyAppResult: Pair<Boolean, String>,
         view: View
     ) =
@@ -393,13 +396,6 @@ class ApplicationListRVAdapter(
             }
         }
         progressBarInstall.visibility = View.GONE
-    }
-
-    private fun ApplicationListItemBinding.showCalculatedPrivacyScoreData(
-        searchApp: Application,
-        view: View
-    ) {
-        showPrivacyScoreAfterFetching(searchApp, view)
     }
 
     private fun ApplicationListItemBinding.showPrivacyScoreAfterFetching(
@@ -590,5 +586,10 @@ class ApplicationListRVAdapter(
         super.onDetachedFromRecyclerView(recyclerView)
         lifecycleOwner = null
         paidAppHandler = null
+    }
+
+    override fun onViewRecycled(holder: ViewHolder) {
+        privacyInfoViewModel.cancelAppPrivacyInfoFetch(holder.app)
+        super.onViewRecycled(holder)
     }
 }

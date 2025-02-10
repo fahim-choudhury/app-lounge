@@ -3,7 +3,6 @@ package foundation.e.apps.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import foundation.e.apps.data.Result
@@ -12,8 +11,10 @@ import foundation.e.apps.data.exodus.repositories.IAppPrivacyInfoRepository
 import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepository
 import foundation.e.apps.data.application.data.Application
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,10 +26,19 @@ class PrivacyInfoViewModel @Inject constructor(
     private val singularAppPrivacyInfoLiveData: MutableLiveData<Result<AppPrivacyInfo>> =
         MutableLiveData()
 
+    private val loadPrivacyInfoJobs = ConcurrentHashMap<String, Job>()
+
     fun getAppPrivacyInfoLiveData(application: Application): LiveData<Result<AppPrivacyInfo>> {
-        return liveData {
-            emit(fetchEmitAppPrivacyInfo(application))
+        val privacyInfo = MutableLiveData<Result<AppPrivacyInfo>>()
+        loadPrivacyInfoJobs[application.package_name] = viewModelScope.launch {
+            privacyInfo.value  = fetchEmitAppPrivacyInfo(application)
         }
+
+        return privacyInfo
+    }
+
+    fun cancelAppPrivacyInfoFetch(application: Application) {
+        loadPrivacyInfoJobs[application.package_name]?.cancel()
     }
 
     fun getSingularAppPrivacyInfoLiveData(application: Application?): LiveData<Result<AppPrivacyInfo>> {
