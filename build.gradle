@@ -22,19 +22,17 @@ allprojects {
     }
 }
 
-subprojects {
-    detekt {
-        source.setFrom("src/main/java", "src/main/kotlin")
-        config.setFrom("detekt.yml")
-        baseline = file("detekt-baseline.xml")
-        parallel = false
-        buildUponDefaultConfig = true
-        allRules = false
-        disableDefaultRuleSets = false
-        debug = false
-        ignoreFailures = false
-        basePath = projectDir
-    }
+detekt {
+    source.setFrom("app/src/main/java", "app/src/main/kotlin")
+    config.setFrom("detekt.yml")
+    baseline = file("app/detekt-baseline.xml")
+    parallel = false
+    buildUponDefaultConfig = true
+    allRules = false
+    disableDefaultRuleSets = false
+    debug = false
+    ignoreFailures = false
+    basePath = projectDir
 }
 
 tasks.register('clean', Delete) {

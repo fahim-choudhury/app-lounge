@@ -21,29 +21,23 @@
   <CurrentIssues>
     <ID>EmptyCatchBlock:NativeDeviceInfoProviderModule.kt$NativeDeviceInfoProviderModule${ }</ID>
     <ID>EmptyFunctionBlock:CleanApkAuthenticator.kt$CleanApkAuthenticator${}</ID>
-    <ID>ImplicitDefaultLocale:ApplicationFragment.kt$ApplicationFragment$String.format("%d%%", progressPercentage)</ID>
-    <ID>ImplicitDefaultLocale:ApplicationListFragment.kt$ApplicationListFragment$String.format("%d%%", progress)</ID>
-    <ID>ImplicitDefaultLocale:HomeFragment.kt$HomeFragment$String.format("%d%%", progress)</ID>
-    <ID>ImplicitDefaultLocale:SearchFragment.kt$SearchFragment$String.format("%d%%", progress)</ID>
-    <ID>ImplicitDefaultLocale:StorageComputer.kt$StorageComputer$String.format("%.1f %cB", bytes / 1000.0, ci.current())</ID>
-    <ID>ImplicitDefaultLocale:UpdatesFragment.kt$UpdatesFragment$String.format("%d%%", progress)</ID>
     <ID>InstanceOfCheckForException:GPlayHttpClient.kt$GPlayHttpClient$e is SocketTimeoutException</ID>
     <ID>InvalidPackageDeclaration:Trackers.kt$package foundation.e.apps.data.exodus</ID>
     <ID>LargeClass:ApplicationFragment.kt$ApplicationFragment : TimeoutFragment</ID>
-    <ID>LongParameterList:AppManagerImpl.kt$AppManagerImpl$( @Named("cacheDir") private val cacheDir: String, private val downloadManager: DownloadManager, private val notificationManager: NotificationManager, private val appInstallRepository: AppInstallRepository, private val pwaManager: PWAManager, private val appLoungePackageManager: AppLoungePackageManager, @Named("download") private val downloadNotificationChannel: NotificationChannel, @Named("update") private val updateNotificationChannel: NotificationChannel, @ApplicationContext private val context: Context )</ID>
+    <ID>LongParameterList:AppManagerImpl.kt$AppManagerImpl$( @Named("cacheDir") private val cacheDir: String, private val downloadManager: DownloadManager, private val notificationManager: NotificationManager, private val appInstallRepository: AppInstallRepository, private val pwaManager: PwaManager, private val appLoungePackageManager: AppLoungePackageManager, @Named("download") private val downloadNotificationChannel: NotificationChannel, @Named("update") private val updateNotificationChannel: NotificationChannel, @ApplicationContext private val context: Context )</ID>
     <ID>LongParameterList:ApplicationDialogFragment.kt$ApplicationDialogFragment$( title: String, message: String, @DrawableRes drawableResId: Int = -1, drawable: Drawable? = null, positiveButtonText: String = "", positiveButtonAction: (() -&gt; Unit)? = null, cancelButtonText: String = "", cancelButtonAction: (() -&gt; Unit)? = null, cancelable: Boolean = true, onDismissListener: (() -&gt; Unit)? = null, )</ID>
     <ID>LongParameterList:ApplicationListRVAdapter.kt$ApplicationListRVAdapter$( private val applicationInstaller: ApplicationInstaller, private val privacyInfoViewModel: PrivacyInfoViewModel, private val appInfoFetchViewModel: AppInfoFetchViewModel, private val mainActivityViewModel: MainActivityViewModel, private val currentDestinationId: Int, private var lifecycleOwner: LifecycleOwner?, private var paidAppHandler: ((Application) -&gt; Unit)? = null )</ID>
-    <ID>LongParameterList:ApplicationViewModel.kt$ApplicationViewModel$( id: String, packageName: String, origin: Origin, isFdroidLink: Boolean, authObjectList: List&lt;AuthObject&gt;, retryBlock: (failedObjects: List&lt;AuthObject&gt;) -&gt; Boolean, )</ID>
     <ID>LongParameterList:CleanApkRetrofit.kt$CleanApkRetrofit$( @Query("keyword") keyword: String, @Query("source") source: String = APP_SOURCE_FOSS, @Query("type") type: String = APP_TYPE_ANY, @Query("nres") nres: Int = 20, @Query("page") page: Int = 1, @Query("by") by: String? = null, )</ID>
     <ID>LongParameterList:EglExtensionProvider.kt$EglExtensionProvider$( egl10: EGL10, eglDisplay: EGLDisplay, eglConfig: EGLConfig?, ai: IntArray, ai1: IntArray?, set: MutableSet&lt;String&gt; )</ID>
-    <ID>LongParameterList:MainActivityViewModel.kt$MainActivityViewModel$( private val appLoungeDataStore: AppLoungeDataStore, private val applicationRepository: ApplicationRepository, private val appManagerWrapper: AppManagerWrapper, private val appLoungePackageManager: AppLoungePackageManager, private val pwaManager: PWAManager, private val ecloudRepository: EcloudRepository, private val blockedAppRepository: BlockedAppRepository, private val contentRatingsRepository: ContentRatingsRepository, private val appInstallProcessor: AppInstallProcessor, )</ID>
-    <ID>LongParameterList:UpdatesManagerImpl.kt$UpdatesManagerImpl$( @ApplicationContext private val context: Context, private val appLoungePackageManager: AppLoungePackageManager, private val applicationRepository: ApplicationRepository, private val faultyAppRepository: FaultyAppRepository, private val appLoungePreference: AppLoungePreference, private val fdroidRepository: FdroidRepository, private val blockedAppRepository: BlockedAppRepository, )</ID>
-    <ID>LongParameterList:UpdatesWorker.kt$UpdatesWorker$( @Assisted private val context: Context, @Assisted private val params: WorkerParameters, private val updatesManagerRepository: UpdatesManagerRepository, private val dataStoreManager: DataStoreManager, private val authenticatorRepository: AuthenticatorRepository, private val appInstallProcessor: AppInstallProcessor, private val blockedAppRepository: BlockedAppRepository, )</ID>
+    <ID>LongParameterList:MainActivityViewModel.kt$MainActivityViewModel$( private val appLoungeDataStore: AppLoungeDataStore, private val applicationRepository: ApplicationRepository, private val appManagerWrapper: AppManagerWrapper, private val appLoungePackageManager: AppLoungePackageManager, private val pwaManager: PwaManager, private val ecloudRepository: EcloudRepository, private val blockedAppRepository: BlockedAppRepository, private val gPlayContentRatingRepository: GPlayContentRatingRepository, private val fDroidAntiFeatureRepository: FDroidAntiFeatureRepository, private val appInstallProcessor: AppInstallProcessor, private val systemAppsUpdatesRepository: SystemAppsUpdatesRepository, )</ID>
+    <ID>LongParameterList:UpdatesManagerImpl.kt$UpdatesManagerImpl$( @ApplicationContext private val context: Context, private val appLoungePackageManager: AppLoungePackageManager, private val applicationRepository: ApplicationRepository, private val faultyAppRepository: FaultyAppRepository, private val appLoungePreference: AppLoungePreference, private val fDroidRepository: FDroidRepository, private val blockedAppRepository: BlockedAppRepository, private val systemAppsUpdatesRepository: SystemAppsUpdatesRepository, )</ID>
+    <ID>LongParameterList:UpdatesWorker.kt$UpdatesWorker$( @Assisted private val context: Context, @Assisted private val params: WorkerParameters, private val updatesManagerRepository: UpdatesManagerRepository, private val appLoungeDataStore: AppLoungeDataStore, private val authenticatorRepository: AuthenticatorRepository, private val appInstallProcessor: AppInstallProcessor, private val blockedAppRepository: BlockedAppRepository, private val systemAppsUpdatesRepository: SystemAppsUpdatesRepository, )</ID>
     <ID>MagicNumber:AnonymousLoginManager.kt$AnonymousLoginManager$200</ID>
     <ID>MagicNumber:ApkSignatureManager.kt$ApkSignatureManager$1024</ID>
     <ID>MagicNumber:AppDatabase.kt$AppDatabase.Companion.&lt;no name provided&gt;$3</ID>
     <ID>MagicNumber:AppDatabase.kt$AppDatabase.Companion.&lt;no name provided&gt;$4</ID>
     <ID>MagicNumber:AppManagerWrapper.kt$AppManagerWrapper$100</ID>
+    <ID>MagicNumber:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl$5</ID>
     <ID>MagicNumber:ApplicationFragment.kt$ApplicationFragment$100f</ID>
     <ID>MagicNumber:ApplicationFragment.kt$ApplicationFragment$15</ID>
     <ID>MagicNumber:ApplicationFragment.kt$ApplicationFragment$3</ID>
@@ -53,9 +47,8 @@
     <ID>MagicNumber:ApplicationListRVAdapter.kt$ApplicationListRVAdapter$0.7f</ID>
     <ID>MagicNumber:ApplicationListRVAdapter.kt$ApplicationListRVAdapter$500</ID>
     <ID>MagicNumber:AuthObject.kt$AuthObject.GPlayAuth$401</ID>
-    <ID>MagicNumber:CleanApkPWARepository.kt$CleanApkPWARepository$20</ID>
-    <ID>MagicNumber:CommonUtilsModule.kt$CommonUtilsModule$10</ID>
     <ID>MagicNumber:CommonUtilsModule.kt$CommonUtilsModule$1024</ID>
+    <ID>MagicNumber:CommonUtilsModule.kt$CommonUtilsModule$30</ID>
     <ID>MagicNumber:DepthPageTransformer.kt$DepthPageTransformer$0.75f</ID>
     <ID>MagicNumber:DownloadManagerUtils.kt$DownloadManagerUtils$1500</ID>
     <ID>MagicNumber:DownloadProgressLD.kt$DownloadProgressLD$20</ID>
@@ -70,7 +63,6 @@
     <ID>MagicNumber:HomeChildRVAdapter.kt$HomeChildRVAdapter$500</ID>
     <ID>MagicNumber:InstallerService.kt$InstallerService$69</ID>
     <ID>MagicNumber:NativeDeviceInfoProviderModule.kt$NativeDeviceInfoProviderModule$15</ID>
-    <ID>MagicNumber:PackageInstallerService.kt$PackageInstallerService$69</ID>
     <ID>MagicNumber:PkgManagerBR.kt$PkgManagerBR$69</ID>
     <ID>MagicNumber:PlayStoreLoginWrapper.kt$PlayStoreLoginWrapper$200</ID>
     <ID>MagicNumber:ScreenshotRVAdapter.kt$ScreenshotRVAdapter$10f</ID>
@@ -82,28 +74,32 @@
     <ID>MagicNumber:TOSFragment.kt$TOSFragment$20</ID>
     <ID>MaxLineLength:AppManagerImpl.kt$AppManagerImpl$.</ID>
     <ID>MaxLineLength:AppManagerImpl.kt$AppManagerImpl$return</ID>
-    <ID>MaxLineLength:AppManagerWrapper.kt$AppManagerWrapper$downloadList.find { it.origin == app.origin &amp;&amp; (it.packageName == app.package_name || it.id == app.package_name) }</ID>
-    <ID>MaxLineLength:AppManagerWrapper.kt$AppManagerWrapper$return fdroidRepository.isFdroidApplicationSigned(context, appInstall.packageName, apkFilePath, appInstall.signature)</ID>
+    <ID>MaxLineLength:AppManagerWrapper.kt$AppManagerWrapper$return fDroidRepository.isFDroidApplicationSigned(context, appInstall.packageName, apkFilePath, appInstall.signature)</ID>
     <ID>MaxLineLength:AppManagerWrapper.kt$AppManagerWrapper$suspend</ID>
-    <ID>MaxLineLength:AppPrivacyInfo.kt$AppPrivacyInfo</ID>
     <ID>MaxLineLength:ApplicationFragment.kt$ApplicationFragment.Companion$"https://gitlab.e.foundation/e/os/apps/-/blob/main/app/src/main/java/foundation/e/apps/data/exodus/repositories/PrivacyScoreRepositoryImpl.kt"</ID>
     <ID>MaxLineLength:CommonUtilsModule.kt$CommonUtilsModule$*</ID>
     <ID>MaxLineLength:DownloadManager.kt$DownloadManager$Timber.e("Download Issue: $downloadId : DownloadManager returns status: $status but the failed because: reason: $reason")</ID>
     <ID>MaxLineLength:DownloadManagerUtils.kt$DownloadManagerUtils$Timber.d("===&gt; updateDownloadStatus: ${appInstall.name}: $downloadId: $numberOfDownloadedItems/${appInstall.downloadIdMap.size}")</ID>
     <ID>MaxLineLength:DownloadManagerUtils.kt$DownloadManagerUtils$if</ID>
     <ID>MaxLineLength:DownloadManagerUtils.kt$DownloadManagerUtils$numberOfDownloadedItems == appInstall.downloadIdMap.size &amp;&amp; numberOfDownloadedItems == appInstall.downloadURLList.size</ID>
-    <ID>MaxLineLength:FdroidRepository.kt$FdroidRepository$override suspend</ID>
+    <ID>MaxLineLength:FDroidRepository.kt$FDroidRepository$if</ID>
+    <ID>MaxLineLength:FDroidRepository.kt$FDroidRepository$override suspend</ID>
+    <ID>MaxLineLength:GoogleLoginManager.kt$GoogleLoginManager$authData = AuthHelper.build(email, aasToken, tokenType = AuthHelper.Token.AAS, properties = nativeDeviceProperty)</ID>
     <ID>MaxLineLength:MainActivity.kt$MainActivity$if</ID>
-    <ID>MaxLineLength:MainActivityViewModel.kt$MainActivityViewModel$fusedDownload.origin == it.origin &amp;&amp; (fusedDownload.packageName == it.package_name || fusedDownload.id == it._id)</ID>
-    <ID>MaxLineLength:PlayStoreRepository.kt$PlayStoreRepository$suspend fun getSearchResult(query: String, subBundle: MutableSet&lt;SearchBundle.SubBundle&gt;?): Pair&lt;List&lt;App&gt;, MutableSet&lt;SearchBundle.SubBundle&gt;&gt;</ID>
-    <ID>MaxLineLength:PlayStoreRepositoryImpl.kt$PlayStoreRepositoryImpl$context.getString(R.string.movers_shakers_apps) to mapOf(Chart.MOVERS_SHAKERS to TopChartsHelper.Type.APPLICATION)</ID>
-    <ID>MaxLineLength:PlayStoreRepositoryImpl.kt$PlayStoreRepositoryImpl$context.getString(R.string.topselling_free_apps) to mapOf(Chart.TOP_SELLING_FREE to TopChartsHelper.Type.APPLICATION)</ID>
+    <ID>MaxLineLength:MainActivity.kt$MainActivity$is InternalException.AppNotPurchased -&gt; showSnackbarMessage(getString(R.string.message_app_available_later))</ID>
+    <ID>MaxLineLength:MainActivityViewModel.kt$MainActivityViewModel$fusedDownload.source == it.source &amp;&amp; (fusedDownload.packageName == it.package_name || fusedDownload.id == it._id)</ID>
     <ID>MaxLineLength:PrivacyScoreRepositoryImpl.kt$PrivacyScoreRepositoryImpl$return if (numberOfTrackers &gt; THRESHOLD_OF_NON_ZERO_TRACKER_SCORE) MIN_TRACKER_SCORE else MAX_TRACKER_SCORE - numberOfTrackers</ID>
     <ID>MaxLineLength:SettingsFragment.kt$SettingsFragment$showAllApplications?.isChecked == true || showFOSSApplications?.isChecked == true || showPWAApplications?.isChecked == true</ID>
     <ID>MaxLineLength:UpdatesNotifier.kt$UpdatesNotifier$notificationBuilder.setContentText(context.getString(R.string.automatically_install_updates_notification_text))</ID>
     <ID>MaxLineLength:UpdatesViewModel.kt$UpdatesViewModel$return updatesList.value?.first?.any { it.status == Status.UPDATABLE || it.status == Status.INSTALLATION_ISSUE } == true</ID>
     <ID>MaxLineLength:UpdatesWorker.kt$UpdatesWorker$applicationContext.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED</ID>
     <ID>MayBeConst:EcloudApiInterface.kt$EcloudApiInterface.Companion$val BASE_URL = "https://eu.gtoken.ecloud.global/"</ID>
+    <ID>MemberNameEqualsClassName:Stores.kt$Stores$private val stores = defaultStores.toMutableMap()</ID>
+    <ID>NewLineAtEndOfFile:ContentRatingValidity.kt$foundation.e.apps.domain.model.ContentRatingValidity.kt</ID>
+    <ID>NewLineAtEndOfFile:HomeConverter.kt$foundation.e.apps.data.cleanapk.repositories.HomeConverter.kt</ID>
+    <ID>NewLineAtEndOfFile:Stores.kt$foundation.e.apps.data.Stores.kt</ID>
+    <ID>NewLineAtEndOfFile:SystemAppsUpdatesRepository.kt$foundation.e.apps.data.gitlab.SystemAppsUpdatesRepository.kt</ID>
+    <ID>PrintStackTrace:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl$e</ID>
     <ID>PrintStackTrace:CommonUtilsModule.kt$CommonUtilsModule$e</ID>
     <ID>PrintStackTrace:EcloudRepository.kt$EcloudRepository$e</ID>
     <ID>PrintStackTrace:InstallWorkManager.kt$InstallWorkManager$e</ID>
@@ -115,31 +111,39 @@
     <ID>ProtectedMemberInFinalClass:SearchFragment.kt$SearchFragment$protected val searchViewModel: SearchViewModel by viewModels()</ID>
     <ID>ReturnCount:ApkSignatureManager.kt$ApkSignatureManager$private fun verifyAPKSignature( apkInputStream: BufferedInputStream, apkSignatureInputStream: InputStream, publicKeyInputStream: InputStream, packageName: String ): Boolean</ID>
     <ID>ReturnCount:AppInstallProcessor.kt$AppInstallProcessor$private suspend fun updateDownloadUrls(appInstall: AppInstall): Boolean</ID>
-    <ID>ReturnCount:AppInstallProcessor.kt$AppInstallProcessor$suspend fun enqueueFusedDownload( appInstall: AppInstall, isAnUpdate: Boolean = false )</ID>
+    <ID>ReturnCount:AppInstallProcessor.kt$AppInstallProcessor$suspend fun enqueueFusedDownload( appInstall: AppInstall, isAnUpdate: Boolean = false, isSystemApp: Boolean = false )</ID>
     <ID>ReturnCount:AppManagerWrapper.kt$AppManagerWrapper$suspend fun addDownload(appInstall: AppInstall): Boolean</ID>
     <ID>ReturnCount:AppManagerWrapper.kt$AppManagerWrapper$suspend fun calculateProgress( application: Application?, progress: DownloadProgress ): Int</ID>
     <ID>ReturnCount:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl$override suspend fun getAppPrivacyInfo( application: Application, appHandle: String ): Result&lt;AppPrivacyInfo&gt;</ID>
-    <ID>ReturnCount:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl$private fun getAppPrivacyInfo( application: Application, appTrackerData: List&lt;Report&gt;, ): AppPrivacyInfo</ID>
+    <ID>ReturnCount:CleanApkAppsRepository.kt$CleanApkAppsRepository$override suspend fun getAppDetails(packageName: String): Application</ID>
+    <ID>ReturnCount:CleanApkPwaRepository.kt$CleanApkPwaRepository$override suspend fun getAppDetails(packageName: String): Application</ID>
     <ID>ReturnCount:DownloadManager.kt$DownloadManager$fun getSizeRequired(downloadId: Long): Long</ID>
     <ID>ReturnCount:DownloadManager.kt$DownloadManager$private fun sanitizeStatus(downloadId: Long, status: Int, reason: Int): Int</ID>
     <ID>ReturnCount:Extensions.kt$fun Context.isNetworkAvailable(): Boolean</ID>
     <ID>ReturnCount:PlayStoreAuthenticator.kt$PlayStoreAuthenticator$override suspend fun validateAuthData(): ResultSupreme&lt;AuthData?&gt;</ID>
     <ID>ReturnCount:PlayStoreAuthenticator.kt$PlayStoreAuthenticator$private suspend fun getAuthDataWithGoogleAccount(): ResultSupreme&lt;AuthData?&gt;</ID>
+    <ID>ReturnCount:PrivacyInfoViewModel.kt$PrivacyInfoViewModel$fun shouldRequestExodusReport(application: Application?): Boolean</ID>
+    <ID>ReturnCount:SearchApiImpl.kt$SearchApiImpl$private suspend fun replaceWithFDroid(gPlayApps: List&lt;Application&gt;): List&lt;Application&gt;</ID>
+    <ID>ReturnCount:SplitInstallBinder.kt$SplitInstallBinder$private fun showErrorNotification(context: Context, packageName: String)</ID>
     <ID>ReturnCount:StorageNotificationManager.kt$StorageNotificationManager$private fun getSpaceMissing(appInstall: AppInstall, downloadId: Long? = null): Long</ID>
+    <ID>ReturnCount:SystemAppsUpdatesRepository.kt$SystemAppsUpdatesRepository$private suspend fun getApplication( packageName: String, releaseType: OsReleaseType, sdkLevel: Int, device: String, ): Application?</ID>
+    <ID>ReturnCount:SystemAppsUpdatesRepository.kt$SystemAppsUpdatesRepository$private suspend fun getReleaseDetailsUrl( systemAppProject: SystemAppProject, releaseType: OsReleaseType, ): String?</ID>
     <ID>ReturnCount:UpdatesManagerImpl.kt$UpdatesManagerImpl$private suspend fun calculateSignatureVersion(latestCleanapkApp: Application): String</ID>
     <ID>SpreadOperator:DownloadProgressLD.kt$DownloadProgressLD$(*downloadingIds.toLongArray())</ID>
     <ID>SpreadOperator:EglExtensionProvider.kt$EglExtensionProvider$(*`as`)</ID>
     <ID>SpreadOperator:NativeDeviceInfoProviderModule.kt$NativeDeviceInfoProviderModule$(*context.assets.locales)</ID>
     <ID>SpreadOperator:NativeDeviceInfoProviderModule.kt$NativeDeviceInfoProviderModule$(*systemSharedLibraryNames)</ID>
     <ID>SwallowedException:AppInfoFetchViewModel.kt$AppInfoFetchViewModel$e: Exception</ID>
-    <ID>SwallowedException:AppInstallProcessor.kt$AppInstallProcessor$e: ApiException.AppNotPurchased</ID>
+    <ID>SwallowedException:AppInstallProcessor.kt$AppInstallProcessor$e: IllegalStateException</ID>
+    <ID>SwallowedException:AppInstallProcessor.kt$AppInstallProcessor$e: InternalException.AppNotPurchased</ID>
     <ID>SwallowedException:AppLoungePackageManager.kt$AppLoungePackageManager$e: PackageManager.NameNotFoundException</ID>
-    <ID>SwallowedException:ApplicationViewModel.kt$ApplicationViewModel$e: ApiException.AppNotFound</ID>
     <ID>SwallowedException:ApplicationViewModel.kt$ApplicationViewModel$e: Exception</ID>
+    <ID>SwallowedException:ApplicationViewModel.kt$ApplicationViewModel$e: InternalException.AppNotFound</ID>
     <ID>SwallowedException:GPlayHttpClient.kt$GPlayHttpClient$e: Exception</ID>
     <ID>SwallowedException:NativeDeviceInfoProviderModule.kt$NativeDeviceInfoProviderModule$e: Exception</ID>
     <ID>SwallowedException:NativeGsfVersionProvider.kt$NativeGsfVersionProvider$e: PackageManager.NameNotFoundException</ID>
     <ID>SwallowedException:UpdatesManagerImpl.kt$UpdatesManagerImpl$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AgeRatingProvider.kt$AgeRatingProvider$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AnonymousLoginManager.kt$AnonymousLoginManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ApiCaller.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:ApkSignatureManager.kt$ApkSignatureManager$e: Exception</ID>
@@ -147,6 +151,8 @@
     <ID>TooGenericExceptionCaught:AppInstallProcessor.kt$AppInstallProcessor$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AppLoungePackageManager.kt$AppLoungePackageManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AppManagerImpl.kt$AppManagerImpl$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AppPrivacyInfoRepositoryImpl.kt$AppPrivacyInfoRepositoryImpl$exception: Exception</ID>
     <ID>TooGenericExceptionCaught:ApplicationViewModel.kt$ApplicationViewModel$e: Exception</ID>
     <ID>TooGenericExceptionCaught:BlockedAppRepository.kt$BlockedAppRepository$exception: Exception</ID>
     <ID>TooGenericExceptionCaught:CommonUtilsModule.kt$CommonUtilsModule$e: Exception</ID>
@@ -162,9 +168,11 @@
     <ID>TooGenericExceptionCaught:LocaleChangedBroadcastReceiver.kt$LocaleChangedBroadcastReceiver$ex: Exception</ID>
     <ID>TooGenericExceptionCaught:NativeDeviceInfoProviderModule.kt$NativeDeviceInfoProviderModule$e: Exception</ID>
     <ID>TooGenericExceptionCaught:NetworkHandler.kt$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:PWAManager.kt$PWAManager$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:PWAPlayerStatusReceiver.kt$PWAPlayerStatusReceiver$e: Exception</ID>
     <ID>TooGenericExceptionCaught:PlayStoreAuthenticator.kt$PlayStoreAuthenticator$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PlayStoreRepository.kt$PlayStoreRepository$exception: Exception</ID>
+    <ID>TooGenericExceptionCaught:PwaManager.kt$PwaManager$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PwaPlayerStatusReceiver.kt$PwaPlayerStatusReceiver$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:SearchApiImpl.kt$SearchApiImpl$e: Exception</ID>
     <ID>TooGenericExceptionCaught:SystemInfoProvider.kt$SystemInfoProvider$e: Exception</ID>
     <ID>TooGenericExceptionCaught:UpdatesManagerImpl.kt$UpdatesManagerImpl$e: Exception</ID>
     <ID>TooGenericExceptionCaught:UpdatesWorker.kt$UpdatesWorker$e: Throwable</ID>
@@ -182,6 +190,17 @@
     <ID>TooManyFunctions:SearchFragment.kt$SearchFragment : TimeoutFragmentOnQueryTextListenerOnSuggestionListenerApplicationInstaller</ID>
     <ID>TooManyFunctions:TimeoutFragment.kt$TimeoutFragment : Fragment</ID>
     <ID>TooManyFunctions:UpdatesFragment.kt$UpdatesFragment : TimeoutFragmentApplicationInstaller</ID>
-    <ID>UnusedParameter:SearchViewModel.kt$SearchViewModel$lifecycleOwner: LifecycleOwner</ID>
+    <ID>UnusedParameter:PrivacyInfoViewModel.kt$PrivacyInfoViewModel$forced: Boolean = false</ID>
+    <ID>UnusedParameter:SearchViewModel.kt$SearchViewModel$gPlayAuth: AuthObject.GPlayAuth</ID>
+    <ID>UnusedPrivateProperty:SearchViewModel.kt$SearchViewModel.Companion$private const val DATA_LOAD_ERROR = "Data load error"</ID>
+    <ID>UseCheckOrError:AppsApiImpl.kt$AppsApiImpl$throw IllegalStateException("Could not get store")</ID>
+    <ID>UseCheckOrError:CleanApkAppsRepository.kt$CleanApkAppsRepository$throw IllegalStateException("No home data found")</ID>
+    <ID>UseCheckOrError:CleanApkPwaRepository.kt$CleanApkPwaRepository$throw IllegalStateException("No home data found")</ID>
+    <ID>UseCheckOrError:HomeApiImpl.kt$HomeApiImpl$throw IllegalStateException("Could not find store for $source")</ID>
+    <ID>UseCheckOrError:PlayStoreRepository.kt$PlayStoreRepository$throw IllegalStateException("App version code cannot be 0")</ID>
+    <ID>UseCheckOrError:PlayStoreRepository.kt$PlayStoreRepository$throw IllegalStateException("Could not get download details for $idOrPackageName")</ID>
+    <ID>UseCheckOrError:SearchApiImpl.kt$SearchApiImpl$throw IllegalStateException("Could not get store")</ID>
+    <ID>UseCheckOrError:Stores.kt$Stores$throw IllegalStateException("store not found")</ID>
+    <ID>WildcardImport:SystemAppsUpdatesRepository.kt$import foundation.e.apps.data.gitlab.UpdatableSystemAppsApi.*</ID>
   </CurrentIssues>
 </SmellBaseline>
