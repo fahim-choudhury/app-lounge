@@ -90,7 +90,12 @@ class AppLoungeDataStore @Inject constructor(
     }
 
     fun getAuthData(): AuthData {
-        return gson.fromJson(authData.getSync(), AuthData::class.java)
+        val authData = authData.getSync()
+        return if (authData.isEmpty()) {
+            AuthData("", "")
+        } else {
+            gson.fromJson(authData, AuthData::class.java)
+        }
     }
 
     /**
