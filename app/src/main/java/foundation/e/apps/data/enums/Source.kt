@@ -18,10 +18,10 @@
 package foundation.e.apps.data.enums
 
 enum class Source {
-    PLAY_STORE,
-    SYSTEM_APP,
     OPEN_SOURCE,
-    PWA;
+    PWA,
+    SYSTEM_APP,
+    PLAY_STORE;
 
     override fun toString(): String {
         return when (this) {

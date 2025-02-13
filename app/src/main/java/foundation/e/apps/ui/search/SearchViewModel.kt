@@ -34,6 +34,7 @@ import foundation.e.apps.data.exodus.repositories.PrivacyScoreRepository
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
@@ -57,13 +58,9 @@ class SearchViewModel @Inject constructor(
         MutableLiveData()
     val searchResult: LiveData<SearchResult> = _searchResult
 
-    val gplaySearchLoaded: MutableLiveData<Boolean> = MutableLiveData(false)
-
     private var lastAuthObjects: List<AuthObject>? = null
 
-
     private var isLoading: Boolean = false
-    private var hasGPlayBeenFetched = false
 
     @GuardedBy("mutex")
     private val accumulatedList = mutableListOf<Application>()
@@ -74,8 +71,6 @@ class SearchViewModel @Inject constructor(
     private var flagPWA: Boolean = false
 
     companion object {
-        private const val DATA_LOAD_ERROR = "Data load error"
-        private const val MIN_SEARCH_DISPLAY_ITEMS = 10
         private const val PREVENT_HTTP_429_DELAY_IN_MS = 1000L
     }
 
@@ -93,7 +88,7 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun getSearchSuggestions(query: String, gPlayAuth: AuthObject.GPlayAuth) {
+    fun getSearchSuggestions(query: String) {
         viewModelScope.launch(IO) {
             searchSuggest.postValue(
                 applicationRepository.getSearchSuggestions(query)
@@ -110,6 +105,12 @@ class SearchViewModel @Inject constructor(
 
         this.lastAuthObjects = authObjects
         super.onLoadData(authObjects, { successObjects, failedObjects ->
+            viewModelScope.launch {
+                mutex.withLock {
+                    accumulatedList.clear()
+                }
+            }
+
             successObjects.find { it is AuthObject.CleanApk }?.run {
                 fetchCleanApkData(query)
             }
@@ -137,7 +138,6 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch(IO) {
             val searchResultSupreme = applicationRepository.getCleanApkSearchResults(query)
 
-            hasGPlayBeenFetched = false
             emitFilteredResults(searchResultSupreme)
 
             if (!searchResultSupreme.isSuccess()) {
@@ -147,12 +147,12 @@ class SearchViewModel @Inject constructor(
     }
 
     fun loadMore(query: String, autoTriggered: Boolean = false) {
-        if (isLoading) {
-            Timber.d("Search result is loading....")
-            return
-        }
+        viewModelScope.launch(Main) {
+            if (isLoading) {
+                Timber.d("Search result is loading....")
+                return@launch
+            }
 
-        viewModelScope.launch(IO) {
             if (autoTriggered) {
                 delay(PREVENT_HTTP_429_DELAY_IN_MS)
             }
@@ -160,9 +160,14 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+    fun sortApps(apps: List<Application>): List<Application> {
+        return apps.filter { it.name.isNotBlank() }.sortedBy { it.source }.distinctBy { it.package_name }
+    }
+
     private fun fetchGplayData(query: String) {
         viewModelScope.launch(IO) {
             isLoading = true
+
             val gplaySearchResult =
                 applicationRepository.getGplaySearchResults(query)
 
@@ -172,23 +177,23 @@ class SearchViewModel @Inject constructor(
                 }
             }
 
-            val currentAppList = mutex.withLock {
-                updateCurrentAppList(gplaySearchResult)
-            }
+            val currentAppList = updateCurrentAppList(gplaySearchResult)
 
             val finalResult = ResultSupreme.Success(
                 Pair(currentAppList.toList(), false)
             )
 
-            hasGPlayBeenFetched = true
             emitFilteredResults(finalResult)
 
             isLoading = false
         }
     }
 
-    private fun updateCurrentAppList(searchResult: SearchResult): List<Application> {
-        val currentAppList = accumulatedList
+    private suspend fun updateCurrentAppList(searchResult: SearchResult): List<Application> {
+        val currentAppList = mutex.withLock {
+            accumulatedList
+        }
+
         currentAppList.removeIf { item -> item.isPlaceHolder }
         currentAppList.addAll(searchResult.data?.first ?: emptyList())
         return currentAppList.distinctBy { it.package_name }
@@ -228,23 +233,27 @@ class SearchViewModel @Inject constructor(
 
     private suspend fun getFilteredList(): List<Application> = withContext(IO) {
         if (flagNoTrackers) {
-            val deferredCheck = accumulatedList.map {
-                async {
-                    if (it.privacyScore == -1) {
-                        fetchTrackersForApp(it)
+            mutex.withLock {
+                val deferredCheck = accumulatedList.map {
+                    async {
+                        if (it.privacyScore == -1) {
+                            fetchTrackersForApp(it)
+                        }
+                        it
                     }
-                    it
                 }
+                deferredCheck.awaitAll()
             }
-            deferredCheck.awaitAll()
         }
 
-        accumulatedList.filter {
-            if (!flagNoTrackers && !flagOpenSource && !flagPWA) return@filter true
-            if (flagNoTrackers && !hasTrackers(it)) return@filter true
-            if (flagOpenSource && !it.is_pwa && it.source == Source.OPEN_SOURCE) return@filter true
-            if (flagPWA && it.is_pwa) return@filter true
-            false
+        mutex.withLock {
+            accumulatedList.filter {
+                if (!flagNoTrackers && !flagOpenSource && !flagPWA) return@filter true
+                if (flagNoTrackers && !hasTrackers(it)) return@filter true
+                if (flagOpenSource && !it.is_pwa && it.source == Source.OPEN_SOURCE) return@filter true
+                if (flagPWA && it.is_pwa) return@filter true
+                false
+            }
         }
     }
 
@@ -268,42 +277,17 @@ class SearchViewModel @Inject constructor(
         if (result != null) {
             result.data?.first?.let {
                 mutex.withLock {
-                    accumulatedList.clear()
                     accumulatedList.addAll(it)
                 }
             }
         }
 
-        val filteredList = mutex.withLock {
-            getFilteredList()
-        }
-
-        val isMoreDataLoading = result?.data?.second ?: _searchResult.value?.data?.second ?: false
+        val filteredList = getFilteredList()
 
         _searchResult.postValue(
             ResultSupreme.Success(
-                Pair(filteredList.toList(), isMoreDataLoading)
+                Pair(filteredList.toList(), false)
             )
         )
-        gplaySearchLoaded.postValue(hasGPlayBeenFetched)
-    }
-
-    fun loadMoreDataIfNeeded(searchText: String) {
-        val searchList =
-            searchResult.value?.data?.first?.toMutableList() ?: emptyList()
-        val canLoadMore = searchResult.value?.data?.second ?: false
-
-        if (searchList.size < MIN_SEARCH_DISPLAY_ITEMS && canLoadMore) {
-            loadMore(searchText, autoTriggered = true)
-        }
-    }
-
-    fun shouldIgnoreResults(): Boolean {
-        val appsList = _searchResult.value?.data?.first
-
-        if (appsList.isNullOrEmpty()) return true
-
-        val appPackageNames = appsList.map { it.package_name }
-        return appPackageNames.all { it.isBlank() }
     }
 }
