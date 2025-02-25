@@ -128,7 +128,6 @@ class SearchFragment :
         // Setup Search Results
         val listAdapter = setupSearchResult(view)
 
-        preventLoadingLessResults()
         observeSearchResult(listAdapter)
 
         setupSearchFilters()
@@ -178,26 +177,18 @@ class SearchFragment :
         lastSearch == currentQuery
 
     private fun observeSearchResult(listAdapter: ApplicationListRVAdapter?) {
-        searchViewModel.searchResult.observe(viewLifecycleOwner) {
-            if (it.data?.first.isNullOrEmpty() && it.data?.second == false) {
+        searchViewModel.searchResult.observe(viewLifecycleOwner) { result ->
+            val apps = result.data?.first
+
+            if (apps.isNullOrEmpty()) {
                 noAppsFoundLayout?.visibility = View.VISIBLE
-            } else if (searchViewModel.shouldIgnoreResults()) {
-                return@observe
             } else {
                 listAdapter?.let { adapter ->
                     observeDownloadList(adapter)
                 }
             }
-            updateSearchResult(listAdapter, it.data?.first ?: emptyList())
+            updateSearchResult(listAdapter, apps ?: emptyList())
             observeScrollOfSearchResult(listAdapter)
-        }
-    }
-
-    private fun preventLoadingLessResults() {
-        searchViewModel.gplaySearchLoaded.observe(viewLifecycleOwner) {
-            if (!it) return@observe
-
-            searchViewModel.loadMoreDataIfNeeded(searchText)
         }
     }
 
@@ -224,22 +215,29 @@ class SearchFragment :
         })
     }
 
-    /**
-     * @return true if Search result is updated, otherwise false
-     */
     private fun updateSearchResult(
         listAdapter: ApplicationListRVAdapter?,
         apps: List<Application>,
-    ): Boolean {
+    ) {
         val currentApps = listAdapter?.currentList ?: listOf()
         if (!searchViewModel.isAnyAppUpdated(apps, currentApps)) {
-            return false
+            return
+        }
+
+        val filteredApps = searchViewModel.sortApps(apps)
+        if (filteredApps.isEmpty()) {
+            return
         }
 
         showData()
-        val filteredApps = apps.filter { it.name.isNotBlank() }.distinctBy { it.package_name }
-        listAdapter?.setData(filteredApps)
-        return true
+        listAdapter?.submitList(filteredApps)
+
+        // Scroll to the top with some delays so that the recycler view has the time
+        // to process the new results
+        recyclerView?.postDelayed(
+            { recyclerView?.scrollToPosition(0) },
+            SCROLL_TO_TOP_DELAY_MILLIS
+        )
     }
 
     private fun showData() {
@@ -468,7 +466,7 @@ class SearchFragment :
         searchJob = lifecycleScope.launch(Dispatchers.Main.immediate) {
             delay(SEARCH_DEBOUNCE_DELAY_MILLIS)
             authObjects.value?.find { it is AuthObject.GPlayAuth }?.run {
-                searchViewModel.getSearchSuggestions(text, this as AuthObject.GPlayAuth)
+                searchViewModel.getSearchSuggestions(text)
             }
         }
     }
@@ -545,5 +543,6 @@ class SearchFragment :
 
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY_MILLIS = 500L
+        private const val SCROLL_TO_TOP_DELAY_MILLIS = 100L
     }
 }
