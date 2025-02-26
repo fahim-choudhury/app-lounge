@@ -231,7 +231,7 @@ class SearchFragment :
         }
 
         showData()
-        listAdapter?.submitList(filteredApps)
+        listAdapter?.setData(filteredApps)
     }
 
     private fun showData() {
