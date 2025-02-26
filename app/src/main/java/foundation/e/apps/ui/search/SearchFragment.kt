@@ -189,6 +189,7 @@ class SearchFragment :
             }
             updateSearchResult(listAdapter, apps ?: emptyList())
             observeScrollOfSearchResult(listAdapter)
+            scrollToTop()
         }
     }
 
@@ -231,19 +232,21 @@ class SearchFragment :
 
         showData()
         listAdapter?.submitList(filteredApps)
-
-        // Scroll to the top with some delays so that the recycler view has the time
-        // to process the new results
-        recyclerView?.postDelayed(
-            { recyclerView?.scrollToPosition(0) },
-            SCROLL_TO_TOP_DELAY_MILLIS
-        )
     }
 
     private fun showData() {
         stopLoadingUI()
         noAppsFoundLayout?.visibility = View.GONE
         searchHintLayout?.visibility = View.GONE
+    }
+
+    private fun scrollToTop() {
+        // Scroll to the top with some delays so that the recycler view has the time
+        // to process the new results
+        recyclerView?.postDelayed(
+            { recyclerView?.scrollToPosition(0) },
+            SCROLL_TO_TOP_DELAY_MILLIS
+        )
     }
 
     private fun setupSearchResult(view: View): ApplicationListRVAdapter? {
