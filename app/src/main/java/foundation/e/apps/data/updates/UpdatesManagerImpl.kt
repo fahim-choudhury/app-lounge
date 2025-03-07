@@ -259,7 +259,7 @@ class UpdatesManagerImpl @Inject constructor(
     ): ResultStatus {
         val apiResult = apiFunction()
         val updatableApps = apiResult.first.filter {
-            it.status == Status.UPDATABLE && it.filterLevel.isUnFiltered()
+            it.status == Status.UPDATABLE && (it.filterLevel.isUnFiltered() || it.isFDroidApp)
         }
         updateAccumulationList.addAll(updatableApps)
         return apiResult.second
