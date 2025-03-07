@@ -87,7 +87,7 @@ class ApplicationViewModel @Inject constructor(
          * If user is viewing only open source apps, auth object list will not have
          * GPlayAuth, it will only have CleanApkAuth.
          */
-        if (gPlayObj == null && (params.source == Source.OPEN_SOURCE || params.source == Source.PWA)) {
+        if (gPlayObj == null && params.source == Source.PLAY_STORE) {
             _errorMessageLiveData.postValue(R.string.gplay_data_for_oss)
             return
         }
