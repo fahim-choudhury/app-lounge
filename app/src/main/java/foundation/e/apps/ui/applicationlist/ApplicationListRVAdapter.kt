@@ -131,15 +131,11 @@ class ApplicationListRVAdapter(
         }
 
         holder.binding.apply {
-            if (searchApp.privacyScore == -1) {
-                hidePrivacyScore()
-            }
             applicationList.setOnClickListener {
                 handleAppItemClick(searchApp, view)
             }
             updateAppInfo(searchApp)
             updateRating(searchApp)
-            updatePrivacyScore(searchApp, view)
             updateSourceTag(searchApp)
             setAppIcon(searchApp, shimmerDrawable)
             removeIsPurchasedObserver(holder)
@@ -154,7 +150,6 @@ class ApplicationListRVAdapter(
                 }
             }
 
-            showPrivacyScoreAfterFetching(searchApp, view)
         }
     }
 
@@ -222,22 +217,6 @@ class ApplicationListRVAdapter(
             appRating.text = "${searchApp.ratings.usageQualityScore}"
         } else {
             appRating.text = root.context.getString(R.string.not_available)
-        }
-    }
-
-    private fun ApplicationListItemBinding.updatePrivacyScore(
-        searchApp: Application,
-        view: View
-    ) {
-        if (searchApp.isSystemApp) {
-            appPrivacyScoreLayout.isVisible = false
-            return
-        }
-        if (searchApp.hasExodusPrivacyRating() && searchApp.ratings.privacyScore != -1.0) {
-            appPrivacyScore.text = view.context.getString(
-                R.string.privacy_rating_out_of,
-                searchApp.ratings.privacyScore.toInt().toString()
-            )
         }
     }
 
@@ -396,38 +375,6 @@ class ApplicationListRVAdapter(
             }
         }
         progressBarInstall.visibility = View.GONE
-    }
-
-    private fun ApplicationListItemBinding.showPrivacyScoreAfterFetching(
-        searchApp: Application,
-        view: View
-    ) {
-        if (lifecycleOwner == null) {
-            return
-        }
-        privacyInfoViewModel.getAppPrivacyInfoLiveData(searchApp).observe(lifecycleOwner!!) {
-            showPrivacyScore()
-            val calculatedScore = privacyInfoViewModel.getPrivacyScore(searchApp)
-            searchApp.privacyScore = calculatedScore
-            if (it.isSuccess() && calculatedScore != -1) {
-                appPrivacyScore.text = view.context.getString(
-                    R.string.privacy_rating_out_of,
-                    searchApp.privacyScore.toString()
-                )
-            } else {
-                appPrivacyScore.text = view.context.getString(R.string.not_available)
-            }
-        }
-    }
-
-    private fun ApplicationListItemBinding.hidePrivacyScore() {
-        progressBar.visibility = View.VISIBLE
-        appPrivacyScore.visibility = View.GONE
-    }
-
-    private fun ApplicationListItemBinding.showPrivacyScore() {
-        progressBar.visibility = View.GONE
-        appPrivacyScore.visibility = View.VISIBLE
     }
 
     private fun ApplicationListItemBinding.handleInstalling() {

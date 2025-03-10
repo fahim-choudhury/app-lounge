@@ -96,7 +96,6 @@ class SearchFragment :
     private var searchHintLayout: LinearLayout? = null
     private var noAppsFoundLayout: LinearLayout? = null
 
-    lateinit var filterChipNoTrackers: Chip
     lateinit var filterChipOpenSource: Chip
     lateinit var filterChipPWA: Chip
 
@@ -118,7 +117,6 @@ class SearchFragment :
         searchHintLayout = binding.searchHintLayout.root
         noAppsFoundLayout = binding.noAppsFoundLayout.root
 
-        filterChipNoTrackers = binding.filterChipNoTrackers
         filterChipOpenSource = binding.filterChipOpenSource
         filterChipPWA = binding.filterChipPWA
 
@@ -293,7 +291,6 @@ class SearchFragment :
         val listener = OnCheckedChangeListener { _, _ ->
             showLoadingUI()
             searchViewModel.setFilterFlags(
-                flagNoTrackers = filterChipNoTrackers.isChecked,
                 flagOpenSource = filterChipOpenSource.isChecked,
                 flagPWA = filterChipPWA.isChecked,
             )
@@ -301,7 +298,6 @@ class SearchFragment :
             recyclerView?.scrollToPosition(0)
         }
 
-        filterChipNoTrackers.setOnCheckedChangeListener(listener)
         filterChipOpenSource.setOnCheckedChangeListener(listener)
         filterChipPWA.setOnCheckedChangeListener(listener)
     }

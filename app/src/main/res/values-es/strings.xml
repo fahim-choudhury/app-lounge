@@ -188,7 +188,6 @@
     <string name="additional_file_for">Archivo adicional para %s</string>
     <string name="account_unavailable">Cuenta no disponible</string>
     <string name="share">Compartir</string>
-    <string name="no_trackers">Sin rastreadores</string>
     <string name="restricted_app">[%1$s] Aplicación restringida</string>
     <string name="age_rate_limit_message">Eres demasiado joven para instalar %1$s. Por favor, comprueba con tus padres que tu grupo de edad es correcto o desactiva el control parental para poder instalar.</string>
     <string name="message_inappropriate_content">Esta aplicación puede tener contenido inapropiado.</string>

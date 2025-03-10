@@ -184,7 +184,6 @@
     <string name="ignore">Ignorer</string>
     <string name="account_unavailable">Compte indisponible</string>
     <string name="share">Partager</string>
-    <string name="no_trackers">Aucun pisteurs</string>
     <string name="too_many_requests_desc">Le compte anonyme que vous êtes en train d\'utiliser est indisponible. Merci de renouveler la session pour en obtenir un autre.</string>
     <string name="message_inappropriate_content">Cette application peut inclure du contenu inapproprié.</string>
     <string name="nsfw_dialog_title">Avertissement sur le contenu</string>

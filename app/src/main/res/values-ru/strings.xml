@@ -166,7 +166,6 @@
     <string name="logout">Выйти из системы</string>
     <string name="account_unavailable">Аккаунт недоступен</string>
     <string name="share">Поделиться</string>
-    <string name="no_trackers">Нет трекеров</string>
     <string name="sign_in">Зарегистрироваться</string>
     <string name="restricted_app">[%1$s] Ограниченное приложение</string>
     <string name="age_rate_limit_message">Вы слишком молоды, чтобы иметь возможность установить %1$s. Пожалуйста, уточните у родителей, правильно ли выбрана ваша возрастная группа, или отключите родительский контроль, чтобы иметь возможность установить эту игру.</string>
