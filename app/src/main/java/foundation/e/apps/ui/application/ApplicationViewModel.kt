@@ -169,16 +169,9 @@ class ApplicationViewModel @Inject constructor(
 
         val ratingWithId = playStoreRepository.getContentRatingWithId(packageName, contentRating)
 
-
         // Later, update with a new rating; no visual change in the UI
         val updatedContentRating = contentRating.copy(id = ratingWithId.id)
         _appContentRatingState.update { updatedContentRating }
-
-        applicationLiveData.value?.copy()?.let {
-            val application = it.first
-            application.contentRating = updatedContentRating
-            applicationLiveData.postValue(it)
-        }
     }
 
     private fun updateShareVisibilityState(shareUri: String) {
