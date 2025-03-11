@@ -52,6 +52,9 @@
     <!-- Updating targetSdk requires further testing and is not the scope of this issue -->
     <issue id="ExpiredTargetSdkVersion" severity="warning" />
 
+    <!-- We cannot update https://play.google.com/.well-known/assetlinks.json ourself -->
+    <issue id="AppLinksAutoVerify" severity="warning" />
+
     <issue id="all" severity="error"/>
 </lint>
 
