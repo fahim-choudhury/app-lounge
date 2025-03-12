@@ -84,6 +84,10 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
 
     private var isDownloadObserverAdded = false
 
+    companion object {
+        private const val SCROLL_TO_TOP_DELAY_MILLIS = 100L
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentUpdatesBinding.bind(view)
@@ -93,9 +97,6 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
 
         authObjects.observe(viewLifecycleOwner) {
             if (it == null) return@observe
-            if (!updatesViewModel.updatesList.value?.first.isNullOrEmpty()) {
-                return@observe
-            }
             loadDataWhenNetworkAvailable(it)
         }
 
@@ -151,6 +152,11 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
             }
 
             stopLoadingUI()
+
+            binding.recyclerView.postDelayed(
+                { binding.recyclerView.scrollToPosition(0) },
+                SCROLL_TO_TOP_DELAY_MILLIS
+            )
 
             Timber.d("===>> observeupdate list called")
             if (resultStatus != ResultStatus.OK) {
@@ -279,12 +285,14 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
     }
 
     override fun loadData(authObjectList: List<AuthObject>) {
-        showLoadingUI()
-        updatesViewModel.loadData(authObjectList) {
-            clearAndRestartGPlayLogin()
-            true
+        if (updatesViewModel.haveSourcesChanged()) {
+            showLoadingUI()
+            updatesViewModel.loadData(authObjectList) {
+                clearAndRestartGPlayLogin()
+                true
+            }
+            initUpdateAllButton()
         }
-        initUpdateAllButton()
     }
 
     private fun initUpdateAllButton() {
