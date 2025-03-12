@@ -72,6 +72,7 @@ class AppsApiImpl @Inject constructor(
                 applicationDataManager.updateStatus(it)
                 it.updateType()
                 list.add(it)
+                it.source = source
             }
         }
 
