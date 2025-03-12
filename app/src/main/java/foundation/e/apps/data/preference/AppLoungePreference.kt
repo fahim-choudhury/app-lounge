@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2025 e Foundation
  * Copyright (C) 2021-2024 MURENA SAS
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,6 +20,7 @@
 package foundation.e.apps.data.preference
 
 import android.content.Context
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.OpenForTesting
@@ -29,6 +31,7 @@ import foundation.e.apps.data.Constants.PREFERENCE_SHOW_PWA
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Suppress("TooManyFunctions")
 @Singleton
 @OpenForTesting
 class AppLoungePreference @Inject constructor(
@@ -50,13 +53,15 @@ class AppLoungePreference @Inject constructor(
 
     fun isOpenSourceSelected() = preferenceManager.getBoolean(PREFERENCE_SHOW_FOSS, true)
     fun isPWASelected() = preferenceManager.getBoolean(PREFERENCE_SHOW_PWA, true)
-    fun isGplaySelected() = preferenceManager.getBoolean(PREFERENCE_SHOW_GPLAY, true)
+    fun isPlayStoreSelected() = preferenceManager.getBoolean(PREFERENCE_SHOW_GPLAY, true)
 
-    fun disableGplay() = preferenceManager.edit().putBoolean(PREFERENCE_SHOW_GPLAY, false).apply()
+    fun disablePlayStore() = preferenceManager.edit { putBoolean(PREFERENCE_SHOW_GPLAY, false) }
+    fun disableOpenSource() = preferenceManager.edit { putBoolean(PREFERENCE_SHOW_FOSS, false) }
+    fun disablePwa() = preferenceManager.edit { putBoolean(PREFERENCE_SHOW_PWA, false) }
 
-    fun autoUpdatePreferred(): Boolean {
-        return preferenceManager.getBoolean("updateInstallAuto", false)
-    }
+    fun enablePlayStore() = preferenceManager.edit { putBoolean(PREFERENCE_SHOW_GPLAY, true) }
+    fun enableOpenSource() = preferenceManager.edit { putBoolean(PREFERENCE_SHOW_FOSS, true) }
+    fun enablePwa() = preferenceManager.edit { putBoolean(PREFERENCE_SHOW_PWA, true) }
 
     fun getUpdateInterval() = preferenceManager.getString(
         context.getString(R.string.update_check_intervals),
@@ -67,12 +72,4 @@ class AppLoungePreference @Inject constructor(
         context.getString(R.string.update_apps_from_other_stores),
         true
     )
-
-    fun setSource(source: String, value: Boolean) {
-        val editor = preferenceManager.edit()
-        editor.run {
-            this.putBoolean(source, value)
-        }
-        editor.apply()
-    }
 }

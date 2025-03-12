@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022  E FOUNDATION
+ * Copyright (C) 2019-2025 e Foundation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,6 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.data.login
@@ -24,14 +25,14 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import foundation.e.apps.data.ResultSupreme
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.User
-import foundation.e.apps.data.login.api.PlayStoreLoginManagerFactory
-import foundation.e.apps.data.login.api.PlayStoreLoginManager
 import foundation.e.apps.data.login.api.GoogleLoginManager
+import foundation.e.apps.data.login.api.PlayStoreLoginManager
+import foundation.e.apps.data.login.api.PlayStoreLoginManagerFactory
 import foundation.e.apps.data.login.api.PlayStoreLoginWrapper
 import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.apps.data.preference.AppLoungePreference
-import foundation.e.apps.data.retryWithBackoff
 import foundation.e.apps.data.preference.getSync
+import foundation.e.apps.data.retryWithBackoff
 import timber.log.Timber
 import java.util.Locale
 import javax.inject.Inject
@@ -73,7 +74,7 @@ class PlayStoreAuthenticator @Inject constructor(
              */
             return false
         }
-        return appLoungePreference.isGplaySelected()
+        return appLoungePreference.isPlayStoreSelected()
     }
 
     /**

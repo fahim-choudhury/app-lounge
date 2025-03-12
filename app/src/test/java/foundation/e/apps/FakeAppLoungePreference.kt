@@ -1,5 +1,6 @@
 /*
- *  Copyright (C) 2022  ECORP
+ * Copyright (C) 2025 e Foundation
+ * Copyright (C) 2022  ECORP
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -34,7 +35,7 @@ class FakeAppLoungePreference(context: Context) : AppLoungePreference(context) {
         return isOpenSourceelectedFake
     }
 
-    override fun isGplaySelected(): Boolean {
+    override fun isPlayStoreSelected(): Boolean {
         return isGplaySelectedFake
     }
 
