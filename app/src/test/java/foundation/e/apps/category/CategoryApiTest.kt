@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2025 e Foundation
  * Copyright MURENA SAS 2023
  * Apps  Quickly and easily install Android apps onto your device!
  *
@@ -21,7 +22,6 @@ package foundation.e.apps.category
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.aurora.gplayapi.data.models.Category
-import foundation.e.apps.FakeAppLoungePreference
 import foundation.e.apps.R
 import foundation.e.apps.data.AppSourcesContainer
 import foundation.e.apps.data.Stores
@@ -35,8 +35,9 @@ import foundation.e.apps.data.cleanapk.repositories.CleanApkPwaRepository
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.playstore.PlayStoreRepository
-import foundation.e.apps.install.pkg.PwaManager
+import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.install.pkg.AppLoungePackageManager
+import foundation.e.apps.install.pkg.PwaManager
 import foundation.e.apps.util.MainCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -81,6 +82,9 @@ class CategoryApiTest {
     @Mock
     private lateinit var gPlayAPIRepository: PlayStoreRepository
 
+    @Mock
+    private lateinit var appLoungePreference: AppLoungePreference
+
     private lateinit var fakeStores: Stores
 
     private lateinit var categoryApi: CategoryApi
@@ -91,7 +95,7 @@ class CategoryApiTest {
         val applicationDataManager =
             ApplicationDataManager(appLoungePackageManager, pwaManager)
 
-        fakeStores = Stores(gPlayAPIRepository, cleanApkAppsRepository, cleanApkPWARepository)
+        fakeStores = Stores(gPlayAPIRepository, cleanApkAppsRepository, cleanApkPWARepository, appLoungePreference)
 
         val appSourcesContainer =
             AppSourcesContainer(gPlayAPIRepository, cleanApkAppsRepository, cleanApkPWARepository)
@@ -118,6 +122,8 @@ class CategoryApiTest {
 
         Mockito.`when`(context.getString(eq(R.string.pwa))).thenReturn("PWA")
 
+        Mockito.`when`(appLoungePreference.isPWASelected()).thenReturn(true)
+
         val categoryListResponse =
             categoryApi.getCategoriesList(CategoryType.APPLICATION)
 
@@ -133,7 +139,10 @@ class CategoryApiTest {
         Mockito.`when`(
             cleanApkAppsRepository.getCategories()
         ).thenReturn(response)
+
         Mockito.`when`(context.getString(eq(R.string.open_source))).thenReturn("Open source")
+
+        Mockito.`when`(appLoungePreference.isOpenSourceSelected()).thenReturn(true)
 
         fakeStores.disableStore(Source.PWA)
         fakeStores.disableStore(Source.PLAY_STORE)
@@ -152,6 +161,8 @@ class CategoryApiTest {
             gPlayAPIRepository.getCategories(CategoryType.APPLICATION)
         ).thenReturn(categories)
 
+        Mockito.`when`(appLoungePreference.isPlayStoreSelected()).thenReturn(true)
+
         fakeStores.disableStore(Source.PWA)
         fakeStores.disableStore(Source.OPEN_SOURCE)
 
@@ -163,11 +174,12 @@ class CategoryApiTest {
 
     @Test
     fun `getCategory when gplay source is selected return error`() = runTest {
-
         Mockito.`when`(
             gPlayAPIRepository.getCategories(CategoryType.APPLICATION)
-        ).thenThrow()
-        
+        ).thenThrow(RuntimeException())
+
+        Mockito.`when`(appLoungePreference.isPlayStoreSelected()).thenReturn(true)
+
         fakeStores.disableStore(Source.PWA)
         fakeStores.disableStore(Source.OPEN_SOURCE)
 
@@ -204,6 +216,9 @@ class CategoryApiTest {
         Mockito.`when`(context.getString(eq(R.string.open_source))).thenReturn("Open source")
         Mockito.`when`(context.getString(eq(R.string.pwa))).thenReturn("pwa")
 
+        Mockito.`when`(appLoungePreference.isPlayStoreSelected()).thenReturn(true)
+        Mockito.`when`(appLoungePreference.isOpenSourceSelected()).thenReturn(true)
+        Mockito.`when`(appLoungePreference.isPWASelected()).thenReturn(true)
 
         val categoryListResponse =
             categoryApi.getCategoriesList(CategoryType.APPLICATION)

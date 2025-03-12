@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022  E FOUNDATION
+ * Copyright (C) 2019-2025 e Foundation
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,11 +13,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 package foundation.e.apps.data.login
 
-import foundation.e.apps.data.Constants
 import foundation.e.apps.data.enums.User
 import foundation.e.apps.data.preference.AppLoungeDataStore
 import foundation.e.apps.data.preference.AppLoungePreference
@@ -48,9 +48,11 @@ class LoginCommon @Inject constructor(
     }
 
     suspend fun setNoGoogleMode() {
-        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
-        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_PWA, true)
-        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_GPLAY, false)
+        appLoungePreference.run {
+            disablePlayStore()
+            enableOpenSource()
+            enablePwa()
+        }
         appLoungeDataStore.saveUserType(User.NO_GOOGLE)
     }
 
@@ -58,8 +60,10 @@ class LoginCommon @Inject constructor(
         appLoungeDataStore.destroyCredentials()
         appLoungeDataStore.saveUserType(null)
         // reset app source preferences on logout.
-        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_FOSS, true)
-        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_PWA, true)
-        appLoungePreference.setSource(Constants.PREFERENCE_SHOW_GPLAY, true)
+        appLoungePreference.run {
+            enableOpenSource()
+            enablePwa()
+            enablePlayStore()
+        }
     }
 }
