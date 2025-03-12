@@ -174,7 +174,6 @@
     <string name="ignore">Negeren</string>
     <string name="checking_updates">Controleren op updates...</string>
     <string name="split_install_warning_text">%s wil extra modules installeren. Je moet terug inloggen in App Lounge om die te kunnen installeren.</string>
-    <string name="no_trackers">Geen trackers</string>
     <string name="proceed_to_google_login">Ga verder naar Google-aanmelden</string>
     <string name="preference_update_apps_from_other_stores_description">Update apps geïnstalleerd door andere app stores.
 \nEr zal geprobeerd worden om dergelijke apps te updates van de \"algemene\" en \"open source\" categorie.</string>

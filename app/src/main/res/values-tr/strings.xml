@@ -103,7 +103,6 @@
     <string name="menu_settings" weblate_ctx="home">Ayarlar</string>
     <string name="search_hint" weblate_ctx="search">Bir uygulama arayın</string>
     <string name="no_apps_found">Uygulama bulunamadı…</string>
-    <string name="no_trackers">Takipçi Yok</string>
     <string name="games" weblate_ctx="categories_games">Oyunlar</string>
     <string name="preference_update_notify_available_title" weblate_ctx="settings">Kullanılabilir güncellemeleri göster</string>
     <string name="logged_out">Çıkış yapıldı</string>

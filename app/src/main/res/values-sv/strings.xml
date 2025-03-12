@@ -187,7 +187,6 @@
     <string name="sign_in">Logga in</string>
     <string name="account_unavailable">Konto otillgängligt</string>
     <string name="share">Dela</string>
-    <string name="no_trackers">Inga spårare</string>
     <string name="message_inappropriate_content">Denna app kan innehålla olämpligt innehåll.</string>
     <string name="message_fetching_content_rating">Samlar in innehållsbetyg för alla appar som du installerat.</string>
     <string name="nsfw_dialog_title">Innehållsvarning</string>

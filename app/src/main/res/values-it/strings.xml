@@ -188,7 +188,6 @@
     <string name="refresh_session">AGGIORNA SESSIONE</string>
     <string name="account_unavailable">Account non disponibile</string>
     <string name="share">Condividere</string>
-    <string name="no_trackers">Nessun tracciamento</string>
     <string name="restricted_app">[%1$s] app con restrizioni</string>
     <string name="age_rate_limit_message">Sei troppo giovane per poter installare %1$s. Per favore controlla con i tuoi genitori se la fascia d\'età è corretta o disabilita il controllo parentale per poter effettuare l\'installazione.</string>
     <string name="message_inappropriate_content">Questa app potrebbe avere contenuti inappropriati.</string>

@@ -77,10 +77,11 @@ class AppPrivacyInfoRepositoryImpl @Inject constructor(
         return withContext(Dispatchers.IO) {
             var result: List<Report> = emptyList()
             try {
-                val response = okHttpClient.newCall(request).execute()
-                if (response.isSuccessful) {
-                    val responseBody = response.body?.string()
-                    result = parseReports(responseBody ?: "")
+                okHttpClient.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        val responseBody = response.body?.string()
+                        result = parseReports(responseBody ?: "")
+                    }
                 }
             } catch (exception: Exception) {
                 exception.printStackTrace()
