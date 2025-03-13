@@ -23,14 +23,16 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import com.aurora.gplayapi.data.models.AuthData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import foundation.e.apps.data.StoreRepository
+import foundation.e.apps.data.Stores
 import foundation.e.apps.data.enums.ResultStatus
 import foundation.e.apps.data.enums.Status
 import foundation.e.apps.data.application.ApplicationRepository
 import foundation.e.apps.data.application.data.Application
+import foundation.e.apps.data.enums.Source
 import foundation.e.apps.data.login.AuthObject
 import foundation.e.apps.data.login.exceptions.CleanApkException
 import foundation.e.apps.data.login.exceptions.GPlayException
-import foundation.e.apps.data.preference.AppLoungePreference
 import foundation.e.apps.data.updates.UpdatesManagerRepository
 import foundation.e.apps.ui.parentFragment.LoadingViewModel
 import kotlinx.coroutines.launch
@@ -40,10 +42,12 @@ import javax.inject.Inject
 class UpdatesViewModel @Inject constructor(
     private val updatesManagerRepository: UpdatesManagerRepository,
     private val applicationRepository: ApplicationRepository,
-    private val appLoungePreference: AppLoungePreference
+    private val stores: Stores
 ) : LoadingViewModel() {
 
     val updatesList: MutableLiveData<Pair<List<Application>, ResultStatus?>> = MutableLiveData()
+
+    private var previousStores = mapOf<Source, StoreRepository>()
 
     fun loadData(
         authObjectList: List<AuthObject>,
@@ -63,11 +67,24 @@ class UpdatesViewModel @Inject constructor(
         }, retryBlock)
     }
 
+    fun haveSourcesChanged(): Boolean {
+        val newStores = stores.getStores()
+        if (newStores == previousStores) {
+            return false
+        }
+
+        previousStores = newStores.toMutableMap()
+        return true
+    }
+
     private fun getUpdates(authData: AuthData?) {
         viewModelScope.launch {
-            val updatesResult = if (authData != null)
+            val updatesResult = if (authData != null) {
                 updatesManagerRepository.getUpdates(authData)
-            else updatesManagerRepository.getUpdatesOSS()
+            } else {
+                updatesManagerRepository.getUpdatesOSS()
+            }
+
             updatesList.postValue(updatesResult)
 
             val status = updatesResult.second
@@ -131,6 +148,4 @@ class UpdatesViewModel @Inject constructor(
         )
         return updatesList.value?.first?.any { pendingStatesForUpdate.contains(it.status) } == true
     }
-
-    fun getUpdateInterval() = appLoungePreference.getUpdateInterval()
 }
