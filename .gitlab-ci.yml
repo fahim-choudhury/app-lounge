@@ -15,10 +15,13 @@ stages:
   - publish
   - gitlab_release
 
-before_script:
+.default_before_script: &default_before_script
   - export GRADLE_USER_HOME=$(pwd)/.gradle
   - chmod +x ./gradlew
   - echo user_agent=$USER_AGENT > local.properties
+
+before_script:
+  - *default_before_script
 
 cache:
   key: ${CI_PROJECT_ID}
@@ -91,8 +94,7 @@ buildRelease:
   stage: release
   allow_failure: false
   before_script:
-    - export GRADLE_USER_HOME=$(pwd)/.gradle
-    - chmod +x ./gradlew
+    - *default_before_script
     - echo "${KEYSTORE}" | base64 -d > keystore/proprietary.keystore
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
