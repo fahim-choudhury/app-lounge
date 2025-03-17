@@ -18,6 +18,7 @@
 
 package foundation.e.apps.di.network
 
+import android.annotation.SuppressLint
 import android.os.Build
 import dagger.Module
 import dagger.Provides
@@ -36,8 +37,9 @@ class InterceptorModule {
     companion object {
         private const val HEADER_USER_AGENT = "User-Agent"
         private const val HEADER_ACCEPT_LANGUAGE = "Accept-Language"
-        val HEADER_USER_AGENT_VALUE =
-            "Dalvik/2.1.0 (Linux; U; Android ${Build.VERSION.RELEASE};)"
+
+        @SuppressLint("StringFormatTrivial")
+        val HEADER_USER_AGENT_VALUE = String.format(BuildConfig.USER_AGENT, Build.VERSION.RELEASE)
     }
 
     @Singleton
