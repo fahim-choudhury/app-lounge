@@ -187,7 +187,6 @@ class SearchFragment :
             }
             updateSearchResult(listAdapter, apps ?: emptyList())
             observeScrollOfSearchResult(listAdapter)
-            scrollToTop()
         }
     }
 
@@ -205,8 +204,8 @@ class SearchFragment :
                      * Compare lastSearch with searchText to avoid falsely updating to
                      * current query text even before submitting the new search.
                      */
-                    if (lastSearch != searchText) {
-                        recyclerView?.scrollToPosition(0)
+                    if (lastSearch != searchText && positionStart == 0) {
+                        scrollToTop()
                         lastSearch = searchText
                     }
                 }
@@ -238,7 +237,7 @@ class SearchFragment :
         searchHintLayout?.visibility = View.GONE
     }
 
-    private fun scrollToTop() {
+    fun scrollToTop() {
         // Scroll to the top with some delays so that the recycler view has the time
         // to process the new results
         recyclerView?.postDelayed(
