@@ -20,8 +20,10 @@ package foundation.e.apps.install.updates
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import androidx.core.content.ContextCompat
 import androidx.work.ExistingPeriodicWorkPolicy
 import foundation.e.apps.data.preference.AppLoungePreference
+import foundation.e.apps.utils.LocalPWAInstaller
 import timber.log.Timber
 
 class UpdatesBroadcastReceiver : BroadcastReceiver() {
@@ -32,6 +34,9 @@ class UpdatesBroadcastReceiver : BroadcastReceiver() {
             val appLoungePreference = AppLoungePreference(context)
             val interval = appLoungePreference.getUpdateInterval()
             UpdatesWorkManager.enqueueWork(context, interval, ExistingPeriodicWorkPolicy.REPLACE)
+
+            val serviceIntent = Intent(context, LocalPWAInstaller::class.java)
+            ContextCompat.startForegroundService(context, serviceIntent)
         }
     }
 }

@@ -100,6 +100,11 @@
             android:foregroundServiceType="dataSync">
         </service>
 
+        <service
+            android:name=".utils.LocalPWAInstaller"
+            android:foregroundServiceType="dataSync">
+        </service>
+
         <receiver
             android:name="foundation.e.apps.install.download.DownloadManagerBR"
             android:exported="true">

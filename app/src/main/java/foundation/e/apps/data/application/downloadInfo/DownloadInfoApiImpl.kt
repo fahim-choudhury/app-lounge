@@ -73,7 +73,7 @@ class DownloadInfoApiImpl @Inject constructor(
                 updateDownloadInfoFromGplay(appInstall, list)
             }
 
-            Source.SYSTEM_APP -> {
+            Source.SYSTEM_APP, Source.LOCAL_PWA -> {
                 return // nothing to do as downloadURLList is already set
             }
         }

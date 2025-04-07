@@ -61,7 +61,7 @@ class ApplicationScreenshotsRVAdapter(
             Source.PLAY_STORE -> {
                 imageView.load(oldList[position])
             }
-            Source.SYSTEM_APP -> {
+            Source.SYSTEM_APP, Source.LOCAL_PWA -> {
                 // no operation
             }
         }
