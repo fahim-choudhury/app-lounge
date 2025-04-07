@@ -7,7 +7,9 @@ import android.content.Intent
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
+import androidx.core.content.ContextCompat
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
@@ -24,6 +26,7 @@ import java.io.IOException
 import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
+import foundation.e.apps.data.enums.Source
 
 @Singleton
 @OpenForTesting
@@ -41,7 +44,7 @@ class PwaManager @Inject constructor(
         private const val PWA_NAME = "PWA_NAME"
         private const val PWA_ID = "PWA_ID"
 
-        private const val PWA_PLAYER = "content://foundation.e.pwaplayer.provider/pwa"
+        const val PWA_PLAYER = "content://foundation.e.pwaplayer.provider/pwa"
         private const val VIEW_PWA = "foundation.e.blisslauncher.VIEW_PWA"
 
         private const val DELAY_100 = 100L
@@ -117,7 +120,12 @@ class PwaManager @Inject constructor(
         appInstallRepository.updateDownload(appInstall)
 
         // Get bitmap and byteArray for icon
-        val iconBitmap = getIconImageBitmap(appInstall.getAppIconUrl())
+        val iconBitmap = if (appInstall.source != Source.LOCAL_PWA) {
+            getIconImageBitmap(appInstall.getAppIconUrl())
+        } else {
+            val resourceId = appInstall.getAppIconUrl().toInt()
+            getIconImageBitmapFromDrawable(context, resourceId)
+        }
 
         if (iconBitmap == null) {
             appInstall.status = Status.INSTALLATION_ISSUE
@@ -148,6 +156,15 @@ class PwaManager @Inject constructor(
             Timber.e(e)
             null
         }
+    }
+
+    fun getIconImageBitmapFromDrawable(context: Context, resourceId: Int): Bitmap? {
+        val drawable = ContextCompat.getDrawable(context, resourceId)
+        if (drawable is BitmapDrawable) {
+            return drawable.bitmap
+        }
+
+        return null
     }
 
     fun Bitmap.toByteArray(): ByteArray {

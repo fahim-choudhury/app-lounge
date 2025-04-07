@@ -188,6 +188,9 @@ class ApplicationListRVAdapter(
                     placeholder(shimmerDrawable)
                 }
             }
+            Source.LOCAL_PWA -> {
+                // Do nothing
+            }
         }
     }
 

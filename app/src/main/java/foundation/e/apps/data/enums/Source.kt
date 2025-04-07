@@ -19,6 +19,7 @@ package foundation.e.apps.data.enums
 
 enum class Source {
     OPEN_SOURCE,
+    LOCAL_PWA,
     PWA,
     SYSTEM_APP,
     PLAY_STORE;
@@ -37,6 +38,7 @@ enum class Source {
             return when (source) {
                 "Open Source" -> OPEN_SOURCE
                 "PWA" -> PWA
+                "Local PWA" -> LOCAL_PWA
                 "SYSTEM_APP" -> SYSTEM_APP
                 else -> PLAY_STORE
             }
