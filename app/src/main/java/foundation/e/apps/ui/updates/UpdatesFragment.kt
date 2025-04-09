@@ -154,7 +154,7 @@ class UpdatesFragment : TimeoutFragment(R.layout.fragment_updates), ApplicationI
             stopLoadingUI()
 
             binding.recyclerView.postDelayed(
-                { binding.recyclerView.scrollToPosition(0) },
+                { _binding?.recyclerView?.scrollToPosition(0) },
                 SCROLL_TO_TOP_DELAY_MILLIS
             )
 
