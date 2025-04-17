@@ -100,8 +100,7 @@ class AppInstallProcessor @Inject constructor(
             it.contentRating = application.contentRating
         }
 
-        if (appInstall.type == Type.PWA || application.source == Source.SYSTEM_APP
-            || appInstall.source == Source.LOCAL_PWA) {
+        if (appInstall.type == Type.PWA || application.source == Source.SYSTEM_APP) {
             appInstall.downloadURLList = mutableListOf(application.url)
         }
 

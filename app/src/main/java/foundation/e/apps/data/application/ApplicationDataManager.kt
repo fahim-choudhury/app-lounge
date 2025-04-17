@@ -58,7 +58,7 @@ class ApplicationDataManager @Inject constructor(
             application.package_name.isBlank() -> FilterLevel.UNKNOWN
             !application.isFree && application.price.isBlank() -> FilterLevel.UI
             application.source == Source.PWA || application.source == Source.OPEN_SOURCE -> FilterLevel.NONE
-            application.source == Source.SYSTEM_APP || application.source == Source.LOCAL_PWA -> FilterLevel.NONE
+            application.source == Source.SYSTEM_APP -> FilterLevel.NONE
             !isRestricted(application) -> FilterLevel.NONE
             application.originalSize == 0L -> FilterLevel.UI
             else -> FilterLevel.NONE
