@@ -93,7 +93,7 @@ class HomeApiImpl @Inject constructor(
                 Source.PLAY_STORE -> ("GPlay home loading error\n" + apiStatus.message).trim()
                 Source.SYSTEM_APP -> ("Gitlab home not allowed\n" + apiStatus.message).trim()
                 Source.OPEN_SOURCE -> ("Open Source home loading error\n" + apiStatus.message).trim()
-                Source.PWA, Source.LOCAL_PWA -> ("PWA home loading error\n" + apiStatus.message).trim()
+                Source.PWA -> ("PWA home loading error\n" + apiStatus.message).trim()
             }
         }
     }
